@@ -1,0 +1,881 @@
+import React, { useMemo, useRef, useState, useEffect } from 'react';
+import {
+  Image,
+  Pressable,
+  ScrollView,
+  StyleSheet,
+  Text,
+  TextInput,
+  View,
+} from 'react-native';
+import { MaterialIcons } from '@expo/vector-icons';
+import { useNavigation, useRoute } from '@react-navigation/native';
+import AsyncStorage from '@react-native-async-storage/async-storage';
+import { darkMode, setDark, setUser, user } from '../types';
+
+type SubView = 'main' | 'profile' | 'identity' | 'payments' | 'notifications';
+
+type FanSettingsProps = {
+  onLogout?: () => void;
+  isDarkMode?: boolean;
+  onToggleTheme?: () => void;
+  onToggleRole?: () => void;
+};
+
+interface FanTicket {
+  id: string;
+  artist: string;
+  event: string;
+  date: string;
+  location: string;
+  qrData: string;
+  color: 'primary' | 'blue';
+}
+
+
+const FanSettings: React.FC<FanSettingsProps> = ({ onLogout, isDarkMode, onToggleTheme, onToggleRole }) => {
+  const navigation = useNavigation<any>();
+  const route = useRoute<any>();
+  const [activeView, setActiveView] = useState<SubView>('main');
+  const [currentSlide, setCurrentSlide] = useState(0);
+  const scrollRef = useRef<ScrollView>(null);
+
+  const [flippedCards, setFlippedCards] = useState<Record<string, boolean>>({});
+  const [tokenTime, setTokenTime] = useState(30);
+  const [isDark, setIsDark] = useState(false);
+
+  useEffect(()=>{
+    setIsDark(darkMode)
+    console.log( `this is the value of : ${isDark}`)
+  }, [darkMode])
+
+  const [profile, setProfile] = useState({
+    name: 'Alex Rivera',
+    handle: 'alex_vibes_2024',
+    bio: 'Synthwave enthusiast. Collecting limited drops and supporting indie talent across the soundscape.',
+    avatar: 'https://picsum.photos/seed/profile/200',
+  });
+
+  const creatorToggle = async()=>{
+    await AsyncStorage.setItem('pulsar_user', JSON.stringify({...user, role:'creator'}));
+    setUser({id: '', name: user!.name, role: 'creator'})
+    navigation.navigate('MainTabs')
+  }
+
+  
+  const purchasedTickets: FanTicket[] = [
+    {
+      id: 't1',
+      artist: 'Burna Boy',
+      event: 'Love, Damini Tour',
+      date: 'Aug 24',
+      location: 'O2 Arena, London',
+      qrData: 'KULS_ENTRY_BB_8829_ALEX',
+      color: 'primary',
+    },
+    {
+      id: 't2',
+      artist: 'Elena Rose',
+      event: 'Ethereal Experience',
+      date: 'Sep 12',
+      location: 'Fillmore, SF',
+      qrData: 'KULS_ENTRY_ER_9102_ALEX',
+      color: 'blue',
+    },
+  ];
+
+  const paymentMethods = [
+    { id: 'pm1', type: 'visa', last4: '4242', expiry: '12/25', isDefault: true },
+    { id: 'pm2', type: 'momo', provider: 'MTN', phone: '+233 24 123 4567', isDefault: false },
+  ];
+
+  useEffect(() => {
+    if (route.params?.view) {
+      setActiveView(route.params.view as SubView);
+    }
+  }, [route]);
+
+  useEffect(() => {
+    if (activeView !== 'identity') return;
+    const interval = setInterval(() => {
+      setTokenTime((prev) => (prev <= 1 ? 30 : prev - 1));
+    }, 1000);
+    return () => clearInterval(interval);
+  }, [activeView]);
+
+  const handleSaveProfile = () => {
+    setActiveView('main');
+  };
+
+  const handleSlideScroll = (e: any) => {
+    const width = e.nativeEvent.layoutMeasurement.width;
+    if (!width) return;
+    const progress = e.nativeEvent.contentOffset.x / width;
+    const newSlide = Math.round(progress);
+    if (newSlide !== currentSlide) setCurrentSlide(newSlide);
+  };
+
+  const scrollToSlide = (index: number) => {
+    scrollRef.current?.scrollTo({ x: index * 320, animated: true });
+  };
+
+  const toggleFlip = (id: string) => {
+    setFlippedCards((prev) => ({ ...prev, [id]: !prev[id] }));
+  };
+
+  const renderHeader = (title: string, backToMain = true) => (
+    <View style={s.header}>
+      <Pressable
+        onPress={() => (backToMain ? setActiveView('main') : navigation.navigate('/fan/profile'))}
+        style={s.backButton}
+      >
+        <MaterialIcons name="arrow-back" size={18} color="#111827" />
+      </Pressable>
+      <Text style={s.headerTitle}>{title}</Text>
+    </View>
+  );
+
+  const ProfileView = () => (
+    <View style={s.viewWrap}>
+      {renderHeader('Persona Studio')}
+      <View style={s.formCard}>
+        <View style={s.profileAvatarWrap}>
+          <View style={s.avatarRing}>
+            <Image source={{ uri: profile.avatar }} style={s.avatarImage} />
+            <View style={s.avatarOverlay}>
+              <MaterialIcons name="photo-camera" size={18} color="#fff" />
+            </View>
+          </View>
+          <View style={s.avatarEditDot}>
+            <MaterialIcons name="edit" size={14} color="#fff" />
+          </View>
+        </View>
+
+        <View style={s.formBlock}>
+          <Text style={s.label}>Display Name</Text>
+          <TextInput
+            value={profile.name}
+            onChangeText={(value) => setProfile({ ...profile, name: value })}
+            style={s.input}
+          />
+        </View>
+
+        <View style={s.formBlock}>
+          <Text style={s.label}>Galaxy Handle</Text>
+          <View style={s.handleWrap}>
+            <Text style={s.handlePrefix}>@</Text>
+            <TextInput
+              value={profile.handle}
+              onChangeText={(value) => setProfile({ ...profile, handle: value })}
+              style={[s.input, s.handleInput]}
+            />
+          </View>
+        </View>
+
+        <View style={s.formBlock}>
+          <View style={s.rowBetween}>
+            <Text style={s.label}>Bio</Text>
+            <Text style={s.counter}>{profile.bio.length}/160</Text>
+          </View>
+          <TextInput
+            value={profile.bio}
+            onChangeText={(value) => setProfile({ ...profile, bio: value })}
+            maxLength={160}
+            multiline
+            numberOfLines={4}
+            style={s.textArea}
+          />
+        </View>
+
+        <Pressable onPress={handleSaveProfile} style={s.primaryButton}>
+          <Text style={s.primaryButtonText}>Update Persona</Text>
+        </Pressable>
+      </View>
+    </View>
+  );
+
+  const IdentityView = () => (
+    <View style={s.viewWrap}>
+      {renderHeader('Identity Pass')}
+      <ScrollView contentContainerStyle={s.identityContent} showsVerticalScrollIndicator={false}>
+        <View style={s.carouselWrap}>
+          <ScrollView
+            ref={scrollRef}
+            horizontal
+            pagingEnabled
+            showsHorizontalScrollIndicator={false}
+            onScroll={handleSlideScroll}
+            scrollEventThrottle={16}
+          >
+            <View style={s.cardSlide}>
+              <Pressable onPress={() => toggleFlip('main')} style={s.identityCard}>
+                {flippedCards['main'] ? (
+                  <View style={s.cardBack}>
+                    <Text style={s.cardLabel}>Identity Pass</Text>
+                    <Text style={s.cardTitle}>Verification</Text>
+                    <View style={s.qrWrap}>
+                      <Image
+                        source={{
+                          uri: `https://api.qrserver.com/v1/create-qr-code/?size=250x250&data=ID_REF_${profile.name.replace(' ', '_')}&bgcolor=ffffff&color=0f172a`,
+                        }}
+                        style={s.qrImage}
+                      />
+                    </View>
+                    <View style={s.tokenPill}>
+                      <View style={s.tokenDot} />
+                      <Text style={s.tokenText}>Refreshes in {tokenTime}s</Text>
+                    </View>
+                    <Text style={s.tokenHint}>Encrypted Galaxy Protocol Active</Text>
+                  </View>
+                ) : (
+                  <View style={s.cardFront}>
+                    <View style={s.cardRowBetween}>
+                      <View>
+                        <Text style={s.cardTag}>Ecosystem Node</Text>
+                        <Text style={s.cardName}>{profile.name}</Text>
+                      </View>
+                      <View style={s.cardIconBadge}>
+                        <MaterialIcons name="stars" size={18} color="#cd2bee" />
+                      </View>
+                    </View>
+                    <View style={s.profileOrb}>
+                      <Image source={{ uri: profile.avatar }} style={s.profileOrbImage} />
+                    </View>
+                    <Text style={s.memberTag}>Member #0042</Text>
+                    <View style={s.cardRowBetween}>
+                      <View>
+                        <Text style={s.smallLabel}>Digital Signature</Text>
+                        <Text style={s.monoText}>REF: KULS-8829-X</Text>
+                      </View>
+                      <View style={s.iconRow}>
+                        <MaterialIcons name="nfc" size={18} color="#9ca3af" />
+                        <MaterialIcons name="fingerprint" size={18} color="#9ca3af" />
+                      </View>
+                    </View>
+                  </View>
+                )}
+              </Pressable>
+            </View>
+
+            {purchasedTickets.map((ticket) => (
+              <View key={ticket.id} style={s.cardSlide}>
+                <Pressable onPress={() => toggleFlip(ticket.id)} style={s.identityCard}>
+                  {flippedCards[ticket.id] ? (
+                    <View style={s.cardBack}>
+                      <Text style={s.cardLabel}>Gate Scan Protocol</Text>
+                      <Text style={s.cardTitle}>Live Admission</Text>
+                      <View style={s.qrWrap}>
+                        <Image
+                          source={{
+                            uri: `https://api.qrserver.com/v1/create-qr-code/?size=250x250&data=${ticket.qrData}&bgcolor=ffffff&color=0f172a`,
+                          }}
+                          style={s.qrImage}
+                        />
+                      </View>
+                      <View style={s.tokenPillAlt}>
+                        <View style={[s.tokenDot, { backgroundColor: '#22c55e' }]} />
+                        <Text style={s.tokenTextAlt}>Secure Token: {tokenTime}s</Text>
+                      </View>
+                      <Text style={s.tokenHint}>Ensure screen brightness is maxed during scan.</Text>
+                    </View>
+                  ) : (
+                    <View style={s.cardFront}>
+                      <Text style={[s.cardTag, ticket.color === 'blue' && s.blueText]}>Upcoming Entry</Text>
+                      <Text style={s.cardName}>{ticket.artist}</Text>
+                      <Text style={s.cardSub}>{ticket.event}</Text>
+                      <View style={s.ticketRow}>
+                        <View>
+                          <Text style={s.smallLabel}>Date</Text>
+                          <Text style={s.ticketValue}>{ticket.date}</Text>
+                        </View>
+                        <View>
+                          <Text style={s.smallLabel}>Location</Text>
+                          <Text style={s.ticketValue}>{ticket.location.split(',')[0]}</Text>
+                        </View>
+                      </View>
+                      <View style={s.ticketRow}>
+                        <View>
+                          <Text style={s.smallLabel}>Gate Zone</Text>
+                          <Text style={s.ticketValue}>Pit North</Text>
+                        </View>
+                        <View style={s.qrBadge}>
+                          <MaterialIcons name="qr-code-2" size={18} color="#cd2bee" />
+                        </View>
+                      </View>
+                    </View>
+                  )}
+                </Pressable>
+              </View>
+            ))}
+          </ScrollView>
+
+          <View style={s.progressBarWrap}>
+            <View style={s.progressTrack}>
+              <View
+                style={[
+                  s.progressFill,
+                  { width: `${((currentSlide + 1) / (purchasedTickets.length + 1)) * 100}%` },
+                ]}
+              />
+            </View>
+            <View style={s.progressLabels}>
+              <Text style={[s.progressText, currentSlide === 0 && s.progressTextActive]}>Identity</Text>
+              <Text style={[s.progressText, currentSlide > 0 && s.progressTextActive]}>Event Keys</Text>
+            </View>
+          </View>
+        </View>
+
+        <View style={s.sectionBlock}>
+          <View style={s.rowBetween}>
+            <Text style={s.sectionTitle}>Pass Selection</Text>
+            <Text style={s.sectionBadge}>{purchasedTickets.length} Entry Keys</Text>
+          </View>
+          <ScrollView horizontal showsHorizontalScrollIndicator={false} style={s.rail}>
+            <Pressable onPress={() => scrollToSlide(0)} style={s.railCard}>
+              <View style={s.railIcon}>
+                <MaterialIcons name="account-circle" size={18} color="#cd2bee" />
+              </View>
+              <Text style={s.railTitle}>Global Profile</Text>
+              <Text style={s.railMeta}>Ecosystem ID #0042</Text>
+            </Pressable>
+            {purchasedTickets.map((ticket, idx) => (
+              <Pressable
+                key={ticket.id}
+                onPress={() => {
+                  scrollToSlide(idx + 1);
+                  if (flippedCards[ticket.id]) toggleFlip(ticket.id);
+                }}
+                style={s.railCard}
+              >
+                <View style={[s.railIcon, ticket.color === 'blue' && s.railIconBlue]}>
+                  <MaterialIcons name="confirmation-number" size={18} color={ticket.color === 'blue' ? '#3b82f6' : '#cd2bee'} />
+                </View>
+                <Text style={s.railTitle}>{ticket.artist}</Text>
+                <Text style={s.railMeta}>{ticket.event}</Text>
+              </Pressable>
+            ))}
+          </ScrollView>
+        </View>
+
+        <View style={s.sectionBlock}>
+          <Text style={s.sectionTitle}>Protocol Sync</Text>
+          {[
+            { label: 'Gate Access Synchronized', icon: 'sensors', status: 'Online' },
+            { label: 'Biometric Handshake', icon: 'fingerprint', status: 'Ready' },
+            { label: 'Blockchain ID Verified', icon: 'shield', status: 'Passed' },
+          ].map((cred) => (
+            <View key={cred.label} style={s.statusCard}>
+              <View style={s.statusRow}>
+                <View style={s.statusIcon}>
+                  <MaterialIcons name={cred.icon as any} size={18} color="#cd2bee" />
+                </View>
+                <Text style={s.statusText}>{cred.label}</Text>
+              </View>
+              <Text style={s.statusBadge}>{cred.status}</Text>
+            </View>
+          ))}
+        </View>
+      </ScrollView>
+    </View>
+  );
+
+  const PaymentsView = () => (
+    <View style={s.viewWrap}>
+      {renderHeader('Payment Hub')}
+      <ScrollView contentContainerStyle={s.paymentsContent} showsVerticalScrollIndicator={false}>
+        <View style={s.sectionBlock}>
+          <View style={s.rowBetween}>
+            <Text style={s.sectionTitle}>Verified Methods</Text>
+            <Pressable>
+              <Text style={s.sectionBadge}>+ Add New</Text>
+            </Pressable>
+          </View>
+          {paymentMethods.map((method) => (
+            <View key={method.id} style={s.methodCard}>
+              <View style={s.methodRow}>
+                <View style={s.methodIcon}>
+                  <MaterialIcons name={method.type === 'visa' ? 'credit-card' : 'smartphone'} size={18} color="#cd2bee" />
+                </View>
+                <View>
+                  <Text style={s.methodTitle}>
+                    {method.type === 'visa' ? `Visa ���� ${method.last4}` : `${method.provider} Mobile Money`}
+                  </Text>
+                  <Text style={s.methodMeta}>{method.type === 'visa' ? `Exp ${method.expiry}` : method.phone}</Text>
+                </View>
+              </View>
+              {method.isDefault && <Text style={s.methodBadge}>Default</Text>}
+            </View>
+          ))}
+        </View>
+
+        <View style={s.sectionBlock}>
+          <Text style={s.sectionTitle}>Transactions</Text>
+          <View style={s.emptyCard}>
+            <MaterialIcons name="receipt-long" size={32} color="#cbd5f5" />
+            <Text style={s.emptyText}>No recent billing activity</Text>
+          </View>
+        </View>
+      </ScrollView>
+    </View>
+  );
+
+  if (activeView === 'profile') return <ProfileView />;
+  if (activeView === 'identity') return <IdentityView />;
+  if (activeView === 'payments') return <PaymentsView />;
+
+  const sections = [
+    {
+      title: 'Experience',
+      items: [
+        {
+          label: 'Dark Mode',
+          icon: 'dark-mode',
+          desc: 'Sync with galaxy energy',
+          isToggle: true,
+          enabled: darkMode,
+          onToggle: ()=>{
+            console.log( "it's been tapped");
+            setDark(!darkMode);
+            console.log( `the value of dark mode : ${darkMode}`)
+          },
+        },
+        { label: 'Switch to Creator', icon: 'rocket-launch', desc: 'Unlock creator tools', onClick: creatorToggle },
+      ],
+    },
+    {
+      title: 'Digital ID',
+      items: [
+        { label: 'Persona Profile', icon: 'person', desc: 'Avatar, name, and story', id: 'profile' },
+        { label: 'Entry Passes & QR', icon: 'badge', desc: 'Active tickets and identity', id: 'identity' },
+      ],
+    },
+    {
+      title: 'Premium & Billing',
+      items: [
+        { label: 'Payment Hub', icon: 'payments', desc: 'Wallet and saved methods', id: 'payments' },
+        { label: 'Active Subscriptions', icon: 'stars', desc: 'Creators you support', path: '/fan/subscriptions' },
+      ],
+    },
+    {
+      title: 'System',
+      items: [
+        { label: 'Global Alerts', icon: 'notifications', desc: 'Manage your feed pings', id: 'notifications' },
+        { label: 'Vibe Signature', icon: 'settings-input-antenna', desc: 'Recalibrate your algorithm', path: '/vibe-picker' },
+      ],
+    },
+  ];
+
+  return (
+    <View style={s.screen}>
+      {renderHeader('Fan Cockpit', false)}
+      <ScrollView contentContainerStyle={s.mainContent} showsVerticalScrollIndicator={false}>
+        <Pressable style={s.profileHeader} onPress={() => setActiveView('profile')}>
+          <View style={s.profileAvatarWrap}>
+            <View style={s.avatarRing}>
+              <Image source={{ uri: profile.avatar }} style={s.avatarImage} />
+              <View style={s.avatarOverlay}>
+                <MaterialIcons name="photo-camera" size={18} color="#fff" />
+              </View>
+            </View>
+            <View style={s.avatarEditDot}>
+              <MaterialIcons name="edit" size={14} color="#fff" />
+            </View>
+          </View>
+          <View style={s.profileTextWrap}>
+            <Text style={s.profileName}>{profile.name}</Text>
+            <Text style={s.profileHandle}>@{profile.handle}</Text>
+          </View>
+        </Pressable>
+
+        {sections.map((section) => (
+          <View key={section.title} style={s.sectionBlock}>
+            <Text style={s.sectionTitle}>{section.title}</Text>
+            {section.items.map((item: any) => (
+              <Pressable
+                key={item.label}
+                style={s.itemRow}
+                onPress={() => {
+                  if (item.onClick) item.onClick();
+                  else if (item.id) setActiveView(item.id as SubView);
+                  else if (item.path) navigation.navigate(item.path);
+                }}
+              >
+                <View style={s.itemLeft}>
+                  <View style={s.itemIcon}>
+                    <MaterialIcons name={item.icon as any} size={18} color="#cd2bee" />
+                  </View>
+                  <View>
+                    <Text style={s.itemLabel}>{item.label}</Text>
+                    <Text style={s.itemDesc}>{item.desc}</Text>
+                  </View>
+                </View>
+                {item.isToggle ? (
+                  <Pressable onPress={item.onToggle} style={[s.toggle, item.enabled && s.toggleEnabled]}>
+                    <View style={[s.toggleDot, item.enabled && s.toggleDotEnabled]} />
+                  </Pressable>
+                ) : (
+                  <MaterialIcons name="chevron-right" size={20} color="#cbd5f5" />
+                )}
+              </Pressable>
+            ))}
+          </View>
+        ))}
+
+        <View style={s.logoutWrap}>
+          <Pressable onPress={onLogout} style={s.logoutButton}>
+            <MaterialIcons name="logout" size={18} color="#ef4444" />
+            <Text style={s.logoutText}>Exit Galaxy Hub</Text>
+          </Pressable>
+          <Text style={s.versionText}>Kulsah Ecosystem v2.4.2</Text>
+        </View>
+      </ScrollView>
+    </View>
+  );
+};
+
+const s = StyleSheet.create({
+  screen: { flex: 1, backgroundColor: '#f8fafc' },
+  header: {
+    paddingHorizontal: 16,
+    paddingTop: 48,
+    paddingBottom: 16,
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 12,
+    borderBottomWidth: StyleSheet.hairlineWidth,
+    borderBottomColor: '#e2e8f0',
+    backgroundColor: '#f8fafc',
+  },
+  backButton: {
+    width: 40,
+    height: 40,
+    borderRadius: 20,
+    alignItems: 'center',
+    justifyContent: 'center',
+    backgroundColor: '#eef2ff',
+  },
+  headerTitle: { fontSize: 20, fontWeight: '900', textTransform: 'uppercase', color: '#0f172a' },
+  viewWrap: { flex: 1, backgroundColor: '#f8fafc' },
+  formCard: { padding: 16, gap: 18 },
+  profileAvatarWrap: { alignItems: 'center', marginBottom: 12 },
+  avatarRing: {
+    width: 112,
+    height: 112,
+    borderRadius: 56,
+    borderWidth: 4,
+    borderColor: '#cd2bee',
+    padding: 4,
+    overflow: 'hidden',
+  },
+  avatarImage: { width: '100%', height: '100%', borderRadius: 999 },
+  avatarOverlay: {
+    ...StyleSheet.absoluteFillObject,
+    alignItems: 'center',
+    justifyContent: 'center',
+    backgroundColor: 'rgba(15,23,42,0.45)',
+  },
+  avatarEditDot: {
+    position: 'absolute',
+    right: 6,
+    bottom: 6,
+    width: 32,
+    height: 32,
+    borderRadius: 16,
+    backgroundColor: '#cd2bee',
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  formBlock: { gap: 8 },
+  label: { fontSize: 10, fontWeight: '900', textTransform: 'uppercase', letterSpacing: 2, color: '#94a3b8' },
+  input: {
+    height: 52,
+    borderRadius: 18,
+    borderWidth: 1,
+    borderColor: '#e2e8f0',
+    paddingHorizontal: 16,
+    backgroundColor: '#fff',
+    fontSize: 14,
+    color: '#0f172a',
+  },
+  handleWrap: { position: 'relative', justifyContent: 'center' },
+  handlePrefix: { position: 'absolute', left: 16, color: '#cd2bee', fontWeight: '900' },
+  handleInput: { paddingLeft: 34 },
+  rowBetween: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between' },
+  counter: { fontSize: 10, fontWeight: '800', color: '#94a3b8' },
+  textArea: {
+    minHeight: 120,
+    borderRadius: 22,
+    borderWidth: 1,
+    borderColor: '#e2e8f0',
+    padding: 16,
+    textAlignVertical: 'top',
+    backgroundColor: '#fff',
+    color: '#334155',
+  },
+  primaryButton: {
+    marginTop: 6,
+    height: 56,
+    borderRadius: 20,
+    backgroundColor: '#cd2bee',
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  primaryButtonText: { color: '#fff', fontSize: 12, fontWeight: '900', textTransform: 'uppercase', letterSpacing: 2 },
+  identityContent: { padding: 16, paddingBottom: 120, gap: 20 },
+  carouselWrap: { gap: 12 },
+  cardSlide: { width: 320, paddingRight: 12 },
+  identityCard: {
+    borderRadius: 28,
+    padding: 18,
+    backgroundColor: '#fff',
+    borderWidth: 1,
+    borderColor: '#e2e8f0',
+    minHeight: 420,
+    justifyContent: 'space-between',
+  },
+  cardFront: { gap: 16 },
+  cardBack: { gap: 14, alignItems: 'center' },
+  cardRowBetween: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center' },
+  cardTag: { fontSize: 10, fontWeight: '900', textTransform: 'uppercase', letterSpacing: 3, color: '#cd2bee' },
+  cardName: { fontSize: 26, fontWeight: '900', color: '#0f172a', textTransform: 'uppercase' },
+  cardSub: { fontSize: 11, fontWeight: '700', color: '#94a3b8', textTransform: 'uppercase' },
+  cardTitle: { fontSize: 20, fontWeight: '900', color: '#0f172a', textTransform: 'uppercase' },
+  cardLabel: { fontSize: 10, fontWeight: '900', letterSpacing: 3, color: '#cd2bee', textTransform: 'uppercase' },
+  cardIconBadge: {
+    width: 40,
+    height: 40,
+    borderRadius: 14,
+    alignItems: 'center',
+    justifyContent: 'center',
+    backgroundColor: '#f1f5f9',
+  },
+  profileOrb: {
+    width: 140,
+    height: 140,
+    borderRadius: 70,
+    borderWidth: 6,
+    borderColor: '#f1f5f9',
+    overflow: 'hidden',
+    alignSelf: 'center',
+  },
+  profileOrbImage: { width: '100%', height: '100%' },
+  memberTag: {
+    alignSelf: 'center',
+    backgroundColor: '#f1f5f9',
+    paddingHorizontal: 14,
+    paddingVertical: 6,
+    borderRadius: 999,
+    fontSize: 10,
+    fontWeight: '900',
+    textTransform: 'uppercase',
+  },
+  smallLabel: { fontSize: 9, fontWeight: '900', color: '#94a3b8', textTransform: 'uppercase', letterSpacing: 2 },
+  monoText: { fontSize: 11, fontWeight: '800', color: '#64748b' },
+  iconRow: { flexDirection: 'row', gap: 8 },
+  ticketRow: { flexDirection: 'row', justifyContent: 'space-between' },
+  ticketValue: { fontSize: 13, fontWeight: '800', color: '#0f172a' },
+  blueText: { color: '#3b82f6' },
+  qrBadge: {
+    width: 36,
+    height: 36,
+    borderRadius: 12,
+    alignItems: 'center',
+    justifyContent: 'center',
+    backgroundColor: '#f8fafc',
+  },
+  qrWrap: {
+    backgroundColor: '#f8fafc',
+    padding: 12,
+    borderRadius: 24,
+  },
+  qrImage: { width: 170, height: 170, borderRadius: 16 },
+  tokenPill: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 8,
+    borderWidth: 1,
+    borderColor: '#cd2bee44',
+    paddingHorizontal: 12,
+    paddingVertical: 6,
+    borderRadius: 999,
+    backgroundColor: '#f5f3ff',
+  },
+  tokenPillAlt: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 8,
+    borderWidth: 1,
+    borderColor: '#22c55e44',
+    paddingHorizontal: 12,
+    paddingVertical: 6,
+    borderRadius: 999,
+    backgroundColor: '#f0fdf4',
+  },
+  tokenDot: { width: 8, height: 8, borderRadius: 4, backgroundColor: '#cd2bee' },
+  tokenText: { fontSize: 10, fontWeight: '900', color: '#7c3aed' },
+  tokenTextAlt: { fontSize: 10, fontWeight: '900', color: '#16a34a' },
+  tokenHint: { fontSize: 10, fontWeight: '700', color: '#94a3b8', textAlign: 'center' },
+  progressBarWrap: { gap: 8 },
+  progressTrack: { height: 6, borderRadius: 999, backgroundColor: '#e2e8f0' },
+  progressFill: { height: '100%', borderRadius: 999, backgroundColor: '#cd2bee' },
+  progressLabels: { flexDirection: 'row', justifyContent: 'space-between' },
+  progressText: { fontSize: 10, fontWeight: '800', textTransform: 'uppercase', color: '#94a3b8' },
+  progressTextActive: { color: '#cd2bee' },
+  sectionBlock: { gap: 10 },
+  sectionTitle: { fontSize: 10, fontWeight: '900', textTransform: 'uppercase', letterSpacing: 3, color: '#94a3b8' },
+  sectionBadge: { fontSize: 10, fontWeight: '900', textTransform: 'uppercase', color: '#cd2bee' },
+  rail: { marginTop: 6 },
+  railCard: {
+    width: 170,
+    marginRight: 12,
+    borderRadius: 22,
+    padding: 14,
+    backgroundColor: '#fff',
+    borderWidth: 1,
+    borderColor: '#e2e8f0',
+    gap: 8,
+  },
+  railIcon: {
+    width: 34,
+    height: 34,
+    borderRadius: 12,
+    backgroundColor: '#f5f3ff',
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  railIconBlue: { backgroundColor: '#eff6ff' },
+  railTitle: { fontSize: 12, fontWeight: '900', color: '#0f172a' },
+  railMeta: { fontSize: 10, fontWeight: '700', color: '#94a3b8', textTransform: 'uppercase' },
+  statusCard: {
+    padding: 14,
+    borderRadius: 20,
+    borderWidth: 1,
+    borderColor: '#e2e8f0',
+    backgroundColor: '#fff',
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+  },
+  statusRow: { flexDirection: 'row', alignItems: 'center', gap: 10 },
+  statusIcon: {
+    width: 36,
+    height: 36,
+    borderRadius: 12,
+    backgroundColor: '#f5f3ff',
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  statusText: { fontSize: 12, fontWeight: '700', color: '#0f172a' },
+  statusBadge: {
+    fontSize: 9,
+    fontWeight: '900',
+    textTransform: 'uppercase',
+    color: '#cd2bee',
+    backgroundColor: '#f5f3ff',
+    paddingHorizontal: 10,
+    paddingVertical: 4,
+    borderRadius: 10,
+  },
+  paymentsContent: { padding: 16, paddingBottom: 120, gap: 16 },
+  methodCard: {
+    padding: 14,
+    borderRadius: 22,
+    borderWidth: 1,
+    borderColor: '#e2e8f0',
+    backgroundColor: '#fff',
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+  },
+  methodRow: { flexDirection: 'row', alignItems: 'center', gap: 12 },
+  methodIcon: {
+    width: 40,
+    height: 40,
+    borderRadius: 14,
+    backgroundColor: '#f5f3ff',
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  methodTitle: { fontSize: 13, fontWeight: '800', color: '#0f172a' },
+  methodMeta: { fontSize: 10, fontWeight: '700', color: '#94a3b8', textTransform: 'uppercase' },
+  methodBadge: {
+    fontSize: 9,
+    fontWeight: '900',
+    textTransform: 'uppercase',
+    color: '#cd2bee',
+    backgroundColor: '#f5f3ff',
+    paddingHorizontal: 8,
+    paddingVertical: 4,
+    borderRadius: 8,
+  },
+  emptyCard: {
+    paddingVertical: 30,
+    borderRadius: 22,
+    borderWidth: 1,
+    borderColor: '#e2e8f0',
+    backgroundColor: '#fff',
+    alignItems: 'center',
+    gap: 8,
+  },
+  emptyText: { fontSize: 10, fontWeight: '900', textTransform: 'uppercase', letterSpacing: 2, color: '#94a3b8' },
+  mainContent: { padding: 16, paddingBottom: 120, gap: 18 },
+  profileHeader: { alignItems: 'center', gap: 12 },
+  profileTextWrap: { alignItems: 'center' },
+  profileName: { fontSize: 20, fontWeight: '900', color: '#0f172a' },
+  profileHandle: { fontSize: 10, fontWeight: '900', letterSpacing: 2, color: '#cd2bee', textTransform: 'uppercase' },
+  itemRow: {
+    marginTop: 8,
+    padding: 14,
+    borderRadius: 20,
+    borderWidth: 1,
+    borderColor: '#e2e8f0',
+    backgroundColor: '#fff',
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+  },
+  itemLeft: { flexDirection: 'row', alignItems: 'center', gap: 12 },
+  itemIcon: {
+    width: 40,
+    height: 40,
+    borderRadius: 14,
+    backgroundColor: '#f5f3ff',
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  itemLabel: { fontSize: 13, fontWeight: '800', color: '#0f172a' },
+  itemDesc: { fontSize: 10, fontWeight: '700', color: '#94a3b8' },
+  toggle: {
+    width: 44,
+    height: 24,
+    borderRadius: 12,
+    backgroundColor: '#e2e8f0',
+    justifyContent: 'center',
+    paddingHorizontal: 4,
+  },
+  toggleEnabled: { backgroundColor: '#cd2bee' },
+  toggleDot: {
+    width: 16,
+    height: 16,
+    borderRadius: 8,
+    backgroundColor: '#fff',
+    alignSelf: 'flex-start',
+  },
+  toggleDotEnabled: { alignSelf: 'flex-end' },
+  logoutWrap: { paddingTop: 12, alignItems: 'center', gap: 10 },
+  logoutButton: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 8,
+    paddingHorizontal: 18,
+    paddingVertical: 12,
+    borderRadius: 18,
+    borderWidth: 1,
+    borderColor: '#fecaca',
+    backgroundColor: '#fee2e2',
+  },
+  logoutText: { fontSize: 12, fontWeight: '800', color: '#ef4444' },
+  versionText: { fontSize: 9, fontWeight: '900', textTransform: 'uppercase', color: '#94a3b8', letterSpacing: 2 },
+});
+
+export default FanSettings;
