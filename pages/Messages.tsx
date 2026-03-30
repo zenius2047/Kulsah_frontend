@@ -1,4 +1,5 @@
 import React, { useMemo, useState } from 'react';
+import { useThemeMode } from '../theme';
 import {
   FlatList,
   Image,
@@ -98,6 +99,7 @@ const tabLabel = (tab: MessageTab) => {
 };
 
 const Messages: React.FC = () => {
+  const { isDark, theme } = useThemeMode();
   const navigation = useNavigation<any>();
   const [activeTab, setActiveTab] = useState<MessageTab>('direct');
   const [search, setSearch] = useState('');
@@ -121,58 +123,58 @@ const Messages: React.FC = () => {
   };
 
   return (
-    <SafeAreaView style={styles.safeArea} edges={[]}>
-      <StatusBar barStyle="light-content" backgroundColor="transparent" translucent = {true} />
-      <View style={styles.container}>
-        <View style={styles.header}>
+    <SafeAreaView style={[styles.safeArea, { backgroundColor: theme.background }]} edges={[]}>
+      <StatusBar barStyle={isDark ? 'light-content' : 'dark-content'} backgroundColor="transparent" translucent = {true} />
+      <View style={[styles.container, { backgroundColor: theme.screen }]}>
+        <View style={[styles.header, { backgroundColor: isDark ? '#1f1022d4' : theme.card, borderBottomColor: theme.border }]}>
           <View style={styles.headerTop}>
             <View style={styles.headerLeft}>
-              <View style={styles.avatarWrap}>
+              <View style={[styles.avatarWrap, { borderColor: '#D946EF' }]}>
                 <Image source={{ uri: 'https://picsum.photos/seed/mila/100' }} style={styles.avatar} />
               </View>
               <View>
-                <Text style={styles.title}>INBOX</Text>
+                <Text style={[styles.title, { color: theme.text }]}>INBOX</Text>
                 <Text style={styles.subtitle}>CREATOR PROTOCOL</Text>
               </View>
             </View>
-            <Pressable style={styles.iconButton}>
+            <Pressable style={[styles.iconButton, { borderColor: theme.border, backgroundColor: isDark ? 'rgba(255,255,255,0.03)' : theme.surface }]}>
               <MaterialIcons name="edit-note" size={22} color="#D946EF" />
             </Pressable>
           </View>
 
-          <View style={styles.summaryCard}>
+          <View style={[styles.summaryCard, { backgroundColor: isDark ? 'rgba(255,255,255,0.04)' : theme.surface, borderColor: theme.border }]}>
             <View style={styles.summaryCol}>
               <View style={styles.summaryIconWrap}>
                 <MaterialIcons name="psychology" size={20} color="#D946EF" />
               </View>
               <View>
                 <Text style={styles.summaryLabel}>SUPPORT DENSITY</Text>
-                <Text style={styles.summaryValue}>4 Pending Subscriber DMs</Text>
+                <Text style={[styles.summaryValue, { color: theme.text }]}>4 Pending Subscriber DMs</Text>
               </View>
             </View>
             <View>
               <Text style={styles.summaryLabelActive}>ACTIVE PITCHES</Text>
-              <Text style={styles.summaryValue}>2 Unreviewed</Text>
+              <Text style={[styles.summaryValue, { color: theme.text }]}>2 Unreviewed</Text>
             </View>
           </View>
 
-          <View style={styles.searchWrap}>
-            <MaterialIcons name="search" size={20} color="#94A3B8" />
+          <View style={[styles.searchWrap, { borderColor: theme.border, backgroundColor: isDark ? 'rgba(255,255,255,0.03)' : theme.surface }]}>
+            <MaterialIcons name="search" size={20} color={theme.textSecondary} />
             <TextInput
               value={search}
               onChangeText={setSearch}
               placeholder="Search fans or collaborators..."
-              placeholderTextColor="#64748B"
-              style={styles.searchInput}
+              placeholderTextColor={theme.textMuted}
+              style={[styles.searchInput, { color: theme.text }]}
             />
           </View>
 
-          <View style={styles.tabsWrap}>
+          <View style={[styles.tabsWrap, { borderBottomColor: theme.border }]}>
             {TABS.map((tab) => {
               const isActive = activeTab === tab;
               return (
                 <Pressable key={tab} onPress={() => setActiveTab(tab)} style={styles.tabButton}>
-                  <Text style={[styles.tabText, isActive && styles.tabTextActive]}>{tabLabel(tab)}</Text>
+                  <Text style={[styles.tabText, { color: theme.textMuted }, isActive && styles.tabTextActive]}>{tabLabel(tab)}</Text>
                   {isActive ? <View style={styles.activeBar} /> : null}
                 </Pressable>
               );
@@ -191,7 +193,11 @@ const Messages: React.FC = () => {
 
             return (
               <Pressable
-                style={[styles.row, item.unread && styles.rowUnread]}
+                style={[
+                  styles.row,
+                  { borderBottomColor: theme.border },
+                  item.unread && [styles.rowUnread, { backgroundColor: isDark ? 'rgba(217,70,239,0.08)' : theme.accentSoft }],
+                ]}
                 onPress={() => openChat(item)}
               >
                 <View style={styles.rowAvatarWrap}>
@@ -218,17 +224,17 @@ const Messages: React.FC = () => {
                 <View style={styles.rowBody}>
                   <View style={styles.rowTop}>
                     <View style={styles.nameWrap}>
-                      <Text numberOfLines={1} style={styles.name}>
+                      <Text numberOfLines={1} style={[styles.name, { color: theme.text }]}>
                         {item.name}
                       </Text>
                       {isPitch ? (
                         <Text style={styles.pitchBadge}>COLLAB PITCH</Text>
                       ) : null}
                     </View>
-                    <Text style={[styles.time, item.unread && styles.timeUnread]}>{item.time}</Text>
+                    <Text style={[styles.time, { color: item.unread ? '#D946EF' : theme.textMuted }]}>{item.time}</Text>
                   </View>
 
-                  <Text numberOfLines={1} style={[styles.message, item.unread && styles.messageUnread]}>
+                  <Text numberOfLines={1} style={[styles.message, { color: item.unread ? theme.text : theme.textSecondary }, item.unread && styles.messageUnread]}>
                     {item.msg}
                   </Text>
 
@@ -241,14 +247,14 @@ const Messages: React.FC = () => {
                   ) : null}
                 </View>
 
-                <MaterialIcons name="chevron-right" size={20} color="#475569" />
+                <MaterialIcons name="chevron-right" size={20} color={theme.textMuted} />
               </Pressable>
             );
           }}
           ListEmptyComponent={
             <View style={styles.emptyWrap}>
-              <MaterialIcons name="chat-bubble-outline" size={56} color="#475569" />
-              <Text style={styles.emptyText}>NO TRANSMISSIONS IN THIS ORBIT</Text>
+              <MaterialIcons name="chat-bubble-outline" size={56} color={theme.textMuted} />
+              <Text style={[styles.emptyText, { color: theme.textMuted }]}>NO TRANSMISSIONS IN THIS ORBIT</Text>
             </View>
           }
         />

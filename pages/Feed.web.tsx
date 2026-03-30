@@ -1,4 +1,5 @@
 import React, { useState, useRef, useEffect, useMemo } from 'react';
+import { useThemeMode } from '../theme';
 import { useNavigation } from '@react-navigation/native';
 
 interface FeedItem {
@@ -292,6 +293,7 @@ const VideoFeedItem: React.FC<{
 };
 
 const Feed: React.FC = () => {
+  const { isDark, theme } = useThemeMode();
   const navigation = useNavigation<any>();
   const navigate = (path: string) => {
     if (path === '/discover') return navigation.navigate('Discover');

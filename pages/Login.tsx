@@ -1,4 +1,5 @@
 import React, { useState, useEffect, useMemo, useRef, useCallback } from 'react';
+import { useThemeMode } from '../theme';
 import { View, Text, Pressable, Image, TextInput } from 'react-native';
 import { useNavigation, useRoute } from '@react-navigation/native';
 
@@ -18,6 +19,7 @@ interface LoginProps {
 }
 
 const Login: React.FC<LoginProps> = ({ onLogin }) => {
+  const { isDark, theme } = useThemeMode();
   const navigation = useNavigation<any>();
   const route = useRoute<any>();
   const incomingRole = (route.params as { role?: UserRole })?.role;

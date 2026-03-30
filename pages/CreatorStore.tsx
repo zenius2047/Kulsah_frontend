@@ -1,4 +1,5 @@
 import React, { useState, useEffect, useMemo, useRef, useCallback } from 'react';
+import { useThemeMode } from '../theme';
 import { View, Text, Pressable, Image, TextInput } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
 
@@ -23,6 +24,7 @@ const INITIAL_ITEMS: StoreItem[] = [
 ];
 
 const CreatorStore: React.FC = () => {
+  const { isDark, theme } = useThemeMode();
   const navigation = useNavigation<any>();
   const [items, setItems] = useState<StoreItem[]>(INITIAL_ITEMS);
   const [isSaving, setIsSaving] = useState(false);

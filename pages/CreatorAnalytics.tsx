@@ -1,4 +1,5 @@
 import React, { useEffect, useMemo, useState } from 'react';
+import { useThemeMode } from '../theme';
 import { MaterialIcons } from '@expo/vector-icons';
 import { useNavigation } from '@react-navigation/native';
 import {
@@ -11,6 +12,7 @@ import {
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { GoogleGenAI } from '@google/genai';
+import { fontScale } from '../fonts';
 
 type RangeOption = '7d' | '30d' | 'All';
 
@@ -23,6 +25,7 @@ const RANGE_FACTORS: Record<RangeOption, number> = {
 const SOURCE_COLORS = ['#cd2bee', '#3b82f6', '#2ecc71', '#f59e0b'];
 
 const CreatorAnalytics: React.FC = () => {
+  const { isDark, theme } = useThemeMode();
   const navigation = useNavigation<any>();
   const [isAiLoading, setIsAiLoading] = useState(false);
   const [aiInsight, setAiInsight] = useState('');
@@ -339,7 +342,7 @@ const s = StyleSheet.create({
     borderWidth: 1,
     borderColor: '#ffffff14',
   },
-  headerTitle: { color: '#fff', fontSize: 17, fontWeight: '900' },
+  headerTitle: { color: '#fff', fontSize: fontScale(17), fontWeight: '900' },
   rangeWrap: {
     flexDirection: 'row',
     backgroundColor: '#ffffff10',
@@ -351,7 +354,7 @@ const s = StyleSheet.create({
   },
   rangePill: { paddingHorizontal: 10, paddingVertical: 6, borderRadius: 10 },
   rangePillActive: { backgroundColor: '#cd2bee' },
-  rangeText: { color: '#9093a7', fontSize: 10, fontWeight: '900', textTransform: 'uppercase' },
+  rangeText: { color: '#9093a7', fontSize: fontScale(10), fontWeight: '900', textTransform: 'uppercase' },
   rangeTextActive: { color: '#fff' },
   content: { paddingHorizontal: 16, paddingTop: 14, paddingBottom: 120, gap: 14 },
   metricGrid: { flexDirection: 'row', gap: 8 },
@@ -366,10 +369,10 @@ const s = StyleSheet.create({
     alignItems: 'center',
   },
   metricCardPrimary: { borderColor: '#cd2bee44', backgroundColor: '#cd2bee14' },
-  metricValue: { color: '#fff', fontSize: 22, fontWeight: '900' },
+  metricValue: { color: '#fff', fontSize: fontScale(22), fontWeight: '900' },
   metricLabel: {
     color: '#8d91a8',
-    fontSize: 8,
+    fontSize: fontScale(8),
     fontWeight: '900',
     marginTop: 4,
     textTransform: 'uppercase',
@@ -396,8 +399,8 @@ const s = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'center',
   },
-  auditTitle: { color: '#cd2bee', fontWeight: '900', fontSize: 10, letterSpacing: 1.6, textTransform: 'uppercase' },
-  auditSubtitle: { color: '#cd2bee99', fontSize: 8, fontWeight: '800', textTransform: 'uppercase', marginTop: 2 },
+  auditTitle: { color: '#cd2bee', fontWeight: '900', fontSize: fontScale(10), letterSpacing: 1.6, textTransform: 'uppercase' },
+  auditSubtitle: { color: '#cd2bee99', fontSize: fontScale(8), fontWeight: '800', textTransform: 'uppercase', marginTop: 2 },
   refreshBtn: {
     width: 34,
     height: 34,
@@ -408,7 +411,7 @@ const s = StyleSheet.create({
   },
   auditText: {
     color: '#f8f8ff',
-    fontSize: 13,
+    fontSize: fontScale(13),
     lineHeight: 20,
     borderLeftWidth: 2,
     borderLeftColor: '#cd2bee77',
@@ -418,7 +421,7 @@ const s = StyleSheet.create({
   section: { gap: 8 },
   sectionTitle: {
     color: '#8d91a8',
-    fontSize: 10,
+    fontSize: fontScale(10),
     fontWeight: '900',
     textTransform: 'uppercase',
     letterSpacing: 2.1,
@@ -433,18 +436,18 @@ const s = StyleSheet.create({
     gap: 10,
   },
   rowBlock: { gap: 4 },
-  rowLabel: { color: '#d5d6e2', fontSize: 10, fontWeight: '700' },
+  rowLabel: { color: '#d5d6e2', fontSize: fontScale(10), fontWeight: '700' },
   track: { height: 14, backgroundColor: '#ffffff0f', borderRadius: 999, overflow: 'hidden', justifyContent: 'center' },
   fill: { position: 'absolute', left: 0, height: 14, borderRadius: 999, opacity: 0.25 },
   fillThin: { position: 'absolute', left: 0, height: 4, borderRadius: 999 },
   rowValues: { flexDirection: 'row', justifyContent: 'space-between' },
-  rowValue: { color: '#cd2bee', fontSize: 10, fontWeight: '800' },
-  rowValueMuted: { color: '#60a5fa', fontSize: 10, fontWeight: '800' },
+  rowValue: { color: '#cd2bee', fontSize: fontScale(10), fontWeight: '800' },
+  rowValueMuted: { color: '#60a5fa', fontSize: fontScale(10), fontWeight: '800' },
   sourceSection: { flexDirection: 'row', gap: 8 },
   sourceCol: { flex: 1, gap: 8 },
   sectionTitleCenter: {
     color: '#8d91a8',
-    fontSize: 10,
+    fontSize: fontScale(10),
     fontWeight: '900',
     textTransform: 'uppercase',
     letterSpacing: 2,
@@ -453,21 +456,21 @@ const s = StyleSheet.create({
   pieLegendWrap: { gap: 8 },
   legendRow: { flexDirection: 'row', alignItems: 'center', gap: 6 },
   legendDot: { width: 8, height: 8, borderRadius: 4 },
-  legendName: { color: '#d4d6e4', fontSize: 10, flex: 1 },
-  legendValue: { color: '#fff', fontSize: 10, fontWeight: '900' },
+  legendName: { color: '#d4d6e4', fontSize: fontScale(10), flex: 1 },
+  legendValue: { color: '#fff', fontSize: fontScale(10), fontWeight: '900' },
   regionRow: { gap: 3 },
   regionHead: { flexDirection: 'row', justifyContent: 'space-between' },
-  regionCountry: { color: '#d4d6e4', fontSize: 10, fontWeight: '700' },
-  regionPct: { color: '#cd2bee', fontSize: 10, fontWeight: '900' },
+  regionCountry: { color: '#d4d6e4', fontSize: fontScale(10), fontWeight: '700' },
+  regionPct: { color: '#cd2bee', fontSize: fontScale(10), fontWeight: '900' },
   regionTrack: { height: 6, borderRadius: 999, backgroundColor: '#ffffff10', overflow: 'hidden' },
   regionFill: { height: '100%', borderRadius: 999, backgroundColor: '#cd2bee88' },
   sectionHeadRow: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center' },
-  totalText: { color: '#cd2bee', fontSize: 9, fontWeight: '900', textTransform: 'uppercase' },
+  totalText: { color: '#cd2bee', fontSize: fontScale(9), fontWeight: '900', textTransform: 'uppercase' },
   engagementRow: { flexDirection: 'row', alignItems: 'center', gap: 8 },
-  engagementLabel: { color: '#d4d6e4', fontSize: 10, width: 66 },
+  engagementLabel: { color: '#d4d6e4', fontSize: fontScale(10), width: 66 },
   engagementTrack: { flex: 1, height: 14, borderRadius: 999, backgroundColor: '#ffffff10', overflow: 'hidden' },
   engagementFill: { height: '100%', borderRadius: 999 },
-  engagementValue: { color: '#fff', fontSize: 10, fontWeight: '800', width: 40, textAlign: 'right' },
+  engagementValue: { color: '#fff', fontSize: fontScale(10), fontWeight: '800', width: 40, textAlign: 'right' },
   effCard: {
     borderRadius: 18,
     borderWidth: 1,
@@ -490,11 +493,11 @@ const s = StyleSheet.create({
     borderWidth: 1,
     borderColor: '#ffffff12',
   },
-  effType: { color: '#fff', fontWeight: '800', fontSize: 13 },
-  effMeta: { color: '#8d91a8', fontSize: 9, fontWeight: '800', textTransform: 'uppercase' },
+  effType: { color: '#fff', fontWeight: '800', fontSize: fontScale(13) },
+  effMeta: { color: '#8d91a8', fontSize: fontScale(9), fontWeight: '800', textTransform: 'uppercase' },
   effRight: { alignItems: 'flex-end' },
   effValueRow: { flexDirection: 'row', alignItems: 'center', gap: 3 },
-  effValue: { color: '#fff', fontWeight: '900', fontSize: 16 },
+  effValue: { color: '#fff', fontWeight: '900', fontSize: fontScale(16) },
 });
 
 export default CreatorAnalytics;

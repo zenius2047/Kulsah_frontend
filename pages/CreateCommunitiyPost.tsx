@@ -1,9 +1,11 @@
 import React, { useState, useEffect, useMemo, useRef, useCallback } from 'react';
+import { useThemeMode } from '../theme';
 import { View, Text, Pressable, Image, TextInput } from 'react-native';
 import { useNavigate } from 'react-router-dom';
 import { GoogleGenAI } from "@google/genai";
 
 const CreateCommunityPost: React.FC = () => {
+  const { isDark, theme } = useThemeMode();
   const navigate = useNavigate();
   const [content, setContent] = useState("");
   const [targetAudience, setTargetAudience] = useState<'all' | 'subs'>('all');

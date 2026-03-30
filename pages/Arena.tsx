@@ -1,0 +1,123 @@
+import React, { useEffect, useState } from 'react';
+import { useThemeMode } from '../theme';
+import { View, Text, Pressable } from 'react-native';
+import { mediumScreen } from '../types';
+import { MaterialIcons } from '@expo/vector-icons';
+import NotificationIcon from '../assets/icons/notifications-svg.svg';
+import Community from './Community';
+import ChallengeScreen from './ChallengeScreen';
+import { useNavigation } from '@react-navigation/native';
+
+
+const Arena :React.FC = ({route}:any)=>{
+    const { isDark, theme } = useThemeMode();
+    const [activeTab, setActiveTab] = useState<string | "challenges" | "community">('community');
+    const navigation = useNavigation<any>();
+
+    useEffect(()=>{
+        const tabToRoute = route?.params?.tabToRoute;
+        if(tabToRoute){
+            setActiveTab(tabToRoute)
+        }
+    }, [route?.params?.tabToRoute])
+
+    return (
+    <View style={{
+        backgroundColor: theme.background,
+        flex: 1,
+        paddingTop: 54,
+    }}>
+    
+    <View style={{
+        flexDirection: 'row',
+        paddingHorizontal: 16,
+        gap: 10,
+        alignItems: 'center',
+        borderBottomWidth: 1,
+        borderBottomColor: theme.border,
+        paddingBottom: 12,
+    }}>
+        <MaterialIcons name='chevron-left' size={34} color={theme.text}/>
+        <Text style={{
+            color: theme.text,
+            fontFamily: 'PlusJakartaSansExtraBold',
+            fontSize: mediumScreen ? 22: 18,
+            lineHeight: 15,
+        }}> Arena
+            </Text>
+        <View style={{
+            flexDirection: 'row',
+            alignItems:'center',
+            justifyContent: 'flex-end',
+            width: '70%',
+            // backgroundColor: 'red',
+            paddingRight: 16,
+        }}>
+            {/* <NotificationIcon
+        height={30}
+        width={30}
+        fill={isDark ? 'white': 'black'}
+        /> */}
+        {activeTab === 'challenges' && <Pressable 
+        onPress= {()=>{
+            navigation.navigate('CreateChallenge');
+        }}
+        style={{
+            height: 50,
+            alignItems: 'center',
+            justifyContent: 'center',
+            backgroundColor: theme.accent,
+            paddingHorizontal: 12,
+            borderRadius: 12,
+        }}>
+            <Text style={{
+            fontFamily: 'PlusJakartaSansBold',
+            color: '#fff',
+            lineHeight: 20,
+        }}>
+            Create Challenge
+        </Text>
+        </Pressable>}
+        </View>
+    </View>
+    {/*Main Tabs........... "Community" & Challenges */}
+    <View style={{
+        flexDirection: 'row',
+        justifyContent: 'space-around',
+        marginTop: 15,
+        backgroundColor: theme.screen,
+    }}>
+    {["community","challenges"].map((item)=>(
+        <Pressable 
+        key={item}
+        onPress={()=>setActiveTab(item)}
+        style={{
+            justifyContent: 'center',
+            alignItems: 'center'
+        }}>
+        <Text style={{
+            color: activeTab == item ? theme.accent : theme.textSecondary,
+            textTransform: 'capitalize',
+            fontFamily: "PlusJakartaSansBold",
+            fontSize: mediumScreen ? 20: 16,
+            marginBottom: 10
+        }}>
+            {item}
+        </Text>
+        {activeTab === item && <View
+        style={{
+            height: 2.5,
+            width: 70,
+            backgroundColor: '#cd2bee',
+            
+        }}
+        />}
+        </Pressable>
+    ))}
+    </View>
+
+    {activeTab == 'community' && <Community/>}
+    {activeTab == 'challenges' && <ChallengeScreen/>}
+    </View>);
+}
+export default Arena;

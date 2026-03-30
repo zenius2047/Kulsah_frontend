@@ -1,4 +1,5 @@
 import React, { useState, useEffect, useMemo, useRef, useCallback } from 'react';
+import { useThemeMode } from '../theme';
 import { View, Text, Pressable, Image, TextInput } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
 
@@ -6,6 +7,7 @@ import { useNavigation } from '@react-navigation/native';
 type MessageTab = 'direct' | 'subs' | 'pitches';
 
 const Messaging: React.FC = () => {
+  const { isDark, theme } = useThemeMode();
   const navigation = useNavigation<any>();
   const [activeTab, setActiveTab] = useState<MessageTab>('direct');
   const [search, setSearch] = useState("");

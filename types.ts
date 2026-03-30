@@ -34,9 +34,21 @@ export let smallWidth = false;
 export const setSmallWith = (value: boolean)=>{
   smallWidth = value
 }
+
+type DarkModeListener = (value: boolean) => void;
+const darkModeListeners = new Set<DarkModeListener>();
+
 export let darkMode = false;
 export const setDark = (value: boolean)=>{
   darkMode = value;
+  darkModeListeners.forEach((listener) => listener(value));
+}
+
+export const subscribeDarkMode = (listener: DarkModeListener) => {
+  darkModeListeners.add(listener);
+  return () => {
+    darkModeListeners.delete(listener);
+  };
 }
 
 export const Auth = {

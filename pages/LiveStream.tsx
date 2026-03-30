@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import { useThemeMode } from '../theme';
 import { View, Text, Pressable, Image, TextInput } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
 import { GoogleGenAI } from '@google/genai';
@@ -11,6 +12,7 @@ interface ChatMessage {
 }
 
 const LiveStream: React.FC = () => {
+  const { isDark, theme } = useThemeMode();
   const navigation = useNavigation<any>();
   const [aiInsight, setAiInsight] = useState<string | null>(null);
   const [msg, setMsg] = useState('');

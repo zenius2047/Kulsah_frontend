@@ -1,9 +1,11 @@
 import React, { useState, useEffect, useMemo, useRef, useCallback } from 'react';
+import { useThemeMode } from '../theme';
 import { View, Text, Pressable, Image, TextInput } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
 
 
 const Vault: React.FC = () => {
+  const { isDark, theme } = useThemeMode();
   const navigation = useNavigation<any>();
   const content = [
     { title: 'BTS: Recording Ethereal', type: 'Video', duration: '12:40', locked: false, img: 'https://picsum.photos/seed/v1/400/300' },

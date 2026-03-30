@@ -1,5 +1,7 @@
 import { RFValue } from "react-native-responsive-fontsize";
 
+export const fontScale = (size: number) => RFValue(size);
+
 export const FontSize = {
   small: RFValue(12),
   body: RFValue(16),

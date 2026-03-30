@@ -1,4 +1,5 @@
 import React, { useState, useEffect, useMemo, useRef, useCallback } from 'react';
+import { useThemeMode } from '../theme';
 import { View, Text, Pressable, Image, TextInput } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
 
@@ -41,6 +42,7 @@ const STYLE_TAGS = [
 ];
 
 const CreatorOnboarding: React.FC<CreatorOnboardingProps> = ({ onComplete }) => {
+  const { isDark, theme } = useThemeMode();
   const navigation = useNavigation<any>();
   const [step, setStep] = useState<OnboardingStep>('pre');
   const [signupMethod, setSignupMethod] = useState<SignupMethod>('select');

@@ -1,4 +1,5 @@
 import React, { useMemo, useState } from 'react';
+import { useThemeMode } from '../theme';
 import { MaterialIcons } from '@expo/vector-icons';
 import { useNavigation } from '@react-navigation/native';
 import { GoogleGenAI } from '@google/genai';
@@ -12,7 +13,7 @@ import {
   View,
 } from 'react-native';
 import { HEIGHT, user, WIDTH } from '../types';
-import { FontSize } from '../fonts';
+import { FontSize, fontScale } from '../fonts';
 import NotificationIcon from '../assets/icons/notifications-svg.svg';
 import MovieIcon from '../assets/icons/movie-edit-svg.svg';
 import TicketIcon from '../assets/icons/ticket-svg.svg';
@@ -43,6 +44,7 @@ type Collab = {
   color: string; };
 
 const ArtistDashboard: React.FC<ArtistDashboardProps> = ({ onToggleRole }) => {
+  const { isDark, theme } = useThemeMode();
   const navigation = useNavigation<any>();
   const [insight, setInsight] = useState<string>('');
   const [loading, setLoading] = useState(false);
@@ -137,7 +139,7 @@ const ArtistDashboard: React.FC<ArtistDashboardProps> = ({ onToggleRole }) => {
             </View>
             <MaterialIcons name="chevron-right" size={40} color="#ffffff33" />
           </Pressable>
-          <Pressable onPress={() => navigation.navigate('upload')} style={s.actionRowCard}>
+          <Pressable onPress={() => navigation.navigate('UploadContent')} style={s.actionRowCard}>
             <View style={s.actionLeft}>
               <View style={[s.actionIconWrap, s.actionIconBlue]}>
                 <MovieIcon height={20} width={20} fill="#3b82f6" />
@@ -337,7 +339,7 @@ const ArtistDashboard: React.FC<ArtistDashboardProps> = ({ onToggleRole }) => {
                 color: '#ffffff',
                 fontFamily: 'PlusJakartaSansBold',
                 // textTransform: 'uppercase',
-                fontSize: 12,
+                fontSize: fontScale(12),
                 
               }}>
               {item.partner}
@@ -477,8 +479,8 @@ const s = StyleSheet.create({
     backgroundColor: '#ffffff20',
   },
   liveInnerRow: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center' },
-  liveTitle: { color: '#fff', fontWeight: '900', fontSize: 18, textTransform: 'uppercase' },
-  liveSubtitle: { color: '#ffffffd2', fontSize: 11, marginTop: 2, fontWeight: '700' },
+  liveTitle: { color: '#fff', fontWeight: '900', fontSize: fontScale(18), textTransform: 'uppercase' },
+  liveSubtitle: { color: '#ffffffd2', fontSize: fontScale(11), marginTop: 2, fontWeight: '700' },
   liveIconWrap: {
     width: 44,
     height: 44,
@@ -635,7 +637,7 @@ const s = StyleSheet.create({
   aiButtonDisabled: { opacity: 0.55 },
   aiButtonText: {
     color: '#fff',
-    fontSize: 11,
+    fontSize: fontScale(11),
     // fontWeight: '900',
     textTransform: 'uppercase',
     fontFamily: 'PlusJakartaSansExtraBold',
@@ -669,7 +671,7 @@ const s = StyleSheet.create({
   },
   metricGrowth: {
     color: '#22c55e',
-    fontSize: 10,
+    fontSize: fontScale(10),
     fontWeight: '900',
     textTransform: 'uppercase',
     letterSpacing: 0.8,
@@ -682,7 +684,7 @@ const s = StyleSheet.create({
    },
   metricLabel: {
     color: '#FFFFFF66',
-    fontSize: 10,
+    fontSize: fontScale(10),
     textTransform: 'uppercase',
     letterSpacing: 1,
     fontFamily: 'PlusJakartaSansBold'
@@ -696,15 +698,15 @@ const s = StyleSheet.create({
     padding: 14,
     gap: 10,
   },
-  chartTitle: { color: '#fff', fontSize: 15, fontWeight: '900', textTransform: 'uppercase' },
+  chartTitle: { color: '#fff', fontSize: fontScale(15), fontWeight: '900', textTransform: 'uppercase' },
   chartList: { gap: 10 },
   chartRowWrap: { gap: 5 },
   chartRowHeader: { flexDirection: 'row', justifyContent: 'space-between' },
-  chartDay: { color: '#c7cade', fontSize: 12, fontWeight: '700' },
-  chartViews: { color: '#8e91a6', fontSize: 11 },
+  chartDay: { color: '#c7cade', fontSize: fontScale(12), fontWeight: '700' },
+  chartViews: { color: '#8e91a6', fontSize: fontScale(11) },
   barTrack: { height: 6, backgroundColor: '#1f2435', borderRadius: 999, overflow: 'hidden' },
   barFill: { height: '100%', backgroundColor: '#2563eb', borderRadius: 999 },
-  chartTotal: { color: '#d6daee', fontWeight: '800', marginTop: 4, fontSize: 12 },
+  chartTotal: { color: '#d6daee', fontWeight: '800', marginTop: 4, fontSize: fontScale(12) },
   switchWrap: { paddingTop: 6, alignItems: 'center' },
   switchButton: {
     borderRadius: 20,
@@ -718,7 +720,7 @@ const s = StyleSheet.create({
     justifyContent: 'center',
     gap: 8,
   },
-  switchText: { color: '#9ea0b6', fontSize: 12, fontWeight: '800', textTransform: 'uppercase', letterSpacing: 1 },
+  switchText: { color: '#9ea0b6', fontSize: fontScale(12), fontWeight: '800', textTransform: 'uppercase', letterSpacing: 1 },
 });
 
 export default ArtistDashboard;

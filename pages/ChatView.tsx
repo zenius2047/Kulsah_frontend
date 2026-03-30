@@ -1,4 +1,5 @@
 import React, { useEffect, useMemo, useRef, useState } from 'react';
+import { useThemeMode } from '../theme';
 import {
   Modal,
   Pressable,
@@ -13,6 +14,7 @@ import { useNavigation, useRoute } from '@react-navigation/native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { MaterialIcons } from '@expo/vector-icons';
 import { GoogleGenAI } from '@google/genai';
+import { fontScale } from '../fonts';
 
 interface Message {
   id: number;
@@ -32,6 +34,7 @@ interface CurrentUser {
 }
 
 const ChatView: React.FC = () => {
+  const { isDark, theme } = useThemeMode();
   const navigation = useNavigation<any>();
   const route = useRoute<any>();
   const id = ((route.params as { id?: string } | undefined)?.id || 'Elena_Rose') as string;
@@ -200,7 +203,7 @@ const ChatView: React.FC = () => {
   );
 
   return (
-    <View style={styles.screen}>
+    <View style={[styles.screen, { backgroundColor: theme.screen }]}>
       <Modal visible={callStatus !== 'idle'} transparent animationType="fade">
         <View style={styles.callOverlay}>
           <View style={styles.callTop}>
@@ -373,7 +376,7 @@ const ChatView: React.FC = () => {
             <View style={styles.emojiRow}>
               {emojiSet.map((emoji) => (
                 <Pressable key={emoji} onPress={() => addEmoji(emoji)} style={styles.emojiBtn}>
-                  <Text style={{ fontSize: 18 }}>{emoji}</Text>
+                  <Text style={{ fontSize: fontScale(18) }}>{emoji}</Text>
                 </Pressable>
               ))}
             </View>
@@ -428,8 +431,8 @@ const styles = StyleSheet.create({
   },
   callTop: { alignItems: 'center', gap: 10 },
   callAvatar: { width: 132, height: 132, borderRadius: 36, borderWidth: 3, borderColor: 'rgba(205,43,238,0.35)' },
-  callName: { color: '#fff', fontSize: 30, fontFamily: 'PlusJakartaSansExtraBold' },
-  callStatus: { color: '#cd2bee', fontSize: 11, letterSpacing: 2, fontFamily: 'PlusJakartaSansExtraBold' },
+  callName: { color: '#fff', fontSize: fontScale(30), fontFamily: 'PlusJakartaSansExtraBold' },
+  callStatus: { color: '#cd2bee', fontSize: fontScale(11), letterSpacing: 2, fontFamily: 'PlusJakartaSansExtraBold' },
   callActions: { flexDirection: 'row', alignItems: 'center', gap: 24 },
   callBtn: {
     width: 58,
@@ -465,8 +468,8 @@ const styles = StyleSheet.create({
   profileWrap: { position: 'relative' },
   profileAvatar: { width: 42, height: 42, borderRadius: 21, borderWidth: 2, borderColor: 'rgba(205,43,238,0.5)' },
   onlineDot: { position: 'absolute', right: -1, bottom: -1, width: 10, height: 10, borderRadius: 5, backgroundColor: '#22c55e' },
-  userName: { color: '#fff', fontSize: 13, fontFamily: 'PlusJakartaSansExtraBold' },
-  userSub: { color: '#6b7280', fontSize: 10, fontFamily: 'PlusJakartaSansBold' },
+  userName: { color: '#fff', fontSize: fontScale(13), fontFamily: 'PlusJakartaSansExtraBold' },
+  userSub: { color: '#6b7280', fontSize: fontScale(10), fontFamily: 'PlusJakartaSansBold' },
   metaCard: {
     marginTop: 10,
     borderRadius: 16,
@@ -480,16 +483,16 @@ const styles = StyleSheet.create({
     justifyContent: 'space-between',
     gap: 8,
   },
-  metaLabel: { color: '#6b7280', fontSize: 8, fontFamily: 'PlusJakartaSansExtraBold', letterSpacing: 1 },
-  metaValue: { color: '#fff', fontSize: 11, fontFamily: 'PlusJakartaSansExtraBold' },
+  metaLabel: { color: '#6b7280', fontSize: fontScale(8), fontFamily: 'PlusJakartaSansExtraBold', letterSpacing: 1 },
+  metaValue: { color: '#fff', fontSize: fontScale(11), fontFamily: 'PlusJakartaSansExtraBold' },
   metaDivider: { width: 1, height: 20, backgroundColor: 'rgba(255,255,255,0.1)' },
   messages: { flex: 1, paddingHorizontal: 14, paddingTop: 10 },
   msgRow: { marginBottom: 14 },
   msgBubble: { maxWidth: '86%', borderRadius: 20, paddingHorizontal: 14, paddingVertical: 11 },
   msgMine: { backgroundColor: '#cd2bee' },
   msgOther: { backgroundColor: 'rgba(255,255,255,0.08)', borderWidth: 1, borderColor: 'rgba(255,255,255,0.06)' },
-  msgText: { color: '#e5e7eb', fontSize: 13, lineHeight: 19, fontFamily: 'PlusJakartaSansMedium' },
-  msgMeta: { marginTop: 5, color: '#6b7280', fontSize: 9, fontFamily: 'PlusJakartaSansBold' },
+  msgText: { color: '#e5e7eb', fontSize: fontScale(13), lineHeight: 19, fontFamily: 'PlusJakartaSansMedium' },
+  msgMeta: { marginTop: 5, color: '#6b7280', fontSize: fontScale(9), fontFamily: 'PlusJakartaSansBold' },
   dropBubble: {
     maxWidth: '86%',
     borderRadius: 24,
@@ -500,8 +503,8 @@ const styles = StyleSheet.create({
     gap: 6,
   },
   dropThumb: { borderRadius: 14, backgroundColor: '#000', height: 120, justifyContent: 'center', alignItems: 'center' },
-  dropTitle: { color: '#cd2bee', fontSize: 10, fontFamily: 'PlusJakartaSansExtraBold' },
-  dropName: { color: '#fff', fontSize: 13, fontFamily: 'PlusJakartaSansBold' },
+  dropTitle: { color: '#cd2bee', fontSize: fontScale(10), fontFamily: 'PlusJakartaSansExtraBold' },
+  dropName: { color: '#fff', fontSize: fontScale(13), fontFamily: 'PlusJakartaSansBold' },
   tipBubble: {
     maxWidth: '86%',
     borderRadius: 24,
@@ -513,8 +516,8 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
   },
-  tipLabel: { color: '#22c55e', fontSize: 10, fontFamily: 'PlusJakartaSansExtraBold' },
-  tipAmount: { color: '#fff', fontSize: 13, fontFamily: 'PlusJakartaSansBold' },
+  tipLabel: { color: '#22c55e', fontSize: fontScale(10), fontFamily: 'PlusJakartaSansExtraBold' },
+  tipAmount: { color: '#fff', fontSize: fontScale(13), fontFamily: 'PlusJakartaSansBold' },
   stickerBubble: {
     borderRadius: 14,
     overflow: 'hidden',
@@ -538,8 +541,8 @@ const styles = StyleSheet.create({
     gap: 4,
   },
   toolItem: { flexDirection: 'row', alignItems: 'center', gap: 10, padding: 10, borderRadius: 14, backgroundColor: 'rgba(255,255,255,0.03)' },
-  toolTitle: { color: '#fff', fontSize: 12, fontFamily: 'PlusJakartaSansExtraBold' },
-  toolSub: { color: '#6b7280', fontSize: 9, fontFamily: 'PlusJakartaSansBold' },
+  toolTitle: { color: '#fff', fontSize: fontScale(12), fontFamily: 'PlusJakartaSansExtraBold' },
+  toolSub: { color: '#6b7280', fontSize: fontScale(9), fontFamily: 'PlusJakartaSansBold' },
   footer: {
     paddingTop: 6,
     paddingHorizontal: 12,
@@ -550,7 +553,7 @@ const styles = StyleSheet.create({
   },
   repliesRow: { gap: 8, paddingVertical: 6 },
   replyChip: { borderRadius: 999, borderWidth: 1, borderColor: 'rgba(205,43,238,0.35)', backgroundColor: 'rgba(205,43,238,0.15)', paddingHorizontal: 12, paddingVertical: 8 },
-  replyText: { color: '#cd2bee', fontSize: 10, fontFamily: 'PlusJakartaSansExtraBold' },
+  replyText: { color: '#cd2bee', fontSize: fontScale(10), fontFamily: 'PlusJakartaSansExtraBold' },
   emojiPanel: {
     borderRadius: 16,
     borderWidth: 1,
@@ -596,7 +599,7 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     gap: 8,
   },
-  input: { flex: 1, color: '#fff', fontSize: 13, fontFamily: 'PlusJakartaSansBold' },
+  input: { flex: 1, color: '#fff', fontSize: fontScale(13), fontFamily: 'PlusJakartaSansBold' },
   sendBtn: { width: 48, height: 48, borderRadius: 24, backgroundColor: '#cd2bee', justifyContent: 'center', alignItems: 'center' },
   sendBtnDisabled: { backgroundColor: 'rgba(255,255,255,0.12)' },
 });

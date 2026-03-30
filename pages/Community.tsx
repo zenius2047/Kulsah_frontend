@@ -1,4 +1,5 @@
 import React, { useEffect, useState } from 'react';
+import { useThemeMode } from '../theme';
 import {
   ActivityIndicator,
   Image,
@@ -14,7 +15,7 @@ import AsyncStorage from '@react-native-async-storage/async-storage';
 import { useNavigation } from '@react-navigation/native';
 import { MaterialIcons } from '@expo/vector-icons';
 import { useVideoPlayer, VideoView } from 'expo-video';
-import { mediumScreen } from '../types';
+import { mediumScreen, user } from '../types';
 
 interface Comment {
   id: string;
@@ -136,6 +137,7 @@ const stickers = [
 ];
 
 const LivePreview: React.FC<{ videoUrl: string; viewerCount?: number; isCreator: boolean }> = ({ videoUrl, viewerCount, isCreator }) => {
+  const { isDark, theme } = useThemeMode();
   const player = useVideoPlayer(videoUrl, (p) => {
     p.loop = true;
     p.muted = true;
@@ -143,7 +145,7 @@ const LivePreview: React.FC<{ videoUrl: string; viewerCount?: number; isCreator:
   });
 
   return (
-    <View style={styles.mediaWrap}>
+    <View style={[styles.mediaWrap, { borderColor: theme.border }]}>
       <VideoView player={player} style={styles.video} nativeControls={false} allowsPictureInPicture />
       <View style={styles.liveBadges}>
         <View style={styles.livePill}>
@@ -157,8 +159,8 @@ const LivePreview: React.FC<{ videoUrl: string; viewerCount?: number; isCreator:
       </View>
       {!isCreator && (
         <View style={styles.liveActions}>
-          <Pressable style={styles.iconGlassBtn}>
-            <MaterialIcons name="fullscreen" size={20} color="#fff" />
+          <Pressable style={[styles.iconGlassBtn, { borderColor: isDark ? 'rgba(255,255,255,0.28)' : theme.border, backgroundColor: isDark ? 'rgba(0,0,0,0.35)' : 'rgba(255,255,255,0.88)' }]}>
+            <MaterialIcons name="fullscreen" size={20} color={isDark ? '#fff' : theme.text} />
           </Pressable>
         </View>
       )}
@@ -166,7 +168,8 @@ const LivePreview: React.FC<{ videoUrl: string; viewerCount?: number; isCreator:
   );
 };
 
-const Community: React.FC = () => {
+const Community: React.FC<{ embedded?: boolean }> = ({ embedded = false }) => {
+  const { isDark, theme } = useThemeMode();
   const navigation = useNavigation<any>();
   const [loading, setLoading] = useState(true);
   const [currentUser, setCurrentUser] = useState<CurrentUser>({});
@@ -176,6 +179,13 @@ const Community: React.FC = () => {
   const [showOptionsPostId, setShowOptionsPostId] = useState<string | null>(null);
   const [activeCommentPost, setActiveCommentPost] = useState<string | null>(null);
   const [commentText, setCommentText] = useState('');
+  const panelSurface = isDark ? '#121219' : theme.card;
+  const panelElevated = isDark ? '#1d1d27' : theme.surface;
+  const faintSurface = isDark ? 'rgba(255,255,255,0.04)' : theme.surface;
+  const faintSurfaceStrong = isDark ? 'rgba(255,255,255,0.07)' : theme.surface;
+  const softBorder = theme.border;
+  const mutedText = theme.textSecondary;
+  const dimIcon = isDark ? '#9ca3af' : theme.textSecondary;
 
   const isCreator = currentUser.role === 'creator';
   const normalizedHandle = (currentUser.handle ?? '').replace('@', '');
@@ -287,25 +297,25 @@ const Community: React.FC = () => {
 
   if (loading) {
     return (
-      <View style={styles.loader}>
+      <View style={[styles.loader, { backgroundColor: theme.background }]}>
         <ActivityIndicator size="large" color="#cd2bee" />
       </View>
     );
   }
 
   return (
-    <View style={styles.container}>
-      <View style={styles.header}>
+    <View style={[styles.container, { backgroundColor: theme.background }]}>
+      {user!.role === 'fan' && !embedded && <View style={[styles.header, { borderBottomColor: softBorder }]}>
         <View style={styles.headerLeft}>
-          <Pressable onPress={() => navigation.goBack()} style={styles.headerRoundBtn}>
-            <MaterialIcons name="arrow-back" size={22} color="#fff" />
+          <Pressable onPress={() => navigation.goBack()} style={[styles.headerRoundBtn, { backgroundColor: faintSurface, borderColor: softBorder }]}>
+            <MaterialIcons name="arrow-back" size={22} color={theme.text} />
           </Pressable>
-          <Text style={styles.headerTitle}>GALAXY UNIVERSE</Text>
+          <Text style={[styles.headerTitle, { color: theme.text }]}>GALAXY UNIVERSE</Text>
         </View>
-        <Pressable onPress={() => navigation.navigate('Inbox')} style={styles.headerRoundBtn}>
-          <MaterialIcons name="notifications-none" size={22} color="#fff" />
+        <Pressable onPress={() => navigation.navigate('Inbox')} style={[styles.headerRoundBtn, { backgroundColor: faintSurface, borderColor: softBorder }]}>
+          <MaterialIcons name="notifications-none" size={22} color={theme.text} />
         </Pressable>
-      </View>
+      </View> }
 
       <ScrollView contentContainerStyle={styles.scrollBody} showsVerticalScrollIndicator={false}>
         {posts.map((post) => {
@@ -313,29 +323,29 @@ const Community: React.FC = () => {
           const totalVotes = post.pollOptions?.reduce((acc, curr) => acc + curr.votes, 0) ?? 0;
 
           return (
-            <View key={post.id} style={styles.postCard}>
+            <View key={post.id} style={[styles.postCard, { backgroundColor: panelSurface, borderColor: softBorder }]}>
               <View style={styles.postHeader}>
                 <Pressable style={styles.authorRow} onPress={() => navigation.navigate('ArtistProfile')}>
                   <View style={styles.avatarRing}>
                     <Image source={{ uri: post.avatar }} style={styles.avatar} />
                   </View>
                   <View>
-                    <Text style={styles.handleText}>@{post.handle}</Text>
-                    <Text style={styles.timeText}>{post.time}</Text>
+                    <Text style={[styles.handleText, { color: theme.text }]}>@{post.handle}</Text>
+                    <Text style={[styles.timeText, { color: mutedText }]}>{post.time}</Text>
                   </View>
                 </Pressable>
 
                 <View style={styles.optionsWrap}>
                   <Pressable onPress={() => setShowOptionsPostId(showOptionsPostId === post.id ? null : post.id)}>
-                    <MaterialIcons name="more-horiz" size={24} color="#9ca3af" />
+                    <MaterialIcons name="more-horiz" size={24} color={dimIcon} />
                   </Pressable>
                   {showOptionsPostId === post.id && (
-                    <View style={styles.optionsMenu}>
+                    <View style={[styles.optionsMenu, { backgroundColor: panelElevated, borderColor: softBorder }]}>
                       {ownPost ? (
                         <>
                           <Pressable style={styles.optionItem} onPress={() => startEditing(post)}>
-                            <MaterialIcons name="edit" size={16} color="#cbd5e1" />
-                            <Text style={styles.optionText}>Edit Post</Text>
+                            <MaterialIcons name="edit" size={16} color={theme.textSecondary} />
+                            <Text style={[styles.optionText, { color: theme.textSecondary }]}>Edit Post</Text>
                           </Pressable>
                           <Pressable style={styles.optionItem} onPress={() => handleDeletePost(post.id)}>
                             <MaterialIcons name="delete" size={16} color="#ef4444" />
@@ -345,12 +355,12 @@ const Community: React.FC = () => {
                       ) : (
                         <>
                           <Pressable style={styles.optionItem}>
-                            <MaterialIcons name="report" size={16} color="#cbd5e1" />
-                            <Text style={styles.optionText}>Report</Text>
+                            <MaterialIcons name="report" size={16} color={theme.textSecondary} />
+                            <Text style={[styles.optionText, { color: theme.textSecondary }]}>Report</Text>
                           </Pressable>
                           <Pressable style={styles.optionItem}>
-                            <MaterialIcons name="notifications-off" size={16} color="#cbd5e1" />
-                            <Text style={styles.optionText}>Mute</Text>
+                            <MaterialIcons name="notifications-off" size={16} color={theme.textSecondary} />
+                            <Text style={[styles.optionText, { color: theme.textSecondary }]}>Mute</Text>
                           </Pressable>
                         </>
                       )}
@@ -366,11 +376,11 @@ const Community: React.FC = () => {
                       value={editContent}
                       onChangeText={setEditContent}
                       multiline
-                      style={styles.editInput}
+                      style={[styles.editInput, { backgroundColor: faintSurface, color: theme.text }]}
                     />
                     <View style={styles.editActions}>
-                      <Pressable style={styles.editCancel} onPress={() => setEditingPostId(null)}>
-                        <Text style={styles.editCancelText}>CANCEL</Text>
+                      <Pressable style={[styles.editCancel, { borderColor: softBorder, backgroundColor: isDark ? 'transparent' : theme.surface }]} onPress={() => setEditingPostId(null)}>
+                        <Text style={[styles.editCancelText, { color: theme.text }]}>CANCEL</Text>
                       </Pressable>
                       <Pressable style={styles.editSave} onPress={handleUpdatePost}>
                         <Text style={styles.editSaveText}>SAVE CHANGES</Text>
@@ -378,7 +388,7 @@ const Community: React.FC = () => {
                     </View>
                   </View>
                 ) : (
-                  <Text style={styles.postContent}>{post.content}</Text>
+                  <Text style={[styles.postContent, { color: theme.text }]}>{post.content}</Text>
                 )}
               </View>
 
@@ -387,7 +397,7 @@ const Community: React.FC = () => {
               {post.images && post.images.length > 0 && (
                 <View style={styles.mediaOuter}>
                   {post.images.map((img, idx) => (
-                    <View key={`${post.id}-${idx}`} style={styles.imageFrame}>
+                    <View key={`${post.id}-${idx}`} style={[styles.imageFrame, { borderColor: softBorder }]}>
                       <Image source={{ uri: img }} style={styles.postImage} />
                     </View>
                   ))}
@@ -401,52 +411,52 @@ const Community: React.FC = () => {
                     return (
                       <Pressable
                         key={`${post.id}-poll-${idx}`}
-                        style={[styles.pollOption, option.isSelected && styles.pollOptionSelected]}
+                        style={[styles.pollOption, { borderColor: softBorder, backgroundColor: faintSurface }, option.isSelected && styles.pollOptionSelected]}
                         onPress={() => voteOnPoll(post.id, idx)}
                       >
-                        <View style={[styles.pollFill, { width: `${percentage}%` }, option.isSelected && styles.pollFillSelected]} />
+                        <View style={[styles.pollFill, { width: `${percentage}%`, backgroundColor: isDark ? 'rgba(255,255,255,0.08)' : 'rgba(15,23,42,0.08)' }, option.isSelected && styles.pollFillSelected]} />
                         <View style={styles.pollContent}>
-                          <Text style={[styles.pollText, option.isSelected && styles.pollTextSelected]}>{option.text}</Text>
-                          <Text style={[styles.pollPercent, option.isSelected && styles.pollTextSelected]}>{percentage}%</Text>
+                          <Text style={[styles.pollText, { color: option.isSelected ? '#cd2bee' : theme.textSecondary }]}>{option.text}</Text>
+                          <Text style={[styles.pollPercent, { color: option.isSelected ? '#cd2bee' : mutedText }]}>{percentage}%</Text>
                         </View>
                       </Pressable>
                     );
                   })}
-                  <Text style={styles.pollFoot}>
+                  <Text style={[styles.pollFoot, { color: mutedText }]}>
                     {totalVotes.toLocaleString()} votes • {post.pollOptions.some((o) => o.isSelected) ? 'Voted' : 'Final results'}
                   </Text>
                 </View>
               )}
 
-              <View style={styles.actionBar}>
+              <View style={[styles.actionBar, { borderTopColor: softBorder }]}>
                 <Pressable style={styles.actionItem} onPress={() => toggleLike(post.id)}>
-                  <MaterialIcons name={post.isLiked ? 'favorite' : 'favorite-border'} size={23} color={post.isLiked ? '#cd2bee' : '#9ca3af'} />
-                  <Text style={[styles.actionText, post.isLiked && { color: '#cd2bee' }]}>{post.likes.toLocaleString()}</Text>
+                  <MaterialIcons name={post.isLiked ? 'favorite' : 'favorite-border'} size={23} color={post.isLiked ? '#cd2bee' : dimIcon} />
+                  <Text style={[styles.actionText, { color: post.isLiked ? '#cd2bee' : mutedText }]}>{post.likes.toLocaleString()}</Text>
                 </Pressable>
                 <Pressable style={styles.actionItem} onPress={() => setActiveCommentPost(post.id)}>
-                  <MaterialIcons name="chat-bubble-outline" size={22} color="#9ca3af" />
-                  <Text style={styles.actionText}>{post.comments.toLocaleString()}</Text>
+                  <MaterialIcons name="chat-bubble-outline" size={22} color={dimIcon} />
+                  <Text style={[styles.actionText, { color: mutedText }]}>{post.comments.toLocaleString()}</Text>
                 </Pressable>
                 <Pressable style={styles.actionItem}>
-                  <MaterialIcons name="share" size={22} color="#9ca3af" />
-                  <Text style={styles.actionText}>Share</Text>
+                  <MaterialIcons name="share" size={22} color={dimIcon} />
+                  <Text style={[styles.actionText, { color: mutedText }]}>Share</Text>
                 </Pressable>
               </View>
 
               {post.commentList && post.commentList.length > 0 && (
-                <View style={styles.commentsSection}>
+                <View style={[styles.commentsSection, { borderTopColor: softBorder }]}>
                   {post.commentList.slice(0, 3).map((comment) => (
                     <View key={comment.id} style={styles.commentRow}>
                       <Image source={{ uri: comment.avatar }} style={styles.commentAvatar} />
                       <View style={{ flex: 1 }}>
-                        <View style={styles.commentBubble}>
-                          <Text style={styles.commentHandle}>@{comment.handle}</Text>
-                          <Text style={styles.commentText}>{comment.text}</Text>
+                        <View style={[styles.commentBubble, { backgroundColor: faintSurfaceStrong }]}>
+                          <Text style={[styles.commentHandle, { color: theme.text }]}>@{comment.handle}</Text>
+                          <Text style={[styles.commentText, { color: theme.text }]}>{comment.text}</Text>
                         </View>
                         <View style={styles.commentMeta}>
-                          <Text style={styles.commentMetaBtn}>Like</Text>
-                          <Text style={styles.commentMetaBtn}>Reply</Text>
-                          <Text style={styles.commentTime}>{comment.time}</Text>
+                          <Text style={[styles.commentMetaBtn, { color: mutedText }]}>Like</Text>
+                          <Text style={[styles.commentMetaBtn, { color: mutedText }]}>Reply</Text>
+                          <Text style={[styles.commentTime, { color: theme.textMuted }]}>{comment.time}</Text>
                         </View>
                       </View>
                     </View>
@@ -454,7 +464,7 @@ const Community: React.FC = () => {
 
                   {post.comments > 3 && (
                     <Pressable onPress={() => setActiveCommentPost(post.id)} style={styles.moreComments}>
-                      <Text style={styles.moreCommentsText}>View {post.comments - 3} more comments</Text>
+                      <Text style={[styles.moreCommentsText, { color: mutedText }]}>View {post.comments - 3} more comments</Text>
                     </Pressable>
                   )}
                 </View>
@@ -465,35 +475,35 @@ const Community: React.FC = () => {
 
         <View style={styles.footerLoader}>
           <ActivityIndicator color="#cd2bee" />
-          <Text style={styles.footerText}>SYNCING MORE GALAXY UPDATES...</Text>
+          <Text style={[styles.footerText, { color: mutedText }]}>SYNCING MORE GALAXY UPDATES...</Text>
         </View>
       </ScrollView>
 
       <Modal visible={!!activeCommentPost} transparent animationType="fade" onRequestClose={() => setActiveCommentPost(null)}>
         <View style={styles.modalRoot}>
           <Pressable style={styles.modalBackdrop} onPress={() => setActiveCommentPost(null)} />
-          <View style={styles.modalCard}>
-            <View style={styles.modalGrabber} />
-            <Text style={styles.modalTitle}>ADD COMMENT</Text>
+          <View style={[styles.modalCard, { backgroundColor: panelSurface, borderColor: softBorder }]}>
+            <View style={[styles.modalGrabber, { backgroundColor: isDark ? '#374151' : '#cbd5e1' }]} />
+            <Text style={[styles.modalTitle, { color: theme.text }]}>ADD COMMENT</Text>
 
             <TextInput
               value={commentText}
               onChangeText={setCommentText}
               placeholder="What's on your mind?"
-              placeholderTextColor="#9ca3af"
+              placeholderTextColor={theme.textSecondary}
               multiline
-              style={styles.modalInput}
+              style={[styles.modalInput, { borderColor: softBorder, backgroundColor: faintSurface, color: theme.text }]}
             />
 
             <View style={styles.emojiRow}>
               {['🔥', '🙌', '❤️', '✨', '🌌', '🌍', '🚀', '💯'].map((emoji) => (
-                <Pressable key={emoji} onPress={() => setCommentText((prev) => `${prev}${emoji}`)} style={styles.emojiBtn}>
+                <Pressable key={emoji} onPress={() => setCommentText((prev) => `${prev}${emoji}`)} style={[styles.emojiBtn, { borderColor: softBorder, backgroundColor: faintSurface }]}>
                   <Text style={styles.emojiText}>{emoji}</Text>
                 </Pressable>
               ))}
             </View>
 
-            <Text style={styles.stickerTitle}>KULSAH STICKERS</Text>
+            <Text style={[styles.stickerTitle, { color: mutedText }]}>KULSAH STICKERS</Text>
             <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={styles.stickerRow}>
               {stickers.map((sticker) => (
                 <Pressable
@@ -503,7 +513,7 @@ const Community: React.FC = () => {
                     setCommentText(withSticker);
                     await handleAddComment(withSticker);
                   }}
-                  style={styles.stickerBtn}
+                  style={[styles.stickerBtn, { borderColor: softBorder }]}
                 >
                   <Image source={{ uri: sticker.img }} style={styles.stickerImage} />
                 </Pressable>
@@ -511,8 +521,8 @@ const Community: React.FC = () => {
             </ScrollView>
 
             <View style={styles.modalActions}>
-              <Pressable style={styles.modalCancel} onPress={() => setActiveCommentPost(null)}>
-                <Text style={styles.modalCancelText}>CANCEL</Text>
+              <Pressable style={[styles.modalCancel, { borderColor: softBorder, backgroundColor: isDark ? 'transparent' : theme.surface }]} onPress={() => setActiveCommentPost(null)}>
+                <Text style={[styles.modalCancelText, { color: theme.text }]}>CANCEL</Text>
               </Pressable>
               <Pressable style={styles.modalPost} onPress={() => void handleAddComment()}>
                 <Text style={styles.modalPostText}>POST COMMENT</Text>

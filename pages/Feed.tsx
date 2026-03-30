@@ -1,4 +1,5 @@
 import React, { useCallback, useEffect, useMemo, useState } from 'react';
+import { useThemeMode } from '../theme';
 import {
   Dimensions,
   FlatList,
@@ -15,6 +16,7 @@ import {
 } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
 import { MaterialIcons } from '@expo/vector-icons';
+import { SafeAreaView } from 'react-native-safe-area-context';
 // import { ResizeMode, Video } from 'expo-video';
 import { useVideoPlayer, VideoView } from 'expo-video';
 import { TurnCoverage } from '@google/genai/web';
@@ -24,6 +26,8 @@ import { mediumScreen, RootStackParamList, smallWidth } from '../types';
 import TickIcon from '../assets/icons/ticket-svg.svg';
 import PlayFilledIcon from '../assets/icons/play-arrow-filled-svg.svg';
 import FireIcon from '../assets/icons/fire-svg.svg';
+import BookMarkIcon from '../assets/icons/bookmark-svg.svg';
+import { fontScale } from '../fonts';
 
 interface FeedItem {
   id: string;
@@ -229,7 +233,7 @@ const { isPlaying : isReady } = useEvent(player, 'playingChange', { isPlaying: p
 
         {/* {!item.isSubscribed && (
           <Pressable onPress={() => onSubscribe(item.id)} style={{ marginBottom: 16 }}>
-            <Text style={{ color: 'white', fontSize: 12 }}>Add</Text>
+            <Text style={{ color: 'white', fontSize: fontScale(12) }}>Add</Text>
           </Pressable>
         )} */}
 
@@ -268,6 +272,11 @@ const { isPlaying : isReady } = useEvent(player, 'playingChange', { isPlaying: p
           <Text style={{ color: item.isSubscribed ? '#cd2bee' : 'white', fontSize: mediumScreen ? 14:10, fontFamily: "PlusJakartaSansBold" }}>
             {item.isSubscribed ? 'SUBBED' : 'Sub'}
           </Text>
+        </Pressable>
+
+        <Pressable onPress={() => navigation.navigate('Video')} style={{ alignItems: 'center' }}>
+          <BookMarkIcon height={28} width={28} fill="white" />
+          <Text style={{ color: 'white', fontSize: mediumScreen ? 14:10, fontFamily: "PlusJakartaSansBold" }}>Save</Text>
         </Pressable>
 
         <Pressable onPress={() => navigation.navigate('Video')} style={{ alignItems: 'center' }}>
@@ -363,6 +372,7 @@ const { isPlaying : isReady } = useEvent(player, 'playingChange', { isPlaying: p
 };
 
 const Feed: React.FC = () => {
+  const { isDark, theme } = useThemeMode();
   const navigation = useNavigation<any>();
   const [activeTab, setActiveTab] = useState<'premium' | 'foryou' | 'following' | 'challenges'>('foryou');
   const [isGlobalMuted, setIsGlobalMuted] = useState(false);
@@ -601,8 +611,11 @@ const Feed: React.FC = () => {
   };
 
   return (
-    <View style={{ flex: 1, backgroundColor: 'blue', padding: 0, margin: 0 }}>
-      <StatusBar  backgroundColor="transparent" translucent = {true} />
+    <SafeAreaView
+    edges={['left', 'right']}
+    style={{ flex: 1, backgroundColor: theme.background }}>
+      <View style={{ flex: 1, backgroundColor: 'blue', padding: 0, margin: 0 }}>
+      <StatusBar barStyle={isDark ? 'light-content' : 'dark-content'} backgroundColor="transparent" translucent = {true} />
       <View
         style={{
           position: 'absolute',
@@ -636,7 +649,7 @@ const Feed: React.FC = () => {
           justifyContent: 'center',
           backgroundColor: 'rgba(0,0,0,0.2)',
         }}
-        onPress={() => navigation.navigate('Discover')}>
+        onPress={() => navigation.navigate('Challenges')}>
           <MaterialIcons name="search" size={18} color="white" />
         </Pressable>
         </View>
@@ -745,7 +758,7 @@ const Feed: React.FC = () => {
             <View style={{
               height: SCREEN_HEIGHT <= 808 ? SCREEN_HEIGHT + 60 : SCREEN_HEIGHT ,
               backgroundColor: 'black',
-              paddingBottom: SCREEN_HEIGHT <= 808 ?'22%': '20%'
+              paddingBottom: SCREEN_HEIGHT <= 808 ?'16%': '14%'
             }}>
               <VideoFeedItem
               item={item}
@@ -765,7 +778,7 @@ const Feed: React.FC = () => {
           decelerationRate="fast"
           ListFooterComponent={() => (
             <View style={{ height: 20, justifyContent: 'center', alignItems: 'center', backgroundColor: 'gold' }}>
-              <Text style={{ color: '#94a3b8', fontSize: 11 }}>Syncing more galaxy feed...</Text>
+              <Text style={{ color: '#94a3b8', fontSize: fontScale(11) }}>Syncing more galaxy feed...</Text>
             </View>
           )}
           onViewableItemsChanged={onViewRef.current}
@@ -778,7 +791,7 @@ const Feed: React.FC = () => {
         </View>
       ) : (
         <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center', paddingHorizontal: 24 }}>
-          <Text style={{ color: 'white', fontSize: 18, fontWeight: '800' }}>Your Orbit is Empty</Text>
+          <Text style={{ color: 'white', fontSize: fontScale(18), fontWeight: '800' }}>Your Orbit is Empty</Text>
           <Text style={{ color: '#94a3b8', marginTop: 8, textAlign: 'center' }}>
             Follow creators in the galaxy to see their latest transmissions.
           </Text>
@@ -788,6 +801,7 @@ const Feed: React.FC = () => {
         </View>
       )}
     </View>
+    </SafeAreaView>
   );
 };
 

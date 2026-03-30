@@ -1,9 +1,11 @@
 import React, { useState, useEffect, useMemo, useRef, useCallback } from 'react';
+import { useThemeMode } from '../theme';
 import { View, Text, Pressable, Image, TextInput } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
 
 
 const FanTicketDetail: React.FC = () => {
+  const { isDark, theme } = useThemeMode();
   const { id } = useParams();
   const navigation = useNavigation<any>();
   const [brightness, setBrightness] = useState(100);

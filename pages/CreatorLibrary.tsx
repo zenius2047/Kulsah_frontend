@@ -1,4 +1,5 @@
 import React, { useMemo, useState } from 'react';
+import { useThemeMode } from '../theme';
 import { GoogleGenAI } from '@google/genai';
 import { useNavigation } from '@react-navigation/native';
 import { MaterialIcons } from '@expo/vector-icons';
@@ -16,7 +17,7 @@ import {
   View,
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
-import { FontSize } from '../fonts';
+import { FontSize, fontScale } from '../fonts';
 import VisibilityIcon from '../assets/icons/visibility-svg.svg';
 import PaymentIcon from '../assets/icons/payments-svg.svg';
 
@@ -124,7 +125,7 @@ export default function CreatorLibrary() {
 
   return (
     <View style={s.screen}>
-      <StatusBar barStyle="light-content" backgroundColor="transparent" translucent />
+      <StatusBar barStyle={isDark ? 'light-content' : 'dark-content'} backgroundColor="transparent" translucent />
       <SafeAreaView edges={['top']} style={s.header}>
         <View style={s.rowBetween}>
           <View style={s.row}>
@@ -177,7 +178,7 @@ export default function CreatorLibrary() {
           <Text style={s.section}>Trending Sounds</Text>
           <Text style={{
             color: '#cd2bee',
-            fontSize: 10,
+            fontSize: fontScale(10),
             textTransform: 'uppercase',
             fontFamily: 'PlusJakartaSansExtraBold'
           }}>Explore All</Text>
@@ -226,7 +227,7 @@ export default function CreatorLibrary() {
               <Text
               numberOfLines={2}
               style={{
-                fontSize: 8,
+                fontSize: fontScale(8),
                 color: '#ffffff4d',
                 fontFamily: 'PlusJakartaSansExtraBold',
                 textTransform: 'uppercase',
@@ -270,7 +271,7 @@ export default function CreatorLibrary() {
                     borderWidth: 1,
                     paddingHorizontal: 6,
                     paddingVertical: 2,
-                    fontSize: 8,
+                    fontSize: fontScale(8),
                     fontFamily: 'PlusJakartaSansBold',
                     borderColor: 
                     item.type === 'public' ? '#3b82f64d' : 
@@ -283,7 +284,7 @@ export default function CreatorLibrary() {
                 <Text style={{
                   color: '#94a3b8',
                   fontFamily: 'PlusJakartaSansBold',
-                  fontSize: 10,
+                  fontSize: fontScale(10),
                   textTransform: 'uppercase'
                 }}>{item.date}</Text>
               </View>
@@ -315,7 +316,7 @@ export default function CreatorLibrary() {
               {item.type === 'draft' && <Text style={{
                 color: '#ffffff33',
                 fontFamily: 'PlusJakartaSansExtraBold',
-                fontSize: 10,
+                fontSize: fontScale(10),
                 fontStyle: 'italic',
                 marginTop: 5,
               }}>
@@ -371,26 +372,26 @@ const s = StyleSheet.create({
   row: { flexDirection: 'row', alignItems: 'center', gap: 8 },
   rowBetween: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between' ,paddingHorizontal: 16, },
   iconBtn: { width: 36, height: 36, borderRadius: 18, alignItems: 'center', justifyContent: 'center',  },
-  title: { color: '#fff', fontSize: 18, fontFamily: 'PlusJakartaSansExtraBold', textTransform: 'uppercase' },
+  title: { color: '#fff', fontSize: fontScale(18), fontFamily: 'PlusJakartaSansExtraBold', textTransform: 'uppercase' },
   searchWrap: { marginTop: 25, height: 48, borderRadius: 16, borderWidth: 1, borderColor: '#ffffff1a', backgroundColor: '#ffffff0a', flexDirection: 'row', alignItems: 'center', paddingHorizontal: 10, gap: 8, marginHorizontal: 16 },
   searchInput: { flex: 1, color: '#94a3b8' },
   tabs: { gap: 14, paddingTop: 10, paddingBottom: 4,  paddingHorizontal: 16, },
   tabBtn: { alignItems: 'center', gap: 6, marginTop: 20 },
-  tabText: { color: '#94a3b8', textTransform: 'uppercase', fontSize: 10, fontFamily: 'PlusJakartaSansExtraBold', letterSpacing: 2, },
+  tabText: { color: '#94a3b8', textTransform: 'uppercase', fontSize: fontScale(10), fontFamily: 'PlusJakartaSansExtraBold', letterSpacing: 2, },
   tabTextActive: { color: '#cd2bee' },
   tabDot: { width: '100%', height: 4, borderRadius: 999, backgroundColor: '#cd2bee' },
   content: {gap: 12, paddingBottom: 120 },
   aiCard: { borderRadius: 18, borderWidth: 1, borderColor: '#cd2bee3a', backgroundColor: '#cd2bee14', padding: 12, gap: 10 },
-  aiTitle: { color: '#cd2bee', textTransform: 'uppercase', fontWeight: '900', fontSize: 10 },
-  aiText: { color: '#d9dce9', fontStyle: 'italic', fontSize: 13 },
+  aiTitle: { color: '#cd2bee', textTransform: 'uppercase', fontWeight: '900', fontSize: fontScale(10) },
+  aiText: { color: '#d9dce9', fontStyle: 'italic', fontSize: fontScale(13) },
   auditBtn: { height: 40, borderRadius: 10, borderWidth: 1, borderColor: '#cd2bee50', alignItems: 'center', justifyContent: 'center' },
-  auditBtnText: { color: '#cd2bee', textTransform: 'uppercase', fontWeight: '900', fontSize: 10 },
-  section: { color: '#fff', fontSize: 16, textTransform: 'uppercase', fontFamily: 'PlusJakartaSansExtraBold' },
+  auditBtnText: { color: '#cd2bee', textTransform: 'uppercase', fontWeight: '900', fontSize: fontScale(10) },
+  section: { color: '#fff', fontSize: fontScale(16), textTransform: 'uppercase', fontFamily: 'PlusJakartaSansExtraBold' },
   trendingRow: { gap: 20, },
   soundCard: { width: 104, alignItems: 'center',justifyContent: 'center',},
   soundImg: { width: '100%', height: '100%', borderRadius: 999 },
   soundTitle: { color: '#fff', fontSize: FontSize.eight, fontFamily: 'PlusJakartaSansExtraBold', textTransform: 'uppercase' },
-  soundMeta: { color: 'white', fontSize: 5, fontFamily: 'PlusJakartaSansBold' },
+  soundMeta: { color: 'white', fontSize: fontScale(5), fontFamily: 'PlusJakartaSansBold' },
   itemCard: {
     borderRadius: 18,
     borderWidth: 1,
@@ -402,20 +403,20 @@ const s = StyleSheet.create({
     marginHorizontal: 16,
   },
   itemImg: { width: 68, height: 68, borderRadius: 12 },
-  itemTitle: { color: '#fff', fontFamily: 'PlusJakartaSansExtraBold', flex: 1, marginRight: 8, lineHeight: 10, fontSize: 12 },
-  itemMeta: { color: '#8f95af', fontSize: 10, fontFamily: 'PlusJakartaSansBold', lineHeight: 12 },
+  itemTitle: { color: '#fff', fontFamily: 'PlusJakartaSansExtraBold', flex: 1, marginRight: 8, lineHeight: 10, fontSize: fontScale(12) },
+  itemMeta: { color: '#8f95af', fontSize: fontScale(10), fontFamily: 'PlusJakartaSansBold', lineHeight: 12 },
   smallBtn: { width: 30, height: 30, borderRadius: 15, backgroundColor: '#ffffff10', alignItems: 'center', justifyContent: 'center' },
   overlay: { flex: 1, backgroundColor: '#00000080', justifyContent: 'center', paddingHorizontal: 20 },
   menu: { borderRadius: 14, backgroundColor: '#11151f', borderWidth: 1, borderColor: '#ffffff20', overflow: 'hidden' },
   menuRow: { paddingHorizontal: 14, paddingVertical: 12, borderBottomWidth: StyleSheet.hairlineWidth, borderBottomColor: '#ffffff14' },
-  menuText: { color: '#fff', textTransform: 'uppercase', fontSize: 10, fontWeight: '900' },
-  deleteText: { color: '#ef4444', textTransform: 'uppercase', fontSize: 10, fontWeight: '900' },
+  menuText: { color: '#fff', textTransform: 'uppercase', fontSize: fontScale(10), fontWeight: '900' },
+  deleteText: { color: '#ef4444', textTransform: 'uppercase', fontSize: fontScale(10), fontWeight: '900' },
   drawerWrap: { flex: 1, justifyContent: 'flex-end', backgroundColor: '#000000b3' },
   drawer: { borderTopLeftRadius: 24, borderTopRightRadius: 24, backgroundColor: '#101522', borderWidth: 1, borderColor: '#ffffff20', padding: 14, gap: 10 },
-  drawerTitle: { color: '#fff', textTransform: 'uppercase', fontWeight: '900', fontSize: 20 },
+  drawerTitle: { color: '#fff', textTransform: 'uppercase', fontWeight: '900', fontSize: fontScale(20) },
   drawerImg: { width: '100%', height: 180, borderRadius: 14 },
-  drawerMeta: { color: '#c2c7da', fontSize: 12 },
+  drawerMeta: { color: '#c2c7da', fontSize: fontScale(12) },
   protocolBtn: { flex: 1, height: 38, borderRadius: 10, borderWidth: 1, borderColor: '#ffffff1f', alignItems: 'center', justifyContent: 'center', backgroundColor: '#ffffff08' },
   protocolBtnActive: { borderColor: '#cd2bee80', backgroundColor: '#cd2bee' },
-  protocolText: { color: '#fff', fontWeight: '900', textTransform: 'uppercase', fontSize: 10 },
+  protocolText: { color: '#fff', fontWeight: '900', textTransform: 'uppercase', fontSize: fontScale(10) },
 });

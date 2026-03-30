@@ -1,4 +1,5 @@
 import React, { useMemo, useRef, useState, useEffect } from 'react';
+import { useThemeMode } from '../theme';
 import {
   Image,
   Pressable,
@@ -11,7 +12,8 @@ import {
 import { MaterialIcons } from '@expo/vector-icons';
 import { useNavigation, useRoute } from '@react-navigation/native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
-import { darkMode, setDark, setUser, user } from '../types';
+import { setDark, setUser, user } from '../types';
+import { fontScale } from '../fonts';
 
 type SubView = 'main' | 'profile' | 'identity' | 'payments' | 'notifications';
 
@@ -34,6 +36,7 @@ interface FanTicket {
 
 
 const FanSettings: React.FC<FanSettingsProps> = ({ onLogout, isDarkMode, onToggleTheme, onToggleRole }) => {
+  const { isDark, theme } = useThemeMode();
   const navigation = useNavigation<any>();
   const route = useRoute<any>();
   const [activeView, setActiveView] = useState<SubView>('main');
@@ -42,12 +45,6 @@ const FanSettings: React.FC<FanSettingsProps> = ({ onLogout, isDarkMode, onToggl
 
   const [flippedCards, setFlippedCards] = useState<Record<string, boolean>>({});
   const [tokenTime, setTokenTime] = useState(30);
-  const [isDark, setIsDark] = useState(false);
-
-  useEffect(()=>{
-    setIsDark(darkMode)
-    console.log( `this is the value of : ${isDark}`)
-  }, [darkMode])
 
   const [profile, setProfile] = useState({
     name: 'Alex Rivera',
@@ -432,11 +429,9 @@ const FanSettings: React.FC<FanSettingsProps> = ({ onLogout, isDarkMode, onToggl
           icon: 'dark-mode',
           desc: 'Sync with galaxy energy',
           isToggle: true,
-          enabled: darkMode,
+          enabled: isDark,
           onToggle: ()=>{
-            console.log( "it's been tapped");
-            setDark(!darkMode);
-            console.log( `the value of dark mode : ${darkMode}`)
+            setDark(!isDark);
           },
         },
         { label: 'Switch to Creator', icon: 'rocket-launch', desc: 'Unlock creator tools', onClick: creatorToggle },
@@ -554,7 +549,7 @@ const s = StyleSheet.create({
     justifyContent: 'center',
     backgroundColor: '#eef2ff',
   },
-  headerTitle: { fontSize: 20, fontWeight: '900', textTransform: 'uppercase', color: '#0f172a' },
+  headerTitle: { fontSize: fontScale(20), fontWeight: '900', textTransform: 'uppercase', color: '#0f172a' },
   viewWrap: { flex: 1, backgroundColor: '#f8fafc' },
   formCard: { padding: 16, gap: 18 },
   profileAvatarWrap: { alignItems: 'center', marginBottom: 12 },
@@ -586,7 +581,7 @@ const s = StyleSheet.create({
     justifyContent: 'center',
   },
   formBlock: { gap: 8 },
-  label: { fontSize: 10, fontWeight: '900', textTransform: 'uppercase', letterSpacing: 2, color: '#94a3b8' },
+  label: { fontSize: fontScale(10), fontWeight: '900', textTransform: 'uppercase', letterSpacing: 2, color: '#94a3b8' },
   input: {
     height: 52,
     borderRadius: 18,
@@ -594,14 +589,14 @@ const s = StyleSheet.create({
     borderColor: '#e2e8f0',
     paddingHorizontal: 16,
     backgroundColor: '#fff',
-    fontSize: 14,
+    fontSize: fontScale(14),
     color: '#0f172a',
   },
   handleWrap: { position: 'relative', justifyContent: 'center' },
   handlePrefix: { position: 'absolute', left: 16, color: '#cd2bee', fontWeight: '900' },
   handleInput: { paddingLeft: 34 },
   rowBetween: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between' },
-  counter: { fontSize: 10, fontWeight: '800', color: '#94a3b8' },
+  counter: { fontSize: fontScale(10), fontWeight: '800', color: '#94a3b8' },
   textArea: {
     minHeight: 120,
     borderRadius: 22,
@@ -620,7 +615,7 @@ const s = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'center',
   },
-  primaryButtonText: { color: '#fff', fontSize: 12, fontWeight: '900', textTransform: 'uppercase', letterSpacing: 2 },
+  primaryButtonText: { color: '#fff', fontSize: fontScale(12), fontWeight: '900', textTransform: 'uppercase', letterSpacing: 2 },
   identityContent: { padding: 16, paddingBottom: 120, gap: 20 },
   carouselWrap: { gap: 12 },
   cardSlide: { width: 320, paddingRight: 12 },
@@ -636,11 +631,11 @@ const s = StyleSheet.create({
   cardFront: { gap: 16 },
   cardBack: { gap: 14, alignItems: 'center' },
   cardRowBetween: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center' },
-  cardTag: { fontSize: 10, fontWeight: '900', textTransform: 'uppercase', letterSpacing: 3, color: '#cd2bee' },
-  cardName: { fontSize: 26, fontWeight: '900', color: '#0f172a', textTransform: 'uppercase' },
-  cardSub: { fontSize: 11, fontWeight: '700', color: '#94a3b8', textTransform: 'uppercase' },
-  cardTitle: { fontSize: 20, fontWeight: '900', color: '#0f172a', textTransform: 'uppercase' },
-  cardLabel: { fontSize: 10, fontWeight: '900', letterSpacing: 3, color: '#cd2bee', textTransform: 'uppercase' },
+  cardTag: { fontSize: fontScale(10), fontWeight: '900', textTransform: 'uppercase', letterSpacing: 3, color: '#cd2bee' },
+  cardName: { fontSize: fontScale(26), fontWeight: '900', color: '#0f172a', textTransform: 'uppercase' },
+  cardSub: { fontSize: fontScale(11), fontWeight: '700', color: '#94a3b8', textTransform: 'uppercase' },
+  cardTitle: { fontSize: fontScale(20), fontWeight: '900', color: '#0f172a', textTransform: 'uppercase' },
+  cardLabel: { fontSize: fontScale(10), fontWeight: '900', letterSpacing: 3, color: '#cd2bee', textTransform: 'uppercase' },
   cardIconBadge: {
     width: 40,
     height: 40,
@@ -665,15 +660,15 @@ const s = StyleSheet.create({
     paddingHorizontal: 14,
     paddingVertical: 6,
     borderRadius: 999,
-    fontSize: 10,
+    fontSize: fontScale(10),
     fontWeight: '900',
     textTransform: 'uppercase',
   },
-  smallLabel: { fontSize: 9, fontWeight: '900', color: '#94a3b8', textTransform: 'uppercase', letterSpacing: 2 },
-  monoText: { fontSize: 11, fontWeight: '800', color: '#64748b' },
+  smallLabel: { fontSize: fontScale(9), fontWeight: '900', color: '#94a3b8', textTransform: 'uppercase', letterSpacing: 2 },
+  monoText: { fontSize: fontScale(11), fontWeight: '800', color: '#64748b' },
   iconRow: { flexDirection: 'row', gap: 8 },
   ticketRow: { flexDirection: 'row', justifyContent: 'space-between' },
-  ticketValue: { fontSize: 13, fontWeight: '800', color: '#0f172a' },
+  ticketValue: { fontSize: fontScale(13), fontWeight: '800', color: '#0f172a' },
   blueText: { color: '#3b82f6' },
   qrBadge: {
     width: 36,
@@ -712,18 +707,18 @@ const s = StyleSheet.create({
     backgroundColor: '#f0fdf4',
   },
   tokenDot: { width: 8, height: 8, borderRadius: 4, backgroundColor: '#cd2bee' },
-  tokenText: { fontSize: 10, fontWeight: '900', color: '#7c3aed' },
-  tokenTextAlt: { fontSize: 10, fontWeight: '900', color: '#16a34a' },
-  tokenHint: { fontSize: 10, fontWeight: '700', color: '#94a3b8', textAlign: 'center' },
+  tokenText: { fontSize: fontScale(10), fontWeight: '900', color: '#7c3aed' },
+  tokenTextAlt: { fontSize: fontScale(10), fontWeight: '900', color: '#16a34a' },
+  tokenHint: { fontSize: fontScale(10), fontWeight: '700', color: '#94a3b8', textAlign: 'center' },
   progressBarWrap: { gap: 8 },
   progressTrack: { height: 6, borderRadius: 999, backgroundColor: '#e2e8f0' },
   progressFill: { height: '100%', borderRadius: 999, backgroundColor: '#cd2bee' },
   progressLabels: { flexDirection: 'row', justifyContent: 'space-between' },
-  progressText: { fontSize: 10, fontWeight: '800', textTransform: 'uppercase', color: '#94a3b8' },
+  progressText: { fontSize: fontScale(10), fontWeight: '800', textTransform: 'uppercase', color: '#94a3b8' },
   progressTextActive: { color: '#cd2bee' },
   sectionBlock: { gap: 10 },
-  sectionTitle: { fontSize: 10, fontWeight: '900', textTransform: 'uppercase', letterSpacing: 3, color: '#94a3b8' },
-  sectionBadge: { fontSize: 10, fontWeight: '900', textTransform: 'uppercase', color: '#cd2bee' },
+  sectionTitle: { fontSize: fontScale(10), fontWeight: '900', textTransform: 'uppercase', letterSpacing: 3, color: '#94a3b8' },
+  sectionBadge: { fontSize: fontScale(10), fontWeight: '900', textTransform: 'uppercase', color: '#cd2bee' },
   rail: { marginTop: 6 },
   railCard: {
     width: 170,
@@ -744,8 +739,8 @@ const s = StyleSheet.create({
     justifyContent: 'center',
   },
   railIconBlue: { backgroundColor: '#eff6ff' },
-  railTitle: { fontSize: 12, fontWeight: '900', color: '#0f172a' },
-  railMeta: { fontSize: 10, fontWeight: '700', color: '#94a3b8', textTransform: 'uppercase' },
+  railTitle: { fontSize: fontScale(12), fontWeight: '900', color: '#0f172a' },
+  railMeta: { fontSize: fontScale(10), fontWeight: '700', color: '#94a3b8', textTransform: 'uppercase' },
   statusCard: {
     padding: 14,
     borderRadius: 20,
@@ -765,9 +760,9 @@ const s = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'center',
   },
-  statusText: { fontSize: 12, fontWeight: '700', color: '#0f172a' },
+  statusText: { fontSize: fontScale(12), fontWeight: '700', color: '#0f172a' },
   statusBadge: {
-    fontSize: 9,
+    fontSize: fontScale(9),
     fontWeight: '900',
     textTransform: 'uppercase',
     color: '#cd2bee',
@@ -796,10 +791,10 @@ const s = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'center',
   },
-  methodTitle: { fontSize: 13, fontWeight: '800', color: '#0f172a' },
-  methodMeta: { fontSize: 10, fontWeight: '700', color: '#94a3b8', textTransform: 'uppercase' },
+  methodTitle: { fontSize: fontScale(13), fontWeight: '800', color: '#0f172a' },
+  methodMeta: { fontSize: fontScale(10), fontWeight: '700', color: '#94a3b8', textTransform: 'uppercase' },
   methodBadge: {
-    fontSize: 9,
+    fontSize: fontScale(9),
     fontWeight: '900',
     textTransform: 'uppercase',
     color: '#cd2bee',
@@ -817,12 +812,12 @@ const s = StyleSheet.create({
     alignItems: 'center',
     gap: 8,
   },
-  emptyText: { fontSize: 10, fontWeight: '900', textTransform: 'uppercase', letterSpacing: 2, color: '#94a3b8' },
+  emptyText: { fontSize: fontScale(10), fontWeight: '900', textTransform: 'uppercase', letterSpacing: 2, color: '#94a3b8' },
   mainContent: { padding: 16, paddingBottom: 120, gap: 18 },
   profileHeader: { alignItems: 'center', gap: 12 },
   profileTextWrap: { alignItems: 'center' },
-  profileName: { fontSize: 20, fontWeight: '900', color: '#0f172a' },
-  profileHandle: { fontSize: 10, fontWeight: '900', letterSpacing: 2, color: '#cd2bee', textTransform: 'uppercase' },
+  profileName: { fontSize: fontScale(20), fontWeight: '900', color: '#0f172a' },
+  profileHandle: { fontSize: fontScale(10), fontWeight: '900', letterSpacing: 2, color: '#cd2bee', textTransform: 'uppercase' },
   itemRow: {
     marginTop: 8,
     padding: 14,
@@ -843,8 +838,8 @@ const s = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'center',
   },
-  itemLabel: { fontSize: 13, fontWeight: '800', color: '#0f172a' },
-  itemDesc: { fontSize: 10, fontWeight: '700', color: '#94a3b8' },
+  itemLabel: { fontSize: fontScale(13), fontWeight: '800', color: '#0f172a' },
+  itemDesc: { fontSize: fontScale(10), fontWeight: '700', color: '#94a3b8' },
   toggle: {
     width: 44,
     height: 24,
@@ -874,8 +869,8 @@ const s = StyleSheet.create({
     borderColor: '#fecaca',
     backgroundColor: '#fee2e2',
   },
-  logoutText: { fontSize: 12, fontWeight: '800', color: '#ef4444' },
-  versionText: { fontSize: 9, fontWeight: '900', textTransform: 'uppercase', color: '#94a3b8', letterSpacing: 2 },
+  logoutText: { fontSize: fontScale(12), fontWeight: '800', color: '#ef4444' },
+  versionText: { fontSize: fontScale(9), fontWeight: '900', textTransform: 'uppercase', color: '#94a3b8', letterSpacing: 2 },
 });
 
 export default FanSettings;

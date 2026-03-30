@@ -1,4 +1,5 @@
 import React, { useEffect, useState } from 'react';
+import { useThemeMode } from './theme';
 import { View, StyleSheet, ActivityIndicator, Text, Pressable, StatusBar, Dimensions , Image, useWindowDimensions} from 'react-native';
 import { NavigationContainer } from '@react-navigation/native';
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
@@ -12,16 +13,16 @@ import MovieIcon from './assets/icons/movieIcon-svg.svg';
 import HomeIcon from './assets/icons/home-svg.svg';
 import ForumIcon from './assets/icons/forum-svg.svg';
 import { SafeAreaView } from 'react-native-safe-area-context';
+import CreateIcon from './assets/icons/create-svg.svg';
 // import MaterialSymbols from 'react-native-vector-icons/MaterialSymbolsOutlined';
 
 // import Icon from 'react-native-vector-icons/MaterialIcons';
 
-import { user, User, UserRole, setUser, setHeight, setWidth, setScreenType, mediumScreen, setSmallWith, darkMode } from './types';
+import { user, User, UserRole, setUser, setHeight, setWidth, setScreenType, mediumScreen, setSmallWith } from './types';
 import ArtistDashboard from './pages/ArtistDashboard';
 import LiveStream from './pages/LiveStream';
 import ChatView from './pages/ChatView';
 import Feed from './pages/Feed';
-import Discover from './pages/Discover';
 import Onboarding from './pages/Onboarding';
 import Signup from './pages/Signup';
 import Community from './pages/Community';
@@ -38,6 +39,34 @@ import GoLiveSetup from './pages/GoLiveSetup';
 import CreatorEvents from './pages/CreatorEvents';
 import CreatorAnalytics from './pages/CreatorAnalytics';
 import CreatorLibrary from './pages/CreatorLibrary';
+import ChallengeCard from './pages/ChallengeScreen';
+import ChallengesScreen from './pages/ChallengeScreen';
+import ChallengeScreen from './pages/ChallengeScreen';
+import UseSound from './pages/UseSound';
+import RecordContent from './pages/RecordContent';
+import ChallengeEntry from './pages/challengeEntry';
+import ParticipantHistory from './pages/ParticipantHistory';
+import MyEntry from './pages/MyEntry';
+import winner from './pages/winner';
+import Arena from './pages/Arena';
+import CreateEvent from './pages/CreateEvent';
+import CreatorLiveStream from './pages/CreatorLiveStream';
+import CreateChallenge from './pages/CreateChallenge';
+import RevenueSplit from './pages/RevenueSplit';
+import NoReward from './pages/NoReward';
+import RewardConfig from './pages/RewardConfig';
+import Reward from './pages/Reward';
+import FinalStep from './pages/finalStep';
+import ChallengeParticipants from './pages/ChallengeParticipants';
+import ChallengeFeed from './pages/ChallengeFeed';
+import Vote from './pages/SoundSelect';
+import FanArena from './pages/FanArena';
+import Library from './pages/Library';
+import EditSubmission from './pages/EditSubmission';
+import SubmitEntry from './pages/SubmitEntry';
+import Player from './pages/Player';
+import EventDetail from './pages/EventDetail';
+import SelectTickets from './pages/SelectTickets';
 
 
 const Stack = createNativeStackNavigator();
@@ -62,24 +91,25 @@ interface TabsProps {
   isDarkMode: boolean;
 }
 
-const VideoPlayer = () => <PlaceholderScreen label="Video Player" />;
-
-const CreatorTabs = ({isDarkMode}: TabsProps) => (
+const CreatorTabs = ({ isDarkMode }: TabsProps) => (
   <Tab.Navigator 
   id="creator-tabs"
+  safeAreaInsets={{ bottom: 0 }}
   screenOptions={{
       headerShown: false,
       tabBarActiveTintColor: '#cd2bee',
       tabBarInactiveTintColor: '#8E8E93',
+      // safeAreaInsets: { bottom: 0 },
+      sceneStyle: { backgroundColor: '#000' },
       // tabBarBackgroundColor: '#060913',
-      tabBarStyle: [styles.tabBar, {backgroundColor: isDarkMode ?  '#ffffffd9':'#1f1022d4',}],
-      tabBarBackground: () => (
-          <BlurView
-            intensity={60}
-            tint="dark"
-            style={StyleSheet.absoluteFill}
-          />
-        ),
+      tabBarStyle: [styles.tabBar, {backgroundColor: isDarkMode ?  '#1f1022':'#ffffff',}],
+      // tabBarBackground: () => (
+      //     <BlurView
+      //       intensity={60}
+      //       tint="dark"
+      //       style={StyleSheet.absoluteFill}
+      //     />
+      //   ),
     }}
   >
     <Tab.Screen
@@ -91,16 +121,32 @@ const CreatorTabs = ({isDarkMode}: TabsProps) => (
     />
     <Tab.Screen
       name="Home"
-      component={ArtistDashboard}
+      component={Arena}
       options={{
         tabBarIcon: ({ color, size }) => <HomeIcon width={size} height={size} fill={color} />,
       }}
     />
     <Tab.Screen
-      name="Library"
-      component={CreatorLibrary}
+      name=" "
+      component={RecordContent}
+      listeners={({ navigation }) => ({
+        tabPress: (e) => {
+          e.preventDefault();
+          navigation.getParent()?.navigate('RecordContent');
+        },
+      })}
       options={{
-        tabBarIcon: ({ color, size }) => <LocalLibraryIcon width={size} height={size} fill={color} />,
+        tabBarIcon: ({ color, size }) => 
+        <View
+        style={{
+          height: 55,
+          width: 55,
+          alignItems: 'center',
+          justifyContent: 'center',
+        }}>
+          {/* <MaterialIcons name='add-circle' size={54} color={'white'}/> */}
+          <CreateIcon height={74} width={74}/>
+        </View>
       }}
     />
     <Tab.Screen 
@@ -144,12 +190,15 @@ const CreatorTabs = ({isDarkMode}: TabsProps) => (
 const FanTabs = ({isDarkMode}: TabsProps) => (
   <Tab.Navigator
     id="fan-tabs"
+    safeAreaInsets={{ bottom: 0 }}
     screenOptions={{
       headerShown: false,
       tabBarActiveTintColor: '#cd2bee',
-      tabBarInactiveTintColor: isDarkMode ? '#64748b':'#8E8E93',
+      tabBarInactiveTintColor: isDarkMode ? '#8E8E93' : '#64748b',
+      // safeAreaInsets: { bottom: 0 },
+      sceneStyle: { backgroundColor: '#000' },
       // tabBarBackgroundColor: '#060913',
-      tabBarStyle: [styles.tabBar, {backgroundColor: isDarkMode ?  '#ffffff':'#1f1022',}],
+      tabBarStyle: [styles.tabBar, {backgroundColor: isDarkMode ?  '#1f1022':'#ffffff',}],
       // tabBarBackground: () => (
       //     <BlurView
       //       intensity={10}
@@ -172,17 +221,17 @@ const FanTabs = ({isDarkMode}: TabsProps) => (
         //   tintColor: 'gold'
         //   // color: ""
         // }}
-        
         // />
         <MovieIcon width={size} height={size} fill={color} />
       }}
     />
     <Tab.Screen 
     name="Discover" 
-    component={Discover}
+    component={FanArena}
     options = {{
+      tabBarLabel: 'Arena',
       tabBarIcon: ({ color, size }) =>
-        //  <MaterialIcons name="explore" size={size} color={color} />,
+      //  <MaterialIcons name="explore" size={size} color={color} />,
       <ExploreIcon width={size} height={size} fill={color} />
 
     }}
@@ -237,11 +286,11 @@ const FanTabs = ({isDarkMode}: TabsProps) => (
 
 
 const App: React.FC = () => {
+  const { isDark, theme } = useThemeMode();
   // const [user, setUser] = useState<User | null>(null);
   const [isLoading, setIsLoading] = useState(true);
   const [showOnboarding, setShowOnboarding] = useState(true);
   const { height: vh, width:vw } = useWindowDimensions();
-  const [isDarkMode, setDarkMode] = useState(false);
 
   const [fontsLoaded] = useFonts({
       PlusJakartaSans:require('./assets/fonts/PlusJakartaSans-Regular.ttf'),
@@ -249,14 +298,6 @@ const App: React.FC = () => {
       PlusJakartaSansExtraBold:require('./assets/fonts/PlusJakartaSans-ExtraBold.ttf'),
       PlusJakartaSansMedium:require('./assets/fonts/PlusJakartaSans-Medium.ttf'),
     });
-
-  useEffect(()=>{
-    setDarkMode(darkMode);
-  },[darkMode])
-  
-    
-  
-  
 
   useEffect(() => {
     // console.log(`Rebuilding`)
@@ -326,7 +367,7 @@ const App: React.FC = () => {
       <NavigationContainer>
         <SafeAreaView edges={[]} style={{ flex: 1 }}>
 
-          <StatusBar barStyle="light-content" backgroundColor="transparent" translucent = {true} />
+          <StatusBar barStyle={isDark ? 'light-content' : 'dark-content'} backgroundColor="transparent" translucent = {true} />
       <Stack.Navigator id="root-stack" screenOptions={{ headerShown: false }}>
         {showOnboarding ? (
           <>
@@ -335,7 +376,7 @@ const App: React.FC = () => {
           </>
         ) : user ? (
           <>
-            <Stack.Screen name="MainTabs">{() => (user!.role === 'creator' ? <CreatorTabs isDarkMode={isDarkMode} /> : <FanTabs isDarkMode={isDarkMode} />)}</Stack.Screen>
+            <Stack.Screen name="MainTabs">{() => (user!.role === 'creator' ? <CreatorTabs isDarkMode={isDark} /> : <FanTabs isDarkMode={isDark} />)}</Stack.Screen>
             <Stack.Screen name="Chat" component={ChatView} />
             <Stack.Screen name="Settings" component={CreatorSettings} />
             <Stack.Screen name="ArtistProfile" component={ArtistProfile} />
@@ -347,8 +388,27 @@ const App: React.FC = () => {
             <Stack.Screen name="CreatorAnalytics" component={CreatorAnalytics} />
             <Stack.Screen name="Community" component={Community} />
             <Stack.Screen name="Analytics" component={CreatorAnalytics} />
-            
-            
+            <Stack.Screen name="Challenges" component={ChallengesScreen} />
+            <Stack.Screen name="RecordContent" component={RecordContent}/>
+            <Stack.Screen name="CreateContent" component={CreateEvent}/>
+            <Stack.Screen name="CreatorLiveStream" component={CreatorLiveStream}/>
+            <Stack.Screen name="CreateChallenge" component={CreateChallenge}/>
+            <Stack.Screen name="RevenueSplit" component={RevenueSplit}/>
+            <Stack.Screen name="NoReward" component={NoReward}/>
+            <Stack.Screen name="RewardConfig" component={RewardConfig}/>
+            <Stack.Screen name="Reward" component={Reward}/>
+            <Stack.Screen name="finalStep" component={FinalStep}/>
+            <Stack.Screen name="challengeParticipants" component={ChallengeParticipants}/>
+            <Stack.Screen name="ChallengeFeed" component={ChallengeFeed}/>
+            <Stack.Screen name="Vote" component={Vote}/>
+            <Stack.Screen name="Video" component={Player}/>
+            <Stack.Screen name="EventDetail" component={EventDetail}/>
+            <Stack.Screen name="SelectTickets" component={SelectTickets}/>
+            <Stack.Screen name="SubmitEntry" component={ChallengeEntry}/>
+            <Stack.Screen name= "Library" component={Library}/>
+            <Stack.Screen name= "EditSubmission" component={EditSubmission}/>
+            <Stack.Screen name= "Submitentry" component={SubmitEntry}/>
+            {/* <Stack.Screen name= "EventDetail" component={EventDetail}/> */}
           </>
         ) : (
           <Stack.Screen name="Onboarding">{() => <Onboarding onLogin={handleLogin} />}</Stack.Screen>
@@ -369,6 +429,7 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     alignItems: 'center',
     gap: 12,
+    backgroundColor: 'black'
   },
   loader: {
     flex: 1,
@@ -389,10 +450,15 @@ const styles = StyleSheet.create({
   },
   tabBar: {
     position: 'absolute',
+    left: 0,
+    right: 0,
+    bottom: 0,
     borderTopWidth: 0,
     // backgroundColor: 'transparent',
     elevation: 0,
-    height: '10%',
+    height: '8%',
+    // height: 64,
+    paddingBottom: 0,
     fontSize: mediumScreen ? 12: 8,
     fontFamily: "PlusJakartaSans"
   },

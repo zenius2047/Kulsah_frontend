@@ -1,4 +1,5 @@
 import React, { useEffect, useMemo, useState } from 'react';
+import { useThemeMode } from '../theme';
 import { View, Text, Pressable, Image, TextInput } from 'react-native';
 import { useNavigation, useRoute } from '@react-navigation/native';
 import { GoogleGenAI } from '@google/genai';
@@ -35,6 +36,7 @@ interface CollabRequest {
 }
 
 const CollaborationHub: React.FC = () => {
+  const { isDark, theme } = useThemeMode();
   const navigation = useNavigation<any>();
   const route = useRoute<any>();
 

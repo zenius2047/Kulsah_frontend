@@ -1,9 +1,11 @@
 import React, { useState, useEffect, useMemo, useRef, useCallback } from 'react';
+import { useThemeMode } from '../theme';
 import { View, Text, Pressable, Image, TextInput } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
 
 
 const Notifications: React.FC = () => {
+  const { isDark, theme } = useThemeMode();
   const navigation = useNavigation<any>();
   const items = [
     { id: 1, type: 'drop', title: 'New Release: Elena Rose', text: '“Ethereal” is now streaming exclusively on Pulsar.', time: '2m ago', img: 'https://picsum.photos/seed/n1/100' },

@@ -2,6 +2,7 @@ import AsyncStorage from '@react-native-async-storage/async-storage';
 import { MaterialIcons } from '@expo/vector-icons';
 import { useNavigation } from '@react-navigation/native';
 import React, { useEffect, useMemo, useState } from 'react';
+import { useThemeMode } from '../theme';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import {
   Alert,
@@ -34,7 +35,8 @@ import DevicesIcon from '../assets/icons/devices-svg.svg';
 import EventIcon from '../assets/icons/event-svg.svg';
 import VerifiedIcon from '../assets/icons/verified-svg.svg';
 import { SvgProps } from 'react-native-svg';
-import { setUser, user } from '../types';
+import { setDark, setUser, user } from '../types';
+import { fontScale } from '../fonts';
 
 
 type SettingsSubView = 'main' | 'socials' | 'tags' | 'security' | 'privacy' | 'identity';
@@ -60,6 +62,7 @@ interface SettingItem {
 const ALL_TAGS = ['Synthwave', 'Indie-Soul', 'Live-Looping', 'Afrobeats', 'Techno', 'Cinematic', 'Visual Art', 'Jazz Fusion'];
 
 const CreatorSettings: React.FC<CreatorSettingsProps> = ({ onLogout, isDarkMode, onToggleTheme, onToggleRole }) => {
+  const { isDark, theme } = useThemeMode();
   const navigation = useNavigation<any>();
   const [activeSubView, setActiveSubView] = useState<SettingsSubView>('main');
 
@@ -120,8 +123,8 @@ const CreatorSettings: React.FC<CreatorSettingsProps> = ({ onLogout, isDarkMode,
             icon: DarkIcon,
             desc: 'Sync with cosmic energy',
             isToggle: true,
-            enabled: !!isDarkMode,
-            onToggle: onToggleTheme,
+            enabled: isDark,
+            onToggle: () => setDark(!isDark),
           },
           {
             label: 'Switch to Fan',
@@ -216,19 +219,19 @@ const CreatorSettings: React.FC<CreatorSettingsProps> = ({ onLogout, isDarkMode,
         ] as SettingItem[],
       },
     ],
-    [contentProtection, exclusiveMode, hideSubs, isDarkMode, onToggleRole, onToggleTheme, showEvents, twoFactor],
+    [contentProtection, exclusiveMode, hideSubs, isDark, onToggleRole, showEvents, twoFactor],
   );
 
   const renderHeader = (title: string, onBack: () => void) => (
-    <View style={s.header}>
+    <View style={[s.header, { backgroundColor: isDark ? 'rgba(31, 16, 34, 0.75)' : theme.card, borderBottomColor: theme.border }]}>
       <View style={s.headerLeft}>
-        <Pressable onPress={onBack} style={s.iconButton}>
-          <MaterialIcons name="arrow-back" size={20} color="#fff" />
+        <Pressable onPress={onBack} style={[s.iconButton, { backgroundColor: isDark ? '#ffffff14' : theme.surface }]}>
+          <MaterialIcons name="arrow-back" size={20} color={theme.text} />
         </Pressable>
-        <Text style={s.headerTitle}>{title}</Text>
+        <Text style={[s.headerTitle, { color: theme.text }]}>{title}</Text>
       </View>
       {activeSubView === 'main' ? (
-        <Pressable onPress={() => navigation.navigate('/dashboard')} style={s.donePill}>
+        <Pressable onPress={() => navigation.navigate('/dashboard')} style={[s.donePill, { borderColor: theme.border, backgroundColor: isDark ? '#cd2bee1f' : theme.accentSoft }]}>
           <Text style={s.donePillText}>Done</Text>
         </Pressable>
       ) : (
@@ -240,38 +243,38 @@ const CreatorSettings: React.FC<CreatorSettingsProps> = ({ onLogout, isDarkMode,
   );
 
   const IdentityView = () => (
-    <View style={s.screen}>
+    <View style={[s.screen, { backgroundColor: theme.screen }]}>
       {renderHeader('Identity & Bio', () => setActiveSubView('main'))}
       <ScrollView contentContainerStyle={s.subContent} showsVerticalScrollIndicator={false}>
         <View style={s.formBlock}>
-          <Text style={s.inputLabel}>Creator Handle</Text>
-          <View style={s.inputWrapRow}>
+          <Text style={[s.inputLabel, { color: theme.textSecondary }]}>Creator Handle</Text>
+          <View style={[s.inputWrapRow, { borderColor: theme.border, backgroundColor: isDark ? '#ffffff08' : theme.surface }]}>
             <Text style={s.inputPrefix}>@</Text>
             <TextInput
               value={handle.startsWith('@') ? handle.slice(1) : handle}
               onChangeText={(value) => setHandle(`@${value.replace(/^@/, '')}`)}
               placeholder="handle"
-              placeholderTextColor="#8f95af"
-              style={s.inputWithPrefix}
+              placeholderTextColor={theme.textMuted}
+              style={[s.inputWithPrefix, { color: theme.text }]}
             />
           </View>
-          <Text style={s.helpText}>Visible in galaxy feeds and searches.</Text>
+          <Text style={[s.helpText, { color: theme.textMuted }]}>Visible in galaxy feeds and searches.</Text>
         </View>
 
         <View style={s.formBlock}>
-          <Text style={s.inputLabel}>Display Name</Text>
+          <Text style={[s.inputLabel, { color: theme.textSecondary }]}>Display Name</Text>
           <TextInput
             value={name}
             onChangeText={setName}
             placeholder="Your Stage Name"
-            placeholderTextColor="#8f95af"
-            style={s.input}
+            placeholderTextColor={theme.textMuted}
+            style={[s.input, { borderColor: theme.border, backgroundColor: isDark ? '#ffffff08' : theme.surface, color: theme.text }]}
           />
         </View>
 
         <View style={s.formBlock}>
           <View style={s.rowBetween}>
-            <Text style={s.inputLabel}>Story / Bio</Text>
+            <Text style={[s.inputLabel, { color: theme.textSecondary }]}>Story / Bio</Text>
             <Text style={[s.counterText, bio.length > 160 && s.counterWarn]}>{bio.length}/160</Text>
           </View>
           <TextInput
@@ -281,13 +284,13 @@ const CreatorSettings: React.FC<CreatorSettingsProps> = ({ onLogout, isDarkMode,
             multiline
             textAlignVertical="top"
             placeholder="Tell the galaxy your story..."
-            placeholderTextColor="#8f95af"
-            style={s.textarea}
+            placeholderTextColor={theme.textMuted}
+            style={[s.textarea, { borderColor: theme.border, backgroundColor: isDark ? '#ffffff08' : theme.surface, color: theme.text }]}
           />
         </View>
 
-        <View style={s.noteCard}>
-          <Text style={s.noteText}>
+        <View style={[s.noteCard, { borderColor: isDark ? '#cd2bee32' : theme.border, backgroundColor: isDark ? '#cd2bee14' : theme.accentSoft }]}>
+          <Text style={[s.noteText, { color: theme.textSecondary }]}>
             Your handle is your unique planetary coordinate. Changing it may disrupt existing external links to your hub.
           </Text>
         </View>
@@ -296,28 +299,28 @@ const CreatorSettings: React.FC<CreatorSettingsProps> = ({ onLogout, isDarkMode,
   );
 
   const SocialsView = () => (
-    <View style={s.screen}>
+    <View style={[s.screen, { backgroundColor: theme.screen }]}>
       {renderHeader('Galaxy Presence', () => setActiveSubView('main'))}
       <ScrollView contentContainerStyle={s.subContent} showsVerticalScrollIndicator={false}>
-        <Text style={s.sectionHeading}>Social Uplinks</Text>
+        <Text style={[s.sectionHeading, { color: theme.textSecondary }]}>Social Uplinks</Text>
 
         {(['instagram', 'twitter', 'website'] as const).map((platform) => (
           <View key={platform} style={s.formBlock}>
-            <Text style={s.fieldName}>{platform}</Text>
-            <View style={s.inputWrapRow}>
+            <Text style={[s.fieldName, { color: theme.textSecondary }]}>{platform}</Text>
+            <View style={[s.inputWrapRow, { borderColor: theme.border, backgroundColor: isDark ? '#ffffff08' : theme.surface }]}>
               <Text style={s.inputPrefix}>{platform === 'website' ? 'link' : '@'}</Text>
               <TextInput
                 value={socials[platform]}
                 onChangeText={(value) => setSocials((prev) => ({ ...prev, [platform]: value }))}
-                placeholderTextColor="#8f95af"
-                style={s.inputWithPrefix}
+                placeholderTextColor={theme.textMuted}
+                style={[s.inputWithPrefix, { color: theme.text }]}
               />
             </View>
           </View>
         ))}
 
-        <View style={s.noteCard}>
-          <Text style={s.noteText}>
+        <View style={[s.noteCard, { borderColor: isDark ? '#cd2bee32' : theme.border, backgroundColor: isDark ? '#cd2bee14' : theme.accentSoft }]}>
+          <Text style={[s.noteText, { color: theme.textSecondary }]}>
             Connected uplinks appear on your public profile and allow fans to follow your journey across star systems.
           </Text>
         </View>
@@ -326,10 +329,10 @@ const CreatorSettings: React.FC<CreatorSettingsProps> = ({ onLogout, isDarkMode,
   );
 
   const TagsView = () => (
-    <View style={s.screen}>
+    <View style={[s.screen, { backgroundColor: theme.screen }]}>
       {renderHeader('Discovery Tags', () => setActiveSubView('main'))}
       <ScrollView contentContainerStyle={s.subContent} showsVerticalScrollIndicator={false}>
-        <Text style={s.sectionHeading}>Algorithm Alignment</Text>
+        <Text style={[s.sectionHeading, { color: theme.textSecondary }]}>Algorithm Alignment</Text>
 
         <View style={s.tagsWrap}>
           {ALL_TAGS.map((tag) => {
@@ -338,15 +341,15 @@ const CreatorSettings: React.FC<CreatorSettingsProps> = ({ onLogout, isDarkMode,
               <Pressable
                 key={tag}
                 onPress={() => setTags((prev) => (prev.includes(tag) ? prev.filter((t) => t !== tag) : [...prev, tag]))}
-                style={[s.tagChip, isOn && s.tagChipOn]}
+                style={[s.tagChip, { borderColor: theme.border, backgroundColor: isDark ? '#ffffff10' : theme.surface }, isOn && s.tagChipOn]}
               >
-                <Text style={[s.tagText, isOn && s.tagTextOn]}>{tag}</Text>
+                <Text style={[s.tagText, { color: theme.textMuted }, isOn && s.tagTextOn]}>{tag}</Text>
               </Pressable>
             );
           })}
         </View>
 
-        <Text style={s.tagsFooter}>
+        <Text style={[s.tagsFooter, { color: theme.textMuted }]}>
           Discovery tags help the Kulsah recommendation engine place your transmissions in front of the right audience orbits.
         </Text>
       </ScrollView>
@@ -358,8 +361,8 @@ const CreatorSettings: React.FC<CreatorSettingsProps> = ({ onLogout, isDarkMode,
   if (activeSubView === 'tags') return <TagsView />;
 
   return (
-    <View style={s.screen}>
-      <SafeAreaView edges={[]}>
+    <View style={[s.screen, { backgroundColor: theme.screen }]}>
+      <SafeAreaView edges={[]} style={{ backgroundColor: theme.background }}>
         <ScrollView contentContainerStyle={s.content} showsVerticalScrollIndicator={false}>
         {renderHeader('Settings', () => navigation.goBack())}
 
@@ -368,7 +371,7 @@ const CreatorSettings: React.FC<CreatorSettingsProps> = ({ onLogout, isDarkMode,
         </ImageBackground> */}
 
         <View style={s.profileTop}>
-          <Pressable onPress={() => pickImageStub('avatar')} style={s.avatarWrap}>
+          <Pressable onPress={() => pickImageStub('avatar')} style={[s.avatarWrap, { backgroundColor: theme.screen }]}>
             <Image source={{ uri: avatarImage }} style={s.avatar} />
             <View style={s.avatarEdit}>
               <MaterialIcons name="edit" size={13} color="#fff" />
@@ -376,7 +379,7 @@ const CreatorSettings: React.FC<CreatorSettingsProps> = ({ onLogout, isDarkMode,
           </Pressable>
           <View style={s.profileNameBlock}>
             <View style={s.nameRow}>
-              <Text style={s.profileName}>{name}</Text>
+              <Text style={[s.profileName, { color: theme.text }]}>{name}</Text>
               {/* <MaterialIcons name="verified" size={18} color="#cd2bee" /> */}
               <VerifiedIcon width={18} height={18} fill = "#cd2bee"/>
             </View>
@@ -386,41 +389,41 @@ const CreatorSettings: React.FC<CreatorSettingsProps> = ({ onLogout, isDarkMode,
 
         {sections.map((section) => (
           <View key={section.title} style={s.sectionBlock}>
-            <Text style={s.sectionTitle}>{section.title}</Text>
+            <Text style={[s.sectionTitle, { color: theme.textSecondary }]}>{section.title}</Text>
 
             <View style={s.itemsWrap}>
               {section.items.map((item) => (
                 <Pressable
                   key={item.label}
-                  style={s.itemRow}
+                  style={[s.itemRow, { borderColor: theme.border, backgroundColor: isDark ? 'rgba(31, 16, 34, 0.75)' : theme.card }]}
                   onPress={() => {
                     if (item.action) item.action();
                     else if (item.path) navigation.navigate(item.path);
                   }}
                 >
                   <View style={s.itemLeft}>
-                    <View style={s.itemIconWrap}>
+                    <View style={[s.itemIconWrap, { borderColor: theme.border, backgroundColor: isDark ? '#cd2bee20' : theme.accentSoft }]}>
                       {typeof item.icon === 'string' ? (
-                            <MaterialIcons name={item.icon as any} size={18} color="white" />
+                            <MaterialIcons name={item.icon as any} size={18} color={isDark ? 'white' : theme.accent} />
                           ) : (
-                            <item.icon width={18} height={18} fill="white" />
+                            <item.icon width={18} height={18} fill={isDark ? 'white' : theme.accent} />
                           )}
                     </View>
                     <View style={s.itemCopy}>
-                      <Text style={s.itemLabel}>{item.label}</Text>
-                      <Text style={s.itemDesc}>{item.desc}</Text>
+                      <Text style={[s.itemLabel, { color: theme.text }]}>{item.label}</Text>
+                      <Text style={[s.itemDesc, { color: theme.textSecondary }]}>{item.desc}</Text>
                     </View>
                   </View>
 
                   {item.isToggle ? (
                     <Switch
-                      trackColor={{ false: '#30384a', true: '#cd2bee' }}
+                      trackColor={{ false: isDark ? '#30384a' : '#cbd5e1', true: '#cd2bee' }}
                       thumbColor="#fff"
                       value={!!item.enabled}
                       onValueChange={() => item.onToggle?.()}
                     />
                   ) : (
-                    <MaterialIcons name="chevron-right" size={20} color="#ffffff22" />
+                    <MaterialIcons name="chevron-right" size={20} color={theme.textMuted} />
                   )}
                 </Pressable>
               ))}
@@ -429,9 +432,9 @@ const CreatorSettings: React.FC<CreatorSettingsProps> = ({ onLogout, isDarkMode,
         ))}
 
         <View style={s.footerActions}>
-          <Pressable onPress={onLogout} style={s.signOutBtn}>
-            <MaterialIcons name="logout" size={18} color="#fff" />
-            <Text style={s.signOutText}>Sign Out of Kulsah</Text>
+          <Pressable onPress={onLogout} style={[s.signOutBtn, { backgroundColor: isDark ? '#ffffff12' : theme.surface, borderColor: theme.border }]}>
+            <MaterialIcons name="logout" size={18} color={theme.text} />
+            <Text style={[s.signOutText, { color: theme.text }]}>Sign Out of Kulsah</Text>
           </Pressable>
 
           <Pressable style={s.deactivateBtn} onPress={() => Alert.alert('Coming Soon', 'Deactivate Studio flow is not wired yet.') }>
@@ -439,7 +442,7 @@ const CreatorSettings: React.FC<CreatorSettingsProps> = ({ onLogout, isDarkMode,
             <Text style={s.deactivateText}>Deactivate Studio</Text>
           </Pressable>
 
-          <Text style={s.versionText}>Creator Protocol v2.5.0</Text>
+          <Text style={[s.versionText, { color: theme.textMuted }]}>Creator Protocol v2.5.0</Text>
         </View>
       </ScrollView>
       </SafeAreaView>
@@ -471,7 +474,7 @@ const s = StyleSheet.create({
     justifyContent: 'center',
     backgroundColor: '#ffffff14',
   },
-  headerTitle: { color: '#fff', fontSize: 18, fontWeight: '900', textTransform: 'uppercase' },
+  headerTitle: { color: '#fff', fontSize: fontScale(18), fontWeight: '900', textTransform: 'uppercase' },
   donePill: {
     paddingHorizontal: 10,
     paddingVertical: 6,
@@ -482,12 +485,12 @@ const s = StyleSheet.create({
   },
   donePillText: {
     color: '#cd2bee',
-    fontSize: 10,
+    fontSize: fontScale(10),
     fontWeight: '900',
     textTransform: 'uppercase',
     letterSpacing: 1,
   },
-  saveText: { color: '#cd2bee', fontSize: 11, fontWeight: '900', textTransform: 'uppercase' },
+  saveText: { color: '#cd2bee', fontSize: fontScale(11), fontWeight: '900', textTransform: 'uppercase' },
   banner: { height: 180, marginHorizontal: 16, marginTop: 12, borderRadius: 22, overflow: 'hidden' },
   bannerImage: { borderRadius: 22 },
   bannerShade: { ...StyleSheet.absoluteFillObject, backgroundColor: '#0000004f' },
@@ -530,10 +533,10 @@ const s = StyleSheet.create({
   },
   profileNameBlock: { paddingBottom: 10 },
   nameRow: { flexDirection: 'row', alignItems: 'center', gap: 6, justifyContent: 'center',},
-  profileName: { color: '#fff', fontSize: 20, fontWeight: '900' },
+  profileName: { color: '#fff', fontSize: fontScale(20), fontWeight: '900' },
   profileHandle: {
     color: '#cd2bee',
-    fontSize: 10,
+    fontSize: fontScale(10),
     fontWeight: '900',
     textTransform: 'uppercase',
     letterSpacing: 1.5,
@@ -542,7 +545,7 @@ const s = StyleSheet.create({
   sectionBlock: { marginTop: 18, paddingHorizontal: 16 },
   sectionTitle: {
     color: '#8b90a8',
-    fontSize: 10,
+    fontSize: fontScale(10),
     fontWeight: '900',
     textTransform: 'uppercase',
     letterSpacing: 2.4,
@@ -572,8 +575,8 @@ const s = StyleSheet.create({
     borderColor: 'rgba(0 0 0 / 0.05)',
   },
   itemCopy: { flex: 1 },
-  itemLabel: { color: '#fff', fontWeight: '800', fontSize: 14 },
-  itemDesc: { color: '#8e91a6', marginTop: 2, fontSize: 11 },
+  itemLabel: { color: '#fff', fontWeight: '800', fontSize: fontScale(14) },
+  itemDesc: { color: '#8e91a6', marginTop: 2, fontSize: fontScale(11) },
   footerActions: { paddingHorizontal: 16, marginTop: 22, gap: 10 },
   signOutBtn: {
     height: 58,
@@ -586,7 +589,7 @@ const s = StyleSheet.create({
     flexDirection: 'row',
     gap: 8,
   },
-  signOutText: { color: '#fff', fontWeight: '800', fontSize: 15 },
+  signOutText: { color: '#fff', fontWeight: '800', fontSize: fontScale(15) },
   deactivateBtn: {
     height: 58,
     borderRadius: 22,
@@ -598,12 +601,12 @@ const s = StyleSheet.create({
     flexDirection: 'row',
     gap: 8,
   },
-  deactivateText: { color: '#ef4444', fontWeight: '800', fontSize: 15 },
+  deactivateText: { color: '#ef4444', fontWeight: '800', fontSize: fontScale(15) },
   versionText: {
     marginTop: 2,
     color: '#70758f',
     textAlign: 'center',
-    fontSize: 9,
+    fontSize: fontScale(9),
     letterSpacing: 1.5,
     textTransform: 'uppercase',
     fontWeight: '900',
@@ -612,7 +615,7 @@ const s = StyleSheet.create({
   formBlock: { gap: 8 },
   inputLabel: {
     color: '#8b90a8',
-    fontSize: 10,
+    fontSize: fontScale(10),
     fontWeight: '900',
     textTransform: 'uppercase',
     letterSpacing: 2,
@@ -632,10 +635,10 @@ const s = StyleSheet.create({
     color: '#cd2bee',
     fontWeight: '900',
     textTransform: 'uppercase',
-    fontSize: 12,
+    fontSize: fontScale(12),
     marginRight: 6,
   },
-  inputWithPrefix: { flex: 1, color: '#fff', fontWeight: '700', fontSize: 14, paddingVertical: 0 },
+  inputWithPrefix: { flex: 1, color: '#fff', fontWeight: '700', fontSize: fontScale(14), paddingVertical: 0 },
   input: {
     height: 54,
     borderRadius: 16,
@@ -644,19 +647,19 @@ const s = StyleSheet.create({
     backgroundColor: '#ffffff08',
     color: '#fff',
     fontWeight: '700',
-    fontSize: 14,
+    fontSize: fontScale(14),
     paddingHorizontal: 14,
   },
   helpText: {
     color: '#7f849f',
-    fontSize: 10,
+    fontSize: fontScale(10),
     textTransform: 'uppercase',
     letterSpacing: 1,
     fontWeight: '700',
     paddingHorizontal: 3,
   },
   rowBetween: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center' },
-  counterText: { color: '#8f95af', fontSize: 10, fontWeight: '700' },
+  counterText: { color: '#8f95af', fontSize: fontScale(10), fontWeight: '700' },
   counterWarn: { color: '#ef4444' },
   textarea: {
     minHeight: 120,
@@ -665,7 +668,7 @@ const s = StyleSheet.create({
     borderColor: '#ffffff1a',
     backgroundColor: '#ffffff08',
     color: '#fff',
-    fontSize: 14,
+    fontSize: fontScale(14),
     lineHeight: 20,
     paddingHorizontal: 14,
     paddingVertical: 12,
@@ -677,10 +680,10 @@ const s = StyleSheet.create({
     backgroundColor: '#cd2bee14',
     padding: 14,
   },
-  noteText: { color: '#c5c9de', fontSize: 12, fontStyle: 'italic', lineHeight: 18 },
+  noteText: { color: '#c5c9de', fontSize: fontScale(12), fontStyle: 'italic', lineHeight: 18 },
   sectionHeading: {
     color: '#8b90a8',
-    fontSize: 10,
+    fontSize: fontScale(10),
     fontWeight: '900',
     textTransform: 'uppercase',
     letterSpacing: 2.5,
@@ -689,7 +692,7 @@ const s = StyleSheet.create({
   },
   fieldName: {
     color: '#8f95af',
-    fontSize: 10,
+    fontSize: fontScale(10),
     fontWeight: '800',
     textTransform: 'uppercase',
     letterSpacing: 1.4,
@@ -707,7 +710,7 @@ const s = StyleSheet.create({
   tagChipOn: { backgroundColor: '#cd2bee', borderColor: '#cd2bee' },
   tagText: {
     color: '#a8adc4',
-    fontSize: 10,
+    fontSize: fontScale(10),
     fontWeight: '900',
     textTransform: 'uppercase',
     letterSpacing: 1.1,
@@ -715,7 +718,7 @@ const s = StyleSheet.create({
   tagTextOn: { color: '#fff' },
   tagsFooter: {
     color: '#8f95af',
-    fontSize: 10,
+    fontSize: fontScale(10),
     textTransform: 'uppercase',
     letterSpacing: 1.1,
     textAlign: 'center',

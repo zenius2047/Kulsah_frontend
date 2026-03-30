@@ -1,4 +1,5 @@
 import React, { useState, useEffect, useMemo, useRef, useCallback } from 'react';
+import { useThemeMode } from '../theme';
 import { View, Text, Pressable, Image, TextInput } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
 
@@ -38,6 +39,7 @@ const FOLLOWING: User[] = [
 ];
 
 const Subscribers: React.FC = () => {
+  const { isDark, theme } = useThemeMode();
   const navigation = useNavigation<any>();
   const [activeTab, setActiveTab] = useState<TabType>('subs');
   const [search, setSearch] = useState("");

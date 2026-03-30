@@ -1,4 +1,5 @@
 import React, { useState, useEffect, useMemo, useRef, useCallback } from 'react';
+import { useThemeMode } from '../theme';
 import { View, Text, Pressable, Image, TextInput } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
 
@@ -16,6 +17,7 @@ interface Transaction {
 type PayoutMethod = 'bank' | 'momo' | 'paypal' | 'crypto';
 
 const CreatorRevenue: React.FC = () => {
+  const { isDark, theme } = useThemeMode();
   const navigation = useNavigation<any>();
   const [loading, setLoading] = useState(false);
   const [aiAdvice, setAiAdvice] = useState<string>("");

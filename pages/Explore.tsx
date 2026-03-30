@@ -1,4 +1,5 @@
 import React, { useState, useEffect, useMemo, useRef, useCallback } from 'react';
+import { useThemeMode } from '../theme';
 import { View, Text, Pressable, Image, TextInput } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
 
@@ -14,6 +15,7 @@ interface ExploreProps {
 }
 
 const Explore: React.FC<ExploreProps> = ({ onLogout }) => {
+  const { isDark, theme } = useThemeMode();
   const navigation = useNavigation<any>();
 
   const vibes = [
