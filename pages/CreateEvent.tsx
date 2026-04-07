@@ -306,7 +306,7 @@ const styles = StyleSheet.create({
   headerTitle: {
     color: '#ffffff',
     fontFamily: 'PlusJakartaSansExtraBold',
-    fontSize: mediumScreen ? 18: 14,
+    fontSize: mediumScreen ? 16: 13,
     letterSpacing: 3.2,
   },
   headerSpacer: {
@@ -370,7 +370,7 @@ const styles = StyleSheet.create({
   newVideoTitle: {
     color: '#000000',
     fontFamily: 'PlusJakartaSansExtraBold',
-    fontSize: mediumScreen ? 18: 14,
+    fontSize: mediumScreen ? 16: 13,
   },
   draftCard: {
     flex: 1,
@@ -427,7 +427,7 @@ const styles = StyleSheet.create({
   actionTitle: {
     color: '#ffffff',
     fontFamily: 'PlusJakartaSansExtraBold',
-    fontSize: mediumScreen ? 18: 14,
+    fontSize: mediumScreen ? 16: 13,
     marginBottom: 4,
   },
   actionDescription: {
@@ -448,7 +448,7 @@ const styles = StyleSheet.create({
   templatesTitle: {
     color: '#ffffff',
     fontFamily: 'PlusJakartaSansExtraBold',
-    fontSize: mediumScreen ? 24: 20,
+    fontSize: mediumScreen ? 21: 18,
     letterSpacing: -0.6,
   },
   searchButton: {
@@ -531,7 +531,7 @@ const styles = StyleSheet.create({
   templateName: {
     color: '#ffffff',
     fontFamily: 'PlusJakartaSansExtraBold',
-    fontSize: mediumScreen ? 16:12,
+    fontSize: mediumScreen ? 15:11,
     letterSpacing: 0.6,
   },
   templateMeta: {
@@ -543,7 +543,7 @@ const styles = StyleSheet.create({
   soundSectionTitle: {
     color: '#ffffff',
     fontFamily: 'PlusJakartaSansExtraBold',
-    fontSize: mediumScreen ? 22:18,
+    fontSize: mediumScreen ? 20:16,
   },
   seeAllText: {
     color: '#930df2',
@@ -571,7 +571,7 @@ const styles = StyleSheet.create({
   soundTitle: {
     color: '#ffffff',
     fontFamily: 'PlusJakartaSansBold',
-    fontSize: mediumScreen ? 18:14,
+    fontSize: mediumScreen ? 16:13,
     marginBottom: 4,
   },
   soundMeta: {

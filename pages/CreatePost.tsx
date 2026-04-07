@@ -139,7 +139,7 @@ const styles = StyleSheet.create({
     paddingHorizontal: 16,
     color: '#F8FAFC',
     fontFamily: 'PlusJakartaSansBold',
-    fontSize: fontScale(18),
+    fontSize: fontScale(16),
   },
   postChip: {
     paddingHorizontal: 16,
@@ -176,12 +176,12 @@ const styles = StyleSheet.create({
   name: {
     color: '#F8FAFC',
     fontFamily: 'PlusJakartaSansBold',
-    fontSize: fontScale(16),
+    fontSize: fontScale(15),
   },
   subtitle: {
     color: 'rgba(217,21,210,0.75)',
     fontFamily: 'PlusJakartaSansMedium',
-    fontSize: fontScale(12),
+    fontSize: fontScale(11),
     marginTop: 4,
   },
   input: {
@@ -218,7 +218,7 @@ const styles = StyleSheet.create({
   uploadTitle: {
     color: '#F8FAFC',
     fontFamily: 'PlusJakartaSansBold',
-    fontSize: fontScale(22),
+    fontSize: fontScale(20),
     marginBottom: 8,
   },
   uploadText: {

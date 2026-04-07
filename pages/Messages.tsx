@@ -304,13 +304,13 @@ const styles = StyleSheet.create({
   },
   title: {
     color: '#F8FAFC',
-    fontSize: mediumScreen?24:20,
+    fontSize: mediumScreen?21:18,
     fontWeight: '900',
     letterSpacing: 0.5,
   },
   subtitle: {
     color: '#D946EF',
-    fontSize: mediumScreen?13:9,
+    fontSize: mediumScreen?12:8,
     fontWeight: '900',
     letterSpacing: 2.5,
     marginTop: 2,
@@ -507,7 +507,7 @@ const styles = StyleSheet.create({
   },
   name: {
     color: '#F8FAFC',
-    fontSize: mediumScreen?18:14,
+    fontSize: mediumScreen?16:13,
     fontWeight: '900',
     textTransform: 'uppercase',
     flexShrink: 1,

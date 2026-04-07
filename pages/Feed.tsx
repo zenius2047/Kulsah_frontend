@@ -28,6 +28,8 @@ import PlayFilledIcon from '../assets/icons/play-arrow-filled-svg.svg';
 import FireIcon from '../assets/icons/fire-svg.svg';
 import BookMarkIcon from '../assets/icons/bookmark-svg.svg';
 import { fontScale } from '../fonts';
+import LiveLogo from '../assets/icons/live-svg.svg';
+import Reactions from './Reactions';
 
 interface FeedItem {
   id: string;
@@ -47,7 +49,8 @@ interface FeedItem {
   isLive?: boolean;
 }
 
-const { height: SCREEN_HEIGHT, width: SCREEN_WIDTH } = Dimensions.get('window');
+const { height: SCREEN_HEIGHT, width: SCREEN_WIDTH } = Dimensions.get('screen');
+const FEED_ITEM_HEIGHT = SCREEN_HEIGHT * 0.92;
 
 
 const VideoFeedItem: React.FC<{
@@ -92,6 +95,10 @@ const VideoFeedItem: React.FC<{
 
    const loadedMetadata = useEvent(player, 'sourceLoad');
   const [dimensions, setDimensions] = useState({ width: 0, height: 0 });
+  const isPortraitVideo =
+    dimensions.width === 0 ||
+    dimensions.height === 0 ||
+    dimensions.height >= dimensions.width;
 
   // Extract dimensions once the video source loads
   React.useEffect(() => {
@@ -163,6 +170,7 @@ const { isPlaying : isReady } = useEvent(player, 'playingChange', { isPlaying: p
         <VideoView
           player={player}
           nativeControls={false}
+          contentFit={isPortraitVideo ? 'cover' : 'contain'}
           style={[{
             position: 'absolute',
             top: 0,
@@ -196,8 +204,8 @@ const { isPlaying : isReady } = useEvent(player, 'playingChange', { isPlaying: p
       </View> */}
 
       {/* Right-side overlay buttons */}
-      <View style={{ position: 'absolute', right: 16, bottom: 30, alignItems: 'center' }}>
-        <Pressable style={{ marginBottom: 16 }}>
+      <View style={{ position: 'absolute', right: 16, bottom: 30, alignItems: 'center', gap: 16 }}>
+        <Pressable style={{}}>
           <View style={{
             borderRadius: 24,
             height: 48,
@@ -237,17 +245,17 @@ const { isPlaying : isReady } = useEvent(player, 'playingChange', { isPlaying: p
           </Pressable>
         )} */}
 
-        <Pressable onPress={() => setIsLiked(v => !v)} style={{ marginBottom: 16, alignItems: 'center' }}>
+        <Pressable onPress={() => setIsLiked(v => !v)} style={{alignItems: 'center' }}>
           <MaterialIcons name={isLiked ? 'favorite' : 'favorite-border'} size={28} color={isLiked ? '#cd2bee' : 'white'} />
           <Text style={{ color: 'white', fontWeight: 'bold', fontSize: mediumScreen ? 14:10, fontFamily: "PlusJakartaSansBold" }}>{item.likes}</Text>
         </Pressable>
 
-        <Pressable onPress={() => setShowComments(true)} style={{ marginBottom: 16, alignItems: 'center' }}>
+        <Pressable onPress={() => setShowComments(true)} style={{alignItems: 'center' }}>
           <MaterialIcons name="chat-bubble-outline" size={28} color="white" />
           <Text style={{ color: 'white', fontSize: mediumScreen ? 14:10, fontFamily: "PlusJakartaSansBold"}}>{item.comments}</Text>
         </Pressable>
 
-        <Pressable onPress={() => navigation.navigate('Video')} style={{ marginBottom: 16, alignItems: 'center' }}>
+        <Pressable onPress={() => navigation.navigate('Video')} style={{alignItems: 'center' }}>
           <View style={{
             // borderRadius: 20,
             // width: 40,
@@ -283,6 +291,12 @@ const { isPlaying : isReady } = useEvent(player, 'playingChange', { isPlaying: p
           <MaterialIcons name="share" size={28} color="white" />
           <Text style={{ color: 'white', fontSize: mediumScreen ? 14:10, fontFamily: "PlusJakartaSansBold" }}>Share</Text>
         </Pressable>
+
+        <View style={
+          {
+            height: 0,
+          }
+        }></View>
       </View>
 
       {/* Bottom overlay: captions, ticket button */}
@@ -294,7 +308,7 @@ const { isPlaying : isReady } = useEvent(player, 'playingChange', { isPlaying: p
             <Text style={{ color: 'white', fontWeight: '800', fontSize: mediumScreen ? 18: 14 }}>@{item.handle}</Text>
           </Pressable>
           {item.isPremium && (
-            <View style={{ borderRadius: 6, borderColor: '#cd2bee', borderWidth: 1, paddingHorizontal: 6, justifyContent: 'center', alignItems: 'center', paddingVertical: 3 }}>
+            <View style={{ borderRadius: 6, borderColor: '#cd2bee', backgroundColor: '#cd2bee', borderWidth: 1, paddingHorizontal: 6, justifyContent: 'center', alignItems: 'center', paddingVertical: 3 }}>
               <Text style={{ color: '#fff', fontWeight: 'bold', fontSize: mediumScreen ? 12: 8 }}>Premium</Text>
             </View>
           )}
@@ -328,44 +342,12 @@ const { isPlaying : isReady } = useEvent(player, 'playingChange', { isPlaying: p
           </Pressable>
         )}
 
-        <Text style={{ color: '#cbd5e1', marginTop: 10, fontSize: mediumScreen ? 16: 12 }}>{isPlaying ? 'Playing' : 'Paused'} preview</Text>
+        <Text style={{ color: '#cbd5e1', marginTop: 10, fontSize: mediumScreen ? 12: 8 }}>{isPlaying ? 'Playing' : 'Paused'} preview</Text>
       </View>
 
       {/* Comments modal */}
       <Modal visible={showComments} transparent animationType="slide" onRequestClose={() => setShowComments(false)}>
-        <Pressable style={{ flex: 1, backgroundColor: 'rgba(0,0,0,0.55)', justifyContent: 'flex-end' }} onPress={() => setShowComments(false)}>
-          <Pressable style={{ backgroundColor: '#111827', borderTopLeftRadius: 28, borderTopRightRadius: 28, padding: 16, maxHeight: '70%' }}>
-            <View style={{ flexDirection: 'row', justifyContent: 'space-between', marginBottom: 12 }}>
-              <Text style={{ color: 'white', fontFamily: 'PlusJakartaSans' }}>{item.comments} Comments</Text>
-              <Pressable onPress={() => setShowComments(false)}>
-                <Text style={{ color: 'white' }}>close</Text>
-              </Pressable>
-            </View>
-
-            <ScrollView style={{ maxHeight: 340 }}>
-              {[1, 2, 3, 4, 5].map(i => (
-                <View key={i} style={{ flexDirection: 'row', marginBottom: 14 }}>
-                  <Image source={{ uri: `https://picsum.photos/seed/fan${i}/100` }} style={{ width: 36, height: 36, borderRadius: 18, marginRight: 10 }} />
-                  <View style={{ flex: 1 }}>
-                    <Text style={{ color: 'white', fontWeight: '700' }}>GalaxyFan_{i}</Text>
-                    <Text style={{ color: '#cbd5e1' }}>This visual is absolute fire!</Text>
-                  </View>
-                </View>
-              ))}
-            </ScrollView>
-
-            <View style={{ flexDirection: 'row', alignItems: 'center', marginTop: 6 }}>
-              <TextInput
-                placeholder="Add a comment..."
-                placeholderTextColor="#94a3b8"
-                style={{ flex: 1, backgroundColor: '#1f2937', color: 'white', borderRadius: 12, paddingHorizontal: 12, paddingVertical: 10 }}
-              />
-              <Pressable style={{ marginLeft: 10 }}>
-                <Text style={{ color: '#cd2bee', fontWeight: '700' }}>Post</Text>
-              </Pressable>
-            </View>
-          </Pressable>
-        </Pressable>
+        <Reactions onClose={() => setShowComments(false)} title={`${item.comments} Reactions`} />
       </Modal>
     </View>
   );
@@ -374,7 +356,7 @@ const { isPlaying : isReady } = useEvent(player, 'playingChange', { isPlaying: p
 const Feed: React.FC = () => {
   const { isDark, theme } = useThemeMode();
   const navigation = useNavigation<any>();
-  const [activeTab, setActiveTab] = useState<'premium' | 'foryou' | 'following' | 'challenges'>('foryou');
+  const [activeTab, setActiveTab] = useState<'premium' | 'foryou' | 'following' >('foryou');
   const [isGlobalMuted, setIsGlobalMuted] = useState(false);
   const colors = [
     'red',
@@ -593,6 +575,11 @@ const Feed: React.FC = () => {
 
   const [activeIndex, setActiveIndex] = useState(0);
 
+
+  useEffect(()=>{
+    console.log(`This is the value of mediumScreen : ${mediumScreen}`)
+  });
+
   const onViewRef = React.useRef(
   ({ viewableItems }: { viewableItems: ViewToken[] }) => {
     if (viewableItems.length > 0) {
@@ -656,13 +643,15 @@ const Feed: React.FC = () => {
         <View style={{
           flexDirection: "row",
               height: 44,
-              width: "75%",
+              width: SCREEN_WIDTH * 0.7,
               alignItems: "center",
               paddingHorizontal: 2,
               paddingVertical: 2,
               // backgroundColor: 'red',
+              justifyContent: 'center',
               gap: 10
                   }}>
+              <LiveLogo height={54} width={54}/>
                   <Pressable onPress={() => setActiveTab("foryou")} style={{ justifyContent: 'center', alignItems: 'center',  }}>
                     <View style={{justifyContent: 'center', alignItems: 'center'}}>
                       <Text style={[{ color: "#94a3b8", fontSize: smallWidth ? 10.5 : mediumScreen ? 13.5:8.5, fontFamily: "PlusJakartaSansBold", letterSpacing: -0.2, marginBottom: 5 }, activeTab === "foryou" && {color: 'white', letterSpacing: 1, fontFamily: 'PlusJakartaSansExtraBold'}]}>
@@ -689,7 +678,7 @@ const Feed: React.FC = () => {
                       }}/>}
                     </View>
                   </Pressable>
-                  <Pressable onPress={() => setActiveTab("challenges")} style={{ justifyContent: 'center', alignItems: 'center',}}>
+                  {/* <Pressable onPress={() => setActiveTab("challenges")} style={{ justifyContent: 'center', alignItems: 'center',}}>
                     <View style={{ justifyContent: 'center', alignItems: 'center',}}>
                       <Text style={[{ color: "#94a3b8", fontSize: smallWidth ? 10.5 : mediumScreen ? 13.5:8.5, fontFamily: "PlusJakartaSansBold", marginBottom: 5 }, activeTab === "challenges" && {color: 'white', letterSpacing: 1, fontFamily: 'PlusJakartaSansExtraBold', marginBottom: 5}]}>
                         CHALLENGES
@@ -701,7 +690,7 @@ const Feed: React.FC = () => {
                         // marginTop: 5
                       }}/>}
                     </View>
-                  </Pressable>
+                  </Pressable> */}
                   <Pressable onPress={() => setActiveTab("premium")} style={{ justifyContent: 'center', alignItems: 'center',}}>
                     <View style={{ justifyContent: 'center', alignItems: 'center',}}>
                       <Text style={[{ color: "#94a3b8", fontSize: smallWidth ? 10.5 : mediumScreen ? 13.5:8.5, fontFamily: "PlusJakartaSansBold", marginBottom: 5 }, activeTab === "premium" && {color: 'white', letterSpacing: 1, fontFamily: 'PlusJakartaSansExtraBold', marginBottom: 5}]}>
@@ -720,24 +709,27 @@ const Feed: React.FC = () => {
                 </View>
             <View
             style={{
-              // width: "15%",
+              // width: SCREEN_WIDTH * 0.2,
               // backgroundColor: '#f9731633',
               // borderColor: '#f973164d',
               // borderWidth: 1,
               // borderRadius: 16,
-              height: 35,
+              height: 45,
               justifyContent: 'center',
               alignItems: 'center',
               flexDirection: 'row',
               paddingHorizontal: 5,
               paddingVertical: 2.5,
+              // marginRight: 5,
             }}
             >
-              <FireIcon fill='#f97316' height={18} width={18}/>
-              <Text style={{
+              <FireIcon fill='#f97316' height={28} width={28}/>
+              <Text 
+              numberOfLines={1}
+              style={{
                 color: '#f97316',
                 fontFamily: "PlusJakartaSansBold",
-                fontSize: mediumScreen ? 14: 10,
+                fontSize: mediumScreen ? 16: 12,
               }}>
                 3
               </Text>
@@ -756,9 +748,8 @@ const Feed: React.FC = () => {
           keyExtractor={(item) => item.id}
           renderItem={({ item, index}) => (
             <View style={{
-              height: SCREEN_HEIGHT <= 808 ? SCREEN_HEIGHT + 60 : SCREEN_HEIGHT ,
+              height: FEED_ITEM_HEIGHT,
               backgroundColor: 'black',
-              paddingBottom: SCREEN_HEIGHT <= 808 ?'16%': '14%'
             }}>
               <VideoFeedItem
               item={item}
@@ -772,15 +763,21 @@ const Feed: React.FC = () => {
             />
             </View>
           )}
-          pagingEnabled
           showsVerticalScrollIndicator={false}
+          snapToInterval={FEED_ITEM_HEIGHT}
           snapToAlignment="start"
           decelerationRate="fast"
-          ListFooterComponent={() => (
-            <View style={{ height: 20, justifyContent: 'center', alignItems: 'center', backgroundColor: 'gold' }}>
-              <Text style={{ color: '#94a3b8', fontSize: fontScale(11) }}>Syncing more galaxy feed...</Text>
-            </View>
-          )}
+          disableIntervalMomentum
+          // ListFooterComponent={() => (
+          //   <View style={{ height: SCREEN_HEIGHT * 0.3, justifyContent: 'center', alignItems: 'center', backgroundColor: 'gold' }}>
+          //     <Text style={{ color: '#94a3b8', fontSize: fontScale(11) }}>Syncing more galaxy feed...</Text>
+          //   </View>
+          // )}
+          getItemLayout={(_, index) => ({
+            length: FEED_ITEM_HEIGHT,
+            offset: FEED_ITEM_HEIGHT * index,
+            index,
+          })}
           onViewableItemsChanged={onViewRef.current}
           viewabilityConfig={viewConfigRef.current}
           removeClippedSubviews

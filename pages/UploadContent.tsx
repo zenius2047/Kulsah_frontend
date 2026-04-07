@@ -617,7 +617,7 @@ const s = StyleSheet.create({
   sound: { width: 80, height: 80, borderRadius: 12, marginBottom: 4 },
   modal: { flex: 1, backgroundColor: 'rgba(0,0,0,0.9)', alignItems: 'center', justifyContent: 'center', gap: 12, padding: 24 },
   center: { flex: 1, alignItems: 'center', justifyContent: 'center', gap: 12, padding: 24 },
-  title: { color: '#fff', fontWeight: '900', fontSize: fontScale(20), textAlign: 'center' },
+  title: { color: '#fff', fontWeight: '900', fontSize: fontScale(18), textAlign: 'center' },
 });
 
 export default UploadContent;

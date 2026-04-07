@@ -297,7 +297,7 @@ const styles = StyleSheet.create({
   permissionTitle: {
     color: '#fff',
     fontFamily: 'PlusJakartaSansBold',
-    fontSize: fontScale(22),
+    fontSize: fontScale(20),
     marginTop: 18,
     marginBottom: 8,
   },

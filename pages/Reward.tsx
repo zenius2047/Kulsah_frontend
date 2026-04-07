@@ -233,7 +233,7 @@ const styles = StyleSheet.create({
   headerTitle: {
     color: '#f8fafc',
     fontFamily: 'PlusJakartaSansBold',
-    fontSize: fontScale(12),
+    fontSize: fontScale(11),
     textTransform: 'uppercase',
   },
   headerBrand: {
@@ -288,7 +288,7 @@ const styles = StyleSheet.create({
   heroTitle: {
     color: '#ffffff',
     fontFamily: 'PlusJakartaSansExtraBold',
-    fontSize: fontScale(18),
+    fontSize: fontScale(16),
     lineHeight: 20,
     textTransform: 'uppercase',
   },
@@ -331,7 +331,7 @@ const styles = StyleSheet.create({
   criteriaTitle: {
     color: '#f8fafc',
     fontFamily: 'PlusJakartaSansBold',
-    fontSize: fontScale(12),
+    fontSize: fontScale(11),
     marginTop: 4,
   },
   criteriaPill: {
@@ -367,7 +367,7 @@ const styles = StyleSheet.create({
   cardTitle: {
     color: '#f8fafc',
     fontFamily: 'PlusJakartaSansBold',
-    fontSize: fontScale(14),
+    fontSize: fontScale(13),
   },
   cardMeta: {
     color: '#94a3b8',
@@ -423,7 +423,7 @@ const styles = StyleSheet.create({
   previewHeading: {
     color: '#f8fafc',
     fontFamily: 'PlusJakartaSansBold',
-    fontSize: fontScale(14),
+    fontSize: fontScale(13),
     paddingHorizontal: 4,
   },
   previewCard: {
@@ -506,13 +506,13 @@ const styles = StyleSheet.create({
   previewTitle: {
     color: '#ffffff',
     fontFamily: 'PlusJakartaSansExtraBold',
-    fontSize: fontScale(16),
+    fontSize: fontScale(15),
     letterSpacing: 0.2,
   },
   previewSubtitle: {
     color: '#94a3b8',
     fontFamily: 'PlusJakartaSansMedium',
-    fontSize: fontScale(10),
+    fontSize: fontScale(9),
   },
   previewLink: {
     color: '#d915d2',

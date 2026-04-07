@@ -223,7 +223,7 @@ const styles = StyleSheet.create({
   headerTitle: {
     color: '#fff',
     fontFamily: 'PlusJakartaSansBold',
-    fontSize: fontScale(18),
+    fontSize: fontScale(16),
   },
   scrollContent: {
     paddingBottom: 180,
@@ -273,7 +273,7 @@ const styles = StyleSheet.create({
   soundTitle: {
     color: '#fff',
     fontFamily: 'PlusJakartaSansBold',
-    fontSize: fontScale(28),
+    fontSize: fontScale(25),
     textAlign: 'center',
   },
   soundArtist: {
@@ -343,7 +343,7 @@ const styles = StyleSheet.create({
   sectionTitle: {
     color: '#fff',
     fontFamily: 'PlusJakartaSansBold',
-    fontSize: fontScale(19),
+    fontSize: fontScale(17),
   },
   viewAll: {
     color: '#c084fc',

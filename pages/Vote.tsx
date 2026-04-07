@@ -334,12 +334,12 @@ const styles = StyleSheet.create({
   heroTitle: {
     color: '#ffffff',
     fontFamily: 'PlusJakartaSansExtraBold',
-    fontSize: fontScale(19),
+    fontSize: fontScale(17),
   },
   heroSubtitle: {
     color: '#94a3b8',
     fontFamily: 'PlusJakartaSansMedium',
-    fontSize: fontScale(10),
+    fontSize: fontScale(9),
     lineHeight: 18,
   },
   sectionHeader: {
@@ -351,13 +351,13 @@ const styles = StyleSheet.create({
   modalTitle: {
     color: '#ffffff',
     fontFamily: 'PlusJakartaSansExtraBold',
-    fontSize: fontScale(18),
+    fontSize: fontScale(16),
   },
   modalSubtitle: {
     marginTop: 4,
     color: '#94a3b8',
     fontFamily: 'PlusJakartaSansMedium',
-    fontSize: fontScale(10),
+    fontSize: fontScale(9),
   },
   balancePill: {
     flexDirection: 'row',

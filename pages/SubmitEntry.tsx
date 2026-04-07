@@ -290,7 +290,7 @@ const styles = StyleSheet.create({
   },
   headerTitle: {
     fontFamily: 'PlusJakartaSansBold',
-    fontSize: fontScale(14),
+    fontSize: fontScale(13),
   },
   headerPostButton: {
     paddingHorizontal: 16,
@@ -383,7 +383,7 @@ const styles = StyleSheet.create({
   },
   sectionTitle: {
     fontFamily: 'PlusJakartaSansBold',
-    fontSize: fontScale(16),
+    fontSize: fontScale(15),
   },
   sectionHint: {
     color: '#930df2',
@@ -477,12 +477,12 @@ const styles = StyleSheet.create({
   },
   permissionTitle: {
     fontFamily: 'PlusJakartaSansBold',
-    fontSize: fontScale(12),
+    fontSize: fontScale(11),
   },
   permissionSubtitle: {
     marginTop: 2,
     fontFamily: 'PlusJakartaSans',
-    fontSize: fontScale(12),
+    fontSize: fontScale(11),
   },
   advancedButton: {
     flexDirection: 'row',

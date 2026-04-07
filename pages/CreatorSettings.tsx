@@ -474,7 +474,7 @@ const s = StyleSheet.create({
     justifyContent: 'center',
     backgroundColor: '#ffffff14',
   },
-  headerTitle: { color: '#fff', fontSize: fontScale(18), fontWeight: '900', textTransform: 'uppercase' },
+  headerTitle: { color: '#fff', fontSize: fontScale(16), fontWeight: '900', textTransform: 'uppercase' },
   donePill: {
     paddingHorizontal: 10,
     paddingVertical: 6,
@@ -533,7 +533,7 @@ const s = StyleSheet.create({
   },
   profileNameBlock: { paddingBottom: 10 },
   nameRow: { flexDirection: 'row', alignItems: 'center', gap: 6, justifyContent: 'center',},
-  profileName: { color: '#fff', fontSize: fontScale(20), fontWeight: '900' },
+  profileName: { color: '#fff', fontSize: fontScale(18), fontWeight: '900' },
   profileHandle: {
     color: '#cd2bee',
     fontSize: fontScale(10),
@@ -545,7 +545,7 @@ const s = StyleSheet.create({
   sectionBlock: { marginTop: 18, paddingHorizontal: 16 },
   sectionTitle: {
     color: '#8b90a8',
-    fontSize: fontScale(10),
+    fontSize: fontScale(9),
     fontWeight: '900',
     textTransform: 'uppercase',
     letterSpacing: 2.4,
@@ -683,7 +683,7 @@ const s = StyleSheet.create({
   noteText: { color: '#c5c9de', fontSize: fontScale(12), fontStyle: 'italic', lineHeight: 18 },
   sectionHeading: {
     color: '#8b90a8',
-    fontSize: fontScale(10),
+    fontSize: fontScale(9),
     fontWeight: '900',
     textTransform: 'uppercase',
     letterSpacing: 2.5,
@@ -692,7 +692,7 @@ const s = StyleSheet.create({
   },
   fieldName: {
     color: '#8f95af',
-    fontSize: fontScale(10),
+    fontSize: fontScale(9),
     fontWeight: '800',
     textTransform: 'uppercase',
     letterSpacing: 1.4,

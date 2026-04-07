@@ -480,7 +480,7 @@ const s = StyleSheet.create({
   },
   name: {
     color: '#fff',
-    fontSize: mediumScreen ? 28 : 24,
+    fontSize: mediumScreen ? 25 : 21,
     fontFamily: 'PlusJakartaSansExtraBold',
   },
   member: {
@@ -588,7 +588,7 @@ const s = StyleSheet.create({
   },
   switchRoleTitle: {
     color: '#fff',
-    fontSize: 12,
+    fontSize: 11,
     fontFamily: 'PlusJakartaSansExtraBold',
     textTransform: 'uppercase',
     letterSpacing: 1.3,
@@ -683,7 +683,7 @@ const s = StyleSheet.create({
   },
   listTitle: {
     color: '#fff',
-    fontSize: 15,
+    fontSize: 14,
     fontFamily: 'PlusJakartaSansBold',
   },
   listMeta: {
@@ -830,7 +830,7 @@ const s = StyleSheet.create({
   },
   gridTitle: {
     color: '#d7dbea',
-    fontSize: 12,
+    fontSize: 11,
     fontFamily: 'PlusJakartaSansBold',
   },
   gridMeta: {
@@ -882,7 +882,7 @@ const s = StyleSheet.create({
   },
   ticketTitle: {
     color: '#fff',
-    fontSize: 14,
+    fontSize: 13,
     fontFamily: 'PlusJakartaSansExtraBold',
   },
   ticketMeta: {

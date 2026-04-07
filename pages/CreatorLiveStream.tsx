@@ -850,13 +850,13 @@ const styles = StyleSheet.create({
   sheetTitle: {
     color: '#fff',
     fontFamily: 'PlusJakartaSansExtraBold',
-    fontSize: fontScale(24),
+    fontSize: fontScale(21),
     textAlign: 'center',
   },
   sheetSubtitle: {
     color: 'rgba(255,255,255,0.38)',
     fontFamily: 'PlusJakartaSansBold',
-    fontSize: fontScale(11),
+    fontSize: fontScale(10),
     marginTop: 6,
     letterSpacing: 1.6,
     textTransform: 'uppercase',
@@ -1004,7 +1004,7 @@ const styles = StyleSheet.create({
   confirmTitle: {
     color: '#fff',
     fontFamily: 'PlusJakartaSansExtraBold',
-    fontSize: fontScale(28),
+    fontSize: fontScale(25),
     textTransform: 'uppercase',
     marginBottom: 12,
     textAlign: 'center',

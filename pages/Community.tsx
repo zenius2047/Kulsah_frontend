@@ -565,7 +565,7 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     alignItems: 'center',
   },
-  headerTitle: { color: '#fff', fontSize: mediumScreen?22:18, fontFamily: 'PlusJakartaSansExtraBold', letterSpacing: 0.4 },
+  headerTitle: { color: '#fff', fontSize: mediumScreen?20:16, fontFamily: 'PlusJakartaSansExtraBold', letterSpacing: 0.4 },
   scrollBody: { padding: 14, paddingBottom: 130, gap: 14 },
   postCard: {
     backgroundColor: '#121219',
@@ -743,7 +743,7 @@ const styles = StyleSheet.create({
     borderColor: 'rgba(255,255,255,0.08)',
   },
   modalGrabber: { alignSelf: 'center', width: 42, height: 5, borderRadius: 4, backgroundColor: '#374151', marginBottom: 16 },
-  modalTitle: { color: '#fff', fontSize: mediumScreen?24:20, fontFamily: 'PlusJakartaSansExtraBold', marginBottom: 12 },
+  modalTitle: { color: '#fff', fontSize: mediumScreen?21:18, fontFamily: 'PlusJakartaSansExtraBold', marginBottom: 12 },
   modalInput: {
     borderRadius: 16,
     minHeight: 100,
@@ -766,7 +766,7 @@ const styles = StyleSheet.create({
     backgroundColor: 'rgba(255,255,255,0.04)',
   },
   emojiText: { fontSize: mediumScreen?20:16 },
-  stickerTitle: { marginTop: 14, color: '#94a3b8', fontSize: mediumScreen?14:10, letterSpacing: 1.4, fontFamily: 'PlusJakartaSansExtraBold' },
+  stickerTitle: { marginTop: 14, color: '#94a3b8', fontSize: mediumScreen?13:9, letterSpacing: 1.4, fontFamily: 'PlusJakartaSansExtraBold' },
   stickerRow: { gap: 10, paddingVertical: 10 },
   stickerBtn: {
     height: 56,

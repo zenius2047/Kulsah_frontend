@@ -282,7 +282,7 @@ const styles = StyleSheet.create({
   headerTitle: {
     color: '#ffffff',
     fontFamily: 'PlusJakartaSansExtraBold',
-    fontSize: fontScale(14),
+    fontSize: fontScale(13),
     letterSpacing: -0.3,
   },
   scroll: {
@@ -316,13 +316,13 @@ const styles = StyleSheet.create({
   heroTitle: {
     color: '#f8fafc',
     fontFamily: 'PlusJakartaSansExtraBold',
-    fontSize: fontScale(20),
+    fontSize: fontScale(18),
     lineHeight: 40,
   },
   heroSubtitle: {
     color: '#94a3b8',
     fontFamily: 'PlusJakartaSansMedium',
-    fontSize: fontScale(14),
+    fontSize: fontScale(13),
     lineHeight: 22,
     maxWidth: 420,
   },
@@ -407,7 +407,7 @@ const styles = StyleSheet.create({
   previewTitle: {
     color: '#ffffff',
     fontFamily: 'PlusJakartaSansBold',
-    fontSize: fontScale(16),
+    fontSize: fontScale(15),
     lineHeight: 32,
   },
   previewDescription: {
@@ -495,7 +495,7 @@ const styles = StyleSheet.create({
   infoTitle: {
     color: '#ffffff',
     fontFamily: 'PlusJakartaSansBold',
-    fontSize: fontScale(16),
+    fontSize: fontScale(15),
     lineHeight: 26,
   },
   infoText: {
@@ -551,7 +551,7 @@ const styles = StyleSheet.create({
   checklistTitle: {
     color: '#ffffff',
     fontFamily: 'PlusJakartaSansBold',
-    fontSize: fontScale(16),
+    fontSize: fontScale(15),
   },
   checklistList: {
     gap: 20,
@@ -568,12 +568,12 @@ const styles = StyleSheet.create({
   checklistItemTitle: {
     color: '#ffffff',
     fontFamily: 'PlusJakartaSansBold',
-    fontSize: fontScale(15),
+    fontSize: fontScale(14),
   },
   checklistItemSubtitle: {
     color: '#94a3b8',
     fontFamily: 'PlusJakartaSansMedium',
-    fontSize: fontScale(12),
+    fontSize: fontScale(11),
   },
   costSection: {
     paddingTop: 20,

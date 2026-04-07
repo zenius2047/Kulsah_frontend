@@ -342,7 +342,7 @@ const s = StyleSheet.create({
     borderWidth: 1,
     borderColor: '#ffffff14',
   },
-  headerTitle: { color: '#fff', fontSize: fontScale(17), fontWeight: '900' },
+  headerTitle: { color: '#fff', fontSize: fontScale(16), fontWeight: '900' },
   rangeWrap: {
     flexDirection: 'row',
     backgroundColor: '#ffffff10',
@@ -399,8 +399,8 @@ const s = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'center',
   },
-  auditTitle: { color: '#cd2bee', fontWeight: '900', fontSize: fontScale(10), letterSpacing: 1.6, textTransform: 'uppercase' },
-  auditSubtitle: { color: '#cd2bee99', fontSize: fontScale(8), fontWeight: '800', textTransform: 'uppercase', marginTop: 2 },
+  auditTitle: { color: '#cd2bee', fontWeight: '900', fontSize: fontScale(9), letterSpacing: 1.6, textTransform: 'uppercase' },
+  auditSubtitle: { color: '#cd2bee99', fontSize: fontScale(7), fontWeight: '800', textTransform: 'uppercase', marginTop: 2 },
   refreshBtn: {
     width: 34,
     height: 34,
@@ -421,7 +421,7 @@ const s = StyleSheet.create({
   section: { gap: 8 },
   sectionTitle: {
     color: '#8d91a8',
-    fontSize: fontScale(10),
+    fontSize: fontScale(9),
     fontWeight: '900',
     textTransform: 'uppercase',
     letterSpacing: 2.1,
@@ -456,7 +456,7 @@ const s = StyleSheet.create({
   pieLegendWrap: { gap: 8 },
   legendRow: { flexDirection: 'row', alignItems: 'center', gap: 6 },
   legendDot: { width: 8, height: 8, borderRadius: 4 },
-  legendName: { color: '#d4d6e4', fontSize: fontScale(10), flex: 1 },
+  legendName: { color: '#d4d6e4', fontSize: fontScale(9), flex: 1 },
   legendValue: { color: '#fff', fontSize: fontScale(10), fontWeight: '900' },
   regionRow: { gap: 3 },
   regionHead: { flexDirection: 'row', justifyContent: 'space-between' },

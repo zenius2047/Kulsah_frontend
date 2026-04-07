@@ -549,7 +549,7 @@ const s = StyleSheet.create({
     justifyContent: 'center',
     backgroundColor: '#eef2ff',
   },
-  headerTitle: { fontSize: fontScale(20), fontWeight: '900', textTransform: 'uppercase', color: '#0f172a' },
+  headerTitle: { fontSize: fontScale(18), fontWeight: '900', textTransform: 'uppercase', color: '#0f172a' },
   viewWrap: { flex: 1, backgroundColor: '#f8fafc' },
   formCard: { padding: 16, gap: 18 },
   profileAvatarWrap: { alignItems: 'center', marginBottom: 12 },
@@ -632,9 +632,9 @@ const s = StyleSheet.create({
   cardBack: { gap: 14, alignItems: 'center' },
   cardRowBetween: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center' },
   cardTag: { fontSize: fontScale(10), fontWeight: '900', textTransform: 'uppercase', letterSpacing: 3, color: '#cd2bee' },
-  cardName: { fontSize: fontScale(26), fontWeight: '900', color: '#0f172a', textTransform: 'uppercase' },
+  cardName: { fontSize: fontScale(23), fontWeight: '900', color: '#0f172a', textTransform: 'uppercase' },
   cardSub: { fontSize: fontScale(11), fontWeight: '700', color: '#94a3b8', textTransform: 'uppercase' },
-  cardTitle: { fontSize: fontScale(20), fontWeight: '900', color: '#0f172a', textTransform: 'uppercase' },
+  cardTitle: { fontSize: fontScale(18), fontWeight: '900', color: '#0f172a', textTransform: 'uppercase' },
   cardLabel: { fontSize: fontScale(10), fontWeight: '900', letterSpacing: 3, color: '#cd2bee', textTransform: 'uppercase' },
   cardIconBadge: {
     width: 40,
@@ -717,7 +717,7 @@ const s = StyleSheet.create({
   progressText: { fontSize: fontScale(10), fontWeight: '800', textTransform: 'uppercase', color: '#94a3b8' },
   progressTextActive: { color: '#cd2bee' },
   sectionBlock: { gap: 10 },
-  sectionTitle: { fontSize: fontScale(10), fontWeight: '900', textTransform: 'uppercase', letterSpacing: 3, color: '#94a3b8' },
+  sectionTitle: { fontSize: fontScale(9), fontWeight: '900', textTransform: 'uppercase', letterSpacing: 3, color: '#94a3b8' },
   sectionBadge: { fontSize: fontScale(10), fontWeight: '900', textTransform: 'uppercase', color: '#cd2bee' },
   rail: { marginTop: 6 },
   railCard: {
@@ -739,7 +739,7 @@ const s = StyleSheet.create({
     justifyContent: 'center',
   },
   railIconBlue: { backgroundColor: '#eff6ff' },
-  railTitle: { fontSize: fontScale(12), fontWeight: '900', color: '#0f172a' },
+  railTitle: { fontSize: fontScale(11), fontWeight: '900', color: '#0f172a' },
   railMeta: { fontSize: fontScale(10), fontWeight: '700', color: '#94a3b8', textTransform: 'uppercase' },
   statusCard: {
     padding: 14,
@@ -791,7 +791,7 @@ const s = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'center',
   },
-  methodTitle: { fontSize: fontScale(13), fontWeight: '800', color: '#0f172a' },
+  methodTitle: { fontSize: fontScale(12), fontWeight: '800', color: '#0f172a' },
   methodMeta: { fontSize: fontScale(10), fontWeight: '700', color: '#94a3b8', textTransform: 'uppercase' },
   methodBadge: {
     fontSize: fontScale(9),
@@ -816,7 +816,7 @@ const s = StyleSheet.create({
   mainContent: { padding: 16, paddingBottom: 120, gap: 18 },
   profileHeader: { alignItems: 'center', gap: 12 },
   profileTextWrap: { alignItems: 'center' },
-  profileName: { fontSize: fontScale(20), fontWeight: '900', color: '#0f172a' },
+  profileName: { fontSize: fontScale(18), fontWeight: '900', color: '#0f172a' },
   profileHandle: { fontSize: fontScale(10), fontWeight: '900', letterSpacing: 2, color: '#cd2bee', textTransform: 'uppercase' },
   itemRow: {
     marginTop: 8,

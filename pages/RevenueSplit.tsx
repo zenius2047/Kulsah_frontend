@@ -287,7 +287,7 @@ const styles = StyleSheet.create({
   headerTitle: {
     color: '#f8fafc',
     fontFamily: 'PlusJakartaSansBold',
-    fontSize: mediumScreen ? 20:16,
+    fontSize: mediumScreen ? 18:15,
   },
   scroll: {
     flex: 1,
@@ -457,7 +457,7 @@ const styles = StyleSheet.create({
   breakdownHeading: {
     color: '#64748b',
     fontFamily: 'PlusJakartaSansBold',
-    fontSize: mediumScreen? 14:10,
+    fontSize: mediumScreen? 13:9,
     textTransform: 'uppercase',
     letterSpacing: 2,
     paddingHorizontal: 4,
@@ -501,7 +501,7 @@ const styles = StyleSheet.create({
   breakdownTitle: {
     color: '#f8fafc',
     fontFamily: 'PlusJakartaSansBold',
-    fontSize: fontScale(14),
+    fontSize: fontScale(13),
     flex: 1,
   },
   breakdownAmount: {

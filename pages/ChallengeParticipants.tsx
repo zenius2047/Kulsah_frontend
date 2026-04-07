@@ -289,7 +289,7 @@ const styles = StyleSheet.create({
     textAlign: 'center',
     color: '#ffffff',
     fontFamily: 'PlusJakartaSansBold',
-    fontSize: fontScale(16),
+    fontSize: fontScale(15),
   },
   searchWrap: {
     position: 'relative',
@@ -405,7 +405,7 @@ const styles = StyleSheet.create({
   emptyTitle: {
     color: '#ffffff',
     fontFamily: 'PlusJakartaSansBold',
-    fontSize: fontScale(18),
+    fontSize: fontScale(16),
   },
   emptyText: {
     color: '#94a3b8',

@@ -300,13 +300,13 @@ const styles = StyleSheet.create({
   headerText: { marginLeft: 12, flex: 1 },
   headerTitle: {
     color: '#ffffff',
-    fontSize: fontScale(16),
+    fontSize: fontScale(15),
     fontFamily: 'PlusJakartaSansExtraBold',
     textTransform: 'uppercase',
   },
   headerSubtitle: {
     color: '#8f95af',
-    fontSize: fontScale(8),
+    fontSize: fontScale(7),
     fontFamily: 'PlusJakartaSansExtraBold',
     textTransform: 'uppercase',
     letterSpacing: 1.8,
@@ -424,7 +424,7 @@ const styles = StyleSheet.create({
   aiHeader: { flexDirection: 'row', alignItems: 'center', gap: 8 },
   aiTitle: {
     color: '#cd2bee',
-    fontSize: fontScale(10),
+    fontSize: fontScale(9),
     fontFamily: 'PlusJakartaSansExtraBold',
     textTransform: 'uppercase',
     letterSpacing: 1.8,
@@ -479,7 +479,7 @@ const styles = StyleSheet.create({
   tierDot: { width: 10, height: 10, borderRadius: 5 },
   tierName: {
     color: '#ffffff',
-    fontSize: fontScale(15),
+    fontSize: fontScale(14),
     fontFamily: 'PlusJakartaSansExtraBold',
     textTransform: 'uppercase',
   },
@@ -601,7 +601,7 @@ const styles = StyleSheet.create({
   },
   successTitle: {
     color: '#ffffff',
-    fontSize: fontScale(28),
+    fontSize: fontScale(25),
     fontFamily: 'PlusJakartaSansExtraBold',
     textTransform: 'uppercase',
     textAlign: 'center',

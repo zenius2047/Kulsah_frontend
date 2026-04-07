@@ -337,7 +337,7 @@ const styles = StyleSheet.create({
   headerTitle: {
     color: '#f8fafc',
     fontFamily: 'PlusJakartaSansExtraBold',
-    fontSize: mediumScreen ? 18:14,
+    fontSize: mediumScreen ? 16:13,
     letterSpacing: 1.4,
   },
   scroll: {
@@ -409,7 +409,7 @@ const styles = StyleSheet.create({
   sectionTitle: {
     color: '#f8fafc',
     fontFamily: 'PlusJakartaSansExtraBold',
-    fontSize: mediumScreen ? 16:12,
+    fontSize: mediumScreen ? 15:11,
     letterSpacing: 1.8,
     textTransform: 'uppercase',
   },
@@ -514,7 +514,7 @@ const styles = StyleSheet.create({
   criteriaTitle: {
     color: '#ffffff',
     fontFamily: 'PlusJakartaSansExtraBold',
-    fontSize: mediumScreen ? 15:11,
+    fontSize: mediumScreen ? 14:10,
     letterSpacing: 1.2,
     textTransform: 'uppercase',
     textAlign: 'center',

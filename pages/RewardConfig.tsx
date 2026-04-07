@@ -274,7 +274,7 @@ const styles = StyleSheet.create({
   headerTitle: {
     color: '#f8fafc',
     fontFamily: 'PlusJakartaSansBold',
-    fontSize: mediumScreen ? 18 : 14,
+    fontSize: mediumScreen ? 16 : 13,
     letterSpacing: 0.8,
   },
   headerBrand: {
@@ -314,7 +314,7 @@ const styles = StyleSheet.create({
   heroTitle: {
     color: '#f8fafc',
     fontFamily: 'PlusJakartaSansExtraBold',
-    fontSize: mediumScreen ? 24 : 20,
+    fontSize: mediumScreen ? 21 : 18,
     lineHeight: mediumScreen ? 34 : 30,
   },
   heroDescription: {
@@ -365,7 +365,7 @@ const styles = StyleSheet.create({
   strategyTitle: {
     color: '#f8fafc',
     fontFamily: 'PlusJakartaSansBold',
-    fontSize: mediumScreen ? 19 : 15,
+    fontSize: mediumScreen ? 17 : 14,
     marginBottom: 4,
   },
   strategyTitleMuted: {
@@ -389,7 +389,7 @@ const styles = StyleSheet.create({
   sectionTitle: {
     color: '#94a3b8',
     fontFamily: 'PlusJakartaSansBold',
-    fontSize: mediumScreen ? 14 : 10,
+    fontSize: mediumScreen ? 13 : 9,
     letterSpacing: 1.4,
     textTransform: 'uppercase',
   },
@@ -440,7 +440,7 @@ const styles = StyleSheet.create({
   rewardTitle: {
     color: '#f8fafc',
     fontFamily: 'PlusJakartaSansBold',
-    fontSize: mediumScreen ? 18 : 14,
+    fontSize: mediumScreen ? 16 : 13,
     flex: 1,
   },
   hotBadge: {

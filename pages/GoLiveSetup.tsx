@@ -295,7 +295,7 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     backgroundColor: 'rgba(255,255,255,0.06)',
   },
-  headerTitle: { color: '#fff', fontSize: fontScale(18), fontFamily: 'PlusJakartaSansExtraBold' },
+  headerTitle: { color: '#fff', fontSize: fontScale(16), fontFamily: 'PlusJakartaSansExtraBold' },
   readyPill: {
     borderRadius: 999,
     paddingHorizontal: 10,
@@ -427,7 +427,7 @@ const styles = StyleSheet.create({
   radioOuterPremium: { borderColor: '#eab308' },
   radioInner: { width: 8, height: 8, borderRadius: 4, backgroundColor: '#cd2bee' },
   radioInnerPremium: { width: 8, height: 8, borderRadius: 4, backgroundColor: '#eab308' },
-  protocolTitle: { color: '#fff', fontSize: fontScale(14), fontFamily: 'PlusJakartaSansExtraBold' },
+  protocolTitle: { color: '#fff', fontSize: fontScale(13), fontFamily: 'PlusJakartaSansExtraBold' },
   protocolSub: { color: '#94a3b8', fontSize: fontScale(10), fontFamily: 'PlusJakartaSansBold' },
   notifyRow: {
     borderRadius: 16,
@@ -439,7 +439,7 @@ const styles = StyleSheet.create({
     justifyContent: 'space-between',
     alignItems: 'center',
   },
-  notifyTitle: { color: '#fff', fontSize: fontScale(13), fontFamily: 'PlusJakartaSansBold' },
+  notifyTitle: { color: '#fff', fontSize: fontScale(12), fontFamily: 'PlusJakartaSansBold' },
   notifySub: { color: '#94a3b8', fontSize: fontScale(10), marginTop: 2, fontFamily: 'PlusJakartaSansMedium' },
   footer: {
     position: 'absolute',

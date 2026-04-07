@@ -278,7 +278,7 @@ const styles = StyleSheet.create({
   },
   headerTitle: {
     fontFamily: 'PlusJakartaSansExtraBold',
-    fontSize: fontScale(14),
+    fontSize: fontScale(13),
   },
   content: {
     paddingHorizontal: 24,
@@ -332,7 +332,7 @@ const styles = StyleSheet.create({
   },
   sectionTitle: {
     fontFamily: 'PlusJakartaSansBold',
-    fontSize: fontScale(12),
+    fontSize: fontScale(11),
   },
   hotBadge: {
     paddingHorizontal: 12,
@@ -390,7 +390,7 @@ const styles = StyleSheet.create({
   },
   trackTitle: {
     fontFamily: 'PlusJakartaSansBold',
-    fontSize: fontScale(10),
+    fontSize: fontScale(9),
   },
   trackArtist: {
     fontFamily: 'PlusJakartaSansMedium',

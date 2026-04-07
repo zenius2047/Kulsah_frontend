@@ -350,7 +350,7 @@ const styles = StyleSheet.create({
   brandName: {
     color: '#fff',
     fontFamily: 'PlusJakartaSansExtraBold',
-    fontSize: fontScale(20),
+    fontSize: fontScale(18),
     textTransform: 'uppercase',
     letterSpacing: -0.6,
   },
@@ -379,7 +379,7 @@ const styles = StyleSheet.create({
   sidebarTitle: {
     color: '#930df2',
     fontFamily: 'PlusJakartaSansExtraBold',
-    fontSize: fontScale(22),
+    fontSize: fontScale(20),
     marginBottom: 24,
     paddingHorizontal: 12,
   },
@@ -506,7 +506,7 @@ const styles = StyleSheet.create({
   heroTitle: {
     color: '#fff',
     fontFamily: 'PlusJakartaSansExtraBold',
-    fontSize: mediumScreen ? 18: 14,
+    fontSize: mediumScreen ? 16: 13,
     // lineHeight: 34,
     marginBottom: 12,
   },
@@ -574,7 +574,7 @@ const styles = StyleSheet.create({
   sectionTitle: {
     color: '#fff',
     fontFamily: 'PlusJakartaSansExtraBold',
-    fontSize: mediumScreen ? 24: 20,
+    fontSize: mediumScreen ? 21: 18,
   },
   sectionLink: {
     color: '#d915d2',
@@ -625,7 +625,7 @@ const styles = StyleSheet.create({
   largeCardTitle: {
     color: '#fff',
     fontFamily: 'PlusJakartaSansExtraBold',
-    fontSize: mediumScreen? 24:20,
+    fontSize: mediumScreen? 21:18,
     marginBottom: 8,
   },
   largeCardDescription: {
@@ -698,7 +698,7 @@ const styles = StyleSheet.create({
   progressCardTitle: {
     color: '#fff',
     fontFamily: 'PlusJakartaSansBold',
-    fontSize: mediumScreen ? 24: 20,
+    fontSize: mediumScreen ? 21: 18,
     lineHeight: 28,
     marginBottom: 10,
   },
@@ -768,7 +768,7 @@ const styles = StyleSheet.create({
   creatorTitle: {
     color: '#fff',
     fontFamily: 'PlusJakartaSansExtraBold',
-    fontSize: fontScale(11),
+    fontSize: fontScale(10),
     textTransform: 'uppercase',
     letterSpacing: 0.6,
     marginBottom: 4,

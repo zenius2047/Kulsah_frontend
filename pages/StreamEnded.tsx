@@ -183,7 +183,7 @@ const styles = StyleSheet.create({
     color: '#fff',
     textAlign: 'center',
     fontFamily: 'PlusJakartaSansExtraBold',
-    fontSize: fontScale(18),
+    fontSize: fontScale(16),
   },
   scrollContent: {
     paddingBottom: 28,
@@ -229,19 +229,19 @@ const styles = StyleSheet.create({
   heroTitle: {
     color: '#fff',
     fontFamily: 'PlusJakartaSansExtraBold',
-    fontSize: fontScale(29),
+    fontSize: fontScale(26),
     lineHeight: 34,
   },
   heroSubtitle: {
     color: 'rgba(255,255,255,0.7)',
     fontFamily: 'PlusJakartaSansMedium',
-    fontSize: fontScale(16),
+    fontSize: fontScale(15),
     marginTop: 8,
   },
   sectionTitle: {
     color: '#fff',
     fontFamily: 'PlusJakartaSansExtraBold',
-    fontSize: fontScale(20),
+    fontSize: fontScale(18),
     marginTop: 20,
     marginHorizontal: 16,
     marginBottom: 12,
@@ -316,7 +316,7 @@ const styles = StyleSheet.create({
   eventTitle: {
     color: '#fff',
     fontFamily: 'PlusJakartaSansExtraBold',
-    fontSize: fontScale(20),
+    fontSize: fontScale(18),
     lineHeight: 25,
   },
   eventDate: {
@@ -383,7 +383,7 @@ const styles = StyleSheet.create({
   recommendationTitle: {
     color: '#fff',
     fontFamily: 'PlusJakartaSansMedium',
-    fontSize: fontScale(14),
+    fontSize: fontScale(13),
     marginTop: 10,
   },
   recommendationGenre: {

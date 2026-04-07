@@ -218,13 +218,13 @@ const styles = StyleSheet.create({
   pageTitle: {
     color: '#F8FAFC',
     fontFamily: 'PlusJakartaSansExtraBold',
-    fontSize: fontScale(31),
+    fontSize: fontScale(28),
     marginBottom: 8,
   },
   pageSubtitle: {
     color: '#94A3B8',
     fontFamily: 'PlusJakartaSans',
-    fontSize: fontScale(14),
+    fontSize: fontScale(13),
   },
   timelineWrap: {
     position: 'relative',
@@ -335,7 +335,7 @@ const styles = StyleSheet.create({
   cardTitle: {
     color: '#F8FAFC',
     fontFamily: 'PlusJakartaSansBold',
-    fontSize: fontScale(22),
+    fontSize: fontScale(20),
     marginBottom: 8,
   },
   cardDescription: {

@@ -192,7 +192,7 @@ const styles = StyleSheet.create({
   },
   headerTitle: {
     fontFamily: 'PlusJakartaSansBold',
-    fontSize: fontScale(14),
+    fontSize: fontScale(13),
   },
   postButton: {
     paddingHorizontal: 20,
@@ -251,7 +251,7 @@ const styles = StyleSheet.create({
   },
   badgeTitle: {
     fontFamily: 'PlusJakartaSansBold',
-    fontSize: fontScale(10),
+    fontSize: fontScale(9),
   },
   rightRail: {
     position: 'absolute',

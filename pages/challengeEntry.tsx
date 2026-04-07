@@ -184,7 +184,7 @@ const styles = StyleSheet.create({
     textAlign: 'center',
     color: '#F8FAFC',
     fontFamily: 'PlusJakartaSansBold',
-    fontSize: fontScale(14),
+    fontSize: fontScale(13),
   },
   headerRight: {
     width: 40,
@@ -251,7 +251,7 @@ const styles = StyleSheet.create({
   heroTitle: {
     color: '#fff',
     fontFamily: 'PlusJakartaSansBold',
-    fontSize: fontScale(20),
+    fontSize: fontScale(18),
     lineHeight: 30,
   },
   descriptionSection: {
@@ -281,7 +281,7 @@ const styles = StyleSheet.create({
   sectionTitle: {
     color: '#F8FAFC',
     fontFamily: 'PlusJakartaSansBold',
-    fontSize: fontScale(14),
+    fontSize: fontScale(13),
   },
   seeAll: {
     color: '#d915d2',
@@ -321,7 +321,7 @@ const styles = StyleSheet.create({
   audioTitle: {
     color: '#F8FAFC',
     fontFamily: 'PlusJakartaSansBold',
-    fontSize: fontScale(12),
+    fontSize: fontScale(11),
     marginBottom: 4,
   },
   audioMeta: {

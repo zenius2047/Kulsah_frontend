@@ -431,7 +431,7 @@ const styles = StyleSheet.create({
   },
   callTop: { alignItems: 'center', gap: 10 },
   callAvatar: { width: 132, height: 132, borderRadius: 36, borderWidth: 3, borderColor: 'rgba(205,43,238,0.35)' },
-  callName: { color: '#fff', fontSize: fontScale(30), fontFamily: 'PlusJakartaSansExtraBold' },
+  callName: { color: '#fff', fontSize: fontScale(27), fontFamily: 'PlusJakartaSansExtraBold' },
   callStatus: { color: '#cd2bee', fontSize: fontScale(11), letterSpacing: 2, fontFamily: 'PlusJakartaSansExtraBold' },
   callActions: { flexDirection: 'row', alignItems: 'center', gap: 24 },
   callBtn: {
@@ -468,7 +468,7 @@ const styles = StyleSheet.create({
   profileWrap: { position: 'relative' },
   profileAvatar: { width: 42, height: 42, borderRadius: 21, borderWidth: 2, borderColor: 'rgba(205,43,238,0.5)' },
   onlineDot: { position: 'absolute', right: -1, bottom: -1, width: 10, height: 10, borderRadius: 5, backgroundColor: '#22c55e' },
-  userName: { color: '#fff', fontSize: fontScale(13), fontFamily: 'PlusJakartaSansExtraBold' },
+  userName: { color: '#fff', fontSize: fontScale(12), fontFamily: 'PlusJakartaSansExtraBold' },
   userSub: { color: '#6b7280', fontSize: fontScale(10), fontFamily: 'PlusJakartaSansBold' },
   metaCard: {
     marginTop: 10,
@@ -503,8 +503,8 @@ const styles = StyleSheet.create({
     gap: 6,
   },
   dropThumb: { borderRadius: 14, backgroundColor: '#000', height: 120, justifyContent: 'center', alignItems: 'center' },
-  dropTitle: { color: '#cd2bee', fontSize: fontScale(10), fontFamily: 'PlusJakartaSansExtraBold' },
-  dropName: { color: '#fff', fontSize: fontScale(13), fontFamily: 'PlusJakartaSansBold' },
+  dropTitle: { color: '#cd2bee', fontSize: fontScale(9), fontFamily: 'PlusJakartaSansExtraBold' },
+  dropName: { color: '#fff', fontSize: fontScale(12), fontFamily: 'PlusJakartaSansBold' },
   tipBubble: {
     maxWidth: '86%',
     borderRadius: 24,
@@ -541,7 +541,7 @@ const styles = StyleSheet.create({
     gap: 4,
   },
   toolItem: { flexDirection: 'row', alignItems: 'center', gap: 10, padding: 10, borderRadius: 14, backgroundColor: 'rgba(255,255,255,0.03)' },
-  toolTitle: { color: '#fff', fontSize: fontScale(12), fontFamily: 'PlusJakartaSansExtraBold' },
+  toolTitle: { color: '#fff', fontSize: fontScale(11), fontFamily: 'PlusJakartaSansExtraBold' },
   toolSub: { color: '#6b7280', fontSize: fontScale(9), fontFamily: 'PlusJakartaSansBold' },
   footer: {
     paddingTop: 6,

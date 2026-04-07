@@ -232,7 +232,7 @@ const styles = StyleSheet.create({
   headerTitle: {
     color: '#f8fafc',
     fontFamily: 'PlusJakartaSansBold',
-    fontSize: mediumScreen ? 20 : 16,
+    fontSize: mediumScreen ? 18 : 15,
   },
   headerBrand: {
     color: '#930df2',
@@ -313,7 +313,7 @@ const styles = StyleSheet.create({
   heroTitle: {
     color: '#f8fafc',
     fontFamily: 'PlusJakartaSansExtraBold',
-    fontSize: mediumScreen ? 29 : 25,
+    fontSize: mediumScreen ? 26 : 22,
     lineHeight: mediumScreen ? 34 : 30,
     textAlign: 'center',
   },
@@ -350,7 +350,7 @@ const styles = StyleSheet.create({
   valueTitle: {
     color: '#f8fafc',
     fontFamily: 'PlusJakartaSansBold',
-    fontSize: mediumScreen ? 19 : 15,
+    fontSize: mediumScreen ? 17 : 14,
   },
   valueText: {
     color: '#94a3b8',
@@ -378,7 +378,7 @@ const styles = StyleSheet.create({
   insightTitle: {
     color: '#f8fafc',
     fontFamily: 'PlusJakartaSansMedium',
-    fontSize: mediumScreen ? 18 : 14,
+    fontSize: mediumScreen ? 16 : 13,
   },
   insightText: {
     color: '#94a3b8',

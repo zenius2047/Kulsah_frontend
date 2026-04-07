@@ -172,7 +172,7 @@ const styles = StyleSheet.create({
   topTitle: {
     color: '#F8FAFC',
     fontFamily: 'PlusJakartaSansExtraBold',
-    fontSize: fontScale(20),
+    fontSize: fontScale(18),
     letterSpacing: -0.5,
   },
   backgroundLeaks: {
@@ -229,7 +229,7 @@ const styles = StyleSheet.create({
   heroTitle: {
     color: '#F8FAFC',
     fontFamily: 'PlusJakartaSansExtraBold',
-    fontSize: fontScale(42),
+    fontSize: fontScale(39),
     lineHeight: 40,
     textAlign: 'center',
   },
@@ -316,7 +316,7 @@ const styles = StyleSheet.create({
   name: {
     color: '#F8FAFC',
     fontFamily: 'PlusJakartaSansBold',
-    fontSize: fontScale(28),
+    fontSize: fontScale(25),
     marginBottom: 4,
   },
   handle: {
@@ -345,7 +345,7 @@ const styles = StyleSheet.create({
   challengeTitle: {
     color: '#F8FAFC',
     fontFamily: 'PlusJakartaSansBold',
-    fontSize: fontScale(22),
+    fontSize: fontScale(20),
     textAlign: 'center',
   },
   rewardGrid: {

@@ -294,7 +294,7 @@ const styles = StyleSheet.create({
   pageTitle: {
     color: '#F8FAFC',
     fontFamily: 'PlusJakartaSansExtraBold',
-    fontSize: fontScale(30),
+    fontSize: fontScale(27),
   },
   timerPill: {
     alignSelf: 'flex-start',
@@ -484,7 +484,7 @@ const styles = StyleSheet.create({
   insightTitle: {
     color: '#F8FAFC',
     fontFamily: 'PlusJakartaSansBold',
-    fontSize: fontScale(16),
+    fontSize: fontScale(15),
   },
   chartArea: {
     height: 128,
@@ -519,7 +519,7 @@ const styles = StyleSheet.create({
   insightSubtitle: {
     color: '#94A3B8',
     fontFamily: 'PlusJakartaSans',
-    fontSize: fontScale(13),
+    fontSize: fontScale(12),
     marginBottom: 16,
   },
   rewardValue: {
@@ -557,7 +557,7 @@ const styles = StyleSheet.create({
   pendingTitle: {
     color: '#F8FAFC',
     fontFamily: 'PlusJakartaSansBold',
-    fontSize: fontScale(18),
+    fontSize: fontScale(16),
   },
   pendingPill: {
     paddingHorizontal: 12,
@@ -609,7 +609,7 @@ const styles = StyleSheet.create({
   pendingEntryTitle: {
     color: '#F8FAFC',
     fontFamily: 'PlusJakartaSansBold',
-    fontSize: fontScale(14),
+    fontSize: fontScale(13),
     marginBottom: 4,
   },
   pendingEntryTime: {
@@ -671,7 +671,7 @@ const styles = StyleSheet.create({
   guideTitle: {
     color: '#d915d2',
     fontFamily: 'PlusJakartaSansExtraBold',
-    fontSize: fontScale(11),
+    fontSize: fontScale(10),
     textTransform: 'uppercase',
     letterSpacing: 2,
     marginBottom: 14,

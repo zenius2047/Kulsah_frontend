@@ -71,7 +71,7 @@ import SelectTickets from './pages/SelectTickets';
 
 const Stack = createNativeStackNavigator();
 const Tab = createBottomTabNavigator();
-const { height: SCREEN_HEIGHT, width: SCREEN_WIDTH } = Dimensions.get('window');
+const { height: SCREEN_HEIGHT, width: SCREEN_WIDTH } = Dimensions.get('screen');
 
 
 const TextWithDefaults = Text as unknown as { defaultProps?: { style?: unknown } };
@@ -120,7 +120,7 @@ const CreatorTabs = ({ isDarkMode }: TabsProps) => (
       }}
     />
     <Tab.Screen
-      name="Home"
+      name="Arena"
       component={Arena}
       options={{
         tabBarIcon: ({ color, size }) => <HomeIcon width={size} height={size} fill={color} />,
@@ -143,9 +143,11 @@ const CreatorTabs = ({ isDarkMode }: TabsProps) => (
           width: 55,
           alignItems: 'center',
           justifyContent: 'center',
+          // backgroundColor: 'blue',
+          marginBottom: -20,
         }}>
           {/* <MaterialIcons name='add-circle' size={54} color={'white'}/> */}
-          <CreateIcon height={74} width={74}/>
+          <CreateIcon height={64} width={64}/>
         </View>
       }}
     />
@@ -303,7 +305,8 @@ const App: React.FC = () => {
     // console.log(`Rebuilding`)
     setHeight(vh);
     setWidth(vw);
-    if(SCREEN_HEIGHT > 808 ){
+    console.log("height", SCREEN_HEIGHT)
+    if(SCREEN_HEIGHT > 880 ){
       setScreenType(true)
     }
     if(SCREEN_WIDTH < 400){
@@ -456,7 +459,7 @@ const styles = StyleSheet.create({
     borderTopWidth: 0,
     // backgroundColor: 'transparent',
     elevation: 0,
-    height: '8%',
+    height: SCREEN_HEIGHT * 0.08,
     // height: 64,
     paddingBottom: 0,
     fontSize: mediumScreen ? 12: 8,
