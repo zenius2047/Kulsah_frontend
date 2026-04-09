@@ -26,7 +26,7 @@ import { NativeStackScreenProps } from '@react-navigation/native-stack';
 import { mediumScreen, RootStackParamList, smallWidth } from '../types';
 import TickIcon from '../assets/icons/ticket-svg.svg';
 import PlayFilledIcon from '../assets/icons/play-arrow-filled-svg.svg';
-import FireIcon from '../assets/icons/fire-svg.svg';
+import FireIcon from '../assets/icons/fireIcon-svg.svg';
 import BookMarkIcon from '../assets/icons/bookmark-svg.svg';
 import { fontScale } from '../fonts';
 import LiveLogo from '../assets/icons/live-svg.svg';
@@ -51,10 +51,232 @@ interface FeedItem {
   hasSound?: boolean;
   soundArtist?: string;
   soundTitle?: string;
+  following: boolean;
 }
 
 const { height: SCREEN_HEIGHT, width: SCREEN_WIDTH } = Dimensions.get('screen');
 const FEED_ITEM_HEIGHT = SCREEN_HEIGHT * 0.92;
+
+const FeedQuickMenuModal: React.FC<{
+  visible: boolean;
+  onClose: () => void;
+}> = ({ visible, onClose }) => {
+  const { isDark, theme } = useThemeMode();
+  const panelBg = isDark ? 'rgba(10,5,13,0.92)' : 'rgba(255,255,255,0.96)';
+  const panelBorder = isDark ? 'rgba(255,255,255,0.12)' : theme.border;
+  const tileBg = isDark ? 'rgba(255,255,255,0.06)' : 'rgba(15,23,42,0.04)';
+  const tileBorder = isDark ? 'rgba(255,255,255,0.12)' : theme.border;
+  const rowBg = isDark ? 'rgba(255,255,255,0.02)' : 'rgba(15,23,42,0.03)';
+  const textPrimary = isDark ? '#e2e8f0' : theme.text;
+  const iconTone = isDark ? '#94a3b8' : theme.textSecondary;
+  const divider = isDark ? 'rgba(255,255,255,0.08)' : theme.border;
+
+  return (
+    <Modal
+      visible={visible}
+      transparent
+      animationType="slide"
+      statusBarTranslucent
+      onRequestClose={onClose}
+    >
+      <View style={{ flex: 1, backgroundColor: 'rgba(0,0,0,0.45)', justifyContent: 'flex-end' }}>
+        <Pressable style={{ flex: 1 }} onPress={onClose} />
+
+        <View
+          style={{
+            maxHeight: SCREEN_HEIGHT * 0.78,
+            borderTopLeftRadius: 24,
+            borderTopRightRadius: 24,
+            borderTopWidth: 1,
+            borderColor: panelBorder,
+            backgroundColor: panelBg,
+            paddingBottom: 26,
+            overflow: 'hidden',
+          }}
+        >
+          <View style={{ alignItems: 'center', paddingVertical: 12 }}>
+            <View style={{ width: 48, height: 6, borderRadius: 99, backgroundColor: isDark ? 'rgba(255,255,255,0.22)' : 'rgba(15,23,42,0.2)' }} />
+          </View>
+
+          <ScrollView showsVerticalScrollIndicator={false} contentContainerStyle={{ paddingHorizontal: 16, paddingBottom: 10 }}>
+            <View style={{ flexDirection: 'row', gap: 8, marginBottom: 18 }}>
+              {[
+                { icon: 'bookmark', label: 'Save' },
+                { icon: 'sync', label: 'Remix' },
+                { icon: 'auto-awesome', label: 'Orbit' },
+              ].map((action) => (
+                <Pressable
+                  key={action.label}
+                  style={{
+                    flex: 1,
+                    borderRadius: 8,
+                    borderWidth: 1,
+                    borderColor: tileBorder,
+                    backgroundColor: tileBg,
+                    paddingVertical: 16,
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                    gap: 6,
+                  }}
+                >
+                  <MaterialIcons name={action.icon as any} size={30} color="#930df2" />
+                  <Text
+                    style={{
+                      color: textPrimary,
+                      textTransform: 'uppercase',
+                      letterSpacing: 1,
+                      fontFamily: 'PlusJakartaSansBold',
+                      fontSize: fontScale(9),
+                    }}
+                  >
+                    {action.label}
+                  </Text>
+                </Pressable>
+              ))}
+            </View>
+
+            <View style={{ gap: 4 }}>
+              {[
+                { icon: 'closed-caption', label: 'Closed captions' },
+                { icon: 'fullscreen', label: 'View full-screen' },
+              ].map((row) => (
+                <Pressable
+                  key={row.label}
+                  style={{
+                    height: 52,
+                    borderRadius: 14,
+                    paddingHorizontal: 14,
+                    flexDirection: 'row',
+                    alignItems: 'center',
+                    gap: 14,
+                    backgroundColor: rowBg,
+                  }}
+                >
+                  <MaterialIcons name={row.icon as any} size={22} color={iconTone} />
+                  <Text style={{ color: textPrimary, fontSize: fontScale(12), fontFamily: 'PlusJakartaSansMedium' }}>
+                    {row.label}
+                  </Text>
+                </Pressable>
+              ))}
+
+              <Pressable
+                style={{
+                  minHeight: 52,
+                  borderRadius: 14,
+                  paddingHorizontal: 14,
+                  flexDirection: 'row',
+                  alignItems: 'center',
+                  justifyContent: 'space-between',
+                  backgroundColor: rowBg,
+                }}
+              >
+                <View style={{ flexDirection: 'row', alignItems: 'center', gap: 14 }}>
+                  <MaterialIcons name={'auto-graph' as any} size={22} color={iconTone} />
+                  <Text style={{ color: textPrimary, fontSize: fontScale(12), fontFamily: 'PlusJakartaSansMedium' }}>
+                    Auto-scroll
+                  </Text>
+                  <View
+                    style={{
+                      borderRadius: 999,
+                      borderWidth: 1,
+                      borderColor: 'rgba(147,13,242,0.4)',
+                      backgroundColor: 'rgba(147,13,242,0.2)',
+                      paddingHorizontal: 7,
+                      paddingVertical: 2,
+                    }}
+                  >
+                    <Text style={{ color: '#930df2', fontSize: fontScale(7), fontFamily: 'PlusJakartaSansExtraBold' }}>NEW</Text>
+                  </View>
+                </View>
+                <View
+                  style={{
+                    width: 42,
+                    height: 25,
+                    borderRadius: 999,
+                    backgroundColor: '#6a00b1',
+                    justifyContent: 'center',
+                    paddingHorizontal: 3,
+                    alignItems: 'flex-end',
+                  }}
+                >
+                  <View style={{ width: 18, height: 18, borderRadius: 9, backgroundColor: '#fff' }} />
+                </View>
+              </Pressable>
+
+              <Pressable
+                style={{
+                  height: 52,
+                  borderRadius: 14,
+                  paddingHorizontal: 14,
+                  flexDirection: 'row',
+                  alignItems: 'center',
+                  gap: 14,
+                  backgroundColor: rowBg,
+                }}
+              >
+                <MaterialIcons name={'qr-code' as any} size={22} color={iconTone} />
+                <Text style={{ color: textPrimary, fontSize: fontScale(12), fontFamily: 'PlusJakartaSansMedium' }}>
+                  QR code
+                </Text>
+              </Pressable>
+
+              <View style={{ height: 1, backgroundColor: divider, marginVertical: 8, marginHorizontal: 4 }} />
+
+              {[
+                { icon: 'sentiment-satisfied', label: 'Interested' },
+                { icon: 'sentiment-dissatisfied', label: 'Not interested' },
+                { icon: 'report', label: 'Report', tint: '#ef4444' },
+              ].map((row) => (
+                <Pressable
+                  key={row.label}
+                  style={{
+                    height: 52,
+                    borderRadius: 14,
+                    paddingHorizontal: 14,
+                    flexDirection: 'row',
+                    alignItems: 'center',
+                    gap: 14,
+                    backgroundColor: rowBg,
+                  }}
+                >
+                  <MaterialIcons name={row.icon as any} size={22} color={row.tint ?? iconTone} />
+                  <Text style={{ color: textPrimary, fontSize: fontScale(12), fontFamily: 'PlusJakartaSansMedium' }}>
+                    {row.label}
+                  </Text>
+                </Pressable>
+              ))}
+
+              <View style={{ height: 1, backgroundColor: divider, marginVertical: 8, marginHorizontal: 4 }} />
+
+              {[
+                { icon: 'settings', label: 'Manage content preferences' },
+                { icon: 'psychology', label: 'See your algorithm' },
+              ].map((row) => (
+                <Pressable
+                  key={row.label}
+                  style={{
+                    height: 52,
+                    borderRadius: 14,
+                    paddingHorizontal: 14,
+                    flexDirection: 'row',
+                    alignItems: 'center',
+                    gap: 14,
+                    backgroundColor: rowBg,
+                  }}
+                >
+                  <MaterialIcons name={row.icon as any} size={22} color={iconTone} />
+                  <Text style={{ color: textPrimary, fontSize: fontScale(12), fontFamily: 'PlusJakartaSansMedium' }}>
+                    {row.label}
+                  </Text>
+                </Pressable>
+              ))}
+            </View>
+          </ScrollView>
+        </View>
+      </View>
+    </Modal>
+  );
+};
 
 
 const VideoFeedItem: React.FC<{
@@ -71,6 +293,7 @@ const VideoFeedItem: React.FC<{
   // console.log("Viewport Width:", SCREEN_WIDTH);
   const navigation = useNavigation<any>();
   const [showComments, setShowComments] = useState(false);
+  const [showMoreMenu, setShowMoreMenu] = useState(false);
   const [isLiked, setIsLiked] = useState(item.isLiked);
   const [playVideo, setIsPlaying] = useState(true);
   const { height: vh } = useWindowDimensions();
@@ -230,7 +453,7 @@ const { isPlaying : isReady } = useEvent(player, 'playingChange', { isPlaying: p
       </View> */}
 
       {/* Right-side overlay buttons */}
-      <View style={{ position: 'absolute', right: 0, bottom: 30, alignItems: 'center', gap: 16 }}>
+      <View style={{ position: 'absolute', right: 5, bottom: 0, alignItems: 'center', gap: 16 }}>
         <Pressable style={{}}>
           <View style={{
             borderRadius: 24,
@@ -273,12 +496,12 @@ const { isPlaying : isReady } = useEvent(player, 'playingChange', { isPlaying: p
         )} */}
 
         <Pressable onPress={() => setIsLiked(v => !v)} style={{alignItems: 'center' }}>
-          <MaterialIcons name={isLiked ? 'favorite' : 'favorite-border'} size={28} color={isLiked ? '#cd2bee' : 'white'} />
+          <MaterialIcons name='favorite' size={32} color={isLiked ? '#cd2bee' : 'white'} />
           <Text style={{ color: 'white', fontWeight: 'bold', fontSize: mediumScreen ? 14:10, fontFamily: "PlusJakartaSansBold" }}>{item.likes}</Text>
         </Pressable>
 
         <Pressable onPress={() => setShowComments(true)} style={{alignItems: 'center' }}>
-          <MaterialIcons name="chat-bubble-outline" size={28} color="white" />
+          <MaterialIcons name="chat-bubble" size={28} color="white" />
           <Text style={{ color: 'white', fontSize: mediumScreen ? 14:10, fontFamily: "PlusJakartaSansBold"}}>{item.comments}</Text>
         </Pressable>
 
@@ -293,15 +516,15 @@ const { isPlaying : isReady } = useEvent(player, 'playingChange', { isPlaying: p
             alignItems: 'center',
           }}>
             <View style={{
-              borderWidth: 2,
-              borderColor: item.isSubscribed ? '#cd2bee' : 'white',
-              height: 24,
-              width: 24,
-              borderRadius: 12,
+              // borderWidth: 2,
+              // borderColor: item.isSubscribed ? '#cd2bee' : 'white',
+              // height: 24,
+              // width: 24,
+              // borderRadius: 12,
               justifyContent: 'center',
               alignItems: 'center',
             }}>
-              <MaterialIcons name="star" size={14} color={item.isSubscribed ? '#cd2bee' : 'white'} />
+              <MaterialIcons name="stars" size={32} color={item.isSubscribed ? '#cd2bee' : 'white'} />
             </View>
           </View>
           <Text style={{ color: item.isSubscribed ? '#cd2bee' : 'white', fontSize: mediumScreen ? 14:10, fontFamily: "PlusJakartaSansBold" }}>
@@ -310,13 +533,18 @@ const { isPlaying : isReady } = useEvent(player, 'playingChange', { isPlaying: p
         </Pressable>
 
         <Pressable onPress={()=>{}} style={{ alignItems: 'center' }}>
-          <BookMarkIcon height={28} width={28} fill="white" />
+          <MaterialIcons name="bookmark" size={30} color="white" />
           <Text style={{ color: 'white', fontSize: mediumScreen ? 14:10, fontFamily: "PlusJakartaSansBold" }}>Save</Text>
         </Pressable>
 
         <Pressable onPress={() => {}} style={{ alignItems: 'center' }}>
           <MaterialIcons name="share" size={28} color="white" />
           <Text style={{ color: 'white', fontSize: mediumScreen ? 14:10, fontFamily: "PlusJakartaSansBold" }}>Share</Text>
+        </Pressable>
+
+        <Pressable onPress={() => setShowMoreMenu(true)} style={{ alignItems: 'center' }}>
+          <MaterialIcons name="more-horiz" size={30} color="white" />
+          <Text style={{ color: 'white', fontSize: mediumScreen ? 14:10, fontFamily: "PlusJakartaSansBold" }}>More</Text>
         </Pressable>
 
         <View style={
@@ -332,13 +560,30 @@ const { isPlaying : isReady } = useEvent(player, 'playingChange', { isPlaying: p
           <Pressable 
           onPress={()=> navigation.navigate('ArtistProfile', {isOwner: false})}
           >
-            <Text style={{ color: 'white', fontWeight: '800', fontSize: mediumScreen ? 18: 14 }}>@{item.handle}</Text>
+            <View style={{
+              flexDirection: 'row',
+              alignItems: 'center',
+              justifyContent: 'center',
+              gap: 3,
+              // backgroundColor: 'blue',
+            }}>
+              <Text style={{ color: 'white', fontFamily: 'PlusJakartaSansBold', fontSize: mediumScreen ? 18: 14,}}>@{item.handle}</Text>
+              <View style={{
+                // backgroundColor: 'red',
+                marginTop: 3
+              }}>
+                <MaterialIcons name="verified" size={16} color='#33aae4'/>
+              </View>
+            </View>
           </Pressable>
           {item.isPremium && (
             <View style={{ borderRadius: 6, borderColor: '#cd2bee', backgroundColor: '#cd2bee', borderWidth: 1, paddingHorizontal: 6, justifyContent: 'center', alignItems: 'center', paddingVertical: 3 }}>
               <Text style={{ color: '#fff', fontWeight: 'bold', fontSize: mediumScreen ? 12: 8 }}>Premium</Text>
             </View>
           )}
+          <View style={{ borderRadius: 6, borderColor: 'white',  borderWidth: 1, paddingHorizontal: 6, justifyContent: 'center', alignItems: 'center', paddingVertical: 3 }}>
+              <Text style={{ color: '#fff', fontWeight: 'bold', fontSize: mediumScreen ? 12: 8 }}>{item.following ? 'Following': 'Follow'}</Text>
+            </View>
         </View>
 
         <View style={{
@@ -413,7 +658,7 @@ const { isPlaying : isReady } = useEvent(player, 'playingChange', { isPlaying: p
       </View>
 
       {/* Comments modal */}
-       <Modal
+      <Modal
         visible={showComments}
         transparent
         statusBarTranslucent
@@ -422,6 +667,11 @@ const { isPlaying : isReady } = useEvent(player, 'playingChange', { isPlaying: p
       >
         <Reactions onClose={() => setShowComments(false)} title={`${item.comments} Reactions`} />
       </Modal>
+
+      <FeedQuickMenuModal
+        visible={showMoreMenu}
+        onClose={() => setShowMoreMenu(false)}
+      />
     </View>
   );
 };
@@ -459,6 +709,7 @@ const Feed: React.FC = () => {
       hasSound: true,
       soundArtist: 'Synthwave Kid',
       soundTitle: 'Neon Dreams',
+      following: false,
     },
     {
       id: '1',
@@ -475,6 +726,7 @@ const Feed: React.FC = () => {
       isPremium: true,
       ticketsAvailable: true,
       ticketLocation: 'London, UK',
+      following: true,
     },
     {
       id: '4',
@@ -491,6 +743,7 @@ const Feed: React.FC = () => {
       isPremium: true,
       ticketsAvailable: false,
       isLive: true,
+      following: false,
     },
     {
       id: '2',
@@ -506,6 +759,7 @@ const Feed: React.FC = () => {
       isSubscribed: false,
       isPremium: false,
       ticketsAvailable: false,
+      following: true,
     },
     {
       id: '5',
@@ -521,6 +775,7 @@ const Feed: React.FC = () => {
       isSubscribed: true,
       isPremium: true,
       ticketsAvailable: false,
+      following: false,
     },
     {
       id: '8',
@@ -536,6 +791,7 @@ const Feed: React.FC = () => {
       isSubscribed: true,
       isPremium: true,
       ticketsAvailable: false,
+      following: true,
     },
     {
       id: '10',
@@ -551,6 +807,7 @@ const Feed: React.FC = () => {
       isSubscribed: true,
       isPremium: true,
       ticketsAvailable: false,
+      following: false,
     },
     {
       id: '3',
@@ -566,6 +823,7 @@ const Feed: React.FC = () => {
       isSubscribed: true,
       isPremium: true,
       ticketsAvailable: false,
+      following: true,
     },
     {
       id: '11',
@@ -581,6 +839,7 @@ const Feed: React.FC = () => {
       isSubscribed: true,
       isPremium: false,
       ticketsAvailable: false,
+      following: false,
     },
     {
       id: '9',
@@ -596,6 +855,7 @@ const Feed: React.FC = () => {
       isSubscribed: true,
       isPremium: false,
       ticketsAvailable: false,
+      following: true,
     },
     {
       id: '12',
@@ -611,6 +871,7 @@ const Feed: React.FC = () => {
       isSubscribed: true,
       isPremium: false,
       ticketsAvailable: false,
+      following: false,
     },
     {
       id: '13',
@@ -626,6 +887,7 @@ const Feed: React.FC = () => {
       isSubscribed: true,
       isPremium: false,
       ticketsAvailable: false,
+      following: true,
     },
     {
       id: '14',
@@ -641,6 +903,7 @@ const Feed: React.FC = () => {
       isSubscribed: true,
       isPremium: false,
       ticketsAvailable: false,
+      following: false,
     },
   ]);
 
@@ -792,11 +1055,11 @@ const Feed: React.FC = () => {
             <View
             style={{
               // width: SCREEN_WIDTH * 0.2,
-              // backgroundColor: '#f9731633',
+              // backgroundColor: 'blue',
               // borderColor: '#f973164d',
               // borderWidth: 1,
               // borderRadius: 16,
-              height: 45,
+              // height: 45,
               justifyContent: 'center',
               alignItems: 'center',
               flexDirection: 'row',
@@ -805,13 +1068,13 @@ const Feed: React.FC = () => {
               // marginRight: 5,
             }}
             >
-              <FireIcon fill='#f97316' height={28} width={28}/>
+              <FireIcon fill='#f97316' height={15} width={15}/>
               <Text 
               numberOfLines={1}
               style={{
                 color: '#f97316',
                 fontFamily: "PlusJakartaSansBold",
-                fontSize: mediumScreen ? 16: 12,
+                fontSize: mediumScreen ? 14: 10,
               }}>
                 3
               </Text>

@@ -14,6 +14,8 @@ import { mediumScreen, user } from '../types';
 import { fontScale } from '../fonts';
 import { BlurView } from 'expo-blur';
 import VerifiedIcon from '../assets/icons/verified-svg.svg';
+import FireIcon from '../assets/icons/fireIcon-svg.svg';
+
 
 type Tab = 'Videos' | 'Premium' | 'Events' | 'Challenges' | 'Favorites' | 'Saved';
 type Billing = 'monthly' | 'annually';
@@ -137,7 +139,7 @@ const  ArtistProfile: React.FC = () => {
       <ScrollView contentContainerStyle={s.content} showsVerticalScrollIndicator={false}>
         <ImageBackground source={{ uri: 'https://images.unsplash.com/photo-1493225255756-d9584f8606e9?auto=format&fit=crop&q=80&w=800' }} style={s.cover}><LinearGradient colors={isDark ? ['rgba(0,0,0,0.1)', '#060913'] : ['rgba(255,255,255,0.06)', '#f8fafc']} style={StyleSheet.absoluteFillObject} /></ImageBackground>
         <View style={s.hero}>
-          <View style={[s.avatarWrap, { borderColor: theme.screen }]}><Image source={{ uri: 'https://picsum.photos/seed/elena/300' }} style={s.image} /><View style={[s.fire, { borderColor: theme.screen }]}><MaterialIcons name="local-fire-department" size={12} color="#fff" /><Text style={s.fireText}>5</Text></View></View>
+          <View style={[s.avatarWrap, { borderColor: theme.screen }]}><Image source={{ uri: 'https://picsum.photos/seed/elena/300' }} style={s.image} /><View style={[s.fire, { borderColor: theme.screen }]}><FireIcon height={15} width={15}/><Text style={s.fireText}>5</Text></View></View>
           <View style={{
             flexDirection: 'row',
             gap: 5,
@@ -341,7 +343,7 @@ const s = StyleSheet.create({
   screen: { flex: 1, backgroundColor: '#060913' },
   toast: { position: 'absolute', top: 56, alignSelf: 'center', zIndex: 40, backgroundColor: '#cd2bee', color: '#fff', paddingHorizontal: 16, paddingVertical: 8, borderRadius: 999, fontSize: fontScale(10), fontFamily: 'PlusJakartaSansExtraBold' },
   icon: { width: 40, height: 40, borderRadius: 20, alignItems: 'center', justifyContent: 'center', backgroundColor: 'rgba(255,255,255,0.06)' }, header: { paddingTop: 46, paddingHorizontal: 14, paddingBottom: 12, flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', backgroundColor: 'rgba(15,23,42,0.72)' }, headerBtn: { width: 40, height: 40, borderRadius: 20, alignItems: 'center', justifyContent: 'center', backgroundColor: 'rgba(255,255,255,0.06)' }, headerTitle: { flex: 1, textAlign: 'center', marginHorizontal: 10, color: '#fff', fontSize: fontScale(16), fontFamily: 'PlusJakartaSansExtraBold' },
-  content: { paddingBottom: 120 }, cover: { height: 280 }, hero: { marginTop: -88, paddingHorizontal: 20, alignItems: 'center' }, avatarWrap: { width: 148, height: 148, borderRadius: 44, borderWidth: 8, borderColor: '#060913', overflow: 'hidden' }, image: { width: '100%', height: '100%' }, fire: { position: 'absolute', right: 4, bottom: 4, width: 40, height: 40, borderRadius: 12, backgroundColor: '#f97316', borderWidth: 4, borderColor: '#060913', alignItems: 'center', justifyContent: 'center' }, fireText: { color: '#fff', fontSize: fontScale(8), fontFamily: 'PlusJakartaSansExtraBold' },
+  content: { paddingBottom: 120 }, cover: { height: 280 }, hero: { marginTop: -88, paddingHorizontal: 20, alignItems: 'center' }, avatarWrap: { width: 148, height: 148, borderRadius: 44, borderWidth: 8, borderColor: '#060913', overflow: 'hidden' }, image: { width: '100%', height: '100%' }, fire: { position: 'absolute', right: 12, bottom: 8, width: 40, height: 40, borderRadius: 12, backgroundColor: '#f97316', borderWidth: 4, borderColor: '#060913', alignItems: 'center', justifyContent: 'center', flexDirection: 'row' }, fireText: { color: '#fff', fontSize: fontScale(8), fontFamily: 'PlusJakartaSansExtraBold' },
   name: {color: '#fff', fontSize: fontScale(16), fontFamily: 'PlusJakartaSansExtraBold', textTransform: 'uppercase' }, role: { marginTop: 4, color: '#cd2bee', fontSize: fontScale(9), fontFamily: 'PlusJakartaSansExtraBold', textTransform: 'uppercase', letterSpacing: 2 }, stat: { flex: 1, textAlign: 'center', color: '#fff', fontSize: fontScale(18), fontFamily: 'PlusJakartaSansExtraBold' }, muted: { color: '#7d859e', fontSize: fontScale(8), fontFamily: 'PlusJakartaSansExtraBold' }, purple: { color: '#cd2bee' }, 
   actions: { marginTop: 22, width: '70%', flexDirection: 'row', gap: 10, alignItems: 'center' },
   action: { height: 56, borderRadius: 24, alignItems: 'center', justifyContent: 'center', flexDirection: 'row', gap: 8 }, 

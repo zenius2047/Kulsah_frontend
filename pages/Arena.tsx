@@ -23,7 +23,7 @@ const Arena :React.FC = ({route}:any)=>{
 
     return (
     <View style={{
-        backgroundColor: theme.background,
+        backgroundColor: 'white',
         flex: 1,
         paddingTop: 54,
     }}>
@@ -36,6 +36,7 @@ const Arena :React.FC = ({route}:any)=>{
         borderBottomWidth: 1,
         borderBottomColor: theme.border,
         paddingBottom: 12,
+        backgroundColor: 'white'
     }}>
         <MaterialIcons name='chevron-left' size={34} color={theme.text}/>
         <Text style={{
