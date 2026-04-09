@@ -60,7 +60,7 @@ const EditSubmission: React.FC = () => {
         >
           <View style={styles.headerLeft}>
             <Pressable onPress={() => navigation.goBack()} style={styles.headerBack}>
-              <MaterialIcons name="arrow-back" size={22} color={isDark ? '#94a3b8' : theme.textSecondary} />
+              <MaterialIcons name="chevron-left" size={22} color={isDark ? '#94a3b8' : theme.textSecondary} />
             </Pressable>
             <Text style={[styles.headerTitle, { color: theme.text }]}>Edit Submission</Text>
           </View>
@@ -367,3 +367,4 @@ const styles = StyleSheet.create({
 });
 
 export default EditSubmission;
+

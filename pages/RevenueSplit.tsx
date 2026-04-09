@@ -33,26 +33,39 @@ const RevenueSplit: React.FC = () => {
   );
 
   const progressWidth = `${((projectedRevenue - MIN_REVENUE) / (MAX_REVENUE - MIN_REVENUE)) * 100}%`;
+  const bgGradient = isDark
+    ? ['#120617', '#0a050d', '#050207']
+    : ['#f8fafc', '#eef2ff', '#f8fafc'];
+  const headerBg = isDark ? 'rgba(255,255,255,0.05)' : 'rgba(255,255,255,0.92)';
+  const buttonBg = isDark ? 'rgba(255,255,255,0.04)' : 'rgba(15,23,42,0.06)';
+  const cardBg = isDark ? 'rgba(255,255,255,0.03)' : theme.card;
+  const cardBorder = isDark ? 'rgba(255,255,255,0.1)' : theme.border;
+  const subtle = isDark ? '#94a3b8' : theme.textSecondary;
+  const muted = isDark ? '#64748b' : theme.textMuted;
+  const titleTone = isDark ? '#ffffff' : theme.text;
+  const footerFade = isDark
+    ? ['rgba(10,5,13,0)', 'rgba(10,5,13,0.9)', '#0a050d']
+    : ['rgba(248,250,252,0)', 'rgba(248,250,252,0.92)', '#f8fafc'];
 
   return (
     <SafeAreaView style={[styles.safeArea, { backgroundColor: theme.background }]} edges={['top', 'left', 'right']}>
       <View style={[styles.screen, { backgroundColor: theme.screen }]}>
         <LinearGradient
-          colors={['#120617', '#0a050d', '#050207']}
+          colors={bgGradient}
           locations={[0, 0.45, 1]}
           style={StyleSheet.absoluteFill}
         />
 
-        <View style={styles.glowPrimary} pointerEvents="none" />
-        <View style={styles.glowSecondary} pointerEvents="none" />
+        {/* <View style={styles.glowPrimary} pointerEvents="none" />
+        <View style={styles.glowSecondary} pointerEvents="none" /> */}
 
-        <View style={styles.header}>
-          <Pressable style={styles.iconButton} onPress={() => navigation.goBack()}>
-            <MaterialIcons name="arrow-back" size={22} color="#94a3b8" />
+        <View style={[styles.header, { backgroundColor: headerBg }]}>
+          <Pressable style={[styles.iconButton, { backgroundColor: buttonBg }]} onPress={() => navigation.goBack()}>
+            <MaterialIcons name="chevron-left" size={22} color={subtle} />
           </Pressable>
-          <Text style={styles.headerTitle}>Revenue Split</Text>
-          <Pressable style={styles.iconButton}>
-            <MaterialIcons name="settings" size={22} color="#94a3b8" />
+          <Text style={[styles.headerTitle, { color: titleTone }]}>Revenue Split</Text>
+          <Pressable style={[styles.iconButton, { backgroundColor: buttonBg }]}>
+            <MaterialIcons name="settings" size={22} color={subtle} />
           </Pressable>
         </View>
 
@@ -103,26 +116,26 @@ const RevenueSplit: React.FC = () => {
               </Svg>
 
               <View style={styles.chartCenter}>
-                <Text style={styles.chartValue}>100%</Text>
-                <Text style={styles.chartLabel}>Total Pool</Text>
+                <Text style={[styles.chartValue, { color: titleTone }]}>100%</Text>
+                <Text style={[styles.chartLabel, { color: subtle }]}>Total Pool</Text>
               </View>
             </View>
 
             <View style={styles.legendRow}>
               <View style={styles.legendItem}>
                 <View style={[styles.legendDot, styles.creatorDot]} />
-                <Text style={styles.legendLabel}>Creator</Text>
-                <Text style={styles.legendValue}>20%</Text>
+                <Text style={[styles.legendLabel, { color: subtle }]}>Creator</Text>
+                <Text style={[styles.legendValue, { color: titleTone }]}>20%</Text>
               </View>
               <View style={styles.legendItem}>
                 <View style={[styles.legendDot, styles.winnerDot]} />
-                <Text style={styles.legendLabel}>Winner</Text>
-                <Text style={styles.legendValue}>30%</Text>
+                <Text style={[styles.legendLabel, { color: subtle }]}>Winner</Text>
+                <Text style={[styles.legendValue, { color: titleTone }]}>30%</Text>
               </View>
               <View style={styles.legendItem}>
                 <View style={[styles.legendDot, styles.platformDot]} />
-                <Text style={styles.legendLabel}>Platform</Text>
-                <Text style={styles.legendValue}>50%</Text>
+                <Text style={[styles.legendLabel, { color: subtle }]}>Platform</Text>
+                <Text style={[styles.legendValue, { color: titleTone }]}>50%</Text>
               </View>
             </View>
           </View>
@@ -170,50 +183,50 @@ const RevenueSplit: React.FC = () => {
           </View> */}
 
           <View style={styles.breakdownSection}>
-            <Text style={styles.breakdownHeading}>Detailed Breakdown</Text>
+            <Text style={[styles.breakdownHeading, { color: muted }]}>Detailed Breakdown</Text>
 
-            <View style={styles.breakdownCard}>
+            <View style={[styles.breakdownCard, { backgroundColor: cardBg, borderColor: cardBorder }]}>
               <View style={[styles.breakdownIconWrap, styles.creatorWrap]}>
                 <MaterialIcons name="stars" size={22} color="#d0c1d8" />
               </View>
               <View style={styles.breakdownBody}>
                 <View style={styles.breakdownRow}>
-                  <Text style={styles.breakdownTitle}>Your Share (20%)</Text>
+                  <Text style={[styles.breakdownTitle, { color: titleTone }]}>Your Share (20%)</Text>
                   {/* <Text style={styles.breakdownAmount}>${breakdown.creator}</Text> */}
                 </View>
-                <Text style={styles.breakdownText}>
+                <Text style={[styles.breakdownText, { color: subtle }]}>
                   Earnings for hosting, managing the audience engagement, and
                   creator-led marketing.
                 </Text>
               </View>
             </View>
 
-            <View style={styles.breakdownCard}>
+            <View style={[styles.breakdownCard, { backgroundColor: cardBg, borderColor: cardBorder }]}>
               <View style={[styles.breakdownIconWrap, styles.winnerWrap]}>
                 <MaterialIcons name="emoji-events" size={22} color="#d915d2" />
               </View>
               <View style={styles.breakdownBody}>
                 <View style={styles.breakdownRow}>
-                  <Text style={styles.breakdownTitle}>Winner&apos;s Share (30%)</Text>
+                  <Text style={[styles.breakdownTitle, { color: titleTone }]}>Winner&apos;s Share (30%)</Text>
                   {/* <Text style={styles.breakdownAmount}>${breakdown.winner}</Text> */}
                 </View>
-                <Text style={styles.breakdownText}>
+                <Text style={[styles.breakdownText, { color: subtle }]}>
                   The jackpot awarded directly to the top-voted participant in
                   this challenge.
                 </Text>
               </View>
             </View>
 
-            <View style={styles.breakdownCard}>
+            <View style={[styles.breakdownCard, { backgroundColor: cardBg, borderColor: cardBorder }]}>
               <View style={[styles.breakdownIconWrap, styles.platformWrap]}>
                 <MaterialIcons name="hub" size={22} color="#930df2" />
               </View>
               <View style={styles.breakdownBody}>
                 <View style={styles.breakdownRow}>
-                  <Text style={styles.breakdownTitle}>Platform (50%)</Text>
+                  <Text style={[styles.breakdownTitle, { color: titleTone }]}>Platform (50%)</Text>
                   {/* <Text style={styles.breakdownAmount}>${breakdown.platform}</Text> */}
                 </View>
-                <Text style={styles.breakdownText}>
+                <Text style={[styles.breakdownText, { color: subtle }]}>
                   Covers secure payment processing, high-speed streaming, and
                   platform maintenance.
                 </Text>
@@ -224,7 +237,7 @@ const RevenueSplit: React.FC = () => {
 
         <View style={styles.footer}>
           <LinearGradient
-            colors={['rgba(10,5,13,0)', 'rgba(10,5,13,0.9)', '#0a050d']}
+            colors={footerFade}
             locations={[0, 0.35, 1]}
             style={StyleSheet.absoluteFill}
           />
@@ -274,7 +287,6 @@ const styles = StyleSheet.create({
     justifyContent: 'space-between',
     paddingHorizontal: 16,
     paddingVertical: 14,
-    backgroundColor: 'rgba(255,255,255,0.05)',
   },
   iconButton: {
     width: 40,
@@ -282,10 +294,8 @@ const styles = StyleSheet.create({
     borderRadius: 20,
     alignItems: 'center',
     justifyContent: 'center',
-    backgroundColor: 'rgba(255,255,255,0.04)',
   },
   headerTitle: {
-    color: '#f8fafc',
     fontFamily: 'PlusJakartaSansBold',
     fontSize: mediumScreen ? 18:15,
   },
@@ -313,12 +323,10 @@ const styles = StyleSheet.create({
     alignItems: 'center',
   },
   chartValue: {
-    color: '#ffffff',
     fontFamily: 'PlusJakartaSansExtraBold',
     fontSize: mediumScreen ? 29:25,
   },
   chartLabel: {
-    color: '#94a3b8',
     fontFamily: 'PlusJakartaSansBold',
     fontSize: mediumScreen ? 14:10,
     textTransform: 'uppercase',
@@ -351,14 +359,12 @@ const styles = StyleSheet.create({
     backgroundColor: '#930df2',
   },
   legendLabel: {
-    color: '#94a3b8',
     fontFamily: 'PlusJakartaSansBold',
     fontSize: fontScale(10),
     textTransform: 'uppercase',
     letterSpacing: 0.9,
   },
   legendValue: {
-    color: '#ffffff',
     fontFamily: 'PlusJakartaSansBold',
     fontSize: mediumScreen? 19:15,
   },
@@ -455,7 +461,6 @@ const styles = StyleSheet.create({
     gap: 14,
   },
   breakdownHeading: {
-    color: '#64748b',
     fontFamily: 'PlusJakartaSansBold',
     fontSize: mediumScreen? 13:9,
     textTransform: 'uppercase',
@@ -468,9 +473,7 @@ const styles = StyleSheet.create({
     gap: 14,
     borderRadius: 22,
     padding: 18,
-    backgroundColor: 'rgba(255,255,255,0.03)',
     borderWidth: 1,
-    borderColor: 'rgba(255,255,255,0.1)',
   },
   breakdownIconWrap: {
     width: 48,
@@ -499,7 +502,6 @@ const styles = StyleSheet.create({
     gap: 12,
   },
   breakdownTitle: {
-    color: '#f8fafc',
     fontFamily: 'PlusJakartaSansBold',
     fontSize: fontScale(13),
     flex: 1,
@@ -510,7 +512,6 @@ const styles = StyleSheet.create({
     fontSize: fontScale(24),
   },
   breakdownText: {
-    color: '#94a3b8',
     fontFamily: 'PlusJakartaSansMedium',
     fontSize: mediumScreen? 16:12,
     lineHeight: 18,
@@ -546,3 +547,4 @@ const styles = StyleSheet.create({
 });
 
 export default RevenueSplit;
+

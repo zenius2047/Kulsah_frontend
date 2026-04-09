@@ -60,25 +60,40 @@ const CreateChallenge: React.FC = () => {
   const [rules, setRules] = useState('');
   const [search, setSearch] = useState('');
   const [criteria, setCriteria] = useState<'vote' | 'likes'>('vote');
+  const bgGradient = isDark
+    ? ['#120617', '#0a050d', '#050207']
+    : ['#f8fafc', '#eef2ff', '#f8fafc'];
+  const headerBg = isDark ? 'rgba(255,255,255,0.05)' : 'rgba(255,255,255,0.92)';
+  const headerBorder = isDark ? 'rgba(255,255,255,0.04)' : theme.border;
+  const headerButtonBg = isDark ? 'rgba(255,255,255,0.04)' : 'rgba(15,23,42,0.06)';
+  const cardBg = isDark ? 'rgba(255,255,255,0.05)' : theme.card;
+  const cardBorder = isDark ? 'rgba(255,255,255,0.1)' : theme.border;
+  const inputBg = isDark ? 'rgba(255,255,255,0.05)' : theme.surface;
+  const subtle = isDark ? '#94a3b8' : theme.textSecondary;
+  const muted = isDark ? '#64748b' : theme.textMuted;
+  const placeholder = isDark ? '#64748b' : theme.textMuted;
+  const titleTone = isDark ? '#f8fafc' : theme.text;
+  const activeCriteriaBg = isDark ? 'rgba(217,21,210,0.1)' : theme.accentSoft;
+  const inactiveBorder = isDark ? 'rgba(255,255,255,0.18)' : theme.border;
 
   return (
     <SafeAreaView style={[styles.safeArea, { backgroundColor: theme.background }]} edges={['top', 'left', 'right']}>
       <View style={[styles.screen, { backgroundColor: theme.screen }]}>
         <LinearGradient
-          colors={['#120617', '#0a050d', '#050207']}
+          colors={bgGradient}
           locations={[0, 0.45, 1]}
           style={StyleSheet.absoluteFill}
         />
 
-        <View style={styles.topGlowPrimary} pointerEvents="none" />
-        <View style={styles.topGlowSecondary} pointerEvents="none" />
+        {/* <View style={styles.topGlowPrimary} pointerEvents="none" />
+        <View style={styles.topGlowSecondary} pointerEvents="none" /> */}
 
-        <View style={styles.header}>
-          <Pressable style={styles.headerButton} onPress={() => navigation.goBack()}>
+        <View style={[styles.header, { backgroundColor: headerBg, borderBottomColor: headerBorder }]}>
+          <Pressable style={[styles.headerButton, { backgroundColor: headerButtonBg }]} onPress={() => navigation.goBack()}>
             <MaterialIcons name="close" size={22} color="#8b5cf6" />
           </Pressable>
-          <Text style={styles.headerTitle}>NEW CHALLENGE</Text>
-          <Pressable style={styles.headerButton}>
+          <Text style={[styles.headerTitle, { color: titleTone }]}>NEW CHALLENGE</Text>
+          <Pressable style={[styles.headerButton, { backgroundColor: headerButtonBg }]}>
             <MaterialIcons name="send" size={22} color="#8b5cf6" />
           </Pressable>
         </View>
@@ -90,14 +105,14 @@ const CreateChallenge: React.FC = () => {
           keyboardShouldPersistTaps="handled"
         >
           <View style={styles.section}>
-            <View style={styles.glassCard}>
+            <View style={[styles.glassCard, { backgroundColor: cardBg, borderColor: cardBorder }]}>
               <Text style={styles.label}>Challenge Title</Text>
               <TextInput
                 value={challengeTitle}
                 onChangeText={setChallengeTitle}
                 placeholder="Enter an electric title..."
-                placeholderTextColor="#475569"
-                style={styles.titleInput}
+                placeholderTextColor={placeholder}
+                style={[styles.titleInput, { color: titleTone }]}
               />
               <LinearGradient
                 colors={['#9333ea', 'transparent']}
@@ -107,16 +122,16 @@ const CreateChallenge: React.FC = () => {
               />
             </View>
 
-            <View style={styles.glassCard}>
-              <Text style={styles.labelMuted}>Rules & Guidelines</Text>
+            <View style={[styles.glassCard, { backgroundColor: cardBg, borderColor: cardBorder }]}>
+              <Text style={[styles.labelMuted, { color: subtle }]}>Rules & Guidelines</Text>
               <TextInput
                 value={rules}
                 onChangeText={setRules}
                 placeholder="Define the game... No filters? Best lighting? 15 seconds max?"
-                placeholderTextColor="#64748b"
+                placeholderTextColor={placeholder}
                 multiline
                 textAlignVertical="top"
-                style={styles.rulesInput}
+                style={[styles.rulesInput, { color: titleTone, backgroundColor: inputBg }]}
               />
             </View>
           </View>
@@ -124,33 +139,33 @@ const CreateChallenge: React.FC = () => {
           <View style={styles.section}>
             <View style={styles.sectionTitleRow}>
               <MaterialIcons name="movie" size={18} color="#a855f7" />
-              <Text style={styles.sectionTitle}>Reference Media</Text>
+              <Text style={[styles.sectionTitle, { color: titleTone }]}>Reference Media</Text>
             </View>
 
             <View style={styles.mediaGrid}>
               {referenceMedia.map((item) => {
                 if (item.type === 'upload') {
                   return (
-                    <Pressable key={item.id} style={styles.mediaCard}>
+                    <Pressable key={item.id} style={[styles.mediaCard, { backgroundColor: cardBg, borderColor: cardBorder }]}>
                       <Image source={{ uri: item.image }} style={styles.mediaImage} />
-                      <View style={styles.mediaOverlaySoft} />
+                      <View style={[styles.mediaOverlaySoft, { backgroundColor: isDark ? 'rgba(10,5,13,0.42)' : 'rgba(15,23,42,0.2)' }]} />
                       <View style={styles.uploadContent}>
                         <MaterialIcons name="add-circle" size={34} color="#c084fc" />
-                        <Text style={styles.uploadLabel}>Upload Video</Text>
+                        <Text style={[styles.uploadLabel, { color: titleTone }]}>Upload Video</Text>
                       </View>
                     </Pressable>
                   );
                 }
 
                 return (
-                  <Pressable key={item.id} style={styles.mediaCard}>
+                  <Pressable key={item.id} style={[styles.mediaCard, { backgroundColor: cardBg, borderColor: cardBorder }]}>
                     <Image source={{ uri: item.image }} style={styles.mediaImage} />
                     <LinearGradient
                       colors={['transparent', 'rgba(0,0,0,0.86)']}
                       style={styles.mediaOverlay}
                     />
                     <View style={styles.mediaFooter}>
-                      <Text style={styles.mediaBadge}>{item.label}</Text>
+                      <Text style={[styles.mediaBadge, { backgroundColor: isDark ? 'rgba(0,0,0,0.4)' : 'rgba(15,23,42,0.2)' }]}>{item.label}</Text>
                       <Pressable style={styles.deleteButton}>
                         <MaterialIcons name="delete" size={18} color="#ff7c87" />
                       </Pressable>
@@ -164,7 +179,7 @@ const CreateChallenge: React.FC = () => {
           <View style={styles.section}>
             <View style={styles.sectionTitleRow}>
               <MaterialIcons name="emoji-events" size={18} color="#d915d2" />
-              <Text style={styles.sectionTitle}>Winning Criteria</Text>
+              <Text style={[styles.sectionTitle, { color: titleTone }]}>Winning Criteria</Text>
             </View>
 
             <View style={styles.criteriaRow}>
@@ -172,31 +187,37 @@ const CreateChallenge: React.FC = () => {
                 onPress={() => setCriteria('vote')}
                 style={[
                   styles.criteriaCard,
+                  { backgroundColor: cardBg },
                   criteria === 'vote' && styles.criteriaCardActive,
+                  criteria === 'vote' && { backgroundColor: activeCriteriaBg },
                 ]}
               >
                 <View
                   style={[
                     styles.criteriaIconWrap,
+                    { backgroundColor: inputBg },
                     criteria === 'vote' && styles.criteriaIconWrapActive,
                   ]}
                 >
                   <MaterialIcons name="how-to-vote" size={24} color="#d915d2" />
                 </View>
-                <Text style={styles.criteriaTitle}>Community Vote</Text>
-                <Text style={styles.criteriaMeta}>Judge by 1v1 battles</Text>
+                <Text style={[styles.criteriaTitle, { color: titleTone }]}>Community Vote</Text>
+                <Text style={[styles.criteriaMeta, { color: subtle }]}>Judge by 1v1 battles</Text>
               </Pressable>
 
               <Pressable
                 onPress={() => setCriteria('likes')}
                 style={[
                   styles.criteriaCard,
+                  { backgroundColor: cardBg },
                   criteria === 'likes' && styles.criteriaCardActive,
+                  criteria === 'likes' && { backgroundColor: activeCriteriaBg },
                 ]}
               >
                 <View
                   style={[
                     styles.criteriaIconWrap,
+                    { backgroundColor: inputBg },
                     criteria === 'likes' && styles.criteriaIconWrapActive,
                   ]}
                 >
@@ -206,8 +227,8 @@ const CreateChallenge: React.FC = () => {
                     color={criteria === 'likes' ? '#d915d2' : '#94a3b8'}
                   />
                 </View>
-                <Text style={styles.criteriaTitle}>Pure Likes</Text>
-                <Text style={styles.criteriaMeta}>Most interactions win</Text>
+                <Text style={[styles.criteriaTitle, { color: titleTone }]}>Pure Likes</Text>
+                <Text style={[styles.criteriaMeta, { color: subtle }]}>Most interactions win</Text>
               </Pressable>
             </View>
           </View>
@@ -216,19 +237,19 @@ const CreateChallenge: React.FC = () => {
             <View style={styles.inviteHeader}>
               <View style={styles.sectionTitleRow}>
                 <MaterialIcons name="group-add" size={18} color="#a855f7" />
-                <Text style={styles.sectionTitle}>Invite Creators</Text>
+                <Text style={[styles.sectionTitle, { color: titleTone }]}>Invite Creators</Text>
               </View>
               <Text style={styles.inviteCounter}>3/10 INVITED</Text>
             </View>
 
-            <View style={styles.searchCard}>
-              <MaterialIcons name="search" size={20} color="#94a3b8" />
+            <View style={[styles.searchCard, { backgroundColor: cardBg, borderColor: cardBorder }]}>
+              <MaterialIcons name="search" size={20} color={subtle} />
               <TextInput
                 value={search}
                 onChangeText={setSearch}
                 placeholder="Search handles or names..."
-                placeholderTextColor="#64748b"
-                style={styles.searchInput}
+                placeholderTextColor={placeholder}
+                style={[styles.searchInput, { color: titleTone }]}
               />
             </View>
 
@@ -245,15 +266,15 @@ const CreateChallenge: React.FC = () => {
                       <MaterialIcons name="close" size={12} color="#fff" />
                     </Pressable>
                   </View>
-                  <Text style={styles.creatorHandle}>{creator.handle}</Text>
+                  <Text style={[styles.creatorHandle, { color: titleTone }]}>{creator.handle}</Text>
                 </View>
               ))}
 
               <View style={styles.creatorChip}>
-                <Pressable style={styles.addCreatorButton}>
-                  <MaterialIcons name="person-add" size={24} color="#94a3b8" />
+                <Pressable style={[styles.addCreatorButton, { borderColor: inactiveBorder }]}>
+                  <MaterialIcons name="person-add" size={24} color={subtle} />
                 </Pressable>
-                <Text style={styles.browseLabel}>BROWSE</Text>
+                <Text style={[styles.browseLabel, { color: muted }]}>BROWSE</Text>
               </View>
             </ScrollView>
           </View>
@@ -322,9 +343,7 @@ const styles = StyleSheet.create({
     justifyContent: 'space-between',
     paddingHorizontal: 16,
     paddingVertical: 14,
-    backgroundColor: 'rgba(255,255,255,0.05)',
     borderBottomWidth: 1,
-    borderBottomColor: 'rgba(255,255,255,0.04)',
   },
   headerButton: {
     width: 40,
@@ -332,10 +351,8 @@ const styles = StyleSheet.create({
     borderRadius: 20,
     alignItems: 'center',
     justifyContent: 'center',
-    backgroundColor: 'rgba(255,255,255,0.04)',
   },
   headerTitle: {
-    color: '#f8fafc',
     fontFamily: 'PlusJakartaSansExtraBold',
     fontSize: mediumScreen ? 16:13,
     letterSpacing: 1.4,
@@ -355,9 +372,7 @@ const styles = StyleSheet.create({
   glassCard: {
     borderRadius: 22,
     padding: 20,
-    backgroundColor: 'rgba(255,255,255,0.05)',
     borderWidth: 1,
-    borderColor: 'rgba(255,255,255,0.1)',
     shadowColor: '#7c3aed',
     shadowOffset: { width: 0, height: 12 },
     shadowOpacity: 0.08,
@@ -373,7 +388,6 @@ const styles = StyleSheet.create({
     marginBottom: 10,
   },
   labelMuted: {
-    color: '#94a3b8',
     fontFamily: 'PlusJakartaSansExtraBold',
     fontSize: mediumScreen ? 12:8,
     letterSpacing: 1.4,
@@ -381,7 +395,6 @@ const styles = StyleSheet.create({
     marginBottom: 12,
   },
   titleInput: {
-    color: '#f8fafc',
     fontFamily: 'PlusJakartaSansExtraBold',
     fontSize: mediumScreen ? 20: 16,
     padding: 0,
@@ -395,11 +408,9 @@ const styles = StyleSheet.create({
     borderRadius: 18,
     // paddingHorizontal: 0,
     paddingVertical: 14,
-    color: '#f8fafc',
     fontFamily: 'PlusJakartaSansBold',
     fontSize: mediumScreen ? 18:14,
     lineHeight: 22,
-    backgroundColor: 'rgba(255,255,255,0.05)',
   },
   sectionTitleRow: {
     flexDirection: 'row',
@@ -407,7 +418,6 @@ const styles = StyleSheet.create({
     gap: 8,
   },
   sectionTitle: {
-    color: '#f8fafc',
     fontFamily: 'PlusJakartaSansExtraBold',
     fontSize: mediumScreen ? 15:11,
     letterSpacing: 1.8,
@@ -422,9 +432,7 @@ const styles = StyleSheet.create({
     aspectRatio: 9 / 16,
     borderRadius: 22,
     overflow: 'hidden',
-    backgroundColor: 'rgba(255,255,255,0.05)',
     borderWidth: 1,
-    borderColor: 'rgba(255,255,255,0.1)',
   },
   mediaImage: {
     ...StyleSheet.absoluteFillObject,
@@ -492,7 +500,6 @@ const styles = StyleSheet.create({
   },
   criteriaCardActive: {
     borderColor: '#d915d2',
-    backgroundColor: 'rgba(217,21,210,0.1)',
   },
   criteriaIconWrap: {
     width: 50,
@@ -500,7 +507,6 @@ const styles = StyleSheet.create({
     borderRadius: 25,
     alignItems: 'center',
     justifyContent: 'center',
-    backgroundColor: 'rgba(255,255,255,0.05)',
     marginBottom: 14,
   },
   criteriaIconWrapActive: {
@@ -512,7 +518,6 @@ const styles = StyleSheet.create({
     elevation: 4,
   },
   criteriaTitle: {
-    color: '#ffffff',
     fontFamily: 'PlusJakartaSansExtraBold',
     fontSize: mediumScreen ? 14:10,
     letterSpacing: 1.2,
@@ -520,7 +525,6 @@ const styles = StyleSheet.create({
     textAlign: 'center',
   },
   criteriaMeta: {
-    color: '#94a3b8',
     fontFamily: 'PlusJakartaSansMedium',
     fontSize: mediumScreen ? 14:10,
     textTransform: 'uppercase',
@@ -545,13 +549,10 @@ const styles = StyleSheet.create({
     borderRadius: 20,
     paddingHorizontal: 14,
     paddingVertical: 14,
-    backgroundColor: 'rgba(255,255,255,0.05)',
     borderWidth: 1,
-    borderColor: 'rgba(255,255,255,0.1)',
   },
   searchInput: {
     flex: 1,
-    color: '#f8fafc',
     fontFamily: 'PlusJakartaSans',
     fontSize: mediumScreen?15:12,
     padding: 0,
@@ -587,7 +588,6 @@ const styles = StyleSheet.create({
     backgroundColor: '#d915d2',
   },
   creatorHandle: {
-    color: '#f8fafc',
     fontFamily: 'PlusJakartaSansBold',
     fontSize: mediumScreen? 14:10,
   },
@@ -602,7 +602,6 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
   },
   browseLabel: {
-    color: '#64748b',
     fontFamily: 'PlusJakartaSansBold',
     fontSize: fontScale(10),
   },

@@ -202,13 +202,28 @@ const ChatView: React.FC = () => {
     [],
   );
 
+  const headerBg = isDark ? '#0f1016' : theme.card;
+  const footerBg = isDark ? '#0f1016' : theme.card;
+  const border = theme.border;
+  const subtleText = isDark ? '#6b7280' : theme.textSecondary;
+  const mutedText = isDark ? '#6b7280' : theme.textMuted;
+  const primaryText = theme.text;
+  const panelBg = isDark ? '#12131a' : theme.card;
+  const softSurface = isDark ? 'rgba(255,255,255,0.05)' : theme.surface;
+  const chipBg = isDark ? 'rgba(205,43,238,0.15)' : theme.accentSoft;
+  const chipBorder = isDark ? 'rgba(205,43,238,0.35)' : 'rgba(217,21,210,0.25)';
+  const bubbleOther = isDark ? 'rgba(255,255,255,0.08)' : theme.surface;
+  const callOverlayBg = isDark ? '#000' : 'rgba(15,23,42,0.94)';
+  const iconBtnBg = isDark ? 'rgba(255,255,255,0.06)' : 'rgba(15,23,42,0.06)';
+  const iconBtnBorder = isDark ? 'rgba(255,255,255,0.12)' : border;
+
   return (
     <View style={[styles.screen, { backgroundColor: theme.screen }]}>
       <Modal visible={callStatus !== 'idle'} transparent animationType="fade">
-        <View style={styles.callOverlay}>
+        <View style={[styles.callOverlay, { backgroundColor: callOverlayBg }]}>
           <View style={styles.callTop}>
             <Image source={{ uri: `https://picsum.photos/seed/${id}/300` }} style={styles.callAvatar} />
-            <Text style={styles.callName}>{id.replace('_', ' ')}</Text>
+            <Text style={[styles.callName, { color: primaryText }]}>{id.replace('_', ' ')}</Text>
             <Text style={styles.callStatus}>
               {callStatus === 'dialing'
                 ? `Requesting ${callType} connection...`
@@ -232,10 +247,10 @@ const ChatView: React.FC = () => {
         </View>
       </Modal>
 
-      <View style={styles.header}>
+      <View style={[styles.header, { backgroundColor: headerBg, borderBottomColor: border }]}>
         <View style={styles.headerRow}>
-          <Pressable onPress={() => navigation.goBack()} style={styles.iconBtn}>
-            <MaterialIcons name="arrow-back" size={20} color="#fff" />
+          <Pressable onPress={() => navigation.goBack()} style={[styles.iconBtn, { backgroundColor: iconBtnBg, borderColor: iconBtnBorder }]}>
+            <MaterialIcons name="chevron-left" size={20} color={primaryText} />
           </Pressable>
 
           <View style={styles.profileWrap}>
@@ -244,33 +259,33 @@ const ChatView: React.FC = () => {
           </View>
 
           <View style={{ flex: 1 }}>
-            <Text style={styles.userName}>{id.replace('_', ' ')}</Text>
-            <Text style={styles.userSub}>{isTyping || isGeneratingReplies ? 'Thinking...' : 'Synchronized'}</Text>
+            <Text style={[styles.userName, { color: primaryText }]}>{id.replace('_', ' ')}</Text>
+            <Text style={[styles.userSub, { color: mutedText }]}>{isTyping || isGeneratingReplies ? 'Thinking...' : 'Synchronized'}</Text>
           </View>
 
-          <Pressable onPress={() => startCall('audio')} style={styles.iconBtn}>
-            <MaterialIcons name="call" size={18} color="#fff" />
+          <Pressable onPress={() => startCall('audio')} style={[styles.iconBtn, { backgroundColor: iconBtnBg, borderColor: iconBtnBorder }]}>
+            <MaterialIcons name="call" size={18} color={primaryText} />
           </Pressable>
-          <Pressable onPress={() => startCall('video')} style={styles.iconBtn}>
-            <MaterialIcons name="videocam" size={18} color="#fff" />
+          <Pressable onPress={() => startCall('video')} style={[styles.iconBtn, { backgroundColor: iconBtnBg, borderColor: iconBtnBorder }]}>
+            <MaterialIcons name="videocam" size={18} color={primaryText} />
           </Pressable>
         </View>
 
-        <View style={styles.metaCard}>
+        <View style={[styles.metaCard, { backgroundColor: softSurface, borderColor: border }]}>
           <View>
-            <Text style={styles.metaLabel}>{isCreator ? 'Support Status' : 'Your Subscription'}</Text>
-            <Text style={styles.metaValue}>{meta.subStatus}</Text>
+            <Text style={[styles.metaLabel, { color: mutedText }]}>{isCreator ? 'Support Status' : 'Your Subscription'}</Text>
+            <Text style={[styles.metaValue, { color: primaryText }]}>{meta.subStatus}</Text>
           </View>
-          <View style={styles.metaDivider} />
+          <View style={[styles.metaDivider, { backgroundColor: border }]} />
           <View>
-            <Text style={styles.metaLabel}>{isCreator ? 'LTV' : 'Next Billing'}</Text>
-            <Text style={styles.metaValue}>{isCreator ? (meta as any).ltv : (meta as any).nextBilling}</Text>
+            <Text style={[styles.metaLabel, { color: mutedText }]}>{isCreator ? 'LTV' : 'Next Billing'}</Text>
+            <Text style={[styles.metaValue, { color: primaryText }]}>{isCreator ? (meta as any).ltv : (meta as any).nextBilling}</Text>
           </View>
           {isCreator && (
             <>
-              <View style={styles.metaDivider} />
+              <View style={[styles.metaDivider, { backgroundColor: border }]} />
               <View>
-                <Text style={styles.metaLabel}>Engage Score</Text>
+                <Text style={[styles.metaLabel, { color: mutedText }]}>Engage Score</Text>
                 <Text style={[styles.metaValue, { color: '#cd2bee' }]}>{(meta as any).score}%</Text>
               </View>
             </>
@@ -292,14 +307,14 @@ const ChatView: React.FC = () => {
                   <MaterialIcons name="play-circle" size={42} color="#cd2bee" />
                 </View>
                 <Text style={styles.dropTitle}>Private Drop Established</Text>
-                <Text style={styles.dropName}>Nebula Acoustic Cut.mov</Text>
+                <Text style={[styles.dropName, { color: primaryText }]}>Nebula Acoustic Cut.mov</Text>
               </View>
             ) : m.type === 'tip_request' ? (
               <View style={styles.tipBubble}>
                 <MaterialIcons name="redeem" size={24} color="#22c55e" />
                 <View>
                   <Text style={styles.tipLabel}>Support Request Sent</Text>
-                  <Text style={styles.tipAmount}>Requesting Tip: ${m.amount}</Text>
+                  <Text style={[styles.tipAmount, { color: primaryText }]}>Requesting Tip: ${m.amount}</Text>
                 </View>
               </View>
             ) : m.type === 'image' ? (
@@ -307,12 +322,12 @@ const ChatView: React.FC = () => {
                 <Image source={{ uri: m.text }} style={styles.stickerImage} />
               </View>
             ) : (
-              <View style={[styles.msgBubble, m.sender === 'me' ? styles.msgMine : styles.msgOther]}>
-                <Text style={[styles.msgText, m.sender === 'me' && { color: '#fff' }]}>{m.text}</Text>
+              <View style={[styles.msgBubble, m.sender === 'me' ? styles.msgMine : styles.msgOther, m.sender === 'other' && { backgroundColor: bubbleOther, borderColor: border }]}>
+                <Text style={[styles.msgText, { color: m.sender === 'me' ? '#fff' : primaryText }]}>{m.text}</Text>
               </View>
             )}
 
-            <Text style={styles.msgMeta}>
+            <Text style={[styles.msgMeta, { color: mutedText }]}>
               {m.time}
               {m.sender === 'me' ? ` • ${m.status || 'sent'}` : ''}
             </Text>
@@ -321,38 +336,38 @@ const ChatView: React.FC = () => {
       </ScrollView>
 
       {isToolsOpen && (
-        <View style={styles.toolsSheet}>
+        <View style={[styles.toolsSheet, { backgroundColor: panelBg, borderColor: border }]}>
           {isCreator ? (
             <>
-              <Pressable style={styles.toolItem} onPress={() => handleSend('Nebula Acoustic Cut', 'drop')}>
+              <Pressable style={[styles.toolItem, { backgroundColor: softSurface }]} onPress={() => handleSend('Nebula Acoustic Cut', 'drop')}>
                 <MaterialIcons name="movie-edit" size={22} color="#cd2bee" />
                 <View>
-                  <Text style={styles.toolTitle}>Send Private Drop</Text>
-                  <Text style={styles.toolSub}>Attach locked clip from library</Text>
+                  <Text style={[styles.toolTitle, { color: primaryText }]}>Send Private Drop</Text>
+                  <Text style={[styles.toolSub, { color: subtleText }]}>Attach locked clip from library</Text>
                 </View>
               </Pressable>
-              <Pressable style={styles.toolItem} onPress={() => handleSend('Support Request', 'tip_request', '50.00')}>
+              <Pressable style={[styles.toolItem, { backgroundColor: softSurface }]} onPress={() => handleSend('Support Request', 'tip_request', '50.00')}>
                 <MaterialIcons name="payments" size={22} color="#22c55e" />
                 <View>
-                  <Text style={styles.toolTitle}>Request Supporting Tip</Text>
-                  <Text style={styles.toolSub}>Generate one-on-one tip node</Text>
+                  <Text style={[styles.toolTitle, { color: primaryText }]}>Request Supporting Tip</Text>
+                  <Text style={[styles.toolSub, { color: subtleText }]}>Generate one-on-one tip node</Text>
                 </View>
               </Pressable>
             </>
           ) : (
             <>
-              <Pressable style={styles.toolItem} onPress={() => navigation.navigate('Wallet')}>
+              <Pressable style={[styles.toolItem, { backgroundColor: softSurface }]} onPress={() => navigation.navigate('Wallet')}>
                 <MaterialIcons name="account-balance-wallet" size={22} color="#cd2bee" />
                 <View>
-                  <Text style={styles.toolTitle}>Top Up Coins</Text>
-                  <Text style={styles.toolSub}>Add Kulsah coins to wallet</Text>
+                  <Text style={[styles.toolTitle, { color: primaryText }]}>Top Up Coins</Text>
+                  <Text style={[styles.toolSub, { color: subtleText }]}>Add Kulsah coins to wallet</Text>
                 </View>
               </Pressable>
-              <Pressable style={styles.toolItem} onPress={() => handleSend('Sent a tip! 🎁', 'tip_request', '10.00')}>
+              <Pressable style={[styles.toolItem, { backgroundColor: softSurface }]} onPress={() => handleSend('Sent a tip! 🎁', 'tip_request', '10.00')}>
                 <MaterialIcons name="volunteer-activism" size={22} color="#22c55e" />
                 <View>
-                  <Text style={styles.toolTitle}>Send a Tip</Text>
-                  <Text style={styles.toolSub}>Support creator with coins</Text>
+                  <Text style={[styles.toolTitle, { color: primaryText }]}>Send a Tip</Text>
+                  <Text style={[styles.toolSub, { color: subtleText }]}>Support creator with coins</Text>
                 </View>
               </Pressable>
             </>
@@ -360,11 +375,11 @@ const ChatView: React.FC = () => {
         </View>
       )}
 
-      <View style={styles.footer}>
+      <View style={[styles.footer, { backgroundColor: footerBg, borderTopColor: border }]}>
         {smartReplies.length > 0 && (
           <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={styles.repliesRow}>
             {smartReplies.map((reply, idx) => (
-              <Pressable key={idx} onPress={() => handleSend(reply)} style={styles.replyChip}>
+              <Pressable key={idx} onPress={() => handleSend(reply)} style={[styles.replyChip, { backgroundColor: chipBg, borderColor: chipBorder }]}>
                 <Text style={styles.replyText}>{reply}</Text>
               </Pressable>
             ))}
@@ -372,17 +387,17 @@ const ChatView: React.FC = () => {
         )}
 
         {showEmojiPicker && (
-          <View style={styles.emojiPanel}>
+          <View style={[styles.emojiPanel, { backgroundColor: softSurface, borderColor: border }]}>
             <View style={styles.emojiRow}>
               {emojiSet.map((emoji) => (
-                <Pressable key={emoji} onPress={() => addEmoji(emoji)} style={styles.emojiBtn}>
+                <Pressable key={emoji} onPress={() => addEmoji(emoji)} style={[styles.emojiBtn, { borderColor: border, backgroundColor: isDark ? 'transparent' : theme.card }]}>
                   <Text style={{ fontSize: fontScale(18) }}>{emoji}</Text>
                 </Pressable>
               ))}
             </View>
             <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={{ gap: 8 }}>
               {stickers.map((url) => (
-                <Pressable key={url} onPress={() => sendSticker(url)} style={styles.stickerBtn}>
+                <Pressable key={url} onPress={() => sendSticker(url)} style={[styles.stickerBtn, { borderColor: border }]}>
                   <Image source={{ uri: url }} style={styles.stickerBtnImg} />
                 </Pressable>
               ))}
@@ -391,21 +406,21 @@ const ChatView: React.FC = () => {
         )}
 
         <View style={styles.inputRow}>
-          <Pressable onPress={() => setIsToolsOpen((v) => !v)} style={[styles.addBtn, isToolsOpen && styles.addBtnActive]}>
+          <Pressable onPress={() => setIsToolsOpen((v) => !v)} style={[styles.addBtn, { backgroundColor: softSurface, borderColor: border }, isToolsOpen && styles.addBtnActive]}>
             <MaterialIcons name="add" size={28} color={isToolsOpen ? '#fff' : '#cd2bee'} />
           </Pressable>
 
-          <View style={styles.inputWrap}>
+          <View style={[styles.inputWrap, { borderColor: border, backgroundColor: softSurface }]}>
             <TextInput
               value={msg}
               onChangeText={setMsg}
               placeholder={isCreator ? 'Broadcasting to your community...' : `Message ${id.replace('_', ' ')}...`}
-              placeholderTextColor="#6b7280"
-              style={styles.input}
+              placeholderTextColor={mutedText}
+              style={[styles.input, { color: primaryText }]}
               onSubmitEditing={() => handleSend()}
             />
             <Pressable onPress={() => setShowEmojiPicker((v) => !v)}>
-              <MaterialIcons name="mood" size={22} color={showEmojiPicker ? '#cd2bee' : '#6b7280'} />
+              <MaterialIcons name="mood" size={22} color={showEmojiPicker ? '#cd2bee' : mutedText} />
             </Pressable>
           </View>
 
@@ -422,7 +437,6 @@ const styles = StyleSheet.create({
   screen: { flex: 1, backgroundColor: '#09090b' },
   callOverlay: {
     flex: 1,
-    backgroundColor: '#000',
     justifyContent: 'space-between',
     alignItems: 'center',
     paddingTop: 90,
@@ -431,7 +445,7 @@ const styles = StyleSheet.create({
   },
   callTop: { alignItems: 'center', gap: 10 },
   callAvatar: { width: 132, height: 132, borderRadius: 36, borderWidth: 3, borderColor: 'rgba(205,43,238,0.35)' },
-  callName: { color: '#fff', fontSize: fontScale(27), fontFamily: 'PlusJakartaSansExtraBold' },
+  callName: { fontSize: fontScale(27), fontFamily: 'PlusJakartaSansExtraBold' },
   callStatus: { color: '#cd2bee', fontSize: fontScale(11), letterSpacing: 2, fontFamily: 'PlusJakartaSansExtraBold' },
   callActions: { flexDirection: 'row', alignItems: 'center', gap: 24 },
   callBtn: {
@@ -451,8 +465,6 @@ const styles = StyleSheet.create({
     paddingHorizontal: 14,
     paddingBottom: 10,
     borderBottomWidth: 1,
-    borderBottomColor: 'rgba(255,255,255,0.08)',
-    backgroundColor: '#0f1016',
   },
   headerRow: { flexDirection: 'row', alignItems: 'center', gap: 8 },
   iconBtn: {
@@ -460,22 +472,18 @@ const styles = StyleSheet.create({
     height: 38,
     borderRadius: 19,
     borderWidth: 1,
-    borderColor: 'rgba(255,255,255,0.12)',
     justifyContent: 'center',
     alignItems: 'center',
-    backgroundColor: 'rgba(255,255,255,0.06)',
   },
   profileWrap: { position: 'relative' },
   profileAvatar: { width: 42, height: 42, borderRadius: 21, borderWidth: 2, borderColor: 'rgba(205,43,238,0.5)' },
   onlineDot: { position: 'absolute', right: -1, bottom: -1, width: 10, height: 10, borderRadius: 5, backgroundColor: '#22c55e' },
-  userName: { color: '#fff', fontSize: fontScale(12), fontFamily: 'PlusJakartaSansExtraBold' },
-  userSub: { color: '#6b7280', fontSize: fontScale(10), fontFamily: 'PlusJakartaSansBold' },
+  userName: { fontSize: fontScale(12), fontFamily: 'PlusJakartaSansExtraBold' },
+  userSub: { fontSize: fontScale(10), fontFamily: 'PlusJakartaSansBold' },
   metaCard: {
     marginTop: 10,
     borderRadius: 16,
-    backgroundColor: 'rgba(255,255,255,0.04)',
     borderWidth: 1,
-    borderColor: 'rgba(255,255,255,0.08)',
     paddingHorizontal: 10,
     paddingVertical: 8,
     flexDirection: 'row',
@@ -483,16 +491,16 @@ const styles = StyleSheet.create({
     justifyContent: 'space-between',
     gap: 8,
   },
-  metaLabel: { color: '#6b7280', fontSize: fontScale(8), fontFamily: 'PlusJakartaSansExtraBold', letterSpacing: 1 },
-  metaValue: { color: '#fff', fontSize: fontScale(11), fontFamily: 'PlusJakartaSansExtraBold' },
-  metaDivider: { width: 1, height: 20, backgroundColor: 'rgba(255,255,255,0.1)' },
+  metaLabel: { fontSize: fontScale(8), fontFamily: 'PlusJakartaSansExtraBold', letterSpacing: 1 },
+  metaValue: { fontSize: fontScale(11), fontFamily: 'PlusJakartaSansExtraBold' },
+  metaDivider: { width: 1, height: 20 },
   messages: { flex: 1, paddingHorizontal: 14, paddingTop: 10 },
   msgRow: { marginBottom: 14 },
   msgBubble: { maxWidth: '86%', borderRadius: 20, paddingHorizontal: 14, paddingVertical: 11 },
   msgMine: { backgroundColor: '#cd2bee' },
   msgOther: { backgroundColor: 'rgba(255,255,255,0.08)', borderWidth: 1, borderColor: 'rgba(255,255,255,0.06)' },
-  msgText: { color: '#e5e7eb', fontSize: fontScale(13), lineHeight: 19, fontFamily: 'PlusJakartaSansMedium' },
-  msgMeta: { marginTop: 5, color: '#6b7280', fontSize: fontScale(9), fontFamily: 'PlusJakartaSansBold' },
+  msgText: { fontSize: fontScale(13), lineHeight: 19, fontFamily: 'PlusJakartaSansMedium' },
+  msgMeta: { marginTop: 5, fontSize: fontScale(9), fontFamily: 'PlusJakartaSansBold' },
   dropBubble: {
     maxWidth: '86%',
     borderRadius: 24,
@@ -504,7 +512,7 @@ const styles = StyleSheet.create({
   },
   dropThumb: { borderRadius: 14, backgroundColor: '#000', height: 120, justifyContent: 'center', alignItems: 'center' },
   dropTitle: { color: '#cd2bee', fontSize: fontScale(9), fontFamily: 'PlusJakartaSansExtraBold' },
-  dropName: { color: '#fff', fontSize: fontScale(12), fontFamily: 'PlusJakartaSansBold' },
+  dropName: { fontSize: fontScale(12), fontFamily: 'PlusJakartaSansBold' },
   tipBubble: {
     maxWidth: '86%',
     borderRadius: 24,
@@ -517,7 +525,7 @@ const styles = StyleSheet.create({
     alignItems: 'center',
   },
   tipLabel: { color: '#22c55e', fontSize: fontScale(10), fontFamily: 'PlusJakartaSansExtraBold' },
-  tipAmount: { color: '#fff', fontSize: fontScale(13), fontFamily: 'PlusJakartaSansBold' },
+  tipAmount: { fontSize: fontScale(13), fontFamily: 'PlusJakartaSansBold' },
   stickerBubble: {
     borderRadius: 14,
     overflow: 'hidden',
@@ -534,31 +542,25 @@ const styles = StyleSheet.create({
     bottom: 102,
     zIndex: 30,
     borderRadius: 24,
-    backgroundColor: '#12131a',
     borderWidth: 1,
-    borderColor: 'rgba(255,255,255,0.08)',
     padding: 8,
     gap: 4,
   },
-  toolItem: { flexDirection: 'row', alignItems: 'center', gap: 10, padding: 10, borderRadius: 14, backgroundColor: 'rgba(255,255,255,0.03)' },
-  toolTitle: { color: '#fff', fontSize: fontScale(11), fontFamily: 'PlusJakartaSansExtraBold' },
-  toolSub: { color: '#6b7280', fontSize: fontScale(9), fontFamily: 'PlusJakartaSansBold' },
+  toolItem: { flexDirection: 'row', alignItems: 'center', gap: 10, padding: 10, borderRadius: 14 },
+  toolTitle: { fontSize: fontScale(11), fontFamily: 'PlusJakartaSansExtraBold' },
+  toolSub: { fontSize: fontScale(9), fontFamily: 'PlusJakartaSansBold' },
   footer: {
     paddingTop: 6,
     paddingHorizontal: 12,
     paddingBottom: 26,
     borderTopWidth: 1,
-    borderTopColor: 'rgba(255,255,255,0.08)',
-    backgroundColor: '#0f1016',
   },
   repliesRow: { gap: 8, paddingVertical: 6 },
-  replyChip: { borderRadius: 999, borderWidth: 1, borderColor: 'rgba(205,43,238,0.35)', backgroundColor: 'rgba(205,43,238,0.15)', paddingHorizontal: 12, paddingVertical: 8 },
+  replyChip: { borderRadius: 999, borderWidth: 1, paddingHorizontal: 12, paddingVertical: 8 },
   replyText: { color: '#cd2bee', fontSize: fontScale(10), fontFamily: 'PlusJakartaSansExtraBold' },
   emojiPanel: {
     borderRadius: 16,
     borderWidth: 1,
-    borderColor: 'rgba(255,255,255,0.08)',
-    backgroundColor: 'rgba(255,255,255,0.04)',
     padding: 10,
     marginBottom: 8,
     gap: 10,
@@ -569,20 +571,17 @@ const styles = StyleSheet.create({
     height: 34,
     borderRadius: 10,
     borderWidth: 1,
-    borderColor: 'rgba(255,255,255,0.1)',
     justifyContent: 'center',
     alignItems: 'center',
   },
-  stickerBtn: { width: 44, height: 44, borderRadius: 12, overflow: 'hidden', borderWidth: 1, borderColor: 'rgba(255,255,255,0.1)' },
+  stickerBtn: { width: 44, height: 44, borderRadius: 12, overflow: 'hidden', borderWidth: 1 },
   stickerBtnImg: { width: '100%', height: '100%' },
   inputRow: { flexDirection: 'row', alignItems: 'center', gap: 8 },
   addBtn: {
     width: 48,
     height: 48,
     borderRadius: 24,
-    backgroundColor: 'rgba(255,255,255,0.07)',
     borderWidth: 1,
-    borderColor: 'rgba(255,255,255,0.1)',
     justifyContent: 'center',
     alignItems: 'center',
   },
@@ -592,16 +591,15 @@ const styles = StyleSheet.create({
     height: 48,
     borderRadius: 24,
     borderWidth: 1,
-    borderColor: 'rgba(255,255,255,0.1)',
-    backgroundColor: 'rgba(255,255,255,0.05)',
     paddingHorizontal: 12,
     flexDirection: 'row',
     alignItems: 'center',
     gap: 8,
   },
-  input: { flex: 1, color: '#fff', fontSize: fontScale(13), fontFamily: 'PlusJakartaSansBold' },
+  input: { flex: 1, fontSize: fontScale(13), fontFamily: 'PlusJakartaSansBold' },
   sendBtn: { width: 48, height: 48, borderRadius: 24, backgroundColor: '#cd2bee', justifyContent: 'center', alignItems: 'center' },
   sendBtnDisabled: { backgroundColor: 'rgba(255,255,255,0.12)' },
 });
 
 export default ChatView;
+

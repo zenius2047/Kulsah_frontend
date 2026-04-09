@@ -42,7 +42,7 @@ const Arena :React.FC = ({route}:any)=>{
             color: theme.text,
             fontFamily: 'PlusJakartaSansExtraBold',
             fontSize: mediumScreen ? 22: 18,
-            lineHeight: 15,
+            lineHeight:25,
         }}> Arena
             </Text>
         <View style={{
@@ -63,20 +63,15 @@ const Arena :React.FC = ({route}:any)=>{
             navigation.navigate('CreateChallenge');
         }}
         style={{
-            height: 50,
+            height: 40,
+            width: 40,
             alignItems: 'center',
             justifyContent: 'center',
             backgroundColor: theme.accent,
-            paddingHorizontal: 12,
-            borderRadius: 12,
+            // paddingHorizontal: 12,
+            borderRadius: 999,
         }}>
-            <Text style={{
-            fontFamily: 'PlusJakartaSansBold',
-            color: '#fff',
-            lineHeight: 20,
-        }}>
-            Create Challenge
-        </Text>
+           <MaterialIcons name="add" color={theme.background} size={24}/>
         </Pressable>}
         </View>
     </View>
@@ -96,7 +91,8 @@ const Arena :React.FC = ({route}:any)=>{
             alignItems: 'center'
         }}>
         <Text style={{
-            color: activeTab == item ? theme.accent : theme.textSecondary,
+            // color: activeTab == item ? theme.accent : theme.textSecondary,
+            color: activeTab === item ? isDark ? '#ffffff': '#000000': isDark ? '#ffffff5d':'#0000005d',
             textTransform: 'capitalize',
             fontFamily: "PlusJakartaSansBold",
             fontSize: mediumScreen ? 20: 16,

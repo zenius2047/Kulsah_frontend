@@ -308,7 +308,7 @@ const Community: React.FC<{ embedded?: boolean }> = ({ embedded = false }) => {
       {user!.role === 'fan' && !embedded && <View style={[styles.header, { borderBottomColor: softBorder }]}>
         <View style={styles.headerLeft}>
           <Pressable onPress={() => navigation.goBack()} style={[styles.headerRoundBtn, { backgroundColor: faintSurface, borderColor: softBorder }]}>
-            <MaterialIcons name="arrow-back" size={22} color={theme.text} />
+            <MaterialIcons name="chevron-left" size={22} color={theme.text} />
           </Pressable>
           <Text style={[styles.headerTitle, { color: theme.text }]}>GALAXY UNIVERSE</Text>
         </View>
@@ -808,3 +808,4 @@ const styles = StyleSheet.create({
 });
 
 export default Community;
+

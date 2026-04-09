@@ -126,7 +126,7 @@ const FanSettings: React.FC<FanSettingsProps> = ({ onLogout, isDarkMode, onToggl
         onPress={() => (backToMain ? setActiveView('main') : navigation.navigate('/fan/profile'))}
         style={s.backButton}
       >
-        <MaterialIcons name="arrow-back" size={18} color="#111827" />
+        <MaterialIcons name="chevron-left" size={18} color="#111827" />
       </Pressable>
       <Text style={s.headerTitle}>{title}</Text>
     </View>
@@ -874,3 +874,4 @@ const s = StyleSheet.create({
 });
 
 export default FanSettings;
+

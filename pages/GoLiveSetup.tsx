@@ -66,18 +66,31 @@ const GoLiveSetup: React.FC = () => {
 
   const progressValue = currentStep === 'media' ? 33 : currentStep === 'details' ? 66 : 100;
   const activeQuality = QUALITY_OPTIONS.find((q) => q.id === selectedQuality);
+  const shellBg = isDark ? '#111218' : theme.card;
+  const border = theme.border;
+  const softSurface = isDark ? 'rgba(255,255,255,0.05)' : theme.surface;
+  const subtle = isDark ? '#6b7280' : theme.textSecondary;
+  const muted = isDark ? '#9ca3af' : theme.textMuted;
+  const textPrimary = theme.text;
+  const stepBg = isDark ? '#111218' : theme.card;
+  const stepBorder = isDark ? 'rgba(255,255,255,0.14)' : theme.border;
+  const stepTrackBg = isDark ? 'rgba(255,255,255,0.1)' : 'rgba(15,23,42,0.14)';
+  const inputBorder = isDark ? 'rgba(255,255,255,0.1)' : theme.border;
+  const inputBg = isDark ? 'rgba(255,255,255,0.05)' : theme.surface;
+  const protocolIconBg = isDark ? 'rgba(255,255,255,0.08)' : 'rgba(15,23,42,0.08)';
+  const progressTrackBg = isDark ? 'rgba(255,255,255,0.08)' : 'rgba(15,23,42,0.1)';
 
   const progressWidth = `${progressValue}%` as `${number}%`;
 
   return (
     <View style={[styles.screen, { backgroundColor: theme.screen }]}>
-      <View style={styles.header}>
+      <View style={[styles.header, { backgroundColor: shellBg, borderBottomColor: border }]}>
         <View style={styles.headerTop}>
           <View style={styles.headerLeft}>
-            <Pressable onPress={handleBack} style={styles.backBtn}>
-              <MaterialIcons name={currentStep === 'media' ? 'close' : 'arrow-back'} size={20} color="#fff" />
+            <Pressable onPress={handleBack} style={[styles.backBtn, { borderColor: inputBorder, backgroundColor: softSurface }]}>
+              <MaterialIcons name={currentStep === 'media' ? 'close' : 'chevron-left'} size={20} color={textPrimary} />
             </Pressable>
-            <Text style={styles.headerTitle}>LIVE STUDIO</Text>
+            <Text style={[styles.headerTitle, { color: textPrimary }]}>LIVE STUDIO</Text>
           </View>
           <View style={styles.readyPill}>
             <Text style={styles.readyText}>UPLINK READY</Text>
@@ -85,7 +98,7 @@ const GoLiveSetup: React.FC = () => {
         </View>
 
         <View style={styles.stepperRow}>
-          <View style={styles.stepTrack}>
+          <View style={[styles.stepTrack, { backgroundColor: stepTrackBg }]}>
             <View style={[styles.stepFill, { width: currentStep === 'media' ? '0%' : currentStep === 'details' ? '50%' : '100%' }]} />
           </View>
           {steps.map((s, idx) => {
@@ -96,6 +109,7 @@ const GoLiveSetup: React.FC = () => {
                 <View
                   style={[
                     styles.stepIcon,
+                    { borderColor: stepBorder, backgroundColor: stepBg },
                     isActive && styles.stepIconActive,
                     isCompleted && styles.stepIconCompleted,
                   ]}
@@ -103,10 +117,10 @@ const GoLiveSetup: React.FC = () => {
                   <MaterialIcons
                     name={isCompleted ? 'check' : s.icon}
                     size={14}
-                    color={isActive || isCompleted ? '#fff' : '#6b7280'}
+                    color={isActive || isCompleted ? '#fff' : subtle}
                   />
                 </View>
-                <Text style={[styles.stepLabel, isActive && styles.stepLabelActive]}>{s.label.toUpperCase()}</Text>
+                <Text style={[styles.stepLabel, { color: subtle }, isActive && styles.stepLabelActive]}>{s.label.toUpperCase()}</Text>
               </View>
             );
           })}
@@ -117,7 +131,7 @@ const GoLiveSetup: React.FC = () => {
         {currentStep === 'media' && (
           <View style={styles.sectionWrap}>
             <View style={styles.section}>
-              <Text style={styles.sectionLabel}>TRANSMISSION FEED</Text>
+              <Text style={[styles.sectionLabel, { color: subtle }]}>TRANSMISSION FEED</Text>
               <View style={styles.previewCard}>
                 <Image
                   source={{
@@ -136,7 +150,7 @@ const GoLiveSetup: React.FC = () => {
             </View>
 
             <View style={styles.section}>
-              <Text style={styles.sectionLabel}>STREAMING QUALITY</Text>
+              <Text style={[styles.sectionLabel, { color: subtle }]}>STREAMING QUALITY</Text>
               <View style={styles.qualityGrid}>
                 {QUALITY_OPTIONS.map((opt) => {
                   const selected = selectedQuality === opt.id;
@@ -144,15 +158,15 @@ const GoLiveSetup: React.FC = () => {
                     <Pressable
                       key={opt.id}
                       onPress={() => setSelectedQuality(opt.id)}
-                      style={[styles.qualityItem, selected && styles.qualityItemActive]}
+                      style={[styles.qualityItem, { borderColor: inputBorder, backgroundColor: inputBg }, selected && styles.qualityItemActive]}
                     >
-                      <Text style={[styles.qualityLabel, selected && styles.qualityTextActive]}>{opt.label}</Text>
-                      <Text style={[styles.qualityBitrate, selected && styles.qualityTextActive]}>{opt.bitrate}</Text>
+                      <Text style={[styles.qualityLabel, { color: textPrimary }, selected && styles.qualityTextActive]}>{opt.label}</Text>
+                      <Text style={[styles.qualityBitrate, { color: muted }, selected && styles.qualityTextActive]}>{opt.bitrate}</Text>
                     </Pressable>
                   );
                 })}
               </View>
-              {activeQuality && <Text style={styles.helperText}>Selected: {activeQuality.desc}</Text>}
+              {activeQuality && <Text style={[styles.helperText, { color: muted }]}>Selected: {activeQuality.desc}</Text>}
             </View>
           </View>
         )}
@@ -160,26 +174,26 @@ const GoLiveSetup: React.FC = () => {
         {currentStep === 'details' && (
           <View style={styles.sectionWrap}>
             <View style={styles.section}>
-              <Text style={styles.sectionLabel}>TRANSMISSION TITLE</Text>
+              <Text style={[styles.sectionLabel, { color: subtle }]}>TRANSMISSION TITLE</Text>
               <TextInput
                 value={title}
                 onChangeText={setTitle}
                 placeholder="Enter stream title"
-                placeholderTextColor="#6b7280"
-                style={styles.titleInput}
+                placeholderTextColor={muted}
+                style={[styles.titleInput, { borderColor: inputBorder, backgroundColor: inputBg, color: textPrimary }]}
               />
             </View>
 
             <View style={styles.section}>
-              <Text style={styles.sectionLabel}>ATMOSPHERE</Text>
+              <Text style={[styles.sectionLabel, { color: subtle }]}>ATMOSPHERE</Text>
               <View style={styles.vibeWrap}>
                 {VIBES.map((v) => (
                   <Pressable
                     key={v}
                     onPress={() => setVibe(v)}
-                    style={[styles.vibeChip, vibe === v && styles.vibeChipActive]}
+                    style={[styles.vibeChip, { borderColor: inputBorder, backgroundColor: inputBg }, vibe === v && styles.vibeChipActive]}
                   >
-                    <Text style={[styles.vibeText, vibe === v && styles.vibeTextActive]}>{v.toUpperCase()}</Text>
+                    <Text style={[styles.vibeText, { color: muted }, vibe === v && styles.vibeTextActive]}>{v.toUpperCase()}</Text>
                   </Pressable>
                 ))}
               </View>
@@ -190,53 +204,53 @@ const GoLiveSetup: React.FC = () => {
         {currentStep === 'protocol' && (
           <View style={styles.sectionWrap}>
             <View style={styles.section}>
-              <Text style={styles.sectionLabel}>ACCESS PROTOCOL</Text>
+              <Text style={[styles.sectionLabel, { color: subtle }]}>ACCESS PROTOCOL</Text>
               <View style={styles.protocolRow}>
                 <Pressable
                   onPress={() => setAccess('public')}
-                  style={[styles.protocolCard, access === 'public' && styles.protocolCardPublic]}
+                  style={[styles.protocolCard, { borderColor: inputBorder, backgroundColor: inputBg }, access === 'public' && styles.protocolCardPublic]}
                 >
                   <View style={styles.protocolTop}>
-                    <View style={styles.protocolIconWrap}>
-                      <MaterialIcons name="public" size={22} color={access === 'public' ? '#cd2bee' : '#9ca3af'} />
+                    <View style={[styles.protocolIconWrap, { backgroundColor: protocolIconBg }]}>
+                      <MaterialIcons name="public" size={22} color={access === 'public' ? '#cd2bee' : muted} />
                     </View>
                     <View style={[styles.radioOuter, access === 'public' && styles.radioOuterPublic]}>
                       <View style={[styles.radioInner, access === 'public' ? { opacity: 1 } : { opacity: 0 }]} />
                     </View>
                   </View>
-                  <Text style={styles.protocolTitle}>Public</Text>
-                  <Text style={styles.protocolSub}>Visible to all</Text>
+                  <Text style={[styles.protocolTitle, { color: textPrimary }]}>Public</Text>
+                  <Text style={[styles.protocolSub, { color: subtle }]}>Visible to all</Text>
                 </Pressable>
 
                 <Pressable
                   onPress={() => setAccess('premium')}
-                  style={[styles.protocolCard, access === 'premium' && styles.protocolCardPremium]}
+                  style={[styles.protocolCard, { borderColor: inputBorder, backgroundColor: inputBg }, access === 'premium' && styles.protocolCardPremium]}
                 >
                   <View style={styles.protocolTop}>
-                    <View style={styles.protocolIconWrap}>
-                      <MaterialIcons name="stars" size={22} color={access === 'premium' ? '#eab308' : '#9ca3af'} />
+                    <View style={[styles.protocolIconWrap, { backgroundColor: protocolIconBg }]}>
+                      <MaterialIcons name="stars" size={22} color={access === 'premium' ? '#eab308' : muted} />
                     </View>
                     <View style={[styles.radioOuter, access === 'premium' && styles.radioOuterPremium]}>
                       <View style={[styles.radioInnerPremium, access === 'premium' ? { opacity: 1 } : { opacity: 0 }]} />
                     </View>
                   </View>
-                  <Text style={styles.protocolTitle}>Premium</Text>
-                  <Text style={styles.protocolSub}>Subscribers only</Text>
+                  <Text style={[styles.protocolTitle, { color: textPrimary }]}>Premium</Text>
+                  <Text style={[styles.protocolSub, { color: subtle }]}>Subscribers only</Text>
                 </Pressable>
               </View>
             </View>
 
             <View style={styles.section}>
-              <Text style={styles.sectionLabel}>FOLLOWER NOTIFICATIONS</Text>
-              <View style={styles.notifyRow}>
+              <Text style={[styles.sectionLabel, { color: subtle }]}>FOLLOWER NOTIFICATIONS</Text>
+              <View style={[styles.notifyRow, { borderColor: inputBorder, backgroundColor: inputBg }]}>
                 <View>
-                  <Text style={styles.notifyTitle}>Notify followers when stream starts</Text>
-                  <Text style={styles.notifySub}>Push + in-app alert broadcast</Text>
+                  <Text style={[styles.notifyTitle, { color: textPrimary }]}>Notify followers when stream starts</Text>
+                  <Text style={[styles.notifySub, { color: subtle }]}>Push + in-app alert broadcast</Text>
                 </View>
                 <Switch
                   value={notifyFollowers}
                   onValueChange={setNotifyFollowers}
-                  trackColor={{ false: '#334155', true: '#a21caf' }}
+                  trackColor={{ false: isDark ? '#334155' : '#94a3b8', true: '#a21caf' }}
                   thumbColor="#fff"
                 />
               </View>
@@ -245,12 +259,12 @@ const GoLiveSetup: React.FC = () => {
         )}
       </ScrollView>
 
-      <View style={styles.footer}>
+      <View style={[styles.footer, { backgroundColor: shellBg, borderTopColor: border }]}>
         <View style={styles.progressMeta}>
-          <Text style={styles.progressText}>Syncing broadcast data...</Text>
+          <Text style={[styles.progressText, { color: subtle }]}>Syncing broadcast data...</Text>
           <Text style={styles.progressValue}>{progressValue}%</Text>
         </View>
-        <View style={styles.progressTrack}>
+        <View style={[styles.progressTrack, { borderColor: inputBorder, backgroundColor: progressTrackBg }]}>
           <View style={[styles.progressFill, { width: progressWidth }]} />
         </View>
 
@@ -281,7 +295,6 @@ const styles = StyleSheet.create({
     paddingBottom: 14,
     borderBottomWidth: 1,
     borderBottomColor: 'rgba(255,255,255,0.08)',
-    backgroundColor: '#111218',
   },
   headerTop: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center' },
   headerLeft: { flexDirection: 'row', alignItems: 'center', gap: 10 },
@@ -295,7 +308,7 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     backgroundColor: 'rgba(255,255,255,0.06)',
   },
-  headerTitle: { color: '#fff', fontSize: fontScale(16), fontFamily: 'PlusJakartaSansExtraBold' },
+  headerTitle: { fontSize: fontScale(16), fontFamily: 'PlusJakartaSansExtraBold' },
   readyPill: {
     borderRadius: 999,
     paddingHorizontal: 10,
@@ -328,13 +341,13 @@ const styles = StyleSheet.create({
   },
   stepIconActive: { backgroundColor: '#cd2bee', borderColor: '#cd2bee' },
   stepIconCompleted: { backgroundColor: '#cd2bee', borderColor: '#cd2bee' },
-  stepLabel: { color: '#6b7280', fontSize: fontScale(8), letterSpacing: 1, fontFamily: 'PlusJakartaSansExtraBold' },
+  stepLabel: { fontSize: fontScale(8), letterSpacing: 1, fontFamily: 'PlusJakartaSansExtraBold' },
   stepLabelActive: { color: '#cd2bee' },
   body: { flex: 1 },
   bodyContent: { paddingHorizontal: 16, paddingTop: 16, paddingBottom: 220, gap: 18 },
   sectionWrap: { gap: 22 },
   section: { gap: 10 },
-  sectionLabel: { color: '#6b7280', fontSize: fontScale(10), letterSpacing: 1.6, fontFamily: 'PlusJakartaSansExtraBold' },
+  sectionLabel: { fontSize: fontScale(10), letterSpacing: 1.6, fontFamily: 'PlusJakartaSansExtraBold' },
   previewCard: {
     height: 210,
     borderRadius: 28,
@@ -366,10 +379,10 @@ const styles = StyleSheet.create({
     gap: 4,
   },
   qualityItemActive: { backgroundColor: '#cd2bee', borderColor: '#cd2bee' },
-  qualityLabel: { color: '#e5e7eb', fontSize: fontScale(18), fontFamily: 'PlusJakartaSansExtraBold' },
-  qualityBitrate: { color: '#9ca3af', fontSize: fontScale(10), fontFamily: 'PlusJakartaSansBold' },
+  qualityLabel: { fontSize: fontScale(18), fontFamily: 'PlusJakartaSansExtraBold' },
+  qualityBitrate: { fontSize: fontScale(10), fontFamily: 'PlusJakartaSansBold' },
   qualityTextActive: { color: '#fff' },
-  helperText: { color: '#9ca3af', fontSize: fontScale(11), fontFamily: 'PlusJakartaSansMedium' },
+  helperText: { fontSize: fontScale(11), fontFamily: 'PlusJakartaSansMedium' },
   titleInput: {
     height: 58,
     borderRadius: 16,
@@ -391,7 +404,7 @@ const styles = StyleSheet.create({
     paddingVertical: 10,
   },
   vibeChipActive: { backgroundColor: '#cd2bee', borderColor: '#cd2bee' },
-  vibeText: { color: '#9ca3af', fontSize: fontScale(10), letterSpacing: 0.8, fontFamily: 'PlusJakartaSansExtraBold' },
+  vibeText: { fontSize: fontScale(10), letterSpacing: 0.8, fontFamily: 'PlusJakartaSansExtraBold' },
   vibeTextActive: { color: '#fff' },
   protocolRow: { flexDirection: 'row', gap: 10 },
   protocolCard: {
@@ -427,8 +440,8 @@ const styles = StyleSheet.create({
   radioOuterPremium: { borderColor: '#eab308' },
   radioInner: { width: 8, height: 8, borderRadius: 4, backgroundColor: '#cd2bee' },
   radioInnerPremium: { width: 8, height: 8, borderRadius: 4, backgroundColor: '#eab308' },
-  protocolTitle: { color: '#fff', fontSize: fontScale(13), fontFamily: 'PlusJakartaSansExtraBold' },
-  protocolSub: { color: '#94a3b8', fontSize: fontScale(10), fontFamily: 'PlusJakartaSansBold' },
+  protocolTitle: { fontSize: fontScale(13), fontFamily: 'PlusJakartaSansExtraBold' },
+  protocolSub: { fontSize: fontScale(10), fontFamily: 'PlusJakartaSansBold' },
   notifyRow: {
     borderRadius: 16,
     borderWidth: 1,
@@ -439,8 +452,8 @@ const styles = StyleSheet.create({
     justifyContent: 'space-between',
     alignItems: 'center',
   },
-  notifyTitle: { color: '#fff', fontSize: fontScale(12), fontFamily: 'PlusJakartaSansBold' },
-  notifySub: { color: '#94a3b8', fontSize: fontScale(10), marginTop: 2, fontFamily: 'PlusJakartaSansMedium' },
+  notifyTitle: { fontSize: fontScale(12), fontFamily: 'PlusJakartaSansBold' },
+  notifySub: { fontSize: fontScale(10), marginTop: 2, fontFamily: 'PlusJakartaSansMedium' },
   footer: {
     position: 'absolute',
     left: 0,
@@ -454,7 +467,7 @@ const styles = StyleSheet.create({
     borderTopColor: 'rgba(255,255,255,0.08)',
   },
   progressMeta: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', marginBottom: 8 },
-  progressText: { color: '#94a3b8', fontSize: fontScale(10), fontFamily: 'PlusJakartaSansBold' },
+  progressText: { fontSize: fontScale(10), fontFamily: 'PlusJakartaSansBold' },
   progressValue: { color: '#cd2bee', fontSize: fontScale(10), fontFamily: 'PlusJakartaSansExtraBold' },
   progressTrack: {
     height: 8,
@@ -480,3 +493,4 @@ const styles = StyleSheet.create({
 });
 
 export default GoLiveSetup;
+

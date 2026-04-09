@@ -27,25 +27,39 @@ const Reward: React.FC = () => {
   const [rewardTerms, setRewardTerms] = useState(
     'This reward includes a full 8-hour session at Pulse Studios HQ. Winner will have access to a professional engineer and top-tier analog equipment.\n\nTerms:\n- Must be redeemed within 6 months.\n- Travel and accommodation not included.\n- Winner must sign a standard studio release form.'
   );
+  const bgGradient = isDark
+    ? ['#120617', '#0a050d', '#050207']
+    : ['#f8fafc', '#eef2ff', '#f8fafc'];
+  const headerBg = isDark ? 'rgba(10,5,13,0.8)' : 'rgba(255,255,255,0.92)';
+  const headerBorder = isDark ? 'rgba(255,255,255,0.1)' : theme.border;
+  const iconButtonBg = isDark ? 'rgba(255,255,255,0.04)' : 'rgba(15,23,42,0.06)';
+  const cardBg = isDark ? 'rgba(255,255,255,0.03)' : theme.card;
+  const cardBorder = isDark ? 'rgba(255,255,255,0.1)' : theme.border;
+  const inputBg = isDark ? 'rgba(255,255,255,0.05)' : theme.surface;
+  const subtle = isDark ? '#94a3b8' : theme.textSecondary;
+  const titleTone = isDark ? '#f8fafc' : theme.text;
+  const placeholder = isDark ? '#64748b' : theme.textMuted;
+  const badgeCoreBg = isDark ? '#0a050d' : '#ffffff';
+  const badgeInnerOverlay = isDark ? 'rgba(255,255,255,0.05)' : 'rgba(15,23,42,0.04)';
 
   return (
     <SafeAreaView style={[styles.safeArea, { backgroundColor: theme.background }]} edges={['top', 'left', 'right']}>
       <View style={[styles.screen, { backgroundColor: theme.screen }]}>
         <LinearGradient
-          colors={['#120617', '#0a050d', '#050207']}
+          colors={bgGradient}
           locations={[0, 0.45, 1]}
           style={StyleSheet.absoluteFill}
         />
 
-        <View style={styles.glowOne} pointerEvents="none" />
-        <View style={styles.glowTwo} pointerEvents="none" />
+        {/* <View style={styles.glowOne} pointerEvents="none" />
+        <View style={styles.glowTwo} pointerEvents="none" /> */}
 
-        <View style={styles.header}>
+        <View style={[styles.header, { backgroundColor: headerBg, borderBottomColor: headerBorder }]}>
           <View style={styles.headerLeft}>
-            <Pressable style={styles.iconButton} onPress={() => navigation.goBack()}>
-              <MaterialIcons name="arrow-back" size={22} color="#f8fafc" />
+            <Pressable style={[styles.iconButton, { backgroundColor: iconButtonBg }]} onPress={() => navigation.goBack()}>
+              <MaterialIcons name="chevron-left" size={22} color={titleTone} />
             </Pressable>
-            <Text style={styles.headerTitle}>REWARD CONFIG</Text>
+            <Text style={[styles.headerTitle, { color: titleTone }]}>REWARD CONFIG</Text>
           </View>
           <Text style={styles.headerBrand}>NEON PULSE</Text>
         </View>
@@ -69,70 +83,70 @@ const Reward: React.FC = () => {
                 <MaterialIcons name="stars" size={14} color="#d915d2" />
                 <Text style={styles.heroTag}>Exclusive Reward</Text>
               </View>
-              <Text style={styles.heroTitle}>The Studio Session</Text>
+              <Text style={[styles.heroTitle, { color: '#ffffff' }]}>The Studio Session</Text>
             </View>
           </View>
 
-          <View style={styles.criteriaCard}>
+          <View style={[styles.criteriaCard, { backgroundColor: cardBg, borderColor: cardBorder }]}>
             <View style={styles.criteriaLeft}>
               <View style={styles.criteriaIconWrap}>
                 <MaterialIcons name="favorite" size={24} color="#d915d2" />
               </View>
               <View>
-                <Text style={styles.criteriaLabel}>Winning Criteria</Text>
-                <Text style={styles.criteriaTitle}>Highest Likes Winner</Text>
+                <Text style={[styles.criteriaLabel, { color: subtle }]}>Winning Criteria</Text>
+                <Text style={[styles.criteriaTitle, { color: titleTone }]}>Highest Likes Winner</Text>
               </View>
             </View>
-            <View style={styles.criteriaPill}>
-              <Text style={styles.criteriaPillText}>1st Place Only</Text>
+            <View style={[styles.criteriaPill, { backgroundColor: inputBg, borderColor: cardBorder }]}>
+              <Text style={[styles.criteriaPillText, { color: subtle }]}>1st Place Only</Text>
             </View>
           </View>
 
           <View style={styles.formSection}>
-            <View style={styles.toggleCard}>
+            <View style={[styles.toggleCard, { backgroundColor: cardBg, borderColor: cardBorder }]}>
               <View style={styles.toggleTextWrap}>
-                <Text style={styles.cardTitle}>Enable Reward</Text>
-                <Text style={styles.cardMeta}>
+                <Text style={[styles.cardTitle, { color: titleTone }]}>Enable Reward</Text>
+                <Text style={[styles.cardMeta, { color: subtle }]}>
                   Make this reward visible to your audience
                 </Text>
               </View>
               <Switch
                 value={enabled}
                 onValueChange={setEnabled}
-                trackColor={{ false: 'rgba(255,255,255,0.16)', true: '#930df2' }}
+                trackColor={{ false: isDark ? 'rgba(255,255,255,0.16)' : 'rgba(15,23,42,0.2)', true: '#930df2' }}
                 thumbColor="#ffffff"
               />
             </View>
 
-            <View style={styles.detailsCard}>
+            <View style={[styles.detailsCard, { backgroundColor: cardBg, borderColor: cardBorder }]}>
               <View style={styles.fieldGroup}>
-                <Text style={styles.fieldLabel}>Reward Title</Text>
+                <Text style={[styles.fieldLabel, { color: subtle }]}>Reward Title</Text>
                 <TextInput
                   value={rewardTitle}
                   onChangeText={setRewardTitle}
-                  style={styles.fieldInput}
-                  placeholderTextColor="#64748b"
+                  style={[styles.fieldInput, { color: titleTone, backgroundColor: inputBg, borderColor: cardBorder }]}
+                  placeholderTextColor={placeholder}
                 />
               </View>
 
               <View style={styles.fieldGroup}>
-                <Text style={styles.fieldLabel}>Prize Description & Terms</Text>
+                <Text style={[styles.fieldLabel, { color: subtle }]}>Prize Description & Terms</Text>
                 <TextInput
                   value={rewardTerms}
                   onChangeText={setRewardTerms}
                   multiline
                   textAlignVertical="top"
-                  style={styles.textarea}
+                  style={[styles.textarea, { color: titleTone, backgroundColor: inputBg, borderColor: cardBorder }]}
                   placeholder="Describe the reward details, scheduling, and legal requirements..."
-                  placeholderTextColor="#64748b"
+                  placeholderTextColor={placeholder}
                 />
               </View>
             </View>
 
             <View style={styles.previewSection}>
-              <Text style={styles.previewHeading}>Badge Preview</Text>
+              <Text style={[styles.previewHeading, { color: titleTone }]}>Badge Preview</Text>
 
-              <View style={styles.previewCard}>
+              <View style={[styles.previewCard, { backgroundColor: cardBg, borderColor: cardBorder }]}>
                 <View style={styles.previewGlowLeft} pointerEvents="none" />
                 <View style={styles.previewGlowRight} pointerEvents="none" />
 
@@ -143,8 +157,8 @@ const Reward: React.FC = () => {
                     end={{ x: 1, y: 1 }}
                     style={styles.badgeRing}
                   >
-                    <View style={styles.badgeCore}>
-                      <View style={styles.badgeInnerGlow} />
+                    <View style={[styles.badgeCore, { backgroundColor: badgeCoreBg }]}>
+                      <View style={[styles.badgeInnerGlow, { backgroundColor: badgeInnerOverlay }]} />
                       <MaterialIcons name="mic-external-on" size={54} color="#ffffff" />
                     </View>
                   </LinearGradient>
@@ -155,8 +169,8 @@ const Reward: React.FC = () => {
                 </View>
 
                 <View style={styles.previewTextBlock}>
-                  <Text style={styles.previewTitle}>PLATINUM SESSION</Text>
-                  <Text style={styles.previewSubtitle}>Unlocked by Top Supporter</Text>
+                  <Text style={[styles.previewTitle, { color: titleTone }]}>PLATINUM SESSION</Text>
+                  <Text style={[styles.previewSubtitle, { color: subtle }]}>Unlocked by Top Supporter</Text>
                 </View>
 
                 <Pressable>
@@ -213,9 +227,7 @@ const styles = StyleSheet.create({
     justifyContent: 'space-between',
     paddingHorizontal: 16,
     paddingVertical: 14,
-    backgroundColor: 'rgba(10,5,13,0.8)',
     borderBottomWidth: 1,
-    borderBottomColor: 'rgba(255,255,255,0.1)',
   },
   headerLeft: {
     flexDirection: 'row',
@@ -228,10 +240,8 @@ const styles = StyleSheet.create({
     borderRadius: 19,
     alignItems: 'center',
     justifyContent: 'center',
-    backgroundColor: 'rgba(255,255,255,0.04)',
   },
   headerTitle: {
-    color: '#f8fafc',
     fontFamily: 'PlusJakartaSansBold',
     fontSize: fontScale(11),
     textTransform: 'uppercase',
@@ -298,9 +308,7 @@ const styles = StyleSheet.create({
     justifyContent: 'space-between',
     borderRadius: 20,
     padding: 16,
-    backgroundColor: 'rgba(255,255,255,0.03)',
     borderWidth: 1,
-    borderColor: 'rgba(255,255,255,0.1)',
   },
   criteriaLeft: {
     flexDirection: 'row',
@@ -322,14 +330,12 @@ const styles = StyleSheet.create({
     elevation: 4,
   },
   criteriaLabel: {
-    color: '#94a3b8',
     fontFamily: 'PlusJakartaSansBold',
     fontSize: fontScale(10),
     letterSpacing: 1.1,
     textTransform: 'uppercase',
   },
   criteriaTitle: {
-    color: '#f8fafc',
     fontFamily: 'PlusJakartaSansBold',
     fontSize: fontScale(11),
     marginTop: 4,
@@ -338,12 +344,9 @@ const styles = StyleSheet.create({
     paddingHorizontal: 12,
     paddingVertical: 8,
     borderRadius: 999,
-    backgroundColor: 'rgba(255,255,255,0.05)',
     borderWidth: 1,
-    borderColor: 'rgba(255,255,255,0.1)',
   },
   criteriaPillText: {
-    color: '#94a3b8',
     fontFamily: 'PlusJakartaSansBold',
     fontSize: fontScale(6),
   },
@@ -356,21 +359,17 @@ const styles = StyleSheet.create({
     justifyContent: 'space-between',
     borderRadius: 20,
     padding: 20,
-    backgroundColor: 'rgba(255,255,255,0.03)',
     borderWidth: 1,
-    borderColor: 'rgba(255,255,255,0.1)',
   },
   toggleTextWrap: {
     flex: 1,
     paddingRight: 16,
   },
   cardTitle: {
-    color: '#f8fafc',
     fontFamily: 'PlusJakartaSansBold',
     fontSize: fontScale(13),
   },
   cardMeta: {
-    color: '#94a3b8',
     fontFamily: 'PlusJakartaSansMedium',
     fontSize: fontScale(12),
     marginTop: 4,
@@ -378,16 +377,13 @@ const styles = StyleSheet.create({
   detailsCard: {
     borderRadius: 20,
     padding: 20,
-    backgroundColor: 'rgba(255,255,255,0.03)',
     borderWidth: 1,
-    borderColor: 'rgba(255,255,255,0.1)',
     gap: 20,
   },
   fieldGroup: {
     gap: 8,
   },
   fieldLabel: {
-    color: '#94a3b8',
     fontFamily: 'PlusJakartaSansBold',
     fontSize: fontScale(10),
     letterSpacing: 1.2,
@@ -397,10 +393,7 @@ const styles = StyleSheet.create({
     borderRadius: 16,
     paddingHorizontal: 16,
     paddingVertical: 14,
-    backgroundColor: 'rgba(255,255,255,0.05)',
     borderWidth: 1,
-    borderColor: 'rgba(255,255,255,0.1)',
-    color: '#f8fafc',
     fontFamily: 'PlusJakartaSansMedium',
     fontSize: fontScale(12),
   },
@@ -409,10 +402,7 @@ const styles = StyleSheet.create({
     borderRadius: 16,
     paddingHorizontal: 16,
     paddingVertical: 14,
-    backgroundColor: 'rgba(255,255,255,0.05)',
     borderWidth: 1,
-    borderColor: 'rgba(255,255,255,0.1)',
-    color: '#f8fafc',
     fontFamily: 'PlusJakartaSansMedium',
     fontSize: fontScale(12),
     lineHeight: 22,
@@ -421,7 +411,6 @@ const styles = StyleSheet.create({
     gap: 14,
   },
   previewHeading: {
-    color: '#f8fafc',
     fontFamily: 'PlusJakartaSansBold',
     fontSize: fontScale(13),
     paddingHorizontal: 4,
@@ -430,9 +419,7 @@ const styles = StyleSheet.create({
     borderRadius: 20,
     paddingHorizontal: 24,
     paddingVertical: 28,
-    backgroundColor: 'rgba(255,255,255,0.03)',
     borderWidth: 1,
-    borderColor: 'rgba(255,255,255,0.1)',
     alignItems: 'center',
     overflow: 'hidden',
   },
@@ -475,14 +462,12 @@ const styles = StyleSheet.create({
     width: '100%',
     height: '100%',
     borderRadius: 64,
-    backgroundColor: '#0a050d',
     alignItems: 'center',
     justifyContent: 'center',
     overflow: 'hidden',
   },
   badgeInnerGlow: {
     ...StyleSheet.absoluteFillObject,
-    backgroundColor: 'rgba(255,255,255,0.05)',
   },
   rankPill: {
     position: 'absolute',
@@ -504,13 +489,11 @@ const styles = StyleSheet.create({
     marginBottom: 18,
   },
   previewTitle: {
-    color: '#ffffff',
     fontFamily: 'PlusJakartaSansExtraBold',
     fontSize: fontScale(15),
     letterSpacing: 0.2,
   },
   previewSubtitle: {
-    color: '#94a3b8',
     fontFamily: 'PlusJakartaSansMedium',
     fontSize: fontScale(9),
   },
@@ -543,3 +526,4 @@ const styles = StyleSheet.create({
 });
 
 export default Reward;
+

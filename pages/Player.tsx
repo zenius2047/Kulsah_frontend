@@ -169,7 +169,7 @@ const Player: React.FC = () => {
       {toast ? <View style={[styles.toast, { top: insets.top + 12 }]}><Text style={styles.toastText}>{toast}</Text></View> : null}
 
       <View style={[styles.header, { paddingTop: insets.top + 8 }]}>
-        <Pressable onPress={() => navigation.goBack()} style={[styles.iconBtn, { backgroundColor: soft, borderColor: border }]}><MaterialIcons name="arrow-back" size={22} color={theme.text} /></Pressable>
+        <Pressable onPress={() => navigation.goBack()} style={[styles.iconBtn, { backgroundColor: soft, borderColor: border }]}><MaterialIcons name="chevron-left" size={22} color={theme.text} /></Pressable>
         <View style={styles.headerActions}>
           {role === 'creator' ? <Pressable onPress={() => setStudioMode((v) => !v)} style={[styles.pill, { backgroundColor: studioMode ? accent : soft, borderColor: studioMode ? accent : border }]}><MaterialIcons name="analytics" size={18} color={studioMode ? '#fff' : theme.text} /><Text style={[styles.pillText, { color: studioMode ? '#fff' : theme.text }]}>Studio Mode</Text></Pressable> : null}
           <Pressable onPress={cycleSpeed} style={[styles.pillSmall, { backgroundColor: soft, borderColor: border }]}><Text style={[styles.pillText, { color: theme.text }]}>{speed}x</Text></Pressable>
@@ -342,3 +342,4 @@ const styles = StyleSheet.create({
 });
 
 export default Player;
+

@@ -102,7 +102,7 @@ export const VoteSheetContent: React.FC<VoteSheetContentProps> = ({ onClose, she
   return (
     <View style={[styles.sheetRoot, sheetMode && styles.sheetRootOverlay]}>
       {!sheetMode ? <View style={styles.backdrop} /> : null}
-      <View style={[styles.modalCard, sheetMode && styles.sheetCard, { backgroundColor: panelBackground, borderColor: ringColor }]}>
+      <View style={[styles.modalCard, sheetMode && styles.sheetCard, { backgroundColor: screenBackground, borderColor: ringColor }]}>
         <View style={[styles.header, { backgroundColor: headerBackground, borderBottomColor: isDark ? 'rgba(255,255,255,0.08)' : theme.border }]}>
           <Pressable style={styles.headerButton} onPress={onClose}>
             <MaterialIcons name="close" size={24} color={theme.text} />

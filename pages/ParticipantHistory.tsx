@@ -185,6 +185,9 @@ const ParticipantHistory: React.FC = () => {
                 );
               })}
             </View>
+            <View style={{
+              height: 100,
+            }}/>
           </ScrollView>
         </View>
       </View>
@@ -218,13 +221,13 @@ const styles = StyleSheet.create({
   pageTitle: {
     color: '#F8FAFC',
     fontFamily: 'PlusJakartaSansExtraBold',
-    fontSize: fontScale(28),
+    fontSize: fontScale(18),
     marginBottom: 8,
   },
   pageSubtitle: {
     color: '#94A3B8',
     fontFamily: 'PlusJakartaSans',
-    fontSize: fontScale(13),
+    fontSize: fontScale(12),
   },
   timelineWrap: {
     position: 'relative',
@@ -297,7 +300,7 @@ const styles = StyleSheet.create({
   dateText: {
     color: '#64748B',
     fontFamily: 'PlusJakartaSansBold',
-    fontSize: fontScale(10),
+    fontSize: fontScale(8),
     textTransform: 'uppercase',
     letterSpacing: 1.1,
   },
@@ -320,7 +323,7 @@ const styles = StyleSheet.create({
   },
   statusPillText: {
     fontFamily: 'PlusJakartaSansExtraBold',
-    fontSize: fontScale(10),
+    fontSize: fontScale(8),
     textTransform: 'uppercase',
   },
   statusPillTextWinner: {
@@ -335,13 +338,13 @@ const styles = StyleSheet.create({
   cardTitle: {
     color: '#F8FAFC',
     fontFamily: 'PlusJakartaSansBold',
-    fontSize: fontScale(20),
+    fontSize: fontScale(16),
     marginBottom: 8,
   },
   cardDescription: {
     color: '#94A3B8',
     fontFamily: 'PlusJakartaSans',
-    fontSize: fontScale(14),
+    fontSize: fontScale(12),
     marginBottom: 18,
   },
   statsRow: {
@@ -355,7 +358,7 @@ const styles = StyleSheet.create({
   statLabel: {
     color: '#64748B',
     fontFamily: 'PlusJakartaSansBold',
-    fontSize: fontScale(10),
+    fontSize: fontScale(8),
     textTransform: 'uppercase',
     letterSpacing: 1,
     marginBottom: 4,
@@ -363,7 +366,7 @@ const styles = StyleSheet.create({
   statValue: {
     color: '#F8FAFC',
     fontFamily: 'PlusJakartaSansExtraBold',
-    fontSize: fontScale(20),
+    fontSize: fontScale(14),
   },
   rewardWinner: {
     color: '#d915d2',

@@ -403,7 +403,7 @@ const styles = StyleSheet.create({
   soundButtonText: {
     color: '#fff',
     fontFamily: 'PlusJakartaSansBold',
-    fontSize: fontScale(14),
+    fontSize: fontScale(12),
     maxWidth: 100,
   },
   sideRailWrap: {
@@ -438,7 +438,7 @@ const styles = StyleSheet.create({
   sideLabel: {
     color: '#fff',
     fontFamily: 'PlusJakartaSansMedium',
-    fontSize: fontScale(10),
+    fontSize: fontScale(8),
     textTransform: 'uppercase',
     marginTop: 2,
   },

@@ -1,4 +1,4 @@
-import React, { useCallback, useEffect, useMemo, useState } from 'react';
+import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { useThemeMode } from '../theme';
 import {
   Dimensions,
@@ -12,7 +12,8 @@ import {
   TextInput,
   View,
   useWindowDimensions,
-  ViewToken
+  ViewToken,
+  Animated
 } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
 import { MaterialIcons } from '@expo/vector-icons';
@@ -47,6 +48,9 @@ interface FeedItem {
   ticketsAvailable: boolean;
   ticketLocation?: string;
   isLive?: boolean;
+  hasSound?: boolean;
+  soundArtist?: string;
+  soundTitle?: string;
 }
 
 const { height: SCREEN_HEIGHT, width: SCREEN_WIDTH } = Dimensions.get('screen');
@@ -70,8 +74,13 @@ const VideoFeedItem: React.FC<{
   const [isLiked, setIsLiked] = useState(item.isLiked);
   const [playVideo, setIsPlaying] = useState(true);
   const { height: vh } = useWindowDimensions();
+  const rotateValue = useRef(new Animated.Value(0)).current;
   // const [videoSize, setVideoSize] = useState({ width: 0, height: 0 });
 
+  const rotation = rotateValue.interpolate({
+    inputRange: [0, 1],
+    outputRange: ['0deg', '360deg'],
+  });
 
   const togglePlayPause = () => {
     console.log("Video is tapped");
@@ -109,6 +118,23 @@ const VideoFeedItem: React.FC<{
       console.log(`This is the width : ${width}`)
     }
   }, [loadedMetadata]);
+
+  useEffect(() => {
+    const spinAnimation = Animated.loop(
+      Animated.timing(rotateValue, {
+        toValue: 1,
+        duration: 3000,
+        useNativeDriver: true,
+      })
+    );
+
+    spinAnimation.start();
+
+    return () => {
+      spinAnimation.stop();
+      rotateValue.setValue(0);
+    };
+  }, [rotateValue]);
   // const replacePlayer = useCallback(async () => {
   //   currentPlayer.pause();
   //   if (currentPlayer === player) {
@@ -204,7 +230,7 @@ const { isPlaying : isReady } = useEvent(player, 'playingChange', { isPlaying: p
       </View> */}
 
       {/* Right-side overlay buttons */}
-      <View style={{ position: 'absolute', right: 16, bottom: 30, alignItems: 'center', gap: 16 }}>
+      <View style={{ position: 'absolute', right: 0, bottom: 30, alignItems: 'center', gap: 16 }}>
         <Pressable style={{}}>
           <View style={{
             borderRadius: 24,
@@ -236,6 +262,7 @@ const { isPlaying : isReady } = useEvent(player, 'playingChange', { isPlaying: p
                 LIVE
               </Text>
             </View>}
+
           </View>
         </Pressable>
 
@@ -255,7 +282,7 @@ const { isPlaying : isReady } = useEvent(player, 'playingChange', { isPlaying: p
           <Text style={{ color: 'white', fontSize: mediumScreen ? 14:10, fontFamily: "PlusJakartaSansBold"}}>{item.comments}</Text>
         </Pressable>
 
-        <Pressable onPress={() => navigation.navigate('Video')} style={{alignItems: 'center' }}>
+        <Pressable onPress={() => navigation.navigate('ArtistProfile')} style={{alignItems: 'center' }}>
           <View style={{
             // borderRadius: 20,
             // width: 40,
@@ -282,12 +309,12 @@ const { isPlaying : isReady } = useEvent(player, 'playingChange', { isPlaying: p
           </Text>
         </Pressable>
 
-        <Pressable onPress={() => navigation.navigate('Video')} style={{ alignItems: 'center' }}>
+        <Pressable onPress={()=>{}} style={{ alignItems: 'center' }}>
           <BookMarkIcon height={28} width={28} fill="white" />
           <Text style={{ color: 'white', fontSize: mediumScreen ? 14:10, fontFamily: "PlusJakartaSansBold" }}>Save</Text>
         </Pressable>
 
-        <Pressable onPress={() => navigation.navigate('Video')} style={{ alignItems: 'center' }}>
+        <Pressable onPress={() => {}} style={{ alignItems: 'center' }}>
           <MaterialIcons name="share" size={28} color="white" />
           <Text style={{ color: 'white', fontSize: mediumScreen ? 14:10, fontFamily: "PlusJakartaSansBold" }}>Share</Text>
         </Pressable>
@@ -300,10 +327,10 @@ const { isPlaying : isReady } = useEvent(player, 'playingChange', { isPlaying: p
       </View>
 
       {/* Bottom overlay: captions, ticket button */}
-      <View style={{ position: 'absolute', bottom: 0, left: 16, right: 16, paddingBottom: 16 }}>
+      <View style={{ position: 'absolute', bottom: 0, left: 5, right: 16, paddingBottom: 16 }}>
         <View style={{ flexDirection: 'row', alignItems: 'center', gap: 8 }}>
           <Pressable 
-          onPress={()=> navigation.navigate('ArtistProfile')}
+          onPress={()=> navigation.navigate('ArtistProfile', {isOwner: false})}
           >
             <Text style={{ color: 'white', fontWeight: '800', fontSize: mediumScreen ? 18: 14 }}>@{item.handle}</Text>
           </Pressable>
@@ -321,6 +348,46 @@ const { isPlaying : isReady } = useEvent(player, 'playingChange', { isPlaying: p
           {item.caption}
         </Text>
         </View>
+
+        {item.hasSound && <View
+        style={{
+          flexDirection: 'row',
+          marginTop: 10,
+          alignItems: 'center',
+        }}>
+          <View style={{
+            height: 30,
+            width: 30,
+            alignItems: 'center',
+            justifyContent: 'center',
+            backgroundColor: '#ffffff1a',
+            borderColor: '#ffffff1a',
+            borderWidth: 1,
+            borderRadius: 4,
+          }}>
+            <Animated.View style={{
+              transform: [{ rotate: rotation }]
+            }}>
+              <MaterialIcons name="music-note" color='#ffffffcc'/>
+            </Animated.View>
+          </View>
+          <Text style={{
+            color: '#ffffffcc',
+            fontSize: fontScale(10),
+            lineHeight: 20,
+            fontFamily: 'PlusJakartaSansExtraBold'
+          }}>
+            {"  "}{item.soundTitle}
+          </Text>
+          <Text style={{
+            color: '#ffffffcc',
+            fontSize: fontScale(10),
+            lineHeight: 20,
+            fontFamily: 'PlusJakartaSansExtraBold'
+          }}>
+            {" • "}{item.soundArtist}
+          </Text>
+        </View>}
 
         {item.ticketsAvailable && (
           <Pressable
@@ -342,11 +409,17 @@ const { isPlaying : isReady } = useEvent(player, 'playingChange', { isPlaying: p
           </Pressable>
         )}
 
-        <Text style={{ color: '#cbd5e1', marginTop: 10, fontSize: mediumScreen ? 12: 8 }}>{isPlaying ? 'Playing' : 'Paused'} preview</Text>
+        <Text style={{ color: '#cbd5e1', marginTop: 10, fontSize: mediumScreen ? 8: 8 }}>{isPlaying ? 'Playing' : 'Paused'} preview</Text>
       </View>
 
       {/* Comments modal */}
-      <Modal visible={showComments} transparent animationType="slide" onRequestClose={() => setShowComments(false)}>
+       <Modal
+        visible={showComments}
+        transparent
+        statusBarTranslucent
+        animationType="slide"
+        onRequestClose={() => setShowComments(false)}
+      >
         <Reactions onClose={() => setShowComments(false)} title={`${item.comments} Reactions`} />
       </Modal>
     </View>
@@ -383,6 +456,9 @@ const Feed: React.FC = () => {
       isPremium: true,
       ticketsAvailable: true,
       ticketLocation: 'London, UK',
+      hasSound: true,
+      soundArtist: 'Synthwave Kid',
+      soundTitle: 'Neon Dreams',
     },
     {
       id: '1',
@@ -651,7 +727,13 @@ const Feed: React.FC = () => {
               justifyContent: 'center',
               gap: 10
                   }}>
-              <LiveLogo height={54} width={54}/>
+              <Pressable
+              onPress={()=>{
+                navigation.navigate('Livefeed')
+              }}
+              >
+                <LiveLogo height={54} width={54}/>
+              </Pressable>
                   <Pressable onPress={() => setActiveTab("foryou")} style={{ justifyContent: 'center', alignItems: 'center',  }}>
                     <View style={{justifyContent: 'center', alignItems: 'center'}}>
                       <Text style={[{ color: "#94a3b8", fontSize: smallWidth ? 10.5 : mediumScreen ? 13.5:8.5, fontFamily: "PlusJakartaSansBold", letterSpacing: -0.2, marginBottom: 5 }, activeTab === "foryou" && {color: 'white', letterSpacing: 1, fontFamily: 'PlusJakartaSansExtraBold'}]}>
@@ -768,11 +850,11 @@ const Feed: React.FC = () => {
           snapToAlignment="start"
           decelerationRate="fast"
           disableIntervalMomentum
-          // ListFooterComponent={() => (
-          //   <View style={{ height: SCREEN_HEIGHT * 0.3, justifyContent: 'center', alignItems: 'center', backgroundColor: 'gold' }}>
-          //     <Text style={{ color: '#94a3b8', fontSize: fontScale(11) }}>Syncing more galaxy feed...</Text>
-          //   </View>
-          // )}
+          ListFooterComponent={() => (
+            <View style={{ height: SCREEN_HEIGHT * 0.08, justifyContent: 'center', alignItems: 'center', backgroundColor: 'gold' }}>
+              <Text style={{ color: '#94a3b8', fontSize: fontScale(11) }}>Syncing more galaxy feed...</Text>
+            </View>
+          )}
           getItemLayout={(_, index) => ({
             length: FEED_ITEM_HEIGHT,
             offset: FEED_ITEM_HEIGHT * index,

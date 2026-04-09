@@ -34,8 +34,10 @@ import VpnKeyIcon from '../assets/icons/vpn-key-svg.svg';
 import DevicesIcon from '../assets/icons/devices-svg.svg';
 import EventIcon from '../assets/icons/event-svg.svg';
 import VerifiedIcon from '../assets/icons/verified-svg.svg';
+import HandShakeIcon from '../assets/icons/handshake-svg.svg';
+import FireIcon from '../assets/icons/fire-svg.svg';
 import { SvgProps } from 'react-native-svg';
-import { setDark, setUser, user } from '../types';
+import { mediumScreen, setDark, setUser, user } from '../types';
 import { fontScale } from '../fonts';
 
 
@@ -140,6 +142,9 @@ const CreatorSettings: React.FC<CreatorSettingsProps> = ({ onLogout, isDarkMode,
           { label: 'Update Avatar', icon: AccountIcon, desc: 'Change your main profile photo', action: () => pickImageStub('avatar') },
           { label: 'Banner Aesthetic', icon: ImageIcon, desc: 'Customize your profile header image', action: () => pickImageStub('banner') },
           { label: 'Identity & Bio', icon: EditIcon, desc: 'Manage your @handle and story', action: () => setActiveSubView('identity') },
+          { label: 'Streak Rewards', icon: FireIcon, desc: 'View your galaxy milestones', action: () => {
+            navigation.navigate('StreakReward')
+          } },
         ] as SettingItem[],
       },
       {
@@ -153,6 +158,9 @@ const CreatorSettings: React.FC<CreatorSettingsProps> = ({ onLogout, isDarkMode,
       {
         title: 'Galaxy Presence',
         items: [
+          { label: 'Collaboration Hub', icon: HandShakeIcon, desc: 'Find and manage creative partnerships', action: () => { 
+            navigation.navigate('ConnectHub')
+          } },
           { label: 'Social Links', icon: 'link', desc: 'Connect Instagram, Twitter, and more', action: () => setActiveSubView('socials') },
           { label: 'Discovery Tags', icon: SellIcon, desc: 'Edit genres and SEO keywords', action: () => setActiveSubView('tags') },
           {
@@ -226,7 +234,7 @@ const CreatorSettings: React.FC<CreatorSettingsProps> = ({ onLogout, isDarkMode,
     <View style={[s.header, { backgroundColor: isDark ? 'rgba(31, 16, 34, 0.75)' : theme.card, borderBottomColor: theme.border }]}>
       <View style={s.headerLeft}>
         <Pressable onPress={onBack} style={[s.iconButton, { backgroundColor: isDark ? '#ffffff14' : theme.surface }]}>
-          <MaterialIcons name="arrow-back" size={20} color={theme.text} />
+          <MaterialIcons name="chevron-left" size={20} color={theme.text} />
         </Pressable>
         <Text style={[s.headerTitle, { color: theme.text }]}>{title}</Text>
       </View>
@@ -474,7 +482,7 @@ const s = StyleSheet.create({
     justifyContent: 'center',
     backgroundColor: '#ffffff14',
   },
-  headerTitle: { color: '#fff', fontSize: fontScale(16), fontWeight: '900', textTransform: 'uppercase' },
+  headerTitle: { color: '#fff', fontSize: fontScale(14), fontFamily: 'PlusJakartaSansExtraBold', textTransform: 'uppercase' },
   donePill: {
     paddingHorizontal: 10,
     paddingVertical: 6,
@@ -486,7 +494,7 @@ const s = StyleSheet.create({
   donePillText: {
     color: '#cd2bee',
     fontSize: fontScale(10),
-    fontWeight: '900',
+    fontFamily: 'PlusJakartaSansBold',
     textTransform: 'uppercase',
     letterSpacing: 1,
   },
@@ -533,22 +541,22 @@ const s = StyleSheet.create({
   },
   profileNameBlock: { paddingBottom: 10 },
   nameRow: { flexDirection: 'row', alignItems: 'center', gap: 6, justifyContent: 'center',},
-  profileName: { color: '#fff', fontSize: fontScale(18), fontWeight: '900' },
+  profileName: { color: '#fff', fontSize: fontScale(16), fontFamily: 'PlusJakartaSansExtraBold' },
   profileHandle: {
     color: '#cd2bee',
     fontSize: fontScale(10),
-    fontWeight: '900',
+    fontFamily: 'PlusJakartaSansBold',
     textTransform: 'uppercase',
-    letterSpacing: 1.5,
-    marginTop: 2,
+    letterSpacing: 0.5,
+    marginTop: 0,
   },
   sectionBlock: { marginTop: 18, paddingHorizontal: 16 },
   sectionTitle: {
     color: '#8b90a8',
     fontSize: fontScale(9),
-    fontWeight: '900',
+    fontFamily: 'PlusJakartaSansExtraBold',
     textTransform: 'uppercase',
-    letterSpacing: 2.4,
+    letterSpacing: 2.0,
     marginBottom: 8,
     paddingHorizontal: 4,
   },
@@ -575,8 +583,8 @@ const s = StyleSheet.create({
     borderColor: 'rgba(0 0 0 / 0.05)',
   },
   itemCopy: { flex: 1 },
-  itemLabel: { color: '#fff', fontWeight: '800', fontSize: fontScale(14) },
-  itemDesc: { color: '#8e91a6', marginTop: 2, fontSize: fontScale(11) },
+  itemLabel: { color: '#fff', fontFamily: 'PlusJakartaSansExtraBold', fontSize: mediumScreen ? fontScale(16):fontScale(12) },
+  itemDesc: { color: '#8e91a6', marginTop: 0, fontSize: fontScale(11), fontFamily: 'PlusJakartaSansMedium' },
   footerActions: { paddingHorizontal: 16, marginTop: 22, gap: 10 },
   signOutBtn: {
     height: 58,
@@ -589,7 +597,7 @@ const s = StyleSheet.create({
     flexDirection: 'row',
     gap: 8,
   },
-  signOutText: { color: '#fff', fontWeight: '800', fontSize: fontScale(15) },
+  signOutText: { color: '#fff', fontFamily: 'PlusJakartaSansBold', fontSize: fontScale(12) },
   deactivateBtn: {
     height: 58,
     borderRadius: 22,
@@ -601,7 +609,7 @@ const s = StyleSheet.create({
     flexDirection: 'row',
     gap: 8,
   },
-  deactivateText: { color: '#ef4444', fontWeight: '800', fontSize: fontScale(15) },
+  deactivateText: { color: '#ef4444', fontFamily: 'PlusJakartaSansBold', fontSize: fontScale(12) },
   versionText: {
     marginTop: 2,
     color: '#70758f',
@@ -616,7 +624,7 @@ const s = StyleSheet.create({
   inputLabel: {
     color: '#8b90a8',
     fontSize: fontScale(10),
-    fontWeight: '900',
+    fontFamily: 'PlusJakartaSansExtraBold',
     textTransform: 'uppercase',
     letterSpacing: 2,
     paddingHorizontal: 3,
@@ -646,7 +654,7 @@ const s = StyleSheet.create({
     borderColor: '#ffffff1a',
     backgroundColor: '#ffffff08',
     color: '#fff',
-    fontWeight: '700',
+    fontFamily: 'PlusJakartaSansBold',
     fontSize: fontScale(14),
     paddingHorizontal: 14,
   },
@@ -655,11 +663,11 @@ const s = StyleSheet.create({
     fontSize: fontScale(10),
     textTransform: 'uppercase',
     letterSpacing: 1,
-    fontWeight: '700',
+    fontFamily: 'PlusJakartaSansBold',
     paddingHorizontal: 3,
   },
   rowBetween: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center' },
-  counterText: { color: '#8f95af', fontSize: fontScale(10), fontWeight: '700' },
+  counterText: { color: '#8f95af', fontSize: fontScale(10), fontFamily: 'PlusJakartaSansBold' },
   counterWarn: { color: '#ef4444' },
   textarea: {
     minHeight: 120,
@@ -669,6 +677,7 @@ const s = StyleSheet.create({
     backgroundColor: '#ffffff08',
     color: '#fff',
     fontSize: fontScale(14),
+    fontFamily: 'PlusJakartaSansBold',
     lineHeight: 20,
     paddingHorizontal: 14,
     paddingVertical: 12,
@@ -684,7 +693,7 @@ const s = StyleSheet.create({
   sectionHeading: {
     color: '#8b90a8',
     fontSize: fontScale(9),
-    fontWeight: '900',
+    fontFamily: 'PlusJakartaSansExtraBold',
     textTransform: 'uppercase',
     letterSpacing: 2.5,
     paddingHorizontal: 3,
@@ -693,7 +702,7 @@ const s = StyleSheet.create({
   fieldName: {
     color: '#8f95af',
     fontSize: fontScale(9),
-    fontWeight: '800',
+    fontFamily: 'PlusJakartaSansBold',
     textTransform: 'uppercase',
     letterSpacing: 1.4,
     paddingHorizontal: 3,
@@ -711,7 +720,7 @@ const s = StyleSheet.create({
   tagText: {
     color: '#a8adc4',
     fontSize: fontScale(10),
-    fontWeight: '900',
+    fontFamily: 'PlusJakartaSansExtraBold',
     textTransform: 'uppercase',
     letterSpacing: 1.1,
   },
@@ -724,8 +733,9 @@ const s = StyleSheet.create({
     textAlign: 'center',
     lineHeight: 15,
     marginTop: 8,
-    fontWeight: '700',
+    fontFamily: 'PlusJakartaSansBold',
   },
 });
 
 export default CreatorSettings;
+

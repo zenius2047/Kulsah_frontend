@@ -69,7 +69,7 @@ const Reactions: React.FC<{ onClose: () => void; title?: string }> = ({ onClose,
   return (
     <View style={styles.modalFrame}>
       <View style={styles.backdrop}>
-        <Image source={{ uri: 'https://picsum.photos/seed/neon-pulse-bg/1200/1800' }} style={styles.bgImage} />
+        {/* <Image source={{ uri: 'https://picsum.photos/seed/neon-pulse-bg/1200/1800' }} style={styles.bgImage} /> */}
         <LinearGradient colors={['rgba(10,5,13,0.82)', 'rgba(10,5,13,0.28)', 'rgba(10,5,13,0.95)']} style={StyleSheet.absoluteFillObject} />
       </View>
 
@@ -211,8 +211,11 @@ const Reactions: React.FC<{ onClose: () => void; title?: string }> = ({ onClose,
 };
 
 const styles = StyleSheet.create({
-  modalFrame: { flex: 1, justifyContent: 'flex-end' },
-  backdrop: { ...StyleSheet.absoluteFillObject },
+  modalFrame: { ...StyleSheet.absoluteFillObject, justifyContent: 'flex-end' },
+  backdrop: {
+    ...StyleSheet.absoluteFillObject,
+    backgroundColor: '#00000033',
+  },
   bgImage: { width: '100%', height: '100%', opacity: 0.4 },
   sheet: {
     width: '100%',
@@ -225,7 +228,7 @@ const styles = StyleSheet.create({
   },
   header: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', paddingHorizontal: 24, paddingVertical: 18 },
   iconButton: { width: 40, height: 40, borderRadius: 20, alignItems: 'center', justifyContent: 'center' },
-  headerTitle: { fontFamily: 'PlusJakartaSansExtraBold', fontSize: fontScale(15), textTransform: 'uppercase', letterSpacing: 0.8 },
+  headerTitle: { fontFamily: 'PlusJakartaSansExtraBold', fontSize: fontScale(10), textTransform: 'uppercase', letterSpacing: 0.8 },
   tabsRow: { flexDirection: 'row', paddingHorizontal: 16, paddingBottom: 8, gap: 8 },
   tabButton: { flex: 1, minHeight: 46, borderRadius: 18, flexDirection: 'row', alignItems: 'center', justifyContent: 'center', gap: 8 },
   tabText: { fontFamily: 'PlusJakartaSansExtraBold', fontSize: fontScale(8), textTransform: 'uppercase', letterSpacing: 0.2 },

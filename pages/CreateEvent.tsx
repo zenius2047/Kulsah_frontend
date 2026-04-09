@@ -86,27 +86,39 @@ const CreateEvent: React.FC = () => {
   const { isDark, theme } = useThemeMode();
   const [activeTemplateTab, setActiveTemplateTab] = useState('For You');
   const visibleTemplates = templateCards;
-  const navigation = useNavigation<any>()
+  const navigation = useNavigation<any>();
+  const bgGradient = isDark
+    ? ['#120816', '#0a050d', '#050207']
+    : ['#f8fafc', '#eef2ff', '#f8fafc'];
+  const shellBg = isDark ? 'rgba(10,5,13,0.82)' : 'rgba(255,255,255,0.92)';
+  const shellBorder = isDark ? 'rgba(255,255,255,0.05)' : theme.border;
+  const cardBg = isDark ? 'rgba(255,255,255,0.04)' : theme.card;
+  const cardBorder = isDark ? 'rgba(255,255,255,0.1)' : theme.border;
+  const softSurface = isDark ? 'rgba(255,255,255,0.05)' : theme.surface;
+  const subtle = isDark ? '#94a3b8' : theme.textSecondary;
+  const muted = isDark ? '#64748b' : theme.textMuted;
+  const titleTone = isDark ? '#ffffff' : theme.text;
+  const darkOverlay = isDark ? 'rgba(0,0,0,0.42)' : 'rgba(15,23,42,0.35)';
 
   return (
     <SafeAreaView style={[styles.safeArea, { backgroundColor: theme.background }]} edges={['top', 'left', 'right']}>
       <View style={[styles.screen, { backgroundColor: theme.screen }]}>
         <LinearGradient
-          colors={['#120816', '#0a050d', '#050207']}
+          colors={bgGradient}
           locations={[0, 0.4, 1]}
           style={StyleSheet.absoluteFill}
         />
 
-        <View style={styles.topGlowOne} pointerEvents="none" />
-        <View style={styles.topGlowTwo} pointerEvents="none" />
+        {/* <View style={styles.topGlowOne} pointerEvents="none" />
+        <View style={styles.topGlowTwo} pointerEvents="none" /> */}
 
-        <View style={styles.header}>
+        <View style={[styles.header, { backgroundColor: shellBg, borderBottomColor: shellBorder }]}>
           <Pressable
           onPress={()=> navigation.goBack()}
           style={styles.headerIconButton}>
-            <MaterialIcons name="close" size={24} color="#f8fafc" />
+            <MaterialIcons name="close" size={24} color={titleTone} />
           </Pressable>
-          <Text style={styles.headerTitle}>CREATE</Text>
+          <Text style={[styles.headerTitle, { color: titleTone }]}>CREATE</Text>
           <View style={styles.headerSpacer} />
         </View>
 
@@ -121,10 +133,10 @@ const CreateEvent: React.FC = () => {
           >
             {toolItems.map((item) => (
               <Pressable key={item.label} style={styles.toolItem}>
-                <View style={styles.toolIconWrap}>
-                  <MaterialIcons name={item.icon} size={28} color="#ffffff" />
+                <View style={[styles.toolIconWrap, { backgroundColor: softSurface }]}>
+                  <MaterialIcons name={item.icon} size={28} color={titleTone} />
                 </View>
-                <Text style={styles.toolLabel}>{item.label}</Text>
+                <Text style={[styles.toolLabel, { color: subtle }]}>{item.label}</Text>
               </Pressable>
             ))}
           </ScrollView>
@@ -143,7 +155,7 @@ const CreateEvent: React.FC = () => {
 
             <Pressable style={styles.draftCard}>
               <Image source={{ uri: draftImage }} style={styles.draftImage} />
-              <View style={styles.draftOverlay}>
+              <View style={[styles.draftOverlay, { backgroundColor: darkOverlay }]}>
                 <Text style={styles.draftCount}>1</Text>
                 <Text style={styles.draftLabel}>DRAFTS</Text>
               </View>
@@ -152,31 +164,31 @@ const CreateEvent: React.FC = () => {
 
           <View style={styles.actionsColumn}>
             {actionCards.map((card) => (
-              <Pressable key={card.title} style={styles.actionCard}>
+              <Pressable key={card.title} style={[styles.actionCard, { backgroundColor: cardBg, borderColor: cardBorder }]}>
                 <View style={[styles.actionIconWrap, { backgroundColor: card.bg }]}>
                   <MaterialIcons name={card.icon} size={28} color={card.tint} />
                 </View>
                 <View style={styles.actionTextWrap}>
-                  <Text style={styles.actionTitle}>{card.title}</Text>
-                  <Text style={styles.actionDescription}>{card.description}</Text>
+                  <Text style={[styles.actionTitle, { color: titleTone }]}>{card.title}</Text>
+                  <Text style={[styles.actionDescription, { color: subtle }]}>{card.description}</Text>
                 </View>
-                <MaterialIcons name="chevron-right" size={24} color="#64748b" />
+                <MaterialIcons name="chevron-right" size={24} color={muted} />
               </Pressable>
             ))}
           </View>
 
           <View style={styles.section}>
             <View style={styles.sectionHeader}>
-              <Text style={styles.templatesTitle}>Templates</Text>
-              <Pressable style={styles.searchButton}>
-                <MaterialIcons name="search" size={20} color="#f8fafc" />
+              <Text style={[styles.templatesTitle, { color: titleTone }]}>Templates</Text>
+              <Pressable style={[styles.searchButton, { backgroundColor: softSurface }]}>
+                <MaterialIcons name="search" size={20} color={titleTone} />
               </Pressable>
             </View>
 
             <ScrollView
               horizontal
               showsHorizontalScrollIndicator={false}
-              contentContainerStyle={styles.tabRow}
+              contentContainerStyle={[styles.tabRow, { borderBottomColor: shellBorder }]}
             >
               {templateTabs.map((tab) => {
                 const isActive = tab === activeTemplateTab;
@@ -187,7 +199,7 @@ const CreateEvent: React.FC = () => {
                     onPress={() => setActiveTemplateTab(tab)}
                     style={styles.tabButton}
                   >
-                    <Text style={[styles.tabText, isActive && styles.tabTextActive]}>
+                    <Text style={[styles.tabText, { color: muted }, isActive && { color: titleTone }]}>
                       {tab}
                     </Text>
                     <View
@@ -212,8 +224,8 @@ const CreateEvent: React.FC = () => {
                   style={styles.templateOverlay}
                 />
                 <View style={styles.templateCaption}>
-                  <Text style={styles.templateName}>{visibleTemplates[0].title}</Text>
-                  <Text style={styles.templateMeta}>{visibleTemplates[0].meta}</Text>
+                  <Text style={[styles.templateName, { color: '#ffffff' }]}>{visibleTemplates[0].title}</Text>
+                  <Text style={[styles.templateMeta, { color: subtle }]}>{visibleTemplates[0].meta}</Text>
                 </View>
               </Pressable>
 
@@ -233,7 +245,7 @@ const CreateEvent: React.FC = () => {
 
           <View style={styles.section}>
             <View style={styles.sectionHeader}>
-              <Text style={styles.soundSectionTitle}>Trending Sounds</Text>
+              <Text style={[styles.soundSectionTitle, { color: titleTone }]}>Trending Sounds</Text>
               <Pressable>
                 <Text style={styles.seeAllText}>See all</Text>
               </Pressable>
@@ -244,11 +256,11 @@ const CreateEvent: React.FC = () => {
                 <Pressable key={sound.id} style={styles.soundRow}>
                   <Image source={{ uri: sound.image }} style={styles.soundThumb} />
                   <View style={styles.soundTextWrap}>
-                    <Text style={styles.soundTitle}>{sound.title}</Text>
-                    <Text style={styles.soundMeta}>{sound.meta}</Text>
+                    <Text style={[styles.soundTitle, { color: titleTone }]}>{sound.title}</Text>
+                    <Text style={[styles.soundMeta, { color: muted }]}>{sound.meta}</Text>
                   </View>
-                  <View style={styles.soundAddButton}>
-                    <MaterialIcons name="add" size={18} color="#ffffff" />
+                  <View style={[styles.soundAddButton, { backgroundColor: softSurface }]}>
+                    <MaterialIcons name="add" size={18} color={titleTone} />
                   </View>
                 </Pressable>
               ))}
@@ -293,9 +305,7 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'space-between',
-    backgroundColor: 'rgba(10,5,13,0.82)',
     borderBottomWidth: 1,
-    borderBottomColor: 'rgba(255,255,255,0.05)',
   },
   headerIconButton: {
     width: 32,
@@ -304,7 +314,6 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
   },
   headerTitle: {
-    color: '#ffffff',
     fontFamily: 'PlusJakartaSansExtraBold',
     fontSize: mediumScreen ? 16: 13,
     letterSpacing: 3.2,
@@ -335,7 +344,6 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
   },
   toolLabel: {
-    color: '#94a3b8',
     fontFamily: 'PlusJakartaSansBold',
     fontSize: mediumScreen ? 12: 8,
     lineHeight: 13,
@@ -410,9 +418,7 @@ const styles = StyleSheet.create({
     gap: 18,
     padding: 20,
     borderRadius: 24,
-    backgroundColor: 'rgba(255,255,255,0.04)',
     borderWidth: 1,
-    borderColor: 'rgba(255,255,255,0.1)',
   },
   actionIconWrap: {
     width: 56,
@@ -425,13 +431,11 @@ const styles = StyleSheet.create({
     flex: 1,
   },
   actionTitle: {
-    color: '#ffffff',
     fontFamily: 'PlusJakartaSansExtraBold',
     fontSize: mediumScreen ? 16: 13,
     marginBottom: 4,
   },
   actionDescription: {
-    color: '#94a3b8',
     fontFamily: 'PlusJakartaSansMedium',
     fontSize: mediumScreen ? 16: 12,
     lineHeight: 20,
@@ -446,7 +450,6 @@ const styles = StyleSheet.create({
     marginBottom: 18,
   },
   templatesTitle: {
-    color: '#ffffff',
     fontFamily: 'PlusJakartaSansExtraBold',
     fontSize: mediumScreen ? 21: 18,
     letterSpacing: -0.6,
@@ -457,19 +460,16 @@ const styles = StyleSheet.create({
     borderRadius: 20,
     alignItems: 'center',
     justifyContent: 'center',
-    backgroundColor: 'rgba(255,255,255,0.04)',
   },
   tabRow: {
     gap: 24,
     paddingBottom: 8,
     borderBottomWidth: 1,
-    borderBottomColor: 'rgba(255,255,255,0.05)',
   },
   tabButton: {
     alignItems: 'center',
   },
   tabText: {
-    color: '#64748b',
     fontFamily: 'PlusJakartaSansBold',
     fontSize: mediumScreen ? 18:14,
     marginBottom: 12,
@@ -535,13 +535,11 @@ const styles = StyleSheet.create({
     letterSpacing: 0.6,
   },
   templateMeta: {
-    color: '#94a3b8',
     fontFamily: 'PlusJakartaSansMedium',
     fontSize: mediumScreen ? 14:10,
     marginTop: 3,
   },
   soundSectionTitle: {
-    color: '#ffffff',
     fontFamily: 'PlusJakartaSansExtraBold',
     fontSize: mediumScreen ? 20:16,
   },
@@ -569,13 +567,11 @@ const styles = StyleSheet.create({
     flex: 1,
   },
   soundTitle: {
-    color: '#ffffff',
     fontFamily: 'PlusJakartaSansBold',
     fontSize: mediumScreen ? 16:13,
     marginBottom: 4,
   },
   soundMeta: {
-    color: '#64748b',
     fontFamily: 'PlusJakartaSansMedium',
     fontSize: mediumScreen ? 16:12,
   },
@@ -583,7 +579,6 @@ const styles = StyleSheet.create({
     width: 32,
     height: 32,
     borderRadius: 16,
-    backgroundColor: 'rgba(255,255,255,0.06)',
     alignItems: 'center',
     justifyContent: 'center',
   },

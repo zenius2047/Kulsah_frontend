@@ -141,7 +141,7 @@ const ChallengeFeedCard: React.FC<{
 
       <View style={[styles.header, { top: insets.top + 10, paddingHorizontal: 16 }]}>
         <Pressable style={styles.glassButton} onPress={onBack}>
-          <MaterialIcons name="arrow-back" size={22} color="#ffffff" />
+          <MaterialIcons name="chevron-left" size={22} color="#ffffff" />
         </Pressable>
 
         <Pressable style={styles.glassButton}>
@@ -493,3 +493,4 @@ const styles = StyleSheet.create({
 });
 
 export default ChallengeFeed;
+

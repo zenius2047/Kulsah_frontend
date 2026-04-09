@@ -89,7 +89,7 @@ const EventDetail: React.FC = () => {
           <LinearGradient colors={['transparent', 'rgba(0,0,0,0.15)', isDark ? '#050505' : theme.background]} style={StyleSheet.absoluteFillObject} />
 
           <Pressable onPress={() => navigation.goBack()} style={[styles.topButton, { top: insets.top + 12, left: 16, borderColor: 'rgba(255,255,255,0.12)' }]}>
-            <MaterialIcons name="arrow-back" size={22} color="#fff" />
+            <MaterialIcons name="chevron-left" size={22} color="#fff" />
           </Pressable>
 
           <View style={[styles.topRight, { top: insets.top + 12 }]}>
@@ -204,3 +204,4 @@ const styles = StyleSheet.create({
 });
 
 export default EventDetail;
+

@@ -240,7 +240,7 @@ const CreatorEvents: React.FC = () => {
       <View style={styles.header}>
         <View style={styles.headerLeft}>
           <Pressable onPress={() => navigation.goBack()} style={styles.iconBtn}>
-            <MaterialIcons name="arrow-back" size={20} color="#fff" />
+            <MaterialIcons name="chevron-left" size={20} color="#fff" />
           </Pressable>
           <Text style={styles.headerTitle}>Event Studio</Text>
         </View>
@@ -729,3 +729,4 @@ const styles = StyleSheet.create({
 });
 
 export default CreatorEvents;
+

@@ -57,25 +57,42 @@ const RewardConfig: React.FC = () => {
   const [strategy, setStrategy] = useState<'high-likes' | 'no-reward'>('high-likes');
   const [selectedReward, setSelectedReward] = useState('artist-merch');
   const [customReward, setCustomReward] = useState('');
+  const bgGradient = isDark
+    ? ['#120617', '#0a050d', '#050207']
+    : ['#f8fafc', '#eef2ff', '#f8fafc'];
+  const headerBg = isDark ? 'rgba(10,5,13,0.8)' : 'rgba(255,255,255,0.92)';
+  const headerBorder = isDark ? 'rgba(255,255,255,0.1)' : theme.border;
+  const iconButtonBg = isDark ? 'rgba(255,255,255,0.04)' : 'rgba(15,23,42,0.06)';
+  const cardBg = isDark ? 'rgba(255,255,255,0.03)' : theme.card;
+  const cardBorder = isDark ? 'rgba(255,255,255,0.1)' : theme.border;
+  const inputBg = isDark ? 'rgba(255,255,255,0.05)' : theme.surface;
+  const subtle = isDark ? '#94a3b8' : theme.textSecondary;
+  const muted = isDark ? '#64748b' : theme.textMuted;
+  const titleTone = isDark ? '#f8fafc' : theme.text;
+  const placeholder = isDark ? '#475569' : theme.textMuted;
+  const strategyActiveBg = isDark ? 'rgba(147,13,242,0.08)' : theme.accentSoft;
+  const tipBg = isDark ? 'rgba(255,255,255,0.08)' : 'rgba(15,23,42,0.06)';
+  const tipBorder = isDark ? 'rgba(255,255,255,0.05)' : theme.border;
+  const selectedIcon = isDark ? '#475569' : theme.textMuted;
 
   return (
     <SafeAreaView style={[styles.safeArea, { backgroundColor: theme.background }]} edges={['top', 'left', 'right']}>
       <View style={[styles.screen, { backgroundColor: theme.screen }]}>
         <LinearGradient
-          colors={['#120617', '#0a050d', '#050207']}
+          colors={bgGradient}
           locations={[0, 0.48, 1]}
           style={StyleSheet.absoluteFill}
         />
 
-        <View style={styles.topGlow} pointerEvents="none" />
-        <View style={styles.midGlow} pointerEvents="none" />
+        {/* <View style={styles.topGlow} pointerEvents="none" />
+        <View style={styles.midGlow} pointerEvents="none" /> */}
 
-        <View style={styles.header}>
+        <View style={[styles.header, { backgroundColor: headerBg, borderBottomColor: headerBorder }]}>
           <View style={styles.headerLeft}>
-            <Pressable style={styles.iconButton} onPress={() => navigation.goBack()}>
-              <MaterialIcons name="arrow-back" size={22} color="#f8fafc" />
+            <Pressable style={[styles.iconButton, { backgroundColor: iconButtonBg }]} onPress={() => navigation.goBack()}>
+              <MaterialIcons name="chevron-left" size={22} color={titleTone} />
             </Pressable>
-            <Text style={styles.headerTitle}>REWARD CONFIG</Text>
+            <Text style={[styles.headerTitle, { color: titleTone }]}>REWARD CONFIG</Text>
           </View>
           <Text style={styles.headerBrand}>NEON</Text>
         </View>
@@ -90,8 +107,8 @@ const RewardConfig: React.FC = () => {
             <View style={styles.challengeBadge}>
               <Text style={styles.challengeBadgeText}>Pure Likes Challenge</Text>
             </View>
-            <Text style={styles.heroTitle}>Choose Your Reward</Text>
-            <Text style={styles.heroDescription}>
+            <Text style={[styles.heroTitle, { color: titleTone }]}>Choose Your Reward</Text>
+            <Text style={[styles.heroDescription, { color: subtle }]}>
               Incentivize your fans or keep it competitive. High rewards drive 3x
               more engagement.
             </Text>
@@ -105,7 +122,12 @@ const RewardConfig: React.FC = () => {
                 <Pressable
                   key={option.id}
                   onPress={() => setStrategy(option.id as 'high-likes' | 'no-reward')}
-                  style={[styles.strategyCard, isActive && styles.strategyCardActive]}
+                  style={[
+                    styles.strategyCard,
+                    { backgroundColor: cardBg, borderColor: cardBorder },
+                    isActive && styles.strategyCardActive,
+                    isActive && { backgroundColor: strategyActiveBg },
+                  ]}
                 >
                   {isActive ? (
                     <View style={styles.checkBadge}>
@@ -116,13 +138,13 @@ const RewardConfig: React.FC = () => {
                   <MaterialIcons
                     name={option.icon}
                     size={32}
-                    color={isActive ? '#930df2' : '#94a3b8'}
+                    color={isActive ? '#930df2' : subtle}
                     style={styles.strategyIcon}
                   />
-                  <Text style={[styles.strategyTitle, !isActive && styles.strategyTitleMuted]}>
+                  <Text style={[styles.strategyTitle, { color: isActive ? titleTone : subtle }, !isActive && styles.strategyTitleMuted]}>
                     {option.title}
                   </Text>
-                  <Text style={styles.strategyMeta}>{option.subtitle}</Text>
+                  <Text style={[styles.strategyMeta, { color: subtle }]}>{option.subtitle}</Text>
                 </Pressable>
               );
             })}
@@ -130,7 +152,7 @@ const RewardConfig: React.FC = () => {
 
           <View style={styles.section}>
             <View style={styles.sectionHeader}>
-              <Text style={styles.sectionTitle}>Available Reward Types</Text>
+              <Text style={[styles.sectionTitle, { color: subtle }]}>Available Reward Types</Text>
               <Text style={styles.sectionHint}>SELECT ONE</Text>
             </View>
 
@@ -142,11 +164,17 @@ const RewardConfig: React.FC = () => {
                   <Pressable
                     key={reward.id}
                     onPress={() => setSelectedReward(reward.id)}
-                    style={[styles.rewardCard, isSelected && styles.rewardCardSelected]}
+                    style={[
+                      styles.rewardCard,
+                      { backgroundColor: cardBg, borderColor: cardBorder },
+                      isSelected && styles.rewardCardSelected,
+                      isSelected && { backgroundColor: strategyActiveBg },
+                    ]}
                   >
                     <View
                       style={[
                         styles.rewardIconWrap,
+                        { backgroundColor: inputBg },
                         isSelected && styles.rewardIconWrapSelected,
                       ]}
                     >
@@ -159,45 +187,45 @@ const RewardConfig: React.FC = () => {
 
                     <View style={styles.rewardBody}>
                       <View style={styles.rewardTitleRow}>
-                        <Text style={styles.rewardTitle}>{reward.title}</Text>
+                        <Text style={[styles.rewardTitle, { color: titleTone }]}>{reward.title}</Text>
                         {reward.badge ? (
                           <View style={styles.hotBadge}>
                             <Text style={styles.hotBadgeText}>{reward.badge}</Text>
                           </View>
                         ) : null}
                       </View>
-                      <Text style={styles.rewardDescription}>{reward.description}</Text>
+                      <Text style={[styles.rewardDescription, { color: subtle }]}>{reward.description}</Text>
                     </View>
 
                     <MaterialIcons
                       name={isSelected ? 'check-circle' : 'radio-button-unchecked'}
                       size={22}
-                      color={isSelected ? '#930df2' : '#475569'}
+                      color={isSelected ? '#930df2' : selectedIcon}
                     />
                   </Pressable>
                 );
               })}
 
-              <View style={styles.customCard}>
+              <View style={[styles.customCard, { backgroundColor: inputBg, borderColor: isDark ? 'rgba(255,255,255,0.2)' : theme.border }]}>
                 <View style={styles.customHeader}>
-                  <MaterialIcons name="add-circle" size={16} color="#94a3b8" />
-                  <Text style={styles.customLabel}>Custom Reward</Text>
+                  <MaterialIcons name="add-circle" size={16} color={subtle} />
+                  <Text style={[styles.customLabel, { color: subtle }]}>Custom Reward</Text>
                 </View>
                 <TextInput
                   value={customReward}
                   onChangeText={setCustomReward}
                   placeholder="Enter custom prize description..."
-                  placeholderTextColor="#475569"
-                  style={styles.customInput}
+                  placeholderTextColor={placeholder}
+                  style={[styles.customInput, { color: titleTone }]}
                 />
               </View>
             </View>
           </View>
 
-          <View style={styles.tipCard}>
+          <View style={[styles.tipCard, { backgroundColor: tipBg, borderColor: tipBorder }]}>
             <MaterialIcons name="lightbulb" size={20} color="#ffb781" />
-            <Text style={styles.tipText}>
-              <Text style={styles.tipStrong}>Pro Tip:</Text> Physical merch rewards like{' '}
+            <Text style={[styles.tipText, { color: isDark ? '#d0c1d8' : subtle }]}>
+              <Text style={[styles.tipStrong, { color: titleTone }]}>Pro Tip:</Text> Physical merch rewards like{' '}
               <Text style={styles.tipAccent}>T-Shirts</Text> create more "Proof of Win"
               social shares for your brand.
             </Text>
@@ -254,9 +282,7 @@ const styles = StyleSheet.create({
     justifyContent: 'space-between',
     paddingHorizontal: 16,
     paddingVertical: 14,
-    backgroundColor: 'rgba(10,5,13,0.8)',
     borderBottomWidth: 1,
-    borderBottomColor: 'rgba(255,255,255,0.1)',
   },
   headerLeft: {
     flexDirection: 'row',
@@ -269,10 +295,8 @@ const styles = StyleSheet.create({
     borderRadius: 19,
     alignItems: 'center',
     justifyContent: 'center',
-    backgroundColor: 'rgba(255,255,255,0.04)',
   },
   headerTitle: {
-    color: '#f8fafc',
     fontFamily: 'PlusJakartaSansBold',
     fontSize: mediumScreen ? 16 : 13,
     letterSpacing: 0.8,
@@ -312,13 +336,11 @@ const styles = StyleSheet.create({
     letterSpacing: 0.9,
   },
   heroTitle: {
-    color: '#f8fafc',
     fontFamily: 'PlusJakartaSansExtraBold',
     fontSize: mediumScreen ? 21 : 18,
     lineHeight: mediumScreen ? 34 : 30,
   },
   heroDescription: {
-    color: '#94a3b8',
     fontFamily: 'PlusJakartaSansMedium',
     fontSize: mediumScreen ? 16 : 12,
     lineHeight: mediumScreen ? 24 : 18,
@@ -332,15 +354,12 @@ const styles = StyleSheet.create({
     flex: 1,
     borderRadius: 22,
     padding: 20,
-    backgroundColor: 'rgba(255,255,255,0.03)',
     borderWidth: 1,
-    borderColor: 'rgba(255,255,255,0.1)',
     opacity: 0.65,
   },
   strategyCardActive: {
     borderWidth: 2,
     borderColor: '#930df2',
-    backgroundColor: 'rgba(147,13,242,0.08)',
     opacity: 1,
   },
   checkBadge: {
@@ -363,16 +382,14 @@ const styles = StyleSheet.create({
     marginBottom: 14,
   },
   strategyTitle: {
-    color: '#f8fafc',
     fontFamily: 'PlusJakartaSansBold',
     fontSize: mediumScreen ? 17 : 14,
     marginBottom: 4,
   },
   strategyTitleMuted: {
-    color: '#e2e8f0',
+    color: '#94a3b8',
   },
   strategyMeta: {
-    color: '#94a3b8',
     fontFamily: 'PlusJakartaSansBold',
     fontSize: mediumScreen ? 14 : 10,
     letterSpacing: 1.2,
@@ -387,7 +404,6 @@ const styles = StyleSheet.create({
     justifyContent: 'space-between',
   },
   sectionTitle: {
-    color: '#94a3b8',
     fontFamily: 'PlusJakartaSansBold',
     fontSize: mediumScreen ? 13 : 9,
     letterSpacing: 1.4,
@@ -408,19 +424,15 @@ const styles = StyleSheet.create({
     gap: 14,
     padding: 16,
     borderRadius: 20,
-    backgroundColor: 'rgba(255,255,255,0.03)',
     borderWidth: 1,
-    borderColor: 'rgba(255,255,255,0.1)',
   },
   rewardCardSelected: {
     borderColor: '#930df2',
-    backgroundColor: 'rgba(147,13,242,0.06)',
   },
   rewardIconWrap: {
     width: 56,
     height: 56,
     borderRadius: 14,
-    backgroundColor: 'rgba(255,255,255,0.05)',
     alignItems: 'center',
     justifyContent: 'center',
   },
@@ -438,7 +450,6 @@ const styles = StyleSheet.create({
     gap: 8,
   },
   rewardTitle: {
-    color: '#f8fafc',
     fontFamily: 'PlusJakartaSansBold',
     fontSize: mediumScreen ? 16 : 13,
     flex: 1,
@@ -456,7 +467,6 @@ const styles = StyleSheet.create({
     letterSpacing: 0.5,
   },
   rewardDescription: {
-    color: '#94a3b8',
     fontFamily: 'PlusJakartaSansMedium',
     fontSize: mediumScreen ? 16 : 12,
     lineHeight: mediumScreen ? 22 : 18,
@@ -464,10 +474,8 @@ const styles = StyleSheet.create({
   customCard: {
     borderRadius: 20,
     padding: 16,
-    backgroundColor: 'rgba(255,255,255,0.05)',
     borderWidth: 1,
     borderStyle: 'dashed',
-    borderColor: 'rgba(255,255,255,0.2)',
   },
   customHeader: {
     flexDirection: 'row',
@@ -476,14 +484,12 @@ const styles = StyleSheet.create({
     marginBottom: 8,
   },
   customLabel: {
-    color: '#94a3b8',
     fontFamily: 'PlusJakartaSansBold',
     fontSize: mediumScreen ? 14 : 10,
     letterSpacing: 1.1,
     textTransform: 'uppercase',
   },
   customInput: {
-    color: '#f8fafc',
     fontFamily: 'PlusJakartaSansMedium',
     fontSize: mediumScreen ? 16 : 12,
     padding: 0,
@@ -494,19 +500,15 @@ const styles = StyleSheet.create({
     gap: 12,
     padding: 16,
     borderRadius: 24,
-    backgroundColor: 'rgba(255,255,255,0.08)',
     borderWidth: 1,
-    borderColor: 'rgba(255,255,255,0.05)',
   },
   tipText: {
     flex: 1,
-    color: '#d0c1d8',
     fontFamily: 'PlusJakartaSansMedium',
     fontSize: mediumScreen ? 16 : 12,
     lineHeight: mediumScreen ? 22 : 18,
   },
   tipStrong: {
-    color: '#ffffff',
     fontFamily: 'PlusJakartaSansExtraBold',
   },
   tipAccent: {
@@ -547,3 +549,4 @@ const styles = StyleSheet.create({
 });
 
 export default RewardConfig;
+

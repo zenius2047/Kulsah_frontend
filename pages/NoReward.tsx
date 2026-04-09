@@ -47,12 +47,26 @@ const valueCards = [
 const NoReward: React.FC = () => {
   const { isDark, theme } = useThemeMode();
   const navigation = useNavigation<any>();
+  const bgGradient = isDark
+    ? ['#120617', '#0a050d', '#050207']
+    : ['#f8fafc', '#eef2ff', '#f8fafc'];
+  const headerBg = isDark ? 'rgba(10,5,13,0.8)' : 'rgba(255,255,255,0.92)';
+  const headerBorder = isDark ? 'rgba(255,255,255,0.1)' : theme.border;
+  const iconButtonBg = isDark ? 'rgba(255,255,255,0.04)' : 'rgba(15,23,42,0.06)';
+  const shellBg = isDark ? 'rgba(255,255,255,0.08)' : 'rgba(15,23,42,0.08)';
+  const cardBg = isDark ? 'rgba(255,255,255,0.03)' : theme.card;
+  const cardBorder = isDark ? 'rgba(255,255,255,0.1)' : theme.border;
+  const subtle = isDark ? '#94a3b8' : theme.textSecondary;
+  const muted = isDark ? '#64748b' : theme.textMuted;
+  const titleTone = isDark ? '#f8fafc' : theme.text;
+  const frameBorder = isDark ? '#0a050d' : theme.border;
+  const frameBg = isDark ? 'rgba(255,255,255,0.03)' : theme.card;
 
   return (
     <SafeAreaView style={[styles.safeArea, { backgroundColor: theme.background }]} edges={['top', 'left', 'right']}>
       <View style={[styles.screen, { backgroundColor: theme.screen }]}>
         <LinearGradient
-          colors={['#120617', '#0a050d', '#050207']}
+          colors={bgGradient}
           locations={[0, 0.45, 1]}
           style={StyleSheet.absoluteFill}
         />
@@ -60,17 +74,17 @@ const NoReward: React.FC = () => {
         <View style={styles.glowPrimary} pointerEvents="none" />
         <View style={styles.glowSecondary} pointerEvents="none" />
 
-        <View style={styles.header}>
+        <View style={[styles.header, { backgroundColor: headerBg, borderBottomColor: headerBorder }]}>
           <View style={styles.headerLeft}>
-            <Pressable style={styles.iconButton} onPress={() => navigation.goBack()}>
-              <MaterialIcons name="arrow-back" size={22} color="#f8fafc" />
+            <Pressable style={[styles.iconButton, { backgroundColor: iconButtonBg }]} onPress={() => navigation.goBack()}>
+              <MaterialIcons name="chevron-left" size={22} color={titleTone} />
             </Pressable>
-            <Text style={styles.headerTitle}>REWARD CONFIG</Text>
+            <Text style={[styles.headerTitle, { color: titleTone }]}>REWARD CONFIG</Text>
           </View>
 
           <Text style={styles.headerBrand}>NEON PULSE</Text>
 
-          <View style={styles.avatarShell}>
+          <View style={[styles.avatarShell, { backgroundColor: shellBg, borderColor: cardBorder }]}>
             <Image source={{ uri: creatorAvatar }} style={styles.avatar} />
           </View>
         </View>
@@ -97,8 +111,8 @@ const NoReward: React.FC = () => {
             </View>
 
             <View style={styles.heroTextBlock}>
-              <Text style={styles.heroTitle}>Pure Talent. No Gimmicks.</Text>
-              <Text style={styles.heroText}>
+              <Text style={[styles.heroTitle, { color: titleTone }]}>Pure Talent. No Gimmicks.</Text>
+              <Text style={[styles.heroText, { color: subtle }]}>
                 You&apos;ve chosen the <Text style={styles.heroAccent}>Pure Glory</Text>{' '}
                 path. This challenge will rely entirely on the raw talent of
                 participants and the authentic love of the community.
@@ -108,7 +122,7 @@ const NoReward: React.FC = () => {
 
           <View style={styles.valueGrid}>
             {valueCards.map((card) => (
-              <View key={card.id} style={styles.valueCard}>
+              <View key={card.id} style={[styles.valueCard, { backgroundColor: cardBg, borderColor: cardBorder }]}>
                 <View
                   style={[
                     styles.valueIconWrap,
@@ -117,18 +131,18 @@ const NoReward: React.FC = () => {
                 >
                   <MaterialIcons name={card.icon} size={22} color={card.tint} />
                 </View>
-                <Text style={styles.valueTitle}>{card.title}</Text>
-                <Text style={styles.valueText}>{card.text}</Text>
+                <Text style={[styles.valueTitle, { color: titleTone }]}>{card.title}</Text>
+                <Text style={[styles.valueText, { color: subtle }]}>{card.text}</Text>
               </View>
             ))}
           </View>
 
-          <View style={styles.insightShell}>
-            <View style={styles.insightCard}>
+          <View style={[styles.insightShell, { backgroundColor: isDark ? 'rgba(255,255,255,0.08)' : theme.border }]}>
+            <View style={[styles.insightCard, { backgroundColor: isDark ? 'rgba(255,255,255,0.05)' : theme.surface }]}>
               <MaterialIcons name="info" size={20} color="#ffb781" />
               <View style={styles.insightTextWrap}>
-                <Text style={styles.insightTitle}>Why No Reward?</Text>
-                <Text style={styles.insightText}>
+                <Text style={[styles.insightTitle, { color: titleTone }]}>Why No Reward?</Text>
+                <Text style={[styles.insightText, { color: subtle }]}>
                   Challenges without material prizes often see 40% higher
                   retention of core superfans who value the craft over the catch.
                 </Text>
@@ -148,26 +162,26 @@ const NoReward: React.FC = () => {
               </LinearGradient>
             </Pressable>
 
-            <Pressable style={styles.secondaryButton}>
-              <MaterialIcons name="edit-note" size={18} color="#f8fafc" />
-              <Text style={styles.secondaryButtonText}>ADD A REWARD INSTEAD</Text>
+            <Pressable style={[styles.secondaryButton, { backgroundColor: cardBg, borderColor: cardBorder }]}>
+              <MaterialIcons name="edit-note" size={18} color={titleTone} />
+              <Text style={[styles.secondaryButtonText, { color: titleTone }]}>ADD A REWARD INSTEAD</Text>
             </Pressable>
           </View>
 
           <View style={styles.reachSection}>
             <View style={styles.reachHeader}>
-              <Text style={styles.reachLabel}>Anticipated Reach</Text>
+              <Text style={[styles.reachLabel, { color: muted }]}>Anticipated Reach</Text>
               <Text style={styles.reachValue}>12.5K+ Talents</Text>
             </View>
 
             <View style={styles.previewStack}>
-              <View style={[styles.previewFrame, styles.previewFrameLeft]}>
+              <View style={[styles.previewFrame, styles.previewFrameLeft, { borderColor: frameBorder, backgroundColor: frameBg }]}>
                 <Image source={{ uri: reachPreviews[0] }} style={styles.previewImage} />
               </View>
-              <View style={styles.previewFrameCenter}>
+              <View style={[styles.previewFrameCenter, { borderColor: frameBorder, backgroundColor: frameBg }]}>
                 <Image source={{ uri: reachPreviews[1] }} style={styles.previewImage} />
               </View>
-              <View style={[styles.previewFrame, styles.previewFrameRight]}>
+              <View style={[styles.previewFrame, styles.previewFrameRight, { borderColor: frameBorder, backgroundColor: frameBg }]}>
                 <Image source={{ uri: reachPreviews[2] }} style={styles.previewImage} />
               </View>
             </View>
@@ -211,9 +225,7 @@ const styles = StyleSheet.create({
     justifyContent: 'space-between',
     paddingHorizontal: 16,
     paddingVertical: 14,
-    backgroundColor: 'rgba(10,5,13,0.8)',
     borderBottomWidth: 1,
-    borderBottomColor: 'rgba(255,255,255,0.1)',
   },
   headerLeft: {
     flexDirection: 'row',
@@ -227,10 +239,8 @@ const styles = StyleSheet.create({
     borderRadius: 19,
     alignItems: 'center',
     justifyContent: 'center',
-    backgroundColor: 'rgba(255,255,255,0.04)',
   },
   headerTitle: {
-    color: '#f8fafc',
     fontFamily: 'PlusJakartaSansBold',
     fontSize: mediumScreen ? 18 : 15,
   },
@@ -246,9 +256,7 @@ const styles = StyleSheet.create({
     height: 40,
     borderRadius: 20,
     overflow: 'hidden',
-    backgroundColor: 'rgba(255,255,255,0.08)',
     borderWidth: 1,
-    borderColor: 'rgba(255,255,255,0.1)',
   },
   avatar: {
     width: '100%',
@@ -318,7 +326,6 @@ const styles = StyleSheet.create({
     textAlign: 'center',
   },
   heroText: {
-    color: '#94a3b8',
     fontFamily: 'PlusJakartaSansMedium',
     fontSize: mediumScreen ? 16 : 12,
     lineHeight: mediumScreen ? 24 : 18,
@@ -334,9 +341,7 @@ const styles = StyleSheet.create({
   valueCard: {
     borderRadius: 20,
     padding: 20,
-    backgroundColor: 'rgba(255,255,255,0.03)',
     borderWidth: 1,
-    borderColor: 'rgba(255,255,255,0.1)',
     gap: 12,
   },
   valueIconWrap: {
@@ -348,12 +353,10 @@ const styles = StyleSheet.create({
     borderWidth: 1,
   },
   valueTitle: {
-    color: '#f8fafc',
     fontFamily: 'PlusJakartaSansBold',
     fontSize: mediumScreen ? 17 : 14,
   },
   valueText: {
-    color: '#94a3b8',
     fontFamily: 'PlusJakartaSansMedium',
     fontSize: mediumScreen ? 16 : 12,
     lineHeight: mediumScreen ? 22 : 18,
@@ -361,12 +364,10 @@ const styles = StyleSheet.create({
   insightShell: {
     borderRadius: 20,
     padding: 1,
-    backgroundColor: 'rgba(255,255,255,0.08)',
   },
   insightCard: {
     borderRadius: 19,
     padding: 18,
-    backgroundColor: 'rgba(255,255,255,0.05)',
     flexDirection: 'row',
     alignItems: 'flex-start',
     gap: 12,
@@ -376,12 +377,10 @@ const styles = StyleSheet.create({
     gap: 4,
   },
   insightTitle: {
-    color: '#f8fafc',
     fontFamily: 'PlusJakartaSansMedium',
     fontSize: mediumScreen ? 16 : 13,
   },
   insightText: {
-    color: '#94a3b8',
     fontFamily: 'PlusJakartaSansMedium',
     fontSize: mediumScreen ? 16 : 12,
     lineHeight: mediumScreen ? 22 : 18,
@@ -413,16 +412,13 @@ const styles = StyleSheet.create({
   secondaryButton: {
     borderRadius: 18,
     paddingVertical: 16,
-    backgroundColor: 'rgba(255,255,255,0.03)',
     borderWidth: 1,
-    borderColor: 'rgba(255,255,255,0.1)',
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'center',
     gap: 8,
   },
   secondaryButtonText: {
-    color: '#f8fafc',
     fontFamily: 'PlusJakartaSansBold',
     fontSize: mediumScreen ? 14 : 10,
     letterSpacing: 0.8,
@@ -438,7 +434,6 @@ const styles = StyleSheet.create({
     paddingHorizontal: 2,
   },
   reachLabel: {
-    color: '#64748b',
     fontFamily: 'PlusJakartaSansBold',
     fontSize: mediumScreen ? 14 : 10,
     textTransform: 'uppercase',
@@ -462,8 +457,6 @@ const styles = StyleSheet.create({
     borderRadius: 12,
     overflow: 'hidden',
     borderWidth: 2,
-    borderColor: '#0a050d',
-    backgroundColor: 'rgba(255,255,255,0.03)',
   },
   previewFrameLeft: {
     transform: [{ rotate: '-6deg' }],
@@ -479,8 +472,6 @@ const styles = StyleSheet.create({
     borderRadius: 12,
     overflow: 'hidden',
     borderWidth: 2,
-    borderColor: '#0a050d',
-    backgroundColor: 'rgba(255,255,255,0.03)',
     zIndex: 2,
   },
   previewImage: {
@@ -490,3 +481,4 @@ const styles = StyleSheet.create({
 });
 
 export default NoReward;
+

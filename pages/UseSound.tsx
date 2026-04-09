@@ -103,7 +103,7 @@ const UseSound: React.FC = () => {
 
         <View style={styles.header}>
           <Pressable style={styles.headerButton} onPress={() => navigation.goBack()}>
-            <MaterialIcons name="arrow-back" size={24} color="#F8FAFC" />
+            <MaterialIcons name="chevron-left" size={24} color="#F8FAFC" />
           </Pressable>
           <Text style={styles.headerTitle}>Sound</Text>
           <Pressable style={styles.headerButton}>
@@ -414,3 +414,4 @@ const styles = StyleSheet.create({
 });
 
 export default UseSound;
+

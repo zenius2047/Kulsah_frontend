@@ -67,6 +67,11 @@ import SubmitEntry from './pages/SubmitEntry';
 import Player from './pages/Player';
 import EventDetail from './pages/EventDetail';
 import SelectTickets from './pages/SelectTickets';
+import LiveFeed from './pages/LiveFeed';
+import CollaborationHub from './pages/CollaborationHub';
+import Inbox from './pages/Inbox';
+import Notifications from './pages/Notifications';
+import StreakReward from './pages/StreakReward';
 
 
 const Stack = createNativeStackNavigator();
@@ -153,7 +158,7 @@ const CreatorTabs = ({ isDarkMode }: TabsProps) => (
     />
     <Tab.Screen 
     name="Inbox" 
-    component={Messages}
+    component={Inbox}
     options = {{
       tabBarIcon: ({ color, size }) => <MaterialIcons name="chat-bubble-outline" size={size} color={color} />,
     }}
@@ -161,6 +166,10 @@ const CreatorTabs = ({ isDarkMode }: TabsProps) => (
     <Tab.Screen
       name="Profile"
       component={ArtistProfile}
+      initialParams={{
+        isOwner: true,
+        id: user?.id,
+      }}
       options={{
         tabBarIcon: ({ color, size }) => 
         <View
@@ -249,7 +258,7 @@ const FanTabs = ({isDarkMode}: TabsProps) => (
     />
     <Tab.Screen 
     name="Inbox" 
-    component={Messages}
+    component={Inbox}
     options = {{
       tabBarIcon: ({ color, size }) => <MaterialIcons name="chat-bubble-outline" size={size} color={color} />,
     }}
@@ -354,18 +363,6 @@ const App: React.FC = () => {
   }
 
   return (
-    // <NavigationContainer>
-    //           <StatusBar barStyle="light-content" backgroundColor="transparent" translucent = {true} />
-
-    //   <Stack.Navigator id="root-stack" screenOptions={{ headerShown: false }}>
-    //     <>
-      
-    //   {/* <FanTabs /> */}
-    //   <Stack.Screen name="Message" component={ArtistDashboard} />
-    //     </>
-    //   </Stack.Navigator>
-      
-    // </NavigationContainer>
     <SafeAreaProvider>
       <NavigationContainer>
         <SafeAreaView edges={[]} style={{ flex: 1 }}>
@@ -411,7 +408,10 @@ const App: React.FC = () => {
             <Stack.Screen name= "Library" component={Library}/>
             <Stack.Screen name= "EditSubmission" component={EditSubmission}/>
             <Stack.Screen name= "Submitentry" component={SubmitEntry}/>
-            {/* <Stack.Screen name= "EventDetail" component={EventDetail}/> */}
+            <Stack.Screen name= "Livefeed" component={LiveFeed}/>
+            <Stack.Screen name= "ConnectHub" component={CollaborationHub}/>
+            <Stack.Screen name= "Notification" component={Notifications}/>
+            <Stack.Screen name= "StreakReward" component={StreakReward}/>
           </>
         ) : (
           <Stack.Screen name="Onboarding">{() => <Onboarding onLogin={handleLogin} />}</Stack.Screen>

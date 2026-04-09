@@ -368,7 +368,7 @@ const styles = StyleSheet.create({
   },
   summaryValue: {
     color: '#F8FAFC',
-    fontSize: mediumScreen?16:12,
+    fontSize: mediumScreen ? 15:11,
     fontWeight: '700',
     marginTop: 2,
   },

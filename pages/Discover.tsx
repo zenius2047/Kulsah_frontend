@@ -168,7 +168,7 @@ const Discover: React.FC<{ embedded?: boolean }> = ({ embedded = false }) => {
                   borderColor: softBorder,
                 }}
               >
-                <MaterialIcons name="arrow-back" size={20} color={theme.text} />
+                <MaterialIcons name="chevron-left" size={20} color={theme.text} />
               </Pressable>
               <Text style={{ color: theme.text, fontSize: mediumScreen ? 22 : 18, fontWeight: '700', fontFamily: 'PlusJakartaSansBold' }}>Discover</Text>
               <View style={{ width: 40 }} />
@@ -503,3 +503,4 @@ const Discover: React.FC<{ embedded?: boolean }> = ({ embedded = false }) => {
 };
 
 export default Discover;
+

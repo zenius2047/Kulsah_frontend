@@ -130,7 +130,7 @@ export default function CreatorLibrary() {
         <View style={s.rowBetween}>
           <View style={s.row}>
             <Pressable style={s.iconBtn} onPress={() => navigation.goBack()}>
-              <MaterialIcons name="arrow-back" size={20} color="#fff" />
+              <MaterialIcons name="chevron-left" size={20} color="#fff" />
             </Pressable>
             <Text style={s.title}>Media Library</Text>
           </View>
@@ -420,3 +420,4 @@ const s = StyleSheet.create({
   protocolBtnActive: { borderColor: '#cd2bee80', backgroundColor: '#cd2bee' },
   protocolText: { color: '#fff', fontWeight: '900', textTransform: 'uppercase', fontSize: fontScale(10) },
 });
+

@@ -158,7 +158,7 @@ const ChallengeParticipants: React.FC = () => {
               style={styles.headerButton}
               onPress={() => navigation.goBack()}
             >
-              <MaterialIcons name="arrow-back-ios-new" size={20} color="#ffffff" />
+              <MaterialIcons name="chevron-left" size={20} color="#ffffff" />
             </Pressable>
             <Text style={styles.headerTitle}>Challenge Participants</Text>
             <View style={styles.headerSpacer} />
@@ -415,3 +415,4 @@ const styles = StyleSheet.create({
 });
 
 export default ChallengeParticipants;
+

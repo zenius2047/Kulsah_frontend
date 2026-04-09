@@ -123,7 +123,7 @@ const Signup: React.FC<SignupProps> = ({ onLogin }) => {
             borderWidth: 1,
             backgroundColor: '#1f1022bf'
           }}>
-            <MaterialIcons name='arrow-back' color='white' size={24}></MaterialIcons>
+            <MaterialIcons name='chevron-left' color='white' size={24}></MaterialIcons>
           </Pressable>
         ) : (
           <View style={{ width: 24 }} />
@@ -444,3 +444,4 @@ const Signup: React.FC<SignupProps> = ({ onLogin }) => {
 };
 
 export default Signup;
+

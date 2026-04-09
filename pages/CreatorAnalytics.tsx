@@ -131,7 +131,7 @@ const CreatorAnalytics: React.FC = () => {
         <View style={s.header}>
           <View style={s.headerLeft}>
             <Pressable onPress={() => navigation.goBack()} style={s.iconButton}>
-              <MaterialIcons name="arrow-back" size={20} color="#fff" />
+              <MaterialIcons name="chevron-left" size={20} color="#fff" />
             </Pressable>
             <Text style={s.headerTitle}>Deep Insights</Text>
           </View>
@@ -501,3 +501,4 @@ const s = StyleSheet.create({
 });
 
 export default CreatorAnalytics;
+

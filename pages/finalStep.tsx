@@ -40,28 +40,40 @@ const checklistItems = [
 const FinalStep: React.FC = () => {
   const { isDark, theme } = useThemeMode();
   const navigation = useNavigation<any>();
+  const bgGradient = isDark
+    ? ['#120617', '#0a050d', '#050207']
+    : ['#f8fafc', '#eef2ff', '#f8fafc'];
+  const headerBg = isDark ? 'rgba(10,5,13,0.8)' : 'rgba(255,255,255,0.92)';
+  const headerBorder = isDark ? 'rgba(255,255,255,0.05)' : theme.border;
+  const iconButtonBg = isDark ? 'rgba(255,255,255,0.04)' : 'rgba(15,23,42,0.06)';
+  const cardBg = isDark ? 'rgba(255,255,255,0.03)' : theme.card;
+  const cardBorder = isDark ? 'rgba(255,255,255,0.1)' : theme.border;
+  const subtle = isDark ? '#94a3b8' : theme.textSecondary;
+  const muted = isDark ? '#64748b' : theme.textMuted;
+  const titleTone = isDark ? '#ffffff' : theme.text;
+  const chipBg = isDark ? 'rgba(255,255,255,0.12)' : 'rgba(15,23,42,0.08)';
 
   return (
     <SafeAreaView style={[styles.safeArea, { backgroundColor: theme.background }]} edges={['top', 'left', 'right']}>
       <View style={[styles.screen, { backgroundColor: theme.screen }]}>
         <LinearGradient
-          colors={['#120617', '#0a050d', '#050207']}
+          colors={bgGradient}
           locations={[0, 0.45, 1]}
           style={StyleSheet.absoluteFill}
         />
 
-        <View style={styles.glowOne} pointerEvents="none" />
-        <View style={styles.glowTwo} pointerEvents="none" />
+        {/* <View style={styles.glowOne} pointerEvents="none" />
+        <View style={styles.glowTwo} pointerEvents="none" /> */}
 
-        <View style={styles.header}>
+        <View style={[styles.header, { backgroundColor: headerBg, borderBottomColor: headerBorder }]}>
           <View style={styles.headerLeft}>
-            <Pressable style={styles.headerButton} onPress={() => navigation.goBack()}>
-              <MaterialIcons name="close" size={22} color="#94a3b8" />
+            <Pressable style={[styles.headerButton, { backgroundColor: iconButtonBg }]} onPress={() => navigation.goBack()}>
+              <MaterialIcons name="close" size={22} color={subtle} />
             </Pressable>
-            <Text style={styles.headerTitle}>CREATOR PULSE</Text>
+            <Text style={[styles.headerTitle, { color: titleTone }]}>CREATOR PULSE</Text>
           </View>
-          <Pressable style={styles.headerButton}>
-            <MaterialIcons name="more-vert" size={22} color="#94a3b8" />
+          <Pressable style={[styles.headerButton, { backgroundColor: iconButtonBg }]}>
+            <MaterialIcons name="more-vert" size={22} color={subtle} />
           </Pressable>
         </View>
 
@@ -74,8 +86,8 @@ const FinalStep: React.FC = () => {
             <View style={styles.stepBadge}>
               <Text style={styles.stepBadgeText}>Step 4 of 4: Final Review</Text>
             </View>
-            <Text style={styles.heroTitle}>Review & Launch</Text>
-            <Text style={styles.heroSubtitle}>
+            <Text style={[styles.heroTitle, { color: titleTone }]}>Review & Launch</Text>
+            <Text style={[styles.heroSubtitle, { color: subtle }]}>
               Your stage is set. Review your challenge parameters before
               broadcasting to the pulse community.
             </Text>
@@ -86,7 +98,7 @@ const FinalStep: React.FC = () => {
               <View style={styles.previewSection}>
                 <Text style={styles.sectionEyebrow}>Live Feed Preview</Text>
 
-                <View style={styles.previewCard}>
+                <View style={[styles.previewCard, { backgroundColor: cardBg, borderColor: cardBorder }]}>
                   <View style={styles.previewMedia}>
                     <Image source={{ uri: PREVIEW_IMAGE }} style={styles.previewImage} />
                     <LinearGradient
@@ -106,8 +118,8 @@ const FinalStep: React.FC = () => {
                   </View>
 
                   <View style={styles.previewBody}>
-                    <Text style={styles.previewTitle}>Neon Velocity Dance-Off</Text>
-                    <Text style={styles.previewDescription}>
+                    <Text style={[styles.previewTitle, { color: titleTone }]}>Neon Velocity Dance-Off</Text>
+                    <Text style={[styles.previewDescription, { color: subtle }]}>
                       Show us your smoothest moves under the pulse. High energy,
                       rhythmic precision, and pure neon aesthetic required.
                     </Text>
@@ -124,7 +136,7 @@ const FinalStep: React.FC = () => {
                             ]}
                           />
                         ))}
-                        <View style={[styles.avatarCount, styles.avatarOverlap]}>
+                        <View style={[styles.avatarCount, styles.avatarOverlap, { backgroundColor: chipBg, borderColor: cardBorder }]}>
                           <Text style={styles.avatarCountText}>+12</Text>
                         </View>
                       </View>
@@ -136,16 +148,16 @@ const FinalStep: React.FC = () => {
               </View>
 
               <View style={styles.bentoGrid}>
-                <View style={styles.infoCard}>
+                <View style={[styles.infoCard, { backgroundColor: cardBg, borderColor: cardBorder }]}>
                   <View style={styles.infoHeader}>
                     <View style={[styles.infoIconWrap, styles.infoIconPrimary]}>
                       <MaterialIcons name="how-to-vote" size={20} color="#930df2" />
                     </View>
-                    <Text style={styles.infoLabel}>Voting Model</Text>
+                    <Text style={[styles.infoLabel, { color: subtle }]}>Voting Model</Text>
                   </View>
 
-                  <Text style={styles.infoTitle}>Community Consensus</Text>
-                  <Text style={styles.infoText}>
+                  <Text style={[styles.infoTitle, { color: titleTone }]}>Community Consensus</Text>
+                  <Text style={[styles.infoText, { color: subtle }]}>
                     Winner decided by 100% audience upvotes. Real-time ranking
                     with pulse-weighted algorithm enabled.
                   </Text>
@@ -168,12 +180,12 @@ const FinalStep: React.FC = () => {
             </View>
 
             <View style={styles.rightColumn}>
-              <View style={styles.checklistCard}>
+              <View style={[styles.checklistCard, { backgroundColor: cardBg, borderColor: cardBorder }]}>
                 <View style={styles.checklistGlow} pointerEvents="none" />
 
                 <View style={styles.checklistHeader}>
                   <MaterialIcons name="assignment-turned-in" size={22} color="#930df2" />
-                  <Text style={styles.checklistTitle}>Final Checklist</Text>
+                  <Text style={[styles.checklistTitle, { color: titleTone }]}>Final Checklist</Text>
                 </View>
 
                 <View style={styles.checklistList}>
@@ -181,20 +193,20 @@ const FinalStep: React.FC = () => {
                     <View key={item.title} style={styles.checklistItem}>
                       <MaterialIcons name="check-circle" size={18} color="#d915d2" />
                       <View style={styles.checklistTextWrap}>
-                        <Text style={styles.checklistItemTitle}>{item.title}</Text>
-                        <Text style={styles.checklistItemSubtitle}>{item.subtitle}</Text>
+                        <Text style={[styles.checklistItemTitle, { color: titleTone }]}>{item.title}</Text>
+                        <Text style={[styles.checklistItemSubtitle, { color: subtle }]}>{item.subtitle}</Text>
                       </View>
                     </View>
                   ))}
                 </View>
 
-                <View style={styles.costSection}>
+                <View style={[styles.costSection, { borderTopColor: cardBorder }]}>
                   <View style={styles.costRow}>
-                    <Text style={styles.costLabel}>Platform Fee</Text>
-                    <Text style={styles.costValue}>0.00%</Text>
+                    <Text style={[styles.costLabel, { color: subtle }]}>Platform Fee</Text>
+                    <Text style={[styles.costValue, { color: titleTone }]}>0.00%</Text>
                   </View>
                   <View style={styles.totalRow}>
-                    <Text style={styles.totalLabel}>Total to Launch</Text>
+                    <Text style={[styles.totalLabel, { color: titleTone }]}>Total to Launch</Text>
                     <Text style={styles.totalValue}>$0.00</Text>
                   </View>
                 </View>
@@ -204,20 +216,20 @@ const FinalStep: React.FC = () => {
                   <MaterialIcons name="rocket-launch" size={20} color="#fff" />
                 </Pressable>
 
-                <Text style={styles.disclaimer}>
+                <Text style={[styles.disclaimer, { color: muted }]}>
                   By launching, you agree to the Creator Terms of Service and
                   Pulse Community Guidelines.
                 </Text>
               </View>
 
               <View style={styles.secondaryActions}>
-                <Pressable style={styles.editButton}>
-                  <MaterialIcons name="edit" size={16} color="#cbd5e1" />
-                  <Text style={styles.editButtonText}>Edit Details</Text>
+                <Pressable style={[styles.editButton, { backgroundColor: isDark ? 'rgba(255,255,255,0.05)' : theme.card, borderColor: cardBorder }]}>
+                  <MaterialIcons name="edit" size={16} color={subtle} />
+                  <Text style={[styles.editButtonText, { color: subtle }]}>Edit Details</Text>
                 </Pressable>
 
                 <Pressable style={styles.draftButton}>
-                  <Text style={styles.draftButtonText}>Save as Draft</Text>
+                  <Text style={[styles.draftButtonText, { color: muted }]}>Save as Draft</Text>
                 </Pressable>
               </View>
             </View>
@@ -262,9 +274,7 @@ const styles = StyleSheet.create({
     justifyContent: 'space-between',
     paddingHorizontal: 16,
     paddingVertical: 14,
-    backgroundColor: 'rgba(10,5,13,0.8)',
     borderBottomWidth: 1,
-    borderBottomColor: 'rgba(255,255,255,0.05)',
   },
   headerLeft: {
     flexDirection: 'row',
@@ -277,10 +287,8 @@ const styles = StyleSheet.create({
     borderRadius: 19,
     alignItems: 'center',
     justifyContent: 'center',
-    backgroundColor: 'rgba(255,255,255,0.04)',
   },
   headerTitle: {
-    color: '#ffffff',
     fontFamily: 'PlusJakartaSansExtraBold',
     fontSize: fontScale(13),
     letterSpacing: -0.3,
@@ -314,13 +322,11 @@ const styles = StyleSheet.create({
     letterSpacing: 1,
   },
   heroTitle: {
-    color: '#f8fafc',
     fontFamily: 'PlusJakartaSansExtraBold',
     fontSize: fontScale(18),
     lineHeight: 40,
   },
   heroSubtitle: {
-    color: '#94a3b8',
     fontFamily: 'PlusJakartaSansMedium',
     fontSize: fontScale(13),
     lineHeight: 22,
@@ -348,9 +354,7 @@ const styles = StyleSheet.create({
   previewCard: {
     borderRadius: 22,
     overflow: 'hidden',
-    backgroundColor: 'rgba(255,255,255,0.03)',
     borderWidth: 1,
-    borderColor: 'rgba(255,255,255,0.1)',
   },
   previewMedia: {
     aspectRatio: 16 / 9,
@@ -405,13 +409,11 @@ const styles = StyleSheet.create({
     gap: 10,
   },
   previewTitle: {
-    color: '#ffffff',
     fontFamily: 'PlusJakartaSansBold',
     fontSize: fontScale(15),
     lineHeight: 32,
   },
   previewDescription: {
-    color: '#94a3b8',
     fontFamily: 'PlusJakartaSansMedium',
     fontSize: fontScale(14),
     lineHeight: 20,
@@ -442,9 +444,7 @@ const styles = StyleSheet.create({
     borderRadius: 16,
     alignItems: 'center',
     justifyContent: 'center',
-    backgroundColor: 'rgba(255,255,255,0.12)',
     borderWidth: 1,
-    borderColor: 'rgba(255,255,255,0.1)',
   },
   avatarCountText: {
     color: '#ffffff',
@@ -462,9 +462,7 @@ const styles = StyleSheet.create({
   infoCard: {
     borderRadius: 20,
     padding: 20,
-    backgroundColor: 'rgba(255,255,255,0.03)',
     borderWidth: 1,
-    borderColor: 'rgba(255,255,255,0.1)',
     gap: 12,
   },
   infoHeader: {
@@ -486,20 +484,17 @@ const styles = StyleSheet.create({
     backgroundColor: 'rgba(217,21,210,0.12)',
   },
   infoLabel: {
-    color: '#cbd5e1',
     fontFamily: 'PlusJakartaSansBold',
     fontSize: fontScale(12),
     textTransform: 'uppercase',
     letterSpacing: 1.1,
   },
   infoTitle: {
-    color: '#ffffff',
     fontFamily: 'PlusJakartaSansBold',
     fontSize: fontScale(15),
     lineHeight: 26,
   },
   infoText: {
-    color: '#94a3b8',
     fontFamily: 'PlusJakartaSansMedium',
     fontSize: fontScale(12),
     lineHeight: 18,
@@ -529,9 +524,7 @@ const styles = StyleSheet.create({
     overflow: 'hidden',
     borderRadius: 22,
     padding: 24,
-    backgroundColor: 'rgba(255,255,255,0.03)',
     borderWidth: 1,
-    borderColor: 'rgba(255,255,255,0.1)',
     gap: 20,
   },
   checklistGlow: {
@@ -549,7 +542,6 @@ const styles = StyleSheet.create({
     gap: 10,
   },
   checklistTitle: {
-    color: '#ffffff',
     fontFamily: 'PlusJakartaSansBold',
     fontSize: fontScale(15),
   },
@@ -571,14 +563,12 @@ const styles = StyleSheet.create({
     fontSize: fontScale(14),
   },
   checklistItemSubtitle: {
-    color: '#94a3b8',
     fontFamily: 'PlusJakartaSansMedium',
     fontSize: fontScale(11),
   },
   costSection: {
     paddingTop: 20,
     borderTopWidth: 1,
-    borderTopColor: 'rgba(255,255,255,0.1)',
     gap: 14,
   },
   costRow: {
@@ -587,12 +577,10 @@ const styles = StyleSheet.create({
     justifyContent: 'space-between',
   },
   costLabel: {
-    color: '#94a3b8',
     fontFamily: 'PlusJakartaSansMedium',
     fontSize: fontScale(14),
   },
   costValue: {
-    color: '#ffffff',
     fontFamily: 'PlusJakartaSansBold',
     fontSize: fontScale(14),
   },
@@ -602,7 +590,6 @@ const styles = StyleSheet.create({
     justifyContent: 'space-between',
   },
   totalLabel: {
-    color: '#ffffff',
     fontFamily: 'PlusJakartaSansBold',
     fontSize: fontScale(14),
   },
@@ -631,7 +618,6 @@ const styles = StyleSheet.create({
     fontSize: fontScale(14),
   },
   disclaimer: {
-    color: '#64748b',
     fontFamily: 'PlusJakartaSansBold',
     fontSize: fontScale(10),
     lineHeight: 16,
@@ -649,12 +635,9 @@ const styles = StyleSheet.create({
     gap: 8,
     borderRadius: 18,
     paddingVertical: 16,
-    backgroundColor: 'rgba(255,255,255,0.05)',
     borderWidth: 1,
-    borderColor: 'rgba(255,255,255,0.1)',
   },
   editButtonText: {
-    color: '#cbd5e1',
     fontFamily: 'PlusJakartaSansBold',
     fontSize: fontScale(14),
   },
@@ -664,7 +647,6 @@ const styles = StyleSheet.create({
     paddingVertical: 16,
   },
   draftButtonText: {
-    color: '#64748b',
     fontFamily: 'PlusJakartaSansBold',
     fontSize: fontScale(14),
   },

@@ -123,7 +123,7 @@ const UploadContent: React.FC = () => {
   return (
     <SafeAreaView style={s.root}>
       <View style={s.header}>
-        <Pressable onPress={goBack}><MaterialIcons name={step === 'select' ? 'close' : 'arrow-back-ios'} size={20} color="#fff" /></Pressable>
+        <Pressable onPress={goBack}><MaterialIcons name={step === 'select' ? 'close' : 'chevron-left'} size={20} color="#fff" /></Pressable>
         <Text style={s.headerText}>{step === 'select' ? 'Create & Upload' : step === 'edit' ? 'Preview & Edit' : 'New Post'}</Text>
         <View style={{ width: 20 }} />
       </View>
@@ -621,3 +621,4 @@ const s = StyleSheet.create({
 });
 
 export default UploadContent;
+

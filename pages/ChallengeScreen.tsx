@@ -192,21 +192,21 @@ const navigation = useNavigation<any>()
                 key={tab}
                 onPress={()=>{setActiveTab(tab)}}
                 style={{
+                    alignItems: 'center'
                     // gap: 5,
-                
-                
                 }}>
                  <Text style={{
-                    color: activeTab === tab ? '#cd2bee': !isDark ? 'black':'grey',
+                    color: activeTab === tab ? isDark ? '#ffffff': '#000000': isDark ? '#ffffff5d':'#0000005d',
                     fontFamily: "PlusJakartaSansBold",
                     fontSize: mediumScreen ? 18: 14,
-                    marginBottom: 15,
+                    marginBottom: 10,
                  }}>
                     {tab}
                  </Text>
                  {activeTab === tab && <View
                  style={{
                     height: 3,
+                    width: 30,
                     backgroundColor: '#cd2bee',
                  }}
                  />}
@@ -234,7 +234,8 @@ const navigation = useNavigation<any>()
         {/*First Row........... */}
         <View style={{
             flexDirection: 'row',
-            justifyContent: 'space-between'
+            // justifyContent: 'space-between'
+            gap: 15
         }}>
             <View style={{
                 borderRadius: 999,
@@ -273,7 +274,7 @@ const navigation = useNavigation<any>()
                     by @{content.username}
                 </Text>
             </View>
-            <View style={{
+            {/* <View style={{
                 backgroundColor: '#cd2bee34',
                 borderRadius: 18,
                 // paddingVertical: 3,
@@ -292,7 +293,7 @@ const navigation = useNavigation<any>()
                 }}>
                     {content.tag}
                 </Text>
-            </View>
+            </View> */}
         </View>
 
 
@@ -413,7 +414,7 @@ const navigation = useNavigation<any>()
         <MaterialIcons name='add-circle' size={24} color='white'/>
         <Text style={{
             fontFamily: 'PlusJakartaSansBold',
-            color: isDark ? 'white': 'black',
+            color: !isDark ? 'white': 'black',
             fontSize: mediumScreen ? 20: 16,
             lineHeight: 35
         }}>
