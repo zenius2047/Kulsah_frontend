@@ -13,7 +13,7 @@ import {
   View,
   useWindowDimensions,
   ViewToken,
-  Animated
+  Animated,
 } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
 import { MaterialIcons } from '@expo/vector-icons';
@@ -296,6 +296,11 @@ const VideoFeedItem: React.FC<{
   const [showMoreMenu, setShowMoreMenu] = useState(false);
   const [isLiked, setIsLiked] = useState(item.isLiked);
   const [playVideo, setIsPlaying] = useState(true);
+  const [currentTime, setCurrentTime] = useState(0);
+  const [duration, setDuration] = useState(0);
+  const [isScrubbing, setIsScrubbing] = useState(false);
+  const [scrubTime, setScrubTime] = useState(0);
+  const [sliderWidth, setSliderWidth] = useState(0);
   const { height: vh } = useWindowDimensions();
   const rotateValue = useRef(new Animated.Value(0)).current;
   // const [videoSize, setVideoSize] = useState({ width: 0, height: 0 });
@@ -312,6 +317,7 @@ const VideoFeedItem: React.FC<{
   // const videoRef = React.useRef<VideoRef>(null);
   const player = useVideoPlayer(item.video, (p) => {
     p.loop = true;
+    p.timeUpdateEventInterval = 0.2;
       });
 
   const nextPlayer = useVideoPlayer(nextVideo, (p)=>{
@@ -326,6 +332,7 @@ const VideoFeedItem: React.FC<{
 
 
    const loadedMetadata = useEvent(player, 'sourceLoad');
+   const timeUpdate: any = useEvent(player as any, 'timeUpdate', { currentTime: 0 });
   const [dimensions, setDimensions] = useState({ width: 0, height: 0 });
   const isPortraitVideo =
     dimensions.width === 0 ||
@@ -340,7 +347,20 @@ const VideoFeedItem: React.FC<{
            console.log(`This is the height : ${height}`)
       console.log(`This is the width : ${width}`)
     }
+
+    const loadedDuration = (loadedMetadata as any)?.duration;
+    if (typeof loadedDuration === 'number' && loadedDuration > 0) {
+      setDuration(loadedDuration);
+    }
   }, [loadedMetadata]);
+
+  useEffect(() => {
+    if (isScrubbing) return;
+    const t = timeUpdate?.currentTime;
+    if (typeof t === 'number') {
+      setCurrentTime(Math.max(0, t));
+    }
+  }, [timeUpdate, isScrubbing]);
 
   useEffect(() => {
     const spinAnimation = Animated.loop(
@@ -401,6 +421,35 @@ useEffect(() => {
 
 // const { buffering } = useEvent(player, 'bufferingChange', { buffering: true });
 const { isPlaying : isReady } = useEvent(player, 'playingChange', { isPlaying: player.playing });
+
+  const clamp = useCallback((value: number, min: number, max: number) => {
+    return Math.min(Math.max(value, min), max);
+  }, []);
+
+  const effectiveDuration = duration > 0 ? duration : 1;
+  const effectiveCurrentTime = isScrubbing ? scrubTime : currentTime;
+  const progressRatio = clamp(effectiveCurrentTime / effectiveDuration, 0, 1);
+
+  const seekTo = useCallback((seconds: number) => {
+    const target = clamp(seconds, 0, duration > 0 ? duration : 0);
+    player.currentTime = target;
+    setCurrentTime(target);
+  }, [player, duration, clamp]);
+
+  const updateScrubFromX = useCallback((x: number) => {
+    if (sliderWidth <= 0) return 0;
+    const ratio = clamp(x / sliderWidth, 0, 1);
+    const nextTime = ratio * (duration > 0 ? duration : 0);
+    setScrubTime(nextTime);
+    return nextTime;
+  }, [sliderWidth, duration, clamp]);
+
+  const formatTime = useCallback((seconds: number) => {
+    const safe = Math.max(0, Math.floor(seconds));
+    const mins = Math.floor(safe / 60);
+    const secs = safe % 60;
+    return `${mins}:${secs.toString().padStart(2, '0')}`;
+  }, []);
 
   const viewConfigRef = React.useRef({
     viewAreaCoveragePercentThreshold: 80,
@@ -654,7 +703,80 @@ const { isPlaying : isReady } = useEvent(player, 'playingChange', { isPlaying: p
           </Pressable>
         )}
 
-        <Text style={{ color: '#cbd5e1', marginTop: 10, fontSize: mediumScreen ? 8: 8 }}>{isPlaying ? 'Playing' : 'Paused'} preview</Text>
+        <View style={{
+          // marginTop: 20,
+          width: SCREEN_WIDTH ,
+          position: 'absolute',
+          bottom: -10,
+          left: -10,
+          right: -10,
+          }}>
+          <View
+            onLayout={(e) => setSliderWidth(e.nativeEvent.layout.width)}
+            style={{
+              height: 24,
+              justifyContent: 'center',
+            }}
+            onStartShouldSetResponder={() => true}
+            onMoveShouldSetResponder={() => true}
+            onResponderGrant={(evt) => {
+              setIsScrubbing(true);
+              updateScrubFromX(evt.nativeEvent.locationX);
+            }}
+            onResponderMove={(evt) => {
+              updateScrubFromX(evt.nativeEvent.locationX);
+            }}
+            onResponderRelease={(evt) => {
+              const target = updateScrubFromX(evt.nativeEvent.locationX);
+              seekTo(target);
+              setIsScrubbing(false);
+            }}
+            onResponderTerminate={() => {
+              setIsScrubbing(false);
+            }}
+          >
+            <View
+              style={{
+                height: 2,
+                borderRadius: 999,
+                backgroundColor: 'rgba(255,255,255,0.28)',
+                overflow: 'hidden',
+              }}
+            >
+              <View
+                style={{
+                  height: '100%',
+                  width: `${progressRatio * 100}%`,
+                  backgroundColor: '#cd2bee',
+                }}
+              />
+            </View>
+            <View
+              style={{
+                position: 'absolute',
+                left: `${progressRatio * 100}%`,
+                marginLeft: -4,
+                width: 4,
+                height: 4,
+                borderRadius: 7,
+                backgroundColor: '#ffffff',
+                borderWidth: 2,
+                borderColor: '#cd2bee',
+              }}
+            />
+          </View>
+
+          {/* <View style={{ flexDirection: 'row', justifyContent: 'space-between', marginTop: 3 }}>
+            <Text style={{ color: '#cbd5e1', fontSize: mediumScreen ? 10 : 8, fontFamily: 'PlusJakartaSansBold' }}>
+              {formatTime(effectiveCurrentTime)}
+            </Text>
+            <Text style={{ color: '#cbd5e1', fontSize: mediumScreen ? 10 : 8, fontFamily: 'PlusJakartaSansBold' }}>
+              {formatTime(duration)}
+            </Text>
+          </View> */}
+        </View>
+
+        <Text style={{ color: '#cbd5e1', marginTop: 6, fontSize: mediumScreen ? 8: 8 }}>{isPlaying ? 'Playing' : 'Paused'} preview</Text>
       </View>
 
       {/* Comments modal */}
