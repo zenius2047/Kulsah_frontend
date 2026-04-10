@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { useThemeMode } from './theme';
-import { View, StyleSheet, ActivityIndicator, Text, Pressable, StatusBar, Dimensions , Image, useWindowDimensions} from 'react-native';
+import { View, StyleSheet, ActivityIndicator, Text, Pressable, StatusBar, Dimensions , Image, useWindowDimensions, Platform} from 'react-native';
 import { NavigationContainer } from '@react-navigation/native';
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
@@ -8,19 +8,19 @@ import AsyncStorage from '@react-native-async-storage/async-storage';
 import { MaterialIcons,} from '@expo/vector-icons';
 import { useFonts } from 'expo-font';
 import ExploreIcon from './assets/icons/explore-svg.svg';
-import LocalLibraryIcon from './assets/icons/local_library-svg.svg';
+// import LocalLibraryIcon from './assets/icons/local_library-svg.svg';
 import MovieIcon from './assets/icons/movieIcon-svg.svg';
 import HomeIcon from './assets/icons/home-svg.svg';
 import ForumIcon from './assets/icons/forum-svg.svg';
-import { SafeAreaView } from 'react-native-safe-area-context';
+import { SafeAreaView, useSafeAreaInsets } from 'react-native-safe-area-context';
 import CreateIcon from './assets/icons/create-svg.svg';
 // import MaterialSymbols from 'react-native-vector-icons/MaterialSymbolsOutlined';
 
 // import Icon from 'react-native-vector-icons/MaterialIcons';
 
 import { user, User, UserRole, setUser, setHeight, setWidth, setScreenType, mediumScreen, setSmallWith } from './types';
-import ArtistDashboard from './pages/ArtistDashboard';
-import LiveStream from './pages/LiveStream';
+// import ArtistDashboard from './pages/ArtistDashboard';
+// import LiveStream from './pages/LiveStream';
 import ChatView from './pages/ChatView';
 import Feed from './pages/Feed';
 import Onboarding from './pages/Onboarding';
@@ -34,7 +34,7 @@ import { SafeAreaProvider } from 'react-native-safe-area-context';
 import UploadContent from './pages/UploadContent';
 import Messages from './pages/Messages';
 import FanSettings from './pages/FanSettings';
-import FanLibrary from './pages/CreatorLibrary';
+// import FanLibrary from './pages/CreatorLibrary';
 import GoLiveSetup from './pages/GoLiveSetup';
 import CreatorEvents from './pages/CreatorEvents';
 import CreatorAnalytics from './pages/CreatorAnalytics';
@@ -96,27 +96,28 @@ interface TabsProps {
   isDarkMode: boolean;
 }
 
-const CreatorTabs = ({ isDarkMode }: TabsProps) => (
-  <Tab.Navigator 
-  id="creator-tabs"
-  safeAreaInsets={{ bottom: 0 }}
-  screenOptions={{
-      headerShown: false,
-      tabBarActiveTintColor: '#cd2bee',
-      tabBarInactiveTintColor: '#8E8E93',
-      // safeAreaInsets: { bottom: 0 },
-      sceneStyle: { backgroundColor: '#000' },
-      // tabBarBackgroundColor: '#060913',
-      tabBarStyle: [styles.tabBar, {backgroundColor: isDarkMode ?  '#1f1022':'#ffffff',}],
-      // tabBarBackground: () => (
-      //     <BlurView
-      //       intensity={60}
-      //       tint="dark"
-      //       style={StyleSheet.absoluteFill}
-      //     />
-      //   ),
-    }}
-  >
+const CreatorTabs = ({ isDarkMode }: TabsProps) => {
+  const insets = useSafeAreaInsets();
+  const tabBarHeight = SCREEN_HEIGHT * 0.08 + (Platform.OS === 'ios' ? 0 : insets.bottom);
+
+  return (
+    <Tab.Navigator 
+    id="creator-tabs"
+    safeAreaInsets={{ bottom: 0 }}
+    screenOptions={{
+        headerShown: false,
+        tabBarActiveTintColor: '#cd2bee',
+        tabBarInactiveTintColor: '#8E8E93',
+        sceneStyle: { backgroundColor: '#000' },
+        tabBarStyle: [
+          styles.tabBar,
+          {
+            backgroundColor: isDarkMode ? '#1f1022' : '#ffffff',
+            height: tabBarHeight,
+          },
+        ],
+      }}
+    >
     <Tab.Screen
       name="Feed"
       component={Feed}
@@ -195,30 +196,32 @@ const CreatorTabs = ({ isDarkMode }: TabsProps) => (
         </View>,
       }}
     />
-  </Tab.Navigator>
-);
+    </Tab.Navigator>
+  );
+};
 
-const FanTabs = ({isDarkMode}: TabsProps) => (
-  <Tab.Navigator
-    id="fan-tabs"
-    safeAreaInsets={{ bottom: 0 }}
-    screenOptions={{
-      headerShown: false,
-      tabBarActiveTintColor: '#cd2bee',
-      tabBarInactiveTintColor: isDarkMode ? '#8E8E93' : '#64748b',
-      // safeAreaInsets: { bottom: 0 },
-      sceneStyle: { backgroundColor: '#000' },
-      // tabBarBackgroundColor: '#060913',
-      tabBarStyle: [styles.tabBar, {backgroundColor: isDarkMode ?  '#1f1022':'#ffffff',}],
-      // tabBarBackground: () => (
-      //     <BlurView
-      //       intensity={10}
-      //       tint="dark"
-      //       style={StyleSheet.absoluteFill}
-      //     />
-      //   ),
-    }}
-  >
+const FanTabs = ({isDarkMode}: TabsProps) => {
+  const insets = useSafeAreaInsets();
+  const tabBarHeight = SCREEN_HEIGHT * 0.08 + (Platform.OS === 'ios' ? 0 : insets.bottom);
+
+  return (
+    <Tab.Navigator
+      id="fan-tabs"
+      safeAreaInsets={{ bottom: 0 }}
+      screenOptions={{
+        headerShown: false,
+        tabBarActiveTintColor: '#cd2bee',
+        tabBarInactiveTintColor: isDarkMode ? '#8E8E93' : '#64748b',
+        sceneStyle: { backgroundColor: '#000' },
+        tabBarStyle: [
+          styles.tabBar,
+          {
+            backgroundColor: isDarkMode ? '#1f1022' : '#ffffff',
+            height: tabBarHeight,
+          },
+        ],
+      }}
+    >
     <Tab.Screen
       name="Feed"
       component={Feed}
@@ -290,8 +293,9 @@ const FanTabs = ({isDarkMode}: TabsProps) => (
         </View>,
       }}
     />
-  </Tab.Navigator>
-);
+    </Tab.Navigator>
+  );
+};
 
 
 
@@ -302,6 +306,7 @@ const App: React.FC = () => {
   const [isLoading, setIsLoading] = useState(true);
   const [showOnboarding, setShowOnboarding] = useState(true);
   const { height: vh, width:vw } = useWindowDimensions();
+  
 
   const [fontsLoaded] = useFonts({
       PlusJakartaSans:require('./assets/fonts/PlusJakartaSans-Regular.ttf'),
@@ -365,7 +370,7 @@ const App: React.FC = () => {
   return (
     <SafeAreaProvider>
       <NavigationContainer>
-        <SafeAreaView edges={[]} style={{ flex: 1 }}>
+        <SafeAreaView edges={Platform.OS === 'ios'? []: []} style={{ flex: 1 }}>
 
           <StatusBar barStyle={isDark ? 'light-content' : 'dark-content'} backgroundColor="transparent" translucent = {true} />
       <Stack.Navigator id="root-stack" screenOptions={{ headerShown: false }}>
@@ -457,13 +462,11 @@ const styles = StyleSheet.create({
     right: 0,
     bottom: 0,
     borderTopWidth: 0,
-    // backgroundColor: 'transparent',
     elevation: 0,
     height: SCREEN_HEIGHT * 0.08,
-    // height: 64,
     paddingBottom: 0,
     fontSize: mediumScreen ? 12: 8,
-    fontFamily: "PlusJakartaSans"
+    fontFamily: "PlusJakartaSans",
   },
 });
 

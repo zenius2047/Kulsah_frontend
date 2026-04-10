@@ -14,10 +14,11 @@ import {
   useWindowDimensions,
   ViewToken,
   Animated,
+  Platform,
 } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
 import { MaterialIcons } from '@expo/vector-icons';
-import { SafeAreaView } from 'react-native-safe-area-context';
+import { SafeAreaView, useSafeAreaInsets } from 'react-native-safe-area-context';
 // import { ResizeMode, Video } from 'expo-video';
 import { useVideoPlayer, VideoView } from 'expo-video';
 import { TurnCoverage } from '@google/genai/web';
@@ -52,6 +53,8 @@ interface FeedItem {
   soundArtist?: string;
   soundTitle?: string;
   following: boolean;
+  bookmarks: string;
+  saves: string;
 }
 
 const { height: SCREEN_HEIGHT, width: SCREEN_WIDTH } = Dimensions.get('screen');
@@ -303,6 +306,9 @@ const VideoFeedItem: React.FC<{
   const [sliderWidth, setSliderWidth] = useState(0);
   const { height: vh } = useWindowDimensions();
   const rotateValue = useRef(new Animated.Value(0)).current;
+  const [lineNumber, setLineNumber] = useState(1);
+  const [more, setMore] = useState(true);
+  const insets = useSafeAreaInsets();
   // const [videoSize, setVideoSize] = useState({ width: 0, height: 0 });
 
   const rotation = rotateValue.interpolate({
@@ -312,7 +318,13 @@ const VideoFeedItem: React.FC<{
 
   const togglePlayPause = () => {
     console.log("Video is tapped");
-    setIsPlaying((v) => !v)
+    console.log("The value of more:", more);
+    if(!more){
+      setMore(true);
+      setLineNumber(1);
+    }else{
+      setIsPlaying((v) => !v)
+    }
   };
   // const videoRef = React.useRef<VideoRef>(null);
   const player = useVideoPlayer(item.video, (p) => {
@@ -343,14 +355,16 @@ const VideoFeedItem: React.FC<{
   React.useEffect(() => {
     if (loadedMetadata?.availableVideoTracks?.[0]) {
       const { width, height } = loadedMetadata.availableVideoTracks[0].size;
-      setDimensions({ width, height });
-           console.log(`This is the height : ${height}`)
+      setDimensions((prev) => (
+        prev.width === width && prev.height === height ? prev : { width, height }
+      ));
+      console.log(`This is the height : ${height}`)
       console.log(`This is the width : ${width}`)
     }
 
     const loadedDuration = (loadedMetadata as any)?.duration;
     if (typeof loadedDuration === 'number' && loadedDuration > 0) {
-      setDuration(loadedDuration);
+      setDuration((prev) => (prev === loadedDuration ? prev : loadedDuration));
     }
   }, [loadedMetadata]);
 
@@ -358,7 +372,8 @@ const VideoFeedItem: React.FC<{
     if (isScrubbing) return;
     const t = timeUpdate?.currentTime;
     if (typeof t === 'number') {
-      setCurrentTime(Math.max(0, t));
+      const nextTime = Math.max(0, t);
+      setCurrentTime((prev) => (prev === nextTime ? prev : nextTime));
     }
   }, [timeUpdate, isScrubbing]);
 
@@ -502,7 +517,14 @@ const { isPlaying : isReady } = useEvent(player, 'playingChange', { isPlaying: p
       </View> */}
 
       {/* Right-side overlay buttons */}
-      <View style={{ position: 'absolute', right: 5, bottom: 0, alignItems: 'center', gap: 16 }}>
+      <View style={{
+        position: 'absolute',
+        right: 5,
+        bottom: 0,
+        alignItems: 'center',
+        gap: 16,
+        
+      }}>
         <Pressable style={{}}>
           <View style={{
             borderRadius: 24,
@@ -544,17 +566,39 @@ const { isPlaying : isReady } = useEvent(player, 'playingChange', { isPlaying: p
           </Pressable>
         )} */}
 
-        <Pressable onPress={() => setIsLiked(v => !v)} style={{alignItems: 'center' }}>
+        <Pressable
+        onPress={() => setIsLiked(v => !v)}
+        style={{
+          alignItems: 'center',
+          shadowColor: '#000',
+          shadowOffset: { width: 0, height: 2 },
+          shadowOpacity: 0.5,
+          shadowRadius: 6,
+          elevation: 4,
+         }}
+        >
           <MaterialIcons name='favorite' size={32} color={isLiked ? '#cd2bee' : 'white'} />
           <Text style={{ color: 'white', fontWeight: 'bold', fontSize: mediumScreen ? 14:10, fontFamily: "PlusJakartaSansBold" }}>{item.likes}</Text>
         </Pressable>
 
-        <Pressable onPress={() => setShowComments(true)} style={{alignItems: 'center' }}>
+        <Pressable onPress={() => setShowComments(true)} style={{
+          shadowColor: '#000',
+          shadowOffset: { width: 0, height: 2 },
+          shadowOpacity: 0.5,
+          shadowRadius: 6,
+          elevation: 4,
+          alignItems: 'center' }}>
           <MaterialIcons name="chat-bubble" size={28} color="white" />
           <Text style={{ color: 'white', fontSize: mediumScreen ? 14:10, fontFamily: "PlusJakartaSansBold"}}>{item.comments}</Text>
         </Pressable>
 
-        <Pressable onPress={() => navigation.navigate('ArtistProfile')} style={{alignItems: 'center' }}>
+        <Pressable onPress={() => navigation.navigate('ArtistProfile')} style={{
+          shadowColor: '#000',
+          shadowOffset: { width: 0, height: 2 },
+          shadowOpacity: 0.5,
+          shadowRadius: 6,
+          elevation: 4,
+          alignItems: 'center' }}>
           <View style={{
             // borderRadius: 20,
             // width: 40,
@@ -572,28 +616,51 @@ const { isPlaying : isReady } = useEvent(player, 'playingChange', { isPlaying: p
               // borderRadius: 12,
               justifyContent: 'center',
               alignItems: 'center',
+              shadowColor: '#000',
+              shadowOffset: { width: 0, height: 2 },
+              shadowOpacity: 0.5,
+              shadowRadius: 6,
+              elevation: 4,
             }}>
-              <MaterialIcons name="stars" size={32} color={item.isSubscribed ? '#cd2bee' : 'white'} />
+              <MaterialIcons name="star" size={36} color={item.isSubscribed ? '#cd2bee' : 'white'} />
             </View>
           </View>
-          <Text style={{ color: item.isSubscribed ? '#cd2bee' : 'white', fontSize: mediumScreen ? 14:10, fontFamily: "PlusJakartaSansBold" }}>
+          {/* <Text style={{ color: item.isSubscribed ? '#cd2bee' : 'white', fontSize: mediumScreen ? 14:10, fontFamily: "PlusJakartaSansBold" }}>
             {item.isSubscribed ? 'SUBBED' : 'Sub'}
-          </Text>
+          </Text> */}
         </Pressable>
 
-        <Pressable onPress={()=>{}} style={{ alignItems: 'center' }}>
+        <Pressable onPress={()=>{}} style={{
+          shadowColor: '#000',
+          shadowOffset: { width: 0, height: 2 },
+          shadowOpacity: 0.5,
+          shadowRadius: 6,
+          elevation: 4,
+          alignItems: 'center' }}>
           <MaterialIcons name="bookmark" size={30} color="white" />
-          <Text style={{ color: 'white', fontSize: mediumScreen ? 14:10, fontFamily: "PlusJakartaSansBold" }}>Save</Text>
+          <Text style={{ color: 'white', fontSize: mediumScreen ? 14:10, fontFamily: "PlusJakartaSansBold" }}>{item.saves}</Text>
         </Pressable>
 
-        <Pressable onPress={() => {}} style={{ alignItems: 'center' }}>
+        <Pressable onPress={() => {}} style={{
+          shadowColor: '#000',
+          shadowOffset: { width: 0, height: 2 },
+          shadowOpacity: 0.5,
+          shadowRadius: 6,
+          elevation: 4,
+          alignItems: 'center' }}>
           <MaterialIcons name="share" size={28} color="white" />
-          <Text style={{ color: 'white', fontSize: mediumScreen ? 14:10, fontFamily: "PlusJakartaSansBold" }}>Share</Text>
+          <Text style={{ color: 'white', fontSize: mediumScreen ? 14:10, fontFamily: "PlusJakartaSansBold" }}>{item.bookmarks}</Text>
         </Pressable>
 
-        <Pressable onPress={() => setShowMoreMenu(true)} style={{ alignItems: 'center' }}>
+        <Pressable onPress={() => setShowMoreMenu(true)} style={{
+          shadowColor: '#000',
+          shadowOffset: { width: 0, height: 2 },
+          shadowOpacity: 0.5,
+          shadowRadius: 6,
+          elevation: 4,
+          alignItems: 'center' }}>
           <MaterialIcons name="more-horiz" size={30} color="white" />
-          <Text style={{ color: 'white', fontSize: mediumScreen ? 14:10, fontFamily: "PlusJakartaSansBold" }}>More</Text>
+          {/* <Text style={{ color: 'white', fontSize: mediumScreen ? 14:10, fontFamily: "PlusJakartaSansBold" }}>More</Text> */}
         </Pressable>
 
         <View style={
@@ -636,11 +703,30 @@ const { isPlaying : isReady } = useEvent(player, 'playingChange', { isPlaying: p
         </View>
 
         <View style={{
-          width: '80%'
+          width: '95%',
+          flexDirection: 'row',
+          gap: 5,
         }}>
-          <Text style={{ color: 'white', marginTop: 4, fontFamily:'PlusJakartaSans', fontSize: mediumScreen ? 14: 12 }}>
+          <View style={{
+            width: lineNumber > 1 ? '85%':'70%',
+          }}>
+            <Text
+          numberOfLines={lineNumber}
+          style={{ color: 'white', marginTop: 4, fontFamily:'PlusJakartaSans', fontSize: mediumScreen ? 14: 10 }}>
           {item.caption}
         </Text>
+          </View>
+        {more && <Pressable
+        onPress={()=>{
+          setLineNumber(99);
+          setMore(false);
+        }}
+        >
+          <Text style={{
+            color: 'white', marginTop: 4, fontFamily:'PlusJakartaSansExtraBold', fontSize: mediumScreen ? 14: 10
+          }}>
+          more
+          </Text></Pressable>}
         </View>
 
         {item.hasSound && <View
@@ -650,11 +736,12 @@ const { isPlaying : isReady } = useEvent(player, 'playingChange', { isPlaying: p
           alignItems: 'center',
         }}>
           <View style={{
-            height: 30,
-            width: 30,
+            height: 20,
+            width: 20,
             alignItems: 'center',
             justifyContent: 'center',
-            backgroundColor: '#ffffff1a',
+            // backgroundColor: '#ffffff1a',
+            backgroundColor: '#00000054',
             borderColor: '#ffffff1a',
             borderWidth: 1,
             borderRadius: 4,
@@ -667,17 +754,17 @@ const { isPlaying : isReady } = useEvent(player, 'playingChange', { isPlaying: p
           </View>
           <Text style={{
             color: '#ffffffcc',
-            fontSize: fontScale(10),
+            fontSize: mediumScreen ? fontScale(10): fontScale(8),
             lineHeight: 20,
-            fontFamily: 'PlusJakartaSansExtraBold'
+            fontFamily: 'PlusJakartaSansMedium'
           }}>
             {"  "}{item.soundTitle}
           </Text>
           <Text style={{
             color: '#ffffffcc',
-            fontSize: fontScale(10),
+            fontSize: mediumScreen ? fontScale(10): fontScale(8),
             lineHeight: 20,
-            fontFamily: 'PlusJakartaSansExtraBold'
+            fontFamily: 'PlusJakartaSansMedium'
           }}>
             {" • "}{item.soundArtist}
           </Text>
@@ -688,8 +775,8 @@ const { isPlaying : isReady } = useEvent(player, 'playingChange', { isPlaying: p
             style={{
               marginTop: 10,
               backgroundColor: '#22c55e',
-              paddingHorizontal: 14,
-              paddingVertical: 8,
+              paddingHorizontal: 10,
+              paddingVertical: 6,
               borderRadius: 20,
               alignSelf: 'flex-start', 
               flexDirection: 'row',
@@ -698,8 +785,8 @@ const { isPlaying : isReady } = useEvent(player, 'playingChange', { isPlaying: p
              }}
             onPress={() => navigation.navigate('Video')}
           >
-            <TickIcon/>
-            <Text style={{ color: 'black', fontFamily: 'PlusJakartaSansBold', fontSize: mediumScreen ? 14: 10, textTransform: 'uppercase' }}>  Tickets • {item.ticketLocation}</Text>
+            <TickIcon height={14} width={14}/>
+            <Text style={{ color: 'black', fontFamily: 'PlusJakartaSansBold', fontSize: mediumScreen ? 10: 8, textTransform: 'uppercase' }}>  Tickets • {item.ticketLocation}</Text>
           </Pressable>
         )}
 
@@ -776,7 +863,7 @@ const { isPlaying : isReady } = useEvent(player, 'playingChange', { isPlaying: p
           </View> */}
         </View>
 
-        <Text style={{ color: '#cbd5e1', marginTop: 6, fontSize: mediumScreen ? 8: 8 }}>{isPlaying ? 'Playing' : 'Paused'} preview</Text>
+        {/* <Text style={{ color: '#cbd5e1', marginTop: 6, fontSize: mediumScreen ? 8: 8 }}>{isPlaying ? 'Playing' : 'Paused'} preview</Text> */}
       </View>
 
       {/* Comments modal */}
@@ -803,24 +890,16 @@ const Feed: React.FC = () => {
   const navigation = useNavigation<any>();
   const [activeTab, setActiveTab] = useState<'premium' | 'foryou' | 'following' >('foryou');
   const [isGlobalMuted, setIsGlobalMuted] = useState(false);
-  const colors = [
-    'red',
-    'white',
-    'green',
-    'black',
-    'orange',
-    'violet',
-    'pink',
-  ]
+  const insets= useSafeAreaInsets();
   const [items, setItems] = useState<FeedItem[]>([
     {
-      id: '15',
-      artist: 'Elena Rose',
-      handle: 'elena_rose',
+      id: '10',
+      artist: 'Big Things',
+      handle: 'big_t',
       avatar: 'https://picsum.photos/seed/elena/150/150',
       caption: "PRIVATE DROP: Working on 'Nebula' vocal layers. This is the raw studio session for my supporters only. #BTS #KulsahExclusive",
       background: 'https://images.unsplash.com/photo-1598488035139-bdbb2231ce04?auto=format&fit=crop&q=80&w=800',
-      video: 'https://dozi-chat-s3.s3.us-east-1.amazonaws.com/kul/WhatsApp+Video+2026-03-18+at+11.59.32+AM.mp4',
+      video: 'https://res.cloudinary.com/dmznckja5/video/upload/v1775813110/IMG_2154_wsvmch.mp4',
       likes: '2.4M',
       comments: '88.1K',
       isLiked: false,
@@ -832,6 +911,52 @@ const Feed: React.FC = () => {
       soundArtist: 'Synthwave Kid',
       soundTitle: 'Neon Dreams',
       following: false,
+      bookmarks: '2.5k',
+      saves: '2.5k',
+    },
+    {
+      id: '6',
+      artist: 'Big Nyash',
+      handle: 'big',
+      avatar: 'https://picsum.photos/seed/elena/150/150',
+      caption: "PRIVATE DROP: Working on 'Nebula' vocal layers. This is the raw studio session for my supporters only. #BTS #KulsahExclusive",
+      background: 'https://images.unsplash.com/photo-1598488035139-bdbb2231ce04?auto=format&fit=crop&q=80&w=800',
+      video: 'https://res.cloudinary.com/dmznckja5/video/upload/v1775813092/IMG_2153_o68qcr.mp4',
+      likes: '2.4M',
+      comments: '88.1K',
+      isLiked: false,
+      isSubscribed: true,
+      isPremium: true,
+      ticketsAvailable: true,
+      ticketLocation: 'London, UK',
+      hasSound: true,
+      soundArtist: 'Synthwave Kid',
+      soundTitle: 'Neon Dreams',
+      following: false,
+      bookmarks: '2.5k',
+      saves: '2.5k',
+    },
+    {
+      id: '15',
+      artist: 'Elena Rose',
+      handle: 'elena_rose',
+      avatar: 'https://picsum.photos/seed/elena/150/150',
+      caption: "PRIVATE DROP: Working on 'Nebula' vocal layers. This is the raw studio session for my supporters only. #BTS #KulsahExclusive",
+      background: 'https://images.unsplash.com/photo-1598488035139-bdbb2231ce04?auto=format&fit=crop&q=80&w=800',
+      video: 'https://res.cloudinary.com/dmznckja5/video/upload/v1773840893/WhatsApp_Video_2026-03-18_at_1.31.10_PM_pzk1wt.mp4',
+      likes: '2.4M',
+      comments: '88.1K',
+      isLiked: false,
+      isSubscribed: true,
+      isPremium: true,
+      ticketsAvailable: true,
+      ticketLocation: 'London, UK',
+      hasSound: true,
+      soundArtist: 'Synthwave Kid',
+      soundTitle: 'Neon Dreams',
+      following: false,
+      bookmarks: '2.5k',
+      saves: '2.5k',
     },
     {
       id: '1',
@@ -849,6 +974,8 @@ const Feed: React.FC = () => {
       ticketsAvailable: true,
       ticketLocation: 'London, UK',
       following: true,
+      bookmarks: '2.5k',
+      saves: '2.5k',
     },
     {
       id: '4',
@@ -866,6 +993,8 @@ const Feed: React.FC = () => {
       ticketsAvailable: false,
       isLive: true,
       following: false,
+      bookmarks: '2.5k',
+      saves: '2.5k',
     },
     {
       id: '2',
@@ -882,6 +1011,8 @@ const Feed: React.FC = () => {
       isPremium: false,
       ticketsAvailable: false,
       following: true,
+      bookmarks: '2.5k',
+      saves: '2.5k',
     },
     {
       id: '5',
@@ -898,6 +1029,8 @@ const Feed: React.FC = () => {
       isPremium: true,
       ticketsAvailable: false,
       following: false,
+      bookmarks: '2.5k',
+      saves: '2.5k',
     },
     {
       id: '8',
@@ -914,9 +1047,11 @@ const Feed: React.FC = () => {
       isPremium: true,
       ticketsAvailable: false,
       following: true,
+      bookmarks: '2.5k',
+      saves: '2.5k',
     },
     {
-      id: '10',
+      id: '20',
       artist: 'Kulsah',
       handle: 'kulsah_development',
       avatar: 'https://picsum.photos/seed/sarah/150/150',
@@ -930,6 +1065,8 @@ const Feed: React.FC = () => {
       isPremium: true,
       ticketsAvailable: false,
       following: false,
+      bookmarks: '2.5k',
+      saves: '2.5k',
     },
     {
       id: '3',
@@ -946,6 +1083,8 @@ const Feed: React.FC = () => {
       isPremium: true,
       ticketsAvailable: false,
       following: true,
+      bookmarks: '2.5k',
+      saves: '2.5k',
     },
     {
       id: '11',
@@ -962,6 +1101,8 @@ const Feed: React.FC = () => {
       isPremium: false,
       ticketsAvailable: false,
       following: false,
+      bookmarks: '2.5k',
+      saves: '2.5k',
     },
     {
       id: '9',
@@ -978,6 +1119,8 @@ const Feed: React.FC = () => {
       isPremium: false,
       ticketsAvailable: false,
       following: true,
+      bookmarks: '2.5k',
+      saves: '2.5k',
     },
     {
       id: '12',
@@ -994,11 +1137,49 @@ const Feed: React.FC = () => {
       isPremium: false,
       ticketsAvailable: false,
       following: false,
+      bookmarks: '2.5k',
+      saves: '2.5k',
+    },
+    {
+      id: '97',
+      artist: 'louis',
+      handle: 'louis_artist',
+      avatar: 'https://picsum.photos/seed/amara/150/150',
+      caption: 'EXCLUSIVE: Late night neon dance rehearsal. The tour visuals are finally ready for my subscribers.',
+      background: 'https://images.unsplash.com/photo-1516450360452-9312f5e86fc7?auto=format&fit=crop&q=80&w=800',
+      video: 'https://res.cloudinary.com/dmznckja5/video/upload/v1775754130/IMG_2152_kqfocs.mp4',
+      likes: '890K',
+      comments: '12.4K',
+      isLiked: false,
+      isSubscribed: true,
+      isPremium: false,
+      ticketsAvailable: false,
+      following: false,
+      bookmarks: '2.5k',
+      saves: '2.5k',
+    },
+    {
+      id: '96',
+      artist: 'prin_cella',
+      handle: 'cella_music',
+      avatar: 'https://picsum.photos/seed/amara/150/150',
+      caption: 'EXCLUSIVE: Late night neon dance rehearsal. The tour visuals are finally ready for my subscribers.',
+      background: 'https://images.unsplash.com/photo-1516450360452-9312f5e86fc7?auto=format&fit=crop&q=80&w=800',
+      video: 'https://res.cloudinary.com/dmznckja5/video/upload/v1775754097/IMG_2151_hpsvxl.mp4',
+      likes: '890K',
+      comments: '12.4K',
+      isLiked: false,
+      isSubscribed: true,
+      isPremium: false,
+      ticketsAvailable: false,
+      following: false,
+      bookmarks: '2.5k',
+      saves: '2.5k',
     },
     {
       id: '13',
-      artist: 'Prince Gabriel',
-      handle: 'Prince_Gabriel',
+      artist: 'Gabriel',
+      handle: 'Prince',
       avatar: 'https://picsum.photos/seed/amara/150/150',
       caption: 'EXCLUSIVE: Late night neon dance rehearsal. The tour visuals are finally ready for my subscribers.',
       background: 'https://images.unsplash.com/photo-1516450360452-9312f5e86fc7?auto=format&fit=crop&q=80&w=800',
@@ -1010,22 +1191,288 @@ const Feed: React.FC = () => {
       isPremium: false,
       ticketsAvailable: false,
       following: true,
+      bookmarks: '2.5k',
+      saves: '2.5k',
     },
+    // {
+    //   id: '14',
+    //   artist: 'Prince Gabriel',
+    //   handle: 'Prince_Gabriel',
+    //   avatar: 'https://picsum.photos/seed/amara/150/150',
+    //   caption: 'EXCLUSIVE: Late night neon dance rehearsal. The tour visuals are finally ready for my subscribers.',
+    //   background: 'https://images.unsplash.com/photo-1516450360452-9312f5e86fc7?auto=format&fit=crop&q=80&w=800',
+    //   video: 'https://dozi-chat-s3.s3.us-east-1.amazonaws.com/kul/WhatsApp+Video+2026-03-18+at+12.55.44+PM.mp4',
+    //   likes: '890K',
+    //   comments: '12.4K',
+    //   isLiked: false,
+    //   isSubscribed: true,
+    //   isPremium: false,
+    //   ticketsAvailable: false,
+    //   following: false,
+    // },
     {
-      id: '14',
-      artist: 'Prince Gabriel',
-      handle: 'Prince_Gabriel',
-      avatar: 'https://picsum.photos/seed/amara/150/150',
-      caption: 'EXCLUSIVE: Late night neon dance rehearsal. The tour visuals are finally ready for my subscribers.',
-      background: 'https://images.unsplash.com/photo-1516450360452-9312f5e86fc7?auto=format&fit=crop&q=80&w=800',
-      video: 'https://dozi-chat-s3.s3.us-east-1.amazonaws.com/kul/WhatsApp+Video+2026-03-18+at+12.55.44+PM.mp4',
-      likes: '890K',
-      comments: '12.4K',
+      id: '99',
+      artist: 'shpirit',
+      handle: 'minister_spirit',
+      avatar: 'https://picsum.photos/seed/elena/150/150',
+      caption: "PRIVATE DROP: Working on 'Nebula' vocal layers. This is the raw studio session for my supporters only. #BTS #KulsahExclusive",
+      background: 'https://images.unsplash.com/photo-1598488035139-bdbb2231ce04?auto=format&fit=crop&q=80&w=800',
+      video: 'https://res.cloudinary.com/dmznckja5/video/upload/v1775754035/IMG_2150_wgvjbv.mp4',
+      likes: '2.4M',
+      comments: '88.1K',
       isLiked: false,
       isSubscribed: true,
-      isPremium: false,
-      ticketsAvailable: false,
+      isPremium: true,
+      ticketsAvailable: true,
+      ticketLocation: 'London, UK',
+      hasSound: true,
+      soundArtist: 'Synthwave Kid',
+      soundTitle: 'Neon Dreams',
       following: false,
+      bookmarks: '2.5k',
+      saves: '2.5k',
+    },
+    {
+      id: '95',
+      artist: 'kulsah',
+      handle: 'kulsah_hq',
+      avatar: 'https://picsum.photos/seed/elena/150/150',
+      caption: "PRIVATE DROP: Working on 'Nebula' vocal layers. This is the raw studio session for my supporters only. #BTS #KulsahExclusive",
+      background: 'https://images.unsplash.com/photo-1598488035139-bdbb2231ce04?auto=format&fit=crop&q=80&w=800',
+      video: 'https://res.cloudinary.com/dmznckja5/video/upload/v1775812695/IMG_2173_kpbp48.mov',
+      likes: '2.4M',
+      comments: '88.1K',
+      isLiked: false,
+      isSubscribed: true,
+      isPremium: true,
+      ticketsAvailable: false,
+      ticketLocation: 'London, UK',
+      hasSound: true,
+      soundArtist: 'Synthwave Kid',
+      soundTitle: 'Neon Dreams',
+      following: false,
+      bookmarks: '2.5k',
+      saves: '2.5k',
+    },
+    {
+      id: '94',
+      artist: 'bliss',
+      handle: 'bliss_k',
+      avatar: 'https://picsum.photos/seed/elena/150/150',
+      caption: "PRIVATE DROP: Working on 'Nebula' vocal layers. This is the raw studio session for my supporters only. #BTS #KulsahExclusive",
+      background: 'https://images.unsplash.com/photo-1598488035139-bdbb2231ce04?auto=format&fit=crop&q=80&w=800',
+      video: 'https://res.cloudinary.com/dmznckja5/video/upload/v1775809866/IMG_2157_jhxsl5.mp4',
+      likes: '2.4M',
+      comments: '88.1K',
+      isLiked: false,
+      isSubscribed: true,
+      isPremium: true,
+      ticketsAvailable: true,
+      ticketLocation: 'London, UK',
+      hasSound: true,
+      soundArtist: 'Synthwave Kid',
+      soundTitle: 'Neon Dreams',
+      following: false,
+      bookmarks: '2.5k',
+      saves: '2.5k',
+    },
+    {
+      id: '93',
+      artist: 'lynx',
+      handle: 'lynx_music',
+      avatar: 'https://picsum.photos/seed/elena/150/150',
+      caption: "PRIVATE DROP: Working on 'Nebula' vocal layers. This is the raw studio session for my supporters only. #BTS #KulsahExclusive",
+      background: 'https://images.unsplash.com/photo-1598488035139-bdbb2231ce04?auto=format&fit=crop&q=80&w=800',
+      video: 'https://res.cloudinary.com/dmznckja5/video/upload/v1775809856/IMG_2155_uv5gqu.mp4',
+      likes: '2.4M',
+      comments: '88.1K',
+      isLiked: false,
+      isSubscribed: true,
+      isPremium: true,
+      ticketsAvailable: true,
+      ticketLocation: 'London, UK',
+      hasSound: true,
+      soundArtist: 'Bill',
+      soundTitle: 'Bills Beat',
+      following: false,
+      bookmarks: '2.5k',
+      saves: '2.5k',
+    },
+    {
+      id: '92',
+      artist: 'Annu',
+      handle: 'Annu_naki',
+      avatar: 'https://picsum.photos/seed/elena/150/150',
+      caption: "PRIVATE DROP: Working on 'Nebula' vocal layers. This is the raw studio session for my supporters only. #BTS #KulsahExclusive",
+      background: 'https://images.unsplash.com/photo-1598488035139-bdbb2231ce04?auto=format&fit=crop&q=80&w=800',
+      video: 'https://res.cloudinary.com/dmznckja5/video/upload/v1775809849/WhatsApp_Video_2026-04-09_at_5.16.37_PM_oibjkk.mp4',
+      likes: '2.4M',
+      comments: '88.1K',
+      isLiked: false,
+      isSubscribed: true,
+      isPremium: true,
+      ticketsAvailable: false,
+      // ticketLocation: 'London, UK',
+      // hasSound: true,
+      // soundArtist: 'Synthwave Kid',
+      // soundTitle: 'Neon Dreams',
+      following: false,
+      bookmarks: '2.5k',
+      saves: '2.5k',
+    },
+    {
+      id: '91',
+      artist: 'cypher',
+      handle: 'cypher_t',
+      avatar: 'https://picsum.photos/seed/elena/150/150',
+      caption: "PRIVATE DROP: Working on 'Nebula' vocal layers. This is the raw studio session for my supporters only. #BTS #KulsahExclusive",
+      background: 'https://images.unsplash.com/photo-1598488035139-bdbb2231ce04?auto=format&fit=crop&q=80&w=800',
+      video: 'https://res.cloudinary.com/dmznckja5/video/upload/v1775809848/IMG_2158_arvxda.mp4',
+      likes: '2.4M',
+      comments: '88.1K',
+      isLiked: false,
+      isSubscribed: true,
+      isPremium: true,
+      ticketsAvailable: true,
+      ticketLocation: 'London, UK',
+      hasSound: true,
+      soundArtist: 'Synthwave Kid',
+      soundTitle: 'Neon Dreams',
+      following: false,
+      bookmarks: '2.5k',
+      saves: '2.5k',
+    },
+    {
+      id: '90',
+      artist: 'flatEarth',
+      handle: 'earth_is_flat',
+      avatar: 'https://picsum.photos/seed/elena/150/150',
+      caption: "PRIVATE DROP: Working on 'Nebula' vocal layers. This is the raw studio session for my supporters only. #BTS #KulsahExclusive",
+      background: 'https://images.unsplash.com/photo-1598488035139-bdbb2231ce04?auto=format&fit=crop&q=80&w=800',
+      video: 'https://res.cloudinary.com/dmznckja5/video/upload/v1775809831/IMG_2160_i4yqd9.mp4',
+      likes: '2.4M',
+      comments: '88.1K',
+      isLiked: false,
+      isSubscribed: true,
+      isPremium: true,
+      ticketsAvailable: true,
+      ticketLocation: 'London, UK',
+      hasSound: true,
+      soundArtist: 'Synthwave Kid',
+      soundTitle: 'Neon Dreams',
+      following: false,
+      bookmarks: '2.5k',
+      saves: '2.5k',
+    },
+    {
+      id: '89',
+      artist: 'Gothic',
+      handle: 'gothic_g',
+      avatar: 'https://picsum.photos/seed/elena/150/150',
+      caption: "PRIVATE DROP: Working on 'Nebula' vocal layers. This is the raw studio session for my supporters only. #BTS #KulsahExclusive",
+      background: 'https://images.unsplash.com/photo-1598488035139-bdbb2231ce04?auto=format&fit=crop&q=80&w=800',
+      video: 'https://res.cloudinary.com/dmznckja5/video/upload/v1775809824/IMG_2161_lphffv.mp4',
+      likes: '2.4M',
+      comments: '88.1K',
+      isLiked: false,
+      isSubscribed: true,
+      isPremium: true,
+      ticketsAvailable: true,
+      ticketLocation: 'London, UK',
+      // hasSound: true,
+      // soundArtist: 'Synthwave Kid',
+      // soundTitle: 'Neon Dreams',
+      following: false,
+      bookmarks: '2.5k',
+      saves: '2.5k',
+    },
+    {
+      id: '88',
+      artist: 'bliss',
+      handle: 'bliss_k',
+      avatar: 'https://picsum.photos/seed/elena/150/150',
+      caption: "PRIVATE DROP: Working on 'Nebula' vocal layers. This is the raw studio session for my supporters only. #BTS #KulsahExclusive",
+      background: 'https://images.unsplash.com/photo-1598488035139-bdbb2231ce04?auto=format&fit=crop&q=80&w=800',
+      video: 'https://res.cloudinary.com/dmznckja5/video/upload/v1775809866/IMG_2157_jhxsl5.mp4',
+      likes: '2.4M',
+      comments: '88.1K',
+      isLiked: false,
+      isSubscribed: true,
+      isPremium: true,
+      ticketsAvailable: true,
+      ticketLocation: 'London, UK',
+      // hasSound: true,
+      // soundArtist: 'Synthwave Kid',
+      // soundTitle: 'Neon Dreams',
+      following: false,
+      bookmarks: '2.5k',
+      saves: '2.5k',
+    },
+    {
+      id: '87',
+      artist: 'burner',
+      handle: 'mic_burner',
+      avatar: 'https://picsum.photos/seed/elena/150/150',
+      caption: "PRIVATE DROP: Working on 'Nebula' vocal layers. This is the raw studio session for my supporters only. #BTS #KulsahExclusive",
+      background: 'https://images.unsplash.com/photo-1598488035139-bdbb2231ce04?auto=format&fit=crop&q=80&w=800',
+      video: 'https://res.cloudinary.com/dmznckja5/video/upload/v1775809820/IMG_2159_1_lhwqgo.mp4',
+      likes: '2.4M',
+      comments: '88.1K',
+      isLiked: false,
+      isSubscribed: true,
+      isPremium: true,
+      ticketsAvailable: false,
+      // ticketLocation: 'London, UK',
+      // hasSound: true,
+      // soundArtist: 'Synthwave Kid',
+      // soundTitle: 'Neon Dreams',
+      following: false,
+      bookmarks: '2.5k',
+      saves: '2.5k',
+    },
+    {
+      id: '86',
+      artist: 'drop',
+      handle: 'gibson',
+      avatar: 'https://picsum.photos/seed/elena/150/150',
+      caption: "PRIVATE DROP: Working on 'Nebula' vocal layers. This is the raw studio session for my supporters only. #BTS #KulsahExclusive",
+      background: 'https://images.unsplash.com/photo-1598488035139-bdbb2231ce04?auto=format&fit=crop&q=80&w=800',
+      video: 'https://res.cloudinary.com/dmznckja5/video/upload/v1775809846/IMG_2159_kbupra.mp4',
+      likes: '2.4M',
+      comments: '88.1K',
+      isLiked: false,
+      isSubscribed: true,
+      isPremium: true,
+      ticketsAvailable: true,
+      ticketLocation: 'London, UK',
+      // hasSound: true,
+      // soundArtist: 'Synthwave Kid',
+      // soundTitle: 'Neon Dreams',
+      following: false,
+      bookmarks: '2.5k',
+      saves: '2.5k',
+    },
+    {
+      id: '85',
+      artist: 'nasa',
+      handle: 'nasa_isL',
+      avatar: 'https://picsum.photos/seed/elena/150/150',
+      caption: "PRIVATE DROP: Working on 'Nebula' vocal layers. This is the raw studio session for my supporters only. #BTS #KulsahExclusive",
+      background: 'https://images.unsplash.com/photo-1598488035139-bdbb2231ce04?auto=format&fit=crop&q=80&w=800',
+      video: 'https://res.cloudinary.com/dmznckja5/video/upload/v1775810765/Download_49_kumjek.mp4',
+      likes: '2.4M',
+      comments: '88.1K',
+      isLiked: false,
+      isSubscribed: true,
+      isPremium: true,
+      ticketsAvailable: true,
+      ticketLocation: 'London, UK',
+      // hasSound: true,
+      // soundArtist: 'Synthwave Kid',
+      // soundTitle: 'Neon Dreams',
+      following: false,
+      bookmarks: '2.5k',
+      saves: '2.5k',
     },
   ]);
 
@@ -1037,14 +1484,15 @@ const Feed: React.FC = () => {
   const [activeIndex, setActiveIndex] = useState(0);
 
 
-  useEffect(()=>{
+  useEffect(() => {
     console.log(`This is the value of mediumScreen : ${mediumScreen}`)
-  });
+  }, []);
 
   const onViewRef = React.useRef(
   ({ viewableItems }: { viewableItems: ViewToken[] }) => {
     if (viewableItems.length > 0) {
-      setActiveIndex(viewableItems[0].index ?? 0);
+      const nextIndex = viewableItems[0].index ?? 0;
+      setActiveIndex((prev) => (prev === nextIndex ? prev : nextIndex));
     }
       }
     );
@@ -1215,7 +1663,7 @@ const Feed: React.FC = () => {
           keyExtractor={(item) => item.id}
           renderItem={({ item, index}) => (
             <View style={{
-              height: FEED_ITEM_HEIGHT,
+              height: FEED_ITEM_HEIGHT-(Platform.OS === 'ios' ? 0 : insets.bottom),
               backgroundColor: 'black',
             }}>
               <VideoFeedItem
@@ -1231,7 +1679,7 @@ const Feed: React.FC = () => {
             </View>
           )}
           showsVerticalScrollIndicator={false}
-          snapToInterval={FEED_ITEM_HEIGHT}
+          snapToInterval={FEED_ITEM_HEIGHT-(Platform.OS === 'ios' ? 0 : insets.bottom)}
           snapToAlignment="start"
           decelerationRate="fast"
           disableIntervalMomentum
@@ -1241,8 +1689,8 @@ const Feed: React.FC = () => {
             </View>
           )}
           getItemLayout={(_, index) => ({
-            length: FEED_ITEM_HEIGHT,
-            offset: FEED_ITEM_HEIGHT * index,
+            length: FEED_ITEM_HEIGHT-(Platform.OS === 'ios' ? 0 : insets.bottom),
+            offset: FEED_ITEM_HEIGHT-(Platform.OS === 'ios' ? 0 : insets.bottom) * index,
             index,
           })}
           onViewableItemsChanged={onViewRef.current}
