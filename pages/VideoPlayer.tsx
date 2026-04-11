@@ -416,7 +416,6 @@ const VideoPlayer: React.FC = () => {
                 { label: 'Net Revenue', val: '$4,120', color: 'text-primary', icon: 'payments' },
               ].map((stat, i) => (
                 <View key={i}>
-                  <Text>
                   <Text>{stat.val}</Text>
                   <Text>{stat.label}</Text>
                 </View>

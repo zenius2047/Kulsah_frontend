@@ -289,10 +289,8 @@ const VideoFeedItem: React.FC<{
   onSubscribe: (id: string) => void;
   isGlobalMuted: boolean;
   isLive?: boolean;
-  shouldPreload?: any;
-  nextVideo: string;
   onToggleMute: () => void;
-}> = ({ item, onSubscribe, isGlobalMuted, onToggleMute, isPlaying , isLive, nextVideo}) => {
+}> = ({ item, onSubscribe, isGlobalMuted, onToggleMute, isPlaying , isLive }) => {
   // console.log("Viewport Height:", SCREEN_HEIGHT);
   // console.log("Viewport Width:", SCREEN_WIDTH);
   const navigation = useNavigation<any>();
@@ -334,10 +332,6 @@ const VideoFeedItem: React.FC<{
     p.timeUpdateEventInterval = 0.2;
       });
 
-  const nextPlayer = useVideoPlayer(nextVideo, (p)=>{
-    p.currentTime = 1;
-  });
-  
   // const [currentPlayer, setCurrentPlayer] = useState(player);
   // const [videoDimensions, setVideoDimensions] = useState({
   //   width: 0,
@@ -437,8 +431,6 @@ useEffect(() => {
 }, [isGlobalMuted]);
 
 // const { buffering } = useEvent(player, 'bufferingChange', { buffering: true });
-const { isPlaying : isReady } = useEvent(player, 'playingChange', { isPlaying: player.playing });
-
   const clamp = useCallback((value: number, min: number, max: number) => {
     return Math.min(Math.max(value, min), max);
   }, []);
@@ -1504,9 +1496,44 @@ const Feed: React.FC = () => {
   });
 
 
-  const handleSubscribe = (id: string) => {
+  const handleSubscribe = useCallback((id: string) => {
     setItems((prev) => prev.map((item) => (item.id === id ? { ...item, isSubscribed: true } : item)));
-  };
+  }, []);
+
+  const handleToggleMute = useCallback(() => {
+    setIsGlobalMuted((v) => !v);
+  }, []);
+
+  const feedItemHeight = FEED_ITEM_HEIGHT - (Platform.OS === 'ios' ? 0 : insets.bottom);
+
+  const renderFeedItem = useCallback(({ item, index }: { item: FeedItem; index: number }) => (
+    <View style={{
+      height: feedItemHeight,
+      backgroundColor: 'black',
+    }}>
+      <ErrorBoundary
+        fallback={
+          <View style={{ flex: 1, alignItems: 'center', justifyContent: 'center', paddingHorizontal: 24, backgroundColor: 'black' }}>
+            <Text style={{ color: 'white', fontSize: fontScale(18), fontFamily: 'PlusJakartaSansBold', textAlign: 'center' }}>
+              This post could not be loaded
+            </Text>
+            <Text style={{ color: '#94a3b8', marginTop: 8, textAlign: 'center', fontFamily: 'PlusJakartaSans' }}>
+              Swipe to continue browsing the feed.
+            </Text>
+          </View>
+        }
+      >
+        <VideoFeedItem
+          item={item}
+          isPlaying={index === activeIndex}
+          onSubscribe={handleSubscribe}
+          isGlobalMuted={isGlobalMuted}
+          onToggleMute={handleToggleMute}
+          isLive={item.isLive}
+        />
+      </ErrorBoundary>
+    </View>
+  ), [activeIndex, feedItemHeight, handleSubscribe, handleToggleMute, isGlobalMuted]);
 
   return (
     <SafeAreaView
@@ -1663,38 +1690,9 @@ const Feed: React.FC = () => {
           <FlatList
           data={displayedItems}
           keyExtractor={(item) => item.id}
-          renderItem={({ item, index}) => (
-            <View style={{
-              height: FEED_ITEM_HEIGHT-(Platform.OS === 'ios' ? 0 : insets.bottom),
-              backgroundColor: 'black',
-            }}>
-              <ErrorBoundary
-                fallback={
-                  <View style={{ flex: 1, alignItems: 'center', justifyContent: 'center', paddingHorizontal: 24, backgroundColor: 'black' }}>
-                    <Text style={{ color: 'white', fontSize: fontScale(18), fontFamily: 'PlusJakartaSansBold', textAlign: 'center' }}>
-                      This post could not be loaded
-                    </Text>
-                    <Text style={{ color: '#94a3b8', marginTop: 8, textAlign: 'center', fontFamily: 'PlusJakartaSans' }}>
-                      Swipe to continue browsing the feed.
-                    </Text>
-                  </View>
-                }
-              >
-                <VideoFeedItem
-                item={item}
-                isPlaying = {index === activeIndex}
-                onSubscribe={handleSubscribe}
-                isGlobalMuted={isGlobalMuted}
-                onToggleMute={() => setIsGlobalMuted((v) => !v)}
-                isLive = {item.isLive}
-                shouldPreload={Math.abs(index - activeIndex) <= 1}
-                nextVideo={index !== displayedItems.length-1 ? displayedItems[index+1].video : item.video}
-              />
-              </ErrorBoundary>
-            </View>
-          )}
+          renderItem={renderFeedItem}
           showsVerticalScrollIndicator={false}
-          snapToInterval={FEED_ITEM_HEIGHT-(Platform.OS === 'ios' ? 0 : insets.bottom)}
+          snapToInterval={feedItemHeight}
           snapToAlignment="start"
           decelerationRate="fast"
           disableIntervalMomentum
@@ -1704,16 +1702,16 @@ const Feed: React.FC = () => {
             </View>
           )}
           getItemLayout={(_, index) => ({
-            length: FEED_ITEM_HEIGHT-(Platform.OS === 'ios' ? 0 : insets.bottom),
-            offset: FEED_ITEM_HEIGHT-(Platform.OS === 'ios' ? 0 : insets.bottom) * index,
+            length: feedItemHeight,
+            offset: feedItemHeight * index,
             index,
           })}
           onViewableItemsChanged={onViewRef.current}
           viewabilityConfig={viewConfigRef.current}
           removeClippedSubviews
-          initialNumToRender={4}
-          windowSize={4}
-          maxToRenderPerBatch={4}
+          initialNumToRender={2}
+          windowSize={3}
+          maxToRenderPerBatch={2}
         />
         </View>
       ) : (

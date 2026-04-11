@@ -212,7 +212,7 @@ const CreatorContentLibrary: React.FC = () => {
         
         <Pressable onPress={(e) => { e.stopPropagation(); handleDeleteItem(item.id); }}>
           <Text>delete</Text>
-          <Text>
+          <Text>Delete Item</Text>
         </Pressable>
       </View>
     );

@@ -44,7 +44,7 @@ const FanSubscriptions: React.FC = () => {
                   <Text>verified</Text>
                 </View>
                 <View>
-                  <Text Membership</Text>
+                  <Text>Membership</Text>
                 </View>
               </View>
             </View>

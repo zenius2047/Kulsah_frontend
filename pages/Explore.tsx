@@ -117,7 +117,7 @@ const Explore: React.FC<ExploreProps> = ({ onLogout }) => {
                 </View>
                 <View>
                   <Text>{creator.name}</Text>
-                  <Text>
+                  <Text>@{creator.handle}</Text>
                 </View>
               </View>
             ))}

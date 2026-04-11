@@ -442,7 +442,7 @@ const CreatorOnboarding: React.FC<CreatorOnboardingProps> = ({ onComplete }) => 
         <View>
           <View>
             <Text>Bio (160 characters)</Text>
-            <Text/160</Text>
+            <Text>{formData.bio.length}/160</Text>
           </View>
           <TextInput 
             value={formData.bio}
@@ -541,7 +541,7 @@ const CreatorOnboarding: React.FC<CreatorOnboardingProps> = ({ onComplete }) => 
           >
             <View>
                <View>
-                  <Text>
+                  <Text>{item.id}</Text>
                </View>
                <View>
                   <Text>

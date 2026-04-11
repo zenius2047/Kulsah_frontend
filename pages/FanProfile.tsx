@@ -170,14 +170,14 @@ const FanProfile: React.FC<FanProfileProps> = ({ onLogout }) => {
              {activeTab === 'Collections' && (
                <View>
                   {[1, 2].map(i => (
-                    <View key={i} onPress={() => navigation.navigate('/premium')}>
+                    <Pressable key={i} onPress={() => navigation.navigate('/premium')}>
                        <View>
-                          <Image source={{ uri: `https://picsum.photos/seed/coll${i }}/400/225`} />
+                          <Image source={{ uri: `https://picsum.photos/seed/coll${i}/400/225` }} />
                           <View></View>
                           <View><Text>Premium</Text></View>
                        </View>
                        <Text>Exclusive Asset #{i+102}</Text>
-                    </View>
+                    </Pressable>
                   ))}
                </View>
              )}

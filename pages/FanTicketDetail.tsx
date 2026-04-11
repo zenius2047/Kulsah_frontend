@@ -82,7 +82,7 @@ const FanTicketDetail: React.FC = () => {
           <View>
             <View>
               <Image 
-                source={{ uri: `https://api.qrserver.com/v1/create-qr-code/?size=250x250&data=ENTRY_CODE_${id }}_ALEX_RIVERA&bgcolor=ffffff&color=0f172a`} 
+                source={{ uri: `https://api.qrserver.com/v1/create-qr-code/?size=250x250&data=ENTRY_CODE_${id}_ALEX_RIVERA&bgcolor=ffffff&color=0f172a` }} 
                 
                 
               />

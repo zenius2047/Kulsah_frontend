@@ -310,6 +310,7 @@ const App: React.FC = () => {
   
 
   const [fontsLoaded] = useFonts({
+      ...MaterialIcons.font,
       PlusJakartaSans:require('./assets/fonts/PlusJakartaSans-Regular.ttf'),
       PlusJakartaSansBold:require('./assets/fonts/PlusJakartaSans-Bold.ttf'),
       PlusJakartaSansExtraBold:require('./assets/fonts/PlusJakartaSans-ExtraBold.ttf'),
