@@ -32,6 +32,7 @@ import BookMarkIcon from '../assets/icons/bookmark-svg.svg';
 import { fontScale } from '../fonts';
 import LiveLogo from '../assets/icons/live-svg.svg';
 import Reactions from './Reactions';
+import ErrorBoundary from '../components/ErrorBoundary';
 
 interface FeedItem {
   id: string;
@@ -327,7 +328,8 @@ const VideoFeedItem: React.FC<{
     }
   };
   // const videoRef = React.useRef<VideoRef>(null);
-  const player = useVideoPlayer(item.video, (p) => {
+  const player = useVideoPlayer(
+    item.video, (p) => {
     p.loop = true;
     p.timeUpdateEventInterval = 0.2;
       });
@@ -1666,16 +1668,29 @@ const Feed: React.FC = () => {
               height: FEED_ITEM_HEIGHT-(Platform.OS === 'ios' ? 0 : insets.bottom),
               backgroundColor: 'black',
             }}>
-              <VideoFeedItem
-              item={item}
-              isPlaying = {index === activeIndex}
-              onSubscribe={handleSubscribe}
-              isGlobalMuted={isGlobalMuted}
-              onToggleMute={() => setIsGlobalMuted((v) => !v)}
-              isLive = {item.isLive}
-              shouldPreload={Math.abs(index - activeIndex) <= 1}
-              nextVideo={index !== displayedItems.length-1 ? displayedItems[index+1].video : item.video}
-            />
+              <ErrorBoundary
+                fallback={
+                  <View style={{ flex: 1, alignItems: 'center', justifyContent: 'center', paddingHorizontal: 24, backgroundColor: 'black' }}>
+                    <Text style={{ color: 'white', fontSize: fontScale(18), fontFamily: 'PlusJakartaSansBold', textAlign: 'center' }}>
+                      This post could not be loaded
+                    </Text>
+                    <Text style={{ color: '#94a3b8', marginTop: 8, textAlign: 'center', fontFamily: 'PlusJakartaSans' }}>
+                      Swipe to continue browsing the feed.
+                    </Text>
+                  </View>
+                }
+              >
+                <VideoFeedItem
+                item={item}
+                isPlaying = {index === activeIndex}
+                onSubscribe={handleSubscribe}
+                isGlobalMuted={isGlobalMuted}
+                onToggleMute={() => setIsGlobalMuted((v) => !v)}
+                isLive = {item.isLive}
+                shouldPreload={Math.abs(index - activeIndex) <= 1}
+                nextVideo={index !== displayedItems.length-1 ? displayedItems[index+1].video : item.video}
+              />
+              </ErrorBoundary>
             </View>
           )}
           showsVerticalScrollIndicator={false}

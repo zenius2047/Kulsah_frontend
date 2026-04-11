@@ -72,6 +72,7 @@ import CollaborationHub from './pages/CollaborationHub';
 import Inbox from './pages/Inbox';
 import Notifications from './pages/Notifications';
 import StreakReward from './pages/StreakReward';
+import ErrorBoundary from './components/ErrorBoundary';
 
 
 const Stack = createNativeStackNavigator();
@@ -369,64 +370,66 @@ const App: React.FC = () => {
 
   return (
     <SafeAreaProvider>
-      <NavigationContainer>
-        <SafeAreaView edges={Platform.OS === 'ios'? []: []} style={{ flex: 1 }}>
+      <ErrorBoundary
+        fallbackTitle="App error"
+        fallbackMessage="An unexpected error occurred. Retry to reload the app."
+      >
+        <NavigationContainer>
+          <SafeAreaView edges={Platform.OS === 'ios'? []: []} style={{ flex: 1 }}>
 
-          <StatusBar barStyle={isDark ? 'light-content' : 'dark-content'} backgroundColor="transparent" translucent = {true} />
-      <Stack.Navigator id="root-stack" screenOptions={{ headerShown: false }}>
-        {showOnboarding ? (
-          <>
-            <Stack.Screen name="Onboarding">{() => <Onboarding onLogin={handleLogin} />}</Stack.Screen>
-            <Stack.Screen name="Signup">{() => <Signup onLogin={handleLogin} />}</Stack.Screen>
-          </>
-        ) : user ? (
-          <>
-            <Stack.Screen name="MainTabs">{() => (user!.role === 'creator' ? <CreatorTabs isDarkMode={isDark} /> : <FanTabs isDarkMode={isDark} />)}</Stack.Screen>
-            <Stack.Screen name="Chat" component={ChatView} />
-            <Stack.Screen name="Settings" component={CreatorSettings} />
-            <Stack.Screen name="ArtistProfile" component={ArtistProfile} />
-            <Stack.Screen name="UploadContent" component={UploadContent} />
-            <Stack.Screen name="FanSettings" component={FanSettings} />
-            <Stack.Screen name="GoLive" component={GoLiveSetup} />
-            <Stack.Screen name="CreatorEvents" component={CreatorEvents} />
-            <Stack.Screen name="/creator/analytics" component={CreatorAnalytics} />
-            <Stack.Screen name="CreatorAnalytics" component={CreatorAnalytics} />
-            <Stack.Screen name="Community" component={Community} />
-            <Stack.Screen name="Analytics" component={CreatorAnalytics} />
-            <Stack.Screen name="Challenges" component={ChallengesScreen} />
-            <Stack.Screen name="RecordContent" component={RecordContent}/>
-            <Stack.Screen name="CreateContent" component={CreateEvent}/>
-            <Stack.Screen name="CreatorLiveStream" component={CreatorLiveStream}/>
-            <Stack.Screen name="CreateChallenge" component={CreateChallenge}/>
-            <Stack.Screen name="RevenueSplit" component={RevenueSplit}/>
-            <Stack.Screen name="NoReward" component={NoReward}/>
-            <Stack.Screen name="RewardConfig" component={RewardConfig}/>
-            <Stack.Screen name="Reward" component={Reward}/>
-            <Stack.Screen name="finalStep" component={FinalStep}/>
-            <Stack.Screen name="challengeParticipants" component={ChallengeParticipants}/>
-            <Stack.Screen name="ChallengeFeed" component={ChallengeFeed}/>
-            <Stack.Screen name="Vote" component={Vote}/>
-            <Stack.Screen name="Video" component={Player}/>
-            <Stack.Screen name="EventDetail" component={EventDetail}/>
-            <Stack.Screen name="SelectTickets" component={SelectTickets}/>
-            <Stack.Screen name="SubmitEntry" component={ChallengeEntry}/>
-            <Stack.Screen name= "Library" component={Library}/>
-            <Stack.Screen name= "EditSubmission" component={EditSubmission}/>
-            <Stack.Screen name= "Submitentry" component={SubmitEntry}/>
-            <Stack.Screen name= "Livefeed" component={LiveFeed}/>
-            <Stack.Screen name= "ConnectHub" component={CollaborationHub}/>
-            <Stack.Screen name= "Notification" component={Notifications}/>
-            <Stack.Screen name= "StreakReward" component={StreakReward}/>
-          </>
-        ) : (
-          <Stack.Screen name="Onboarding">{() => <Onboarding onLogin={handleLogin} />}</Stack.Screen>
-        )}
-      </Stack.Navigator>
-        </SafeAreaView>
-      
-
-      
-    </NavigationContainer>
+            <StatusBar barStyle={isDark ? 'light-content' : 'dark-content'} backgroundColor="transparent" translucent = {true} />
+            <Stack.Navigator id="root-stack" screenOptions={{ headerShown: false }}>
+              {showOnboarding ? (
+                <>
+                  <Stack.Screen name="Onboarding">{() => <Onboarding onLogin={handleLogin} />}</Stack.Screen>
+                  <Stack.Screen name="Signup">{() => <Signup onLogin={handleLogin} />}</Stack.Screen>
+                </>
+              ) : user ? (
+                <>
+                  <Stack.Screen name="MainTabs">{() => (user!.role === 'creator' ? <CreatorTabs isDarkMode={isDark} /> : <FanTabs isDarkMode={isDark} />)}</Stack.Screen>
+                  <Stack.Screen name="Chat" component={ChatView} />
+                  <Stack.Screen name="Settings" component={CreatorSettings} />
+                  <Stack.Screen name="ArtistProfile" component={ArtistProfile} />
+                  <Stack.Screen name="UploadContent" component={UploadContent} />
+                  <Stack.Screen name="FanSettings" component={FanSettings} />
+                  <Stack.Screen name="GoLive" component={GoLiveSetup} />
+                  <Stack.Screen name="CreatorEvents" component={CreatorEvents} />
+                  <Stack.Screen name="/creator/analytics" component={CreatorAnalytics} />
+                  <Stack.Screen name="CreatorAnalytics" component={CreatorAnalytics} />
+                  <Stack.Screen name="Community" component={Community} />
+                  <Stack.Screen name="Analytics" component={CreatorAnalytics} />
+                  <Stack.Screen name="Challenges" component={ChallengesScreen} />
+                  <Stack.Screen name="RecordContent" component={RecordContent}/>
+                  <Stack.Screen name="CreateContent" component={CreateEvent}/>
+                  <Stack.Screen name="CreatorLiveStream" component={CreatorLiveStream}/>
+                  <Stack.Screen name="CreateChallenge" component={CreateChallenge}/>
+                  <Stack.Screen name="RevenueSplit" component={RevenueSplit}/>
+                  <Stack.Screen name="NoReward" component={NoReward}/>
+                  <Stack.Screen name="RewardConfig" component={RewardConfig}/>
+                  <Stack.Screen name="Reward" component={Reward}/>
+                  <Stack.Screen name="finalStep" component={FinalStep}/>
+                  <Stack.Screen name="challengeParticipants" component={ChallengeParticipants}/>
+                  <Stack.Screen name="ChallengeFeed" component={ChallengeFeed}/>
+                  <Stack.Screen name="Vote" component={Vote}/>
+                  <Stack.Screen name="Video" component={Player}/>
+                  <Stack.Screen name="EventDetail" component={EventDetail}/>
+                  <Stack.Screen name="SelectTickets" component={SelectTickets}/>
+                  <Stack.Screen name="SubmitEntry" component={ChallengeEntry}/>
+                  <Stack.Screen name= "Library" component={Library}/>
+                  <Stack.Screen name= "EditSubmission" component={EditSubmission}/>
+                  <Stack.Screen name= "Submitentry" component={SubmitEntry}/>
+                  <Stack.Screen name= "Livefeed" component={LiveFeed}/>
+                  <Stack.Screen name= "ConnectHub" component={CollaborationHub}/>
+                  <Stack.Screen name= "Notification" component={Notifications}/>
+                  <Stack.Screen name= "StreakReward" component={StreakReward}/>
+                </>
+              ) : (
+                <Stack.Screen name="Onboarding">{() => <Onboarding onLogin={handleLogin} />}</Stack.Screen>
+              )}
+            </Stack.Navigator>
+          </SafeAreaView>
+        </NavigationContainer>
+      </ErrorBoundary>
     </SafeAreaProvider>
   );
 };
@@ -467,6 +470,7 @@ const styles = StyleSheet.create({
     paddingBottom: 0,
     fontSize: mediumScreen ? 12: 8,
     fontFamily: "PlusJakartaSans",
+    backgroundColor: 'blue'
   },
 });
 
