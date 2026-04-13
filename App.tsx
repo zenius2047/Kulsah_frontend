@@ -99,7 +99,7 @@ interface TabsProps {
 
 const CreatorTabs = ({ isDarkMode }: TabsProps) => {
   const insets = useSafeAreaInsets();
-  const tabBarHeight = SCREEN_HEIGHT * 0.08 + (Platform.OS === 'ios' ? 0 : insets.bottom);
+  const tabBarHeight = (Platform.OS === 'ios' ? SCREEN_HEIGHT * 0.08 : SCREEN_HEIGHT * 0.07 +insets.bottom);
 
   return (
     <Tab.Navigator 

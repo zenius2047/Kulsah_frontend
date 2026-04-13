@@ -16,7 +16,7 @@ import {
   Animated,
   Platform,
 } from 'react-native';
-import { useNavigation } from '@react-navigation/native';
+import { useIsFocused, useNavigation } from '@react-navigation/native';
 import { MaterialIcons } from '@expo/vector-icons';
 import { SafeAreaView, useSafeAreaInsets } from 'react-native-safe-area-context';
 // import { ResizeMode, Video } from 'expo-video';
@@ -50,7 +50,7 @@ interface FeedItem {
   ticketsAvailable: boolean;
   ticketLocation?: string;
   isLive?: boolean;
-  hasSound?: boolean;
+  originalSound: boolean;
   soundArtist?: string;
   soundTitle?: string;
   following: boolean;
@@ -59,7 +59,7 @@ interface FeedItem {
 }
 
 const { height: SCREEN_HEIGHT, width: SCREEN_WIDTH } = Dimensions.get('screen');
-const FEED_ITEM_HEIGHT = SCREEN_HEIGHT * 0.92;
+const FEED_ITEM_HEIGHT = SCREEN_HEIGHT * (Platform.OS === 'ios'? 0.92: 0.93);
 
 const FeedQuickMenuModal: React.FC<{
   visible: boolean;
@@ -294,6 +294,7 @@ const VideoFeedItem: React.FC<{
   // console.log("Viewport Height:", SCREEN_HEIGHT);
   // console.log("Viewport Width:", SCREEN_WIDTH);
   const navigation = useNavigation<any>();
+  const isFocused = useIsFocused();
   const [showComments, setShowComments] = useState(false);
   const [showMoreMenu, setShowMoreMenu] = useState(false);
   const [isLiked, setIsLiked] = useState(item.isLiked);
@@ -305,6 +306,10 @@ const VideoFeedItem: React.FC<{
   const [sliderWidth, setSliderWidth] = useState(0);
   const { height: vh } = useWindowDimensions();
   const rotateValue = useRef(new Animated.Value(0)).current;
+  const lastTapRef = useRef(0);
+  const singleTapTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const playbackStateRef = useRef<boolean | null>(null);
+  const muteStateRef = useRef<boolean | null>(null);
   const [lineNumber, setLineNumber] = useState(1);
   const [more, setMore] = useState(true);
   const insets = useSafeAreaInsets();
@@ -325,12 +330,34 @@ const VideoFeedItem: React.FC<{
       setIsPlaying((v) => !v)
     }
   };
+
+  const handleVideoTap = () => {
+    const now = Date.now();
+    const isDoubleTap = now - lastTapRef.current < 250;
+
+    if (isDoubleTap) {
+      if (singleTapTimeoutRef.current) {
+        clearTimeout(singleTapTimeoutRef.current);
+        singleTapTimeoutRef.current = null;
+      }
+      setIsLiked((prev) => !prev);
+      lastTapRef.current = 0;
+      return;
+    }
+
+    lastTapRef.current = now;
+    singleTapTimeoutRef.current = setTimeout(() => {
+      togglePlayPause();
+      singleTapTimeoutRef.current = null;
+    }, 250);
+  };
   // const videoRef = React.useRef<VideoRef>(null);
-  const player = useVideoPlayer(
-    item.video, (p) => {
+  const configurePlayer = useCallback((p: any) => {
     p.loop = true;
     p.timeUpdateEventInterval = 0.2;
-      });
+  }, []);
+
+  const player = useVideoPlayer(item.video, configurePlayer);
 
   // const [currentPlayer, setCurrentPlayer] = useState(player);
   // const [videoDimensions, setVideoDimensions] = useState({
@@ -389,6 +416,14 @@ const VideoFeedItem: React.FC<{
       rotateValue.setValue(0);
     };
   }, [rotateValue]);
+
+  useEffect(() => {
+    return () => {
+      if (singleTapTimeoutRef.current) {
+        clearTimeout(singleTapTimeoutRef.current);
+      }
+    };
+  }, []);
   // const replacePlayer = useCallback(async () => {
   //   currentPlayer.pause();
   //   if (currentPlayer === player) {
@@ -419,16 +454,23 @@ const VideoFeedItem: React.FC<{
    useEffect(() => {
   if (!player) return;
 
-  if (isPlaying && playVideo === true) {
+  const shouldPlay = isFocused && isPlaying && playVideo === true;
+  if (playbackStateRef.current === shouldPlay) return;
+
+  playbackStateRef.current = shouldPlay;
+
+  if (shouldPlay) {
     player.play();
   } else {
     player.pause();
   }
-}, [isPlaying, playVideo]);
+}, [isFocused, isPlaying, playVideo, player]);
 
 useEffect(() => {
+  if (muteStateRef.current === isGlobalMuted) return;
+  muteStateRef.current = isGlobalMuted;
   player.muted = isGlobalMuted;
-}, [isGlobalMuted]);
+}, [isGlobalMuted, player]);
 
 // const { buffering } = useEvent(player, 'bufferingChange', { buffering: true });
   const clamp = useCallback((value: number, min: number, max: number) => {
@@ -490,7 +532,7 @@ useEffect(() => {
           
         />
         <Pressable
-        onPress={togglePlayPause}
+        onPress={handleVideoTap}
         style={{
           backgroundColor: 'transparent',
           height: '100%',
@@ -723,7 +765,7 @@ useEffect(() => {
           </Text></Pressable>}
         </View>
 
-        {item.hasSound && <View
+        <View
         style={{
           flexDirection: 'row',
           marginTop: 10,
@@ -746,13 +788,20 @@ useEffect(() => {
               <MaterialIcons name="music-note" color='#ffffffcc'/>
             </Animated.View>
           </View>
-          <Text style={{
+          <View style={{
+            flexDirection: 'row',
+            backgroundColor: 'red',
+            width: '45%'
+          }}>
+            <Text
+          numberOfLines={1} 
+          style={{
             color: '#ffffffcc',
             fontSize: mediumScreen ? fontScale(10): fontScale(8),
             lineHeight: 20,
-            fontFamily: 'PlusJakartaSansMedium'
+            fontFamily: 'PlusJakartaSansMedium',
           }}>
-            {"  "}{item.soundTitle}
+            {"  "}{item.originalSound ? "Original Sound" : item.soundTitle}
           </Text>
           <Text style={{
             color: '#ffffffcc',
@@ -760,9 +809,27 @@ useEffect(() => {
             lineHeight: 20,
             fontFamily: 'PlusJakartaSansMedium'
           }}>
-            {" • "}{item.soundArtist}
+            {" • "}{item.originalSound ? item.artist : item.soundArtist}
           </Text>
-        </View>}
+          </View>
+
+          <View style={{
+            flexDirection: 'row',
+            backgroundColor: 'blue',
+            width: '35%',
+            justifyContent: 'flex-end'
+          }}>
+            <Text style={{
+              color: '#ffffffcc',
+              fontSize: mediumScreen ? fontScale(10): fontScale(8),
+              lineHeight: 20,
+              fontFamily: 'PlusJakartaSansMedium'
+            }}>
+              Use Style
+            </Text>
+          </View>
+
+        </View>
 
         {item.ticketsAvailable && (
           <Pressable
@@ -793,7 +860,10 @@ useEffect(() => {
           right: -10,
           }}>
           <View
-            onLayout={(e) => setSliderWidth(e.nativeEvent.layout.width)}
+            onLayout={(e) => {
+              const nextWidth = e.nativeEvent.layout.width;
+              setSliderWidth((prev) => (prev === nextWidth ? prev : nextWidth));
+            }}
             style={{
               height: 24,
               justifyContent: 'center',
@@ -901,7 +971,7 @@ const Feed: React.FC = () => {
       isPremium: true,
       ticketsAvailable: true,
       ticketLocation: 'London, UK',
-      hasSound: true,
+      originalSound: false,
       soundArtist: 'Synthwave Kid',
       soundTitle: 'Neon Dreams',
       following: false,
@@ -923,7 +993,7 @@ const Feed: React.FC = () => {
       isPremium: true,
       ticketsAvailable: true,
       ticketLocation: 'London, UK',
-      hasSound: true,
+      originalSound: false,
       soundArtist: 'Synthwave Kid',
       soundTitle: 'Neon Dreams',
       following: false,
@@ -945,7 +1015,7 @@ const Feed: React.FC = () => {
       isPremium: true,
       ticketsAvailable: true,
       ticketLocation: 'London, UK',
-      hasSound: true,
+      originalSound: false,
       soundArtist: 'Synthwave Kid',
       soundTitle: 'Neon Dreams',
       following: false,
@@ -970,6 +1040,7 @@ const Feed: React.FC = () => {
       following: true,
       bookmarks: '2.5k',
       saves: '2.5k',
+      originalSound: true,
     },
     {
       id: '4',
@@ -989,6 +1060,7 @@ const Feed: React.FC = () => {
       following: false,
       bookmarks: '2.5k',
       saves: '2.5k',
+      originalSound: true,
     },
     {
       id: '2',
@@ -1007,6 +1079,7 @@ const Feed: React.FC = () => {
       following: true,
       bookmarks: '2.5k',
       saves: '2.5k',
+      originalSound: true,
     },
     {
       id: '5',
@@ -1025,6 +1098,7 @@ const Feed: React.FC = () => {
       following: false,
       bookmarks: '2.5k',
       saves: '2.5k',
+      originalSound: true,
     },
     {
       id: '8',
@@ -1043,6 +1117,7 @@ const Feed: React.FC = () => {
       following: true,
       bookmarks: '2.5k',
       saves: '2.5k',
+      originalSound: true,
     },
     {
       id: '20',
@@ -1061,6 +1136,7 @@ const Feed: React.FC = () => {
       following: false,
       bookmarks: '2.5k',
       saves: '2.5k',
+      originalSound: true,
     },
     {
       id: '3',
@@ -1079,6 +1155,7 @@ const Feed: React.FC = () => {
       following: true,
       bookmarks: '2.5k',
       saves: '2.5k',
+      originalSound: true,
     },
     {
       id: '11',
@@ -1097,6 +1174,7 @@ const Feed: React.FC = () => {
       following: false,
       bookmarks: '2.5k',
       saves: '2.5k',
+      originalSound: true,
     },
     {
       id: '9',
@@ -1115,6 +1193,7 @@ const Feed: React.FC = () => {
       following: true,
       bookmarks: '2.5k',
       saves: '2.5k',
+      originalSound: true,
     },
     {
       id: '12',
@@ -1133,6 +1212,7 @@ const Feed: React.FC = () => {
       following: false,
       bookmarks: '2.5k',
       saves: '2.5k',
+      originalSound: true,
     },
     {
       id: '97',
@@ -1151,6 +1231,7 @@ const Feed: React.FC = () => {
       following: false,
       bookmarks: '2.5k',
       saves: '2.5k',
+      originalSound: true,
     },
     {
       id: '96',
@@ -1169,6 +1250,7 @@ const Feed: React.FC = () => {
       following: false,
       bookmarks: '2.5k',
       saves: '2.5k',
+      originalSound:true,
     },
     {
       id: '13',
@@ -1187,6 +1269,7 @@ const Feed: React.FC = () => {
       following: true,
       bookmarks: '2.5k',
       saves: '2.5k',
+      originalSound: true,
     },
     // {
     //   id: '14',
@@ -1219,7 +1302,7 @@ const Feed: React.FC = () => {
       isPremium: true,
       ticketsAvailable: true,
       ticketLocation: 'London, UK',
-      hasSound: true,
+      originalSound: false,
       soundArtist: 'Synthwave Kid',
       soundTitle: 'Neon Dreams',
       following: false,
@@ -1241,7 +1324,7 @@ const Feed: React.FC = () => {
       isPremium: true,
       ticketsAvailable: false,
       ticketLocation: 'London, UK',
-      hasSound: true,
+      originalSound: false,
       soundArtist: 'Synthwave Kid',
       soundTitle: 'Neon Dreams',
       following: false,
@@ -1263,7 +1346,7 @@ const Feed: React.FC = () => {
       isPremium: true,
       ticketsAvailable: true,
       ticketLocation: 'London, UK',
-      hasSound: true,
+      originalSound: false,
       soundArtist: 'Synthwave Kid',
       soundTitle: 'Neon Dreams',
       following: false,
@@ -1285,7 +1368,7 @@ const Feed: React.FC = () => {
       isPremium: true,
       ticketsAvailable: true,
       ticketLocation: 'London, UK',
-      hasSound: true,
+      originalSound: false,
       soundArtist: 'Bill',
       soundTitle: 'Bills Beat',
       following: false,
@@ -1307,12 +1390,13 @@ const Feed: React.FC = () => {
       isPremium: true,
       ticketsAvailable: false,
       // ticketLocation: 'London, UK',
-      // hasSound: true,
+      // originalSound: true,
       // soundArtist: 'Synthwave Kid',
       // soundTitle: 'Neon Dreams',
       following: false,
       bookmarks: '2.5k',
       saves: '2.5k',
+      originalSound: true,
     },
     {
       id: '91',
@@ -1329,7 +1413,7 @@ const Feed: React.FC = () => {
       isPremium: true,
       ticketsAvailable: true,
       ticketLocation: 'London, UK',
-      hasSound: true,
+      originalSound: false,
       soundArtist: 'Synthwave Kid',
       soundTitle: 'Neon Dreams',
       following: false,
@@ -1351,7 +1435,7 @@ const Feed: React.FC = () => {
       isPremium: true,
       ticketsAvailable: true,
       ticketLocation: 'London, UK',
-      hasSound: true,
+      originalSound: false,
       soundArtist: 'Synthwave Kid',
       soundTitle: 'Neon Dreams',
       following: false,
@@ -1373,7 +1457,7 @@ const Feed: React.FC = () => {
       isPremium: true,
       ticketsAvailable: true,
       ticketLocation: 'London, UK',
-      // hasSound: true,
+      originalSound: true,
       // soundArtist: 'Synthwave Kid',
       // soundTitle: 'Neon Dreams',
       following: false,
@@ -1395,7 +1479,7 @@ const Feed: React.FC = () => {
       isPremium: true,
       ticketsAvailable: true,
       ticketLocation: 'London, UK',
-      // hasSound: true,
+      originalSound: true,
       // soundArtist: 'Synthwave Kid',
       // soundTitle: 'Neon Dreams',
       following: false,
@@ -1417,7 +1501,7 @@ const Feed: React.FC = () => {
       isPremium: true,
       ticketsAvailable: false,
       // ticketLocation: 'London, UK',
-      // hasSound: true,
+      originalSound: true,
       // soundArtist: 'Synthwave Kid',
       // soundTitle: 'Neon Dreams',
       following: false,
@@ -1439,7 +1523,7 @@ const Feed: React.FC = () => {
       isPremium: true,
       ticketsAvailable: true,
       ticketLocation: 'London, UK',
-      // hasSound: true,
+      originalSound: true,
       // soundArtist: 'Synthwave Kid',
       // soundTitle: 'Neon Dreams',
       following: false,
@@ -1461,7 +1545,7 @@ const Feed: React.FC = () => {
       isPremium: true,
       ticketsAvailable: true,
       ticketLocation: 'London, UK',
-      // hasSound: true,
+      originalSound: true,
       // soundArtist: 'Synthwave Kid',
       // soundTitle: 'Neon Dreams',
       following: false,
@@ -1544,7 +1628,7 @@ const Feed: React.FC = () => {
       <View
         style={{
           position: 'absolute',
-          top: 54,
+          top: Platform.OS === 'ios'? 54:insets.top,
           left: 0,
           right: 0,
           zIndex: 50,
