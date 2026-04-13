@@ -33,6 +33,8 @@ import { fontScale } from '../fonts';
 import LiveLogo from '../assets/icons/live-svg.svg';
 import Reactions from './Reactions';
 import ErrorBoundary from '../components/ErrorBoundary';
+import SparkleIcon from '../assets/icons/sparkle-style.svg';
+import CommentIcon from '../assets/icons/comment-svg.svg';
 
 interface FeedItem {
   id: string;
@@ -558,7 +560,7 @@ useEffect(() => {
         right: 5,
         bottom: 0,
         alignItems: 'center',
-        gap: 16,
+        gap: 20,
         
       }}>
         <Pressable style={{}}>
@@ -573,7 +575,7 @@ useEffect(() => {
             justifyContent: 'center',
           }}>
             <Image source={{ uri: item.avatar }} style={{ width: '100%', height: '100%', borderRadius: 24 }} />
-            {isLive && <View style={{
+            {isLive && !item.isSubscribed && <View style={{
               borderRadius: 6,
               paddingHorizontal: 6,
               alignItems: 'center',
@@ -592,7 +594,20 @@ useEffect(() => {
                 LIVE
               </Text>
             </View>}
-
+          {!item.following && <View style={{
+              borderRadius: 999,
+              // paddingHorizontal: 6,
+              alignItems: 'center',
+              justifyContent: 'center',
+              // paddingVertical: 3,
+              backgroundColor: '#cd2bee',
+              bottom: -8,
+              position: 'absolute',
+              height: 20,
+              width: 20,
+            }}>
+              <MaterialIcons name="add" size={15} color='white'/>
+            </View>}
           </View>
         </Pressable>
 
@@ -624,11 +639,11 @@ useEffect(() => {
           shadowRadius: 6,
           elevation: 4,
           alignItems: 'center' }}>
-          <MaterialIcons name="chat-bubble" size={28} color="white" />
+          <CommentIcon height={32} width={32} fill="white" />
           <Text style={{ color: 'white', fontSize: mediumScreen ? 14:10, fontFamily: "PlusJakartaSansBold"}}>{item.comments}</Text>
         </Pressable>
 
-        <Pressable onPress={() => navigation.navigate('ArtistProfile')} style={{
+        {/* <Pressable onPress={() => navigation.navigate('ArtistProfile')} style={{
           shadowColor: '#000',
           shadowOffset: { width: 0, height: 2 },
           shadowOpacity: 0.5,
@@ -661,10 +676,10 @@ useEffect(() => {
               <MaterialIcons name="star" size={36} color={item.isSubscribed ? '#cd2bee' : 'white'} />
             </View>
           </View>
-          {/* <Text style={{ color: item.isSubscribed ? '#cd2bee' : 'white', fontSize: mediumScreen ? 14:10, fontFamily: "PlusJakartaSansBold" }}>
+          <Text style={{ color: item.isSubscribed ? '#cd2bee' : 'white', fontSize: mediumScreen ? 14:10, fontFamily: "PlusJakartaSansBold" }}>
             {item.isSubscribed ? 'SUBBED' : 'Sub'}
-          </Text> */}
-        </Pressable>
+          </Text>
+        </Pressable> */}
 
         <Pressable onPress={()=>{}} style={{
           shadowColor: '#000',
@@ -718,8 +733,20 @@ useEffect(() => {
               justifyContent: 'center',
               gap: 3,
               // backgroundColor: 'blue',
+
             }}>
-              <Text style={{ color: 'white', fontFamily: 'PlusJakartaSansBold', fontSize: mediumScreen ? 18: 14,}}>@{item.handle}</Text>
+              <View style={{
+                // backgroundColor: 'red',
+                maxWidth: SCREEN_WIDTH * 0.3
+              }}>
+                <Text
+              numberOfLines={1} 
+              style={{
+                color: 'white',
+                fontFamily: 'PlusJakartaSansBold',
+                fontSize: mediumScreen ? 18: 14,
+                }}>@{item.handle}</Text>
+              </View>
               <View style={{
                 // backgroundColor: 'red',
                 marginTop: 3
@@ -729,12 +756,21 @@ useEffect(() => {
             </View>
           </Pressable>
           {item.isPremium && (
-            <View style={{ borderRadius: 6, borderColor: '#cd2bee', backgroundColor: '#cd2bee', borderWidth: 1, paddingHorizontal: 6, justifyContent: 'center', alignItems: 'center', paddingVertical: 3 }}>
+            <View style={{ borderRadius: 6,  borderWidth: 1, paddingHorizontal: 6, justifyContent: 'center', alignItems: 'center', paddingVertical: 3, borderColor: 'white' }}>
               <Text style={{ color: '#fff', fontWeight: 'bold', fontSize: mediumScreen ? 12: 8 }}>Premium</Text>
             </View>
           )}
-          <View style={{ borderRadius: 6, borderColor: 'white',  borderWidth: 1, paddingHorizontal: 6, justifyContent: 'center', alignItems: 'center', paddingVertical: 3 }}>
-              <Text style={{ color: '#fff', fontWeight: 'bold', fontSize: mediumScreen ? 12: 8 }}>{item.following ? 'Following': 'Follow'}</Text>
+          <View style={{
+            borderRadius: 6,
+            // borderColor: 'white',  
+            borderWidth: 1, 
+            paddingHorizontal: 6, 
+            justifyContent: 'center', 
+            alignItems: 'center', 
+            borderColor: item.isSubscribed ?'#cd2bee': 'white',
+            backgroundColor: item.isSubscribed?'#cd2bee': 'transparent',
+            paddingVertical: 3 }}>
+              <Text style={{ color: '#fff', fontWeight: 'bold', fontSize: mediumScreen ? 12: 8 }}>{item.isSubscribed ? 'Subscribed': 'Subscribe'}</Text>
             </View>
         </View>
 
@@ -790,8 +826,9 @@ useEffect(() => {
           </View>
           <View style={{
             flexDirection: 'row',
-            backgroundColor: 'red',
-            width: '45%'
+            // backgroundColor: 'red',
+            width: '45%',
+            marginRight: 15,
           }}>
             <Text
           numberOfLines={1} 
@@ -815,18 +852,36 @@ useEffect(() => {
 
           <View style={{
             flexDirection: 'row',
-            backgroundColor: 'blue',
+            // backgroundColor: 'blue',
             width: '35%',
-            justifyContent: 'flex-end'
+            justifyContent: 'flex-start',
+            gap: 5,
           }}>
-            <Text style={{
+            <View style={{
+              backgroundColor: '#00000086',
+              flexDirection: 'row',
+              paddingHorizontal: 5,
+              borderRadius: 5,
+              gap: 3,
+              paddingVertical:2,
+              // shadowColor: '#fff',
+              // shadowOffset: { width: 0, height: 2 },
+              // shadowOpacity: 0.5,
+              // shadowRadius: 6,
+              // elevation: 4,
+            }}>
+              <SparkleIcon height={20} width={20}/>
+            <Text
+            numberOfLines={1}
+            style={{
               color: '#ffffffcc',
               fontSize: mediumScreen ? fontScale(10): fontScale(8),
               lineHeight: 20,
               fontFamily: 'PlusJakartaSansMedium'
             }}>
-              Use Style
+              Style {" • "}{" Kulsah"}
             </Text>
+            </View>
           </View>
 
         </View>
@@ -957,35 +1012,79 @@ const Feed: React.FC = () => {
   const insets= useSafeAreaInsets();
   const [items, setItems] = useState<FeedItem[]>([
     {
-      id: '10',
-      artist: 'Big Things',
-      handle: 'big_t',
+      id: '83',
+      artist: 'Kulsah Headquarters',
+      handle: 'kulsah_hq',
       avatar: 'https://picsum.photos/seed/elena/150/150',
-      caption: "PRIVATE DROP: Working on 'Nebula' vocal layers. This is the raw studio session for my supporters only. #BTS #KulsahExclusive",
+      caption: "Working on 'Nebula' vocal layers. This is the raw studio session for my supporters only. #BTS #KulsahExclusive",
       background: 'https://images.unsplash.com/photo-1598488035139-bdbb2231ce04?auto=format&fit=crop&q=80&w=800',
-      video: 'https://res.cloudinary.com/dmznckja5/video/upload/v1775813110/IMG_2154_wsvmch.mp4',
+      video: 'https://res.cloudinary.com/dmznckja5/video/upload/c_scale,w_1080/v1776076286/kul_video_00156_k34ckp.mp4',
       likes: '2.4M',
       comments: '88.1K',
       isLiked: false,
-      isSubscribed: true,
+      isSubscribed: false,
       isPremium: true,
       ticketsAvailable: true,
       ticketLocation: 'London, UK',
       originalSound: false,
-      soundArtist: 'Synthwave Kid',
-      soundTitle: 'Neon Dreams',
+      soundArtist: 'Rollex Bills',
+      soundTitle: 'Kulsah Theme',
       following: false,
       bookmarks: '2.5k',
       saves: '2.5k',
     },
+     {
+      id: '84',
+      artist: 'Kulsah Headquarters',
+      handle: 'kulsah_hq',
+      avatar: 'https://picsum.photos/seed/elena/150/150',
+      caption: "Working on 'Nebula' vocal layers. This is the raw studio session for my supporters only. #BTS #KulsahExclusive",
+      background: 'https://images.unsplash.com/photo-1598488035139-bdbb2231ce04?auto=format&fit=crop&q=80&w=800',
+      video: 'https://res.cloudinary.com/dmznckja5/video/upload/v1776078210/kul_video_001080_vciai8.mp4',
+      likes: '2.4M',
+      comments: '88.1K',
+      isLiked: false,
+      isSubscribed: false,
+      isPremium: true,
+      ticketsAvailable: true,
+      ticketLocation: 'London, UK',
+      originalSound: false,
+      soundArtist: 'Rollex Bills',
+      soundTitle: 'Kulsah Theme',
+      following: false,
+      bookmarks: '2.5k',
+      saves: '2.5k',
+    },
+    // {
+    //   id: '10',
+    //   artist: 'Big Things',
+    //   handle: 'big_t',
+    //   avatar: 'https://picsum.photos/seed/elena/150/150',
+    //   caption: "PRIVATE DROP: Working on 'Nebula' vocal layers. This is the raw studio session for my supporters only. #BTS #KulsahExclusive",
+    //   background: 'https://images.unsplash.com/photo-1598488035139-bdbb2231ce04?auto=format&fit=crop&q=80&w=800',
+    //   video: 'https://res.cloudinary.com/dmznckja5/video/upload/v1775813110/IMG_2154_wsvmch.mp4',
+    //   likes: '2.4M',
+    //   comments: '88.1K',
+    //   isLiked: false,
+    //   isSubscribed: true,
+    //   isPremium: true,
+    //   ticketsAvailable: true,
+    //   ticketLocation: 'London, UK',
+    //   originalSound: false,
+    //   soundArtist: 'Synthwave Kid',
+    //   soundTitle: 'Neon Dreams',
+    //   following: false,
+    //   bookmarks: '2.5k',
+    //   saves: '2.5k',
+    // },
     {
       id: '6',
-      artist: 'Big Nyash',
-      handle: 'big',
+      artist: 'Sarkodie',
+      handle: 'sarkodie',
       avatar: 'https://picsum.photos/seed/elena/150/150',
       caption: "PRIVATE DROP: Working on 'Nebula' vocal layers. This is the raw studio session for my supporters only. #BTS #KulsahExclusive",
       background: 'https://images.unsplash.com/photo-1598488035139-bdbb2231ce04?auto=format&fit=crop&q=80&w=800',
-      video: 'https://res.cloudinary.com/dmznckja5/video/upload/v1775813092/IMG_2153_o68qcr.mp4',
+      video: 'https://res.cloudinary.com/dmznckja5/video/upload/v1776090904/IMG_2291_d6uwgu.mp4',
       likes: '2.4M',
       comments: '88.1K',
       isLiked: false,
@@ -1000,36 +1099,36 @@ const Feed: React.FC = () => {
       bookmarks: '2.5k',
       saves: '2.5k',
     },
-    {
-      id: '15',
-      artist: 'Elena Rose',
-      handle: 'elena_rose',
-      avatar: 'https://picsum.photos/seed/elena/150/150',
-      caption: "PRIVATE DROP: Working on 'Nebula' vocal layers. This is the raw studio session for my supporters only. #BTS #KulsahExclusive",
-      background: 'https://images.unsplash.com/photo-1598488035139-bdbb2231ce04?auto=format&fit=crop&q=80&w=800',
-      video: 'https://res.cloudinary.com/dmznckja5/video/upload/v1773840893/WhatsApp_Video_2026-03-18_at_1.31.10_PM_pzk1wt.mp4',
-      likes: '2.4M',
-      comments: '88.1K',
-      isLiked: false,
-      isSubscribed: true,
-      isPremium: true,
-      ticketsAvailable: true,
-      ticketLocation: 'London, UK',
-      originalSound: false,
-      soundArtist: 'Synthwave Kid',
-      soundTitle: 'Neon Dreams',
-      following: false,
-      bookmarks: '2.5k',
-      saves: '2.5k',
-    },
+    // {
+    //   id: '15',
+    //   artist: 'Elena Rose',
+    //   handle: 'elena_rose',
+    //   avatar: 'https://picsum.photos/seed/elena/150/150',
+    //   caption: "PRIVATE DROP: Working on 'Nebula' vocal layers. This is the raw studio session for my supporters only. #BTS #KulsahExclusive",
+    //   background: 'https://images.unsplash.com/photo-1598488035139-bdbb2231ce04?auto=format&fit=crop&q=80&w=800',
+    //   video: 'https://res.cloudinary.com/dmznckja5/video/upload/v1773840893/WhatsApp_Video_2026-03-18_at_1.31.10_PM_pzk1wt.mp4',
+    //   likes: '2.4M',
+    //   comments: '88.1K',
+    //   isLiked: false,
+    //   isSubscribed: true,
+    //   isPremium: true,
+    //   ticketsAvailable: true,
+    //   ticketLocation: 'London, UK',
+    //   originalSound: false,
+    //   soundArtist: 'Synthwave Kid',
+    //   soundTitle: 'Neon Dreams',
+    //   following: false,
+    //   bookmarks: '2.5k',
+    //   saves: '2.5k',
+    // },
     {
       id: '1',
-      artist: 'Elena Rose',
-      handle: 'elena_rose',
+      artist: 'Okenneth',
+      handle: 'o_kenneth',
       avatar: 'https://picsum.photos/seed/elena/150/150',
       caption: "PRIVATE DROP: Working on 'Nebula' vocal layers. This is the raw studio session for my supporters only. #BTS #KulsahExclusive",
       background: 'https://images.unsplash.com/photo-1598488035139-bdbb2231ce04?auto=format&fit=crop&q=80&w=800',
-      video: 'https://dozi-chat-s3.s3.us-east-1.amazonaws.com/kul/WhatsApp+Video+2026-03-18+at+11.10.25+AM.mp4',
+      video: 'https://res.cloudinary.com/dmznckja5/video/upload/v1776090888/IMG_2292_quwrue.mp4',
       likes: '2.4M',
       comments: '88.1K',
       isLiked: false,
@@ -1044,12 +1143,12 @@ const Feed: React.FC = () => {
     },
     {
       id: '4',
-      artist: 'Marcus Thorne',
-      handle: 'mthorne_bass',
+      artist: 'Shatta Wale',
+      handle: 'sm_movement',
       avatar: 'https://picsum.photos/seed/mthorne/150/150',
       caption: "SUBSCRIBER REHEARSAL: Early draft of the winter tour set. Gold Tier circle, let's vibe.",
       background: 'https://images.unsplash.com/photo-1511671782779-c97d3d27a1d4?auto=format&fit=crop&q=80&w=800',
-      video: 'https://dozi-chat-s3.s3.us-east-1.amazonaws.com/kul/WhatsApp+Video+2026-03-18+at+11.09.04+AM.mp4',
+      video: 'https://res.cloudinary.com/dmznckja5/video/upload/v1776090886/IMG_2290_pqm8im.mp4',
       likes: '450K',
       comments: '12.2K',
       isLiked: false,
@@ -1064,12 +1163,12 @@ const Feed: React.FC = () => {
     },
     {
       id: '2',
-      artist: 'Zion King',
-      handle: 'zionking_afro',
+      artist: 'Shatta Wale',
+      handle: 'sm_movement',
       avatar: 'https://picsum.photos/seed/zion/150/150',
       caption: 'Live from the main stage! This crowd is unmatched. #Kulsah #LiveMusic #Afrobeats',
       background: 'https://images.unsplash.com/photo-1514525253361-bee8718a74a2?auto=format&fit=crop&q=80&w=800',
-      video: 'https://dozi-chat-s3.s3.us-east-1.amazonaws.com/kul/WhatsApp+Video+2026-03-18+at+11.58.23+AM.mp4',
+      video: 'https://res.cloudinary.com/dmznckja5/video/upload/v1776090870/IMG_2289_hdsiis.mp4',
       likes: '1.2M',
       comments: '45.8K',
       isLiked: true,
@@ -1088,7 +1187,7 @@ const Feed: React.FC = () => {
       avatar: 'https://picsum.photos/seed/sarah/150/150',
       caption: "VIP MASTERCLASS: Layering vocal chains for the 'Galaxy' sound. #ProducerLife #PremiumContent",
       background: 'https://images.unsplash.com/photo-1520529277867-dbf8c5e0b340?auto=format&fit=crop&q=80&w=800',
-      video: 'https://dozi-chat-s3.s3.us-east-1.amazonaws.com/kul/WhatsApp+Video+2026-03-18+at+10.44.57+AM.mp4',
+      video: 'https://res.cloudinary.com/dmznckja5/video/upload/v1776093916/IMG_2294_nu53zb.mp4',
       likes: '89K',
       comments: '4.5K',
       isLiked: true,
@@ -1107,7 +1206,7 @@ const Feed: React.FC = () => {
       avatar: 'https://picsum.photos/seed/sarah/150/150',
       caption: "VIP MASTERCLASS: Layering vocal chains for the 'Galaxy' sound. #ProducerLife #PremiumContent",
       background: 'https://images.unsplash.com/photo-1520529277867-dbf8c5e0b340?auto=format&fit=crop&q=80&w=800',
-      video: 'https://dozi-chat-s3.s3.us-east-1.amazonaws.com/kul/WhatsApp+Video+2026-03-18+at+10.44.57+AM.mp4',
+      video: 'https://res.cloudinary.com/dmznckja5/video/upload/v1776093923/IMG_2295_lplsoq.mp4',
       likes: '89K',
       comments: '4.5K',
       isLiked: true,
@@ -1126,7 +1225,7 @@ const Feed: React.FC = () => {
       avatar: 'https://picsum.photos/seed/sarah/150/150',
       caption: "VIP MASTERCLASS: Layering vocal chains for the 'Galaxy' sound. #ProducerLife #PremiumContent",
       background: 'https://images.unsplash.com/photo-1520529277867-dbf8c5e0b340?auto=format&fit=crop&q=80&w=800',
-      video: 'https://dozi-chat-s3.s3.us-east-1.amazonaws.com/kul/WhatsApp+Video+2026-03-18+at+10.44.57+AM+(1).mp4',
+      video: 'https://res.cloudinary.com/dmznckja5/video/upload/v1776094013/IMG_2296_gz8efi.mp4',
       likes: '89K',
       comments: '4.5K',
       isLiked: true,
@@ -1145,7 +1244,7 @@ const Feed: React.FC = () => {
       avatar: 'https://picsum.photos/seed/amara/150/150',
       caption: 'EXCLUSIVE: Late night neon dance rehearsal. The tour visuals are finally ready for my subscribers.',
       background: 'https://images.unsplash.com/photo-1516450360452-9312f5e86fc7?auto=format&fit=crop&q=80&w=800',
-      video: 'https://dozi-chat-s3.s3.us-east-1.amazonaws.com/kul/WhatsApp+Video+2026-03-18+at+11.59.32+AM.mp4',
+      video: 'https://res.cloudinary.com/dmznckja5/video/upload/v1776093939/IMG_2297_aqcyf2.mp4',
       likes: '890K',
       comments: '12.4K',
       isLiked: false,
@@ -1164,7 +1263,7 @@ const Feed: React.FC = () => {
       avatar: 'https://picsum.photos/seed/amara/150/150',
       caption: 'EXCLUSIVE: Late night neon dance rehearsal. The tour visuals are finally ready for my subscribers.',
       background: 'https://images.unsplash.com/photo-1516450360452-9312f5e86fc7?auto=format&fit=crop&q=80&w=800',
-      video: 'https://dozi-chat-s3.s3.us-east-1.amazonaws.com/kul/WhatsApp+Video+2026-03-18+at+12.55.09+PM.mp4',
+      video: 'https://res.cloudinary.com/dir15sl86/video/upload/v1776098026/kul_kid_n4_exwwrc.mp4',
       likes: '890K',
       comments: '12.4K',
       isLiked: false,
@@ -1183,7 +1282,7 @@ const Feed: React.FC = () => {
       avatar: 'https://picsum.photos/seed/amara/150/150',
       caption: 'EXCLUSIVE: Late night neon dance rehearsal. The tour visuals are finally ready for my subscribers.',
       background: 'https://images.unsplash.com/photo-1516450360452-9312f5e86fc7?auto=format&fit=crop&q=80&w=800',
-      video: 'https://dozi-chat-s3.s3.us-east-1.amazonaws.com/kul/WhatsApp+Video+2026-03-18+at+12.56.16+PM.mp4',
+      video: 'https://res.cloudinary.com/dmznckja5/video/upload/v1776094108/kul_video_podcast_sd2qei.mp4',
       likes: '890K',
       comments: '12.4K',
       isLiked: false,
@@ -1202,7 +1301,7 @@ const Feed: React.FC = () => {
       avatar: 'https://picsum.photos/seed/amara/150/150',
       caption: 'EXCLUSIVE: Late night neon dance rehearsal. The tour visuals are finally ready for my subscribers.',
       background: 'https://images.unsplash.com/photo-1516450360452-9312f5e86fc7?auto=format&fit=crop&q=80&w=800',
-      video: 'https://dozi-chat-s3.s3.us-east-1.amazonaws.com/kul/WhatsApp+Video+2026-03-18+at+12.56.01+PM.mp4',
+      video: 'https://res.cloudinary.com/dir15sl86/video/upload/v1776098327/kul_poll200_wmjchl.mp4',
       likes: '890K',
       comments: '12.4K',
       isLiked: false,

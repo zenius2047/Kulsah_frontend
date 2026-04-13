@@ -105,7 +105,7 @@ const CreatorTabs = ({ isDarkMode }: TabsProps) => {
     <Tab.Navigator 
     id="creator-tabs"
     safeAreaInsets={{ bottom: 0 }}
-    screenOptions={{
+    screenOptions={({ route }) => ({
         headerShown: false,
         tabBarActiveTintColor: '#cd2bee',
         tabBarInactiveTintColor: '#8E8E93',
@@ -113,14 +113,14 @@ const CreatorTabs = ({ isDarkMode }: TabsProps) => {
         tabBarStyle: [
           styles.tabBar,
           {
-            backgroundColor: isDarkMode ? '#1f1022' : '#ffffff',
+            backgroundColor: route.name === 'Galaxy' || isDarkMode ? '#000' : '#ffffff',
             height: tabBarHeight,
           },
         ],
-      }}
+      })}
     >
     <Tab.Screen
-      name="Feed"
+      name="Galaxy"
       component={Feed}
       options={{
         tabBarIcon: ({ color, size }) => <MovieIcon width={size} height={size} fill={color} />,
@@ -159,7 +159,7 @@ const CreatorTabs = ({ isDarkMode }: TabsProps) => {
       }}
     />
     <Tab.Screen 
-    name="Inbox" 
+    name="Signal" 
     component={Inbox}
     options = {{
       tabBarIcon: ({ color, size }) => <MaterialIcons name="chat-bubble-outline" size={size} color={color} />,
@@ -209,7 +209,7 @@ const FanTabs = ({isDarkMode}: TabsProps) => {
     <Tab.Navigator
       id="fan-tabs"
       safeAreaInsets={{ bottom: 0 }}
-      screenOptions={{
+      screenOptions={({ route }) => ({
         headerShown: false,
         tabBarActiveTintColor: '#cd2bee',
         tabBarInactiveTintColor: isDarkMode ? '#8E8E93' : '#64748b',
@@ -217,14 +217,14 @@ const FanTabs = ({isDarkMode}: TabsProps) => {
         tabBarStyle: [
           styles.tabBar,
           {
-            backgroundColor: isDarkMode ? '#1f1022' : '#ffffff',
+            backgroundColor: route.name === 'Galaxy' || isDarkMode ? '#1f1022' : '#ffffff',
             height: tabBarHeight,
           },
         ],
-      }}
+      })}
     >
     <Tab.Screen
-      name="Feed"
+      name="Galaxy"
       component={Feed}
       options={{
         tabBarIcon: ({ color, size }) =>
@@ -261,7 +261,7 @@ const FanTabs = ({isDarkMode}: TabsProps) => {
     }}
     />
     <Tab.Screen 
-    name="Inbox" 
+    name="Signal" 
     component={Inbox}
     options = {{
       tabBarIcon: ({ color, size }) => <MaterialIcons name="chat-bubble-outline" size={size} color={color} />,
