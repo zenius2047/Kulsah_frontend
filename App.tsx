@@ -18,7 +18,7 @@ import CreateIcon from './assets/icons/create-svg.svg';
 
 // import Icon from 'react-native-vector-icons/MaterialIcons';
 
-import { user, User, UserRole, setUser, setHeight, setWidth, setScreenType, mediumScreen, setSmallWith } from './types';
+import { user, User, UserRole, setUser, setHeight, setWidth, setScreenType, mediumScreen, setSmallWith, setDark, subscribeUser } from './types';
 // import ArtistDashboard from './pages/ArtistDashboard';
 // import LiveStream from './pages/LiveStream';
 import ChatView from './pages/ChatView';
@@ -73,6 +73,7 @@ import Inbox from './pages/Inbox';
 import Notifications from './pages/Notifications';
 import StreakReward from './pages/StreakReward';
 import ErrorBoundary from './components/ErrorBoundary';
+import CreateCommunityPost from './pages/CreateCommunityPost';
 
 
 const Stack = createNativeStackNavigator();
@@ -303,7 +304,7 @@ const FanTabs = ({isDarkMode}: TabsProps) => {
 
 const App: React.FC = () => {
   const { isDark, theme } = useThemeMode();
-  // const [user, setUser] = useState<User | null>(null);
+  const [currentUser, setCurrentUser] = useState<User | null>(user);
   const [isLoading, setIsLoading] = useState(true);
   const [showOnboarding, setShowOnboarding] = useState(true);
   const { height: vh, width:vw } = useWindowDimensions();
@@ -329,13 +330,24 @@ const App: React.FC = () => {
       setSmallWith(true)
     }
     void loadInitialData();
-  }, [user, vh]);
+  }, [vh]);
+
+  useEffect(() => {
+    const unsubscribe = subscribeUser(setCurrentUser);
+    return unsubscribe;
+  }, []);
 
   const loadInitialData = async () => {
     try {
       const savedUser = await AsyncStorage.getItem('pulsar_user');
+      const savedDarkMode = await AsyncStorage.getItem('pulsar_dark_mode');
+      if (savedDarkMode !== null) {
+        setDark(JSON.parse(savedDarkMode));
+      }
       if (savedUser) {
-        setUser(JSON.parse(savedUser) as User)
+        const parsedUser = JSON.parse(savedUser) as User;
+        setUser(parsedUser);
+        setCurrentUser(parsedUser);
         setShowOnboarding(false)
       };
       console.log(savedUser)
@@ -353,6 +365,7 @@ const App: React.FC = () => {
       role,
     };
     setUser(mockUser);
+    setCurrentUser(mockUser);
     setShowOnboarding(false);
     await AsyncStorage.setItem('pulsar_user', JSON.stringify(mockUser));
   };
@@ -385,9 +398,9 @@ const App: React.FC = () => {
                   <Stack.Screen name="Onboarding">{() => <Onboarding onLogin={handleLogin} />}</Stack.Screen>
                   <Stack.Screen name="Signup">{() => <Signup onLogin={handleLogin} />}</Stack.Screen>
                 </>
-              ) : user ? (
+              ) : currentUser ? (
                 <>
-                  <Stack.Screen name="MainTabs">{() => (user!.role === 'creator' ? <CreatorTabs isDarkMode={isDark} /> : <FanTabs isDarkMode={isDark} />)}</Stack.Screen>
+                  <Stack.Screen name="MainTabs">{() => (currentUser.role === 'creator' ? <CreatorTabs isDarkMode={isDark} /> : <FanTabs isDarkMode={isDark} />)}</Stack.Screen>
                   <Stack.Screen name="Chat" component={ChatView} />
                   <Stack.Screen name="Settings" component={CreatorSettings} />
                   <Stack.Screen name="ArtistProfile" component={ArtistProfile} />
@@ -423,6 +436,8 @@ const App: React.FC = () => {
                   <Stack.Screen name= "ConnectHub" component={CollaborationHub}/>
                   <Stack.Screen name= "Notification" component={Notifications}/>
                   <Stack.Screen name= "StreakReward" component={StreakReward}/>
+                  <Stack.Screen name= "CommunityPost" component={CreateCommunityPost}/>
+
                 </>
               ) : (
                 <Stack.Screen name="Onboarding">{() => <Onboarding onLogin={handleLogin} />}</Stack.Screen>

@@ -146,13 +146,16 @@ const Discover: React.FC<{ embedded?: boolean }> = ({ embedded = false }) => {
   ];
 
   return (
-    <ScrollView style={{ flex: 1, backgroundColor: theme.background }} contentContainerStyle={{ paddingBottom: 40 }}>
+    <ScrollView
+    bounces={false}
+    showsVerticalScrollIndicator={false}
+    style={{ flex: 1, backgroundColor: theme.background }} contentContainerStyle={{ paddingBottom: 40 }}>
       <View
         style={{
           backgroundColor: headerBackground,
         }}
       >
-        <View style={{ paddingHorizontal: 16, paddingTop: 52, paddingBottom: 12 }}>
+        <View style={{ paddingHorizontal: 16, paddingTop: 22, paddingBottom: 12 }}>
           {!embedded ? (
             <View style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between' }}>
               <Pressable
@@ -219,13 +222,13 @@ const Discover: React.FC<{ embedded?: boolean }> = ({ embedded = false }) => {
         </View>
       </View>
 
-      <View style={{ paddingHorizontal: 16, gap: 24 }}>
+      <View style={{  gap: 24 }}>
         {(activeCategory === 'All' || activeCategory === 'Creators') && (
           <View>
-            <View style={{ flexDirection: 'row', justifyContent: 'space-between', marginVertical: 20, alignItems: 'center' }}>
-              <Text style={{ color: theme.text, fontSize: mediumScreen ? 19 : 15, fontWeight: 'bold', fontFamily: 'PlusJakartaSansExtraBold' }}>TOP CREATORS</Text>
+            <View style={{ paddingHorizontal: 16, flexDirection: 'row', justifyContent: 'space-between', marginVertical: 20, alignItems: 'center' }}>
+              <Text style={{ color: theme.text, fontSize: mediumScreen ? 16 : 12, fontWeight: 'bold', fontFamily: 'PlusJakartaSansExtraBold' }}>TOP CREATORS</Text>
               <Pressable>
-                <Text style={{ color: '#cd2bee', fontSize: mediumScreen ? 15 : 11, fontWeight: 'bold', fontFamily: 'PlusJakartaSansBold' }}>VIEW ALL</Text>
+                <Text style={{ color: '#cd2bee', fontSize: mediumScreen ? 14 : 10, fontWeight: 'bold', fontFamily: 'PlusJakartaSansBold' }}>VIEW ALL</Text>
               </Pressable>
             </View>
             <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={{ gap: 20, paddingVertical: 4 }}>
@@ -281,13 +284,13 @@ const Discover: React.FC<{ embedded?: boolean }> = ({ embedded = false }) => {
 
         {(activeCategory === 'All' || activeCategory === 'Events') && (
           <View>
-            <View style={{ flexDirection: 'row', justifyContent: 'space-between', marginVertical: 20 }}>
-              <Text style={{ color: theme.text, fontSize: mediumScreen ? 19 : 15, fontWeight: 'bold', fontFamily: 'PlusJakartaSansExtraBold' }}>HOT TICKETS</Text>
+            <View style={{ paddingHorizontal: 16, flexDirection: 'row', justifyContent: 'space-between', marginVertical: 20 }}>
+              <Text style={{ color: theme.text, fontSize: mediumScreen ? 16 : 12, fontWeight: 'bold', fontFamily: 'PlusJakartaSansExtraBold' }}>HOT TICKETS</Text>
               <Pressable>
-                <Text style={{ color: '#cd2bee', fontSize: mediumScreen ? 15 : 11, fontWeight: 'bold', fontFamily: 'PlusJakartaSansBold' }}>FULL CALENDAR</Text>
+                <Text style={{ color: '#cd2bee', fontSize: mediumScreen ? 14 : 10, fontWeight: 'bold', fontFamily: 'PlusJakartaSansBold' }}>FULL CALENDAR</Text>
               </Pressable>
             </View>
-            <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={{ gap: 14, paddingRight: 16 }}>
+            <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={{ gap: 14, paddingHorizontal: 16 }}>
               {upcomingEvents.map((event) => (
                 <Pressable key={event.id} onPress={() => navigation.navigate('Community')} style={{ width: 320 }}>
                   <View style={{ borderRadius: 32, overflow: 'hidden', backgroundColor: cardBackground, height: 300, borderWidth: 1, borderColor: theme.border }}>
@@ -359,7 +362,7 @@ const Discover: React.FC<{ embedded?: boolean }> = ({ embedded = false }) => {
                       }}
                     >
                       <View style={{ backgroundColor: '#cd2bee', width: 8, height: 8, borderRadius: 4 }} />
-                      <Text style={{ color: '#cd2bee', fontSize: mediumScreen ? 11 : 9, fontWeight: '700', marginLeft: 8, fontFamily: 'PlusJakartaSansBold' }}>
+                      <Text style={{ color: 'white', fontSize: mediumScreen ? 11 : 9, fontWeight: '700', marginLeft: 8, fontFamily: 'PlusJakartaSansBold' }}>
                         {event.tag.toUpperCase()}
                       </Text>
                     </View>
@@ -372,13 +375,13 @@ const Discover: React.FC<{ embedded?: boolean }> = ({ embedded = false }) => {
 
         {(activeCategory === 'All' || activeCategory === 'Videos' || activeCategory === 'Shorts') && (
           <View>
-            <View style={{ flexDirection: 'row', justifyContent: 'space-between', marginBottom: 10, marginTop: 4 }}>
+            <View style={{ paddingHorizontal: 16, flexDirection: 'row', justifyContent: 'space-between', marginBottom: 10, marginTop: 4 }}>
               <Text style={{ color: theme.text, fontSize: mediumScreen ? 18 : 14, fontWeight: 'bold', fontFamily: 'PlusJakartaSansExtraBold' }}>TRENDING VIDEO</Text>
               <Pressable>
                 <Text style={{ color: '#cd2bee', fontSize: mediumScreen ? 15 : 11, fontWeight: 'bold', fontFamily: 'PlusJakartaSansBold' }}>SEE ALL</Text>
               </Pressable>
             </View>
-            <View style={{ gap: 16 }}>
+            <View style={{ gap: 16, paddingHorizontal: 16 }}>
               {featuredClips.map((vid) => (
                 <Pressable key={vid.id} onPress={() => navigation.navigate('Feed')}>
                   <View style={{ borderRadius: 28, overflow: 'hidden', backgroundColor: cardBackground, height: 270, borderWidth: 1, borderColor: theme.border }}>
@@ -443,13 +446,13 @@ const Discover: React.FC<{ embedded?: boolean }> = ({ embedded = false }) => {
 
         {(activeCategory === 'All' || activeCategory === 'Creators') && (
           <View style={{ paddingBottom: 10 }}>
-            <View style={{ flexDirection: 'row', justifyContent: 'space-between', marginBottom: 10, marginTop: 4 }}>
+            <View style={{ flexDirection: 'row', justifyContent: 'space-between', marginBottom: 10, marginTop: 4, paddingHorizontal: 16 }}>
               <Text style={{ color: theme.text, fontSize: mediumScreen ? 18 : 14, fontWeight: 'bold', fontFamily: 'PlusJakartaSansExtraBold' }}>KULSAH STORE</Text>
               <Pressable onPress={() => navigation.navigate('CreateContent')}>
                 <Text style={{ color: '#cd2bee', fontSize: mediumScreen ? 15 : 11, fontWeight: 'bold', fontFamily: 'PlusJakartaSansBold' }}>BROWSE ALL</Text>
               </Pressable>
             </View>
-            <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={{ gap: 12, paddingRight: 16 }}>
+            <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={{ gap: 12, paddingHorizontal: 16 }}>
               {featuredMerch.map((item) => (
                 <Pressable key={item.id} style={{ width: 180 }} onPress={() => navigation.navigate('CreateContent')}>
                   <View style={{ borderRadius: 24, overflow: 'hidden', backgroundColor: cardBackground, borderWidth: 1, borderColor: theme.border }}>
@@ -498,6 +501,9 @@ const Discover: React.FC<{ embedded?: boolean }> = ({ embedded = false }) => {
           </View>
         )}
       </View>
+      <View style={{
+        height: 100,
+      }}/>
     </ScrollView>
   );
 };

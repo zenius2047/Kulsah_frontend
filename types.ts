@@ -1,3 +1,5 @@
+import AsyncStorage from '@react-native-async-storage/async-storage';
+
 export type UserRole = 'fan' | 'creator';
 
 export interface User {
@@ -12,9 +14,20 @@ export type RootStackParamList = {
 };
 
 export let user: User | null = null;
-export const setUser = (value: User)=>{
+type UserListener = (value: User | null) => void;
+const userListeners = new Set<UserListener>();
+
+export const setUser = (value: User | null)=>{
   user = value;
+  userListeners.forEach((listener) => listener(value));
 }
+
+export const subscribeUser = (listener: UserListener) => {
+  userListeners.add(listener);
+  return () => {
+    userListeners.delete(listener);
+  };
+};
 
 export let HEIGHT = 0;
 export const setHeight = (value: number)=>{
@@ -41,6 +54,7 @@ const darkModeListeners = new Set<DarkModeListener>();
 export let darkMode = false;
 export const setDark = (value: boolean)=>{
   darkMode = value;
+  void AsyncStorage.setItem('pulsar_dark_mode', JSON.stringify(value));
   darkModeListeners.forEach((listener) => listener(value));
 }
 

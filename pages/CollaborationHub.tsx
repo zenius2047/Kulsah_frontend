@@ -3,6 +3,7 @@ import { useThemeMode } from '../theme';
 import {
   ActivityIndicator,
   Image,
+  Platform,
   Pressable,
   ScrollView,
   StyleSheet,
@@ -13,6 +14,7 @@ import {
 import { useNavigation, useRoute } from '@react-navigation/native';
 import { MaterialIcons } from '@expo/vector-icons';
 import { GoogleGenAI } from '@google/genai';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { fontScale } from '../fonts';
 import { mediumScreen } from '../types';
 
@@ -54,6 +56,7 @@ const CollaborationHub: React.FC = () => {
   const { isDark, theme } = useThemeMode();
   const navigation = useNavigation<any>();
   const route = useRoute<any>();
+  const insets = useSafeAreaInsets();
 
   const [activeTab, setActiveTab] = useState<CollabTab>('discover');
   const [incomingFilter, setIncomingFilter] = useState<ProjectType>('All');
@@ -127,7 +130,7 @@ const CollaborationHub: React.FC = () => {
 
   return (
     <View style={[styles.screen, { backgroundColor: theme.background }]}>
-      <View style={[styles.header, { backgroundColor: theme.card, borderBottomColor: theme.border }]}>
+      <View style={[styles.header, { backgroundColor: theme.card, borderBottomColor: theme.border, paddingTop: Platform.OS == 'ios' ? 54: insets.top }]}>
         <View style={styles.headerTop}>
           <View style={styles.headerLeft}>
             <Pressable onPress={() => navigation.goBack()}>
@@ -260,7 +263,7 @@ const CollaborationHub: React.FC = () => {
 
 const styles = StyleSheet.create({
   screen: { flex: 1 },
-  header: { paddingTop: 54, paddingHorizontal: 16, paddingBottom: 10, borderBottomWidth: 1 },
+  header: { paddingHorizontal: 16, paddingBottom: 10, borderBottomWidth: 1 },
   headerTop: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', marginBottom: 12 },
   headerLeft: { flexDirection: 'row', alignItems: 'center', gap: 10 },
   title: { fontFamily: 'PlusJakartaSansExtraBold', fontSize: mediumScreen? fontScale(16): fontScale(12), textTransform: 'uppercase' },
@@ -292,4 +295,3 @@ const styles = StyleSheet.create({
 });
 
 export default CollaborationHub;
-

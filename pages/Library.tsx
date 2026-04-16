@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { useThemeMode } from '../theme';
 import {
   Image,
+  Platform,
   Pressable,
   SafeAreaView,
   ScrollView,
@@ -12,6 +13,7 @@ import {
 } from 'react-native';
 import { MaterialIcons } from '@expo/vector-icons';
 import { useNavigation } from '@react-navigation/native';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { fontScale } from '../fonts';
 
 type FilterKey = 'Recents' | 'Videos' | 'Favourites' | 'WhatsApp';
@@ -84,6 +86,7 @@ const mediaItems: MediaItem[] = [
 const Library: React.FC = () => {
   const { isDark, theme } = useThemeMode();
   const navigation = useNavigation<any>();
+  const insets = useSafeAreaInsets();
   const [activeFilter, setActiveFilter] = useState<FilterKey>('Videos');
   const [selectedId, setSelectedId] = useState<string>('2');
 
@@ -110,6 +113,7 @@ const Library: React.FC = () => {
           {
             backgroundColor: isDark ? 'rgba(10,5,13,0.8)' : 'rgba(255,255,255,0.86)',
             borderBottomColor: theme.border,
+            paddingTop: Platform.OS == 'ios' ? 54: insets.top,
           },
         ]}
       >
@@ -230,7 +234,6 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'space-between',
     paddingHorizontal: 16,
-    paddingTop: 54,
     paddingBottom: 12,
     borderBottomWidth: 1,
   },

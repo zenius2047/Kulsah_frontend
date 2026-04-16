@@ -82,7 +82,7 @@ const NoReward: React.FC = () => {
             <Text style={[styles.headerTitle, { color: titleTone }]}>REWARD CONFIG</Text>
           </View>
 
-          <Text style={styles.headerBrand}>NEON PULSE</Text>
+          {/* <Text style={styles.headerBrand}>NEON PULSE</Text> */}
 
           <View style={[styles.avatarShell, { backgroundColor: shellBg, borderColor: cardBorder }]}>
             <Image source={{ uri: creatorAvatar }} style={styles.avatar} />

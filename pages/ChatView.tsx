@@ -15,6 +15,7 @@ import AsyncStorage from '@react-native-async-storage/async-storage';
 import { MaterialIcons } from '@expo/vector-icons';
 import { GoogleGenAI } from '@google/genai';
 import { fontScale } from '../fonts';
+import { mediumScreen } from '../types';
 
 interface Message {
   id: number;
@@ -271,7 +272,7 @@ const ChatView: React.FC = () => {
           </Pressable>
         </View>
 
-        <View style={[styles.metaCard, { backgroundColor: softSurface, borderColor: border }]}>
+        {/* <View style={[styles.metaCard, { backgroundColor: softSurface, borderColor: border }]}>
           <View>
             <Text style={[styles.metaLabel, { color: mutedText }]}>{isCreator ? 'Support Status' : 'Your Subscription'}</Text>
             <Text style={[styles.metaValue, { color: primaryText }]}>{meta.subStatus}</Text>
@@ -290,7 +291,7 @@ const ChatView: React.FC = () => {
               </View>
             </>
           )}
-        </View>
+        </View> */}
       </View>
 
       <ScrollView
@@ -499,8 +500,8 @@ const styles = StyleSheet.create({
   msgBubble: { maxWidth: '86%', borderRadius: 20, paddingHorizontal: 14, paddingVertical: 11 },
   msgMine: { backgroundColor: '#cd2bee' },
   msgOther: { backgroundColor: 'rgba(255,255,255,0.08)', borderWidth: 1, borderColor: 'rgba(255,255,255,0.06)' },
-  msgText: { fontSize: fontScale(13), lineHeight: 19, fontFamily: 'PlusJakartaSansMedium' },
-  msgMeta: { marginTop: 5, fontSize: fontScale(9), fontFamily: 'PlusJakartaSansBold' },
+  msgText: { fontSize: mediumScreen? fontScale(16) :fontScale(12), lineHeight: 19, fontFamily: 'PlusJakartaSansMedium' },
+  msgMeta: { marginTop: 5, fontSize: mediumScreen ? fontScale(12):fontScale(8), fontFamily: 'PlusJakartaSansBold' },
   dropBubble: {
     maxWidth: '86%',
     borderRadius: 24,
@@ -596,7 +597,7 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     gap: 8,
   },
-  input: { flex: 1, fontSize: fontScale(13), fontFamily: 'PlusJakartaSansBold' },
+  input: { flex: 1, fontSize: mediumScreen? fontScale(14): fontScale(10), fontFamily: 'PlusJakartaSansBold' },
   sendBtn: { width: 48, height: 48, borderRadius: 24, backgroundColor: '#cd2bee', justifyContent: 'center', alignItems: 'center' },
   sendBtnDisabled: { backgroundColor: 'rgba(255,255,255,0.12)' },
 });

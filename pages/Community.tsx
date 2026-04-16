@@ -533,7 +533,7 @@ const Community: React.FC<{ embedded?: boolean }> = ({ embedded = false }) => {
       </Modal>
 
       {isCreator && (
-        <Pressable style={styles.fab} onPress={() => navigation.navigate('UploadContent')}>
+        <Pressable style={styles.fab} onPress={() => navigation.navigate('CommunityPost')}>
           <MaterialIcons name="add" size={32} color="#fff" />
         </Pressable>
       )}

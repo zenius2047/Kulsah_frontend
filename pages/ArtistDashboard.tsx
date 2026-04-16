@@ -6,12 +6,14 @@ import { GoogleGenAI } from '@google/genai';
 import {
   ActivityIndicator,
   Image,
+  Platform,
   Pressable,
   ScrollView,
   StyleSheet,
   Text,
   View,
 } from 'react-native';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { HEIGHT, user, WIDTH } from '../types';
 import { FontSize, fontScale } from '../fonts';
 import NotificationIcon from '../assets/icons/notifications-svg.svg';
@@ -46,6 +48,7 @@ type Collab = {
 const ArtistDashboard: React.FC<ArtistDashboardProps> = ({ onToggleRole }) => {
   const { isDark, theme } = useThemeMode();
   const navigation = useNavigation<any>();
+  const insets = useSafeAreaInsets();
   const [insight, setInsight] = useState<string>('');
   const [loading, setLoading] = useState(false);
 
@@ -99,7 +102,7 @@ const ArtistDashboard: React.FC<ArtistDashboardProps> = ({ onToggleRole }) => {
   return (
     <View style={s.screen}>
       <ScrollView contentContainerStyle={s.content} showsVerticalScrollIndicator={false}>
-        <View style={s.headerCard}>
+        <View style={[s.headerCard, { paddingTop: Platform.OS == 'ios' ? 54: insets.top }]}>
           <View style={s.headerTopRow}>
             <View style={s.headerProfileRow}>
               <Image source={{ uri: 'https://picsum.photos/seed/mila/150' }} style={s.avatar} />
@@ -428,7 +431,6 @@ const s = StyleSheet.create({
     borderBottomWidth: 1,
     borderBottomColor: '#ffffff0d',
     backgroundColor: '#1f1022bf',
-    paddingTop: 54,
     paddingHorizontal: 16,
     paddingBottom: 14,
   },

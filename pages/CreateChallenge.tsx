@@ -550,12 +550,15 @@ const styles = StyleSheet.create({
     paddingHorizontal: 14,
     paddingVertical: 14,
     borderWidth: 1,
+    // height: 60,
   },
   searchInput: {
-    flex: 1,
+    // flex: 1,
     fontFamily: 'PlusJakartaSans',
     fontSize: mediumScreen?15:12,
     padding: 0,
+    // textAlign: 'center'
+    // lineHeight: 24,
   },
   creatorsRow: {
     gap: 16,

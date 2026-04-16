@@ -13,7 +13,7 @@ import {
 } from 'react-native';
 import { LinearGradient } from 'expo-linear-gradient';
 import AsyncStorage from '@react-native-async-storage/async-storage';
-import { mediumScreen, user } from './types';
+import { mediumScreen, setUser, user } from './types';
 
 interface FanProfileProps {
   onLogout?: () => void;
@@ -113,11 +113,21 @@ const FanProfile: React.FC<FanProfileProps> = ({ onToggleRole }) => {
   };
 
   const handleSwitchRole = async () => {
+    const nextUser = {
+      id: user?.id || 'mila_ray_01',
+      name: user?.name || 'Mila Ray',
+      role: 'creator' as const,
+    };
+    setUser(nextUser);
+    await AsyncStorage.setItem('pulsar_user', JSON.stringify(nextUser));
     if (onToggleRole) {
       onToggleRole();
       return;
     }
-    await AsyncStorage.setItem('pulsar_user', JSON.stringify({ ...user, role: 'creator' }));
+    navigation.reset({
+      index: 1,
+      routes: [{ name: 'MainTabs' }, { name: 'Settings' }],
+    });
   };
 
   return (

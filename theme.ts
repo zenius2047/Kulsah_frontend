@@ -16,7 +16,7 @@ const darkTheme = {
 };
 
 const lightTheme = {
-  background: '#f8fafc',
+  background: '#fff',
   screen: '#ffffff',
   surface: 'rgba(15,23,42,0.04)',
   card: '#ffffff',

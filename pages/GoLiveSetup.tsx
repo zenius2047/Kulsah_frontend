@@ -13,6 +13,7 @@ import {
 import { useNavigation } from '@react-navigation/native';
 import { MaterialIcons } from '@expo/vector-icons';
 import { fontScale } from '../fonts';
+import { mediumScreen } from '../types';
 
 type Step = 'media' | 'details' | 'protocol';
 
@@ -92,9 +93,9 @@ const GoLiveSetup: React.FC = () => {
             </Pressable>
             <Text style={[styles.headerTitle, { color: textPrimary }]}>LIVE STUDIO</Text>
           </View>
-          <View style={styles.readyPill}>
+          {/* <View style={styles.readyPill}>
             <Text style={styles.readyText}>UPLINK READY</Text>
-          </View>
+          </View> */}
         </View>
 
         <View style={styles.stepperRow}>
@@ -271,7 +272,7 @@ const GoLiveSetup: React.FC = () => {
         {currentStep !== 'protocol' ? (
           <Pressable onPress={handleNext} disabled={!canGoNext()} style={[styles.primaryBtn, !canGoNext() && styles.primaryBtnDisabled]}>
             <Text style={styles.primaryBtnText}>NEXT</Text>
-            <MaterialIcons name="arrow-forward" size={20} color="#fff" />
+            <MaterialIcons name="arrow-forward" size={18} color="#fff" />
           </Pressable>
         ) : (
           <Pressable
@@ -308,7 +309,7 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     backgroundColor: 'rgba(255,255,255,0.06)',
   },
-  headerTitle: { fontSize: fontScale(16), fontFamily: 'PlusJakartaSansExtraBold' },
+  headerTitle: { fontSize: mediumScreen ? fontScale(16):fontScale(12), fontFamily: 'PlusJakartaSansExtraBold' },
   readyPill: {
     borderRadius: 999,
     paddingHorizontal: 10,
@@ -341,13 +342,13 @@ const styles = StyleSheet.create({
   },
   stepIconActive: { backgroundColor: '#cd2bee', borderColor: '#cd2bee' },
   stepIconCompleted: { backgroundColor: '#cd2bee', borderColor: '#cd2bee' },
-  stepLabel: { fontSize: fontScale(8), letterSpacing: 1, fontFamily: 'PlusJakartaSansExtraBold' },
+  stepLabel: { fontSize: mediumScreen ? fontScale(12):fontScale(8), letterSpacing: 1, fontFamily: 'PlusJakartaSansExtraBold' },
   stepLabelActive: { color: '#cd2bee' },
   body: { flex: 1 },
   bodyContent: { paddingHorizontal: 16, paddingTop: 16, paddingBottom: 220, gap: 18 },
   sectionWrap: { gap: 22 },
   section: { gap: 10 },
-  sectionLabel: { fontSize: fontScale(10), letterSpacing: 1.6, fontFamily: 'PlusJakartaSansExtraBold' },
+  sectionLabel: { fontSize: mediumScreen? fontScale(12):fontScale(10), letterSpacing: 1.6, fontFamily: 'PlusJakartaSansExtraBold' },
   previewCard: {
     height: 210,
     borderRadius: 28,
@@ -379,8 +380,8 @@ const styles = StyleSheet.create({
     gap: 4,
   },
   qualityItemActive: { backgroundColor: '#cd2bee', borderColor: '#cd2bee' },
-  qualityLabel: { fontSize: fontScale(18), fontFamily: 'PlusJakartaSansExtraBold' },
-  qualityBitrate: { fontSize: fontScale(10), fontFamily: 'PlusJakartaSansBold' },
+  qualityLabel: { fontSize: mediumScreen ? fontScale(16): fontScale(12), fontFamily: 'PlusJakartaSansExtraBold' },
+  qualityBitrate: { fontSize: mediumScreen? fontScale(12):fontScale(8), fontFamily: 'PlusJakartaSansBold' },
   qualityTextActive: { color: '#fff' },
   helperText: { fontSize: fontScale(11), fontFamily: 'PlusJakartaSansMedium' },
   titleInput: {
@@ -391,7 +392,7 @@ const styles = StyleSheet.create({
     backgroundColor: 'rgba(255,255,255,0.05)',
     paddingHorizontal: 14,
     color: '#fff',
-    fontSize: fontScale(16),
+    fontSize: mediumScreen? fontScale(16):fontScale(12),
     fontFamily: 'PlusJakartaSansBold',
   },
   vibeWrap: { flexDirection: 'row', flexWrap: 'wrap', gap: 8 },
@@ -404,7 +405,7 @@ const styles = StyleSheet.create({
     paddingVertical: 10,
   },
   vibeChipActive: { backgroundColor: '#cd2bee', borderColor: '#cd2bee' },
-  vibeText: { fontSize: fontScale(10), letterSpacing: 0.8, fontFamily: 'PlusJakartaSansExtraBold' },
+  vibeText: { fontSize: mediumScreen? fontScale(12):fontScale(8), letterSpacing: 0.8, fontFamily: 'PlusJakartaSansExtraBold' },
   vibeTextActive: { color: '#fff' },
   protocolRow: { flexDirection: 'row', gap: 10 },
   protocolCard: {
@@ -440,7 +441,7 @@ const styles = StyleSheet.create({
   radioOuterPremium: { borderColor: '#eab308' },
   radioInner: { width: 8, height: 8, borderRadius: 4, backgroundColor: '#cd2bee' },
   radioInnerPremium: { width: 8, height: 8, borderRadius: 4, backgroundColor: '#eab308' },
-  protocolTitle: { fontSize: fontScale(13), fontFamily: 'PlusJakartaSansExtraBold' },
+  protocolTitle: { fontSize: mediumScreen ? fontScale(16):fontScale(12), fontFamily: 'PlusJakartaSansExtraBold' },
   protocolSub: { fontSize: fontScale(10), fontFamily: 'PlusJakartaSansBold' },
   notifyRow: {
     borderRadius: 16,
@@ -481,7 +482,7 @@ const styles = StyleSheet.create({
   progressFill: { height: '100%', backgroundColor: '#cd2bee' },
   primaryBtn: {
     height: 54,
-    borderRadius: 20,
+    borderRadius: 28,
     backgroundColor: '#cd2bee',
     flexDirection: 'row',
     justifyContent: 'center',
@@ -489,7 +490,7 @@ const styles = StyleSheet.create({
     gap: 8,
   },
   primaryBtnDisabled: { opacity: 0.35 },
-  primaryBtnText: { color: '#fff', fontSize: fontScale(13), letterSpacing: 1, fontFamily: 'PlusJakartaSansExtraBold' },
+  primaryBtnText: { color: '#fff', fontSize: mediumScreen? fontScale(16):fontScale(12), letterSpacing: 1, fontFamily: 'PlusJakartaSansExtraBold', lineHeight: 26 },
 });
 
 export default GoLiveSetup;

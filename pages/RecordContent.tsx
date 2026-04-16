@@ -4,13 +4,14 @@ import {
   ActivityIndicator,
   Image,
   Modal,
+  Platform,
   Pressable,
   ScrollView,
   StyleSheet,
   Text,
   View,
 } from 'react-native';
-import { SafeAreaView } from 'react-native-safe-area-context';
+import { SafeAreaView, useSafeAreaInsets } from 'react-native-safe-area-context';
 import { BlurView } from 'expo-blur';
 import { LinearGradient } from 'expo-linear-gradient';
 import { MaterialIcons } from '@expo/vector-icons';
@@ -89,6 +90,7 @@ const modes = ['Live', 'Post', 'Create'] as const;
 const RecordContent: React.FC = () => {
   const { isDark, theme } = useThemeMode();
   const navigation = useNavigation<any>();
+  const insets = useSafeAreaInsets();
   const [permission, requestPermission] = useCameraPermissions();
   const [facing, setFacing] = React.useState<'front' | 'back'>('front');
   const [activeMode, setMode] = React.useState<'Post'| 'Live' | 'Create'>('Post');
@@ -101,7 +103,7 @@ const RecordContent: React.FC = () => {
   };
 
   return (
-    <SafeAreaView style={[styles.safeArea, { backgroundColor: theme.background }]} edges={[]}>
+    <SafeAreaView style={[styles.safeArea, { backgroundColor: theme.background, paddingTop: Platform.OS == 'ios' ? 54: insets.top }]} edges={[]}>
       {!permission?.granted ? <View style= {styles.screen}>
         {!permission ? (
               <>
@@ -277,7 +279,6 @@ const styles = StyleSheet.create({
   safeArea: {
     flex: 1,
     backgroundColor: '#0a050c',
-    paddingTop: 54,
   },
   screen: {
     flex: 1,

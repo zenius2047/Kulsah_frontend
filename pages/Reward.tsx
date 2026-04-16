@@ -61,7 +61,7 @@ const Reward: React.FC = () => {
             </Pressable>
             <Text style={[styles.headerTitle, { color: titleTone }]}>REWARD CONFIG</Text>
           </View>
-          <Text style={styles.headerBrand}>NEON PULSE</Text>
+          {/* <Text style={styles.headerBrand}>NEON PULSE</Text> */}
         </View>
 
         <ScrollView

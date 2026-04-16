@@ -1,18 +1,21 @@
 import React, { useEffect, useState } from 'react';
 import { useThemeMode } from '../theme';
-import { View, Text, Pressable } from 'react-native';
+import { View, Text, Pressable, Platform } from 'react-native';
 import { mediumScreen } from '../types';
 import { MaterialIcons } from '@expo/vector-icons';
 import NotificationIcon from '../assets/icons/notifications-svg.svg';
 import Community from './Community';
 import ChallengeScreen from './ChallengeScreen';
 import { useNavigation } from '@react-navigation/native';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
+import CreatorChallenges from './CreatorChallenges';
 
 
 const Arena :React.FC = ({route}:any)=>{
     const { isDark, theme } = useThemeMode();
     const [activeTab, setActiveTab] = useState<string | "challenges" | "community">('community');
     const navigation = useNavigation<any>();
+    const insets = useSafeAreaInsets();
 
     useEffect(()=>{
         const tabToRoute = route?.params?.tabToRoute;
@@ -23,12 +26,12 @@ const Arena :React.FC = ({route}:any)=>{
 
     return (
     <View style={{
-        backgroundColor: 'white',
+        backgroundColor: theme.background,
         flex: 1,
-        paddingTop: 54,
+        paddingTop: Platform.OS == 'ios' ? 54: insets.top,
     }}>
     
-    <View style={{
+    {/* <View style={{
         flexDirection: 'row',
         paddingHorizontal: 16,
         gap: 10,
@@ -54,11 +57,11 @@ const Arena :React.FC = ({route}:any)=>{
             // backgroundColor: 'red',
             paddingRight: 16,
         }}>
-            {/* <NotificationIcon
+            <NotificationIcon
         height={30}
         width={30}
         fill={isDark ? 'white': 'black'}
-        /> */}
+        />
         {activeTab === 'challenges' && <Pressable 
         onPress= {()=>{
             navigation.navigate('CreateChallenge');
@@ -75,7 +78,7 @@ const Arena :React.FC = ({route}:any)=>{
            <MaterialIcons name="add" color={theme.background} size={24}/>
         </Pressable>}
         </View>
-    </View>
+    </View> */}
     {/*Main Tabs........... "Community" & Challenges */}
     <View style={{
         flexDirection: 'row',
@@ -114,7 +117,7 @@ const Arena :React.FC = ({route}:any)=>{
     </View>
 
     {activeTab == 'community' && <Community/>}
-    {activeTab == 'challenges' && <ChallengeScreen/>}
+    {activeTab == 'challenges' && <CreatorChallenges/>}
     </View>);
 }
 export default Arena;

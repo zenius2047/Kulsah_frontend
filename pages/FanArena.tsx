@@ -1,71 +1,43 @@
-import React, { useState } from 'react';
+import React from 'react';
 import { useThemeMode } from '../theme';
-import { Pressable, Text, View } from 'react-native';
+import { Platform, Text, View } from 'react-native';
 import { mediumScreen } from '../types';
 import Discover from './Discover';
-import Community from './Community';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 const FanArena: React.FC = () => {
-  const { theme } = useThemeMode();
-  const [activeTab, setActiveTab] = useState<'discover' | 'community'>('discover');
+  const { isDark, theme } = useThemeMode();
+  const insets = useSafeAreaInsets();
 
   return (
     <View
       style={{
         flex: 1,
         backgroundColor: theme.background,
-        paddingTop: 54,
+        paddingTop: Platform.OS == 'ios' ? 54: insets.top,
       }}
     >
 
       <View
         style={{
-          flexDirection: 'row',
-          justifyContent: 'space-around',
+          alignItems: 'center',
           marginTop: 15,
           backgroundColor: theme.screen,
         }}
       >
-        {[
-          { key: 'discover', label: 'Discover' },
-          { key: 'community', label: 'Community' },
-        ].map((item) => {
-          const isActive = activeTab === item.key;
-          return (
-            <Pressable
-              key={item.key}
-              onPress={() => setActiveTab(item.key as 'discover' | 'community')}
-              style={{
-                justifyContent: 'center',
-                alignItems: 'center',
-              }}
-            >
-              <Text
-                style={{
-                  color: isActive ? theme.accent : theme.textSecondary,
-                  fontFamily: 'PlusJakartaSansBold',
-                  fontSize: mediumScreen ? 20 : 16,
-                  marginBottom: 10,
-                }}
-              >
-                {item.label}
-              </Text>
-              {isActive ? (
-                <View
-                  style={{
-                    height: 2.5,
-                    width: 88,
-                    backgroundColor: theme.accent,
-                  }}
-                />
-              ) : null}
-            </Pressable>
-          );
-        })}
+        <Text
+          style={{
+            color: isDark ? '#ffffff' : '#000000',
+            fontFamily: 'PlusJakartaSansBold',
+            fontSize: mediumScreen ? 20 : 16,
+            // marginBottom: 10,
+          }}
+        >
+          Discover
+        </Text>
       </View>
 
-      {activeTab === 'discover' ? <Discover embedded /> : null}
-      {activeTab === 'community' ? <Community embedded /> : null}
+      <Discover embedded />
     </View>
   );
 };

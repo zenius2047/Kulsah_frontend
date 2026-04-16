@@ -172,7 +172,11 @@ const Inbox: React.FC = () => {
 
           <View style={styles.chatList}>
             {chatList.map((chat) => (
-              <Pressable key={chat.id} style={[styles.chatCard, { backgroundColor: card, borderColor: border }]}>
+              <Pressable
+              onPress={()=>{
+                navigation.navigate('Chat')
+              }}
+              key={chat.id} style={[styles.chatCard, { backgroundColor: card, borderColor: border }]}>
                 <View style={styles.chatAvatarWrap}>
                   <Image source={{ uri: chat.avatar }} style={[styles.chatAvatar, chat.unread && styles.chatAvatarUnread]} />
                   {chat.vip ? <View style={styles.vipBadge}><Text style={styles.vipText}>VIP</Text></View> : null}
@@ -194,9 +198,9 @@ const Inbox: React.FC = () => {
           </View>
         </ScrollView>
 
-        <Pressable style={styles.fab}>
+        {/* <Pressable style={styles.fab}>
           <MaterialIcons name="edit" size={28} color="#fff" />
-        </Pressable>
+        </Pressable> */}
 
         <View style={[styles.bottomNav, { backgroundColor: isDark ? 'rgba(0,0,0,0.9)' : theme.card, borderColor: border }]}>
           <MaterialIcons name="home" size={24} color={subtle} />

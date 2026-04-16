@@ -100,9 +100,17 @@ const CreatorSettings: React.FC<CreatorSettingsProps> = ({ onLogout, isDarkMode,
   };
 
   const fanToggle = async()=>{
-    await AsyncStorage.setItem('pulsar_user', JSON.stringify({...user, role: 'fan'}));
-    setUser({id: '', name: user!.name, role: 'fan'})
-    navigation.navigate('MainTabs')
+    const nextUser = {
+      id: user?.id || 'alex_rivera_42',
+      name: user?.name || 'Alex Rivera',
+      role: 'fan' as const,
+    };
+    setUser(nextUser);
+    await AsyncStorage.setItem('pulsar_user', JSON.stringify(nextUser));
+    navigation.reset({
+      index: 1,
+      routes: [{ name: 'MainTabs' }, { name: 'FanSettings' }],
+    });
   }
 
   const pickImageStub = (type: 'avatar' | 'banner') => {
