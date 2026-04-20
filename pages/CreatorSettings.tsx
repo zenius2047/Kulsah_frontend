@@ -158,7 +158,7 @@ const CreatorSettings: React.FC<CreatorSettingsProps> = ({ onLogout, isDarkMode,
       {
         title: 'Monetization Hub',
         items: [
-          { label: 'Membership Tiers', icon: StarsIcon, desc: 'Manage pricing and exclusive perks', path: '/creator/memberships' },
+          { label: 'Membership Tiers', icon: StarsIcon, desc: 'Manage pricing and exclusive perks', path: 'MembershipTiers' },
           { label: 'Payout Settings', icon: PaymentsIcon, desc: 'Bank account and withdrawal methods', path: '/creator/revenue' },
           { label: 'Financial Insights', icon: MonitoringIcon, desc: 'Deep revenue and transaction analytics', path: '/creator/analytics' },
         ] as SettingItem[],

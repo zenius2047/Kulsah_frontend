@@ -105,7 +105,7 @@ const  ArtistProfile: React.FC = () => {
     }} style={s.gridItem}>
       <View style={s.thumb}>
         {item.img ? <Image source={{ uri: item.img }}
-          style={s.image} /> : null}
+          style={[s.image, {borderRadius: 0}]} /> : null}
             <LinearGradient colors={['transparent', 'rgba(0,0,0,0.8)']}
               style={StyleSheet.absoluteFillObject} />
             <View style={s.meta}>
@@ -153,7 +153,7 @@ const  ArtistProfile: React.FC = () => {
       <ScrollView contentContainerStyle={s.content} showsVerticalScrollIndicator={false} keyboardShouldPersistTaps="handled">
         <ImageBackground source={{ uri: 'https://images.unsplash.com/photo-1493225255756-d9584f8606e9?auto=format&fit=crop&q=80&w=800' }} style={s.cover}><LinearGradient colors={isDark ? ['rgba(0,0,0,0.1)', '#060913'] : ['rgba(255,255,255,0.06)', '#f8fafc']} style={StyleSheet.absoluteFillObject} /></ImageBackground>
         <View style={s.hero}>
-          <View style={[s.avatarWrap, { borderColor: theme.screen }]}>
+          <View style={[s.avatarWrap, { borderColor: 'rgba(59 130 246 / 0.5)' }]}>
             <Image source={{ uri: 'https://picsum.photos/seed/elena/300' }} 
                 style={s.image} />
                   <Pressable
@@ -297,17 +297,17 @@ const  ArtistProfile: React.FC = () => {
 
         <View style={s.body}>
           {activeTab === 'Videos' ? renderGrid(videos) : null}
-          {activeTab === 'Premium' ? <View style={s.stack}>{[1, 2, 3].map((i) => <Pressable key={i} onPress={() => isOwner ? navigation.navigate('CreatorLibrary') : setSelectedSub(true)} style={[s.banner, { backgroundColor: isDark ? '#0f172a' : theme.surface }]}><Image source={{ uri: `https://picsum.photos/seed/prem${i}/800/450` }} style={s.image} /><LinearGradient colors={['transparent', 'rgba(0,0,0,0.9)']} style={StyleSheet.absoluteFillObject} /><Text style={s.bannerText}>Project Node #{i + 102}</Text></Pressable>)}</View> : null}
+          {activeTab === 'Premium' ? <View style={s.stack}>{[1, 2, 3].map((i) => <Pressable key={i} onPress={() => isOwner ? navigation.navigate('CreatorLibrary') : setSelectedSub(true)} style={[s.banner, { backgroundColor: isDark ? '#0f172a' : theme.surface }]}><Image source={{ uri: `https://picsum.photos/seed/prem${i}/800/450` }} style={[s.image, {borderRadius: 0}]} /><LinearGradient colors={['transparent', 'rgba(0,0,0,0.9)']} style={StyleSheet.absoluteFillObject} /><Text style={s.bannerText}>Project Node #{i + 102}</Text></Pressable>)}</View> : null}
           {activeTab === 'Events' ? <View style={s.stack}>{events.map((item) =>
             <Pressable key={item.id} onPress={() => navigation.navigate('EventDetail')} style={[s.banner, { backgroundColor: isDark ? '#0f172a' : theme.surface }]}>
-              <Image source={{ uri: item.img }} style={s.image} />
+              <Image source={{ uri: item.img }} style={[s.image, {borderRadius: 0}]} />
                 <LinearGradient colors={['transparent', 'rgba(0,0,0,0.9)']} style={StyleSheet.absoluteFillObject} />
                   <View style={s.bannerBottom}>
                     <View style={{
                       flexDirection: 'row',
                       justifyContent: 'space-between',
                       alignItems: 'center',
-                      backgroundColor: 'red',
+                      // backgroundColor: 'red',
                     }}>
                       <Text style={s.bannerText}>{item.title}</Text>
                       <View style={{
@@ -318,7 +318,7 @@ const  ArtistProfile: React.FC = () => {
                         width: 80,
                         justifyContent: 'center',
                         alignItems: 'center',
-                        overflow: 'hidden'
+                        overflow: 'hidden',
                       }}>
                          <BlurView
                             intensity={50} // controls blur strength
@@ -347,13 +347,104 @@ const  ArtistProfile: React.FC = () => {
                     </View>
                       <View style={{
                         flexDirection: 'row',
+                        marginTop: 5,
+                        gap: 10
                       }}>
-                        <Text style={[s.sub, { color: '#dbe4f0', width: '20%' }]}>{item.meta}</Text>
+
+
+
+                        <View style={{
+                          flexDirection: 'row',
+                          // backgroundColor: 'blue',
+                          alignItems: 'center'
+                          // height: 50,
+                          // width: 200,
+                        }}>
+                          <View style={{
+                            borderRadius: 8,
+                            backgroundColor: '#ffffff1a',
+                            // backgroundColor: 'green',
+                            // padding: 6,
+                            justifyContent: 'center',
+                            alignItems: 'center',
+                            height: 30,
+                            width: 30,
+                          }}>
+                          <CalenderIcon height={18} width={18} fill='#ffffff99' />
+                          </View>
+                          <View style={{
+                            marginLeft: 5
+                          }}>
+                            <Text style={[{ color: '#ffffff66', width: '100%', fontSize: mediumScreen ? fontScale(12): fontScale(8), fontFamily: 'PlusJakartaSansExtraBold'}]}>Date</Text>
+                          <Text style={[s.sub, { color: '#dbe4f0', width: '70%', fontSize: mediumScreen ? fontScale(10): fontScale(6) }]}>{item.meta}</Text>
+                          </View>
+                        </View>
+
+
+
+                        <View style={{
+                          flexDirection: 'row',
+                          // backgroundColor: 'blue',
+                          alignItems: 'center'
+                          // height: 50,
+                          // width: 200,
+                        }}>
+                          <View style={{
+                            borderRadius: 8,
+                            backgroundColor: '#ffffff1a',
+                            // backgroundColor: 'green',
+                            // padding: 6,
+                            justifyContent: 'center',
+                            alignItems: 'center',
+                            height: 30,
+                            width: 30,
+                          }}>
+                          <CalenderIcon height={18} width={18} fill='#ffffff99' />
+                          </View>
+                          <View style={{
+                            marginLeft: 5
+                          }}>
+                            <Text style={[{ color: '#ffffff66', width: '100%', fontSize: mediumScreen ? fontScale(12): fontScale(8), fontFamily: 'PlusJakartaSansExtraBold'}]}>Location</Text>
+                          <Text style={[s.sub, { color: '#dbe4f0', width: '60%', fontSize: mediumScreen ? fontScale(10): fontScale(6) }]}>{item.location}</Text>
+                          </View>
+                        </View>
+
+
+                        <Pressable 
+                        onPress={()=>{
+                          navigation.navigate('EventDetail')
+                        }}
+                        style={{
+                          backgroundColor: 'white',
+                          position: 'absolute',
+                          right: 0,
+                          bottom: 0,
+                          borderRadius: 12,
+                          // paddingHorizontal: 5,
+                          justifyContent: 'center',
+                          alignItems: 'center',
+                          width: '30%',
+                          height: 40,
+                        }}>
+                          <Text style={{
+                            fontFamily: 'PlusJakartaSansBold',
+                            textAlign: 'center',
+                            fontSize: mediumScreen ? fontScale(12): fontScale(8),
+                          }}>Get{"\n"}Ticket</Text>
+                        </Pressable>
+
+
+
+
+
+
+
+
                       </View>
                   </View>
                   </Pressable>)}
                   </View> : null}
-          {activeTab === 'Challenges' ? <View style={s.stack}>{challenges.map((item) => <Pressable key={item.id} onPress={() => navigation.navigate('Challenges')} style={[s.banner, { backgroundColor: isDark ? '#0f172a' : theme.surface }]}><Image source={{ uri: item.img }} style={s.image} /><LinearGradient colors={['transparent', 'rgba(0,0,0,0.9)']} style={StyleSheet.absoluteFillObject} /><View style={s.bannerBottom}><Text style={s.bannerText}>{item.title}</Text><Text style={[s.sub, { color: '#dbe4f0' }]}>{item.meta}</Text></View></Pressable>)}</View> : null}
+          {activeTab === 'Challenges' ? <View style={s.stack}>{challenges.map((item) => <Pressable key={item.id} onPress={() => navigation.navigate('Challenges')} style={[s.banner, { backgroundColor: isDark ? '#0f172a' : theme.surface }]}><Image source={{ uri: item.img }} style={[s.image, {borderRadius: 0}]} /><LinearGradient colors={['transparent', 'rgba(0,0,0,0.9)']} style={StyleSheet.absoluteFillObject} /><View style={s.bannerBottom}><Text style={s.bannerText}>{item.title}</Text><Text style={[s.sub, { color: '#dbe4f0' }]}>{item.meta}</Text></View></Pressable>)}</View> : null}
           {activeTab === 'Favorites' ? renderGrid(favorites) : null}
           {activeTab === 'Saved' ? 
           <View style={s.stack}>{sounds.map((sound) => 
@@ -384,18 +475,18 @@ const s = StyleSheet.create({
   screen: { flex: 1, backgroundColor: '#060913' },
   toast: { position: 'absolute', top: 56, alignSelf: 'center', zIndex: 40, backgroundColor: '#cd2bee', color: '#fff', paddingHorizontal: 16, paddingVertical: 8, borderRadius: 999, fontSize: fontScale(10), fontFamily: 'PlusJakartaSansExtraBold' },
   icon: { width: 40, height: 40, borderRadius: 20, alignItems: 'center', justifyContent: 'center', backgroundColor: 'rgba(255,255,255,0.06)' }, header: { paddingTop: 46, paddingHorizontal: 14, paddingBottom: 12, flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', backgroundColor: 'rgba(15,23,42,0.72)' }, headerBtn: { width: 40, height: 40, borderRadius: 20, alignItems: 'center', justifyContent: 'center', backgroundColor: 'rgba(255,255,255,0.06)' }, headerTitle: { flex: 1, textAlign: 'center', marginHorizontal: 10, color: '#fff', fontSize: mediumScreen? fontScale(16):fontScale(12), fontFamily: 'PlusJakartaSansExtraBold', textTransform: 'uppercase' },
-  content: { paddingBottom: 120 }, cover: { height: 280 }, hero: { marginTop: -88, paddingHorizontal: 20, alignItems: 'center' }, avatarWrap: { width: 148, height: 148, borderRadius: 44, borderWidth: 8, borderColor: '#060913', overflow: 'hidden' }, image: { width: '100%', height: '100%' }, fire: { position: 'absolute', right: 12, bottom: 8, width: 40, height: 40, borderRadius: 12, backgroundColor: '#f97316', borderWidth: 4, borderColor: '#060913', alignItems: 'center', justifyContent: 'center', flexDirection: 'row' }, fireText: { color: '#fff', fontSize: fontScale(8), fontFamily: 'PlusJakartaSansExtraBold' },
+  content: { paddingBottom: 120 }, cover: { height: 280 }, hero: { marginTop: -88, paddingHorizontal: 20, alignItems: 'center' }, avatarWrap: { width: 148, height: 148, borderRadius: 999, borderWidth: 1, borderColor: '#060913', padding: 7}, image: { width: '100%', height: '100%', borderRadius: 999 }, fire: { position: 'absolute', right: 12, bottom: -2, width: 40, height: 40, borderRadius: 999, backgroundColor: '#f97316', borderWidth: 0, borderColor: '#060913', alignItems: 'center', justifyContent: 'center', flexDirection: 'row' }, fireText: { color: '#fff', fontSize: fontScale(8), fontFamily: 'PlusJakartaSansExtraBold' },
   name: {color: '#fff', fontSize: fontScale(16), fontFamily: 'PlusJakartaSansExtraBold', textTransform: 'uppercase' }, role: { marginTop: 4, color: '#cd2bee', fontSize: fontScale(9), fontFamily: 'PlusJakartaSansExtraBold', textTransform: 'uppercase', letterSpacing: 2 }, stat: { flex: 1, textAlign: 'center', color: '#fff', fontSize: fontScale(18), fontFamily: 'PlusJakartaSansExtraBold' }, muted: { color: '#7d859e', fontSize: fontScale(8), fontFamily: 'PlusJakartaSansExtraBold' }, purple: { color: '#cd2bee', fontFamily: 'PlusJakartaSansBold', fontSize: mediumScreen ? fontScale(12): fontScale(10) }, 
   actions: { marginTop: 22, width: '80%', flexDirection: 'row', gap: 10, alignItems: 'center' },
   action: { height: 56, borderRadius: 24, alignItems: 'center', justifyContent: 'center', flexDirection: 'row', gap: 8 }, 
   primary: { flex: 1, backgroundColor: '#cd2bee', minHeight: 36, borderRadius: 34, alignItems: 'center', justifyContent: 'center', flexDirection: 'row', }, 
   secondary: { flex: 1, height: 36, borderRadius: 34, alignItems: 'center', justifyContent: 'center', backgroundColor: 'rgba(255,255,255,0.06)' }, iconAction: { width: 56, height: 36, borderRadius: 24, alignItems: 'center', justifyContent: 'center', backgroundColor: 'rgba(255,255,255,0.06)' }, btnText: { color: '#fff', fontSize: mediumScreen ? 15:11, fontFamily: 'PlusJakartaSansExtraBold', textTransform: 'uppercase', lineHeight: 15}, follow: { flex: 1, height: 56, borderRadius: 24, alignItems: 'center', justifyContent: 'center', backgroundColor: 'rgba(255,255,255,0.06)' }, followOn: { backgroundColor: 'rgba(205,43,238,0.12)' }, followText: { color: '#fff', fontSize: fontScale(11), fontFamily: 'PlusJakartaSansExtraBold', textTransform: 'uppercase' }, followTextOn: { color: '#cd2bee' },
-  bio: { paddingHorizontal: 34, marginTop: 18, marginBottom: 18, color: '#8b94ad', fontSize: mediumScreen? fontScale(16):fontScale(12), lineHeight: 20, fontStyle: 'italic', textAlign: 'center', fontFamily: 'PlusJakartaSansMedium' },
+  bio: { paddingHorizontal: 34, marginTop: 18, marginBottom: 18, color: '#8b94ad', fontSize: mediumScreen? fontScale(14):fontScale(12), lineHeight: 20, fontStyle: 'italic', textAlign: 'center', fontFamily: 'PlusJakartaSansMedium' },
   membership: { paddingHorizontal: 16, gap: 14 }, membershipHeader: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', paddingHorizontal: 16 }, section: { color: '#fff', fontSize: mediumScreen? 18: 14, fontFamily: 'PlusJakartaSansExtraBold', textTransform: 'uppercase' }, toggle: { flexDirection: 'row', gap: 6, padding: 6, borderRadius: 18, backgroundColor: 'rgba(255,255,255,0.05)' }, toggleBtn: { minHeight: 34, paddingHorizontal: 10, borderRadius: 12, alignItems: 'center', justifyContent: 'center' }, toggleOn: { backgroundColor: 'rgba(255,255,255,0.08)' }, toggleText: { color: '#8b94ad', fontSize: fontScale(10), fontFamily: 'PlusJakartaSansExtraBold', textTransform: 'uppercase' },
  cardLabel: { color: '#8b94ad', fontSize: fontScale(10), fontFamily: 'PlusJakartaSansExtraBold', textTransform: 'uppercase' }, price: { color: '#fff', fontSize: fontScale(28), fontFamily: 'PlusJakartaSansExtraBold' }, perk: { color: '#d4d8e8', fontSize: fontScale(12), fontFamily: 'PlusJakartaSansMedium' },
   tabs: { paddingHorizontal: 16, paddingTop: 18, paddingBottom: 6 }, tab: { minWidth: 74, alignItems: 'center', paddingBottom: 14, marginRight: 14 }, tabText: { marginTop: 4, color: '#69738d', fontSize: fontScale(8), fontFamily: 'PlusJakartaSansExtraBold', textTransform: 'uppercase' }, tabOn: { color: '#cd2bee' }, body: { paddingHorizontal: 16, paddingTop: 18, gap: 18 },
   grid: { flexDirection: 'row', flexWrap: 'wrap', justifyContent: 'space-between', gap: 7 }, gridItem: { width: '47.5%' }, thumb: { aspectRatio: 4 / 5, borderRadius: 34, overflow: 'hidden', backgroundColor: '#0f172a' }, meta: { position: 'absolute', left: 12, right: 12, bottom: 12 }, title: { color: '#fff', fontSize: mediumScreen ? fontScale(14):fontScale(10), fontFamily: 'PlusJakartaSansExtraBold' }, sub: { marginTop: 0, color: '#9ca3af', fontSize: fontScale(8), fontFamily: 'PlusJakartaSansExtraBold', textTransform: 'uppercase' },
-  stack: { gap: 16 }, banner: { height: 230, borderRadius: 40, overflow: 'hidden', backgroundColor: '#0f172a' }, bannerText: { color: '#fff', fontSize: fontScale(14), fontFamily: 'PlusJakartaSansExtraBold', textTransform: 'uppercase', width:'50%' }, 
+  stack: { gap: 16 }, banner: { height: 230, borderRadius: 40, overflow: 'hidden', backgroundColor: '#0f172a' }, bannerText: { color: '#fff', fontSize: mediumScreen ? fontScale(16):fontScale(12), fontFamily: 'PlusJakartaSansExtraBold', textTransform: 'uppercase', width:'50%' }, 
   bannerBottom: { position: 'absolute', left: 18, right: 18, bottom: 18 }, eventCard: { height: 240, borderRadius: 40, overflow: 'hidden', backgroundColor: '#0f172a' }, chip: { position: 'absolute', top: 18, left: 18, flexDirection: 'row', alignItems: 'center', gap: 6, paddingHorizontal: 12, paddingVertical: 8, borderRadius: 999, backgroundColor: 'rgba(205,43,238,0.14)' }, chipText: { color: '#cd2bee', fontSize: fontScale(9), fontFamily: 'PlusJakartaSansExtraBold', textTransform: 'uppercase' },
   sound: { flexDirection: 'row', alignItems: 'center', gap: 12, padding: 14, borderRadius: 28, backgroundColor: 'rgba(255,255,255,0.05)' }, 
   play: { width: 58, height: 58, borderRadius: 20, backgroundColor: 'rgba(205,43,238,0.2)', alignItems: 'center', justifyContent: 'center' }, playOn: { backgroundColor: '#cd2bee' }, soundTitle: { color: '#fff', fontSize: mediumScreen ? fontScale(14): fontScale(10), fontFamily: 'PlusJakartaSansExtraBold', textTransform: 'uppercase' }, soundMeta: { marginTop: 4, color: '#8b94ad', fontSize: fontScale(9), fontFamily: 'PlusJakartaSansBold', textTransform: 'uppercase' }, soundUsage: { color: '#cd2bee', fontSize: fontScale(8), fontFamily: 'PlusJakartaSansExtraBold', textTransform: 'uppercase' },

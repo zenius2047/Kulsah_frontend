@@ -74,6 +74,8 @@ import Notifications from './pages/Notifications';
 import StreakReward from './pages/StreakReward';
 import ErrorBoundary from './components/ErrorBoundary';
 import CreateCommunityPost from './pages/CreateCommunityPost';
+import MembershipTiers from './pages/MembershipTiers';
+import SplashScreen from './pages/SplashScreen';
 
 
 const Stack = createNativeStackNavigator();
@@ -316,6 +318,8 @@ const App: React.FC = () => {
       PlusJakartaSansBold:require('./assets/fonts/PlusJakartaSans-Bold.ttf'),
       PlusJakartaSansExtraBold:require('./assets/fonts/PlusJakartaSans-ExtraBold.ttf'),
       PlusJakartaSansMedium:require('./assets/fonts/PlusJakartaSans-Medium.ttf'),
+      GudlaRegular:require('./assets/fonts/GCGudlakDemo-Regular.ttf'),
+      GudlaExtraBold:require('./assets/fonts/GCGudlakDemo-ExtraBold.ttf'),
     });
 
   useEffect(() => {
@@ -403,6 +407,7 @@ const App: React.FC = () => {
                   <Stack.Screen name="MainTabs">{() => (currentUser.role === 'creator' ? <CreatorTabs isDarkMode={isDark} /> : <FanTabs isDarkMode={isDark} />)}</Stack.Screen>
                   <Stack.Screen name="Chat" component={ChatView} />
                   <Stack.Screen name="Settings" component={CreatorSettings} />
+                  <Stack.Screen name="MembershipTiers" component={MembershipTiers} />
                   <Stack.Screen name="ArtistProfile" component={ArtistProfile} />
                   <Stack.Screen name="UploadContent" component={UploadContent} />
                   <Stack.Screen name="FanSettings" component={FanSettings} />
