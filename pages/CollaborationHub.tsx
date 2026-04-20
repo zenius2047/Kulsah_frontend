@@ -156,7 +156,7 @@ const CollaborationHub: React.FC = () => {
         </ScrollView>
       </View>
 
-      <ScrollView contentContainerStyle={styles.content} showsVerticalScrollIndicator={false}>
+      <ScrollView contentContainerStyle={styles.content} showsVerticalScrollIndicator={false} keyboardShouldPersistTaps="handled">
         {activeTab === 'discover' ? (
           <View style={styles.stack}>
             <View style={[styles.searchWrap, { backgroundColor: theme.card, borderColor: theme.border }]}>

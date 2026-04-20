@@ -74,6 +74,7 @@ const SubmitEntry: React.FC = () => {
       </View>
 
       <ScrollView
+        keyboardShouldPersistTaps="handled"
         style={{ flex: 1, backgroundColor: theme.background }}
         contentContainerStyle={styles.content}
         showsVerticalScrollIndicator={false}

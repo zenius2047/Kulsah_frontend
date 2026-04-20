@@ -261,7 +261,7 @@ const CreatorSettings: React.FC<CreatorSettingsProps> = ({ onLogout, isDarkMode,
   const IdentityView = () => (
     <View style={[s.screen, { backgroundColor: theme.screen }]}>
       {renderHeader('Identity & Bio', () => setActiveSubView('main'))}
-      <ScrollView contentContainerStyle={s.subContent} showsVerticalScrollIndicator={false}>
+      <ScrollView contentContainerStyle={s.subContent} showsVerticalScrollIndicator={false} keyboardShouldPersistTaps="handled">
         <View style={s.formBlock}>
           <Text style={[s.inputLabel, { color: theme.textSecondary }]}>Creator Handle</Text>
           <View style={[s.inputWrapRow, { borderColor: theme.border, backgroundColor: isDark ? '#ffffff08' : theme.surface }]}>
@@ -317,7 +317,7 @@ const CreatorSettings: React.FC<CreatorSettingsProps> = ({ onLogout, isDarkMode,
   const SocialsView = () => (
     <View style={[s.screen, { backgroundColor: theme.screen }]}>
       {renderHeader('Galaxy Presence', () => setActiveSubView('main'))}
-      <ScrollView contentContainerStyle={s.subContent} showsVerticalScrollIndicator={false}>
+      <ScrollView contentContainerStyle={s.subContent} showsVerticalScrollIndicator={false} keyboardShouldPersistTaps="handled">
         <Text style={[s.sectionHeading, { color: theme.textSecondary }]}>Social Uplinks</Text>
 
         {(['instagram', 'twitter', 'website'] as const).map((platform) => (
@@ -347,7 +347,7 @@ const CreatorSettings: React.FC<CreatorSettingsProps> = ({ onLogout, isDarkMode,
   const TagsView = () => (
     <View style={[s.screen, { backgroundColor: theme.screen }]}>
       {renderHeader('Discovery Tags', () => setActiveSubView('main'))}
-      <ScrollView contentContainerStyle={s.subContent} showsVerticalScrollIndicator={false}>
+      <ScrollView contentContainerStyle={s.subContent} showsVerticalScrollIndicator={false} keyboardShouldPersistTaps="handled">
         <Text style={[s.sectionHeading, { color: theme.textSecondary }]}>Algorithm Alignment</Text>
 
         <View style={s.tagsWrap}>
@@ -379,7 +379,7 @@ const CreatorSettings: React.FC<CreatorSettingsProps> = ({ onLogout, isDarkMode,
   return (
     <View style={[s.screen, { backgroundColor: theme.screen }]}>
       <SafeAreaView edges={[]} style={{ backgroundColor: theme.background }}>
-        <ScrollView contentContainerStyle={s.content} showsVerticalScrollIndicator={false}>
+        <ScrollView contentContainerStyle={s.content} showsVerticalScrollIndicator={false} keyboardShouldPersistTaps="handled">
         {renderHeader('Settings', () => navigation.goBack())}
 
         {/* <ImageBackground source={{ uri: bannerImage }} style={s.banner} imageStyle={s.bannerImage}>
@@ -490,7 +490,7 @@ const s = StyleSheet.create({
     justifyContent: 'center',
     backgroundColor: '#ffffff14',
   },
-  headerTitle: { color: '#fff', fontSize: fontScale(14), fontFamily: 'PlusJakartaSansExtraBold', textTransform: 'uppercase' },
+  headerTitle: { color: '#fff', fontSize: mediumScreen ? fontScale(16): fontScale(12), fontFamily: 'PlusJakartaSansExtraBold', textTransform: 'uppercase' },
   donePill: {
     paddingHorizontal: 10,
     paddingVertical: 6,
@@ -631,7 +631,7 @@ const s = StyleSheet.create({
   formBlock: { gap: 8 },
   inputLabel: {
     color: '#8b90a8',
-    fontSize: fontScale(10),
+    fontSize: mediumScreen ? fontScale(14):fontScale(10),
     fontFamily: 'PlusJakartaSansExtraBold',
     textTransform: 'uppercase',
     letterSpacing: 2,
@@ -663,12 +663,12 @@ const s = StyleSheet.create({
     backgroundColor: '#ffffff08',
     color: '#fff',
     fontFamily: 'PlusJakartaSansBold',
-    fontSize: fontScale(14),
+    fontSize: mediumScreen ? fontScale(14):fontScale(10),
     paddingHorizontal: 14,
   },
   helpText: {
     color: '#7f849f',
-    fontSize: fontScale(10),
+    fontSize: mediumScreen ? fontScale(12):fontScale(8),
     textTransform: 'uppercase',
     letterSpacing: 1,
     fontFamily: 'PlusJakartaSansBold',
@@ -684,7 +684,7 @@ const s = StyleSheet.create({
     borderColor: '#ffffff1a',
     backgroundColor: '#ffffff08',
     color: '#fff',
-    fontSize: fontScale(14),
+    fontSize: mediumScreen ? fontScale(14):fontScale(10),
     fontFamily: 'PlusJakartaSansBold',
     lineHeight: 20,
     paddingHorizontal: 14,
@@ -697,7 +697,7 @@ const s = StyleSheet.create({
     backgroundColor: '#cd2bee14',
     padding: 14,
   },
-  noteText: { color: '#c5c9de', fontSize: fontScale(12), fontStyle: 'italic', lineHeight: 18 },
+  noteText: { color: '#c5c9de', fontSize: mediumScreen ? fontScale(14):fontScale(10), fontStyle: 'italic', lineHeight: 18 },
   sectionHeading: {
     color: '#8b90a8',
     fontSize: fontScale(9),

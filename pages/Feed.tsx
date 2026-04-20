@@ -105,7 +105,7 @@ const FeedQuickMenuModal: React.FC<{
             <View style={{ width: 48, height: 6, borderRadius: 99, backgroundColor: isDark ? 'rgba(255,255,255,0.22)' : 'rgba(15,23,42,0.2)' }} />
           </View>
 
-          <ScrollView showsVerticalScrollIndicator={false} contentContainerStyle={{ paddingHorizontal: 16, paddingBottom: 10 }}>
+          <ScrollView showsVerticalScrollIndicator={false} contentContainerStyle={{ paddingHorizontal: 16, paddingBottom: 10 }} keyboardShouldPersistTaps="handled">
             <View style={{ flexDirection: 'row', gap: 8, marginBottom: 18 }}>
               {[
                 { icon: 'bookmark', label: 'Save' },

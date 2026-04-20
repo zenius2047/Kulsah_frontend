@@ -128,7 +128,7 @@ const GoLiveSetup: React.FC = () => {
         </View>
       </View>
 
-      <ScrollView style={styles.body} contentContainerStyle={styles.bodyContent} showsVerticalScrollIndicator={false}>
+      <ScrollView style={styles.body} contentContainerStyle={styles.bodyContent} showsVerticalScrollIndicator={false} keyboardShouldPersistTaps="handled">
         {currentStep === 'media' && (
           <View style={styles.sectionWrap}>
             <View style={styles.section}>

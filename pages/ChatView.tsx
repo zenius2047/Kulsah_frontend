@@ -295,6 +295,7 @@ const ChatView: React.FC = () => {
       </View>
 
       <ScrollView
+        keyboardShouldPersistTaps="handled"
         ref={scrollRef}
         style={styles.messages}
         contentContainerStyle={{ paddingBottom: 140 }}

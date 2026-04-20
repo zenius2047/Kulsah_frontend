@@ -2,6 +2,8 @@ import React, { useMemo, useRef, useState, useEffect } from 'react';
 import { useThemeMode } from '../theme';
 import {
   Image,
+  KeyboardAvoidingView,
+  Platform,
   Pressable,
   ScrollView,
   StyleSheet,
@@ -12,7 +14,7 @@ import {
 import { MaterialIcons } from '@expo/vector-icons';
 import { useNavigation, useRoute } from '@react-navigation/native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
-import { setDark, setUser, subscribeUser, user } from '../types';
+import { mediumScreen, setDark, setUser, subscribeUser, user } from '../types';
 import { fontScale } from '../fonts';
 import CreatorSettings from './CreatorSettings';
 import DarkIcon from '../assets/icons/dark-mode-svg.svg';
@@ -168,10 +170,19 @@ const FanSettings: React.FC<FanSettingsProps> = ({ onLogout, isDarkMode, onToggl
     </View>
   );
 
-  const ProfileView = () => (
-    <View style={s.viewWrap}>
+  const renderProfileView = () => (
+    <KeyboardAvoidingView
+      style={s.viewWrap}
+      behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
+      keyboardVerticalOffset={Platform.OS === 'ios' ? 12 : 0}
+    >
       {renderHeader('Persona Studio')}
-      <View style={s.formCard}>
+      <ScrollView
+        contentContainerStyle={s.formCard}
+        keyboardShouldPersistTaps="handled"
+        keyboardDismissMode={Platform.OS === 'ios' ? 'interactive' : 'on-drag'}
+        showsVerticalScrollIndicator={false}
+      >
         <View style={s.profileAvatarWrap}>
           <View style={s.avatarRing}>
             <Image source={{ uri: profile.avatar }} style={s.avatarImage} />
@@ -196,7 +207,7 @@ const FanSettings: React.FC<FanSettingsProps> = ({ onLogout, isDarkMode, onToggl
         <View style={s.formBlock}>
           <Text style={s.label}>Galaxy Handle</Text>
           <View style={s.handleWrap}>
-            <Text style={s.handlePrefix}>@</Text>
+            <Text style={[s.handlePrefix]}>@</Text>
             <TextInput
               value={profile.handle}
               onChangeText={(value) => setProfile({ ...profile, handle: value })}
@@ -223,11 +234,11 @@ const FanSettings: React.FC<FanSettingsProps> = ({ onLogout, isDarkMode, onToggl
         <Pressable onPress={handleSaveProfile} style={s.primaryButton}>
           <Text style={s.primaryButtonText}>Update Persona</Text>
         </Pressable>
-      </View>
-    </View>
+      </ScrollView>
+    </KeyboardAvoidingView>
   );
 
-  const IdentityView = () => (
+  const renderIdentityView = () => (
     <View style={s.viewWrap}>
       {renderHeader('Identity Pass')}
       <ScrollView contentContainerStyle={s.identityContent} showsVerticalScrollIndicator={false}>
@@ -412,7 +423,7 @@ const FanSettings: React.FC<FanSettingsProps> = ({ onLogout, isDarkMode, onToggl
     </View>
   );
 
-  const PaymentsView = () => (
+  const renderPaymentsView = () => (
     <View style={s.viewWrap}>
       {renderHeader('Payment Hub')}
       <ScrollView contentContainerStyle={s.paymentsContent} showsVerticalScrollIndicator={false}>
@@ -455,9 +466,9 @@ const FanSettings: React.FC<FanSettingsProps> = ({ onLogout, isDarkMode, onToggl
   if (currentUser?.role === 'creator') {
     return <CreatorSettings onLogout={onLogout} />;
   }
-  if (activeView === 'profile') return <ProfileView />;
-  if (activeView === 'identity') return <IdentityView />;
-  if (activeView === 'payments') return <PaymentsView />;
+  if (activeView === 'profile') return renderProfileView();
+  if (activeView === 'identity') return renderIdentityView();
+  if (activeView === 'payments') return renderPaymentsView();
 
   const sections: { title: string; items: SettingItem[] }[] = [
     {
@@ -595,7 +606,7 @@ const s = StyleSheet.create({
     justifyContent: 'center',
     backgroundColor: '#eef2ff',
   },
-  headerTitle: { fontSize: fontScale(14), fontFamily: 'PlusJakartaSansExtraBold', textTransform: 'uppercase', color: '#0f172a' },
+  headerTitle: { fontSize: mediumScreen ? fontScale(16):fontScale(12), fontFamily: 'PlusJakartaSansExtraBold', textTransform: 'uppercase', color: '#0f172a' },
   viewWrap: { flex: 1, backgroundColor: '#f8fafc' },
   formCard: { padding: 16, gap: 18 },
   profileAvatarWrap: { alignItems: 'center', marginBottom: 12 },
@@ -627,7 +638,7 @@ const s = StyleSheet.create({
     justifyContent: 'center',
   },
   formBlock: { gap: 8 },
-  label: { fontSize: fontScale(10), fontFamily: 'PlusJakartaSansExtraBold', textTransform: 'uppercase', letterSpacing: 2, color: '#94a3b8' },
+  label: { fontSize: mediumScreen ? fontScale(14):fontScale(10), fontFamily: 'PlusJakartaSansExtraBold', textTransform: 'uppercase', letterSpacing: 2, color: '#94a3b8' },
   input: {
     height: 52,
     borderRadius: 18,
@@ -635,7 +646,7 @@ const s = StyleSheet.create({
     borderColor: '#e2e8f0',
     paddingHorizontal: 16,
     backgroundColor: '#fff',
-    fontSize: fontScale(14),
+    fontSize: mediumScreen ? fontScale(14):fontScale(10),
     color: '#0f172a',
     fontFamily: 'PlusJakartaSansBold',
   },
@@ -643,7 +654,7 @@ const s = StyleSheet.create({
   handlePrefix: { position: 'absolute', left: 16, color: '#cd2bee', fontFamily: 'PlusJakartaSansExtraBold' },
   handleInput: { paddingLeft: 34 },
   rowBetween: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between' },
-  counter: { fontSize: fontScale(10), fontFamily: 'PlusJakartaSansBold', color: '#94a3b8' },
+  counter: { fontSize: mediumScreen ? fontScale(14):fontScale(10), fontFamily: 'PlusJakartaSansBold', color: '#94a3b8' },
   textArea: {
     minHeight: 120,
     borderRadius: 22,
@@ -654,6 +665,7 @@ const s = StyleSheet.create({
     backgroundColor: '#fff',
     color: '#334155',
     fontFamily: 'PlusJakartaSansBold',
+    fontSize: mediumScreen ? fontScale(14):fontScale(10)
   },
   primaryButton: {
     marginTop: 6,

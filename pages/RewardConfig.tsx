@@ -531,7 +531,7 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     gap: 8,
     paddingVertical: 16,
-    borderRadius: 18,
+    borderRadius: 28,
     backgroundColor: '#d915d2',
     shadowColor: '#d915d2',
     shadowOffset: { width: 0, height: 0 },

@@ -15,6 +15,7 @@ import { LinearGradient } from 'expo-linear-gradient';
 import { MaterialIcons } from '@expo/vector-icons';
 import { useNavigation } from '@react-navigation/native';
 import { fontScale } from '../fonts';
+import { mediumScreen } from '../types';
 
 const HERO_IMAGE =
   'https://lh3.googleusercontent.com/aida-public/AB6AXuB8GiYxO2nbbxNd0t2ZkcvWKoXv1xF3Xa9VUs42Utz-0cBhpcL8NAI8lOGbwvElE_wGSrxRF9uWsCyaAnJSffqEkCCItTwdWRP-IwEXfSS6EOFnEbltfVSinp19SfcrrigBDVJu5ZhME0XX0GFtOVlJSbSpNAjL0zM-EbGyFZk1D0jhLeDjW3X1XaeIuKvCZyeem87spk61ObdMLF6_vtZWiloFk-1vLwEo63u8IhjIx14Sqdfso3pakgqIsjlb_1fYZC64ehugvpsY';
@@ -519,7 +520,7 @@ const styles = StyleSheet.create({
   saveButtonText: {
     color: '#ffffff',
     fontFamily: 'PlusJakartaSansBold',
-    fontSize: fontScale(14),
+    fontSize: mediumScreen ? fontScale(14): fontScale(10),
     textTransform: 'uppercase',
     letterSpacing: 0.2,
   },

@@ -249,7 +249,7 @@ const CreatorEvents: React.FC = () => {
         </Pressable>
       </View>
 
-      <ScrollView contentContainerStyle={styles.content} showsVerticalScrollIndicator={false}>
+      <ScrollView contentContainerStyle={styles.content} showsVerticalScrollIndicator={false} keyboardShouldPersistTaps="handled">
         <View style={styles.statsRow}>
           <View style={styles.statCard}>
             <Text style={styles.statLabel}>TOTAL BOOKINGS</Text>
@@ -341,7 +341,7 @@ const CreatorEvents: React.FC = () => {
               </Pressable>
             </View>
 
-            <ScrollView showsVerticalScrollIndicator={false} contentContainerStyle={{ gap: 12, paddingBottom: 120 }}>
+            <ScrollView showsVerticalScrollIndicator={false} contentContainerStyle={{ gap: 12, paddingBottom: 120 }} keyboardShouldPersistTaps="handled">
               <Text style={styles.inputLabel}>PROMOTIONAL COVER</Text>
               <Pressable
                 style={styles.coverBox}

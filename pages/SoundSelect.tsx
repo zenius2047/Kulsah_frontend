@@ -113,7 +113,7 @@ export const VoteSheetContent: React.FC<VoteSheetContentProps> = ({ onClose, she
           </Pressable>
         </View>
 
-        <ScrollView contentContainerStyle={styles.content} showsVerticalScrollIndicator={false}>
+        <ScrollView contentContainerStyle={styles.content} showsVerticalScrollIndicator={false} keyboardShouldPersistTaps="handled">
           <View style={[styles.searchWrap, { backgroundColor: isDark ? 'rgba(255,255,255,0.05)' : theme.surface, borderColor: ringColor }]}>
             <MaterialIcons name="search" size={20} color={subtleText} />
             <TextInput

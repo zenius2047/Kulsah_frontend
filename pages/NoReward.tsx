@@ -242,7 +242,7 @@ const styles = StyleSheet.create({
   },
   headerTitle: {
     fontFamily: 'PlusJakartaSansBold',
-    fontSize: mediumScreen ? 18 : 15,
+    fontSize: mediumScreen ? 16 : 12,
   },
   headerBrand: {
     color: '#930df2',
@@ -390,7 +390,7 @@ const styles = StyleSheet.create({
     paddingTop: 8,
   },
   primaryButton: {
-    borderRadius: 18,
+    borderRadius: 28,
     overflow: 'hidden',
     shadowColor: '#d915d2',
     shadowOffset: { width: 0, height: 0 },

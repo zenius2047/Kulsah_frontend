@@ -176,7 +176,7 @@ const Player: React.FC = () => {
         </View>
       </View>
 
-      <ScrollView showsVerticalScrollIndicator={false} contentContainerStyle={{ paddingBottom: 120 }}>
+      <ScrollView showsVerticalScrollIndicator={false} contentContainerStyle={{ paddingBottom: 120 }} keyboardShouldPersistTaps="handled">
         <Pressable onPress={() => setShowControls(true)} style={[styles.videoShell, { marginTop: 86, borderColor: border }]}>
           <VideoView player={player} nativeControls={false} style={styles.video} />
           <LinearGradient colors={['rgba(0,0,0,0.25)', 'rgba(0,0,0,0)', 'rgba(0,0,0,0.82)']} style={StyleSheet.absoluteFillObject} />
@@ -310,7 +310,7 @@ const Player: React.FC = () => {
           <View style={[styles.queueSheet, { backgroundColor: isDark ? '#050505' : theme.background, borderColor: border, paddingBottom: Math.max(insets.bottom, 24) }]}>
             <View style={[styles.sheetHandle, { backgroundColor: border }]} />
             <View style={styles.rowBetween}><View><Text style={[styles.sectionTitle, { color: theme.text }]}>Broadcast Queue</Text><Text style={[styles.eyebrow, { color: accent }]}>{queue.length} Pending</Text></View><Pressable onPress={() => setQueueOpen(false)} style={[styles.iconBtn, { backgroundColor: soft, borderColor: border }]}><MaterialIcons name="close" size={20} color={theme.text} /></Pressable></View>
-            <ScrollView showsVerticalScrollIndicator={false} contentContainerStyle={{ gap: 12, paddingBottom: 20 }}>
+            <ScrollView showsVerticalScrollIndicator={false} contentContainerStyle={{ gap: 12, paddingBottom: 20 }} keyboardShouldPersistTaps="handled">
               {queue.length > 0 ? queue.map((track, index) => (
                 <Pressable key={`${track.id}-${index}`} onPress={() => { setQueue((currentQueue) => currentQueue.filter((_, itemIndex) => itemIndex !== index)); playById(track.id); }} style={[styles.queueRow, { backgroundColor: card, borderColor: border }]}>
                   <Image source={{ uri: track.img }} style={styles.queueThumb} />

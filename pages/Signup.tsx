@@ -132,7 +132,7 @@ const Signup: React.FC<SignupProps> = ({ onLogin }) => {
         <View style={{ width: 24 }} />
       </View>
 
-      <ScrollView contentContainerStyle={{ paddingHorizontal: 22, paddingBottom: 30 }}>
+      <ScrollView contentContainerStyle={{ paddingHorizontal: 22, paddingBottom: 30 }} keyboardShouldPersistTaps="handled">
         {step === 'welcome' && (
           <View style={{ gap: 18 }}>
             <Text style={{ color: 'white', fontSize: fontScale(40), textTransform: 'uppercase', fontFamily: 'PlusJakartaSansExtraBold'}}>{'Enter the\nGalaxy.'}</Text>

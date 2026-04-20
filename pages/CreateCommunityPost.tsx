@@ -273,7 +273,7 @@ const CreateCommunityPost: React.FC = () => {
             disabled={!canPublish || isPosting}
             style={[styles.headerPostButton, (!canPublish || isPosting) && styles.headerPostButtonDisabled]}
           >
-            <Text style={styles.headerPostText}>{isPosting ? '...' : 'POST'}</Text>
+            {/* <Text style={styles.headerPostText}>{isPosting ? '...' : 'POST'}</Text> */}
           </Pressable>
         </View>
 
@@ -402,7 +402,7 @@ const CreateCommunityPost: React.FC = () => {
             disabled={!canPublish || isPosting}
             style={[styles.publishButton, (!canPublish || isPosting) && styles.publishButtonDisabled]}
           >
-            <Text style={styles.publishButtonText}>{isPosting ? 'PUBLISHING...' : 'PUBLISH POST'}</Text>
+            <Text style={styles.publishButtonText}>{isPosting ? 'PUBLISHING...' : 'PUBLISH'}</Text>
           </Pressable>
         </View>
 
@@ -790,7 +790,7 @@ const styles = StyleSheet.create({
   publishButtonText: {
     color: '#fff',
     fontFamily: 'PlusJakartaSansBold',
-    fontSize: mediumScreen? fontScale(18): fontScale(14),
+    fontSize: mediumScreen? fontScale(16): fontScale(12),
   },
   modalRoot: {
     flex: 1,

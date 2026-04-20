@@ -526,7 +526,7 @@ const styles = StyleSheet.create({
     paddingBottom: 24,
   },
   footerButton: {
-    borderRadius: 18,
+    borderRadius: 28,
     paddingVertical: 16,
     alignItems: 'center',
     justifyContent: 'center',

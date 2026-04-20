@@ -317,7 +317,7 @@ const Community: React.FC<{ embedded?: boolean }> = ({ embedded = false }) => {
         </Pressable>
       </View> }
 
-      <ScrollView contentContainerStyle={styles.scrollBody} showsVerticalScrollIndicator={false}>
+      <ScrollView contentContainerStyle={styles.scrollBody} showsVerticalScrollIndicator={false} keyboardShouldPersistTaps="handled">
         {posts.map((post) => {
           const ownPost = post.handle === normalizedHandle || post.artist === currentUser.name;
           const totalVotes = post.pollOptions?.reduce((acc, curr) => acc + curr.votes, 0) ?? 0;
@@ -565,7 +565,7 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     alignItems: 'center',
   },
-  headerTitle: { color: '#fff', fontSize: mediumScreen?20:16, fontFamily: 'PlusJakartaSansExtraBold', letterSpacing: 0.4 },
+  headerTitle: { color: '#fff', fontSize: mediumScreen?18:14, fontFamily: 'PlusJakartaSansExtraBold', letterSpacing: 0.4 },
   scrollBody: { padding: 14, paddingBottom: 130, gap: 14 },
   postCard: {
     backgroundColor: '#121219',

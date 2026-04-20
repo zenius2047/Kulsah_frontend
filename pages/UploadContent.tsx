@@ -128,7 +128,7 @@ const UploadContent: React.FC = () => {
         <View style={{ width: 20 }} />
       </View>
 
-      <ScrollView contentContainerStyle={s.body}>
+      <ScrollView contentContainerStyle={s.body} keyboardShouldPersistTaps="handled">
         {step === 'select' && (
           <>
             <View style={s.preview}>

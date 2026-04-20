@@ -161,7 +161,7 @@ export default function CreatorLibrary() {
         </ScrollView>
       </SafeAreaView>
 
-      <ScrollView contentContainerStyle={s.content}>
+      <ScrollView contentContainerStyle={s.content} keyboardShouldPersistTaps="handled">
         {/* <View style={s.aiCard}>
           <Text style={s.aiTitle}>Cinematic Strategy</Text>
           <Text style={s.aiText}>{audit || 'Gemini is ready to audit your visual library for engagement potential.'}</Text>

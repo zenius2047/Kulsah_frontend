@@ -147,6 +147,7 @@ const Discover: React.FC<{ embedded?: boolean }> = ({ embedded = false }) => {
 
   return (
     <ScrollView
+      keyboardShouldPersistTaps="handled"
     bounces={false}
     showsVerticalScrollIndicator={false}
     style={{ flex: 1, backgroundColor: theme.background }} contentContainerStyle={{ paddingBottom: 40 }}>
@@ -509,4 +510,3 @@ const Discover: React.FC<{ embedded?: boolean }> = ({ embedded = false }) => {
 };
 
 export default Discover;
-

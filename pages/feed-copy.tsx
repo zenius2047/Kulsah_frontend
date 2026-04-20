@@ -240,7 +240,7 @@ const VideoFeedItem: React.FC<{
         <Pressable style={styles.modalRoot} onPress={() => setShowComments(false)}>
           <Pressable style={styles.sheet} onPress={() => {}}>
             <Text style={styles.sheetTitle}>{item.comments} Comments</Text>
-            <ScrollView style={{ maxHeight: 250 }}>
+            <ScrollView style={{ maxHeight: 250 }} keyboardShouldPersistTaps="handled">
               {comments.map((c) => (
                 <View key={c.id} style={styles.commentRow}>
                   <Image source={{ uri: c.avatar }} style={styles.commentAvatar} />

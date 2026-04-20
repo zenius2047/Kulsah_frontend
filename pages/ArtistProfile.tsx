@@ -5,7 +5,7 @@ import { useThemeMode } from '../theme';
 import { ActivityIndicator, Image, ImageBackground, Modal, Pressable, ScrollView, Share, StyleSheet, Text, TextInput, useWindowDimensions, View } from 'react-native';
 import { LinearGradient } from 'expo-linear-gradient';
 import PlayIcon from '../assets/icons/play-circle-svg.svg';
-import StarsIcon from '../assets/icons/stars-svg.svg';
+import StarsIcon from '../assets/icons/premium-svg.svg';
 import CalenderIcon from '../assets/icons/calendar-svg.svg';
 import TrophyIcon from '../assets/icons/trophy-svg.svg';
 import BookmarkIcon from '../assets/icons/bookmark-svg.svg';
@@ -102,7 +102,21 @@ const  ArtistProfile: React.FC = () => {
       if(user!.role === 'creator'){
         navigation.navigate('Video')
       }
-    }} style={s.gridItem}><View style={s.thumb}>{item.img ? <Image source={{ uri: item.img }} style={s.image} /> : null}<LinearGradient colors={['transparent', 'rgba(0,0,0,0.8)']} style={StyleSheet.absoluteFillObject} /><View style={s.meta}><Text style={s.title} numberOfLines={2}>{item.title}</Text>{item.views ? <Text style={s.sub}>{item.views} VIEWS</Text> : null}</View></View></Pressable>)}</View>
+    }} style={s.gridItem}>
+      <View style={s.thumb}>
+        {item.img ? <Image source={{ uri: item.img }}
+          style={s.image} /> : null}
+            <LinearGradient colors={['transparent', 'rgba(0,0,0,0.8)']}
+              style={StyleSheet.absoluteFillObject} />
+            <View style={s.meta}>
+              <Text style={s.title} numberOfLines={2}>
+                {item.title}</Text>
+                  {item.views ? <Text style={s.sub}>
+                      {item.views} VIEWS</Text> : null}
+                      </View>
+                    </View>
+                  </Pressable>)}
+              </View>
   );
 
   const calculatePrice = (basePrice: string) => {
@@ -136,10 +150,20 @@ const  ArtistProfile: React.FC = () => {
           <MaterialIcons name={isOwner ? 'settings' : 'share'} size={20} color={theme.text} />
         </Pressable>
       </View>
-      <ScrollView contentContainerStyle={s.content} showsVerticalScrollIndicator={false}>
+      <ScrollView contentContainerStyle={s.content} showsVerticalScrollIndicator={false} keyboardShouldPersistTaps="handled">
         <ImageBackground source={{ uri: 'https://images.unsplash.com/photo-1493225255756-d9584f8606e9?auto=format&fit=crop&q=80&w=800' }} style={s.cover}><LinearGradient colors={isDark ? ['rgba(0,0,0,0.1)', '#060913'] : ['rgba(255,255,255,0.06)', '#f8fafc']} style={StyleSheet.absoluteFillObject} /></ImageBackground>
         <View style={s.hero}>
-          <View style={[s.avatarWrap, { borderColor: theme.screen }]}><Image source={{ uri: 'https://picsum.photos/seed/elena/300' }} style={s.image} /><View style={[s.fire, { borderColor: theme.screen }]}><FireIcon height={15} width={15}/><Text style={s.fireText}>5</Text></View></View>
+          <View style={[s.avatarWrap, { borderColor: theme.screen }]}>
+            <Image source={{ uri: 'https://picsum.photos/seed/elena/300' }} 
+                style={s.image} />
+                  <Pressable
+                  onPress={()=>{
+                    navigation.navigate('StreakReward')
+                  }}
+                  style={[s.fire, { borderColor: theme.screen }]}>
+                  <FireIcon height={15} width={15}/><Text style={s.fireText}>5</Text>
+                  </Pressable>
+                </View>
           <View style={{
             flexDirection: 'row',
             gap: 5,
@@ -172,9 +196,12 @@ const  ArtistProfile: React.FC = () => {
           <View style={s.actions}>{isOwner ? <>
           <Pressable onPress={() => navigation.navigate('Settings')} style={[s.primary, {width:20}]}>
             <EditIcon height={24} width={24} fill='white'/>
-            <Text style={s.btnText}>Edit</Text>
-            </Pressable><Pressable onPress={share} style={[s.secondary, { backgroundColor: isDark ? 'rgba(255,255,255,0.06)' : theme.surface }]}>
-            <Text style={[s.btnText, { color: theme.text }]}>Share</Text></Pressable></> : <><Pressable onPress={() => navigation.navigate('Chat')} style={[s.iconAction, { backgroundColor: isDark ? 'rgba(255,255,255,0.06)' : theme.surface }]}><MaterialIcons name="mail" size={20} color={theme.text} /></Pressable><Pressable onPress={() => { setFollowing((v) => !v); ping(following ? 'Unfollowed' : 'Following'); }} style={[s.secondary, { backgroundColor: isDark ? 'rgba(255,255,255,0.06)' : theme.surface }]}><Text style={[s.btnText, { color: theme.text }]}>{following ? 'Following' : 'Follow'}</Text></Pressable><Pressable onPress={() => { setSelectedSub(true); setStep('details'); }} style={s.primary}><Text style={s.btnText}>Subscribe</Text></Pressable></>}</View>
+            <Text style={s.btnText}>{" "}Edit</Text>
+            </Pressable>
+            <Pressable onPress={share} 
+            style={[s.secondary, { backgroundColor: isDark ? 'rgba(255,255,255,0.06)' : theme.surface, flexDirection: 'row' , alignItems: 'center', justifyContent: 'center'}]}>
+            <MaterialIcons name='share' size={18}/>
+            <Text style={[s.btnText, { color: theme.text }]}>{" "}Share</Text></Pressable></> : <><Pressable onPress={() => navigation.navigate('Chat')} style={[s.iconAction, { backgroundColor: isDark ? 'rgba(255,255,255,0.06)' : theme.surface }]}><MaterialIcons name="mail" size={20} color={theme.text} /></Pressable><Pressable onPress={() => { setFollowing((v) => !v); ping(following ? 'Unfollowed' : 'Following'); }} style={[s.secondary, { backgroundColor: isDark ? 'rgba(255,255,255,0.06)' : theme.surface }]}><Text style={[s.btnText, { color: theme.text }]}>{following ? 'Following' : 'Follow'}</Text></Pressable><Pressable onPress={() => { setSelectedSub(true); setStep('details'); }} style={s.primary}><Text style={s.btnText}>Subscribe</Text></Pressable></>}</View>
         </View>
 
         <Text style={[s.bio, { color: theme.textSecondary }]}>"Exploring the nexus of synthwave rhythms and cinematic soul. Join the journey through the star systems of sound."</Text>
@@ -188,7 +215,7 @@ const  ArtistProfile: React.FC = () => {
               alignItems: 'center',
               borderColor: theme.border,
               borderWidth: 1,
-              backgroundColor: isDark ? 'rgba(255,255,255,0.05)' : theme.surface,
+              backgroundColor: isDark ? 'rgba(255,255,255,0.05)' : '#0000000d',
               borderRadius: 18,
               padding: 6,
               marginLeft: 6
@@ -246,7 +273,7 @@ const  ArtistProfile: React.FC = () => {
                   color: theme.text,
                   // fontWeight: 'bold',
                   fontFamily: 'PlusJakartaSansBold',
-                  fontSize: fontScale(12)
+                  fontSize: mediumScreen? fontScale(14):fontScale(10),
                 }}>
                   {billingCycle === 'monthly' ? 'SUBSCRIBE MONTHLY': 'SUBSCRIBE ANUALLY'}
                 </Text>
@@ -328,7 +355,21 @@ const  ArtistProfile: React.FC = () => {
                   </View> : null}
           {activeTab === 'Challenges' ? <View style={s.stack}>{challenges.map((item) => <Pressable key={item.id} onPress={() => navigation.navigate('Challenges')} style={[s.banner, { backgroundColor: isDark ? '#0f172a' : theme.surface }]}><Image source={{ uri: item.img }} style={s.image} /><LinearGradient colors={['transparent', 'rgba(0,0,0,0.9)']} style={StyleSheet.absoluteFillObject} /><View style={s.bannerBottom}><Text style={s.bannerText}>{item.title}</Text><Text style={[s.sub, { color: '#dbe4f0' }]}>{item.meta}</Text></View></Pressable>)}</View> : null}
           {activeTab === 'Favorites' ? renderGrid(favorites) : null}
-          {activeTab === 'Saved' ? <View style={s.stack}>{sounds.map((sound) => <Pressable key={sound.id} onPress={() => navigation.navigate('UploadContent')} style={[s.sound, { backgroundColor: isDark ? 'rgba(255,255,255,0.05)' : theme.surface, borderWidth: isDark ? 0 : 1, borderColor: theme.border }]}><Pressable onPress={() => setPlayingSoundId((cur) => cur === sound.id ? null : sound.id)} style={[s.play, playingSoundId === sound.id && s.playOn]}><MaterialIcons name={playingSoundId === sound.id ? 'pause' : 'play-arrow'} size={24} color="#fff" /></Pressable><View style={{ flex: 1 }}><Text style={[s.soundTitle, { color: theme.text }]}>{sound.title}</Text><Text style={[s.sub, { color: theme.textSecondary }]}>{sound.meta}</Text></View><Text style={s.purple}>{sound.usage}</Text></Pressable>)}</View> : null}
+          {activeTab === 'Saved' ? 
+          <View style={s.stack}>{sounds.map((sound) => 
+            <Pressable key={sound.id} onPress={() => navigation.navigate('UploadContent')}
+                style={[s.sound, { backgroundColor: isDark ? 'rgba(255,255,255,0.05)' : theme.surface, borderWidth: isDark ? 0 : 1,
+                    borderColor: theme.border }]}>
+                      <Pressable onPress={() => setPlayingSoundId((cur) => cur === sound.id ? null : sound.id)} 
+                          style={[s.play, playingSoundId === sound.id && s.playOn]}>
+                            <MaterialIcons name={playingSoundId === sound.id ? 'pause' : 'play-arrow'} size={24} color="#fff" />
+                                </Pressable><View style={{ flex: 1 }}>
+                                  <Text style={[s.soundTitle, { color: theme.text }]}>
+                                    {sound.title}</Text>
+                                      <Text style={[s.sub, { color: theme.textSecondary }]}>{sound.meta}
+                                        </Text></View>
+                                        <Text style={s.purple}>{sound.usage}
+                                          </Text></Pressable>)}</View> : null}
         </View>
       </ScrollView>
 
@@ -342,22 +383,22 @@ const  ArtistProfile: React.FC = () => {
 const s = StyleSheet.create({
   screen: { flex: 1, backgroundColor: '#060913' },
   toast: { position: 'absolute', top: 56, alignSelf: 'center', zIndex: 40, backgroundColor: '#cd2bee', color: '#fff', paddingHorizontal: 16, paddingVertical: 8, borderRadius: 999, fontSize: fontScale(10), fontFamily: 'PlusJakartaSansExtraBold' },
-  icon: { width: 40, height: 40, borderRadius: 20, alignItems: 'center', justifyContent: 'center', backgroundColor: 'rgba(255,255,255,0.06)' }, header: { paddingTop: 46, paddingHorizontal: 14, paddingBottom: 12, flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', backgroundColor: 'rgba(15,23,42,0.72)' }, headerBtn: { width: 40, height: 40, borderRadius: 20, alignItems: 'center', justifyContent: 'center', backgroundColor: 'rgba(255,255,255,0.06)' }, headerTitle: { flex: 1, textAlign: 'center', marginHorizontal: 10, color: '#fff', fontSize: fontScale(16), fontFamily: 'PlusJakartaSansExtraBold', textTransform: 'uppercase' },
+  icon: { width: 40, height: 40, borderRadius: 20, alignItems: 'center', justifyContent: 'center', backgroundColor: 'rgba(255,255,255,0.06)' }, header: { paddingTop: 46, paddingHorizontal: 14, paddingBottom: 12, flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', backgroundColor: 'rgba(15,23,42,0.72)' }, headerBtn: { width: 40, height: 40, borderRadius: 20, alignItems: 'center', justifyContent: 'center', backgroundColor: 'rgba(255,255,255,0.06)' }, headerTitle: { flex: 1, textAlign: 'center', marginHorizontal: 10, color: '#fff', fontSize: mediumScreen? fontScale(16):fontScale(12), fontFamily: 'PlusJakartaSansExtraBold', textTransform: 'uppercase' },
   content: { paddingBottom: 120 }, cover: { height: 280 }, hero: { marginTop: -88, paddingHorizontal: 20, alignItems: 'center' }, avatarWrap: { width: 148, height: 148, borderRadius: 44, borderWidth: 8, borderColor: '#060913', overflow: 'hidden' }, image: { width: '100%', height: '100%' }, fire: { position: 'absolute', right: 12, bottom: 8, width: 40, height: 40, borderRadius: 12, backgroundColor: '#f97316', borderWidth: 4, borderColor: '#060913', alignItems: 'center', justifyContent: 'center', flexDirection: 'row' }, fireText: { color: '#fff', fontSize: fontScale(8), fontFamily: 'PlusJakartaSansExtraBold' },
-  name: {color: '#fff', fontSize: fontScale(16), fontFamily: 'PlusJakartaSansExtraBold', textTransform: 'uppercase' }, role: { marginTop: 4, color: '#cd2bee', fontSize: fontScale(9), fontFamily: 'PlusJakartaSansExtraBold', textTransform: 'uppercase', letterSpacing: 2 }, stat: { flex: 1, textAlign: 'center', color: '#fff', fontSize: fontScale(18), fontFamily: 'PlusJakartaSansExtraBold' }, muted: { color: '#7d859e', fontSize: fontScale(8), fontFamily: 'PlusJakartaSansExtraBold' }, purple: { color: '#cd2bee' }, 
+  name: {color: '#fff', fontSize: fontScale(16), fontFamily: 'PlusJakartaSansExtraBold', textTransform: 'uppercase' }, role: { marginTop: 4, color: '#cd2bee', fontSize: fontScale(9), fontFamily: 'PlusJakartaSansExtraBold', textTransform: 'uppercase', letterSpacing: 2 }, stat: { flex: 1, textAlign: 'center', color: '#fff', fontSize: fontScale(18), fontFamily: 'PlusJakartaSansExtraBold' }, muted: { color: '#7d859e', fontSize: fontScale(8), fontFamily: 'PlusJakartaSansExtraBold' }, purple: { color: '#cd2bee', fontFamily: 'PlusJakartaSansBold', fontSize: mediumScreen ? fontScale(12): fontScale(10) }, 
   actions: { marginTop: 22, width: '80%', flexDirection: 'row', gap: 10, alignItems: 'center' },
   action: { height: 56, borderRadius: 24, alignItems: 'center', justifyContent: 'center', flexDirection: 'row', gap: 8 }, 
   primary: { flex: 1, backgroundColor: '#cd2bee', minHeight: 36, borderRadius: 34, alignItems: 'center', justifyContent: 'center', flexDirection: 'row', }, 
-  secondary: { flex: 1, height: 36, borderRadius: 34, alignItems: 'center', justifyContent: 'center', backgroundColor: 'rgba(255,255,255,0.06)' }, iconAction: { width: 56, height: 36, borderRadius: 24, alignItems: 'center', justifyContent: 'center', backgroundColor: 'rgba(255,255,255,0.06)' }, btnText: { color: '#fff', fontSize: mediumScreen ? 15:11, fontFamily: 'PlusJakartaSansExtraBold', textTransform: 'uppercase', }, follow: { flex: 1, height: 56, borderRadius: 24, alignItems: 'center', justifyContent: 'center', backgroundColor: 'rgba(255,255,255,0.06)' }, followOn: { backgroundColor: 'rgba(205,43,238,0.12)' }, followText: { color: '#fff', fontSize: fontScale(11), fontFamily: 'PlusJakartaSansExtraBold', textTransform: 'uppercase' }, followTextOn: { color: '#cd2bee' },
-  bio: { paddingHorizontal: 34, marginTop: 18, marginBottom: 18, color: '#8b94ad', fontSize: fontScale(13), lineHeight: 20, fontStyle: 'italic', textAlign: 'center', fontFamily: 'PlusJakartaSansMedium' },
-  membership: { paddingHorizontal: 16, gap: 14 }, membershipHeader: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', paddingHorizontal: 16 }, section: { color: '#fff', fontSize: mediumScreen? 20: 16, fontFamily: 'PlusJakartaSansExtraBold', textTransform: 'uppercase' }, toggle: { flexDirection: 'row', gap: 6, padding: 6, borderRadius: 18, backgroundColor: 'rgba(255,255,255,0.05)' }, toggleBtn: { minHeight: 34, paddingHorizontal: 10, borderRadius: 12, alignItems: 'center', justifyContent: 'center' }, toggleOn: { backgroundColor: 'rgba(255,255,255,0.08)' }, toggleText: { color: '#8b94ad', fontSize: fontScale(10), fontFamily: 'PlusJakartaSansExtraBold', textTransform: 'uppercase' },
+  secondary: { flex: 1, height: 36, borderRadius: 34, alignItems: 'center', justifyContent: 'center', backgroundColor: 'rgba(255,255,255,0.06)' }, iconAction: { width: 56, height: 36, borderRadius: 24, alignItems: 'center', justifyContent: 'center', backgroundColor: 'rgba(255,255,255,0.06)' }, btnText: { color: '#fff', fontSize: mediumScreen ? 15:11, fontFamily: 'PlusJakartaSansExtraBold', textTransform: 'uppercase', lineHeight: 15}, follow: { flex: 1, height: 56, borderRadius: 24, alignItems: 'center', justifyContent: 'center', backgroundColor: 'rgba(255,255,255,0.06)' }, followOn: { backgroundColor: 'rgba(205,43,238,0.12)' }, followText: { color: '#fff', fontSize: fontScale(11), fontFamily: 'PlusJakartaSansExtraBold', textTransform: 'uppercase' }, followTextOn: { color: '#cd2bee' },
+  bio: { paddingHorizontal: 34, marginTop: 18, marginBottom: 18, color: '#8b94ad', fontSize: mediumScreen? fontScale(16):fontScale(12), lineHeight: 20, fontStyle: 'italic', textAlign: 'center', fontFamily: 'PlusJakartaSansMedium' },
+  membership: { paddingHorizontal: 16, gap: 14 }, membershipHeader: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', paddingHorizontal: 16 }, section: { color: '#fff', fontSize: mediumScreen? 18: 14, fontFamily: 'PlusJakartaSansExtraBold', textTransform: 'uppercase' }, toggle: { flexDirection: 'row', gap: 6, padding: 6, borderRadius: 18, backgroundColor: 'rgba(255,255,255,0.05)' }, toggleBtn: { minHeight: 34, paddingHorizontal: 10, borderRadius: 12, alignItems: 'center', justifyContent: 'center' }, toggleOn: { backgroundColor: 'rgba(255,255,255,0.08)' }, toggleText: { color: '#8b94ad', fontSize: fontScale(10), fontFamily: 'PlusJakartaSansExtraBold', textTransform: 'uppercase' },
  cardLabel: { color: '#8b94ad', fontSize: fontScale(10), fontFamily: 'PlusJakartaSansExtraBold', textTransform: 'uppercase' }, price: { color: '#fff', fontSize: fontScale(28), fontFamily: 'PlusJakartaSansExtraBold' }, perk: { color: '#d4d8e8', fontSize: fontScale(12), fontFamily: 'PlusJakartaSansMedium' },
   tabs: { paddingHorizontal: 16, paddingTop: 18, paddingBottom: 6 }, tab: { minWidth: 74, alignItems: 'center', paddingBottom: 14, marginRight: 14 }, tabText: { marginTop: 4, color: '#69738d', fontSize: fontScale(8), fontFamily: 'PlusJakartaSansExtraBold', textTransform: 'uppercase' }, tabOn: { color: '#cd2bee' }, body: { paddingHorizontal: 16, paddingTop: 18, gap: 18 },
-  grid: { flexDirection: 'row', flexWrap: 'wrap', justifyContent: 'space-between', gap: 14 }, gridItem: { width: '47.5%' }, thumb: { aspectRatio: 4 / 5, borderRadius: 34, overflow: 'hidden', backgroundColor: '#0f172a' }, meta: { position: 'absolute', left: 12, right: 12, bottom: 12 }, title: { color: '#fff', fontSize: fontScale(11), fontFamily: 'PlusJakartaSansExtraBold' }, sub: { marginTop: 5, color: '#9ca3af', fontSize: fontScale(8), fontFamily: 'PlusJakartaSansExtraBold', textTransform: 'uppercase' },
+  grid: { flexDirection: 'row', flexWrap: 'wrap', justifyContent: 'space-between', gap: 7 }, gridItem: { width: '47.5%' }, thumb: { aspectRatio: 4 / 5, borderRadius: 34, overflow: 'hidden', backgroundColor: '#0f172a' }, meta: { position: 'absolute', left: 12, right: 12, bottom: 12 }, title: { color: '#fff', fontSize: mediumScreen ? fontScale(14):fontScale(10), fontFamily: 'PlusJakartaSansExtraBold' }, sub: { marginTop: 0, color: '#9ca3af', fontSize: fontScale(8), fontFamily: 'PlusJakartaSansExtraBold', textTransform: 'uppercase' },
   stack: { gap: 16 }, banner: { height: 230, borderRadius: 40, overflow: 'hidden', backgroundColor: '#0f172a' }, bannerText: { color: '#fff', fontSize: fontScale(14), fontFamily: 'PlusJakartaSansExtraBold', textTransform: 'uppercase', width:'50%' }, 
   bannerBottom: { position: 'absolute', left: 18, right: 18, bottom: 18 }, eventCard: { height: 240, borderRadius: 40, overflow: 'hidden', backgroundColor: '#0f172a' }, chip: { position: 'absolute', top: 18, left: 18, flexDirection: 'row', alignItems: 'center', gap: 6, paddingHorizontal: 12, paddingVertical: 8, borderRadius: 999, backgroundColor: 'rgba(205,43,238,0.14)' }, chipText: { color: '#cd2bee', fontSize: fontScale(9), fontFamily: 'PlusJakartaSansExtraBold', textTransform: 'uppercase' },
   sound: { flexDirection: 'row', alignItems: 'center', gap: 12, padding: 14, borderRadius: 28, backgroundColor: 'rgba(255,255,255,0.05)' }, 
-  play: { width: 58, height: 58, borderRadius: 20, backgroundColor: 'rgba(205,43,238,0.2)', alignItems: 'center', justifyContent: 'center' }, playOn: { backgroundColor: '#cd2bee' }, soundTitle: { color: '#fff', fontSize: fontScale(12), fontFamily: 'PlusJakartaSansExtraBold', textTransform: 'uppercase' }, soundMeta: { marginTop: 4, color: '#8b94ad', fontSize: fontScale(9), fontFamily: 'PlusJakartaSansBold', textTransform: 'uppercase' }, soundUsage: { color: '#cd2bee', fontSize: fontScale(8), fontFamily: 'PlusJakartaSansExtraBold', textTransform: 'uppercase' },
+  play: { width: 58, height: 58, borderRadius: 20, backgroundColor: 'rgba(205,43,238,0.2)', alignItems: 'center', justifyContent: 'center' }, playOn: { backgroundColor: '#cd2bee' }, soundTitle: { color: '#fff', fontSize: mediumScreen ? fontScale(14): fontScale(10), fontFamily: 'PlusJakartaSansExtraBold', textTransform: 'uppercase' }, soundMeta: { marginTop: 4, color: '#8b94ad', fontSize: fontScale(9), fontFamily: 'PlusJakartaSansBold', textTransform: 'uppercase' }, soundUsage: { color: '#cd2bee', fontSize: fontScale(8), fontFamily: 'PlusJakartaSansExtraBold', textTransform: 'uppercase' },
   overlay: { flex: 1, backgroundColor: 'rgba(0,0,0,0.72)', justifyContent: 'flex-end' }, modal: { backgroundColor: '#0f172a', borderTopLeftRadius: 34, borderTopRightRadius: 34, padding: 18, gap: 16 }, modalTitle: { color: '#fff', fontSize: fontScale(24), fontFamily: 'PlusJakartaSansExtraBold', textTransform: 'uppercase' }, modalPerk: { flexDirection: 'row', alignItems: 'center', gap: 10, padding: 14, borderRadius: 22, backgroundColor: 'rgba(255,255,255,0.05)' }, payRow: { flexDirection: 'row', gap: 8 }, payBtn: { flex: 1, minHeight: 42, borderRadius: 12, backgroundColor: 'rgba(255,255,255,0.05)', alignItems: 'center', justifyContent: 'center' }, input: { height: 48, borderRadius: 14, backgroundColor: 'rgba(255,255,255,0.05)', color: '#fff', paddingHorizontal: 12, fontFamily: 'PlusJakartaSansBold' }, bank: { color: '#8b94ad', fontSize: fontScale(11), fontFamily: 'PlusJakartaSansBold' }, success: { gap: 18, alignItems: 'center', paddingVertical: 10 },
   switchBtn: {
     minWidth: 88,
@@ -369,8 +410,8 @@ const s = StyleSheet.create({
     flexDirection: 'row',
     // backgroundColor: '#ffffff14',
   },
-  switchBtnOn: { backgroundColor: '#FFFFFF1A', borderWidth: 0, flexDirection: 'row' },
-  switchText: { color: '#a9a9bd', fontSize: fontScale(10), fontWeight: '900', textTransform: 'uppercase' },
+  switchBtnOn: { backgroundColor: '#FFFFFF', borderWidth: 0, flexDirection: 'row' },
+  switchText: { color: '#a9a9bd', fontSize: mediumScreen? fontScale(12):fontScale(8), fontWeight: '900', textTransform: 'uppercase' },
   switchTextOn: { color: '#cd2bee' },
   cardPrice: { 
     color: '#fff',
@@ -434,10 +475,10 @@ const s = StyleSheet.create({
   },
   statsTablet: { paddingHorizontal: 24 },
   statBlock: { flex: 1, alignItems: 'center' },
-  statValue: { color: '#fff', fontSize: fontScale(15), fontWeight: '900' },
+  statValue: { color: '#fff', fontSize: mediumScreen? fontScale(16):fontScale(12), fontWeight: '900' },
   statLabel: {
     color: '#9ea0b6',
-    fontSize: fontScale(10),
+    fontSize: mediumScreen? fontScale(12):fontScale(8),
     textTransform: 'uppercase',
     letterSpacing: 1.2,
     marginTop: 2,

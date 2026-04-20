@@ -116,7 +116,7 @@ const Inbox: React.FC = () => {
   return (
     <SafeAreaView style={[styles.safeArea, { backgroundColor: shell }]} edges={['top', 'left', 'right']}>
       <View style={[styles.screen, { backgroundColor: shell }]}>
-        <ScrollView contentContainerStyle={styles.content} showsVerticalScrollIndicator={false}>
+        <ScrollView contentContainerStyle={styles.content} showsVerticalScrollIndicator={false} keyboardShouldPersistTaps="handled">
           <View style={styles.topUtilityRow}>
             <View style={styles.headerLeft}>
                           <View style={[styles.avatarWrap, { borderColor: '#D946EF' }]}>

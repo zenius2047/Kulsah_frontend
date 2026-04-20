@@ -93,8 +93,8 @@ const CreateChallenge: React.FC = () => {
             <MaterialIcons name="close" size={22} color="#8b5cf6" />
           </Pressable>
           <Text style={[styles.headerTitle, { color: titleTone }]}>NEW CHALLENGE</Text>
-          <Pressable style={[styles.headerButton, { backgroundColor: headerButtonBg }]}>
-            <MaterialIcons name="send" size={22} color="#8b5cf6" />
+          <Pressable style={[styles.headerButton, { }]}>
+            {/* <MaterialIcons name="send" size={22} color="#8b5cf6" /> */}
           </Pressable>
         </View>
 
@@ -613,7 +613,7 @@ const styles = StyleSheet.create({
     gap: 14,
   },
   launchButton: {
-    borderRadius: 18,
+    borderRadius: 38,
     overflow: 'hidden',
     shadowColor: '#930df2',
     shadowOffset: { width: 0, height: 14 },
@@ -630,7 +630,7 @@ const styles = StyleSheet.create({
   launchButtonText: {
     color: '#ffffff',
     fontFamily: 'PlusJakartaSansExtraBold',
-    fontSize: fontScale(14),
+    fontSize: mediumScreen ? fontScale(14) : fontScale(10),
     letterSpacing: 1.8,
     textTransform: 'uppercase',
   },

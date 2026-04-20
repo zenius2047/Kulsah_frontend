@@ -176,6 +176,7 @@ const ChallengeParticipants: React.FC = () => {
           </View>
 
           <ScrollView
+            keyboardShouldPersistTaps="handled"
             horizontal
             showsHorizontalScrollIndicator={false}
             contentContainerStyle={styles.filterRow}
@@ -198,6 +199,7 @@ const ChallengeParticipants: React.FC = () => {
         </View>
 
         <ScrollView
+          keyboardShouldPersistTaps="handled"
           style={styles.body}
           contentContainerStyle={styles.bodyContent}
           showsVerticalScrollIndicator={false}

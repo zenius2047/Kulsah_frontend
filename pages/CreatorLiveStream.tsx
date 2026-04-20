@@ -221,6 +221,7 @@ const CreatorLiveStream: React.FC = () => {
             </View>
 
             <ScrollView
+              keyboardShouldPersistTaps="handled"
               horizontal
               showsHorizontalScrollIndicator={false}
               contentContainerStyle={styles.statsRow}
@@ -257,6 +258,7 @@ const CreatorLiveStream: React.FC = () => {
           <View style={styles.bottomZone}>
             <View style={styles.contentRow}>
               <ScrollView
+                keyboardShouldPersistTaps="handled"
                 ref={chatScrollRef}
                 style={styles.chatPane}
                 contentContainerStyle={styles.chatContent}

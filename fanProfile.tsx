@@ -14,6 +14,10 @@ import {
 import { LinearGradient } from 'expo-linear-gradient';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { mediumScreen, setUser, user } from './types';
+import LocalIcon from './assets/icons/local-activity-svg.svg';
+import MovieIcon from './assets/icons/play-circle-svg.svg';
+import BookMarkIcon from './assets/icons/bookmark-svg.svg';
+import PremiumIcon from './assets/icons/premium-svg.svg';
 
 interface FanProfileProps {
   onLogout?: () => void;
@@ -121,13 +125,18 @@ const FanProfile: React.FC<FanProfileProps> = ({ onToggleRole }) => {
     setUser(nextUser);
     await AsyncStorage.setItem('pulsar_user', JSON.stringify(nextUser));
     if (onToggleRole) {
+      console.log('onToggleRole exists.........')
       onToggleRole();
       return;
     }
-    navigation.reset({
-      index: 1,
-      routes: [{ name: 'MainTabs' }, { name: 'Settings' }],
-    });
+    // navigation.reset({
+    //   index: 0,
+    //   routes: [{ name: 'MainTabs' }],
+    // });
+    navigation.navigate('MainTabs', {
+              screen: 'Galaxy',
+              // params: { tabToRoute: 'challenges' },
+            })
   };
 
   return (
@@ -223,7 +232,13 @@ const FanProfile: React.FC<FanProfileProps> = ({ onToggleRole }) => {
             <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={s.tabsRow}>
               {tabs.map((tab) => (
                 <Pressable key={tab.id} onPress={() => setActiveTab(tab.id)} style={s.tabButton}>
-                  <MaterialIcons name={tab.icon} size={24} color={activeTab === tab.id ? '#cd2bee' : theme.textSecondary} />
+                  {
+            tab.id === 'Video' ? <MovieIcon height={22} width={22} fill={activeTab === tab.id ? '#cd2bee' : '#69738d'}/>:
+            tab.id === 'Premium'? <PremiumIcon height={22} width={22} fill={activeTab === tab.id ? '#cd2bee' : '#69738d'}/>:
+            tab.id === 'Tickets'? <LocalIcon height={22} width={22} fill={activeTab === tab.id ? '#cd2bee' : '#69738d'}/>:
+            tab.id === 'Saved'?   <BookMarkIcon height={22} width={22} fill={activeTab === tab.id ? '#cd2bee' : '#69738d'}/>:
+            tab.id === 'Favorite'? <MaterialIcons name="favorite-border" size={22} color={activeTab === tab.id ? '#cd2bee' : '#69738d'}/>: null
+          }
                   <Text style={[s.tabText, { color: activeTab === tab.id ? '#cd2bee' : theme.textSecondary }, activeTab === tab.id && s.tabTextActive]}>{tab.id}</Text>
                   {activeTab === tab.id ? <View style={s.tabIndicator} /> : null}
                 </Pressable>

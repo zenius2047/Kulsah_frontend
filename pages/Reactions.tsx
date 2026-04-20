@@ -100,7 +100,7 @@ const Reactions: React.FC<{ onClose: () => void; title?: string }> = ({ onClose,
           })}
         </View>
 
-        <ScrollView showsVerticalScrollIndicator={false} contentContainerStyle={styles.content}>
+        <ScrollView showsVerticalScrollIndicator={false} contentContainerStyle={styles.content} keyboardShouldPersistTaps="handled">
           {commentsSeed.map((comment) => (
             <View key={comment.id} style={styles.commentBlock}>
               <View style={styles.commentRow}>

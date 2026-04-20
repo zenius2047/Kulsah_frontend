@@ -159,7 +159,7 @@ const VideoFeedItem: React.FC<{
               </Pressable>
             </View>
 
-            <ScrollView style={{ maxHeight: 340 }}>
+            <ScrollView style={{ maxHeight: 340 }} keyboardShouldPersistTaps="handled">
               {[1, 2, 3].map((i) => (
                 <View key={i} style={styles.commentItem}>
                   <Image
