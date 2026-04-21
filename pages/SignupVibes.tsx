@@ -25,7 +25,7 @@ const SignupVibes: React.FC = () => {
 
     const guestUser: User = {
       id: '',
-      name: 'Guest',
+      name: 'guest',
       role: 'fan',
     };
 

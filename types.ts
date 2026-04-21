@@ -1,6 +1,6 @@
 import AsyncStorage from '@react-native-async-storage/async-storage';
 
-export type UserRole = 'fan' | 'creator';
+export type UserRole = 'fan' | 'creator' | 'guest';
 
 export interface User {
   id: string;

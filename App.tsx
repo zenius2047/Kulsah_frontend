@@ -77,6 +77,7 @@ import MembershipTiers from './pages/MembershipTiers';
 import SplashScreen from './pages/SplashScreen';
 import GetStarted from './pages/GetStarted';
 import SignupVibes from './pages/SignupVibes';
+import SignUpModal from './SignUpModal';
 
 
 const Stack = createNativeStackNavigator();
@@ -99,6 +100,8 @@ const PlaceholderScreen = ({ label }: { label: string }) => (
 
 interface TabsProps {
   isDarkMode: boolean;
+  user: User;
+  onTap?: ()=>void
 }
 
 const CreatorTabs = ({ isDarkMode }: TabsProps) => {
@@ -117,7 +120,7 @@ const CreatorTabs = ({ isDarkMode }: TabsProps) => {
         tabBarStyle: [
           styles.tabBar,
           {
-            backgroundColor: route.name === 'Galaxy' || isDarkMode ? '#000' : '#ffffff',
+            backgroundColor: route.name === 'Galaxy' ? '#000' : isDarkMode ? '#000' : '#ffffff',
             height: tabBarHeight,
           },
         ],
@@ -205,9 +208,10 @@ const CreatorTabs = ({ isDarkMode }: TabsProps) => {
   );
 };
 
-const FanTabs = ({isDarkMode}: TabsProps) => {
+const FanTabs = ({isDarkMode, user, onTap}: TabsProps) => {
   const insets = useSafeAreaInsets();
   const tabBarHeight = SCREEN_HEIGHT * 0.08 + (Platform.OS === 'ios' ? 0 : insets.bottom);
+
 
   return (
     <Tab.Navigator
@@ -221,7 +225,7 @@ const FanTabs = ({isDarkMode}: TabsProps) => {
         tabBarStyle: [
           styles.tabBar,
           {
-            backgroundColor: route.name === 'Galaxy' || isDarkMode ? '#1f1022' : '#ffffff',
+            backgroundColor: route.name === 'Galaxy' ? '#000' : isDarkMode ? '#1f1022' : '#ffffff',
             height: tabBarHeight,
           },
         ],
@@ -243,6 +247,15 @@ const FanTabs = ({isDarkMode}: TabsProps) => {
         // />
         <MovieIcon width={size} height={size} fill={color} />
       }}
+      // listeners={({navigation})=>({
+      //   tabPress: (e) => {
+      //     e.preventDefault();
+      //     // console.log('Videos tab tapped');
+      //     if(user.role === 'guest'){
+      //       navigation.navigate('SignUp')
+      //     }
+      //   },
+      // })}
     />
     <Tab.Screen 
     name="Discover" 
@@ -254,6 +267,17 @@ const FanTabs = ({isDarkMode}: TabsProps) => {
       <ExploreIcon width={size} height={size} fill={color} />
 
     }}
+    listeners={({navigation})=>({
+        tabPress: (e) => {
+          // e.preventDefault();
+          // console.log('Videos tab tapped');
+          if(user.name === 'guest'){
+            e.preventDefault();
+            // navigation.navigate('SignUp')
+            onTap?.()
+          }
+        },
+      })}
     />
     <Tab.Screen 
     name="Community" 
@@ -263,6 +287,17 @@ const FanTabs = ({isDarkMode}: TabsProps) => {
       // <MaterialIcons name="local-library" size={size} color={color} />,
       <ForumIcon width={size} height={size} fill={color} />
     }}
+    listeners={({navigation})=>({
+        tabPress: (e) => {
+          // e.preventDefault();
+          // console.log('Videos tab tapped');
+          if(user.name === 'guest'){
+            e.preventDefault();
+            // navigation.navigate('SignUp')
+            onTap?.();
+          }
+        },
+      })}
     />
     <Tab.Screen 
     name="Signal" 
@@ -270,9 +305,20 @@ const FanTabs = ({isDarkMode}: TabsProps) => {
     options = {{
       tabBarIcon: ({ color, size }) => <MaterialIcons name="chat-bubble-outline" size={size} color={color} />,
     }}
+    listeners={({navigation})=>({
+        tabPress: (e) => {
+          // console.log('Videos tab tapped');
+          if(user.name === 'guest'){
+            e.preventDefault();
+            navigation.navigate('SignUp')
+          }
+        },
+      })}
+
+
     />
     <Tab.Screen
-      name="Profile"
+      name= {user.name !== 'guest' ? "Profile": 'Login'}
       component={FanProfile}
       options={{
         tabBarIcon: ({ color, size }) => <View
@@ -297,6 +343,16 @@ const FanTabs = ({isDarkMode}: TabsProps) => {
           ></Image>
         </View>,
       }}
+      listeners={({navigation})=>({
+        tabPress: (e) => {
+          console.log('Videos tab tapped');
+          console.log(user);
+          if(user.name === 'guest'){
+            e.preventDefault()
+            navigation.navigate('SignUp');
+          }
+        },
+      })}
     />
     </Tab.Navigator>
   );
@@ -310,6 +366,12 @@ const App: React.FC = () => {
   const [currentUser, setCurrentUser] = useState<User | null>(user);
   const [isBooting, setIsBooting] = useState(true);
   const { height: vh, width:vw } = useWindowDimensions();
+  const [visible, setVisible] = useState(false);
+
+
+  const onTap = () => {
+    setVisible(true);
+  }
   
 
   const [fontsLoaded] = useFonts({
@@ -401,7 +463,12 @@ const App: React.FC = () => {
                 </>
               ) : currentUser ? (
                 <>
-                  <Stack.Screen name="MainTabs">{() => (currentUser.role === 'creator' ? <CreatorTabs isDarkMode={isDark} /> : <FanTabs isDarkMode={isDark} />)}</Stack.Screen>
+                  <Stack.Screen name="MainTabs">{() => (currentUser.role === 'creator' ? <CreatorTabs isDarkMode={isDark} user={currentUser} /> : <View style={{
+                    flex: 1,
+                  }}>
+                    <SignUpModal visible={visible} onClose={()=>({})} onCreateAccount={()=>({})}/>
+                    <FanTabs isDarkMode={isDark} user={currentUser} onTap={onTap} />
+                  </View>)}</Stack.Screen>
                   <Stack.Screen name="Chat" component={ChatView} />
                   <Stack.Screen name="Settings" component={CreatorSettings} />
                   <Stack.Screen name="MembershipTiers" component={MembershipTiers} />
@@ -439,12 +506,13 @@ const App: React.FC = () => {
                   <Stack.Screen name= "Notification" component={Notifications}/>
                   <Stack.Screen name= "StreakReward" component={StreakReward}/>
                   <Stack.Screen name= "CommunityPost" component={CreateCommunityPost}/>
+                  <Stack.Screen name="SignUp">{() => <SignUpModal visible={true} onCreateAccount={()=>{}} onClose={()=>{}}/>}</Stack.Screen>
                 </>
               ) : (
                 <>
                   <Stack.Screen name="GetStarted" component={GetStarted} />
                   <Stack.Screen name="/vibe-picker" component={SignupVibes} />
-                  <Stack.Screen name="Signup">{() => <Signup onLogin={handleLogin} />}</Stack.Screen>
+
                 </>
               )}
             </Stack.Navigator>

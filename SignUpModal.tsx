@@ -30,6 +30,8 @@ const SignUpModal: React.FC<SignUpModalProps> = ({
       visible={visible && isGuest}
       transparent
       animationType="fade"
+      statusBarTranslucent
+      presentationStyle="overFullScreen"
       onRequestClose={onClose}
     >
       <View style={styles.overlay}>
@@ -88,6 +90,7 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'center',
     padding: 24,
+    backgroundColor: '#ffffff00'
   },
   backdrop: {
     ...StyleSheet.absoluteFillObject,
