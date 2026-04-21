@@ -18,6 +18,7 @@ import LocalIcon from './assets/icons/local-activity-svg.svg';
 import MovieIcon from './assets/icons/play-circle-svg.svg';
 import BookMarkIcon from './assets/icons/bookmark-svg.svg';
 import PremiumIcon from './assets/icons/premium-svg.svg';
+import { fontScale } from './fonts';
 
 interface FanProfileProps {
   onLogout?: () => void;
@@ -145,7 +146,7 @@ const FanProfile: React.FC<FanProfileProps> = ({ onToggleRole }) => {
         <View style={s.coverSection}>
           <ImageBackground
             source={{
-              uri: 'https://images.unsplash.com/photo-1470225620780-dba8ba36b745?auto=format&fit=crop&q=80&w=800',
+              uri: 'https://res.cloudinary.com/dir15sl86/image/upload/v1776701629/3564364_ftz8px.jpg',
             }}
             style={s.cover}
           >
@@ -169,7 +170,9 @@ const FanProfile: React.FC<FanProfileProps> = ({ onToggleRole }) => {
 
           <View style={s.profileRow}>
             <View style={s.avatarWrap}>
-              <Image source={{ uri: 'https://picsum.photos/seed/profile/300' }} style={[s.avatar, {borderColor: isDark ?'#060913': 'white',}]} />
+              <Image
+              resizeMode='cover'
+              source={{ uri: 'https://res.cloudinary.com/dir15sl86/image/upload/v1776701629/35464tdgggdg_ldnz5i.jpg' }} style={[s.avatar, {borderColor: isDark ?'#060913': 'white',}]} />
               {streak.count > 0 && (
                 <Pressable onPress={() => navigation.navigate('Feed')} style={[s.streakBadge, {borderColor: isDark ?'#060913': 'white',}]}>
                   <MaterialIcons name="local-fire-department" size={12} color="#fff" />
@@ -199,7 +202,9 @@ const FanProfile: React.FC<FanProfileProps> = ({ onToggleRole }) => {
 
           <View style={s.statsRow}>
             {stats.map((stat) => (
-              <Pressable key={stat.label} onPress={stat.onPress} style={[s.statCard, { backgroundColor: isDark ? '#111827' : theme.card, borderColor: theme.border }]}>
+              <Pressable key={stat.label} onPress={stat.onPress} style={[s.statCard, { 
+              // borderColor: theme.border 
+              }]}>
                 <Text style={[s.statValue, { color: theme.text }]}>{stat.value}</Text>
                 <Text style={[s.statLabel, { color: theme.textSecondary }]}>{stat.label}</Text>
               </Pressable>
@@ -216,7 +221,7 @@ const FanProfile: React.FC<FanProfileProps> = ({ onToggleRole }) => {
               >
                 <View style={s.switchRoleLeft}>
                   <View style={s.switchRoleIcon}>
-                    <MaterialIcons name="rocket-launch" size={24} color="#fff" />
+                    <MaterialIcons name="rocket-launch" size={20} color="#fff" />
                   </View>
                   <View>
                     <Text style={s.switchRoleTitle}>Switch to Creator</Text>
@@ -477,7 +482,7 @@ const s = StyleSheet.create({
   avatar: {
     width: 116,
     height: 116,
-    borderRadius: 30,
+    borderRadius: 999,
     borderWidth: 6,
     
   },
@@ -487,7 +492,7 @@ const s = StyleSheet.create({
     bottom: -4,
     width: 42,
     height: 42,
-    borderRadius: 12,
+    borderRadius: 25,
     backgroundColor: '#f97316',
     borderWidth: 4,
     // borderColor: '#060913',
@@ -558,9 +563,9 @@ const s = StyleSheet.create({
     borderRadius: 28,
     paddingVertical: 16,
     paddingHorizontal: 12,
-    backgroundColor: 'rgba(255,255,255,0.05)',
-    borderWidth: 1,
-    borderColor: 'rgba(255,255,255,0.08)',
+    // backgroundColor: 'rgba(255,255,255,0.05)',
+    // borderWidth: 1,
+    // borderColor: 'rgba(255,255,255,0.08)',
   },
   statValue: {
     color: '#fff',
@@ -587,10 +592,10 @@ const s = StyleSheet.create({
     elevation: 8,
   },
   switchRoleGradient: {
-    minHeight: 88,
+    minHeight: 48,
     borderRadius: 30,
     paddingHorizontal: 18,
-    paddingVertical: 18,
+    paddingVertical: 9,
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'space-between',
@@ -613,14 +618,14 @@ const s = StyleSheet.create({
   },
   switchRoleTitle: {
     color: '#fff',
-    fontSize: 11,
+    fontSize: mediumScreen ? fontScale(14): fontScale(10),
     fontFamily: 'PlusJakartaSansExtraBold',
     textTransform: 'uppercase',
     letterSpacing: 1.3,
   },
   switchRoleMeta: {
     color: 'rgba(255,255,255,0.78)',
-    fontSize: 9,
+    fontSize: mediumScreen ? fontScale(12): fontScale(8),
     fontFamily: 'PlusJakartaSansBold',
     textTransform: 'uppercase',
     letterSpacing: 1.1,

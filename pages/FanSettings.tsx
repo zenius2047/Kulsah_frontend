@@ -158,6 +158,15 @@ const FanSettings: React.FC<FanSettingsProps> = ({ onLogout, isDarkMode, onToggl
     setFlippedCards((prev) => ({ ...prev, [id]: !prev[id] }));
   };
 
+  const surfaceColor = isDark ? '#111827' : theme.card;
+  const elevatedSurface = isDark ? 'rgba(31, 16, 34, 0.75)' : theme.card;
+  const subtleSurface = isDark ? 'rgba(255,255,255,0.06)' : theme.surface;
+  const secondaryText = isDark ? '#94a3b8' : theme.textSecondary;
+  const mutedText = isDark ? '#6b7280' : theme.textMuted;
+  const inputBackground = isDark ? '#0f172a' : '#ffffff';
+  const chipSurface = isDark ? 'rgba(217,21,210,0.12)' : '#f5f3ff';
+  const softSurface = isDark ? 'rgba(255,255,255,0.05)' : '#f1f5f9';
+
   const renderHeader = (title: string, backToMain = true) => (
     <View style={[s.header, { backgroundColor: isDark ? 'rgba(31, 16, 34, 0.75)' : theme.card, borderBottomColor: theme.border }]}>
       <Pressable
@@ -172,7 +181,7 @@ const FanSettings: React.FC<FanSettingsProps> = ({ onLogout, isDarkMode, onToggl
 
   const renderProfileView = () => (
     <KeyboardAvoidingView
-      style={s.viewWrap}
+      style={[s.viewWrap, { backgroundColor: theme.screen }]}
       behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
       keyboardVerticalOffset={Platform.OS === 'ios' ? 12 : 0}
     >
@@ -196,30 +205,32 @@ const FanSettings: React.FC<FanSettingsProps> = ({ onLogout, isDarkMode, onToggl
         </View>
 
         <View style={s.formBlock}>
-          <Text style={s.label}>Display Name</Text>
+          <Text style={[s.label, { color: secondaryText }]}>Display Name</Text>
           <TextInput
             value={profile.name}
             onChangeText={(value) => setProfile({ ...profile, name: value })}
-            style={s.input}
+            style={[s.input, { borderColor: theme.border, backgroundColor: inputBackground, color: theme.text }]}
+            placeholderTextColor={mutedText}
           />
         </View>
 
         <View style={s.formBlock}>
-          <Text style={s.label}>Galaxy Handle</Text>
+          <Text style={[s.label, { color: secondaryText }]}>Galaxy Handle</Text>
           <View style={s.handleWrap}>
-            <Text style={[s.handlePrefix]}>@</Text>
+            <Text style={[s.handlePrefix, { color: theme.accent }]}>@</Text>
             <TextInput
               value={profile.handle}
               onChangeText={(value) => setProfile({ ...profile, handle: value })}
-              style={[s.input, s.handleInput]}
+              style={[s.input, s.handleInput, { borderColor: theme.border, backgroundColor: inputBackground, color: theme.text }]}
+              placeholderTextColor={mutedText}
             />
           </View>
         </View>
 
         <View style={s.formBlock}>
           <View style={s.rowBetween}>
-            <Text style={s.label}>Bio</Text>
-            <Text style={s.counter}>{profile.bio.length}/160</Text>
+            <Text style={[s.label, { color: secondaryText }]}>Bio</Text>
+            <Text style={[s.counter, { color: secondaryText }]}>{profile.bio.length}/160</Text>
           </View>
           <TextInput
             value={profile.bio}
@@ -227,11 +238,12 @@ const FanSettings: React.FC<FanSettingsProps> = ({ onLogout, isDarkMode, onToggl
             maxLength={160}
             multiline
             numberOfLines={4}
-            style={s.textArea}
+            style={[s.textArea, { borderColor: theme.border, backgroundColor: inputBackground, color: theme.text }]}
+            placeholderTextColor={mutedText}
           />
         </View>
 
-        <Pressable onPress={handleSaveProfile} style={s.primaryButton}>
+        <Pressable onPress={handleSaveProfile} style={[s.primaryButton, { backgroundColor: theme.accent }]}>
           <Text style={s.primaryButtonText}>Update Persona</Text>
         </Pressable>
       </ScrollView>
@@ -239,7 +251,7 @@ const FanSettings: React.FC<FanSettingsProps> = ({ onLogout, isDarkMode, onToggl
   );
 
   const renderIdentityView = () => (
-    <View style={s.viewWrap}>
+    <View style={[s.viewWrap, { backgroundColor: theme.screen }]}>
       {renderHeader('Identity Pass')}
       <ScrollView contentContainerStyle={s.identityContent} showsVerticalScrollIndicator={false}>
         <View style={s.carouselWrap}>
@@ -252,12 +264,12 @@ const FanSettings: React.FC<FanSettingsProps> = ({ onLogout, isDarkMode, onToggl
             scrollEventThrottle={16}
           >
             <View style={s.cardSlide}>
-              <Pressable onPress={() => toggleFlip('main')} style={s.identityCard}>
+              <Pressable onPress={() => toggleFlip('main')} style={[s.identityCard, { backgroundColor: surfaceColor, borderColor: theme.border }]}>
                 {flippedCards['main'] ? (
                   <View style={s.cardBack}>
-                    <Text style={s.cardLabel}>Identity Pass</Text>
-                    <Text style={s.cardTitle}>Verification</Text>
-                    <View style={s.qrWrap}>
+                    <Text style={[s.cardLabel, { color: theme.accent }]}>Identity Pass</Text>
+                    <Text style={[s.cardTitle, { color: theme.text }]}>Verification</Text>
+                    <View style={[s.qrWrap, { backgroundColor: softSurface }]}>
                       <Image
                         source={{
                           uri: `https://api.qrserver.com/v1/create-qr-code/?size=250x250&data=ID_REF_${profile.name.replace(' ', '_')}&bgcolor=ffffff&color=0f172a`,
@@ -265,35 +277,35 @@ const FanSettings: React.FC<FanSettingsProps> = ({ onLogout, isDarkMode, onToggl
                         style={s.qrImage}
                       />
                     </View>
-                    <View style={s.tokenPill}>
+                    <View style={[s.tokenPill, { borderColor: isDark ? 'rgba(217,21,210,0.3)' : '#cd2bee44', backgroundColor: chipSurface }]}>
                       <View style={s.tokenDot} />
-                      <Text style={s.tokenText}>Refreshes in {tokenTime}s</Text>
+                      <Text style={[s.tokenText, { color: isDark ? '#c084fc' : '#7c3aed' }]}>Refreshes in {tokenTime}s</Text>
                     </View>
-                    <Text style={s.tokenHint}>Encrypted Galaxy Protocol Active</Text>
+                    <Text style={[s.tokenHint, { color: secondaryText }]}>Encrypted Galaxy Protocol Active</Text>
                   </View>
                 ) : (
                   <View style={s.cardFront}>
                     <View style={s.cardRowBetween}>
                       <View>
-                        <Text style={s.cardTag}>Ecosystem Node</Text>
-                        <Text style={s.cardName}>{profile.name}</Text>
+                        <Text style={[s.cardTag, { color: theme.accent }]}>Ecosystem Node</Text>
+                        <Text style={[s.cardName, { color: theme.text }]}>{profile.name}</Text>
                       </View>
-                      <View style={s.cardIconBadge}>
-                        <MaterialIcons name="stars" size={18} color="#cd2bee" />
+                      <View style={[s.cardIconBadge, { backgroundColor: softSurface }]}>
+                        <MaterialIcons name="stars" size={18} color={theme.accent} />
                       </View>
                     </View>
-                    <View style={s.profileOrb}>
+                    <View style={[s.profileOrb, { borderColor: softSurface }]}>
                       <Image source={{ uri: profile.avatar }} style={s.profileOrbImage} />
                     </View>
-                    <Text style={s.memberTag}>Member #0042</Text>
+                    <Text style={[s.memberTag, { backgroundColor: softSurface, color: theme.text }]}>Member #0042</Text>
                     <View style={s.cardRowBetween}>
                       <View>
-                        <Text style={s.smallLabel}>Digital Signature</Text>
-                        <Text style={s.monoText}>REF: KULS-8829-X</Text>
+                        <Text style={[s.smallLabel, { color: secondaryText }]}>Digital Signature</Text>
+                        <Text style={[s.monoText, { color: mutedText }]}>REF: KULS-8829-X</Text>
                       </View>
                       <View style={s.iconRow}>
-                        <MaterialIcons name="nfc" size={18} color="#9ca3af" />
-                        <MaterialIcons name="fingerprint" size={18} color="#9ca3af" />
+                        <MaterialIcons name="nfc" size={18} color={secondaryText} />
+                        <MaterialIcons name="fingerprint" size={18} color={secondaryText} />
                       </View>
                     </View>
                   </View>
@@ -303,12 +315,12 @@ const FanSettings: React.FC<FanSettingsProps> = ({ onLogout, isDarkMode, onToggl
 
             {purchasedTickets.map((ticket) => (
               <View key={ticket.id} style={s.cardSlide}>
-                <Pressable onPress={() => toggleFlip(ticket.id)} style={s.identityCard}>
+                <Pressable onPress={() => toggleFlip(ticket.id)} style={[s.identityCard, { backgroundColor: surfaceColor, borderColor: theme.border }]}>
                   {flippedCards[ticket.id] ? (
                     <View style={s.cardBack}>
-                      <Text style={s.cardLabel}>Gate Scan Protocol</Text>
-                      <Text style={s.cardTitle}>Live Admission</Text>
-                      <View style={s.qrWrap}>
+                      <Text style={[s.cardLabel, { color: theme.accent }]}>Gate Scan Protocol</Text>
+                      <Text style={[s.cardTitle, { color: theme.text }]}>Live Admission</Text>
+                      <View style={[s.qrWrap, { backgroundColor: softSurface }]}>
                         <Image
                           source={{
                             uri: `https://api.qrserver.com/v1/create-qr-code/?size=250x250&data=${ticket.qrData}&bgcolor=ffffff&color=0f172a`,
@@ -316,34 +328,34 @@ const FanSettings: React.FC<FanSettingsProps> = ({ onLogout, isDarkMode, onToggl
                           style={s.qrImage}
                         />
                       </View>
-                      <View style={s.tokenPillAlt}>
+                      <View style={[s.tokenPillAlt, { borderColor: 'rgba(34,197,94,0.3)', backgroundColor: isDark ? 'rgba(34,197,94,0.14)' : '#f0fdf4' }]}>
                         <View style={[s.tokenDot, { backgroundColor: '#22c55e' }]} />
                         <Text style={s.tokenTextAlt}>Secure Token: {tokenTime}s</Text>
                       </View>
-                      <Text style={s.tokenHint}>Ensure screen brightness is maxed during scan.</Text>
+                      <Text style={[s.tokenHint, { color: secondaryText }]}>Ensure screen brightness is maxed during scan.</Text>
                     </View>
                   ) : (
                     <View style={s.cardFront}>
-                      <Text style={[s.cardTag, ticket.color === 'blue' && s.blueText]}>Upcoming Entry</Text>
-                      <Text style={s.cardName}>{ticket.artist}</Text>
-                      <Text style={s.cardSub}>{ticket.event}</Text>
+                      <Text style={[s.cardTag, { color: ticket.color === 'blue' ? '#3b82f6' : theme.accent }]}>Upcoming Entry</Text>
+                      <Text style={[s.cardName, { color: theme.text }]}>{ticket.artist}</Text>
+                      <Text style={[s.cardSub, { color: secondaryText }]}>{ticket.event}</Text>
                       <View style={s.ticketRow}>
                         <View>
-                          <Text style={s.smallLabel}>Date</Text>
-                          <Text style={s.ticketValue}>{ticket.date}</Text>
+                          <Text style={[s.smallLabel, { color: secondaryText }]}>Date</Text>
+                          <Text style={[s.ticketValue, { color: theme.text }]}>{ticket.date}</Text>
                         </View>
                         <View>
-                          <Text style={s.smallLabel}>Location</Text>
-                          <Text style={s.ticketValue}>{ticket.location.split(',')[0]}</Text>
+                          <Text style={[s.smallLabel, { color: secondaryText }]}>Location</Text>
+                          <Text style={[s.ticketValue, { color: theme.text }]}>{ticket.location.split(',')[0]}</Text>
                         </View>
                       </View>
                       <View style={s.ticketRow}>
                         <View>
-                          <Text style={s.smallLabel}>Gate Zone</Text>
-                          <Text style={s.ticketValue}>Pit North</Text>
+                          <Text style={[s.smallLabel, { color: secondaryText }]}>Gate Zone</Text>
+                          <Text style={[s.ticketValue, { color: theme.text }]}>Pit North</Text>
                         </View>
-                        <View style={s.qrBadge}>
-                          <MaterialIcons name="qr-code-2" size={18} color="#cd2bee" />
+                        <View style={[s.qrBadge, { backgroundColor: subtleSurface }]}>
+                          <MaterialIcons name="qr-code-2" size={18} color={theme.accent} />
                         </View>
                       </View>
                     </View>
@@ -354,33 +366,34 @@ const FanSettings: React.FC<FanSettingsProps> = ({ onLogout, isDarkMode, onToggl
           </ScrollView>
 
           <View style={s.progressBarWrap}>
-            <View style={s.progressTrack}>
+            <View style={[s.progressTrack, { backgroundColor: theme.border }]}>
               <View
                 style={[
                   s.progressFill,
+                  { backgroundColor: theme.accent },
                   { width: `${((currentSlide + 1) / (purchasedTickets.length + 1)) * 100}%` },
                 ]}
               />
             </View>
             <View style={s.progressLabels}>
-              <Text style={[s.progressText, currentSlide === 0 && s.progressTextActive]}>Identity</Text>
-              <Text style={[s.progressText, currentSlide > 0 && s.progressTextActive]}>Event Keys</Text>
+              <Text style={[s.progressText, { color: secondaryText }, currentSlide === 0 && { color: theme.accent }]}>Identity</Text>
+              <Text style={[s.progressText, { color: secondaryText }, currentSlide > 0 && { color: theme.accent }]}>Event Keys</Text>
             </View>
           </View>
         </View>
 
         <View style={s.sectionBlock}>
           <View style={s.rowBetween}>
-            <Text style={s.sectionTitle}>Pass Selection</Text>
-            <Text style={s.sectionBadge}>{purchasedTickets.length} Entry Keys</Text>
+            <Text style={[s.sectionTitle, { color: secondaryText }]}>Pass Selection</Text>
+            <Text style={[s.sectionBadge, { color: theme.accent }]}>{purchasedTickets.length} Entry Keys</Text>
           </View>
           <ScrollView horizontal showsHorizontalScrollIndicator={false} style={s.rail}>
-            <Pressable onPress={() => scrollToSlide(0)} style={s.railCard}>
-              <View style={s.railIcon}>
-                <MaterialIcons name="account-circle" size={18} color="#cd2bee" />
+            <Pressable onPress={() => scrollToSlide(0)} style={[s.railCard, { backgroundColor: surfaceColor, borderColor: theme.border }]}>
+              <View style={[s.railIcon, { backgroundColor: chipSurface }]}>
+                <MaterialIcons name="account-circle" size={18} color={theme.accent} />
               </View>
-              <Text style={s.railTitle}>Global Profile</Text>
-              <Text style={s.railMeta}>Ecosystem ID #0042</Text>
+              <Text style={[s.railTitle, { color: theme.text }]}>Global Profile</Text>
+              <Text style={[s.railMeta, { color: secondaryText }]}>Ecosystem ID #0042</Text>
             </Pressable>
             {purchasedTickets.map((ticket, idx) => (
               <Pressable
@@ -389,33 +402,33 @@ const FanSettings: React.FC<FanSettingsProps> = ({ onLogout, isDarkMode, onToggl
                   scrollToSlide(idx + 1);
                   if (flippedCards[ticket.id]) toggleFlip(ticket.id);
                 }}
-                style={s.railCard}
+                style={[s.railCard, { backgroundColor: surfaceColor, borderColor: theme.border }]}
               >
-                <View style={[s.railIcon, ticket.color === 'blue' && s.railIconBlue]}>
-                  <MaterialIcons name="confirmation-number" size={18} color={ticket.color === 'blue' ? '#3b82f6' : '#cd2bee'} />
+                <View style={[s.railIcon, { backgroundColor: ticket.color === 'blue' ? (isDark ? 'rgba(59,130,246,0.14)' : '#eff6ff') : chipSurface }]}>
+                  <MaterialIcons name="confirmation-number" size={18} color={ticket.color === 'blue' ? '#3b82f6' : theme.accent} />
                 </View>
-                <Text style={s.railTitle}>{ticket.artist}</Text>
-                <Text style={s.railMeta}>{ticket.event}</Text>
+                <Text style={[s.railTitle, { color: theme.text }]}>{ticket.artist}</Text>
+                <Text style={[s.railMeta, { color: secondaryText }]}>{ticket.event}</Text>
               </Pressable>
             ))}
           </ScrollView>
         </View>
 
         <View style={s.sectionBlock}>
-          <Text style={s.sectionTitle}>Protocol Sync</Text>
+          <Text style={[s.sectionTitle, { color: secondaryText }]}>Protocol Sync</Text>
           {[
             { label: 'Gate Access Synchronized', icon: 'sensors', status: 'Online' },
             { label: 'Biometric Handshake', icon: 'fingerprint', status: 'Ready' },
             { label: 'Blockchain ID Verified', icon: 'shield', status: 'Passed' },
           ].map((cred) => (
-            <View key={cred.label} style={s.statusCard}>
+            <View key={cred.label} style={[s.statusCard, { borderColor: theme.border, backgroundColor: surfaceColor }]}>
               <View style={s.statusRow}>
-                <View style={s.statusIcon}>
-                  <MaterialIcons name={cred.icon as any} size={18} color="#cd2bee" />
+                <View style={[s.statusIcon, { backgroundColor: chipSurface }]}>
+                  <MaterialIcons name={cred.icon as any} size={18} color={theme.accent} />
                 </View>
-                <Text style={s.statusText}>{cred.label}</Text>
+                <Text style={[s.statusText, { color: theme.text }]}>{cred.label}</Text>
               </View>
-              <Text style={s.statusBadge}>{cred.status}</Text>
+              <Text style={[s.statusBadge, { color: theme.accent, backgroundColor: chipSurface }]}>{cred.status}</Text>
             </View>
           ))}
         </View>
@@ -424,39 +437,39 @@ const FanSettings: React.FC<FanSettingsProps> = ({ onLogout, isDarkMode, onToggl
   );
 
   const renderPaymentsView = () => (
-    <View style={s.viewWrap}>
+    <View style={[s.viewWrap, { backgroundColor: theme.screen }]}>
       {renderHeader('Payment Hub')}
       <ScrollView contentContainerStyle={s.paymentsContent} showsVerticalScrollIndicator={false}>
         <View style={s.sectionBlock}>
           <View style={s.rowBetween}>
-            <Text style={s.sectionTitle}>Verified Methods</Text>
+            <Text style={[s.sectionTitle, { color: secondaryText }]}>Verified Methods</Text>
             <Pressable>
-              <Text style={s.sectionBadge}>+ Add New</Text>
+              <Text style={[s.sectionBadge, { color: theme.accent }]}>+ Add New</Text>
             </Pressable>
           </View>
           {paymentMethods.map((method) => (
-            <View key={method.id} style={s.methodCard}>
+            <View key={method.id} style={[s.methodCard, { borderColor: theme.border, backgroundColor: surfaceColor }]}>
               <View style={s.methodRow}>
-                <View style={s.methodIcon}>
-                  <MaterialIcons name={method.type === 'visa' ? 'credit-card' : 'smartphone'} size={18} color="#cd2bee" />
+                <View style={[s.methodIcon, { backgroundColor: chipSurface }]}>
+                  <MaterialIcons name={method.type === 'visa' ? 'credit-card' : 'smartphone'} size={18} color={theme.accent} />
                 </View>
                 <View>
-                  <Text style={s.methodTitle}>
+                  <Text style={[s.methodTitle, { color: theme.text }]}>
                     {method.type === 'visa' ? `Visa ���� ${method.last4}` : `${method.provider} Mobile Money`}
                   </Text>
-                  <Text style={s.methodMeta}>{method.type === 'visa' ? `Exp ${method.expiry}` : method.phone}</Text>
+                  <Text style={[s.methodMeta, { color: secondaryText }]}>{method.type === 'visa' ? `Exp ${method.expiry}` : method.phone}</Text>
                 </View>
               </View>
-              {method.isDefault && <Text style={s.methodBadge}>Default</Text>}
+              {method.isDefault && <Text style={[s.methodBadge, { color: theme.accent, backgroundColor: chipSurface }]}>Default</Text>}
             </View>
           ))}
         </View>
 
         <View style={s.sectionBlock}>
-          <Text style={s.sectionTitle}>Transactions</Text>
-          <View style={s.emptyCard}>
-            <MaterialIcons name="receipt-long" size={32} color="#cbd5f5" />
-            <Text style={s.emptyText}>No recent billing activity</Text>
+          <Text style={[s.sectionTitle, { color: secondaryText }]}>Transactions</Text>
+          <View style={[s.emptyCard, { borderColor: theme.border, backgroundColor: surfaceColor }]}>
+            <MaterialIcons name="receipt-long" size={32} color={secondaryText} />
+            <Text style={[s.emptyText, { color: secondaryText }]}>No recent billing activity</Text>
           </View>
         </View>
       </ScrollView>
@@ -511,7 +524,7 @@ const FanSettings: React.FC<FanSettingsProps> = ({ onLogout, isDarkMode, onToggl
   ];
 
   return (
-    <View style={s.screen}>
+    <View style={[s.screen, { backgroundColor: theme.screen }]}>
       {renderHeader('Fan Cockpit', false)}
       <ScrollView contentContainerStyle={s.mainContent} showsVerticalScrollIndicator={false}>
         <Pressable style={s.profileHeader} onPress={() => setActiveView('profile')}>
@@ -529,9 +542,9 @@ const FanSettings: React.FC<FanSettingsProps> = ({ onLogout, isDarkMode, onToggl
           <View style={s.profileTextWrap}>
             <View style={s.profileNameRow}>
               <Text style={[s.profileName, { color: theme.text }]}>{profile.name}</Text>
-              <VerifiedIcon width={18} height={18} fill="#cd2bee" />
+              <VerifiedIcon width={18} height={18} fill={theme.accent} />
             </View>
-            <Text style={s.profileHandle}>@{profile.handle}</Text>
+            <Text style={[s.profileHandle, { color: theme.accent }]}>@{profile.handle}</Text>
           </View>
         </Pressable>
 
@@ -541,7 +554,7 @@ const FanSettings: React.FC<FanSettingsProps> = ({ onLogout, isDarkMode, onToggl
             {section.items.map((item) => (
               <Pressable
                 key={item.label}
-                style={[s.itemRow, { borderColor: theme.border, backgroundColor: isDark ? 'rgba(31, 16, 34, 0.75)' : theme.card }]}
+                style={[s.itemRow, { borderColor: theme.border, backgroundColor: elevatedSurface }]}
                 onPress={() => {
                   if (item.onClick) item.onClick();
                   else if (item.id) setActiveView(item.id as SubView);
@@ -562,7 +575,7 @@ const FanSettings: React.FC<FanSettingsProps> = ({ onLogout, isDarkMode, onToggl
                   </View>
                 </View>
                 {item.isToggle ? (
-                  <Pressable onPress={item.onToggle} style={[s.toggle, { backgroundColor: isDark ? '#30384a' : '#cbd5e1' }, item.enabled && s.toggleEnabled]}>
+                  <Pressable onPress={item.onToggle} style={[s.toggle, { backgroundColor: isDark ? '#30384a' : '#cbd5e1' }, item.enabled && { backgroundColor: theme.accent }]}>
                     <View style={[s.toggleDot, item.enabled && s.toggleDotEnabled]} />
                   </Pressable>
                 ) : (
@@ -578,7 +591,7 @@ const FanSettings: React.FC<FanSettingsProps> = ({ onLogout, isDarkMode, onToggl
             <MaterialIcons name="logout" size={18} color="#ef4444" />
             <Text style={s.logoutText}>Exit Galaxy Hub</Text>
           </Pressable>
-          <Text style={s.versionText}>Kulsah Ecosystem v2.4.2</Text>
+          <Text style={[s.versionText, { color: secondaryText }]}>Kulsah Ecosystem v2.4.2</Text>
         </View>
       </ScrollView>
     </View>

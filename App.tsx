@@ -23,7 +23,6 @@ import { user, User, UserRole, setUser, setHeight, setWidth, setScreenType, medi
 // import LiveStream from './pages/LiveStream';
 import ChatView from './pages/ChatView';
 import Feed from './pages/Feed';
-import Onboarding from './pages/Onboarding';
 import Signup from './pages/Signup';
 import Community from './pages/Community';
 import { BlurView } from 'expo-blur';
@@ -76,6 +75,8 @@ import ErrorBoundary from './components/ErrorBoundary';
 import CreateCommunityPost from './pages/CreateCommunityPost';
 import MembershipTiers from './pages/MembershipTiers';
 import SplashScreen from './pages/SplashScreen';
+import GetStarted from './pages/GetStarted';
+import SignupVibes from './pages/SignupVibes';
 
 
 const Stack = createNativeStackNavigator();
@@ -305,10 +306,9 @@ const FanTabs = ({isDarkMode}: TabsProps) => {
 
 
 const App: React.FC = () => {
-  const { isDark, theme } = useThemeMode();
+  const { isDark } = useThemeMode();
   const [currentUser, setCurrentUser] = useState<User | null>(user);
-  const [isLoading, setIsLoading] = useState(true);
-  const [showOnboarding, setShowOnboarding] = useState(true);
+  const [isBooting, setIsBooting] = useState(true);
   const { height: vh, width:vw } = useWindowDimensions();
   
 
@@ -323,18 +323,19 @@ const App: React.FC = () => {
     });
 
   useEffect(() => {
-    // console.log(`Rebuilding`)
     setHeight(vh);
     setWidth(vw);
-    console.log("height", SCREEN_HEIGHT)
     if(SCREEN_HEIGHT > 880 ){
       setScreenType(true)
     }
     if(SCREEN_WIDTH < 400){
       setSmallWith(true)
     }
-    void loadInitialData();
   }, [vh]);
+
+  useEffect(() => {
+    void loadInitialData();
+  }, []);
 
   useEffect(() => {
     const unsubscribe = subscribeUser(setCurrentUser);
@@ -343,22 +344,28 @@ const App: React.FC = () => {
 
   const loadInitialData = async () => {
     try {
-      const savedUser = await AsyncStorage.getItem('pulsar_user');
-      const savedDarkMode = await AsyncStorage.getItem('pulsar_dark_mode');
+      const [savedUser, savedDarkMode] = await Promise.all([
+        AsyncStorage.getItem('pulsar_user'),
+        AsyncStorage.getItem('pulsar_dark_mode'),
+        new Promise((resolve) => setTimeout(resolve, 2000)),
+      ]);
+
       if (savedDarkMode !== null) {
         setDark(JSON.parse(savedDarkMode));
       }
+
       if (savedUser) {
         const parsedUser = JSON.parse(savedUser) as User;
         setUser(parsedUser);
         setCurrentUser(parsedUser);
-        setShowOnboarding(false)
-      };
-      console.log(savedUser)
+      } else {
+        setUser(null);
+        setCurrentUser(null);
+      }
     } catch (e) {
       console.error(e);
     } finally {
-      setIsLoading(false);
+      setIsBooting(false);
     }
   };
 
@@ -370,17 +377,8 @@ const App: React.FC = () => {
     };
     setUser(mockUser);
     setCurrentUser(mockUser);
-    setShowOnboarding(false);
     await AsyncStorage.setItem('pulsar_user', JSON.stringify(mockUser));
   };
-
-  if (isLoading) {
-    return (
-      <View style={styles.loader}>
-        <ActivityIndicator size="large" color="#6200EE" />
-      </View>
-    );
-  }
 
   if(!fontsLoaded){
     return null;
@@ -397,10 +395,9 @@ const App: React.FC = () => {
 
             <StatusBar barStyle={isDark ? 'light-content' : 'dark-content'} backgroundColor="transparent" translucent = {true} />
             <Stack.Navigator id="root-stack" screenOptions={{ headerShown: false }}>
-              {showOnboarding ? (
+              {isBooting ? (
                 <>
-                  <Stack.Screen name="Onboarding">{() => <Onboarding onLogin={handleLogin} />}</Stack.Screen>
-                  <Stack.Screen name="Signup">{() => <Signup onLogin={handleLogin} />}</Stack.Screen>
+                  <Stack.Screen name="Splash" component={SplashScreen} />
                 </>
               ) : currentUser ? (
                 <>
@@ -442,10 +439,13 @@ const App: React.FC = () => {
                   <Stack.Screen name= "Notification" component={Notifications}/>
                   <Stack.Screen name= "StreakReward" component={StreakReward}/>
                   <Stack.Screen name= "CommunityPost" component={CreateCommunityPost}/>
-
                 </>
               ) : (
-                <Stack.Screen name="Onboarding">{() => <Onboarding onLogin={handleLogin} />}</Stack.Screen>
+                <>
+                  <Stack.Screen name="GetStarted" component={GetStarted} />
+                  <Stack.Screen name="/vibe-picker" component={SignupVibes} />
+                  <Stack.Screen name="Signup">{() => <Signup onLogin={handleLogin} />}</Stack.Screen>
+                </>
               )}
             </Stack.Navigator>
           </SafeAreaView>

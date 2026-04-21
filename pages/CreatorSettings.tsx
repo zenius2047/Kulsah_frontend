@@ -99,6 +99,10 @@ const CreatorSettings: React.FC<CreatorSettingsProps> = ({ onLogout, isDarkMode,
     await AsyncStorage.setItem('pulsar_show_events', String(next));
   };
 
+  const logout = async()=> {
+    await AsyncStorage.clear();
+  }
+
   const fanToggle = async()=>{
     const nextUser = {
       id: user?.id || 'alex_rivera_42',
@@ -448,7 +452,7 @@ const CreatorSettings: React.FC<CreatorSettingsProps> = ({ onLogout, isDarkMode,
         ))}
 
         <View style={s.footerActions}>
-          <Pressable onPress={onLogout} style={[s.signOutBtn, { backgroundColor: isDark ? '#ffffff12' : theme.surface, borderColor: theme.border }]}>
+          <Pressable onPress={logout} style={[s.signOutBtn, { backgroundColor: isDark ? '#ffffff12' : theme.surface, borderColor: theme.border }]}>
             <MaterialIcons name="logout" size={18} color={theme.text} />
             <Text style={[s.signOutText, { color: theme.text }]}>Sign Out of Kulsah</Text>
           </Pressable>

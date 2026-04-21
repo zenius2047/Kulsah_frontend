@@ -1,7 +1,7 @@
 import React, { useMemo, useState } from 'react';
 import { useThemeMode } from '../theme';
 import { Image, Pressable, ScrollView, Text, TextInput, View } from 'react-native';
-import { useNavigation } from '@react-navigation/native';
+import { useNavigation, useRoute } from '@react-navigation/native';
 import type { User, UserRole } from '../types';
 import { MaterialIcons } from '@expo/vector-icons';
 import MovieIcon from '../assets/icons/movieIcon-svg.svg';
@@ -36,13 +36,73 @@ const INSPIRATIONS: InspirationTag[] = [
   { id: 'comedy', label: 'Comedy', img: 'https://images.unsplash.com/photo-1527224857810-8c5d6c4471f1?auto=format&fit=crop&q=80&w=400' },
 ];
 
+type SignupRouteParams = {
+  initialStep?: OnboardingStep;
+  initialSelectedVibes?: string[];
+};
+
+type SignupVibesStepProps = {
+  selectedVibes: Set<string>;
+  onToggleVibe: (id: string) => void;
+  onContinue: () => void;
+};
+
+export const SignupVibesStep: React.FC<SignupVibesStepProps> = ({
+  selectedVibes,
+  onToggleVibe,
+  onContinue,
+}) => (
+  <View style={{ gap: 14 }}>
+    <Text style={{ color: 'white', fontSize: fontScale(30), fontWeight: '900' }}>Inspirations</Text>
+    <Text style={{ color: '#cbd5e1' }}>Select your preferred creative orbits.</Text>
+    <View style={{ flexDirection: 'row', flexWrap: 'wrap', gap: 10 }}>
+      {INSPIRATIONS.map((tag) => {
+        const isSelected = selectedVibes.has(tag.id);
+        return (
+          <Pressable
+            key={tag.id}
+            onPress={() => onToggleVibe(tag.id)}
+            style={{
+              width: '48%',
+              borderRadius: 16,
+              overflow: 'hidden',
+              borderWidth: 2,
+              borderColor: isSelected ? '#cd2bee' : 'rgba(255,255,255,0.1)',
+            }}
+          >
+            <Image source={{ uri: tag.img }} style={{ width: '100%', height: 88 }} />
+            <View style={{ padding: 8, backgroundColor: 'rgba(0,0,0,0.6)' }}>
+              <Text style={{ color: 'white', fontSize: fontScale(11), fontWeight: '700' }}>{tag.label}</Text>
+            </View>
+          </Pressable>
+        );
+      })}
+    </View>
+    <Pressable
+      disabled={selectedVibes.size === 0}
+      onPress={onContinue}
+      style={{
+        backgroundColor: selectedVibes.size > 0 ? '#cd2bee' : 'rgba(255,255,255,0.25)',
+        borderRadius: 20,
+        height: 56,
+        alignItems: 'center',
+        justifyContent: 'center',
+      }}
+    >
+      <Text style={{ color: 'white', fontWeight: '900' }}>Secure Orbits</Text>
+    </Pressable>
+  </View>
+);
+
 const Signup: React.FC<SignupProps> = ({ onLogin }) => {
   const { isDark, theme } = useThemeMode();
   const navigation = useNavigation<any>();
-  const [step, setStep] = useState<OnboardingStep>('welcome');
+  const route = useRoute<any>();
+  const params = (route.params ?? {}) as SignupRouteParams;
+  const [step, setStep] = useState<OnboardingStep>(params.initialStep ?? 'welcome');
   const [showPassword, setShowPassword] = useState(false);
   const [formData, setFormData] = useState({ name: '', email: '', password: '' });
-  const [selectedVibes, setSelectedVibes] = useState<Set<string>>(new Set());
+  const [selectedVibes, setSelectedVibes] = useState<Set<string>>(new Set(params.initialSelectedVibes ?? []));
   const [isProcessing, setIsProcessing] = useState(false);
   const [isFocused, setIsFocused] = useState(false);
   const [user, setUser] = useState<User>({id: "", name: "", role: 'fan'});
@@ -308,48 +368,7 @@ const Signup: React.FC<SignupProps> = ({ onLogin }) => {
           </View>
         )}
 
-        {step === 'vibes' && (
-          <View style={{ gap: 14 }}>
-            <Text style={{ color: 'white', fontSize: fontScale(30), fontWeight: '900' }}>Inspirations</Text>
-            <Text style={{ color: '#cbd5e1' }}>Select your preferred creative orbits.</Text>
-            <View style={{ flexDirection: 'row', flexWrap: 'wrap', gap: 10 }}>
-              {INSPIRATIONS.map((tag) => {
-                const isSelected = selectedVibes.has(tag.id);
-                return (
-                  <Pressable
-                    key={tag.id}
-                    onPress={() => toggleVibe(tag.id)}
-                    style={{
-                      width: '48%',
-                      borderRadius: 16,
-                      overflow: 'hidden',
-                      borderWidth: 2,
-                      borderColor: isSelected ? '#cd2bee' : 'rgba(255,255,255,0.1)',
-                    }}
-                  >
-                    <Image source={{ uri: tag.img }} style={{ width: '100%', height: 88 }} />
-                    <View style={{ padding: 8, backgroundColor: 'rgba(0,0,0,0.6)' }}>
-                      <Text style={{ color: 'white', fontSize: fontScale(11), fontWeight: '700' }}>{tag.label}</Text>
-                    </View>
-                  </Pressable>
-                );
-              })}
-            </View>
-            <Pressable
-              disabled={selectedVibes.size === 0}
-              onPress={handleNext}
-              style={{
-                backgroundColor: selectedVibes.size > 0 ? '#cd2bee' : 'rgba(255,255,255,0.25)',
-                borderRadius: 20,
-                height: 56,
-                alignItems: 'center',
-                justifyContent: 'center',
-              }}
-            >
-              <Text style={{ color: 'white', fontWeight: '900' }}>Secure Orbits</Text>
-            </Pressable>
-          </View>
-        )}
+        {step === 'vibes' && <SignupVibesStep selectedVibes={selectedVibes} onToggleVibe={toggleVibe} onContinue={handleNext} />}
 
         {step === 'credentials' && (
           <View style={{ gap: 14 }}>

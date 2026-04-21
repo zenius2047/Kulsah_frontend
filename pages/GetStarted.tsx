@@ -5,6 +5,7 @@ import React from 'react';
 import {
   Image,
   ImageBackground,
+  Platform,
   Pressable,
   ScrollView,
   StatusBar,
@@ -12,9 +13,10 @@ import {
   Text,
   View,
 } from 'react-native';
-import { SafeAreaView } from 'react-native-safe-area-context';
+import { SafeAreaView, useSafeAreaInsets } from 'react-native-safe-area-context';
 import { fontScale } from '../fonts';
 import { mediumScreen } from '../types';
+import GradientText from '../components/GradientText';
 
 const heroImage =
   'https://images.unsplash.com/photo-1493225255756-d9584f8606e9?auto=format&fit=crop&q=80&w=1200';
@@ -54,9 +56,13 @@ const featureCards = [
 
 const GetStarted: React.FC = () => {
   const navigation = useNavigation<any>();
+  const insets = useSafeAreaInsets();
 
   return (
-    <SafeAreaView style={[s.screen, { backgroundColor: '#0a050d' }]} edges={['top', 'left', 'right']}>
+    <SafeAreaView style={[s.screen, { 
+      backgroundColor: '#0a050d', 
+      paddingTop: Platform.OS === 'ios'? 54: insets.bottom
+       }]} edges={['left', 'right']}>
       <StatusBar barStyle="light-content" translucent backgroundColor="transparent" />
 
       <View style={s.backgroundLayer} pointerEvents="none">
@@ -75,16 +81,16 @@ const GetStarted: React.FC = () => {
         </View>
 
         <View style={s.topContent}>
-          <View style={s.badgeWrap}>
+          {/* <View style={s.badgeWrap}>
             <View style={s.badge}>
               <Text style={s.badgeText}>Join the pulse</Text>
             </View>
-          </View>
+          </View> */}
 
-          <Text style={s.title}>
-            Welcome to{' '}
-            <Text style={s.titleAccent}>KULSAH</Text>
-          </Text>
+          <View style={s.titleWrap}>
+            <Text style={s.title}>Welcome to</Text>
+            <GradientText gradientText="KULSAH" style={s.titleAccent} />
+          </View>
           <Text style={[s.subtitle, { color: '#d0c1d8' }]}>
             Your entry into the Electric Stage begins here.
           </Text>
@@ -119,7 +125,7 @@ const GetStarted: React.FC = () => {
             </Text>
           </View>
 
-          <Pressable onPress={() => navigation.navigate('Signup')} style={s.ctaButton}>
+          <Pressable onPress={() => navigation.navigate('/vibe-picker')} style={s.ctaButton}>
             <LinearGradient
               colors={ctaGradient}
               start={{ x: 0, y: 0.5 }}
@@ -191,11 +197,11 @@ const s = StyleSheet.create({
     borderBottomRightRadius: 52,
   },
   topContent: {
-    marginTop: 56,
+    marginTop: 46,
     alignItems: 'center',
   },
   badgeWrap: {
-    marginBottom: 24,
+    marginBottom: 5,
   },
   badge: {
     paddingHorizontal: 16,
@@ -207,33 +213,40 @@ const s = StyleSheet.create({
   },
   badgeText: {
     color: '#d915d2',
-    fontSize: fontScale(10),
+    fontSize: mediumScreen ? fontScale(12):fontScale(8),
     fontFamily: 'PlusJakartaSansExtraBold',
     letterSpacing: 2,
     textTransform: 'uppercase',
   },
   title: {
     color: '#f8fafc',
-    fontSize: mediumScreen ? fontScale(38) : fontScale(32),
-    lineHeight: mediumScreen ? fontScale(42) : fontScale(36),
+    fontSize: mediumScreen ? fontScale(32) : fontScale(28),
+    lineHeight: mediumScreen ? fontScale(36) : fontScale(32),
     textAlign: 'center',
     fontFamily: 'PlusJakartaSansExtraBold',
     letterSpacing: -1.2,
     maxWidth: 300,
   },
+  titleWrap: {
+    alignItems: 'center',
+    gap: 2,
+  },
   titleAccent: {
-    color: '#ffffff',
+    fontSize: mediumScreen ? fontScale(32) : fontScale(28),
+    lineHeight: mediumScreen ? fontScale(36) : fontScale(32),
+    textAlign: 'center',
+    fontFamily: 'PlusJakartaSansExtraBold',
+    letterSpacing: -1.2,
     fontStyle: 'italic',
-    textDecorationLine: 'none',
   },
   subtitle: {
-    marginTop: 10,
-    fontSize: fontScale(13),
+    marginTop: 5,
+    fontSize: mediumScreen ? fontScale(16):fontScale(12),
     fontFamily: 'PlusJakartaSansBold',
     textAlign: 'center',
   },
   cardStack: {
-    marginTop: 220,
+    marginTop: 40,
     gap: 14,
   },
   featureCard: {
@@ -257,18 +270,18 @@ const s = StyleSheet.create({
   },
   featureTitle: {
     color: '#f8fafc',
-    fontSize: fontScale(13),
+    fontSize: mediumScreen ? fontScale(16):fontScale(12),
     fontFamily: 'PlusJakartaSansExtraBold',
   },
   featureBody: {
     marginTop: 3,
     color: '#d0c1d8',
-    fontSize: fontScale(11),
+    fontSize: mediumScreen ? fontScale(14):fontScale(10),
     lineHeight: fontScale(16),
     fontFamily: 'PlusJakartaSansBold',
   },
   footerBlock: {
-    marginTop: 28,
+    marginTop: 14,
     gap: 20,
     paddingBottom: 8,
   },
@@ -278,7 +291,7 @@ const s = StyleSheet.create({
   avatarRow: {
     flexDirection: 'row',
     alignItems: 'center',
-    marginBottom: 10,
+    marginBottom: 5,
   },
   avatar: {
     width: 34,
@@ -295,12 +308,12 @@ const s = StyleSheet.create({
   },
   avatarMoreText: {
     color: '#f8fafc',
-    fontSize: fontScale(9),
+    fontSize: mediumScreen ? fontScale(12):fontScale(8),
     fontFamily: 'PlusJakartaSansExtraBold',
   },
   communityText: {
     color: '#94a3b8',
-    fontSize: fontScale(10),
+    fontSize: mediumScreen ? fontScale(12):fontScale(8),
     fontFamily: 'PlusJakartaSansExtraBold',
     textTransform: 'uppercase',
     letterSpacing: 1.7,
@@ -318,14 +331,14 @@ const s = StyleSheet.create({
     elevation: 10,
   },
   ctaGradient: {
-    minHeight: 58,
+    minHeight: 48,
     alignItems: 'center',
     justifyContent: 'center',
     borderRadius: 22,
   },
   ctaText: {
     color: '#ffffff',
-    fontSize: fontScale(14),
+    fontSize: mediumScreen ? fontScale(16):fontScale(12),
     fontFamily: 'PlusJakartaSansExtraBold',
     textTransform: 'uppercase',
     letterSpacing: 1,
@@ -333,8 +346,8 @@ const s = StyleSheet.create({
   disclaimer: {
     color: 'rgba(208,193,216,0.65)',
     textAlign: 'center',
-    fontSize: fontScale(10),
-    lineHeight: fontScale(15),
+    fontSize: mediumScreen ? fontScale(10):fontScale(8),
+    lineHeight: fontScale(12),
     fontFamily: 'PlusJakartaSansBold',
     paddingHorizontal: 8,
   },
