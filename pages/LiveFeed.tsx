@@ -93,7 +93,7 @@ const LiveFeed: React.FC = () => {
         renderItem={({ item: creator }) => (
           <View style={[styles.creatorItem]}>
             <LinearGradient
-              colors={['#930df2', '#d915d2']}
+              colors={['#cd2bee', '#cd2bee']}
               start={{ x: 0, y: 0 }}
               end={{ x: 1, y: 1 }}
               style={styles.creatorRing}
@@ -248,7 +248,7 @@ const styles = StyleSheet.create({
     padding: 3,
     justifyContent: 'center',
     alignItems: 'center',
-    shadowColor: '#930df2',
+    shadowColor: '#cd2bee',
     shadowOpacity: 0.35,
     shadowRadius: 16,
     shadowOffset: { width: 0, height: 8 },
@@ -361,7 +361,7 @@ const styles = StyleSheet.create({
     height: 44,
     borderRadius: 22,
     borderWidth: 2,
-    borderColor: '#930df2',
+    borderColor: '#cd2bee',
     marginRight: 12,
   },
   hostText: {
@@ -380,11 +380,11 @@ const styles = StyleSheet.create({
   },
   joinButton: {
     alignSelf: 'flex-start',
-    backgroundColor: '#d915d2',
+    backgroundColor: '#cd2bee',
     paddingHorizontal: 26,
     paddingVertical: 12,
     borderRadius: 999,
-    shadowColor: '#d915d2',
+    shadowColor: '#cd2bee',
     shadowOpacity: 0.34,
     shadowRadius: 18,
     shadowOffset: { width: 0, height: 10 },
@@ -444,8 +444,8 @@ const styles = StyleSheet.create({
     borderRadius: 22,
   },
   navItemActive: {
-    backgroundColor: 'rgba(147,13,242,0.18)',
-    shadowColor: '#930df2',
+    backgroundColor: 'rgba(205,43,238,0.18)',
+    shadowColor: '#cd2bee',
     shadowOpacity: 0.25,
     shadowRadius: 16,
     shadowOffset: { width: 0, height: 8 },

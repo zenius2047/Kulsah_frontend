@@ -19,7 +19,7 @@ const FanVaults: React.FC = () => {
     <View>
       <View>
         <Pressable onPress={() => navigation.goBack()}>
-          <Text>arrow_back</Text>
+          <Text>chevron_left</Text>
         </Pressable>
         <Text>Creator Vaults</Text>
       </View>

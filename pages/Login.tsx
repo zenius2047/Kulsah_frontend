@@ -1,4 +1,4 @@
-import React from 'react';
+﻿import React from 'react';
 import { LinearGradient } from 'expo-linear-gradient';
 import { MaterialIcons } from '@expo/vector-icons';
 import {
@@ -50,7 +50,7 @@ const Login: React.FC<LoginProps> = ({ onLogin }) => {
 
         <ScrollView contentContainerStyle={styles.content} showsVerticalScrollIndicator={false}>
           <View style={styles.brandWrap}>
-            <LinearGradient colors={['#930df2', '#d915d2']} style={styles.brandIcon}>
+            <LinearGradient colors={['#cd2bee', '#cd2bee']} style={styles.brandIcon}>
               <MaterialIcons name="bolt" size={34} color="#ffffff" />
             </LinearGradient>
             <Text style={styles.brandTitle}>KULSAH</Text>
@@ -90,7 +90,7 @@ const Login: React.FC<LoginProps> = ({ onLogin }) => {
           <Pressable style={styles.creatorLink} onPress={() => navigation.navigate('Signup')}>
             <Text style={styles.creatorPrompt}>New to the stage?</Text>
             <Text style={styles.creatorAction}>Join as Creator</Text>
-            <MaterialIcons name="arrow-forward" size={16} color="#d915d2" />
+            <MaterialIcons name="arrow-forward" size={16} color="#cd2bee" />
           </Pressable>
 
           <View style={styles.previewGrid}>
@@ -142,7 +142,7 @@ const styles = StyleSheet.create({
     width: 360,
     height: 360,
     borderRadius: 180,
-    backgroundColor: 'rgba(147,13,242,0.12)',
+    backgroundColor: 'rgba(205,43,238,0.12)',
   },
   orbBottom: {
     position: 'absolute',
@@ -151,7 +151,7 @@ const styles = StyleSheet.create({
     width: 280,
     height: 280,
     borderRadius: 140,
-    backgroundColor: 'rgba(217,21,210,0.1)',
+    backgroundColor: 'rgba(205,43,238,0.1)',
   },
   brandWrap: {
     alignItems: 'center',
@@ -164,7 +164,7 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'center',
     marginBottom: 22,
-    shadowColor: '#930df2',
+    shadowColor: '#cd2bee',
     shadowOpacity: 0.45,
     shadowRadius: 20,
     shadowOffset: { width: 0, height: 0 },
@@ -203,7 +203,7 @@ const styles = StyleSheet.create({
     width: 180,
     height: 180,
     borderRadius: 90,
-    backgroundColor: 'rgba(147,13,242,0.18)',
+    backgroundColor: 'rgba(205,43,238,0.18)',
   },
   cardTitle: {
     color: '#f7f5f8',
@@ -258,8 +258,8 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     gap: 12,
     paddingHorizontal: 18,
-    backgroundColor: '#d915d2',
-    shadowColor: '#d915d2',
+    backgroundColor: '#cd2bee',
+    shadowColor: '#cd2bee',
     shadowOpacity: 0.35,
     shadowRadius: 18,
     shadowOffset: { width: 0, height: 10 },
@@ -295,7 +295,7 @@ const styles = StyleSheet.create({
     fontFamily: 'PlusJakartaSansMedium',
   },
   creatorAction: {
-    color: '#d915d2',
+    color: '#cd2bee',
     fontSize: fontScale(14),
     fontFamily: 'PlusJakartaSansExtraBold',
   },
@@ -325,3 +325,4 @@ const styles = StyleSheet.create({
 });
 
 export default Login;
+

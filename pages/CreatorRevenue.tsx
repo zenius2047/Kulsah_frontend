@@ -81,7 +81,7 @@ const CreatorRevenue: React.FC = () => {
       <View>
         <View>
           <Pressable onPress={() => navigation.goBack()}>
-            <Text>arrow_back</Text>
+            <Text>chevron_left</Text>
           </Pressable>
           <Text>Revenue Studio</Text>
         </View>

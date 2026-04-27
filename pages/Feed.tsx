@@ -126,7 +126,7 @@ const FeedQuickMenuModal: React.FC<{
                     gap: 6,
                   }}
                 >
-                  <MaterialIcons name={action.icon as any} size={30} color="#930df2" />
+                  <MaterialIcons name={action.icon as any} size={30} color="#cd2bee" />
                   <Text
                     style={{
                       color: textPrimary,
@@ -186,13 +186,13 @@ const FeedQuickMenuModal: React.FC<{
                     style={{
                       borderRadius: 999,
                       borderWidth: 1,
-                      borderColor: 'rgba(147,13,242,0.4)',
-                      backgroundColor: 'rgba(147,13,242,0.2)',
+                      borderColor: 'rgba(205,43,238,0.4)',
+                      backgroundColor: 'rgba(205,43,238,0.2)',
                       paddingHorizontal: 7,
                       paddingVertical: 2,
                     }}
                   >
-                    <Text style={{ color: '#930df2', fontSize: fontScale(7), fontFamily: 'PlusJakartaSansExtraBold' }}>NEW</Text>
+                    <Text style={{ color: '#cd2bee', fontSize: fontScale(7), fontFamily: 'PlusJakartaSansExtraBold' }}>NEW</Text>
                   </View>
                 </View>
                 <View
@@ -848,7 +848,11 @@ useEffect(() => {
               <MaterialIcons name="music-note" color='#ffffffcc'/>
             </Animated.View>
           </View>
-          <View style={{
+          <Pressable
+          onPress={()=>{
+            navigation.navigate('UseSound')
+          }}
+           style={{
             flexDirection: 'row',
             // backgroundColor: 'red',
             width: '45%',
@@ -872,7 +876,7 @@ useEffect(() => {
           }}>
             {" • "}{item.originalSound ? item.artist : item.soundArtist}
           </Text>
-          </View>
+          </Pressable>
 
           
 
@@ -880,6 +884,9 @@ useEffect(() => {
 
         {item.ticketsAvailable && (
           <Pressable
+            onPress={()=>{
+              navigation.navigate('EventDetail')
+            }}
             style={{
               marginTop: 10,
               backgroundColor: '#22c55e',
@@ -891,7 +898,7 @@ useEffect(() => {
               alignItems: 'center',
               justifyContent: 'center'
              }}
-            onPress={() => navigation.navigate('Video')}
+            // onPress={() => navigation.navigate('Video')}
           >
             <TickIcon height={14} width={14}/>
             <Text style={{ color: 'black', fontFamily: 'PlusJakartaSansBold', fontSize: mediumScreen ? 10: 8, textTransform: 'uppercase' }}>  Tickets • {item.ticketLocation}</Text>
@@ -1026,94 +1033,6 @@ const Feed: React.FC = () => {
       bookmarks: '2.5k',
       saves: '2.5k',
     },
-    {
-      id: '79',
-      artist: 'Kulsah Landscape',
-      handle: 'Kulsah_landscape',
-      avatar: 'https://picsum.photos/seed/elena/150/150',
-      caption: "PRIVATE DROP: Working on 'Nebula' vocal layers. This is the raw studio session for my supporters only. #BTS #KulsahExclusive",
-      background: 'https://images.unsplash.com/photo-1598488035139-bdbb2231ce04?auto=format&fit=crop&q=80&w=800',
-      video: 'https://res.cloudinary.com/dir15sl86/video/upload/v1776268951/IMG_2312_kieklh.mp4',
-      likes: '2.4M',
-      comments: '88.1K',
-      isLiked: false,
-      isSubscribed: true,
-      isPremium: true,
-      ticketsAvailable: true,
-      ticketLocation: 'London, UK',
-      originalSound: true,
-      // soundArtist: 'Synthwave Kid',
-      // soundTitle: 'Neon Dreams',
-      following: false,
-      bookmarks: '2.5k',
-      saves: '2.5k',
-    },
-    {
-      id: '78',
-      artist: 'Kulsah Landscape',
-      handle: 'Kulsah_landscape',
-      avatar: 'https://picsum.photos/seed/elena/150/150',
-      caption: "PRIVATE DROP: Working on 'Nebula' vocal layers. This is the raw studio session for my supporters only. #BTS #KulsahExclusive",
-      background: 'https://images.unsplash.com/photo-1598488035139-bdbb2231ce04?auto=format&fit=crop&q=80&w=800',
-      video: 'https://res.cloudinary.com/dir15sl86/video/upload/v1776268947/IMG_2310_vsdwlh.mp4',
-      likes: '2.4M',
-      comments: '88.1K',
-      isLiked: false,
-      isSubscribed: true,
-      isPremium: true,
-      ticketsAvailable: true,
-      ticketLocation: 'London, UK',
-      originalSound: true,
-      // soundArtist: 'Synthwave Kid',
-      // soundTitle: 'Neon Dreams',
-      following: false,
-      bookmarks: '2.5k',
-      saves: '2.5k',
-    },
-    // {
-    //   id: '85',
-    //   artist: 'Kulsah Landscape',
-    //   handle: 'Kulsah_landscape',
-    //   avatar: 'https://picsum.photos/seed/elena/150/150',
-    //   caption: "PRIVATE DROP: Working on 'Nebula' vocal layers. This is the raw studio session for my supporters only. #BTS #KulsahExclusive",
-    //   background: 'https://images.unsplash.com/photo-1598488035139-bdbb2231ce04?auto=format&fit=crop&q=80&w=800',
-    //   video: 'https://res.cloudinary.com/dir15sl86/video/upload/v1776165168/landscape3500_ish5po.mp4',
-    //   likes: '2.4M',
-    //   comments: '88.1K',
-    //   isLiked: false,
-    //   isSubscribed: true,
-    //   isPremium: true,
-    //   ticketsAvailable: true,
-    //   ticketLocation: 'London, UK',
-    //   originalSound: true,
-    //   // soundArtist: 'Synthwave Kid',
-    //   // soundTitle: 'Neon Dreams',
-    //   following: false,
-    //   bookmarks: '2.5k',
-    //   saves: '2.5k',
-    // },
-    // {
-    //   id: '80',
-    //   artist: 'Kulsah Alpha',
-    //   handle: 'Kulsah_alpha',
-    //   avatar: 'https://picsum.photos/seed/elena/150/150',
-    //   caption: "PRIVATE DROP: Working on 'Nebula' vocal layers. This is the raw studio session for my supporters only. #BTS #KulsahExclusive",
-    //   background: 'https://images.unsplash.com/photo-1598488035139-bdbb2231ce04?auto=format&fit=crop&q=80&w=800',
-    //   video: 'https://res.cloudinary.com/dir15sl86/video/upload/v1776165168/landscape3500_ish5po.mp4',
-    //   likes: '2.4M',
-    //   comments: '88.1K',
-    //   isLiked: false,
-    //   isSubscribed: true,
-    //   isPremium: true,
-    //   ticketsAvailable: true,
-    //   ticketLocation: 'London, UK',
-    //   originalSound: true,
-    //   // soundArtist: 'Synthwave Kid',
-    //   // soundTitle: 'Neon Dreams',
-    //   following: false,
-    //   bookmarks: '2.5k',
-    //   saves: '2.5k',
-    // },
     // {
     //   id: '83',
     //   artist: 'Kulsah Headquarters',
@@ -1158,28 +1077,116 @@ const Feed: React.FC = () => {
     //   bookmarks: '2.5k',
     //   saves: '2.5k',
     // },
-    // {
-    //   id: '10',
-    //   artist: 'Big Things',
-    //   handle: 'big_t',
-    //   avatar: 'https://picsum.photos/seed/elena/150/150',
-    //   caption: "PRIVATE DROP: Working on 'Nebula' vocal layers. This is the raw studio session for my supporters only. #BTS #KulsahExclusive",
-    //   background: 'https://images.unsplash.com/photo-1598488035139-bdbb2231ce04?auto=format&fit=crop&q=80&w=800',
-    //   video: 'https://res.cloudinary.com/dmznckja5/video/upload/v1775813110/IMG_2154_wsvmch.mp4',
-    //   likes: '2.4M',
-    //   comments: '88.1K',
-    //   isLiked: false,
-    //   isSubscribed: true,
-    //   isPremium: true,
-    //   ticketsAvailable: true,
-    //   ticketLocation: 'London, UK',
-    //   originalSound: false,
-    //   soundArtist: 'Synthwave Kid',
-    //   soundTitle: 'Neon Dreams',
-    //   following: false,
-    //   bookmarks: '2.5k',
-    //   saves: '2.5k',
-    // },
+    {
+      id: '79',
+      artist: 'Kulsah Landscape',
+      handle: 'Kulsah_landscape',
+      avatar: 'https://picsum.photos/seed/elena/150/150',
+      caption: "PRIVATE DROP: Working on 'Nebula' vocal layers. This is the raw studio session for my supporters only. #BTS #KulsahExclusive",
+      background: 'https://images.unsplash.com/photo-1598488035139-bdbb2231ce04?auto=format&fit=crop&q=80&w=800',
+      video: 'https://res.cloudinary.com/dir15sl86/video/upload/v1776268951/IMG_2312_kieklh.mp4',
+      likes: '2.4M',
+      comments: '88.1K',
+      isLiked: false,
+      isSubscribed: true,
+      isPremium: true,
+      ticketsAvailable: true,
+      ticketLocation: 'London, UK',
+      originalSound: true,
+      // soundArtist: 'Synthwave Kid',
+      // soundTitle: 'Neon Dreams',
+      following: false,
+      bookmarks: '2.5k',
+      saves: '2.5k',
+    },
+    {
+      id: '78',
+      artist: 'Kulsah Landscape',
+      handle: 'Kulsah_landscape',
+      avatar: 'https://picsum.photos/seed/elena/150/150',
+      caption: "PRIVATE DROP: Working on 'Nebula' vocal layers. This is the raw studio session for my supporters only. #BTS #KulsahExclusive",
+      background: 'https://images.unsplash.com/photo-1598488035139-bdbb2231ce04?auto=format&fit=crop&q=80&w=800',
+      video: 'https://res.cloudinary.com/dir15sl86/video/upload/v1776268947/IMG_2310_vsdwlh.mp4',
+      likes: '2.4M',
+      comments: '88.1K',
+      isLiked: false,
+      isSubscribed: true,
+      isPremium: true,
+      ticketsAvailable: true,
+      ticketLocation: 'London, UK',
+      originalSound: true,
+      // soundArtist: 'Synthwave Kid',
+      // soundTitle: 'Neon Dreams',
+      following: false,
+      bookmarks: '2.5k',
+      saves: '2.5k',
+    },
+    {
+      id: '85',
+      artist: 'Kulsah Landscape',
+      handle: 'Kulsah_landscape',
+      avatar: 'https://picsum.photos/seed/elena/150/150',
+      caption: "PRIVATE DROP: Working on 'Nebula' vocal layers. This is the raw studio session for my supporters only. #BTS #KulsahExclusive",
+      background: 'https://images.unsplash.com/photo-1598488035139-bdbb2231ce04?auto=format&fit=crop&q=80&w=800',
+      video: 'https://res.cloudinary.com/dir15sl86/video/upload/v1776165168/landscape3500_ish5po.mp4',
+      likes: '2.4M',
+      comments: '88.1K',
+      isLiked: false,
+      isSubscribed: true,
+      isPremium: true,
+      ticketsAvailable: true,
+      ticketLocation: 'London, UK',
+      originalSound: true,
+      // soundArtist: 'Synthwave Kid',
+      // soundTitle: 'Neon Dreams',
+      following: false,
+      bookmarks: '2.5k',
+      saves: '2.5k',
+    },
+    {
+      id: '80',
+      artist: 'Kulsah Alpha',
+      handle: 'Kulsah_alpha',
+      avatar: 'https://picsum.photos/seed/elena/150/150',
+      caption: "PRIVATE DROP: Working on 'Nebula' vocal layers. This is the raw studio session for my supporters only. #BTS #KulsahExclusive",
+      background: 'https://images.unsplash.com/photo-1598488035139-bdbb2231ce04?auto=format&fit=crop&q=80&w=800',
+      video: 'https://res.cloudinary.com/dir15sl86/video/upload/v1776165168/landscape3500_ish5po.mp4',
+      likes: '2.4M',
+      comments: '88.1K',
+      isLiked: false,
+      isSubscribed: true,
+      isPremium: true,
+      ticketsAvailable: true,
+      ticketLocation: 'London, UK',
+      originalSound: true,
+      // soundArtist: 'Synthwave Kid',
+      // soundTitle: 'Neon Dreams',
+      following: false,
+      bookmarks: '2.5k',
+      saves: '2.5k',
+    },
+    {
+      id: '10',
+      artist: 'Big Things',
+      handle: 'big_t',
+      avatar: 'https://picsum.photos/seed/elena/150/150',
+      caption: "PRIVATE DROP: Working on 'Nebula' vocal layers. This is the raw studio session for my supporters only. #BTS #KulsahExclusive",
+      background: 'https://images.unsplash.com/photo-1598488035139-bdbb2231ce04?auto=format&fit=crop&q=80&w=800',
+      video: 'https://res.cloudinary.com/dmznckja5/video/upload/v1775813110/IMG_2154_wsvmch.mp4',
+      likes: '2.4M',
+      comments: '88.1K',
+      isLiked: false,
+      isSubscribed: true,
+      isPremium: true,
+      ticketsAvailable: true,
+      ticketLocation: 'London, UK',
+      originalSound: false,
+      soundArtist: 'Synthwave Kid',
+      soundTitle: 'Neon Dreams',
+      following: false,
+      bookmarks: '2.5k',
+      saves: '2.5k',
+    },
     {
       id: '6',
       artist: 'Sarkodie',

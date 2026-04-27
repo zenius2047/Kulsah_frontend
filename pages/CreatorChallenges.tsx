@@ -179,7 +179,7 @@ const CreatorChallenges: React.FC = () => {
       <View style={[styles.screen, { backgroundColor: theme.screen }]}>
         {/* <View style={[styles.header, { backgroundColor: isDark ? 'rgba(31,16,34,0.75)' : theme.card, borderBottomColor: border }]}>
           <Pressable onPress={() => navigation.goBack()} style={[styles.headerBtn, { backgroundColor: surface, borderColor: border }]}>
-            <MaterialIcons name="arrow-back" size={20} color={titleTone} />
+            <MaterialIcons name="chevron-left" size={20} color={titleTone} />
           </Pressable>
           <Text style={[styles.headerTitle, { color: titleTone }]}>Challenge Orbit</Text>
           <Pressable onPress={() => go('CreateChallenge')} style={[styles.headerBtn, styles.headerBtnPrimary]}>
@@ -209,8 +209,8 @@ const CreatorChallenges: React.FC = () => {
 
         <ScrollView contentContainerStyle={styles.content} showsVerticalScrollIndicator={false}>
           <LinearGradient
-            colors={isDark ? ['rgba(217,21,210,0.18)', 'rgba(124,58,237,0.08)'] : ['rgba(217,21,210,0.08)', 'rgba(124,58,237,0.04)']}
-            style={[styles.hero, { borderColor: 'rgba(217,21,210,0.22)' }]}
+            colors={isDark ? ['rgba(205,43,238,0.18)', 'rgba(124,58,237,0.08)'] : ['rgba(205,43,238,0.08)', 'rgba(124,58,237,0.04)']}
+            style={[styles.hero, { borderColor: 'rgba(205,43,238,0.22)' }]}
           >
             <View style={styles.heroRow}>
               <View style={styles.heroIcon}>
@@ -332,13 +332,13 @@ const CreatorChallenges: React.FC = () => {
                     <Pressable onPress={() => go('FanProfile', { userId: submission.userId })} style={[styles.sideBtn, { backgroundColor: surface, borderColor: border }]}>
                       <MaterialIcons name="person" size={20} color={titleTone} />
                     </Pressable>
-                    <Pressable onPress={() => go('ChallengeFeed')} style={[styles.sideBtn, { backgroundColor: isDark ? 'rgba(217,21,210,0.12)' : theme.accentSoft, borderColor: 'transparent' }]}>
+                    <Pressable onPress={() => go('ChallengeFeed')} style={[styles.sideBtn, { backgroundColor: isDark ? 'rgba(205,43,238,0.12)' : theme.accentSoft, borderColor: 'transparent' }]}>
                       <MaterialIcons name="visibility" size={20} color={theme.accent} />
                     </Pressable>
                   </View> */}
                 </View>
               ))}
-              <Pressable onPress={() => go('ChallengeFeed')} style={[styles.dashedBtn, { borderColor: 'rgba(217,21,210,0.3)' }]}>
+              <Pressable onPress={() => go('ChallengeFeed')} style={[styles.dashedBtn, { borderColor: 'rgba(205,43,238,0.3)' }]}>
                 <Text style={styles.dashedBtnText}>View All Submissions</Text>
               </Pressable>
             </View>
@@ -366,7 +366,7 @@ const CreatorChallenges: React.FC = () => {
                   </Pressable>
                 </View>
               ))}
-              <Pressable onPress={() => go('CreateChallenge')} style={[styles.dashedBtn, { borderColor: 'rgba(217,21,210,0.3)' }]}>
+              <Pressable onPress={() => go('CreateChallenge')} style={[styles.dashedBtn, { borderColor: 'rgba(205,43,238,0.3)' }]}>
                 <Text style={styles.dashedBtnText}>View All Drafts</Text>
               </Pressable>
             </View>
@@ -420,7 +420,7 @@ const CreatorChallenges: React.FC = () => {
                   </View>
                 </View>
               ))}
-              <View style={[styles.tipCard, { backgroundColor: isDark ? 'rgba(217,21,210,0.08)' : theme.accentSoft, borderColor: 'rgba(217,21,210,0.24)' }]}>
+              <View style={[styles.tipCard, { backgroundColor: isDark ? 'rgba(205,43,238,0.08)' : theme.accentSoft, borderColor: 'rgba(205,43,238,0.24)' }]}>
                 <Text style={styles.tipTitle}>Collaboration Tip</Text>
                 <Text style={[styles.tipBody, { color: subtle }]}>Collaborating on creator challenges can increase your reach by up to 40%. Use invites when creating a challenge to partner up.</Text>
               </View>
@@ -474,7 +474,7 @@ const styles = StyleSheet.create({
   heroRow: { flexDirection: 'row', alignItems: 'center', gap: 16 },
   heroIcon: {
     width: 64, height: 64, borderRadius: 20, alignItems: 'center', justifyContent: 'center',
-    backgroundColor: 'rgba(217,21,210,0.14)', borderWidth: 1, borderColor: 'rgba(217,21,210,0.3)',
+    backgroundColor: 'rgba(205,43,238,0.14)', borderWidth: 1, borderColor: 'rgba(205,43,238,0.3)',
   },
   heroTitle: { fontFamily: 'PlusJakartaSansExtraBold', fontSize: mediumScreen ? 20 : 16, textTransform: 'uppercase' },
   heroMeta: { marginTop: 4, fontFamily: 'PlusJakartaSansExtraBold', fontSize: fontScale(8), textTransform: 'uppercase', letterSpacing: 2 },
@@ -494,8 +494,8 @@ const styles = StyleSheet.create({
   fillImage: { ...StyleSheet.absoluteFillObject, width: undefined, height: undefined },
   trending: {
     position: 'absolute', top: 24, left: 24, flexDirection: 'row', alignItems: 'center', gap: 6,
-    paddingHorizontal: 14, paddingVertical: 8, borderRadius: 999, backgroundColor: 'rgba(217,21,210,0.15)',
-    borderWidth: 1, borderColor: 'rgba(217,21,210,0.3)',
+    paddingHorizontal: 14, paddingVertical: 8, borderRadius: 999, backgroundColor: 'rgba(205,43,238,0.15)',
+    borderWidth: 1, borderColor: 'rgba(205,43,238,0.3)',
   },
   trendingText: { color: '#cd2bee', fontFamily: 'PlusJakartaSansExtraBold', fontSize: fontScale(8), textTransform: 'uppercase', letterSpacing: 1.4 },
   featureBottom: { position: 'absolute', left: 24, right: 24, bottom: 24, gap: 14 },
@@ -535,7 +535,7 @@ const styles = StyleSheet.create({
   inviteCard: { minHeight: 298, borderRadius: 48, overflow: 'hidden', borderWidth: 1, backgroundColor: '#111827' },
   inviteTop: { position: 'absolute', top: 24, left: 24, right: 24, flexDirection: 'row', justifyContent: 'space-between', alignItems: 'flex-start' },
   inviterPill: { flexDirection: 'row', alignItems: 'center', gap: 10, backgroundColor: 'rgba(0,0,0,0.4)', borderWidth: 1, borderColor: 'rgba(255,255,255,0.1)', padding: 8, paddingRight: 14, borderRadius: 999 },
-  inviterAvatar: { width: 32, height: 32, borderRadius: 16, borderWidth: 1, borderColor: 'rgba(217,21,210,0.4)' },
+  inviterAvatar: { width: 32, height: 32, borderRadius: 16, borderWidth: 1, borderColor: 'rgba(205,43,238,0.4)' },
   inviteTag: { color: 'rgba(255,255,255,0.45)', fontFamily: 'PlusJakartaSansExtraBold', fontSize: fontScale(6.5), textTransform: 'uppercase', letterSpacing: 1.4 },
   inviterName: { color: '#fff', fontFamily: 'PlusJakartaSansExtraBold', fontSize: fontScale(8), textTransform: 'uppercase', marginTop: 2 },
   statusPill: { paddingHorizontal: 12, paddingVertical: 6, borderRadius: 999, borderWidth: 1 },

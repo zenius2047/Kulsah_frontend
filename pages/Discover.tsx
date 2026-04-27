@@ -449,7 +449,9 @@ const Discover: React.FC<{ embedded?: boolean }> = ({ embedded = false }) => {
           <View style={{ paddingBottom: 10 }}>
             <View style={{ flexDirection: 'row', justifyContent: 'space-between', marginBottom: 10, marginTop: 4, paddingHorizontal: 16 }}>
               <Text style={{ color: theme.text, fontSize: mediumScreen ? 18 : 14, fontWeight: 'bold', fontFamily: 'PlusJakartaSansExtraBold' }}>KULSAH STORE</Text>
-              <Pressable onPress={() => navigation.navigate('CreateContent')}>
+              <Pressable onPress={() => {
+                navigation.navigate('Store')
+              }}>
                 <Text style={{ color: '#cd2bee', fontSize: mediumScreen ? 15 : 11, fontWeight: 'bold', fontFamily: 'PlusJakartaSansBold' }}>BROWSE ALL</Text>
               </Pressable>
             </View>

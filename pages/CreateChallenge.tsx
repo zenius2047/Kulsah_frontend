@@ -73,7 +73,7 @@ const CreateChallenge: React.FC = () => {
   const muted = isDark ? '#64748b' : theme.textMuted;
   const placeholder = isDark ? '#64748b' : theme.textMuted;
   const titleTone = isDark ? '#f8fafc' : theme.text;
-  const activeCriteriaBg = isDark ? 'rgba(217,21,210,0.1)' : theme.accentSoft;
+  const activeCriteriaBg = isDark ? 'rgba(205,43,238,0.1)' : theme.accentSoft;
   const inactiveBorder = isDark ? 'rgba(255,255,255,0.18)' : theme.border;
 
   return (
@@ -178,7 +178,7 @@ const CreateChallenge: React.FC = () => {
 
           <View style={styles.section}>
             <View style={styles.sectionTitleRow}>
-              <MaterialIcons name="emoji-events" size={18} color="#d915d2" />
+              <MaterialIcons name="emoji-events" size={18} color="#cd2bee" />
               <Text style={[styles.sectionTitle, { color: titleTone }]}>Winning Criteria</Text>
             </View>
 
@@ -199,7 +199,7 @@ const CreateChallenge: React.FC = () => {
                     criteria === 'vote' && styles.criteriaIconWrapActive,
                   ]}
                 >
-                  <MaterialIcons name="how-to-vote" size={24} color="#d915d2" />
+                  <MaterialIcons name="how-to-vote" size={24} color="#cd2bee" />
                 </View>
                 <Text style={[styles.criteriaTitle, { color: titleTone }]}>Community Vote</Text>
                 <Text style={[styles.criteriaMeta, { color: subtle }]}>Judge by 1v1 battles</Text>
@@ -224,7 +224,7 @@ const CreateChallenge: React.FC = () => {
                   <MaterialIcons
                     name="favorite"
                     size={24}
-                    color={criteria === 'likes' ? '#d915d2' : '#94a3b8'}
+                    color={criteria === 'likes' ? '#cd2bee' : '#94a3b8'}
                   />
                 </View>
                 <Text style={[styles.criteriaTitle, { color: titleTone }]}>Pure Likes</Text>
@@ -326,7 +326,7 @@ const styles = StyleSheet.create({
     width: 220,
     height: 220,
     borderRadius: 110,
-    backgroundColor: 'rgba(147,13,242,0.22)',
+    backgroundColor: 'rgba(205,43,238,0.22)',
   },
   topGlowSecondary: {
     position: 'absolute',
@@ -335,7 +335,7 @@ const styles = StyleSheet.create({
     width: 180,
     height: 180,
     borderRadius: 90,
-    backgroundColor: 'rgba(217,21,210,0.12)',
+    backgroundColor: 'rgba(205,43,238,0.12)',
   },
   header: {
     flexDirection: 'row',
@@ -499,7 +499,7 @@ const styles = StyleSheet.create({
     paddingVertical: 20,
   },
   criteriaCardActive: {
-    borderColor: '#d915d2',
+    borderColor: '#cd2bee',
   },
   criteriaIconWrap: {
     width: 50,
@@ -510,8 +510,8 @@ const styles = StyleSheet.create({
     marginBottom: 14,
   },
   criteriaIconWrapActive: {
-    backgroundColor: 'rgba(217,21,210,0.2)',
-    shadowColor: '#d915d2',
+    backgroundColor: 'rgba(205,43,238,0.2)',
+    shadowColor: '#cd2bee',
     shadowOffset: { width: 0, height: 8 },
     shadowOpacity: 0.24,
     shadowRadius: 18,
@@ -577,7 +577,7 @@ const styles = StyleSheet.create({
     height: 70,
     borderRadius: 35,
     borderWidth: 2,
-    borderColor: '#d915d2',
+    borderColor: '#cd2bee',
   },
   creatorRemoveButton: {
     position: 'absolute',
@@ -588,7 +588,7 @@ const styles = StyleSheet.create({
     borderRadius: 11,
     alignItems: 'center',
     justifyContent: 'center',
-    backgroundColor: '#d915d2',
+    backgroundColor: '#cd2bee',
   },
   creatorHandle: {
     fontFamily: 'PlusJakartaSansBold',
@@ -615,7 +615,7 @@ const styles = StyleSheet.create({
   launchButton: {
     borderRadius: 38,
     overflow: 'hidden',
-    shadowColor: '#930df2',
+    shadowColor: '#cd2bee',
     shadowOffset: { width: 0, height: 14 },
     shadowOpacity: 0.32,
     shadowRadius: 24,

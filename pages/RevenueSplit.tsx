@@ -82,7 +82,7 @@ const RevenueSplit: React.FC = () => {
                   cy="50"
                   r={RADIUS}
                   fill="transparent"
-                  stroke="#930df2"
+                  stroke="#cd2bee"
                   strokeWidth="12"
                   strokeDasharray={`${CIRCUMFERENCE * PLATFORM_RATIO} ${CIRCUMFERENCE}`}
                   strokeDashoffset="0"
@@ -94,7 +94,7 @@ const RevenueSplit: React.FC = () => {
                   cy="50"
                   r={RADIUS}
                   fill="transparent"
-                  stroke="#d915d2"
+                  stroke="#cd2bee"
                   strokeWidth="12"
                   strokeDasharray={`${CIRCUMFERENCE * WINNER_RATIO} ${CIRCUMFERENCE}`}
                   strokeDashoffset={-CIRCUMFERENCE * PLATFORM_RATIO}
@@ -203,7 +203,7 @@ const RevenueSplit: React.FC = () => {
 
             <View style={[styles.breakdownCard, { backgroundColor: cardBg, borderColor: cardBorder }]}>
               <View style={[styles.breakdownIconWrap, styles.winnerWrap]}>
-                <MaterialIcons name="emoji-events" size={22} color="#d915d2" />
+                <MaterialIcons name="emoji-events" size={22} color="#cd2bee" />
               </View>
               <View style={styles.breakdownBody}>
                 <View style={styles.breakdownRow}>
@@ -219,7 +219,7 @@ const RevenueSplit: React.FC = () => {
 
             <View style={[styles.breakdownCard, { backgroundColor: cardBg, borderColor: cardBorder }]}>
               <View style={[styles.breakdownIconWrap, styles.platformWrap]}>
-                <MaterialIcons name="hub" size={22} color="#930df2" />
+                <MaterialIcons name="hub" size={22} color="#cd2bee" />
               </View>
               <View style={styles.breakdownBody}>
                 <View style={styles.breakdownRow}>
@@ -270,7 +270,7 @@ const styles = StyleSheet.create({
     width: 220,
     height: 220,
     borderRadius: 110,
-    backgroundColor: 'rgba(147,13,242,0.18)',
+    backgroundColor: 'rgba(205,43,238,0.18)',
   },
   glowSecondary: {
     position: 'absolute',
@@ -279,7 +279,7 @@ const styles = StyleSheet.create({
     width: 180,
     height: 180,
     borderRadius: 90,
-    backgroundColor: 'rgba(217,21,210,0.10)',
+    backgroundColor: 'rgba(205,43,238,0.10)',
   },
   header: {
     flexDirection: 'row',
@@ -353,10 +353,10 @@ const styles = StyleSheet.create({
     backgroundColor: '#d0c1d8',
   },
   winnerDot: {
-    backgroundColor: '#d915d2',
+    backgroundColor: '#cd2bee',
   },
   platformDot: {
-    backgroundColor: '#930df2',
+    backgroundColor: '#cd2bee',
   },
   legendLabel: {
     fontFamily: 'PlusJakartaSansBold',
@@ -382,7 +382,7 @@ const styles = StyleSheet.create({
     marginBottom: 20,
   },
   estimateLabel: {
-    color: '#930df2',
+    color: '#cd2bee',
     fontFamily: 'PlusJakartaSansBold',
     fontSize: fontScale(10),
     textTransform: 'uppercase',
@@ -433,7 +433,7 @@ const styles = StyleSheet.create({
     top: 0,
     bottom: 0,
     borderRadius: 999,
-    backgroundColor: '#d915d2',
+    backgroundColor: '#cd2bee',
   },
   rangeThumb: {
     position: 'absolute',
@@ -441,7 +441,7 @@ const styles = StyleSheet.create({
     width: 16,
     height: 16,
     borderRadius: 8,
-    backgroundColor: '#d915d2',
+    backgroundColor: '#cd2bee',
     borderWidth: 2,
     borderColor: '#ffffff',
   },
@@ -486,10 +486,10 @@ const styles = StyleSheet.create({
     backgroundColor: 'rgba(208,193,216,0.12)',
   },
   winnerWrap: {
-    backgroundColor: 'rgba(217,21,210,0.12)',
+    backgroundColor: 'rgba(205,43,238,0.12)',
   },
   platformWrap: {
-    backgroundColor: 'rgba(147,13,242,0.12)',
+    backgroundColor: 'rgba(205,43,238,0.12)',
   },
   breakdownBody: {
     flex: 1,
@@ -530,8 +530,8 @@ const styles = StyleSheet.create({
     paddingVertical: 16,
     alignItems: 'center',
     justifyContent: 'center',
-    backgroundColor: '#d915d2',
-    shadowColor: '#d915d2',
+    backgroundColor: '#cd2bee',
+    shadowColor: '#cd2bee',
     shadowOffset: { width: 0, height: 0 },
     shadowOpacity: 0.34,
     shadowRadius: 16,

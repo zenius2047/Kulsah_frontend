@@ -26,7 +26,7 @@ const Wallet: React.FC = () => {
       <View>
         <View>
           <Pressable onPress={() => navigation.navigate('/explore')}>
-            <Text>arrow_back</Text>
+            <Text>chevron_left</Text>
           </Pressable>
           <Text>My Galaxy</Text>
         </View>

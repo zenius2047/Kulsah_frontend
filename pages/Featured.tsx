@@ -243,9 +243,9 @@ const Featured: React.FC = () => {
               <View style={[styles.progressCard, { backgroundColor: isDark ? 'rgba(255,255,255,0.04)' : theme.card, borderColor: theme.border }]}>
                 <View style={styles.progressCardTop}>
                   <View style={styles.progressIconWrap}>
-                    <MaterialIcons name="military-tech" size={22} color="#930df2" />
+                    <MaterialIcons name="military-tech" size={22} color="#cd2bee" />
                   </View>
-                  <MaterialIcons name="verified" size={20} color="#d915d2" />
+                  <MaterialIcons name="verified" size={20} color="#cd2bee" />
                 </View>
 
                 <Text style={[styles.progressCardTitle, { color: theme.text }]}>Elite Digital Collectible</Text>
@@ -256,7 +256,7 @@ const Featured: React.FC = () => {
                 <View style={styles.progressArea}>
                   <View style={styles.progressTrack}>
                     <LinearGradient
-                      colors={['#930df2', '#d915d2']}
+                      colors={['#cd2bee', '#cd2bee']}
                       start={{ x: 0, y: 0 }}
                       end={{ x: 1, y: 0 }}
                       style={styles.progressFill}
@@ -340,7 +340,7 @@ const styles = StyleSheet.create({
     height: 40,
     borderRadius: 20,
     padding: 2,
-    backgroundColor: 'rgba(147,13,242,0.2)',
+    backgroundColor: 'rgba(205,43,238,0.2)',
   },
   avatar: {
     width: '100%',
@@ -377,7 +377,7 @@ const styles = StyleSheet.create({
     borderBottomRightRadius: 40,
   },
   sidebarTitle: {
-    color: '#930df2',
+    color: '#cd2bee',
     fontFamily: 'PlusJakartaSansExtraBold',
     fontSize: fontScale(20),
     marginBottom: 24,
@@ -395,7 +395,7 @@ const styles = StyleSheet.create({
   sidebarItemActive: {
     backgroundColor: 'rgba(255,255,255,0.1)',
     borderLeftWidth: 4,
-    borderLeftColor: '#930df2',
+    borderLeftColor: '#cd2bee',
   },
   sidebarText: {
     color: '#94A3B8',
@@ -426,7 +426,7 @@ const styles = StyleSheet.create({
     backgroundColor: 'rgba(255,255,255,0.05)',
   },
   mobileTabActive: {
-    backgroundColor: '#930df2',
+    backgroundColor: '#cd2bee',
   },
   mobileTabText: {
     color: '#94A3B8',
@@ -483,12 +483,12 @@ const styles = StyleSheet.create({
     paddingHorizontal: 12,
     paddingVertical: 6,
     borderRadius: 999,
-    backgroundColor: 'rgba(217,21,210,0.18)',
+    backgroundColor: 'rgba(205,43,238,0.18)',
     borderWidth: 1,
-    borderColor: 'rgba(217,21,210,0.3)',
+    borderColor: 'rgba(205,43,238,0.3)',
   },
   hotBadgeText: {
-    color: '#d915d2',
+    color: '#cd2bee',
     fontFamily: 'PlusJakartaSansExtraBold',
     fontSize: mediumScreen ? 14:10,
     letterSpacing: 1.2,
@@ -541,7 +541,7 @@ const styles = StyleSheet.create({
     letterSpacing: -1
   },
   prizeTime: {
-    color: '#d915d2',
+    color: '#cd2bee',
     fontFamily: 'PlusJakartaSansBold',
     fontSize: fontScale(12),
     textTransform: 'uppercase',
@@ -550,10 +550,10 @@ const styles = StyleSheet.create({
   },
   joinButton: {
     borderRadius: 24,
-    backgroundColor: '#d915d2',
+    backgroundColor: '#cd2bee',
     paddingVertical: 12,
     alignItems: 'center',
-    shadowColor: '#d915d2',
+    shadowColor: '#cd2bee',
     shadowOffset: { width: 0, height: 0 },
     shadowOpacity: 0.35,
     shadowRadius: 18,
@@ -577,7 +577,7 @@ const styles = StyleSheet.create({
     fontSize: mediumScreen ? 21: 18,
   },
   sectionLink: {
-    color: '#d915d2',
+    color: '#cd2bee',
     fontFamily: 'PlusJakartaSansExtraBold',
     fontSize: mediumScreen ?14: 10,
     textTransform: 'uppercase',
@@ -615,7 +615,7 @@ const styles = StyleSheet.create({
     padding: 24,
   },
   exclusiveLabel: {
-    color: '#d915d2',
+    color: '#cd2bee',
     fontFamily: 'PlusJakartaSansExtraBold',
     fontSize: mediumScreen ? 15:11,
     textTransform: 'uppercase',
@@ -691,7 +691,7 @@ const styles = StyleSheet.create({
     width: 48,
     height: 48,
     borderRadius: 16,
-    backgroundColor: 'rgba(147,13,242,0.18)',
+    backgroundColor: 'rgba(205,43,238,0.18)',
     alignItems: 'center',
     justifyContent: 'center',
   },
@@ -805,10 +805,10 @@ const styles = StyleSheet.create({
     width: 64,
     height: 64,
     borderRadius: 32,
-    backgroundColor: '#d915d2',
+    backgroundColor: '#cd2bee',
     alignItems: 'center',
     justifyContent: 'center',
-    shadowColor: '#d915d2',
+    shadowColor: '#cd2bee',
     shadowOffset: { width: 0, height: 0 },
     shadowOpacity: 0.45,
     shadowRadius: 22,

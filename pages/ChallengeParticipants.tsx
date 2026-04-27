@@ -242,7 +242,7 @@ const ChallengeParticipants: React.FC = () => {
 
           {filteredParticipants.length === 0 ? (
             <View style={styles.emptyState}>
-              <MaterialIcons name="person-search" size={34} color="#d915d2" />
+              <MaterialIcons name="person-search" size={34} color="#cd2bee" />
               <Text style={styles.emptyTitle}>No participants found</Text>
               <Text style={styles.emptyText}>Try another search or switch filters.</Text>
             </View>
@@ -323,7 +323,7 @@ const styles = StyleSheet.create({
     borderRadius: 999,
   },
   filterChipActive: {
-    backgroundColor: '#d915d2',
+    backgroundColor: '#cd2bee',
   },
   filterChipIdle: {
     backgroundColor: '#121212',
@@ -376,7 +376,7 @@ const styles = StyleSheet.create({
     borderRadius: 8,
   },
   voteBadgeFeatured: {
-    backgroundColor: '#d915d2',
+    backgroundColor: '#cd2bee',
   },
   voteBadgeDefault: {
     backgroundColor: 'rgba(0,0,0,0.48)',

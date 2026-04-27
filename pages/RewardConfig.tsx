@@ -70,7 +70,7 @@ const RewardConfig: React.FC = () => {
   const muted = isDark ? '#64748b' : theme.textMuted;
   const titleTone = isDark ? '#f8fafc' : theme.text;
   const placeholder = isDark ? '#475569' : theme.textMuted;
-  const strategyActiveBg = isDark ? 'rgba(147,13,242,0.08)' : theme.accentSoft;
+  const strategyActiveBg = isDark ? 'rgba(205,43,238,0.08)' : theme.accentSoft;
   const tipBg = isDark ? 'rgba(255,255,255,0.08)' : 'rgba(15,23,42,0.06)';
   const tipBorder = isDark ? 'rgba(255,255,255,0.05)' : theme.border;
   const selectedIcon = isDark ? '#475569' : theme.textMuted;
@@ -138,7 +138,7 @@ const RewardConfig: React.FC = () => {
                   <MaterialIcons
                     name={option.icon}
                     size={32}
-                    color={isActive ? '#930df2' : subtle}
+                    color={isActive ? '#cd2bee' : subtle}
                     style={styles.strategyIcon}
                   />
                   <Text style={[styles.strategyTitle, { color: isActive ? titleTone : subtle }, !isActive && styles.strategyTitleMuted]}>
@@ -181,7 +181,7 @@ const RewardConfig: React.FC = () => {
                       <MaterialIcons
                         name={reward.icon}
                         size={26}
-                        color={isSelected ? '#930df2' : '#d915d2'}
+                        color={isSelected ? '#cd2bee' : '#cd2bee'}
                       />
                     </View>
 
@@ -200,7 +200,7 @@ const RewardConfig: React.FC = () => {
                     <MaterialIcons
                       name={isSelected ? 'check-circle' : 'radio-button-unchecked'}
                       size={22}
-                      color={isSelected ? '#930df2' : selectedIcon}
+                      color={isSelected ? '#cd2bee' : selectedIcon}
                     />
                   </Pressable>
                 );
@@ -265,7 +265,7 @@ const styles = StyleSheet.create({
     width: 220,
     height: 220,
     borderRadius: 110,
-    backgroundColor: 'rgba(147,13,242,0.22)',
+    backgroundColor: 'rgba(205,43,238,0.22)',
   },
   midGlow: {
     position: 'absolute',
@@ -274,7 +274,7 @@ const styles = StyleSheet.create({
     width: 160,
     height: 160,
     borderRadius: 80,
-    backgroundColor: 'rgba(217,21,210,0.10)',
+    backgroundColor: 'rgba(205,43,238,0.10)',
   },
   header: {
     flexDirection: 'row',
@@ -302,7 +302,7 @@ const styles = StyleSheet.create({
     letterSpacing: 0.8,
   },
   headerBrand: {
-    color: '#930df2',
+    color: '#cd2bee',
     fontFamily: 'PlusJakartaSansExtraBold',
     fontSize: mediumScreen ? 22 : 18,
     letterSpacing: -0.4,
@@ -324,12 +324,12 @@ const styles = StyleSheet.create({
     paddingHorizontal: 12,
     paddingVertical: 7,
     borderRadius: 999,
-    backgroundColor: 'rgba(217,21,210,0.18)',
+    backgroundColor: 'rgba(205,43,238,0.18)',
     borderWidth: 1,
-    borderColor: 'rgba(217,21,210,0.3)',
+    borderColor: 'rgba(205,43,238,0.3)',
   },
   challengeBadgeText: {
-    color: '#d915d2',
+    color: '#cd2bee',
     fontFamily: 'PlusJakartaSansBold',
     fontSize: mediumScreen ? 14 : 10,
     textTransform: 'uppercase',
@@ -359,7 +359,7 @@ const styles = StyleSheet.create({
   },
   strategyCardActive: {
     borderWidth: 2,
-    borderColor: '#930df2',
+    borderColor: '#cd2bee',
     opacity: 1,
   },
   checkBadge: {
@@ -369,10 +369,10 @@ const styles = StyleSheet.create({
     width: 22,
     height: 22,
     borderRadius: 11,
-    backgroundColor: '#930df2',
+    backgroundColor: '#cd2bee',
     alignItems: 'center',
     justifyContent: 'center',
-    shadowColor: '#930df2',
+    shadowColor: '#cd2bee',
     shadowOffset: { width: 0, height: 0 },
     shadowOpacity: 0.4,
     shadowRadius: 12,
@@ -410,7 +410,7 @@ const styles = StyleSheet.create({
     textTransform: 'uppercase',
   },
   sectionHint: {
-    color: '#930df2',
+    color: '#cd2bee',
     fontFamily: 'PlusJakartaSansBold',
     fontSize: mediumScreen ? 14 : 10,
     letterSpacing: 1.1,
@@ -427,7 +427,7 @@ const styles = StyleSheet.create({
     borderWidth: 1,
   },
   rewardCardSelected: {
-    borderColor: '#930df2',
+    borderColor: '#cd2bee',
   },
   rewardIconWrap: {
     width: 56,
@@ -437,7 +437,7 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
   },
   rewardIconWrapSelected: {
-    backgroundColor: 'rgba(147,13,242,0.12)',
+    backgroundColor: 'rgba(205,43,238,0.12)',
   },
   rewardBody: {
     flex: 1,
@@ -458,7 +458,7 @@ const styles = StyleSheet.create({
     paddingHorizontal: 8,
     paddingVertical: 3,
     borderRadius: 999,
-    backgroundColor: 'rgba(147,13,242,0.18)',
+    backgroundColor: 'rgba(205,43,238,0.18)',
   },
   hotBadgeText: {
     color: '#deb7ff',
@@ -512,7 +512,7 @@ const styles = StyleSheet.create({
     fontFamily: 'PlusJakartaSansExtraBold',
   },
   tipAccent: {
-    color: '#d915d2',
+    color: '#cd2bee',
     fontFamily: 'PlusJakartaSansBold',
   },
   bottomShell: {
@@ -532,8 +532,8 @@ const styles = StyleSheet.create({
     gap: 8,
     paddingVertical: 16,
     borderRadius: 28,
-    backgroundColor: '#d915d2',
-    shadowColor: '#d915d2',
+    backgroundColor: '#cd2bee',
+    shadowColor: '#cd2bee',
     shadowOffset: { width: 0, height: 0 },
     shadowOpacity: 0.4,
     shadowRadius: 14,

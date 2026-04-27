@@ -152,7 +152,7 @@ const FinalStep: React.FC = () => {
                 <View style={[styles.infoCard, { backgroundColor: cardBg, borderColor: cardBorder }]}>
                   <View style={styles.infoHeader}>
                     <View style={[styles.infoIconWrap, styles.infoIconPrimary]}>
-                      <MaterialIcons name="how-to-vote" size={20} color="#930df2" />
+                      <MaterialIcons name="how-to-vote" size={20} color="#cd2bee" />
                     </View>
                     <Text style={[styles.infoLabel, { color: subtle }]}>Voting Model</Text>
                   </View>
@@ -167,7 +167,7 @@ const FinalStep: React.FC = () => {
                 {/* <View style={styles.infoCard}>
                   <View style={styles.infoHeader}>
                     <View style={[styles.infoIconWrap, styles.infoIconSecondary]}>
-                      <MaterialIcons name="payments" size={20} color="#d915d2" />
+                      <MaterialIcons name="payments" size={20} color="#cd2bee" />
                     </View>
                     <Text style={styles.infoLabel}>Reward Pool</Text>
                   </View>
@@ -185,14 +185,14 @@ const FinalStep: React.FC = () => {
                 <View style={styles.checklistGlow} pointerEvents="none" />
 
                 <View style={styles.checklistHeader}>
-                  <MaterialIcons name="assignment-turned-in" size={22} color="#930df2" />
+                  <MaterialIcons name="assignment-turned-in" size={22} color="#cd2bee" />
                   <Text style={[styles.checklistTitle, { color: titleTone }]}>Final Checklist</Text>
                 </View>
 
                 <View style={styles.checklistList}>
                   {checklistItems.map((item) => (
                     <View key={item.title} style={styles.checklistItem}>
-                      <MaterialIcons name="check-circle" size={18} color="#d915d2" style={{
+                      <MaterialIcons name="check-circle" size={18} color="#cd2bee" style={{
                         marginTop: 7
                       }} />
                       <View style={styles.checklistTextWrap}>
@@ -260,7 +260,7 @@ const styles = StyleSheet.create({
     width: 240,
     height: 240,
     borderRadius: 120,
-    backgroundColor: 'rgba(147,13,242,0.16)',
+    backgroundColor: 'rgba(205,43,238,0.16)',
   },
   glowTwo: {
     position: 'absolute',
@@ -269,7 +269,7 @@ const styles = StyleSheet.create({
     width: 180,
     height: 180,
     borderRadius: 90,
-    backgroundColor: 'rgba(217,21,210,0.10)',
+    backgroundColor: 'rgba(205,43,238,0.10)',
   },
   header: {
     flexDirection: 'row',
@@ -313,12 +313,12 @@ const styles = StyleSheet.create({
     paddingHorizontal: 12,
     paddingVertical: 7,
     borderRadius: 999,
-    backgroundColor: 'rgba(217,21,210,0.18)',
+    backgroundColor: 'rgba(205,43,238,0.18)',
     borderWidth: 1,
-    borderColor: 'rgba(217,21,210,0.28)',
+    borderColor: 'rgba(205,43,238,0.28)',
   },
   stepBadgeText: {
-    color: '#d915d2',
+    color: '#cd2bee',
     fontFamily: 'PlusJakartaSansBold',
     fontSize: mediumScreen? fontScale(12):fontScale(8),
     textTransform: 'uppercase',
@@ -348,7 +348,7 @@ const styles = StyleSheet.create({
     gap: 12,
   },
   sectionEyebrow: {
-    color: '#930df2',
+    color: '#cd2bee',
     fontFamily: 'PlusJakartaSansBold',
     fontSize: mediumScreen? fontScale(14):fontScale(10),
     letterSpacing: 1.4,
@@ -382,8 +382,8 @@ const styles = StyleSheet.create({
     paddingHorizontal: 12,
     paddingVertical: 9,
     borderRadius: 999,
-    backgroundColor: '#d915d2',
-    shadowColor: '#d915d2',
+    backgroundColor: '#cd2bee',
+    shadowColor: '#cd2bee',
     shadowOffset: { width: 0, height: 0 },
     shadowOpacity: 0.4,
     shadowRadius: 12,
@@ -455,7 +455,7 @@ const styles = StyleSheet.create({
     fontSize: fontScale(10),
   },
   joiningText: {
-    color: '#930df2',
+    color: '#cd2bee',
     fontFamily: 'PlusJakartaSansBold',
     fontSize: fontScale(12),
   },
@@ -481,10 +481,10 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
   },
   infoIconPrimary: {
-    backgroundColor: 'rgba(147,13,242,0.12)',
+    backgroundColor: 'rgba(205,43,238,0.12)',
   },
   infoIconSecondary: {
-    backgroundColor: 'rgba(217,21,210,0.12)',
+    backgroundColor: 'rgba(205,43,238,0.12)',
   },
   infoLabel: {
     fontFamily: 'PlusJakartaSansBold',
@@ -537,7 +537,7 @@ const styles = StyleSheet.create({
     width: 180,
     height: 180,
     borderRadius: 90,
-    backgroundColor: 'rgba(147,13,242,0.16)',
+    backgroundColor: 'rgba(205,43,238,0.16)',
   },
   checklistHeader: {
     flexDirection: 'row',
@@ -601,7 +601,7 @@ const styles = StyleSheet.create({
     fontSize: mediumScreen? fontScale(16):fontScale(12),
   },
   totalValue: {
-    color: '#d915d2',
+    color: '#cd2bee',
     fontFamily: 'PlusJakartaSansExtraBold',
     fontSize: mediumScreen? fontScale(16):fontScale(12),
   },
@@ -612,8 +612,8 @@ const styles = StyleSheet.create({
     gap: 10,
     borderRadius: 28,
     paddingVertical: 16,
-    backgroundColor: '#d915d2',
-    shadowColor: '#d915d2',
+    backgroundColor: '#cd2bee',
+    shadowColor: '#cd2bee',
     shadowOffset: { width: 0, height: 0 },
     shadowOpacity: 0.36,
     shadowRadius: 16,

@@ -1,4 +1,4 @@
-import React, { useMemo, useState } from 'react';
+﻿import React, { useMemo, useState } from 'react';
 import { GoogleGenAI } from '@google/genai';
 import { useNavigation, useRoute } from '@react-navigation/native';
 import { MaterialIcons } from '@expo/vector-icons';
@@ -60,8 +60,8 @@ const SelectTickets: React.FC = () => {
   const subtle = isDark ? '#8f95af' : theme.textSecondary;
   const muted = isDark ? '#6b7280' : theme.textMuted;
   const footerBg = isDark ? '#0b0f18f2' : 'rgba(255,255,255,0.98)';
-  const successIconBg = isDark ? '#cd2bee20' : 'rgba(217,21,210,0.12)';
-  const successIconBorder = isDark ? '#cd2bee55' : 'rgba(217,21,210,0.28)';
+  const successIconBg = isDark ? '#cd2bee20' : 'rgba(205,43,238,0.12)';
+  const successIconBorder = isDark ? '#cd2bee55' : 'rgba(205,43,238,0.28)';
 
   const updateQuantity = (tierId: string, delta: number) => {
     setQuantities((prev) => ({
@@ -671,3 +671,4 @@ const styles = StyleSheet.create({
 });
 
 export default SelectTickets;
+

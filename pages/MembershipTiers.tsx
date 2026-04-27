@@ -114,7 +114,7 @@ const MembershipTiers: React.FC = () => {
       <View style={[s.header, { backgroundColor: isDark ? 'rgba(31, 16, 34, 0.78)' : theme.card, borderBottomColor: theme.border }]}>
         <View style={s.headerLeft}>
           <Pressable onPress={() => navigation.goBack()} style={[s.iconButton, { backgroundColor: isDark ? '#ffffff14' : theme.surface }]}>
-            <MaterialIcons name="arrow-back" size={20} color={theme.text} />
+            <MaterialIcons name="chevron-left" size={20} color={theme.text} />
           </Pressable>
           <Text style={[s.headerTitle, { color: theme.text }]}>Galaxy Economy</Text>
         </View>

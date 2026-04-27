@@ -141,7 +141,7 @@ const MyEntry: React.FC = () => {
                 <View style={styles.insightsGrid}>
                   <View style={[styles.insightCard, { backgroundColor: isDark ? 'rgba(255,255,255,0.04)' : theme.card, borderColor: theme.border }]}>
                     <View style={styles.insightHeader}>
-                      <MaterialIcons name="trending-up" size={20} color="#d915d2" />
+                      <MaterialIcons name="trending-up" size={20} color="#cd2bee" />
                       <Text style={[styles.insightTitle, { color: theme.text }]}>Performance Trend</Text>
                     </View>
 
@@ -170,7 +170,7 @@ const MyEntry: React.FC = () => {
 
                   <View style={[styles.insightCard, { backgroundColor: isDark ? 'rgba(255,255,255,0.04)' : theme.card, borderColor: theme.border }]}>
                     <View style={styles.insightHeader}>
-                      <MaterialIcons name="emoji-events" size={20} color="#930df2" />
+                      <MaterialIcons name="emoji-events" size={20} color="#cd2bee" />
                       <Text style={[styles.insightTitle, { color: theme.text }]}>Projected Rewards</Text>
                     </View>
                     <Text style={[styles.insightSubtitle, { color: theme.textSecondary }]}>Based on current #12 rank</Text>
@@ -245,7 +245,7 @@ const MyEntry: React.FC = () => {
                     'Appropriate visual content',
                   ].map((item) => (
                     <View key={item} style={styles.guideRow}>
-                      <MaterialIcons name="check-circle" size={16} color="#930df2" />
+                      <MaterialIcons name="check-circle" size={16} color="#cd2bee" />
                       <Text style={[styles.guideText, { color: theme.textSecondary }]}>{item}</Text>
                     </View>
                   ))}
@@ -284,7 +284,7 @@ const styles = StyleSheet.create({
     marginBottom: 28,
   },
   liveLabel: {
-    color: '#d915d2',
+    color: '#cd2bee',
     fontFamily: 'PlusJakartaSansExtraBold',
     fontSize: fontScale(10),
     textTransform: 'uppercase',
@@ -314,13 +314,13 @@ const styles = StyleSheet.create({
     borderRadius: 10,
     alignItems: 'center',
     justifyContent: 'center',
-    backgroundColor: 'rgba(217,21,210,0.22)',
+    backgroundColor: 'rgba(205,43,238,0.22)',
   },
   liveDotInner: {
     width: 6,
     height: 6,
     borderRadius: 6,
-    backgroundColor: '#d915d2',
+    backgroundColor: '#cd2bee',
   },
   timerText: {
     color: '#94A3B8',
@@ -375,8 +375,8 @@ const styles = StyleSheet.create({
     borderRadius: 32,
     alignItems: 'center',
     justifyContent: 'center',
-    backgroundColor: '#930df2',
-    shadowColor: '#930df2',
+    backgroundColor: '#cd2bee',
+    shadowColor: '#cd2bee',
     shadowOffset: { width: 0, height: 0 },
     shadowOpacity: 0.5,
     shadowRadius: 20,
@@ -458,7 +458,7 @@ const styles = StyleSheet.create({
     paddingHorizontal: 24,
     paddingVertical: 14,
     borderRadius: 14,
-    backgroundColor: '#930df2',
+    backgroundColor: '#cd2bee',
   },
   primaryButtonText: {
     color: '#fff',
@@ -503,7 +503,7 @@ const styles = StyleSheet.create({
     backgroundColor: 'rgba(255,255,255,0.18)',
   },
   chartBarActive: {
-    backgroundColor: '#930df2',
+    backgroundColor: '#cd2bee',
   },
   chartLabels: {
     flexDirection: 'row',
@@ -538,7 +538,7 @@ const styles = StyleSheet.create({
   rewardFill: {
     width: '66%',
     height: '100%',
-    backgroundColor: '#930df2',
+    backgroundColor: '#cd2bee',
   },
   rewardHint: {
     color: '#64748B',
@@ -669,7 +669,7 @@ const styles = StyleSheet.create({
     borderColor: 'rgba(255,255,255,0.06)',
   },
   guideTitle: {
-    color: '#d915d2',
+    color: '#cd2bee',
     fontFamily: 'PlusJakartaSansExtraBold',
     fontSize: fontScale(10),
     textTransform: 'uppercase',

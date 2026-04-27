@@ -96,7 +96,7 @@ const ParticipantHistory: React.FC = () => {
 
             <View style={styles.timelineWrap}>
               <LinearGradient
-                colors={['rgba(147,13,242,0.3)', 'rgba(217,21,210,0.18)', 'transparent']}
+                colors={['rgba(205,43,238,0.3)', 'rgba(205,43,238,0.18)', 'transparent']}
                 style={[styles.timelineLine, isTablet ? styles.timelineLineTablet : null]}
               />
 
@@ -110,7 +110,7 @@ const ParticipantHistory: React.FC = () => {
                       <MaterialIcons
                         name={item.icon}
                         size={isTablet ? 26 : 22}
-                        color={isWinner ? '#d915d2' : isTopTen ? '#930df2' : theme.textMuted}
+                        color={isWinner ? '#cd2bee' : isTopTen ? '#cd2bee' : theme.textMuted}
                       />
                     </View>
 
@@ -176,7 +176,7 @@ const ParticipantHistory: React.FC = () => {
                           <Image source={{ uri: item.image }} style={[styles.previewImage, { borderColor: theme.border }]} />
                           <Pressable style={styles.viewEntryButton}>
                             <Text style={styles.viewEntryText}>View Entry</Text>
-                            <MaterialIcons name="open-in-new" size={14} color="#930df2" />
+                            <MaterialIcons name="open-in-new" size={14} color="#cd2bee" />
                           </Pressable>
                         </View>
                       </View>
@@ -266,7 +266,7 @@ const styles = StyleSheet.create({
     zIndex: 2,
   },
   timelineBadgeWinner: {
-    shadowColor: '#930df2',
+    shadowColor: '#cd2bee',
     shadowOffset: { width: 0, height: 0 },
     shadowOpacity: 0.35,
     shadowRadius: 16,
@@ -305,7 +305,7 @@ const styles = StyleSheet.create({
     letterSpacing: 1.1,
   },
   dateTextWinner: {
-    color: '#d915d2',
+    color: '#cd2bee',
   },
   statusPill: {
     paddingHorizontal: 9,
@@ -313,10 +313,10 @@ const styles = StyleSheet.create({
     borderRadius: 999,
   },
   statusPillWinner: {
-    backgroundColor: 'rgba(217,21,210,0.18)',
+    backgroundColor: 'rgba(205,43,238,0.18)',
   },
   statusPillTopTen: {
-    backgroundColor: 'rgba(147,13,242,0.18)',
+    backgroundColor: 'rgba(205,43,238,0.18)',
   },
   statusPillNeutral: {
     backgroundColor: 'rgba(255,255,255,0.05)',
@@ -327,10 +327,10 @@ const styles = StyleSheet.create({
     textTransform: 'uppercase',
   },
   statusPillTextWinner: {
-    color: '#d915d2',
+    color: '#cd2bee',
   },
   statusPillTextTopTen: {
-    color: '#930df2',
+    color: '#cd2bee',
   },
   statusPillTextNeutral: {
     color: '#94A3B8',
@@ -369,10 +369,10 @@ const styles = StyleSheet.create({
     fontSize: fontScale(14),
   },
   rewardWinner: {
-    color: '#d915d2',
+    color: '#cd2bee',
   },
   rewardTopTen: {
-    color: '#930df2',
+    color: '#cd2bee',
   },
   rewardNeutral: {
     color: '#64748B',
@@ -394,7 +394,7 @@ const styles = StyleSheet.create({
     gap: 6,
   },
   viewEntryText: {
-    color: '#930df2',
+    color: '#cd2bee',
     fontFamily: 'PlusJakartaSansBold',
     fontSize: fontScale(12),
     textTransform: 'uppercase',

@@ -43,6 +43,18 @@ const SUB = { name: 'Pulsar Access', price: '9.99', perks: ['Exclusive Feed Acce
 const videos = [
   { id: 'v1', title: 'Moonlight Symphony', views: '1.2M', duration: '4:20', img: 'https://images.unsplash.com/photo-1598488035139-bdbb2231ce04?auto=format&fit=crop&q=80&w=600' },
   { id: 'v2', title: 'Summer Tour Highlights', views: '450K', duration: '12:15', img: 'https://images.unsplash.com/photo-1514525253361-bee8718a74a2?auto=format&fit=crop&q=80&w=600' },
+  { id: 'v3', title: 'Velvet Signal', views: '856K', duration: '3:41', img: 'https://images.unsplash.com/photo-1501386761578-eac5c94b800a?auto=format&fit=crop&q=80&w=600' },
+  { id: 'v4', title: 'Orbit Session', views: '2.1M', duration: '5:08', img: 'https://images.unsplash.com/photo-1503095396549-807759245b35?auto=format&fit=crop&q=80&w=600' },
+  { id: 'v5', title: 'Neon Rehearsal', views: '432K', duration: '2:57', img: 'https://images.unsplash.com/photo-1493225457124-a3eb161ffa5f?auto=format&fit=crop&q=80&w=600' },
+  { id: 'v6', title: 'Pulse Room', views: '1.5M', duration: '4:56', img: 'https://images.unsplash.com/photo-1516280440614-37939bbacd81?auto=format&fit=crop&q=80&w=600' },
+];
+const premiumVideos = [
+  { id: 'p1', title: 'Project Node #103', views: 'Members only', img: 'https://picsum.photos/seed/prem1/800/450' },
+  { id: 'p2', title: 'Project Node #104', views: 'Premium drop', img: 'https://picsum.photos/seed/prem2/800/450' },
+  { id: 'p3', title: 'Project Node #105', views: 'Vault access', img: 'https://picsum.photos/seed/prem3/800/450' },
+  { id: 'p4', title: 'Studio Artifact', views: 'Exclusive cut', img: 'https://picsum.photos/seed/prem4/800/450' },
+  { id: 'p5', title: 'Signal Archive', views: 'Private replay', img: 'https://picsum.photos/seed/prem5/800/450' },
+  { id: 'p6', title: 'Afterglow Session', views: 'Locked episode', img: 'https://picsum.photos/seed/prem6/800/450' },
 ];
 const events = [
   { id: 'e1', title: 'Neon Nights: Live Concert', meta: 'Sept 15, 2024', price: 'Free', img: 'https://images.unsplash.com/photo-1470225620780-dba8ba36b745?auto=format&fit=crop&q=80&w=600', location: 'Virtual Arena' },
@@ -66,6 +78,10 @@ const  ArtistProfile: React.FC = () => {
   const { width } = useWindowDimensions();
   const navigation = useNavigation<any>();
   const isTablet = width >= 768;
+  const gridGap = isTablet ? 8 : 3;
+  const gridHorizontalPadding = isTablet ? 18 : 6;
+  const gridItemWidth = (width - gridHorizontalPadding * 2 - gridGap * 2) / 3;
+  const gridItemHeight = gridItemWidth * (16 / 9);
   const route = useRoute<any>();
   const [isFollowing, setIsFollowing] = useState(false);
   const [isLiked, setIsLiked] = useState(false);
@@ -97,26 +113,48 @@ const  ArtistProfile: React.FC = () => {
     setTimeout(() => { setLoading(false); setSuccess(true); setTimeout(() => { setSelectedSub(false); setSuccess(false); ping(`Welcome to ${SUB.name}!`); }, 1600); }, 1200);
   };
 
-  const renderGrid = (items: Array<{ id: string; title: string; views?: string; img?: string }>) => (
-    <View style={s.grid}>{items.map((item) => <Pressable key={item.id} onPress={() => {
-      if(user!.role === 'creator'){
-        navigation.navigate('Video')
-      }
-    }} style={s.gridItem}>
-      <View style={s.thumb}>
-        {item.img ? <Image source={{ uri: item.img }}
-          style={[s.image, {borderRadius: 0}]} /> : null}
-            <LinearGradient colors={['transparent', 'rgba(0,0,0,0.8)']}
-              style={StyleSheet.absoluteFillObject} />
-            <View style={s.meta}>
-              <Text style={s.title} numberOfLines={2}>
-                {item.title}</Text>
-                  {item.views ? <Text style={s.sub}>
-                      {item.views} VIEWS</Text> : null}
-                      </View>
-                    </View>
-                  </Pressable>)}
-              </View>
+  const renderGrid = (
+    items: Array<{ id: string; title: string; views?: string; img?: string }>,
+    onPressItem?: () => void
+  ) => (
+    <View style={s.videoGridWrap}>
+      <View style={[s.videoGrid, { paddingHorizontal: gridHorizontalPadding }]}>
+      {items.map((item, index) => (
+        <Pressable
+          key={item.id}
+          onPress={() => {
+            if (onPressItem) {
+              onPressItem();
+              return;
+            }
+            if (user!.role === 'creator') {
+              navigation.navigate('Video');
+            }
+          }}
+          style={[
+            s.videoGridCard,
+            {
+              width: gridItemWidth,
+              height: gridItemHeight,
+              marginBottom: gridGap,
+              marginRight: (index + 1) % 3 === 0 ? 0 : gridGap,
+              backgroundColor: isDark ? '#0f172a' : theme.surface,
+            },
+          ]}
+        >
+          {item.img ? <Image source={{ uri: item.img }} style={s.videoGridImage} /> : null}
+          <LinearGradient
+            colors={['transparent', 'rgba(0,0,0,0.75)']}
+            style={s.videoGridOverlay}
+          />
+          <View style={s.videoGridMeta}>
+            <MaterialIcons name="play-arrow" size={14} color="#fff" />
+            <Text style={s.videoGridMetaText}>{item.views ?? item.title}</Text>
+          </View>
+        </Pressable>
+      ))}
+      </View>
+    </View>
   );
 
   const calculatePrice = (basePrice: string) => {
@@ -151,7 +189,9 @@ const  ArtistProfile: React.FC = () => {
         </Pressable>
       </View>
       <ScrollView contentContainerStyle={s.content} showsVerticalScrollIndicator={false} keyboardShouldPersistTaps="handled">
-        <ImageBackground source={{ uri: 'https://res.cloudinary.com/dir15sl86/image/upload/v1776764686/356436400_gpowkh.jpg' }} style={s.cover}><LinearGradient colors={isDark ? ['rgba(0,0,0,0.1)', '#060913'] : ['rgba(255,255,255,0.06)', '#f8fafc']} style={StyleSheet.absoluteFillObject} /></ImageBackground>
+        <ImageBackground 
+        resizeMode="cover"
+        source={{ uri: 'https://res.cloudinary.com/dir15sl86/image/upload/v1776789639/male24_uxspl8.png' }} style={s.cover}><LinearGradient colors={isDark ? ['rgba(0,0,0,0.1)', '#060913'] : ['rgba(255,255,255,0.06)', '#f8fafc']} style={StyleSheet.absoluteFillObject} /></ImageBackground>
         <View style={s.hero}>
           <View style={[s.avatarWrap, { borderColor: 'rgba(59 130 246 / 0.5)' }]}>
             <Image source={{ uri: 'https://res.cloudinary.com/dir15sl86/image/upload/v1776764686/35464_ama_gubuoc.jpg' }} 
@@ -273,7 +313,7 @@ const  ArtistProfile: React.FC = () => {
                   color: theme.text,
                   // fontWeight: 'bold',
                   fontFamily: 'PlusJakartaSansBold',
-                  fontSize: mediumScreen? fontScale(14):fontScale(10),
+                  fontSize: mediumScreen? fontScale(12):fontScale(8),
                 }}>
                   {billingCycle === 'monthly' ? 'SUBSCRIBE MONTHLY': 'SUBSCRIBE ANUALLY'}
                 </Text>
@@ -297,7 +337,15 @@ const  ArtistProfile: React.FC = () => {
 
         <View style={s.body}>
           {activeTab === 'Videos' ? renderGrid(videos) : null}
-          {activeTab === 'Premium' ? <View style={s.stack}>{[1, 2, 3].map((i) => <Pressable key={i} onPress={() => isOwner ? navigation.navigate('CreatorLibrary') : setSelectedSub(true)} style={[s.banner, { backgroundColor: isDark ? '#0f172a' : theme.surface }]}><Image source={{ uri: `https://picsum.photos/seed/prem${i}/800/450` }} style={[s.image, {borderRadius: 0}]} /><LinearGradient colors={['transparent', 'rgba(0,0,0,0.9)']} style={StyleSheet.absoluteFillObject} /><Text style={s.bannerText}>Project Node #{i + 102}</Text></Pressable>)}</View> : null}
+          {activeTab === 'Premium'
+            ? renderGrid(premiumVideos, () => {
+                if (isOwner) {
+                  navigation.navigate('CreatorLibrary');
+                } else {
+                  setSelectedSub(true);
+                }
+              })
+            : null}
           {activeTab === 'Events' ? <View style={s.stack}>{events.map((item) =>
             <Pressable key={item.id} onPress={() => navigation.navigate('EventDetail')} style={[s.banner, { backgroundColor: isDark ? '#0f172a' : theme.surface }]}>
               <Image source={{ uri: item.img }} style={[s.image, {borderRadius: 0}]} />
@@ -326,8 +374,8 @@ const  ArtistProfile: React.FC = () => {
                             style={{
                               // position: 'absolute',
                               // bottom: 0,
-                              width: '100%',
-                              height: '100%',
+                              width: 80,
+                              height: 40,
                               justifyContent: 'center',
                               alignItems: 'center',
                               // padding: 20,
@@ -485,7 +533,14 @@ const s = StyleSheet.create({
   membership: { paddingHorizontal: 16, gap: 14 }, membershipHeader: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', paddingHorizontal: 16 }, section: { color: '#fff', fontSize: mediumScreen? 18: 14, fontFamily: 'PlusJakartaSansExtraBold', textTransform: 'uppercase' }, toggle: { flexDirection: 'row', gap: 6, padding: 6, borderRadius: 18, backgroundColor: 'rgba(255,255,255,0.05)' }, toggleBtn: { minHeight: 34, paddingHorizontal: 10, borderRadius: 12, alignItems: 'center', justifyContent: 'center' }, toggleOn: { backgroundColor: 'rgba(255,255,255,0.08)' }, toggleText: { color: '#8b94ad', fontSize: fontScale(10), fontFamily: 'PlusJakartaSansExtraBold', textTransform: 'uppercase' },
  cardLabel: { color: '#8b94ad', fontSize: fontScale(10), fontFamily: 'PlusJakartaSansExtraBold', textTransform: 'uppercase' }, price: { color: '#fff', fontSize: fontScale(28), fontFamily: 'PlusJakartaSansExtraBold' }, perk: { color: '#d4d8e8', fontSize: fontScale(12), fontFamily: 'PlusJakartaSansMedium' },
   tabs: { paddingHorizontal: 16, paddingTop: 18, paddingBottom: 6 }, tab: { minWidth: 74, alignItems: 'center', paddingBottom: 14, marginRight: 14 }, tabText: { marginTop: 4, color: '#69738d', fontSize: fontScale(8), fontFamily: 'PlusJakartaSansExtraBold', textTransform: 'uppercase' }, tabOn: { color: '#cd2bee' }, body: { paddingHorizontal: 16, paddingTop: 18, gap: 18 },
-  grid: { flexDirection: 'row', flexWrap: 'wrap', justifyContent: 'space-between', gap: 7 }, gridItem: { width: '47.5%' }, thumb: { aspectRatio: 4 / 5, borderRadius: 34, overflow: 'hidden', backgroundColor: '#0f172a' }, meta: { position: 'absolute', left: 12, right: 12, bottom: 12 }, title: { color: '#fff', fontSize: mediumScreen ? fontScale(14):fontScale(10), fontFamily: 'PlusJakartaSansExtraBold' }, sub: { marginTop: 0, color: '#9ca3af', fontSize: fontScale(8), fontFamily: 'PlusJakartaSansExtraBold', textTransform: 'uppercase' },
+  videoGridWrap: { marginHorizontal: -16 },
+  videoGrid: { flexDirection: 'row', flexWrap: 'wrap' },
+  videoGridCard: { overflow: 'hidden', borderRadius: 2, position: 'relative' },
+  videoGridImage: { width: '100%', height: '100%' },
+  videoGridOverlay: { ...StyleSheet.absoluteFillObject },
+  videoGridMeta: { position: 'absolute', left: 8, bottom: 8, flexDirection: 'row', alignItems: 'center', gap: 2 },
+  videoGridMetaText: { color: '#fff', fontFamily: 'PlusJakartaSansBold', fontSize: fontScale(11) },
+  sub: { marginTop: 0, color: '#9ca3af', fontSize: fontScale(8), fontFamily: 'PlusJakartaSansExtraBold', textTransform: 'uppercase' },
   stack: { gap: 16 }, banner: { height: 230, borderRadius: 40, overflow: 'hidden', backgroundColor: '#0f172a' }, bannerText: { color: '#fff', fontSize: mediumScreen ? fontScale(16):fontScale(12), fontFamily: 'PlusJakartaSansExtraBold', textTransform: 'uppercase', width:'50%' }, 
   bannerBottom: { position: 'absolute', left: 18, right: 18, bottom: 18 }, eventCard: { height: 240, borderRadius: 40, overflow: 'hidden', backgroundColor: '#0f172a' }, chip: { position: 'absolute', top: 18, left: 18, flexDirection: 'row', alignItems: 'center', gap: 6, paddingHorizontal: 12, paddingVertical: 8, borderRadius: 999, backgroundColor: 'rgba(205,43,238,0.14)' }, chipText: { color: '#cd2bee', fontSize: fontScale(9), fontFamily: 'PlusJakartaSansExtraBold', textTransform: 'uppercase' },
   sound: { flexDirection: 'row', alignItems: 'center', gap: 12, padding: 14, borderRadius: 28, backgroundColor: 'rgba(255,255,255,0.05)' }, 
@@ -566,14 +621,14 @@ const s = StyleSheet.create({
   },
   statsTablet: { paddingHorizontal: 24 },
   statBlock: { flex: 1, alignItems: 'center' },
-  statValue: { color: '#fff', fontSize: mediumScreen? fontScale(16):fontScale(12), fontWeight: '900' },
+  statValue: { color: '#fff', fontSize: mediumScreen? fontScale(16):fontScale(12), fontFamily: 'PlusJakartaSansExtraBold' },
   statLabel: {
     color: '#9ea0b6',
     fontSize: mediumScreen? fontScale(12):fontScale(8),
     textTransform: 'uppercase',
     letterSpacing: 1.2,
     marginTop: 2,
-    fontWeight: '700',
+    fontFamily: 'PlusJakartaSansBold'
   },
   accent: { color: '#cd2bee' },
   sep: { width: StyleSheet.hairlineWidth, height: 28, backgroundColor: '#ffffff2d' },

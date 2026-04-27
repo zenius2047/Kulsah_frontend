@@ -580,7 +580,7 @@ const CreatorOnboarding: React.FC<CreatorOnboardingProps> = ({ onComplete }) => 
     <View>
       <View>
         <Pressable onPress={() => setMonSubStep('list')}>
-          <Text>arrow_back</Text>
+          <Text>chevron_left</Text>
         </Pressable>
         <Text>Payout Method</Text>
       </View>
@@ -637,7 +637,7 @@ const CreatorOnboarding: React.FC<CreatorOnboardingProps> = ({ onComplete }) => 
     <View>
       <View>
         <Pressable onPress={() => setMonSubStep('list')}>
-          <Text>arrow_back</Text>
+          <Text>chevron_left</Text>
         </Pressable>
         <Text>Base Tier Price</Text>
       </View>
@@ -764,7 +764,7 @@ const CreatorOnboarding: React.FC<CreatorOnboardingProps> = ({ onComplete }) => 
             }}
            
           >
-            <Text>arrow_back</Text>
+            <Text>chevron_left</Text>
           </Pressable>
           <View>
             <Text>Kulsah</Text>

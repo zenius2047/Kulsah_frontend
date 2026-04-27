@@ -65,11 +65,11 @@ const winner: React.FC = () => {
 
               <View style={styles.avatarWrap}>
                 <LinearGradient
-                  colors={['rgba(147,13,242,0.6)', 'rgba(217,21,210,0.55)']}
+                  colors={['rgba(205,43,238,0.6)', 'rgba(205,43,238,0.55)']}
                   style={styles.avatarGlow}
                 />
                 <LinearGradient
-                  colors={['#930df2', '#d915d2']}
+                  colors={['#cd2bee', '#cd2bee']}
                   style={styles.avatarRing}
                 >
                   <Image
@@ -96,12 +96,12 @@ const winner: React.FC = () => {
 
               <View style={styles.rewardGrid}>
                 <View style={styles.rewardCard}>
-                  <MaterialIcons name="toll" size={22} color="#930df2" />
+                  <MaterialIcons name="toll" size={22} color="#cd2bee" />
                   <Text style={styles.rewardLabel}>PULSE REWARD</Text>
                   <Text style={styles.rewardValue}>500</Text>
                 </View>
                 <View style={styles.rewardCard}>
-                  <MaterialIcons name="confirmation-number" size={22} color="#d915d2" />
+                  <MaterialIcons name="confirmation-number" size={22} color="#cd2bee" />
                   <Text style={styles.rewardLabel}>ACCESS</Text>
                   <Text style={styles.rewardValue}>VIP PASS</Text>
                 </View>
@@ -185,7 +185,7 @@ const styles = StyleSheet.create({
     width: 380,
     height: 380,
     borderRadius: 999,
-    backgroundColor: 'rgba(147,13,242,0.12)',
+    backgroundColor: 'rgba(205,43,238,0.12)',
   },
   leakTwo: {
     position: 'absolute',
@@ -194,7 +194,7 @@ const styles = StyleSheet.create({
     width: 320,
     height: 320,
     borderRadius: 999,
-    backgroundColor: 'rgba(217,21,210,0.08)',
+    backgroundColor: 'rgba(205,43,238,0.08)',
   },
   scrollContent: {
     paddingHorizontal: 20,
@@ -215,13 +215,13 @@ const styles = StyleSheet.create({
     paddingHorizontal: 16,
     paddingVertical: 6,
     borderRadius: 999,
-    backgroundColor: 'rgba(217,21,210,0.18)',
+    backgroundColor: 'rgba(205,43,238,0.18)',
     borderWidth: 1,
-    borderColor: 'rgba(217,21,210,0.3)',
+    borderColor: 'rgba(205,43,238,0.3)',
     marginBottom: 16,
   },
   congratsText: {
-    color: '#d915d2',
+    color: '#cd2bee',
     fontFamily: 'PlusJakartaSansExtraBold',
     fontSize: fontScale(12),
     letterSpacing: 1.5,
@@ -234,7 +234,7 @@ const styles = StyleSheet.create({
     textAlign: 'center',
   },
   heroTitleAccent: {
-    color: '#d915d2',
+    color: '#cd2bee',
   },
   winnerCard: {
     width: '100%',
@@ -254,7 +254,7 @@ const styles = StyleSheet.create({
     width: 8,
     height: 8,
     transform: [{ rotate: '45deg' }],
-    backgroundColor: '#930df2',
+    backgroundColor: '#cd2bee',
     opacity: 0.65,
   },
   confettiTwo: {
@@ -264,7 +264,7 @@ const styles = StyleSheet.create({
     width: 12,
     height: 4,
     transform: [{ rotate: '12deg' }],
-    backgroundColor: '#d915d2',
+    backgroundColor: '#cd2bee',
     opacity: 0.65,
   },
   confettiThree: {
@@ -320,7 +320,7 @@ const styles = StyleSheet.create({
     marginBottom: 4,
   },
   handle: {
-    color: '#d915d2',
+    color: '#cd2bee',
     fontFamily: 'PlusJakartaSansMedium',
     fontSize: fontScale(16),
     marginBottom: 20,
@@ -379,12 +379,12 @@ const styles = StyleSheet.create({
     maxWidth: 560,
     paddingVertical: 18,
     borderRadius: 18,
-    backgroundColor: '#d915d2',
+    backgroundColor: '#cd2bee',
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'center',
     gap: 10,
-    shadowColor: '#d915d2',
+    shadowColor: '#cd2bee',
     shadowOffset: { width: 0, height: 0 },
     shadowOpacity: 0.45,
     shadowRadius: 20,

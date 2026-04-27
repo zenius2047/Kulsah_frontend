@@ -212,7 +212,7 @@ const ChatView: React.FC = () => {
   const panelBg = isDark ? '#12131a' : theme.card;
   const softSurface = isDark ? 'rgba(255,255,255,0.05)' : theme.surface;
   const chipBg = isDark ? 'rgba(205,43,238,0.15)' : theme.accentSoft;
-  const chipBorder = isDark ? 'rgba(205,43,238,0.35)' : 'rgba(217,21,210,0.25)';
+  const chipBorder = isDark ? 'rgba(205,43,238,0.35)' : 'rgba(205,43,238,0.25)';
   const bubbleOther = isDark ? 'rgba(255,255,255,0.08)' : theme.surface;
   const callOverlayBg = isDark ? '#000' : 'rgba(15,23,42,0.94)';
   const iconBtnBg = isDark ? 'rgba(255,255,255,0.06)' : 'rgba(15,23,42,0.06)';

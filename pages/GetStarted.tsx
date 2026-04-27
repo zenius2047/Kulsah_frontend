@@ -1,4 +1,4 @@
-import { MaterialIcons } from '@expo/vector-icons';
+﻿import { MaterialIcons } from '@expo/vector-icons';
 import { LinearGradient } from 'expo-linear-gradient';
 import { useNavigation } from '@react-navigation/native';
 import React from 'react';
@@ -17,6 +17,10 @@ import { SafeAreaView, useSafeAreaInsets } from 'react-native-safe-area-context'
 import { fontScale } from '../fonts';
 import { mediumScreen } from '../types';
 import GradientText from '../components/GradientText';
+import KulsahBlack from '../assets/icons/kulsah-black-svg.svg';
+import KulsahWhite from '../assets/icons/kulsah-white-svg.svg';
+import { useThemeMode } from '../theme';
+
 
 const heroImage =
   'https://images.unsplash.com/photo-1493225255756-d9584f8606e9?auto=format&fit=crop&q=80&w=1200';
@@ -28,27 +32,27 @@ const fanImages = [
 ];
 
 const heroGradient = ['rgba(10,5,13,0.05)', 'rgba(10,5,13,0.55)', 'rgba(10,5,13,0.96)'] as const;
-const ctaGradient = ['#930df2', '#d915d2'] as const;
+const ctaGradient = ['#cd2bee', '#cd2bee'] as const;
 
 const featureCards = [
   {
     icon: 'explore' as const,
     title: 'Discover new content',
-    body: 'Unearth creators before they hit the main stage.',
-    tint: '#930df2',
-    soft: 'rgba(147,13,242,0.18)',
+    body: 'Explore trending videos, rising creators, and fresh content.',
+    tint: '#cd2bee',
+    soft: 'rgba(205,43,238,0.18)',
   },
   {
     icon: 'confirmation-number' as const,
     title: 'Exclusive event tickets',
-    body: 'Priority access to digital galleries and live venues.',
-    tint: '#d915d2',
-    soft: 'rgba(217,21,210,0.18)',
+    body: 'Access and purchase tickets to live shows, concerts, and creator events.',
+    tint: '#cd2bee',
+    soft: 'rgba(205,43,238,0.18)',
   },
   {
     icon: 'forum' as const,
     title: 'Interactive live chat',
-    body: 'Connect directly with creators in the pulse room.',
+    body: 'Join live conversations, engage with creators, and be part of the moment.',
     tint: '#ffb781',
     soft: 'rgba(255,183,129,0.18)',
   },
@@ -57,28 +61,38 @@ const featureCards = [
 const GetStarted: React.FC = () => {
   const navigation = useNavigation<any>();
   const insets = useSafeAreaInsets();
+  const {isDark, theme} = useThemeMode();
+  const subtitleColor = isDark ? '#d0c1d8' : theme.textSecondary;
+  const cardBackground = isDark ? 'rgba(255,255,255,0.035)' : theme.card;
+  const cardBorder = isDark ? 'rgba(255,255,255,0.10)' : theme.border;
+  const featureBodyColor = isDark ? '#d0c1d8' : theme.textSecondary;
+  const avatarBorder = isDark ? '#0a050d' : theme.background;
+  const avatarMoreBackground = isDark ? 'rgba(255,255,255,0.08)' : theme.surface;
+  const communityTextColor = isDark ? '#94a3b8' : theme.textMuted;
+  const disclaimerColor = isDark ? 'rgba(208,193,216,0.65)' : theme.textMuted;
+  
 
   return (
     <SafeAreaView style={[s.screen, { 
-      backgroundColor: '#0a050d', 
-      paddingTop: Platform.OS === 'ios'? 54: insets.bottom
+      backgroundColor: theme.background, 
+      paddingTop: Platform.OS === 'ios'? 54: insets.top
        }]} edges={['left', 'right']}>
-      <StatusBar barStyle="light-content" translucent backgroundColor="transparent" />
+      <StatusBar barStyle={isDark ? 'light-content' : 'dark-content'} translucent backgroundColor="transparent" />
 
-      <View style={s.backgroundLayer} pointerEvents="none">
+      {/* <View style={s.backgroundLayer} pointerEvents="none">
         <View style={s.meshPrimary} />
         <View style={s.meshSecondary} />
-      </View>
+      </View> */}
 
       <ScrollView contentContainerStyle={s.content} showsVerticalScrollIndicator={false}>
-        <View style={s.heroWrap}>
+        {/* <View style={s.heroWrap}>
           <ImageBackground source={{ uri: heroImage }} style={s.heroImage} imageStyle={s.heroImageRadius}>
             <LinearGradient
               colors={heroGradient}
               style={StyleSheet.absoluteFillObject}
             />
           </ImageBackground>
-        </View>
+        </View> */}
 
         <View style={s.topContent}>
           {/* <View style={s.badgeWrap}>
@@ -87,24 +101,30 @@ const GetStarted: React.FC = () => {
             </View>
           </View> */}
 
-          <View style={s.titleWrap}>
+          {/* <View style={s.titleWrap}>
             <Text style={s.title}>Welcome to</Text>
             <GradientText gradientText="KULSAH" style={s.titleAccent} />
+          </View> */}
+          <View style={{
+            // backgroundColor: 'red',
+          }}>
+            {isDark ? <KulsahWhite height={60} width='100%'/> : <KulsahBlack height={60} width='100%'/>}
           </View>
-          <Text style={[s.subtitle, { color: '#d0c1d8' }]}>
-            Your entry into the Electric Stage begins here.
+          <Text style={[s.subtitle, { color: subtitleColor }]}>
+            The cosmic infrastructure for the next generation of African stars.
+            One unified universe for content, commerce, and community.
           </Text>
         </View>
 
         <View style={s.cardStack}>
           {featureCards.map((item) => (
-            <View key={item.title} style={[s.featureCard, { borderColor: 'rgba(255,255,255,0.10)' }]}>
+            <View key={item.title} style={[s.featureCard, { backgroundColor: cardBackground, borderColor: cardBorder }]}>
               <View style={[s.featureIcon, { backgroundColor: item.soft }]}>
                 <MaterialIcons name={item.icon} size={22} color={item.tint} />
               </View>
               <View style={s.featureCopy}>
-                <Text style={s.featureTitle}>{item.title}</Text>
-                <Text style={s.featureBody}>{item.body}</Text>
+                <Text style={[s.featureTitle, { color: theme.text }]}>{item.title}</Text>
+                <Text style={[s.featureBody, { color: featureBodyColor }]}>{item.body}</Text>
               </View>
             </View>
           ))}
@@ -114,13 +134,13 @@ const GetStarted: React.FC = () => {
           <View style={s.communityWrap}>
             <View style={s.avatarRow}>
               {fanImages.map((uri, index) => (
-                <Image key={uri} source={{ uri }} style={[s.avatar, { marginLeft: index === 0 ? 0 : -10 }]} />
+                <Image key={uri} source={{ uri }} style={[s.avatar, { marginLeft: index === 0 ? 0 : -10, borderColor: avatarBorder }]} />
               ))}
-              <View style={[s.avatar, s.avatarMore]}>
-                <Text style={s.avatarMoreText}>+12k</Text>
+              <View style={[s.avatar, s.avatarMore, { borderColor: avatarBorder, backgroundColor: avatarMoreBackground }]}>
+                <Text style={[s.avatarMoreText, { color: theme.text }]}>+12k</Text>
               </View>
             </View>
-            <Text style={s.communityText}>
+            <Text style={[s.communityText, { color: communityTextColor }]}>
               Everyone joins as a <Text style={s.communityAccent}>Fan</Text>
             </Text>
           </View>
@@ -136,7 +156,7 @@ const GetStarted: React.FC = () => {
             </LinearGradient>
           </Pressable>
 
-          <Text style={s.disclaimer}>
+          <Text style={[s.disclaimer, { color: disclaimerColor }]}>
             By tapping Get Started, you agree to our Terms of Service and Privacy Policy. You can upgrade to a Creator account anytime in settings.
           </Text>
         </View>
@@ -159,7 +179,7 @@ const s = StyleSheet.create({
     width: 320,
     height: 320,
     borderRadius: 160,
-    backgroundColor: 'rgba(147,13,242,0.18)',
+    backgroundColor: 'rgba(205,43,238,0.18)',
     opacity: 0.8,
   },
   meshSecondary: {
@@ -169,7 +189,7 @@ const s = StyleSheet.create({
     width: 260,
     height: 260,
     borderRadius: 130,
-    backgroundColor: 'rgba(217,21,210,0.16)',
+    backgroundColor: 'rgba(205,43,238,0.16)',
     opacity: 0.75,
   },
   content: {
@@ -207,12 +227,12 @@ const s = StyleSheet.create({
     paddingHorizontal: 16,
     paddingVertical: 7,
     borderRadius: 999,
-    backgroundColor: 'rgba(217,21,210,0.18)',
+    backgroundColor: 'rgba(205,43,238,0.18)',
     borderWidth: 1,
-    borderColor: 'rgba(217,21,210,0.30)',
+    borderColor: 'rgba(205,43,238,0.30)',
   },
   badgeText: {
-    color: '#d915d2',
+    color: '#cd2bee',
     fontSize: mediumScreen ? fontScale(12):fontScale(8),
     fontFamily: 'PlusJakartaSansExtraBold',
     letterSpacing: 2,
@@ -242,7 +262,7 @@ const s = StyleSheet.create({
   subtitle: {
     marginTop: 5,
     fontSize: mediumScreen ? fontScale(16):fontScale(12),
-    fontFamily: 'PlusJakartaSansBold',
+    fontFamily: 'PlusJakartaSansMedium',
     textAlign: 'center',
   },
   cardStack: {
@@ -278,7 +298,7 @@ const s = StyleSheet.create({
     color: '#d0c1d8',
     fontSize: mediumScreen ? fontScale(14):fontScale(10),
     lineHeight: fontScale(16),
-    fontFamily: 'PlusJakartaSansBold',
+    fontFamily: 'PlusJakartaSansMedium',
   },
   footerBlock: {
     marginTop: 14,
@@ -319,12 +339,12 @@ const s = StyleSheet.create({
     letterSpacing: 1.7,
   },
   communityAccent: {
-    color: '#d915d2',
+    color: '#cd2bee',
   },
   ctaButton: {
     borderRadius: 22,
     overflow: 'hidden',
-    shadowColor: '#d915d2',
+    shadowColor: '#cd2bee',
     shadowOpacity: 0.35,
     shadowRadius: 20,
     shadowOffset: { width: 0, height: 10 },
@@ -354,3 +374,4 @@ const s = StyleSheet.create({
 });
 
 export default GetStarted;
+

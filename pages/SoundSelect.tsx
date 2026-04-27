@@ -137,9 +137,9 @@ export const VoteSheetContent: React.FC<VoteSheetContentProps> = ({ onClose, she
                 <Pressable
                   key={tab}
                   onPress={() => setActiveTab(tab)}
-                  style={[styles.tabButton, { borderBottomColor: isActive ? '#930df2' : 'transparent' }]}
+                  style={[styles.tabButton, { borderBottomColor: isActive ? '#cd2bee' : 'transparent' }]}
                 >
-                  <Text style={[styles.tabText, { color: isActive ? '#930df2' : subtleText }]}>
+                  <Text style={[styles.tabText, { color: isActive ? '#cd2bee' : subtleText }]}>
                     {tab}
                   </Text>
                 </Pressable>
@@ -149,7 +149,7 @@ export const VoteSheetContent: React.FC<VoteSheetContentProps> = ({ onClose, she
 
           <View style={styles.sectionHeader}>
             <View style={styles.sectionTitleRow}>
-              <MaterialIcons name="bolt" size={20} color="#d915d2" />
+              <MaterialIcons name="bolt" size={20} color="#cd2bee" />
               <Text style={[styles.sectionTitle, { color: theme.text }]}>Trending Audio</Text>
             </View>
             <View style={styles.hotBadge}>
@@ -191,10 +191,10 @@ export const VoteSheetContent: React.FC<VoteSheetContentProps> = ({ onClose, she
                 <View style={styles.trackActions}>
                   <View style={styles.utilityActions}>
                     <Pressable style={styles.utilityButton}>
-                      <MaterialIcons name="bookmark-border" size={22} color="#930df2" />
+                      <MaterialIcons name="bookmark-border" size={22} color="#cd2bee" />
                     </Pressable>
                     <Pressable style={styles.utilityButton}>
-                      <MaterialIcons name="content-cut" size={22} color="#930df2" />
+                      <MaterialIcons name="content-cut" size={22} color="#cd2bee" />
                     </Pressable>
                   </View>
 
@@ -338,12 +338,12 @@ const styles = StyleSheet.create({
     paddingHorizontal: 12,
     paddingVertical: 6,
     borderRadius: 999,
-    backgroundColor: 'rgba(217,21,210,0.1)',
+    backgroundColor: 'rgba(205,43,238,0.1)',
     borderWidth: 1,
-    borderColor: 'rgba(217,21,210,0.2)',
+    borderColor: 'rgba(205,43,238,0.2)',
   },
   hotBadgeText: {
-    color: '#d915d2',
+    color: '#cd2bee',
     fontFamily: 'PlusJakartaSansExtraBold',
     fontSize: fontScale(8),
     textTransform: 'uppercase',
@@ -426,8 +426,8 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
   },
   selectButtonActive: {
-    backgroundColor: '#d915d2',
-    shadowColor: '#d915d2',
+    backgroundColor: '#cd2bee',
+    shadowColor: '#cd2bee',
     shadowOffset: { width: 0, height: 0 },
     shadowOpacity: 0.35,
     shadowRadius: 14,

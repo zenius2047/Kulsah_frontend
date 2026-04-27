@@ -71,7 +71,7 @@ export const VoteModalContent: React.FC<VoteModalContentProps> = ({
             <Text style={styles.brand}>NEON PULSE</Text>
             <View style={styles.topBarRight}>
               <View style={styles.walletChip}>
-                <MaterialIcons name="account-balance-wallet" size={15} color="#930df2" />
+                <MaterialIcons name="account-balance-wallet" size={15} color="#cd2bee" />
                 <Text style={styles.walletChipText}>120 Coins</Text>
               </View>
               <View style={styles.avatarRing}>
@@ -128,7 +128,7 @@ export const VoteModalContent: React.FC<VoteModalContentProps> = ({
                       <MaterialIcons
                         name={pack.icon}
                         size={20}
-                        color={selected ? '#ffffff' : '#930df2'}
+                        color={selected ? '#ffffff' : '#cd2bee'}
                       />
                     </View>
 
@@ -292,7 +292,7 @@ const styles = StyleSheet.create({
     borderRadius: 20,
     padding: 2,
     borderWidth: 2,
-    borderColor: '#930df2',
+    borderColor: '#cd2bee',
   },
   avatarImage: {
     width: '100%',
@@ -320,9 +320,9 @@ const styles = StyleSheet.create({
     paddingHorizontal: 10,
     paddingVertical: 5,
     borderRadius: 999,
-    backgroundColor: 'rgba(217,21,210,0.18)',
+    backgroundColor: 'rgba(205,43,238,0.18)',
     borderWidth: 1,
-    borderColor: 'rgba(217,21,210,0.35)',
+    borderColor: 'rgba(205,43,238,0.35)',
   },
   hotBadgeText: {
     color: '#d68cef',
@@ -369,7 +369,7 @@ const styles = StyleSheet.create({
     borderRadius: 999,
     backgroundColor: 'rgba(106,0,177,0.35)',
     borderWidth: 1,
-    borderColor: 'rgba(147,13,242,0.3)',
+    borderColor: 'rgba(205,43,238,0.3)',
   },
   balanceText: {
     color: '#ffffff',
@@ -403,8 +403,8 @@ const styles = StyleSheet.create({
     borderColor: 'rgba(255,255,255,0.1)',
   },
   packRowSelected: {
-    backgroundColor: 'rgba(147,13,242,0.12)',
-    borderColor: 'rgba(147,13,242,0.55)',
+    backgroundColor: 'rgba(205,43,238,0.12)',
+    borderColor: 'rgba(205,43,238,0.55)',
   },
   packMain: {
     flex: 1,
@@ -420,10 +420,10 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
   },
   packIconWrapDefault: {
-    backgroundColor: 'rgba(147,13,242,0.12)',
+    backgroundColor: 'rgba(205,43,238,0.12)',
   },
   packIconWrapSelected: {
-    backgroundColor: '#930df2',
+    backgroundColor: '#cd2bee',
   },
   packCopy: {
     gap: 3,
@@ -454,7 +454,7 @@ const styles = StyleSheet.create({
     paddingHorizontal: 8,
     paddingVertical: 4,
     borderRadius: 999,
-    backgroundColor: 'rgba(217,21,210,0.16)',
+    backgroundColor: 'rgba(205,43,238,0.16)',
   },
   bestValueText: {
     color: '#d68cef',
@@ -477,8 +477,8 @@ const styles = StyleSheet.create({
     borderColor: 'rgba(255,255,255,0.08)',
   },
   packActionButtonSelected: {
-    backgroundColor: '#930df2',
-    borderColor: '#930df2',
+    backgroundColor: '#cd2bee',
+    borderColor: '#cd2bee',
   },
   packActionText: {
     fontFamily: 'PlusJakartaSansExtraBold',
@@ -500,8 +500,8 @@ const styles = StyleSheet.create({
     marginTop: 22,
     paddingVertical: 16,
     borderRadius: 18,
-    backgroundColor: '#d915d2',
-    shadowColor: '#d915d2',
+    backgroundColor: '#cd2bee',
+    shadowColor: '#cd2bee',
     shadowOffset: { width: 0, height: 0 },
     shadowOpacity: 0.42,
     shadowRadius: 22,

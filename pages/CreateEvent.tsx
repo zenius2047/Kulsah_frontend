@@ -28,14 +28,14 @@ const actionCards = [
     title: 'Create Event',
     description: 'Schedule a live session or digital workshop with your fans.',
     icon: 'calendar-today' as const,
-    tint: '#930df2',
+    tint: '#cd2bee',
     bg: 'rgba(147, 13, 242, 0.16)',
   },
   {
     title: 'Challenge',
     description: 'Viral prompts for your community.',
     icon: 'emoji-events' as const,
-    tint: '#d915d2',
+    tint: '#cd2bee',
     bg: 'rgba(217, 21, 210, 0.16)',
   },
   {
@@ -148,7 +148,7 @@ const CreateEvent: React.FC = () => {
               </View>
               <Text style={styles.newVideoTitle}>New video</Text>
               <LinearGradient
-                colors={['rgba(147,13,242,0.08)', 'transparent']}
+                colors={['rgba(205,43,238,0.08)', 'transparent']}
                 style={StyleSheet.absoluteFill}
               />
             </Pressable>
@@ -544,7 +544,7 @@ const styles = StyleSheet.create({
     fontSize: mediumScreen ? 20:16,
   },
   seeAllText: {
-    color: '#930df2',
+    color: '#cd2bee',
     fontFamily: 'PlusJakartaSansBold',
     fontSize: mediumScreen ? 16:12,
     letterSpacing: 1,

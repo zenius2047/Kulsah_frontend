@@ -139,8 +139,8 @@ const CreatorAnalytics: React.FC = () => {
   const textMuted = isDark ? '#8d91a8' : theme.textMuted;
   const accent = theme.accent;
   const accentSoft = isDark ? '#cd2bee14' : theme.accentSoft;
-  const accentBorder = isDark ? '#cd2bee44' : 'rgba(217,21,210,0.2)';
-  const accentMuted = isDark ? '#cd2bee99' : 'rgba(217,21,210,0.68)';
+  const accentBorder = isDark ? '#cd2bee44' : 'rgba(205,43,238,0.2)';
+  const accentMuted = isDark ? '#cd2bee99' : 'rgba(205,43,238,0.68)';
   const blueMuted = isDark ? '#60a5fa' : '#2563eb';
   const trackBackground = isDark ? '#ffffff0f' : 'rgba(15,23,42,0.08)';
 

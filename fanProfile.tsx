@@ -322,7 +322,7 @@ const FanProfile: React.FC<FanProfileProps> = ({ onToggleRole }) => {
                     <View style={s.sectionGroup}>
                       <View style={s.vaultHeader}>
                         <Pressable onPress={() => setSelectedCreator(null)} style={s.backRow}>
-                          <MaterialIcons name="arrow-back" size={14} color="#cd2bee" />
+                          <MaterialIcons name="chevron-left" size={14} color="#cd2bee" />
                           <Text style={s.backText}>Back to Creators</Text>
                         </Pressable>
                         <Text style={s.sectionEyebrow}>

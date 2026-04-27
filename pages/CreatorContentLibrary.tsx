@@ -223,7 +223,7 @@ const CreatorContentLibrary: React.FC = () => {
       <View>
         <View>
           <View>
-            <Pressable onPress={() => navigation.navigate('/dashboard')}>arrow_back</Pressable>
+            <Pressable onPress={() => navigation.navigate('/dashboard')}>chevron_left</Pressable>
             <Text>Media Library</Text>
           </View>
           <Pressable onPress={() => navigation.navigate('/upload')}>

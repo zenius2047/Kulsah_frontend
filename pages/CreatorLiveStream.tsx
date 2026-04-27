@@ -19,6 +19,7 @@ import { MaterialIcons } from '@expo/vector-icons';
 import { useNavigation } from '@react-navigation/native';
 import { GoogleGenAI } from '@google/genai';
 import { fontScale } from '../fonts';
+import { mediumScreen } from '../types';
 
 interface ChatMessage {
   id: number;
@@ -33,7 +34,7 @@ const streamImage =
 
 const statsConfig = [
   { label: 'Viewers', icon: 'visibility' as const, color: '#60a5fa' },
-  { label: 'Likes', icon: 'favorite' as const, color: '#d915d2' },
+  { label: 'Likes', icon: 'favorite' as const, color: '#cd2bee' },
   { label: 'Gifts', icon: 'redeem' as const, color: '#4ade80' },
   { label: 'Uplink', icon: 'signal-cellular-alt' as const, color: '#34d399' },
 ];
@@ -189,7 +190,7 @@ const CreatorLiveStream: React.FC = () => {
           />
 
           <View style={styles.topHud}>
-            <View style={styles.topHudRow}>
+            <View style={[styles.topHudRow, {paddingHorizontal: 16}]}>
               <View style={styles.liveChip}>
                 <View style={styles.liveDot} />
                 <Text style={styles.liveTime}>{formatTimer(sessionSeconds)}</Text>
@@ -226,7 +227,10 @@ const CreatorLiveStream: React.FC = () => {
               showsHorizontalScrollIndicator={false}
               contentContainerStyle={styles.statsRow}
             >
-              {telemetry.map((stat) => (
+              <View style={{
+                width: 10,
+              }}/>
+              {telemetry.map((stat, index) => ( 
                 <BlurView key={stat.label} intensity={28} tint="dark" style={styles.statCard}>
                   <MaterialIcons name={stat.icon} size={18} color={stat.color} />
                   <View>
@@ -235,6 +239,9 @@ const CreatorLiveStream: React.FC = () => {
                   </View>
                 </BlurView>
               ))}
+               <View style={{
+                width: 10,
+              }}/>
             </ScrollView>
           </View>
 
@@ -246,7 +253,7 @@ const CreatorLiveStream: React.FC = () => {
                 </Pressable>
 
                 <View style={styles.aiHeader}>
-                  <MaterialIcons name="psychology" size={18} color="#d915d2" />
+                  <MaterialIcons name="psychology" size={18} color="#cd2bee" />
                   <Text style={styles.aiKicker}>Astro-Brain Intelligence</Text>
                 </View>
 
@@ -297,7 +304,7 @@ const CreatorLiveStream: React.FC = () => {
                       <MaterialIcons name="verified" size={16} color="#4ade80" />
                     ) : null}
                     {message.isSystem ? (
-                      <MaterialIcons name="campaign" size={16} color="#d915d2" />
+                      <MaterialIcons name="campaign" size={16} color="#cd2bee" />
                     ) : null}
                   </View>
                 ))}
@@ -321,7 +328,7 @@ const CreatorLiveStream: React.FC = () => {
                   <MaterialIcons
                     name="flip-camera-ios"
                     size={28}
-                    color={isCamFlipped ? '#d915d2' : '#fff'}
+                    color={isCamFlipped ? '#cd2bee' : '#fff'}
                   />
                 </Pressable>
 
@@ -374,7 +381,7 @@ const CreatorLiveStream: React.FC = () => {
                   <MaterialIcons
                     name="campaign"
                     size={22}
-                    color={broadcastText.trim() ? '#d915d2' : 'rgba(255,255,255,0.25)'}
+                    color={broadcastText.trim() ? '#cd2bee' : 'rgba(255,255,255,0.25)'}
                   />
                 </Pressable>
               </BlurView>
@@ -540,7 +547,7 @@ const styles = StyleSheet.create({
     transform: [{ scaleX: -1 }],
   },
   topHud: {
-    paddingHorizontal: 16,
+    paddingHorizontal: 0,
     paddingTop: 8,
   },
   topHudRow: {
@@ -588,8 +595,8 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
   },
   circleHudButtonActive: {
-    backgroundColor: 'rgba(217,21,210,0.22)',
-    borderColor: 'rgba(217,21,210,0.45)',
+    backgroundColor: 'rgba(205,43,238,0.22)',
+    borderColor: 'rgba(205,43,238,0.45)',
   },
   endSessionButton: {
     height: 44,
@@ -601,7 +608,7 @@ const styles = StyleSheet.create({
   endSessionText: {
     color: '#fff',
     fontFamily: 'PlusJakartaSansExtraBold',
-    fontSize: fontScale(10),
+    fontSize: mediumScreen ? fontScale(14): fontScale(10),
     letterSpacing: 1.8,
     textTransform: 'uppercase',
   },
@@ -622,15 +629,15 @@ const styles = StyleSheet.create({
   },
   statLabel: {
     color: 'rgba(255,255,255,0.38)',
-    fontFamily: 'PlusJakartaSansExtraBold',
+    fontFamily: 'PlusJakartaSansBold',
     fontSize: fontScale(8),
     letterSpacing: 1.6,
     textTransform: 'uppercase',
   },
   statValue: {
     color: '#fff',
-    fontFamily: 'PlusJakartaSansExtraBold',
-    fontSize: fontScale(14),
+    fontFamily: 'PlusJakartaSansBold',
+    fontSize: mediumScreen ? fontScale(16): fontScale(12),
     marginTop: 2,
   },
   aiAuditWrap: {
@@ -641,7 +648,7 @@ const styles = StyleSheet.create({
     borderRadius: 28,
     overflow: 'hidden',
     borderWidth: 1,
-    borderColor: 'rgba(217,21,210,0.35)',
+    borderColor: 'rgba(205,43,238,0.35)',
     padding: 18,
   },
   aiCloseBtn: {
@@ -662,7 +669,7 @@ const styles = StyleSheet.create({
     marginBottom: 8,
   },
   aiKicker: {
-    color: '#d915d2',
+    color: '#cd2bee',
     fontFamily: 'PlusJakartaSansExtraBold',
     fontSize: fontScale(10),
     letterSpacing: 2.4,
@@ -709,8 +716,8 @@ const styles = StyleSheet.create({
     borderColor: 'rgba(34,197,94,0.28)',
   },
   chatSystemCard: {
-    backgroundColor: 'rgba(217,21,210,0.14)',
-    borderColor: 'rgba(217,21,210,0.24)',
+    backgroundColor: 'rgba(205,43,238,0.14)',
+    borderColor: 'rgba(205,43,238,0.24)',
   },
   chatAvatar: {
     width: 32,
@@ -721,7 +728,7 @@ const styles = StyleSheet.create({
     flex: 1,
   },
   chatUser: {
-    color: 'rgba(217,21,210,0.76)',
+    color: 'rgba(205,43,238,0.76)',
     fontFamily: 'PlusJakartaSansExtraBold',
     fontSize: fontScale(10),
     letterSpacing: 1.4,
@@ -731,7 +738,7 @@ const styles = StyleSheet.create({
     color: '#4ade80',
   },
   chatUserSystem: {
-    color: '#d915d2',
+    color: '#cd2bee',
   },
   chatText: {
     color: '#fff',
@@ -755,12 +762,12 @@ const styles = StyleSheet.create({
     borderColor: 'rgba(255,255,255,0.12)',
   },
   sideHudPrimary: {
-    backgroundColor: '#d915d2',
+    backgroundColor: '#cd2bee',
     borderColor: 'rgba(255,255,255,0.18)',
   },
   sideHudButtonActive: {
-    borderColor: 'rgba(217,21,210,0.45)',
-    backgroundColor: 'rgba(217,21,210,0.1)',
+    borderColor: 'rgba(205,43,238,0.45)',
+    backgroundColor: 'rgba(205,43,238,0.1)',
   },
   sideHudButtonDanger: {
     borderColor: 'rgba(239,68,68,0.45)',
@@ -785,7 +792,7 @@ const styles = StyleSheet.create({
   audioBar: {
     width: 4,
     borderRadius: 999,
-    backgroundColor: '#d915d2',
+    backgroundColor: '#cd2bee',
   },
   broadcastRow: {
     flexDirection: 'row',
@@ -910,8 +917,8 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
   },
   amountButtonActive: {
-    backgroundColor: '#d915d2',
-    borderColor: '#d915d2',
+    backgroundColor: '#cd2bee',
+    borderColor: '#cd2bee',
   },
   amountButtonText: {
     color: 'rgba(255,255,255,0.7)',
@@ -937,12 +944,12 @@ const styles = StyleSheet.create({
     marginTop: 18,
     padding: 18,
     borderRadius: 24,
-    backgroundColor: 'rgba(217,21,210,0.08)',
+    backgroundColor: 'rgba(205,43,238,0.08)',
     borderWidth: 1,
-    borderColor: 'rgba(217,21,210,0.18)',
+    borderColor: 'rgba(205,43,238,0.18)',
   },
   simInfoKicker: {
-    color: '#d915d2',
+    color: '#cd2bee',
     fontFamily: 'PlusJakartaSansExtraBold',
     fontSize: fontScale(10),
     letterSpacing: 1.8,
@@ -959,7 +966,7 @@ const styles = StyleSheet.create({
     marginTop: 18,
     height: 58,
     borderRadius: 24,
-    backgroundColor: '#d915d2',
+    backgroundColor: '#cd2bee',
     alignItems: 'center',
     justifyContent: 'center',
     flexDirection: 'row',
@@ -1006,7 +1013,7 @@ const styles = StyleSheet.create({
   confirmTitle: {
     color: '#fff',
     fontFamily: 'PlusJakartaSansExtraBold',
-    fontSize: fontScale(25),
+    fontSize: mediumScreen ? fontScale(20): fontScale(16),
     textTransform: 'uppercase',
     marginBottom: 12,
     textAlign: 'center',
@@ -1014,8 +1021,8 @@ const styles = StyleSheet.create({
   confirmText: {
     color: 'rgba(255,255,255,0.68)',
     fontFamily: 'PlusJakartaSansMedium',
-    fontSize: fontScale(14),
-    lineHeight: 21,
+    fontSize: mediumScreen ? fontScale(16): fontScale(12),
+    lineHeight: 15,
     textAlign: 'center',
     marginBottom: 24,
   },
@@ -1030,8 +1037,8 @@ const styles = StyleSheet.create({
   },
   shutdownButtonText: {
     color: '#fff',
-    fontFamily: 'PlusJakartaSansExtraBold',
-    fontSize: fontScale(16),
+    fontFamily: 'PlusJakartaSansBold',
+    fontSize: mediumScreen ? fontScale(16) : fontScale(12),
     letterSpacing: 1.4,
     textTransform: 'uppercase',
   },
@@ -1046,8 +1053,8 @@ const styles = StyleSheet.create({
   },
   keepStreamingText: {
     color: 'rgba(255,255,255,0.7)',
-    fontFamily: 'PlusJakartaSansExtraBold',
-    fontSize: fontScale(13),
+    fontFamily: 'PlusJakartaSansBold',
+    fontSize: mediumScreen ? fontScale(16) : fontScale(12),
     letterSpacing: 1.4,
     textTransform: 'uppercase',
   },

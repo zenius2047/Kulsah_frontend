@@ -128,7 +128,7 @@ const SubmitEntry: React.FC = () => {
                 <View key={tag} style={styles.activeTag}>
                   <Text style={styles.activeTagText}>{tag}</Text>
                   <Pressable onPress={() => removeHashtag(tag)}>
-                    <MaterialIcons name="close" size={16} color="#930df2" />
+                    <MaterialIcons name="close" size={16} color="#cd2bee" />
                   </Pressable>
                 </View>
               ))}
@@ -161,7 +161,7 @@ const SubmitEntry: React.FC = () => {
               icon="stars"
               title="Subscribers Only"
               subtitle="Only paid members can view this content"
-              accent="#d915d2"
+              accent="#cd2bee"
               enabled={subscribersOnly}
               onToggle={setSubscribersOnly}
               isDark={isDark}
@@ -171,7 +171,7 @@ const SubmitEntry: React.FC = () => {
               icon="layers"
               title="Allow Duets"
               subtitle="Let others collaborate with your video"
-              accent="#930df2"
+              accent="#cd2bee"
               enabled={allowDuets}
               onToggle={setAllowDuets}
               isDark={isDark}
@@ -260,7 +260,7 @@ const PermissionRow: React.FC<PermissionRowProps> = ({
     <Switch
       value={enabled}
       onValueChange={onToggle}
-      trackColor={{ false: isDark ? 'rgba(255,255,255,0.12)' : '#cbd5e1', true: '#d915d2' }}
+      trackColor={{ false: isDark ? 'rgba(255,255,255,0.12)' : '#cbd5e1', true: '#cd2bee' }}
       thumbColor="#fff"
     />
   </View>
@@ -299,7 +299,7 @@ const styles = StyleSheet.create({
     borderRadius: 999,
   },
   headerPostText: {
-    color: '#930df2',
+    color: '#cd2bee',
     fontFamily: 'PlusJakartaSansBold',
     fontSize: fontScale(12),
   },
@@ -387,7 +387,7 @@ const styles = StyleSheet.create({
     fontSize: fontScale(15),
   },
   sectionHint: {
-    color: '#930df2',
+    color: '#cd2bee',
     fontFamily: 'PlusJakartaSansBold',
     fontSize: fontScale(10),
     textTransform: 'uppercase',
@@ -411,12 +411,12 @@ const styles = StyleSheet.create({
     paddingHorizontal: 12,
     paddingVertical: 8,
     borderRadius: 999,
-    backgroundColor: 'rgba(147,13,242,0.2)',
+    backgroundColor: 'rgba(205,43,238,0.2)',
     borderWidth: 1,
-    borderColor: 'rgba(147,13,242,0.3)',
+    borderColor: 'rgba(205,43,238,0.3)',
   },
   activeTagText: {
-    color: '#930df2',
+    color: '#cd2bee',
     fontFamily: 'PlusJakartaSansBold',
     fontSize: fontScale(13),
   },
@@ -504,12 +504,12 @@ const styles = StyleSheet.create({
   postVideoButton: {
     minHeight: 56,
     borderRadius: 16,
-    backgroundColor: '#d915d2',
+    backgroundColor: '#cd2bee',
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'center',
     gap: 10,
-    shadowColor: '#d915d2',
+    shadowColor: '#cd2bee',
     shadowOffset: { width: 0, height: 0 },
     shadowOpacity: 0.45,
     shadowRadius: 22,

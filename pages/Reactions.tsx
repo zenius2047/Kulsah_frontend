@@ -93,8 +93,8 @@ const Reactions: React.FC<{ onClose: () => void; title?: string }> = ({ onClose,
             const active = activeTab === tab.label;
             return (
               <Pressable key={tab.label} onPress={() => setActiveTab(tab.label)} style={[styles.tabButton, active && { backgroundColor: cardBackground }]}>
-                <MaterialIcons name={tab.icon} size={18} color={active ? '#d915d2' : secondary} />
-                <Text style={[styles.tabText, { color: active ? '#d915d2' : secondary }]}>{tab.label}</Text>
+                <MaterialIcons name={tab.icon} size={18} color={active ? '#cd2bee' : secondary} />
+                <Text style={[styles.tabText, { color: active ? '#cd2bee' : secondary }]}>{tab.label}</Text>
               </Pressable>
             );
           })}
@@ -109,7 +109,7 @@ const Reactions: React.FC<{ onClose: () => void; title?: string }> = ({ onClose,
                   <View style={styles.commentMetaRow}>
                     <View style={styles.commentNameRow}>
                       <Text style={[styles.commentHandle, { color: theme.text }]}>{comment.handle}</Text>
-                      {comment.verified ? <MaterialIcons name="verified" size={14} color="#d915d2" /> : null}
+                      {comment.verified ? <MaterialIcons name="verified" size={14} color="#cd2bee" /> : null}
                     </View>
                     <Text style={[styles.commentTime, { color: muted }]}>{comment.time}</Text>
                   </View>
@@ -129,7 +129,7 @@ const Reactions: React.FC<{ onClose: () => void; title?: string }> = ({ onClose,
 
               {comment.reply ? (
                 <View style={styles.replyWrap}>
-                  <View style={[styles.replyLine, { backgroundColor: 'rgba(217,21,210,0.28)' }]} />
+                  <View style={[styles.replyLine, { backgroundColor: 'rgba(205,43,238,0.28)' }]} />
                   <View style={styles.replyRow}>
                     <Image source={{ uri: comment.reply.avatar }} style={styles.replyAvatar} />
                     <View style={styles.replyMain}>
@@ -138,7 +138,7 @@ const Reactions: React.FC<{ onClose: () => void; title?: string }> = ({ onClose,
                         <Text style={[styles.replyTime, { color: muted }]}>{comment.reply.time}</Text>
                       </View>
                       <Text style={[styles.replyBody, { color: commentText }]}>
-                        <Text style={{ color: '#d915d2', fontFamily: 'PlusJakartaSansBold' }}>{comment.handle} </Text>
+                        <Text style={{ color: '#cd2bee', fontFamily: 'PlusJakartaSansBold' }}>{comment.handle} </Text>
                         {comment.reply.text}
                       </Text>
                       <View style={styles.replyActions}>
@@ -152,7 +152,7 @@ const Reactions: React.FC<{ onClose: () => void; title?: string }> = ({ onClose,
             </View>
           ))}
 
-          <BlurView intensity={32} tint={isDark ? 'dark' : 'light'} style={[styles.giftCard, { borderColor: 'rgba(217,21,210,0.18)' }]}>
+          <BlurView intensity={32} tint={isDark ? 'dark' : 'light'} style={[styles.giftCard, { borderColor: 'rgba(205,43,238,0.18)' }]}>
             <Image source={{ uri: 'https://picsum.photos/seed/marcus-digital/120' }} style={styles.avatar} />
             <View style={{ flex: 1 }}>
               <View style={styles.giftHeaderRow}>
@@ -160,7 +160,7 @@ const Reactions: React.FC<{ onClose: () => void; title?: string }> = ({ onClose,
                 <Text style={styles.giftLabel}>GIFTER</Text>
               </View>
               <View style={styles.giftMetaRow}>
-                <MaterialIcons name="redeem" size={18} color="#d915d2" />
+                <MaterialIcons name="redeem" size={18} color="#cd2bee" />
                 <Text style={[styles.giftText, { color: theme.text }]}>Sent a Hyper-Glow Gift</Text>
               </View>
             </View>
@@ -171,7 +171,7 @@ const Reactions: React.FC<{ onClose: () => void; title?: string }> = ({ onClose,
           {replyingTo ? (
             <View style={[styles.replyingBanner, { backgroundColor: cardBackground, borderColor: softBorder }]}>
               <View style={styles.replyingInfo}>
-                <MaterialIcons name="reply" size={16} color="#d915d2" />
+                <MaterialIcons name="reply" size={16} color="#cd2bee" />
                 <Text style={[styles.replyingText, { color: secondary }]}>
                   Replying to <Text style={{ color: theme.text, fontFamily: 'PlusJakartaSansBold' }}>{replyingTo}</Text>
                 </Text>
@@ -257,7 +257,7 @@ const styles = StyleSheet.create({
   replyActionText: { fontFamily: 'PlusJakartaSansBold', fontSize: fontScale(6) },
   giftCard: { flexDirection: 'row', gap: 12, borderRadius: 20, padding: 14, overflow: 'hidden', borderWidth: 1 },
   giftHeaderRow: { flexDirection: 'row', alignItems: 'center', gap: 8 },
-  giftLabel: { color: '#d915d2', fontFamily: 'PlusJakartaSansExtraBold', fontSize: fontScale(6), letterSpacing: 0.6, textTransform: 'uppercase' },
+  giftLabel: { color: '#cd2bee', fontFamily: 'PlusJakartaSansExtraBold', fontSize: fontScale(6), letterSpacing: 0.6, textTransform: 'uppercase' },
   giftMetaRow: { flexDirection: 'row', alignItems: 'center', gap: 8, marginTop: 6 },
   giftText: { fontFamily: 'PlusJakartaSansMedium', fontSize: fontScale(8) },
   inputShell: { borderTopWidth: 1, paddingHorizontal: 16, paddingTop: 12 },
@@ -267,7 +267,7 @@ const styles = StyleSheet.create({
   inputRow: { minHeight: 52, borderRadius: 18, borderWidth: 1, flexDirection: 'row', alignItems: 'center', paddingHorizontal: 10, gap: 4 },
   inputIcon: { width: 32, height: 32, borderRadius: 16, alignItems: 'center', justifyContent: 'center' },
   input: { flex: 1, minHeight: 39, fontFamily: 'PlusJakartaSansMedium', fontSize: fontScale(9) },
-  sendButton: { width: 36, height: 36, borderRadius: 12, alignItems: 'center', justifyContent: 'center', backgroundColor: '#d915d2' },
+  sendButton: { width: 36, height: 36, borderRadius: 12, alignItems: 'center', justifyContent: 'center', backgroundColor: '#cd2bee' },
   homeIndicatorWrap: { alignItems: 'center', paddingTop: 10 },
   homeIndicator: { width: 128, height: 4, borderRadius: 999 },
 });

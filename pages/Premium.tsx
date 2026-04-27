@@ -27,7 +27,7 @@ const Premium: React.FC = () => {
           <Text>Elena Rose: Uncut</Text>
         </View>
         <Pressable onPress={() => navigation.goBack()}>
-          <Text>arrow_back</Text>
+          <Text>chevron_left</Text>
         </Pressable>
       </View>
 

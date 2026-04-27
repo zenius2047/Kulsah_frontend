@@ -164,7 +164,7 @@ const FanSettings: React.FC<FanSettingsProps> = ({ onLogout, isDarkMode, onToggl
   const secondaryText = isDark ? '#94a3b8' : theme.textSecondary;
   const mutedText = isDark ? '#6b7280' : theme.textMuted;
   const inputBackground = isDark ? '#0f172a' : '#ffffff';
-  const chipSurface = isDark ? 'rgba(217,21,210,0.12)' : '#f5f3ff';
+  const chipSurface = isDark ? 'rgba(205,43,238,0.12)' : '#f5f3ff';
   const softSurface = isDark ? 'rgba(255,255,255,0.05)' : '#f1f5f9';
 
   const renderHeader = (title: string, backToMain = true) => (
@@ -277,7 +277,7 @@ const FanSettings: React.FC<FanSettingsProps> = ({ onLogout, isDarkMode, onToggl
                         style={s.qrImage}
                       />
                     </View>
-                    <View style={[s.tokenPill, { borderColor: isDark ? 'rgba(217,21,210,0.3)' : '#cd2bee44', backgroundColor: chipSurface }]}>
+                    <View style={[s.tokenPill, { borderColor: isDark ? 'rgba(205,43,238,0.3)' : '#cd2bee44', backgroundColor: chipSurface }]}>
                       <View style={s.tokenDot} />
                       <Text style={[s.tokenText, { color: isDark ? '#c084fc' : '#7c3aed' }]}>Refreshes in {tokenTime}s</Text>
                     </View>

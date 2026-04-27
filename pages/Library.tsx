@@ -186,9 +186,9 @@ const Library: React.FC = () => {
                 style={[
                   styles.card,
                   {
-                    borderColor: isSelected ? '#d915d2' : theme.border,
+                    borderColor: isSelected ? '#cd2bee' : theme.border,
                     borderWidth: isSelected ? 2 : 1,
-                    shadowColor: isSelected ? '#d915d2' : '#000',
+                    shadowColor: isSelected ? '#cd2bee' : '#000',
                     shadowOpacity: isSelected ? 0.28 : 0.12,
                   },
                 ]}
@@ -254,11 +254,11 @@ const styles = StyleSheet.create({
     fontSize: fontScale(15),
   },
   selectButton: {
-    backgroundColor: '#930df2',
+    backgroundColor: '#cd2bee',
     paddingHorizontal: 20,
     paddingVertical: 10,
     borderRadius: 999,
-    shadowColor: '#930df2',
+    shadowColor: '#cd2bee',
     shadowOffset: { width: 0, height: 0 },
     shadowOpacity: 0.4,
     shadowRadius: 18,
@@ -287,8 +287,8 @@ const styles = StyleSheet.create({
     borderWidth: 1,
   },
   filterChipActive: {
-    backgroundColor: 'rgba(147,13,242,0.2)',
-    borderColor: 'rgba(147,13,242,0.3)',
+    backgroundColor: 'rgba(205,43,238,0.2)',
+    borderColor: 'rgba(205,43,238,0.3)',
   },
   filterChipText: {
     fontFamily: 'PlusJakartaSansBold',
@@ -340,7 +340,7 @@ const styles = StyleSheet.create({
     width: 24,
     height: 24,
     borderRadius: 12,
-    backgroundColor: '#d915d2',
+    backgroundColor: '#cd2bee',
     alignItems: 'center',
     justifyContent: 'center',
   },

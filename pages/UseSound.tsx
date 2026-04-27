@@ -2,6 +2,7 @@ import React from 'react';
 import { useThemeMode } from '../theme';
 import {
   Image,
+  Platform,
   Pressable,
   ScrollView,
   StyleSheet,
@@ -9,11 +10,12 @@ import {
   useWindowDimensions,
   View,
 } from 'react-native';
-import { SafeAreaView } from 'react-native-safe-area-context';
+import { SafeAreaView, useSafeAreaInsets } from 'react-native-safe-area-context';
 import { LinearGradient } from 'expo-linear-gradient';
 import { MaterialIcons } from '@expo/vector-icons';
 import { useNavigation } from '@react-navigation/native';
 import { fontScale } from '../fonts';
+import { mediumScreen } from '../types';
 
 type Creation = {
   id: string;
@@ -84,30 +86,52 @@ const creations: Creation[] = [
 const UseSound: React.FC = () => {
   const { isDark, theme } = useThemeMode();
   const navigation = useNavigation<any>();
+  const insets = useSafeAreaInsets();
   const { width } = useWindowDimensions();
   const isTablet = width >= 768;
   const gap = isTablet ? 8 : 3;
   const horizontalPadding = isTablet ? 18 : 6;
   const itemWidth = (width - horizontalPadding * 2 - gap * 2) / 3;
   const itemHeight = itemWidth * (16 / 9);
+  const overlayGradient = isDark
+    ? ['#261236', '#1b1022', '#120914']
+    : ['#f8f5ff', '#f5f3ff', '#ffffff'];
+  const headerBackground = isDark ? 'rgba(27, 16, 34, 0.82)' : 'rgba(255,255,255,0.92)';
+  const headerButtonBackground = isDark ? 'rgba(255,255,255,0.04)' : theme.surface;
+  const sectionBackground = isDark ? theme.screen : theme.background;
+  const coverBorder = isDark ? 'rgba(255,255,255,0.12)' : theme.border;
+  const pillBackground = isDark ? 'rgba(147, 13, 242, 0.1)' : 'rgba(147, 13, 242, 0.08)';
+  const metaText = isDark ? '#CBD5E1' : theme.textSecondary;
+  const viewAllColor = isDark ? '#c084fc' : theme.accent;
+  const cardBackground = isDark ? '#1e293b' : theme.surface;
+  const badgeBorder = isDark ? '#1b1022' : theme.background;
 
   return (
-    <SafeAreaView style={[styles.safeArea, { backgroundColor: theme.background }]} edges={['top', 'left', 'right']}>
-      <View style={[styles.screen, { backgroundColor: theme.screen }]}>
+    <SafeAreaView
+      style={[
+        styles.safeArea,
+        {
+          backgroundColor: theme.background,
+          paddingTop: Platform.OS === 'ios' ? 54 : insets.top,
+        },
+      ]}
+      edges={['left', 'right']}
+    >
+      <View style={[styles.screen, { backgroundColor: sectionBackground }]}>
         <LinearGradient
-          colors={['#261236', '#1b1022', '#120914']}
+          colors={overlayGradient as [string, string, string]}
           start={{ x: 0, y: 0 }}
           end={{ x: 1, y: 1 }}
           style={StyleSheet.absoluteFill}
         />
 
-        <View style={styles.header}>
-          <Pressable style={styles.headerButton} onPress={() => navigation.goBack()}>
-            <MaterialIcons name="chevron-left" size={24} color="#F8FAFC" />
+        <View style={[styles.header, { borderBottomColor: isDark ? 'rgba(147, 13, 242, 0.12)' : theme.border, backgroundColor: headerBackground }]}>
+          <Pressable style={[styles.headerButton, { backgroundColor: headerButtonBackground }]} onPress={() => navigation.goBack()}>
+            <MaterialIcons name="chevron-left" size={22} color={theme.text} />
           </Pressable>
-          <Text style={styles.headerTitle}>Sound</Text>
-          <Pressable style={styles.headerButton}>
-            <MaterialIcons name="share" size={22} color="#F8FAFC" />
+          <Text style={[styles.headerTitle, { color: theme.text }]}>Sound</Text>
+          <Pressable style={[styles.headerButton, { backgroundColor: headerButtonBackground }]}>
+            <MaterialIcons name="share" size={20} color={theme.text} />
           </Pressable>
         </View>
 
@@ -118,23 +142,23 @@ const UseSound: React.FC = () => {
           <View style={styles.heroSection}>
             <View style={styles.coverWrap}>
               <LinearGradient
-                colors={['#930df2', '#d915d2']}
+                colors={['#cd2bee', '#cd2bee']}
                 start={{ x: 0, y: 0 }}
                 end={{ x: 1, y: 1 }}
                 style={styles.coverGlow}
               />
-              <Image source={{ uri: SOUND_ART }} style={styles.coverImage} />
-              <View style={styles.musicBadge}>
+              <Image source={{ uri: SOUND_ART }} style={[styles.coverImage, { borderColor: coverBorder }]} />
+              <View style={[styles.musicBadge, { borderColor: badgeBorder }]}>
                 <MaterialIcons name="music-note" size={18} color="#fff" />
               </View>
             </View>
 
             <View style={styles.titleBlock}>
-              <Text style={styles.soundTitle}>Midnight Resonance</Text>
-              <Text style={styles.soundArtist}>Hyper-Luxe feat. Luna Ray</Text>
-              <View style={styles.metaPill}>
+              <Text style={[styles.soundTitle, { color: theme.text }]}>Midnight Resonance</Text>
+              <Text style={[styles.soundArtist, { color: isDark ? '#c084fc' : theme.accent }]}>Hyper-Luxe feat. Luna Ray</Text>
+              <View style={[styles.metaPill, { backgroundColor: pillBackground }]}>
                 <MaterialIcons name="video-library" size={15} color="#C084FC" />
-                <Text style={styles.metaPillText}>2.4M videos created</Text>
+                <Text style={[styles.metaPillText, { color: metaText }]}>2.4M videos created</Text>
               </View>
             </View>
 
@@ -151,9 +175,9 @@ const UseSound: React.FC = () => {
           </View>
 
           <View style={styles.sectionHeader}>
-            <Text style={styles.sectionTitle}>Trending Creations</Text>
+            <Text style={[styles.sectionTitle, { color: theme.text }]}>Trending Creations</Text>
             <Pressable>
-              <Text style={styles.viewAll}>View All</Text>
+              <Text style={[styles.viewAll, { color: viewAllColor }]}>View All</Text>
             </Pressable>
           </View>
 
@@ -163,7 +187,7 @@ const UseSound: React.FC = () => {
                 key={creation.id}
                 style={[
                   styles.card,
-                  { width: itemWidth, height: itemHeight, marginBottom: gap, marginRight: gap },
+                  { width: itemWidth, height: itemHeight, marginBottom: gap, marginRight: gap, backgroundColor: cardBackground },
                   Number(creation.id) % 3 === 0 ? { marginRight: 0 } : null,
                 ]}
               >
@@ -180,13 +204,6 @@ const UseSound: React.FC = () => {
             ))}
           </View>
         </ScrollView>
-
-        <View style={styles.floatingCtaWrap} pointerEvents="box-none">
-          <Pressable style={styles.floatingCta}>
-            <MaterialIcons name="videocam" size={20} color="#fff" />
-            <Text style={styles.floatingCtaText}>Use this Sound</Text>
-          </Pressable>
-        </View>
       </View>
     </SafeAreaView>
   );
@@ -195,11 +212,9 @@ const UseSound: React.FC = () => {
 const styles = StyleSheet.create({
   safeArea: {
     flex: 1,
-    backgroundColor: '#1b1022',
   },
   screen: {
     flex: 1,
-    backgroundColor: '#1b1022',
   },
   header: {
     flexDirection: 'row',
@@ -209,8 +224,6 @@ const styles = StyleSheet.create({
     paddingTop: 8,
     paddingBottom: 14,
     borderBottomWidth: 1,
-    borderBottomColor: 'rgba(147, 13, 242, 0.12)',
-    backgroundColor: 'rgba(27, 16, 34, 0.82)',
   },
   headerButton: {
     width: 40,
@@ -218,26 +231,24 @@ const styles = StyleSheet.create({
     borderRadius: 20,
     alignItems: 'center',
     justifyContent: 'center',
-    backgroundColor: 'rgba(255,255,255,0.04)',
   },
   headerTitle: {
-    color: '#fff',
     fontFamily: 'PlusJakartaSansBold',
-    fontSize: fontScale(16),
+    fontSize: fontScale(14),
   },
   scrollContent: {
-    paddingBottom: 180,
+    paddingBottom: 56,
   },
   heroSection: {
     alignItems: 'center',
     paddingHorizontal: 24,
-    paddingTop: 28,
-    paddingBottom: 22,
+    paddingTop: 24,
+    paddingBottom: 18,
   },
   coverWrap: {
-    width: 170,
-    height: 170,
-    marginBottom: 28,
+    width: 152,
+    height: 152,
+    marginBottom: 22,
     position: 'relative',
   },
   coverGlow: {
@@ -251,7 +262,6 @@ const styles = StyleSheet.create({
     height: '100%',
     borderRadius: 24,
     borderWidth: 1,
-    borderColor: 'rgba(255,255,255,0.12)',
   },
   musicBadge: {
     position: 'absolute',
@@ -260,7 +270,7 @@ const styles = StyleSheet.create({
     width: 38,
     height: 38,
     borderRadius: 19,
-    backgroundColor: '#930df2',
+    backgroundColor: '#cd2bee',
     borderWidth: 2,
     borderColor: '#1b1022',
     alignItems: 'center',
@@ -268,44 +278,40 @@ const styles = StyleSheet.create({
   },
   titleBlock: {
     alignItems: 'center',
-    gap: 6,
+    gap: 4,
   },
   soundTitle: {
-    color: '#fff',
     fontFamily: 'PlusJakartaSansBold',
-    fontSize: fontScale(25),
+    fontSize: mediumScreen ? fontScale(12): fontScale(16),
     textAlign: 'center',
   },
   soundArtist: {
-    color: '#c084fc',
     fontFamily: 'PlusJakartaSansMedium',
-    fontSize: fontScale(17),
+    fontSize: mediumScreen ? fontScale(16): fontScale(12),
     textAlign: 'center',
   },
   metaPill: {
-    marginTop: 8,
+    marginTop: 6,
     flexDirection: 'row',
     alignItems: 'center',
     gap: 6,
     borderRadius: 999,
-    paddingHorizontal: 12,
-    paddingVertical: 7,
-    backgroundColor: 'rgba(147, 13, 242, 0.1)',
+    paddingHorizontal: 10,
+    paddingVertical: 6,
   },
   metaPillText: {
-    color: '#CBD5E1',
     fontFamily: 'PlusJakartaSansMedium',
-    fontSize: fontScale(13),
+    fontSize: mediumScreen ? fontScale(12):fontScale(8),
   },
   actionRow: {
     flexDirection: 'row',
-    width: '100%',
+    width: '80%',
     gap: 12,
-    marginTop: 22,
+    marginTop: 18,
   },
   actionButton: {
     flex: 1,
-    minHeight: 56,
+    minHeight: 48,
     borderRadius: 999,
     flexDirection: 'row',
     alignItems: 'center',
@@ -313,16 +319,16 @@ const styles = StyleSheet.create({
     gap: 8,
   },
   primaryButton: {
-    backgroundColor: '#930df2',
-    shadowColor: '#930df2',
+    backgroundColor: '#cd2bee',
+    shadowColor: '#cd2bee',
     shadowOffset: { width: 0, height: 10 },
     shadowOpacity: 0.28,
     shadowRadius: 18,
     elevation: 6,
   },
   secondaryButton: {
-    backgroundColor: '#d915d2',
-    shadowColor: '#d915d2',
+    backgroundColor: '#cd2bee',
+    shadowColor: '#cd2bee',
     shadowOffset: { width: 0, height: 10 },
     shadowOpacity: 0.24,
     shadowRadius: 18,
@@ -331,7 +337,7 @@ const styles = StyleSheet.create({
   actionButtonText: {
     color: '#fff',
     fontFamily: 'PlusJakartaSansBold',
-    fontSize: fontScale(15),
+    fontSize: mediumScreen ? fontScale(14) : fontScale(10),
   },
   sectionHeader: {
     flexDirection: 'row',
@@ -341,14 +347,12 @@ const styles = StyleSheet.create({
     marginBottom: 12,
   },
   sectionTitle: {
-    color: '#fff',
     fontFamily: 'PlusJakartaSansBold',
-    fontSize: fontScale(17),
+    fontSize: mediumScreen ? fontScale(16): fontScale(12),
   },
   viewAll: {
-    color: '#c084fc',
     fontFamily: 'PlusJakartaSansBold',
-    fontSize: fontScale(14),
+    fontSize: mediumScreen ? fontScale(14): fontScale(10),
   },
   grid: {
     flexDirection: 'row',
@@ -378,38 +382,7 @@ const styles = StyleSheet.create({
   cardMetaText: {
     color: '#fff',
     fontFamily: 'PlusJakartaSansBold',
-    fontSize: fontScale(11),
-  },
-  floatingCtaWrap: {
-    position: 'absolute',
-    left: 0,
-    right: 0,
-    bottom: 24,
-    alignItems: 'center',
-  },
-  floatingCta: {
-    minWidth: 252,
-    maxWidth: 280,
-    borderRadius: 999,
-    backgroundColor: 'rgba(217, 21, 210, 0.94)',
-    borderWidth: 1,
-    borderColor: 'rgba(255,255,255,0.18)',
-    paddingHorizontal: 26,
-    paddingVertical: 14,
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'center',
-    gap: 8,
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 10 },
-    shadowOpacity: 0.24,
-    shadowRadius: 22,
-    elevation: 8,
-  },
-  floatingCtaText: {
-    color: '#fff',
-    fontFamily: 'PlusJakartaSansBold',
-    fontSize: fontScale(16),
+    fontSize: fontScale(9),
   },
 });
 

@@ -74,7 +74,7 @@ const Subscribers: React.FC = () => {
         <View>
           <View>
             <Pressable onPress={() => navigation.navigate('/dashboard')}>
-              <Text>arrow_back</Text>
+              <Text>chevron_left</Text>
             </Pressable>
             <Text>Fan CRM</Text>
           </View>

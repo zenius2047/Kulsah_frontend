@@ -10,8 +10,8 @@ const darkTheme = {
   textSecondary: '#94a3b8',
   textMuted: '#6b7280',
   border: 'rgba(255,255,255,0.1)',
-  accent: '#d915d2',
-  accentSoft: 'rgba(217,21,210,0.14)',
+  accent: '#cd2bee',
+  accentSoft: 'rgba(205,43,238,0.14)',
   shadow: '#000000',
 };
 
@@ -24,8 +24,8 @@ const lightTheme = {
   textSecondary: '#475569',
   textMuted: '#64748b',
   border: 'rgba(15,23,42,0.08)',
-  accent: '#d915d2',
-  accentSoft: 'rgba(217,21,210,0.10)',
+  accent: '#cd2bee',
+  accentSoft: 'rgba(205,43,238,0.10)',
   shadow: '#0f172a',
 };
 

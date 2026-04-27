@@ -1,4 +1,4 @@
-import React from 'react';
+﻿import React from 'react';
 import { FontAwesome, MaterialIcons } from '@expo/vector-icons';
 import { LinearGradient } from 'expo-linear-gradient';
 import {
@@ -47,7 +47,7 @@ const CreateAccount: React.FC = () => {
 
         <ScrollView contentContainerStyle={styles.content} showsVerticalScrollIndicator={false}>
           <View style={styles.brandWrap}>
-            <LinearGradient colors={['#930df2', '#d915d2']} style={styles.brandIcon}>
+            <LinearGradient colors={['#cd2bee', '#cd2bee']} style={styles.brandIcon}>
               <MaterialIcons name="bolt" size={36} color="#ffffff" />
             </LinearGradient>
             <Text style={styles.brandTitle}>KULSAH</Text>
@@ -86,7 +86,7 @@ const CreateAccount: React.FC = () => {
           <Pressable style={styles.creatorLink} onPress={() => navigation.navigate('Signup')}>
             <Text style={styles.creatorPrompt}>New to the stage?</Text>
             <Text style={styles.creatorAction}>Join as Creator</Text>
-            <MaterialIcons name="arrow-forward" size={16} color="#d915d2" />
+            <MaterialIcons name="arrow-forward" size={16} color="#cd2bee" />
           </Pressable>
 
           {showPreviewGrid && (
@@ -119,7 +119,7 @@ const AuthButton: React.FC<AuthButtonProps> = ({ icon, label, onPress, variant }
   if (variant === 'primary') {
     return (
       <Pressable onPress={onPress} style={({ pressed }) => [styles.primaryButton, pressed && styles.pressed]}>
-        <LinearGradient colors={['#930df2', '#d915d2']} style={styles.primaryGradient}>
+        <LinearGradient colors={['#cd2bee', '#cd2bee']} style={styles.primaryGradient}>
           {icon}
           <Text style={styles.primaryButtonText}>{label}</Text>
         </LinearGradient>
@@ -161,7 +161,7 @@ const styles = StyleSheet.create({
     width: 310,
     height: 310,
     borderRadius: 155,
-    backgroundColor: 'rgba(147,13,242,0.15)',
+    backgroundColor: 'rgba(205,43,238,0.15)',
   },
   meshBottomRight: {
     position: 'absolute',
@@ -170,7 +170,7 @@ const styles = StyleSheet.create({
     width: 330,
     height: 330,
     borderRadius: 165,
-    backgroundColor: 'rgba(217,21,210,0.1)',
+    backgroundColor: 'rgba(205,43,238,0.1)',
   },
   decorTopRight: {
     position: 'absolute',
@@ -179,7 +179,7 @@ const styles = StyleSheet.create({
     width: 500,
     height: 500,
     borderRadius: 250,
-    backgroundColor: 'rgba(147,13,242,0.1)',
+    backgroundColor: 'rgba(205,43,238,0.1)',
   },
   decorBottomLeft: {
     position: 'absolute',
@@ -188,7 +188,7 @@ const styles = StyleSheet.create({
     width: 400,
     height: 400,
     borderRadius: 200,
-    backgroundColor: 'rgba(217,21,210,0.1)',
+    backgroundColor: 'rgba(205,43,238,0.1)',
   },
   brandWrap: {
     alignItems: 'center',
@@ -201,7 +201,7 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'center',
     marginBottom: 22,
-    shadowColor: '#930df2',
+    shadowColor: '#cd2bee',
     shadowOpacity: 0.45,
     shadowRadius: 24,
     shadowOffset: { width: 0, height: 0 },
@@ -245,7 +245,7 @@ const styles = StyleSheet.create({
     width: 192,
     height: 192,
     borderRadius: 96,
-    backgroundColor: 'rgba(147,13,242,0.2)',
+    backgroundColor: 'rgba(205,43,238,0.2)',
   },
   cardTitle: {
     color: '#f7f5f8',
@@ -279,7 +279,7 @@ const styles = StyleSheet.create({
     minHeight: 58,
     borderRadius: 20,
     overflow: 'hidden',
-    shadowColor: '#d915d2',
+    shadowColor: '#cd2bee',
     shadowOpacity: 0.35,
     shadowRadius: 20,
     shadowOffset: { width: 0, height: 8 },
@@ -314,7 +314,7 @@ const styles = StyleSheet.create({
   },
   legalLink: {
     color: '#f7f5f8',
-    textDecorationColor: 'rgba(147,13,242,0.5)',
+    textDecorationColor: 'rgba(205,43,238,0.5)',
     textDecorationLine: 'underline',
   },
   creatorLink: {
@@ -329,7 +329,7 @@ const styles = StyleSheet.create({
     fontFamily: 'PlusJakartaSansMedium',
   },
   creatorAction: {
-    color: '#d915d2',
+    color: '#cd2bee',
     fontSize: fontScale(14),
     fontFamily: 'PlusJakartaSansExtraBold',
   },
@@ -358,3 +358,4 @@ const styles = StyleSheet.create({
 });
 
 export default CreateAccount;
+

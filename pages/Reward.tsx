@@ -81,7 +81,7 @@ const Reward: React.FC = () => {
             <View style={styles.heroTint} />
             <View style={styles.heroContent}>
               <View style={styles.heroTagRow}>
-                <MaterialIcons name="stars" size={14} color="#d915d2" />
+                <MaterialIcons name="stars" size={14} color="#cd2bee" />
                 <Text style={styles.heroTag}>Exclusive Reward</Text>
               </View>
               <Text style={[styles.heroTitle, { color: '#ffffff' }]}>The Studio Session</Text>
@@ -91,7 +91,7 @@ const Reward: React.FC = () => {
           <View style={[styles.criteriaCard, { backgroundColor: cardBg, borderColor: cardBorder }]}>
             <View style={styles.criteriaLeft}>
               <View style={styles.criteriaIconWrap}>
-                <MaterialIcons name="favorite" size={24} color="#d915d2" />
+                <MaterialIcons name="favorite" size={24} color="#cd2bee" />
               </View>
               <View>
                 <Text style={[styles.criteriaLabel, { color: subtle }]}>Winning Criteria</Text>
@@ -114,7 +114,7 @@ const Reward: React.FC = () => {
               <Switch
                 value={enabled}
                 onValueChange={setEnabled}
-                trackColor={{ false: isDark ? 'rgba(255,255,255,0.16)' : 'rgba(15,23,42,0.2)', true: '#930df2' }}
+                trackColor={{ false: isDark ? 'rgba(255,255,255,0.16)' : 'rgba(15,23,42,0.2)', true: '#cd2bee' }}
                 thumbColor="#ffffff"
               />
             </View>
@@ -153,7 +153,7 @@ const Reward: React.FC = () => {
 
                 <View style={styles.badgeWrap}>
                   <LinearGradient
-                    colors={['#930df2', '#d915d2']}
+                    colors={['#cd2bee', '#cd2bee']}
                     start={{ x: 0, y: 0 }}
                     end={{ x: 1, y: 1 }}
                     style={styles.badgeRing}
@@ -211,7 +211,7 @@ const styles = StyleSheet.create({
     width: 230,
     height: 230,
     borderRadius: 115,
-    backgroundColor: 'rgba(147,13,242,0.18)',
+    backgroundColor: 'rgba(205,43,238,0.18)',
   },
   glowTwo: {
     position: 'absolute',
@@ -220,7 +220,7 @@ const styles = StyleSheet.create({
     width: 180,
     height: 180,
     borderRadius: 90,
-    backgroundColor: 'rgba(217,21,210,0.10)',
+    backgroundColor: 'rgba(205,43,238,0.10)',
   },
   header: {
     flexDirection: 'row',
@@ -248,7 +248,7 @@ const styles = StyleSheet.create({
     textTransform: 'uppercase',
   },
   headerBrand: {
-    color: '#930df2',
+    color: '#cd2bee',
     fontFamily: 'PlusJakartaSansExtraBold',
     fontSize: fontScale(14),
     letterSpacing: -0.4,
@@ -278,7 +278,7 @@ const styles = StyleSheet.create({
   },
   heroTint: {
     ...StyleSheet.absoluteFillObject,
-    backgroundColor: 'rgba(147,13,242,0.14)',
+    backgroundColor: 'rgba(205,43,238,0.14)',
   },
   heroContent: {
     padding: 20,
@@ -290,7 +290,7 @@ const styles = StyleSheet.create({
     gap: 8,
   },
   heroTag: {
-    color: '#d915d2',
+    color: '#cd2bee',
     fontFamily: 'PlusJakartaSansBold',
     fontSize: fontScale(11),
     textTransform: 'uppercase',
@@ -323,8 +323,8 @@ const styles = StyleSheet.create({
     borderRadius: 24,
     alignItems: 'center',
     justifyContent: 'center',
-    backgroundColor: 'rgba(217,21,210,0.18)',
-    shadowColor: '#d915d2',
+    backgroundColor: 'rgba(205,43,238,0.18)',
+    shadowColor: '#cd2bee',
     shadowOffset: { width: 0, height: 0 },
     shadowOpacity: 0.3,
     shadowRadius: 12,
@@ -431,7 +431,7 @@ const styles = StyleSheet.create({
     width: 120,
     height: 120,
     borderRadius: 60,
-    backgroundColor: 'rgba(147,13,242,0.12)',
+    backgroundColor: 'rgba(205,43,238,0.12)',
   },
   previewGlowRight: {
     position: 'absolute',
@@ -440,7 +440,7 @@ const styles = StyleSheet.create({
     width: 120,
     height: 120,
     borderRadius: 60,
-    backgroundColor: 'rgba(217,21,210,0.12)',
+    backgroundColor: 'rgba(205,43,238,0.12)',
   },
   badgeWrap: {
     alignItems: 'center',
@@ -453,7 +453,7 @@ const styles = StyleSheet.create({
     padding: 2,
     alignItems: 'center',
     justifyContent: 'center',
-    shadowColor: '#930df2',
+    shadowColor: '#cd2bee',
     shadowOffset: { width: 0, height: 0 },
     shadowOpacity: 0.34,
     shadowRadius: 18,
@@ -499,7 +499,7 @@ const styles = StyleSheet.create({
     fontSize: fontScale(9),
   },
   previewLink: {
-    color: '#d915d2',
+    color: '#cd2bee',
     fontFamily: 'PlusJakartaSansBold',
     fontSize: fontScale(10),
     textTransform: 'uppercase',
@@ -510,8 +510,8 @@ const styles = StyleSheet.create({
     paddingVertical: 12,
     alignItems: 'center',
     justifyContent: 'center',
-    backgroundColor: '#d915d2',
-    shadowColor: '#d915d2',
+    backgroundColor: '#cd2bee',
+    shadowColor: '#cd2bee',
     shadowOffset: { width: 0, height: 0 },
     shadowOpacity: 0.42,
     shadowRadius: 16,

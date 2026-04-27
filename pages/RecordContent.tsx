@@ -154,7 +154,7 @@ const RecordContent: React.FC = () => {
             </BlurView>
 
             <Pressable style={styles.soundButton} onPress={() => setSoundSelectOpen(true)}>
-              <MaterialIcons name="music-note" size={20} color="#d915d2" />
+              <MaterialIcons name="music-note" size={20} color="#cd2bee" />
               <Text style={styles.soundButtonText} numberOfLines={1}>
                 Add Sound
               </Text>
@@ -180,7 +180,7 @@ const RecordContent: React.FC = () => {
                   <MaterialIcons
                     name={control.icon}
                     size={24}
-                    color={control.active ? '#d915d2' : '#fff'}
+                    color={control.active ? '#cd2bee' : '#fff'}
                   />
                 </View>
                 <Text style={[styles.sideLabel, control.active ? styles.sideLabelActive : null]}>
@@ -230,7 +230,7 @@ const RecordContent: React.FC = () => {
 
             <Pressable style={styles.utilityAction}>
               <BlurView intensity={24} tint="dark" style={styles.effectsCircle}>
-                <MaterialIcons name="auto-fix-high" size={28} color="#d915d2" />
+                <MaterialIcons name="auto-fix-high" size={28} color="#cd2bee" />
               </BlurView>
               <Text style={[styles.utilityLabel, styles.utilityLabelActive]}>Effects</Text>
             </Pressable>
@@ -315,7 +315,7 @@ const styles = StyleSheet.create({
     paddingHorizontal: 18,
     paddingVertical: 12,
     borderRadius: 999,
-    backgroundColor: '#d915d2',
+    backgroundColor: '#cd2bee',
   },
   permissionButtonText: {
     color: '#fff',
@@ -363,8 +363,8 @@ const styles = StyleSheet.create({
     width: '40%',
     height: '100%',
     borderRadius: 999,
-    backgroundColor: '#d915d2',
-    shadowColor: '#d915d2',
+    backgroundColor: '#cd2bee',
+    shadowColor: '#cd2bee',
     shadowOffset: { width: 0, height: 0 },
     shadowOpacity: 0.9,
     shadowRadius: 10,
@@ -444,7 +444,7 @@ const styles = StyleSheet.create({
     marginTop: 2,
   },
   sideLabelActive: {
-    color: '#d915d2',
+    color: '#cd2bee',
     fontFamily: 'PlusJakartaSansBold',
   },
   bottomArea: {
@@ -475,7 +475,7 @@ const styles = StyleSheet.create({
   },
   filterThumbActive: {
     borderWidth: 2,
-    borderColor: '#d915d2',
+    borderColor: '#cd2bee',
     opacity: 1,
   },
   filterRing: {
@@ -487,7 +487,7 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'center',
     borderWidth: 4,
-    borderColor: 'rgba(217,21,210,0.18)',
+    borderColor: 'rgba(205,43,238,0.18)',
   },
   filterText: {
     marginTop: 8,
@@ -496,7 +496,7 @@ const styles = StyleSheet.create({
     fontSize: fontScale(12),
   },
   filterTextActive: {
-    color: '#d915d2',
+    color: '#cd2bee',
     fontFamily: 'PlusJakartaSansBold',
   },
   primaryActions: {
@@ -524,7 +524,7 @@ const styles = StyleSheet.create({
     marginTop: 8,
   },
   utilityLabelActive: {
-    color: '#d915d2',
+    color: '#cd2bee',
   },
   recordWrap: {
     alignItems: 'center',
@@ -587,7 +587,7 @@ const styles = StyleSheet.create({
     width: '100%',
     height: 2,
     borderRadius: 999,
-    backgroundColor: '#d915d2',
+    backgroundColor: '#cd2bee',
     marginTop: 6,
   },
 });

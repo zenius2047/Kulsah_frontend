@@ -1,4 +1,4 @@
-import React, { useEffect, useRef, useState } from 'react';
+﻿import React, { useEffect, useRef, useState } from 'react';
 import { useThemeMode } from '../theme';
 import {
   FlatList,
@@ -371,7 +371,7 @@ const styles = StyleSheet.create({
     borderRadius: 10,
     alignItems: 'center',
     justifyContent: 'center',
-    backgroundColor: '#d915d2',
+    backgroundColor: '#cd2bee',
   },
   primaryAction: {
     alignItems: 'center',
@@ -383,8 +383,8 @@ const styles = StyleSheet.create({
     borderRadius: 28,
     alignItems: 'center',
     justifyContent: 'center',
-    backgroundColor: '#d915d2',
-    shadowColor: '#d915d2',
+    backgroundColor: '#cd2bee',
+    shadowColor: '#cd2bee',
     shadowOffset: { width: 0, height: 0 },
     shadowOpacity: 0.45,
     shadowRadius: 18,
@@ -453,7 +453,7 @@ const styles = StyleSheet.create({
     lineHeight: 22,
   },
   captionAccent: {
-    color: '#d915d2',
+    color: '#cd2bee',
     fontFamily: 'PlusJakartaSansBold',
   },
   audioRow: {
@@ -484,7 +484,7 @@ const styles = StyleSheet.create({
     width: '33%',
     height: '100%',
     borderRadius: 999,
-    backgroundColor: '#d915d2',
+    backgroundColor: '#cd2bee',
   },
   sheetBackdrop: {
     ...StyleSheet.absoluteFillObject,
@@ -493,4 +493,5 @@ const styles = StyleSheet.create({
 });
 
 export default ChallengeFeed;
+
 

@@ -18,7 +18,7 @@ export default function GradientText({ gradientText, style }: GradientTextProps)
       }
     >
       <LinearGradient
-        colors={['#930df2', '#d915d2']}
+        colors={['#cd2bee', '#cd2bee']}
         start={{ x: 0, y: 0 }}
         end={{ x: 1, y: 0 }}
       >

@@ -29,18 +29,18 @@ const valueCards = [
     icon: 'workspace-premium' as const,
     title: 'Recognition Only',
     text: 'Focus on building clout and reputation without the noise of material payouts.',
-    tint: '#930df2',
-    bg: 'rgba(147,13,242,0.18)',
-    border: 'rgba(147,13,242,0.28)',
+    tint: '#cd2bee',
+    bg: 'rgba(205,43,238,0.18)',
+    border: 'rgba(205,43,238,0.28)',
   },
   {
     id: 'organic',
     icon: 'favorite' as const,
     title: 'Organic Hype',
     text: 'Engagement is driven by genuine appreciation for creator artistry.',
-    tint: '#d915d2',
-    bg: 'rgba(217,21,210,0.18)',
-    border: 'rgba(217,21,210,0.28)',
+    tint: '#cd2bee',
+    bg: 'rgba(205,43,238,0.18)',
+    border: 'rgba(205,43,238,0.28)',
   },
 ];
 
@@ -97,7 +97,7 @@ const NoReward: React.FC = () => {
           <View style={styles.heroSection}>
             <View style={styles.heroIconWrap}>
               <LinearGradient
-                colors={['#930df2', '#d915d2']}
+                colors={['#cd2bee', '#cd2bee']}
                 start={{ x: 0, y: 0 }}
                 end={{ x: 1, y: 1 }}
                 style={styles.heroIconGradient}
@@ -153,7 +153,7 @@ const NoReward: React.FC = () => {
           <View style={styles.actions}>
             <Pressable style={styles.primaryButton}>
               <LinearGradient
-                colors={['#930df2', '#d915d2']}
+                colors={['#cd2bee', '#cd2bee']}
                 start={{ x: 0, y: 0 }}
                 end={{ x: 1, y: 0 }}
                 style={styles.primaryButtonGradient}
@@ -208,7 +208,7 @@ const styles = StyleSheet.create({
     width: 240,
     height: 240,
     borderRadius: 120,
-    backgroundColor: 'rgba(147,13,242,0.15)',
+    backgroundColor: 'rgba(205,43,238,0.15)',
   },
   glowSecondary: {
     position: 'absolute',
@@ -217,7 +217,7 @@ const styles = StyleSheet.create({
     width: 280,
     height: 280,
     borderRadius: 140,
-    backgroundColor: 'rgba(217,21,210,0.10)',
+    backgroundColor: 'rgba(205,43,238,0.10)',
   },
   header: {
     flexDirection: 'row',
@@ -245,7 +245,7 @@ const styles = StyleSheet.create({
     fontSize: mediumScreen ? 16 : 12,
   },
   headerBrand: {
-    color: '#930df2',
+    color: '#cd2bee',
     fontFamily: 'PlusJakartaSansExtraBold',
     fontSize: mediumScreen ? 20 : 16,
     letterSpacing: -0.4,
@@ -287,7 +287,7 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'center',
     transform: [{ rotate: '3deg' }],
-    shadowColor: '#930df2',
+    shadowColor: '#cd2bee',
     shadowOffset: { width: 0, height: 0 },
     shadowOpacity: 0.38,
     shadowRadius: 18,
@@ -297,11 +297,11 @@ const styles = StyleSheet.create({
     position: 'absolute',
     top: -8,
     right: -24,
-    backgroundColor: '#d915d2',
+    backgroundColor: '#cd2bee',
     paddingHorizontal: 12,
     paddingVertical: 6,
     borderRadius: 999,
-    shadowColor: '#d915d2',
+    shadowColor: '#cd2bee',
     shadowOffset: { width: 0, height: 0 },
     shadowOpacity: 0.35,
     shadowRadius: 12,
@@ -332,7 +332,7 @@ const styles = StyleSheet.create({
     textAlign: 'center',
   },
   heroAccent: {
-    color: '#930df2',
+    color: '#cd2bee',
     fontFamily: 'PlusJakartaSansBold',
   },
   valueGrid: {
@@ -392,7 +392,7 @@ const styles = StyleSheet.create({
   primaryButton: {
     borderRadius: 28,
     overflow: 'hidden',
-    shadowColor: '#d915d2',
+    shadowColor: '#cd2bee',
     shadowOffset: { width: 0, height: 0 },
     shadowOpacity: 0.36,
     shadowRadius: 16,
@@ -440,7 +440,7 @@ const styles = StyleSheet.create({
     letterSpacing: 1.2,
   },
   reachValue: {
-    color: '#930df2',
+    color: '#cd2bee',
     fontFamily: 'PlusJakartaSansBold',
     fontSize: mediumScreen ? 14 : 10,
     textTransform: 'uppercase',

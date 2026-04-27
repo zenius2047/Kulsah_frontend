@@ -245,7 +245,7 @@ const CreateCommunityPost: React.FC = () => {
   const placeholderColor = isDark ? '#64748B' : theme.textMuted;
   const editorBorder = isDark ? 'rgba(255,255,255,0.08)' : theme.border;
   const pollCardBackground = isDark ? 'rgba(31,8,31,0.9)' : '#fff4fc';
-  const pollCardBorder = isDark ? 'rgba(217,0,199,0.22)' : 'rgba(217,21,210,0.18)';
+  const pollCardBorder = isDark ? 'rgba(217,0,199,0.22)' : 'rgba(205,43,238,0.18)';
   const audienceBackground = isDark ? 'rgba(255,255,255,0.06)' : theme.surface;
   const inputBackground = isDark ? 'rgba(255,255,255,0.05)' : theme.surface;
   const chipBackground = isDark ? 'rgba(255,255,255,0.05)' : theme.surface;
@@ -285,7 +285,7 @@ const CreateCommunityPost: React.FC = () => {
         >
           <View style={styles.profileRow}>
             <View style={styles.avatarShell}>
-              <Image source={{ uri: user.avatar || DEFAULT_AVATAR }} style={[styles.avatar, { borderColor: 'rgba(217,21,210,0.28)' }]} />
+              <Image source={{ uri: user.avatar || DEFAULT_AVATAR }} style={[styles.avatar, { borderColor: 'rgba(205,43,238,0.28)' }]} />
               <View style={[styles.onlineDot, { borderColor: theme.screen }]} />
             </View>
             <View style={styles.profileMeta}>
@@ -315,7 +315,7 @@ const CreateCommunityPost: React.FC = () => {
             <Pressable
               onPress={() => void generateAiSpark()}
               disabled={isAiDrafting}
-              style={[styles.aiButton, { backgroundColor: theme.accentSoft, borderColor: 'rgba(217,21,210,0.2)' }]}
+              style={[styles.aiButton, { backgroundColor: theme.accentSoft, borderColor: 'rgba(205,43,238,0.2)' }]}
             >
               <MaterialIcons
                 name={isAiDrafting ? 'autorenew' : 'auto-awesome'}

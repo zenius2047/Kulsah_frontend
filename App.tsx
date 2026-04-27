@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { useThemeMode } from './theme';
 import { View, StyleSheet, ActivityIndicator, Text, Pressable, StatusBar, Dimensions , Image, useWindowDimensions, Platform} from 'react-native';
-import { NavigationContainer } from '@react-navigation/native';
+import { NavigationContainer, createNavigationContainerRef } from '@react-navigation/native';
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
 import AsyncStorage from '@react-native-async-storage/async-storage';
@@ -78,11 +78,17 @@ import SplashScreen from './pages/SplashScreen';
 import GetStarted from './pages/GetStarted';
 import SignupVibes from './pages/SignupVibes';
 import SignUpModal from './SignUpModal';
+import Login from './pages/Login';
+import EmailPhone from './pages/EmailPhone';
+import Store from './pages/Store';
+import VerifyOtp from './VerifyOtp';
+import EmailVerification from './EmailVerification';
 
 
 const Stack = createNativeStackNavigator();
 const Tab = createBottomTabNavigator();
 const { height: SCREEN_HEIGHT, width: SCREEN_WIDTH } = Dimensions.get('screen');
+const navigationRef = createNavigationContainerRef();
 
 
 const TextWithDefaults = Text as unknown as { defaultProps?: { style?: unknown } };
@@ -114,7 +120,7 @@ const CreatorTabs = ({ isDarkMode }: TabsProps) => {
     safeAreaInsets={{ bottom: 0 }}
     screenOptions={({ route }) => ({
         headerShown: false,
-        tabBarActiveTintColor: '#cd2bee',
+        tabBarActiveTintColor: route.name === 'Galaxy' ? '#ffffff' : isDarkMode ? '#ffffff' : '#000000',
         tabBarInactiveTintColor: '#8E8E93',
         sceneStyle: { backgroundColor: '#000' },
         tabBarStyle: [
@@ -130,14 +136,24 @@ const CreatorTabs = ({ isDarkMode }: TabsProps) => {
       name="Galaxy"
       component={Feed}
       options={{
-        tabBarIcon: ({ color, size }) => <MovieIcon width={size} height={size} fill={color} />,
+        tabBarIcon: ({ color, size, focused }) =>
+          focused ? (
+            <MaterialIcons name="movie" size={size} color='white' />
+          ) : (
+            <MovieIcon width={size} height={size} fill={color} />
+          ),
       }}
     />
     <Tab.Screen
       name="Arena"
       component={Arena}
       options={{
-        tabBarIcon: ({ color, size }) => <HomeIcon width={size} height={size} fill={color} />,
+        tabBarIcon: ({ color, size, focused }) =>
+          focused ? (
+            <MaterialIcons name="home" size={size} color={color} />
+          ) : (
+            <HomeIcon width={size} height={size} fill={color} />
+          ),
       }}
     />
     <Tab.Screen
@@ -145,7 +161,7 @@ const CreatorTabs = ({ isDarkMode }: TabsProps) => {
       component={RecordContent}
       listeners={({ navigation }) => ({
         tabPress: (e) => {
-          e.preventDefault();
+          (e as any).preventDefault();
           navigation.getParent()?.navigate('RecordContent');
         },
       })}
@@ -169,7 +185,14 @@ const CreatorTabs = ({ isDarkMode }: TabsProps) => {
     name="Signal" 
     component={Inbox}
     options = {{
-      tabBarIcon: ({ color, size }) => <MaterialIcons name="chat-bubble-outline" size={size} color={color} />,
+      tabBarIcon: ({ color, size, focused }) => (
+        <MaterialIcons
+          name={focused ? 'chat-bubble' : 'chat-bubble-outline'}
+          size={size}
+          color={color}
+        />
+      ),
+      
     }}
     />
     <Tab.Screen
@@ -212,6 +235,11 @@ const FanTabs = ({isDarkMode, user, onTap}: TabsProps) => {
   const insets = useSafeAreaInsets();
   const tabBarHeight = SCREEN_HEIGHT * 0.08 + (Platform.OS === 'ios' ? 0 : insets.bottom);
 
+  const guardGuestTab = (e: any) => {
+    if (user.role !== 'guest' && user.name !== 'guest') return;
+    e.preventDefault();
+    onTap?.();
+  };
 
   return (
     <Tab.Navigator
@@ -219,7 +247,7 @@ const FanTabs = ({isDarkMode, user, onTap}: TabsProps) => {
       safeAreaInsets={{ bottom: 0 }}
       screenOptions={({ route }) => ({
         headerShown: false,
-        tabBarActiveTintColor: '#cd2bee',
+        tabBarActiveTintColor: route.name === 'Galaxy' ? '#ffffff' : isDarkMode ? '#ffffff' : '#000000',
         tabBarInactiveTintColor: isDarkMode ? '#8E8E93' : '#64748b',
         sceneStyle: { backgroundColor: '#000' },
         tabBarStyle: [
@@ -235,90 +263,57 @@ const FanTabs = ({isDarkMode, user, onTap}: TabsProps) => {
       name="Galaxy"
       component={Feed}
       options={{
-        tabBarIcon: ({ color, size }) =>
-          //  <MaterialIcons name="movie" size={size} color={color} />,
-        // <Image 
-        // source={require('./assets/icons/explore-big.png')} 
-        // style= {{
-        //   height: 24,
-        //   tintColor: 'gold'
-        //   // color: ""
-        // }}
-        // />
-        <MovieIcon width={size} height={size} fill={color} />
+        tabBarIcon: ({ color, size, focused }) =>
+          focused ? (
+            <MaterialIcons name="movie" size={size} color='white' />
+          ) : (
+            <MovieIcon width={size} height={size} fill={color} />
+          ),
       }}
-      // listeners={({navigation})=>({
-      //   tabPress: (e) => {
-      //     e.preventDefault();
-      //     // console.log('Videos tab tapped');
-      //     if(user.role === 'guest'){
-      //       navigation.navigate('SignUp')
-      //     }
-      //   },
-      // })}
     />
     <Tab.Screen 
     name="Discover" 
     component={FanArena}
     options = {{
       tabBarLabel: 'Arena',
-      tabBarIcon: ({ color, size }) =>
-      //  <MaterialIcons name="explore" size={size} color={color} />,
-      <ExploreIcon width={size} height={size} fill={color} />
-
+      tabBarIcon: ({ color, size, focused }) =>
+        focused ? (
+          <MaterialIcons name="explore" size={size} color={color} />
+        ) : (
+          <ExploreIcon width={size} height={size} fill={color} />
+        )
     }}
-    listeners={({navigation})=>({
-        tabPress: (e) => {
-          // e.preventDefault();
-          // console.log('Videos tab tapped');
-          if(user.name === 'guest'){
-            e.preventDefault();
-            // navigation.navigate('SignUp')
-            onTap?.()
-          }
-        },
-      })}
+    listeners={{ tabPress: guardGuestTab }}
     />
     <Tab.Screen 
     name="Community" 
     component={Community}
     options = {{
-      tabBarIcon: ({ color, size }) => 
-      // <MaterialIcons name="local-library" size={size} color={color} />,
-      <ForumIcon width={size} height={size} fill={color} />
+      tabBarIcon: ({ color, size, focused }) =>
+        focused ? (
+          <MaterialIcons name="forum" size={size} color={color} />
+        ) : (
+          <ForumIcon width={size} height={size} fill={color} />
+        )
     }}
-    listeners={({navigation})=>({
-        tabPress: (e) => {
-          // e.preventDefault();
-          // console.log('Videos tab tapped');
-          if(user.name === 'guest'){
-            e.preventDefault();
-            // navigation.navigate('SignUp')
-            onTap?.();
-          }
-        },
-      })}
+    listeners={{ tabPress: guardGuestTab }}
     />
     <Tab.Screen 
     name="Signal" 
     component={Inbox}
     options = {{
-      tabBarIcon: ({ color, size }) => <MaterialIcons name="chat-bubble-outline" size={size} color={color} />,
+      tabBarIcon: ({ color, size, focused }) => (
+        <MaterialIcons
+          name={focused ? 'chat-bubble' : 'chat-bubble-outline'}
+          size={size}
+          color={color}
+        />
+      ),
     }}
-    listeners={({navigation})=>({
-        tabPress: (e) => {
-          // console.log('Videos tab tapped');
-          if(user.name === 'guest'){
-            e.preventDefault();
-            navigation.navigate('SignUp')
-          }
-        },
-      })}
-
-
+    listeners={{ tabPress: guardGuestTab }}
     />
     <Tab.Screen
-      name= {user.name !== 'guest' ? "Profile": 'Login'}
+      name="Profile"
       component={FanProfile}
       options={{
         tabBarIcon: ({ color, size }) => <View
@@ -343,16 +338,7 @@ const FanTabs = ({isDarkMode, user, onTap}: TabsProps) => {
           ></Image>
         </View>,
       }}
-      listeners={({navigation})=>({
-        tabPress: (e) => {
-          console.log('Videos tab tapped');
-          console.log(user);
-          if(user.name === 'guest'){
-            e.preventDefault()
-            navigation.navigate('SignUp');
-          }
-        },
-      })}
+      listeners={{ tabPress: guardGuestTab }}
     />
     </Tab.Navigator>
   );
@@ -452,7 +438,7 @@ const App: React.FC = () => {
         fallbackTitle="App error"
         fallbackMessage="An unexpected error occurred. Retry to reload the app."
       >
-        <NavigationContainer>
+        <NavigationContainer ref={navigationRef}>
           <SafeAreaView edges={Platform.OS === 'ios'? []: []} style={{ flex: 1 }}>
 
             <StatusBar barStyle={isDark ? 'light-content' : 'dark-content'} backgroundColor="transparent" translucent = {true} />
@@ -463,12 +449,11 @@ const App: React.FC = () => {
                 </>
               ) : currentUser ? (
                 <>
-                  <Stack.Screen name="MainTabs">{() => (currentUser.role === 'creator' ? <CreatorTabs isDarkMode={isDark} user={currentUser} /> : <View style={{
-                    flex: 1,
-                  }}>
-                    <SignUpModal visible={visible} onClose={()=>({})} onCreateAccount={()=>({})}/>
-                    <FanTabs isDarkMode={isDark} user={currentUser} onTap={onTap} />
-                  </View>)}</Stack.Screen>
+                  <Stack.Screen name="MainTabs">{() => (currentUser.role === 'creator' ? <CreatorTabs isDarkMode={isDark} user={currentUser} /> : <FanTabs isDarkMode={isDark} user={currentUser} onTap={onTap} />)}</Stack.Screen>
+                  <Stack.Screen name="Login">{() => <Login onLogin={handleLogin} />}</Stack.Screen>
+                  <Stack.Screen name="EmailPhone" component={EmailPhone} />
+                  <Stack.Screen name="EmailVerification" component={EmailVerification} />
+                  <Stack.Screen name="VerifyOtp" component={VerifyOtp} />
                   <Stack.Screen name="Chat" component={ChatView} />
                   <Stack.Screen name="Settings" component={CreatorSettings} />
                   <Stack.Screen name="MembershipTiers" component={MembershipTiers} />
@@ -506,16 +491,33 @@ const App: React.FC = () => {
                   <Stack.Screen name= "Notification" component={Notifications}/>
                   <Stack.Screen name= "StreakReward" component={StreakReward}/>
                   <Stack.Screen name= "CommunityPost" component={CreateCommunityPost}/>
-                  <Stack.Screen name="SignUp">{() => <SignUpModal visible={true} onCreateAccount={()=>{}} onClose={()=>{}}/>}</Stack.Screen>
+                  <Stack.Screen name= "Store" component={Store}/>
+                  <Stack.Screen name= "UseSound" component={UseSound}/>
                 </>
               ) : (
                 <>
                   <Stack.Screen name="GetStarted" component={GetStarted} />
                   <Stack.Screen name="/vibe-picker" component={SignupVibes} />
-
+                  {/* <Stack.Screen name="Signup">{() => <Signup onLogin={handleLogin} />}</Stack.Screen> */}
+                  <Stack.Screen name="EmailPhone" component={EmailPhone} />
+                  <Stack.Screen name="EmailVerification" component={EmailVerification} />
+                  <Stack.Screen name="VerifyOtp" component={VerifyOtp} />
                 </>
               )}
             </Stack.Navigator>
+            <SignUpModal
+              visible={visible}
+              isGuest={currentUser?.role === 'guest' || currentUser?.name === 'guest'}
+              onClose={() => setVisible(false)}
+              onCreateAccount={() => {
+                setVisible(false);
+                requestAnimationFrame(() => {
+                  if (navigationRef.isReady()) {
+                    navigationRef.navigate('EmailPhone' as never);
+                  }
+                });
+              }}
+            />
           </SafeAreaView>
         </NavigationContainer>
       </ErrorBoundary>
@@ -559,7 +561,7 @@ const styles = StyleSheet.create({
     paddingBottom: 0,
     fontSize: mediumScreen ? 12: 8,
     fontFamily: "PlusJakartaSans",
-    backgroundColor: 'blue'
+    // backgroundColor: 'blue'
   },
 });
 

@@ -187,7 +187,7 @@ const Inbox: React.FC = () => {
                       <Text style={[styles.chatName, { color: chat.muted ? textSecondary : theme.text }]}>{chat.name}</Text>
                       {chat.unread ? <View style={styles.unreadDot} /> : null}
                     </View>
-                    <Text style={[styles.chatTime, { color: chat.unread ? '#d915d2' : subtle }]}>{chat.time}</Text>
+                    <Text style={[styles.chatTime, { color: chat.unread ? '#cd2bee' : subtle }]}>{chat.time}</Text>
                   </View>
                   <Text numberOfLines={1} style={[styles.chatMessage, { color: chat.unread ? theme.text : textSecondary }]}>
                     {chat.message}
@@ -205,8 +205,8 @@ const Inbox: React.FC = () => {
         <View style={[styles.bottomNav, { backgroundColor: isDark ? 'rgba(0,0,0,0.9)' : theme.card, borderColor: border }]}>
           <MaterialIcons name="home" size={24} color={subtle} />
           <MaterialIcons name="explore" size={24} color={subtle} />
-          <MaterialIcons name="add-circle" size={38} color="#930df2" />
-          <MaterialIcons name="mail" size={24} color="#d915d2" />
+          <MaterialIcons name="add-circle" size={38} color="#cd2bee" />
+          <MaterialIcons name="mail" size={24} color="#cd2bee" />
           <MaterialIcons name="person" size={24} color={subtle} />
         </View>
       </View>
@@ -234,15 +234,15 @@ const styles = StyleSheet.create({
     width: 8,
     height: 8,
     borderRadius: 4,
-    backgroundColor: '#d915d2',
+    backgroundColor: '#cd2bee',
   },
   sectionHeaderRow: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', marginTop: 8, marginBottom: 12 },
   sectionTitle: { fontFamily: 'PlusJakartaSansExtraBold', fontSize: fontScale(8), letterSpacing: 2 },
-  seeAll: { color: '#d915d2', fontFamily: 'PlusJakartaSansBold', fontSize: fontScale(8), textTransform: 'uppercase' },
+  seeAll: { color: '#cd2bee', fontFamily: 'PlusJakartaSansBold', fontSize: fontScale(8), textTransform: 'uppercase' },
   collabRow: { gap: 14, paddingBottom: 6 },
   collabItem: { alignItems: 'center', width: 74, gap: 6,},
   collabAvatarWrap: { width: 64, height: 64, borderRadius: 32, borderWidth: 2, padding: 2, },
-  collabAvatarWrapGradient: { borderColor: '#930df2' },
+  collabAvatarWrapGradient: { borderColor: '#cd2bee' },
   collabAvatar: { width: '100%', height: '100%', borderRadius: 30 },
   liveDot: { position: 'absolute', right: 2, bottom: 2, width: 12, height: 12, borderRadius: 6, backgroundColor: '#10b981', borderWidth: 2, borderColor: '#0a050d' },
   collabName: { fontFamily: 'PlusJakartaSansBold', fontSize: fontScale(7), textTransform: 'uppercase' },
@@ -252,14 +252,14 @@ const styles = StyleSheet.create({
   chatCard: { borderWidth: 1, borderRadius: 18, padding: 12, flexDirection: 'row', alignItems: 'center', gap: 12 },
   chatAvatarWrap: { width: 56, height: 56, position: 'relative' },
   chatAvatar: { width: '100%', height: '100%', borderRadius: 28, borderWidth: 1, borderColor: 'rgba(255,255,255,0.1)' },
-  chatAvatarUnread: { borderColor: '#d915d2', borderWidth: 2 },
-  vipBadge: { position: 'absolute', bottom: -2, right: -2, borderRadius: 8, backgroundColor: '#d915d2', paddingHorizontal: 4, paddingVertical: 1 },
+  chatAvatarUnread: { borderColor: '#cd2bee', borderWidth: 2 },
+  vipBadge: { position: 'absolute', bottom: -2, right: -2, borderRadius: 8, backgroundColor: '#cd2bee', paddingHorizontal: 4, paddingVertical: 1 },
   vipText: { color: '#fff', fontFamily: 'PlusJakartaSansExtraBold', fontSize: fontScale(6) },
   chatBody: { flex: 1 },
   chatTopRow: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', marginBottom: 4 },
   chatNameRow: { flexDirection: 'row', alignItems: 'center', gap: 6, flex: 1 },
   chatName: { fontFamily: 'PlusJakartaSansBold', fontSize: fontScale(10) },
-  unreadDot: { width: 8, height: 8, borderRadius: 4, backgroundColor: '#d915d2' },
+  unreadDot: { width: 8, height: 8, borderRadius: 4, backgroundColor: '#cd2bee' },
   chatTime: { fontFamily: 'PlusJakartaSansBold', fontSize: fontScale(7), textTransform: 'uppercase' },
   chatMessage: { fontFamily: 'PlusJakartaSansMedium', fontSize: fontScale(9) },
   headerLeft: {
@@ -301,8 +301,8 @@ const styles = StyleSheet.create({
     borderRadius: 28,
     alignItems: 'center',
     justifyContent: 'center',
-    backgroundColor: '#930df2',
-    shadowColor: '#d915d2',
+    backgroundColor: '#cd2bee',
+    shadowColor: '#cd2bee',
     shadowOffset: { width: 0, height: 0 },
     shadowOpacity: 0.45,
     shadowRadius: 14,

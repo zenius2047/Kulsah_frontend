@@ -296,7 +296,7 @@ const VideoPlayer: React.FC = () => {
           onPress={() => navigation.goBack()} 
          
         >
-          <Text>arrow_back</Text>
+          <Text>chevron_left</Text>
         </Pressable>
         <View>
            {isCreator && (
