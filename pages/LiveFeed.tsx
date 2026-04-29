@@ -1,5 +1,5 @@
-import React from 'react';
-import { Dimensions, FlatList, Image, ImageBackground, Pressable, StyleSheet, Text, View } from 'react-native';
+import React, { useEffect, useState } from 'react';
+import { Dimensions, FlatList, Image, ImageBackground, Keyboard, Platform, Pressable, StyleSheet, Text, TextInput, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { MaterialIcons } from '@expo/vector-icons';
 import { LinearGradient } from 'expo-linear-gradient';
@@ -22,6 +22,14 @@ interface LiveCard {
   viewers: string;
   likes: string;
   shares: string;
+}
+
+interface ChatMessage {
+  id: number;
+  user: string;
+  text: string;
+  isTip?: boolean;
+  isSystem?: boolean;
 }
 
 const CREATORS: Creator[] = [
@@ -81,6 +89,61 @@ const LiveFeed: React.FC = () => {
   const { isDark, theme } = useThemeMode();
   const viewportHeight = Dimensions.get('screen').height;
   const creatorStripHeight = viewportHeight * 0.13;
+  const [keyboardHeight, setKeyboardHeight] = useState(0);
+  const [focusedCardId, setFocusedCardId] = useState<string | null>(null);
+  const [commentDrafts, setCommentDrafts] = useState<Record<string, string>>({});
+  const [commentsByCard, setCommentsByCard] = useState<Record<string, ChatMessage[]>>({
+    '1': [
+      { id: 1, user: 'Alex_Vibes', text: 'This lighting is next level!' },
+      { id: 2, user: 'Sarah_Music', text: 'Play the new single!' },
+      { id: 3, user: 'BeatMaster', text: 'sent a Buy Dinner gift!', isTip: true },
+    ],
+    '2': [
+      { id: 4, user: 'Nova_Fan', text: 'Watching from Lagos!' },
+      { id: 5, user: 'PixelMuse', text: 'The brushwork is unreal.' },
+      { id: 6, user: 'SYSTEM', text: 'Gift streak unlocked in this room.', isSystem: true },
+    ],
+  });
+
+  const submitComment = (cardId: string) => {
+    const nextDraft = commentDrafts[cardId]?.trim();
+    if (!nextDraft) return;
+
+    setCommentsByCard((prev) => ({
+      ...prev,
+      [cardId]: [
+        ...(prev[cardId] ?? []),
+        {
+          id: Date.now(),
+          user: 'You',
+          text: nextDraft,
+        },
+      ],
+    }));
+    setCommentDrafts((prev) => ({
+      ...prev,
+      [cardId]: '',
+    }));
+  };
+
+  useEffect(() => {
+    const showEvent = Platform.OS === 'ios' ? 'keyboardWillShow' : 'keyboardDidShow';
+    const hideEvent = Platform.OS === 'ios' ? 'keyboardWillHide' : 'keyboardDidHide';
+
+    const showSubscription = Keyboard.addListener(showEvent, (event) => {
+      setKeyboardHeight(event.endCoordinates.height);
+    });
+
+    const hideSubscription = Keyboard.addListener(hideEvent, () => {
+      setKeyboardHeight(0);
+      setFocusedCardId(null);
+    });
+
+    return () => {
+      showSubscription.remove();
+      hideSubscription.remove();
+    };
+  }, []);
 
   const renderCreatorStrip = () => (
     <View style={{ height: creatorStripHeight, backgroundColor: theme.background}}>
@@ -111,6 +174,8 @@ const LiveFeed: React.FC = () => {
 
   const renderLiveCard = ({ item: card, index }: { item: LiveCard; index: number }) => {
     const cardHeight = index === 0 ? viewportHeight * 0.82: viewportHeight * 0.93;
+    const cardComments = (commentsByCard[card.id] ?? []).slice(-3);
+    const composerLift = focusedCardId === card.id ? Math.max(keyboardHeight - 24, 0) : 0;
 
     return (
       <View
@@ -146,16 +211,83 @@ const LiveFeed: React.FC = () => {
           <LinearGradient
             colors={['transparent', 'rgba(0,0,0,0.25)', 'rgba(0,0,0,0.92)']}
             locations={[0.1, 0.45, 1]}
-            style={styles.bottomOverlay}
+            style={[styles.bottomOverlay, { paddingBottom: 22 + composerLift }]}
           >
             <View style={styles.bottomContent}>
               <View style={styles.copyColumn}>
+                <View style={styles.chatStack}>
+                  {cardComments.map((message) => (
+                    <View
+                      key={message.id}
+                      style={[
+                        styles.chatCard,
+                        message.isTip ? styles.chatTipCard : null,
+                        message.isSystem ? styles.chatSystemCard : null,
+                      ]}
+                    >
+                      {!message.isSystem ? (
+                        <Image
+                          source={{ uri: `https://picsum.photos/seed/livefeed-${message.id}/60` }}
+                          style={styles.chatAvatar}
+                        />
+                      ) : null}
+
+                      <View style={styles.chatTextWrap}>
+                        <Text
+                          style={[
+                            styles.chatUser,
+                            message.isTip ? styles.chatUserTip : null,
+                            message.isSystem ? styles.chatUserSystem : null,
+                          ]}
+                        >
+                          {message.user}
+                        </Text>
+                        <Text style={styles.chatText}>{message.text}</Text>
+                      </View>
+
+                      {message.isTip ? <MaterialIcons name="verified" size={14} color="#4ade80" /> : null}
+                      {message.isSystem ? <MaterialIcons name="campaign" size={14} color="#cd2bee" /> : null}
+                    </View>
+                  ))}
+                </View>
+
                 <View style={styles.hostRow}>
                   <Image source={{ uri: card.hostAvatar }} style={styles.hostAvatar} />
                   <View style={styles.hostText}>
                     <Text style={styles.hostName}>{card.title}</Text>
                     <Text style={styles.hostSubtitle}>{card.subtitle}</Text>
                   </View>
+                </View>
+
+                <View style={styles.commentComposer}>
+                  <TextInput
+                    value={commentDrafts[card.id] ?? ''}
+                    onFocus={() => setFocusedCardId(card.id)}
+                    onBlur={() => {
+                      if (keyboardHeight === 0) {
+                        setFocusedCardId(null);
+                      }
+                    }}
+                    onChangeText={(value) =>
+                      setCommentDrafts((prev) => ({
+                        ...prev,
+                        [card.id]: value,
+                      }))
+                    }
+                    placeholder="Add a comment..."
+                    placeholderTextColor="rgba(255,255,255,0.25)"
+                    style={styles.commentInput}
+                    returnKeyType="send"
+                    onSubmitEditing={() => submitComment(card.id)}
+                  />
+
+                  <Pressable onPress={() => submitComment(card.id)}>
+                    <MaterialIcons
+                      name="send"
+                      size={20}
+                      color={(commentDrafts[card.id] ?? '').trim() ? '#cd2bee' : 'rgba(255,255,255,0.25)'}
+                    />
+                  </Pressable>
                 </View>
               </View>
 
@@ -165,6 +297,13 @@ const LiveFeed: React.FC = () => {
                     <MaterialIcons name="favorite" size={22} color="#ffffff" />
                   </Pressable>
                   <Text style={styles.metricText}>{card.likes}</Text>
+                </View>
+
+                <View style={styles.metricBlock}>
+                  <Pressable style={styles.metricButton}>
+                    <MaterialIcons name="redeem" size={22} color="#ffffff" />
+                  </Pressable>
+                  <Text style={styles.metricText}>Gift</Text>
                 </View>
 
                 <View style={styles.metricBlock}>
@@ -193,6 +332,7 @@ const LiveFeed: React.FC = () => {
          }]}>
         <FlatList
         bounces={false}
+          scrollEnabled={keyboardHeight === 0}
           data={LIVE_CARDS}
           keyExtractor={(item) => item.id}
           renderItem={renderLiveCard}
@@ -339,7 +479,7 @@ const styles = StyleSheet.create({
   bottomOverlay: {
     paddingHorizontal: 20,
     paddingBottom: 22,
-    paddingTop: 88,
+    paddingTop: 56,
   },
   bottomContent: {
     flexDirection: 'row',
@@ -351,10 +491,61 @@ const styles = StyleSheet.create({
     flex: 1,
     maxWidth: '72%',
   },
+  chatStack: {
+    gap: 8,
+    marginBottom: 14,
+  },
+  chatCard: {
+    flexDirection: 'row',
+    alignItems: 'flex-start',
+    gap: 8,
+    paddingHorizontal: 10,
+    paddingVertical: 9,
+    borderRadius: 20,
+    backgroundColor: 'rgba(0,0,0,0.42)',
+    borderWidth: 1,
+    borderColor: 'rgba(255,255,255,0.06)',
+  },
+  chatTipCard: {
+    backgroundColor: 'rgba(34,197,94,0.14)',
+    borderColor: 'rgba(34,197,94,0.28)',
+  },
+  chatSystemCard: {
+    backgroundColor: 'rgba(205,43,238,0.14)',
+    borderColor: 'rgba(205,43,238,0.24)',
+  },
+  chatAvatar: {
+    width: 28,
+    height: 28,
+    borderRadius: 14,
+  },
+  chatTextWrap: {
+    flex: 1,
+  },
+  chatUser: {
+    color: 'rgba(205,43,238,0.76)',
+    fontFamily: 'PlusJakartaSansExtraBold',
+    fontSize: fontScale(8.5),
+    letterSpacing: 1.1,
+    textTransform: 'uppercase',
+  },
+  chatUserTip: {
+    color: '#4ade80',
+  },
+  chatUserSystem: {
+    color: '#cd2bee',
+  },
+  chatText: {
+    color: '#fff',
+    fontFamily: 'PlusJakartaSansMedium',
+    fontSize: fontScale(10.5),
+    lineHeight: 15,
+    marginTop: 2,
+  },
   hostRow: {
     flexDirection: 'row',
     alignItems: 'center',
-    marginBottom: 18,
+    marginBottom: 14,
   },
   hostAvatar: {
     width: 44,
@@ -377,6 +568,23 @@ const styles = StyleSheet.create({
     fontSize: fontScale(7),
     fontFamily: 'PlusJakartaSansMedium',
     marginTop: 2,
+  },
+  commentComposer: {
+    minHeight: 48,
+    borderRadius: 24,
+    borderWidth: 1,
+    borderColor: 'rgba(255,255,255,0.1)',
+    backgroundColor: 'rgba(0,0,0,0.44)',
+    paddingHorizontal: 14,
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 10,
+  },
+  commentInput: {
+    flex: 1,
+    color: '#fff',
+    fontFamily: 'PlusJakartaSansMedium',
+    fontSize: fontScale(11),
   },
   joinButton: {
     alignSelf: 'flex-start',

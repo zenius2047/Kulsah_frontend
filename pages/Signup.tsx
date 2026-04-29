@@ -1,6 +1,6 @@
 import React, { useMemo, useState } from 'react';
 import { useThemeMode } from '../theme';
-import { Image, Pressable, ScrollView, Text, TextInput, View } from 'react-native';
+import { Image, Pressable, ScrollView, Text, TextInput, View, KeyboardAvoidingView, Platform } from 'react-native';
 import { useNavigation, useRoute } from '@react-navigation/native';
 import type { User, UserRole } from '../types';
 import { MaterialIcons } from '@expo/vector-icons';
@@ -160,6 +160,7 @@ const Signup: React.FC<SignupProps> = ({ onLogin }) => {
   };
 
   return (
+    <KeyboardAvoidingView style={{ flex: 1 }} behavior={Platform.OS === 'ios' ? 'padding' : undefined} keyboardVerticalOffset={0}>
     <View style={{ flex: 1, backgroundColor: '#000', paddingTop: 50}}>
       <View style={{ height: 4, backgroundColor: 'rgba(255,255,255,0.1)' }}>
         <View style={{ height: '100%', width: `${progress}%`, backgroundColor: '#cd2bee' }} />
@@ -459,8 +460,11 @@ const Signup: React.FC<SignupProps> = ({ onLogin }) => {
         )}
       </ScrollView>
     </View>
+  </KeyboardAvoidingView>
   );
 };
 
 export default Signup;
+
+
 

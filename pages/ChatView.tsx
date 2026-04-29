@@ -1,7 +1,9 @@
 import React, { useEffect, useMemo, useRef, useState } from 'react';
 import { useThemeMode } from '../theme';
 import {
+  KeyboardAvoidingView,
   Modal,
+  Platform,
   Pressable,
   ScrollView,
   StyleSheet,
@@ -219,6 +221,7 @@ const ChatView: React.FC = () => {
   const iconBtnBorder = isDark ? 'rgba(255,255,255,0.12)' : border;
 
   return (
+    <KeyboardAvoidingView style={{ flex: 1 }} behavior={Platform.OS === 'ios' ? 'padding' : undefined} keyboardVerticalOffset={0}>
     <View style={[styles.screen, { backgroundColor: theme.screen }]}>
       <Modal visible={callStatus !== 'idle'} transparent animationType="fade">
         <View style={[styles.callOverlay, { backgroundColor: callOverlayBg }]}>
@@ -264,12 +267,12 @@ const ChatView: React.FC = () => {
             <Text style={[styles.userSub, { color: mutedText }]}>{isTyping || isGeneratingReplies ? 'Thinking...' : 'Synchronized'}</Text>
           </View>
 
-          <Pressable onPress={() => startCall('audio')} style={[styles.iconBtn, { backgroundColor: iconBtnBg, borderColor: iconBtnBorder }]}>
+          {/* <Pressable onPress={() => startCall('audio')} style={[styles.iconBtn, { backgroundColor: iconBtnBg, borderColor: iconBtnBorder }]}>
             <MaterialIcons name="call" size={18} color={primaryText} />
           </Pressable>
           <Pressable onPress={() => startCall('video')} style={[styles.iconBtn, { backgroundColor: iconBtnBg, borderColor: iconBtnBorder }]}>
             <MaterialIcons name="videocam" size={18} color={primaryText} />
-          </Pressable>
+          </Pressable> */}
         </View>
 
         {/* <View style={[styles.metaCard, { backgroundColor: softSurface, borderColor: border }]}>
@@ -432,6 +435,7 @@ const ChatView: React.FC = () => {
         </View>
       </View>
     </View>
+    </KeyboardAvoidingView>
   );
 };
 
@@ -598,7 +602,7 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     gap: 8,
   },
-  input: { flex: 1, fontSize: mediumScreen? fontScale(14): fontScale(10), fontFamily: 'PlusJakartaSansBold' },
+  input: { flex: 1, fontSize: mediumScreen? fontScale(12): fontScale(8), fontFamily: 'PlusJakartaSansBold' },
   sendBtn: { width: 48, height: 48, borderRadius: 24, backgroundColor: '#cd2bee', justifyContent: 'center', alignItems: 'center' },
   sendBtnDisabled: { backgroundColor: 'rgba(255,255,255,0.12)' },
 });

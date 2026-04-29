@@ -1,5 +1,6 @@
 ﻿import React, { useMemo, useState } from 'react';
 import {
+  KeyboardAvoidingView,
   Platform,
   Pressable,
   ScrollView,
@@ -76,6 +77,7 @@ const EmailPhone: React.FC = () => {
   };
 
   return (
+    <KeyboardAvoidingView style={{ flex: 1 }} behavior={Platform.OS === 'ios' ? 'padding' : undefined} keyboardVerticalOffset={0}>
     <SafeAreaView
       style={[
         styles.safeArea,
@@ -230,6 +232,7 @@ const EmailPhone: React.FC = () => {
         </ScrollView>
       </View>
     </SafeAreaView>
+    </KeyboardAvoidingView>
   );
 };
 

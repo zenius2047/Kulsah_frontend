@@ -42,6 +42,7 @@ import ChallengeCard from './pages/ChallengeScreen';
 import ChallengesScreen from './pages/ChallengeScreen';
 import ChallengeScreen from './pages/ChallengeScreen';
 import UseSound from './pages/UseSound';
+import UseEffect from './pages/UseEffect';
 import RecordContent from './pages/RecordContent';
 import ChallengeEntry from './pages/challengeEntry';
 import ParticipantHistory from './pages/ParticipantHistory';
@@ -83,6 +84,8 @@ import EmailPhone from './pages/EmailPhone';
 import Store from './pages/Store';
 import VerifyOtp from './VerifyOtp';
 import EmailVerification from './EmailVerification';
+import VibePicker from './pages/VibePicker';
+import FanTicketDetail from './pages/FanTicketDetail';
 
 
 const Stack = createNativeStackNavigator();
@@ -493,6 +496,9 @@ const App: React.FC = () => {
                   <Stack.Screen name= "CommunityPost" component={CreateCommunityPost}/>
                   <Stack.Screen name= "Store" component={Store}/>
                   <Stack.Screen name= "UseSound" component={UseSound}/>
+                  <Stack.Screen name= "UseEffect" component={UseEffect}/>
+                  <Stack.Screen name= "VibePicker" component={VibePicker}/>
+                  <Stack.Screen name= "FanTicket" component={FanTicketDetail}/>
                 </>
               ) : (
                 <>

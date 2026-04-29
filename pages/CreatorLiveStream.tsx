@@ -4,7 +4,9 @@ import {
   ActivityIndicator,
   Image,
   ImageBackground,
+  KeyboardAvoidingView,
   Modal,
+  Platform,
   Pressable,
   ScrollView,
   StyleSheet,
@@ -177,6 +179,7 @@ const CreatorLiveStream: React.FC = () => {
   };
 
   return (
+    <KeyboardAvoidingView style={{ flex: 1 }} behavior={Platform.OS === 'ios' ? 'padding' : undefined} keyboardVerticalOffset={0}>
     <SafeAreaView style={[styles.safeArea, { backgroundColor: theme.background }]} edges={['top', 'left', 'right', 'bottom']}>
       <View style={[styles.screen, { backgroundColor: theme.screen }]}>
         <ImageBackground
@@ -524,6 +527,7 @@ const CreatorLiveStream: React.FC = () => {
         </Modal>
       </View>
     </SafeAreaView>
+    </KeyboardAvoidingView>
   );
 };
 

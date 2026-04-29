@@ -30,6 +30,8 @@ const actionCards = [
     icon: 'calendar-today' as const,
     tint: '#cd2bee',
     bg: 'rgba(147, 13, 242, 0.16)',
+    route: 'CreatorEvents',
+    params: { openComposer: true },
   },
   {
     title: 'Challenge',
@@ -37,6 +39,7 @@ const actionCards = [
     icon: 'emoji-events' as const,
     tint: '#cd2bee',
     bg: 'rgba(217, 21, 210, 0.16)',
+    route: 'CreateChallenge',
   },
   {
     title: 'Edit',
@@ -44,6 +47,7 @@ const actionCards = [
     icon: 'movie-edit' as const,
     tint: '#c084fc',
     bg: 'rgba(192, 132, 252, 0.16)',
+    route: undefined,
   },
 ];
 
@@ -164,7 +168,15 @@ const CreateEvent: React.FC = () => {
 
           <View style={styles.actionsColumn}>
             {actionCards.map((card) => (
-              <Pressable key={card.title} style={[styles.actionCard, { backgroundColor: cardBg, borderColor: cardBorder }]}>
+              <Pressable
+                key={card.title}
+                onPress={() => {
+                  if (card.route) {
+                    navigation.navigate(card.route, card.params);
+                  }
+                }}
+                style={[styles.actionCard, { backgroundColor: cardBg, borderColor: cardBorder }]}
+              >
                 <View style={[styles.actionIconWrap, { backgroundColor: card.bg }]}>
                   <MaterialIcons name={card.icon} size={28} color={card.tint} />
                 </View>

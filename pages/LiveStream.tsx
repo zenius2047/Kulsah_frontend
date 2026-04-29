@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { useThemeMode } from '../theme';
-import { View, Text, Pressable, Image, TextInput } from 'react-native';
+import { View, Text, Pressable, Image, TextInput, KeyboardAvoidingView, Platform } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
 import { GoogleGenAI } from '@google/genai';
 
@@ -74,6 +74,7 @@ const LiveStream: React.FC = () => {
   };
 
   return (
+    <KeyboardAvoidingView style={{ flex: 1 }} behavior={Platform.OS === 'ios' ? 'padding' : undefined} keyboardVerticalOffset={0}>
     <View>
       <View>
         <Image source={{ uri: 'https://picsum.photos/seed/livestreambg/1200/800' }} />
@@ -193,6 +194,7 @@ const LiveStream: React.FC = () => {
         </View>
       )}
     </View>
+    </KeyboardAvoidingView>
   );
 };
 

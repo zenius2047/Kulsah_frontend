@@ -24,8 +24,9 @@ import NotificationsIcon from '../assets/icons/notifications-svg.svg';
 import VerifiedIcon from '../assets/icons/verified-svg.svg';
 import FireIcon from '../assets/icons/fire-svg.svg';
 import { SvgProps } from 'react-native-svg';
+import CoinsIcon from '../assets/icons/coins-svg.svg';
 
-type SubView = 'main' | 'profile' | 'identity' | 'payments' | 'notifications';
+type SubView = 'main' | 'profile' | 'identity' | 'gifts' | 'payments' | 'notifications';
 
 type FanSettingsProps = {
   onLogout?: () => void;
@@ -122,6 +123,12 @@ const FanSettings: React.FC<FanSettingsProps> = ({ onLogout, isDarkMode, onToggl
   const paymentMethods = [
     { id: 'pm1', type: 'visa', last4: '4242', expiry: '12/25', isDefault: true },
     { id: 'pm2', type: 'momo', provider: 'MTN', phone: '+233 24 123 4567', isDefault: false },
+  ];
+
+  const ownedGifts = [
+    { name: 'Fan Sticker Pack', count: 12, icon: 'sticky-note-2', desc: 'Express yourself in live chat' },
+    { name: 'Buy Coffee', count: 5, icon: 'coffee', desc: 'Support creators with caffeine' },
+    { name: 'Season Sticker', count: 2, icon: 'workspace-premium', desc: 'Limited edition seasonal drop' },
   ];
 
   useEffect(() => {
@@ -476,11 +483,105 @@ const FanSettings: React.FC<FanSettingsProps> = ({ onLogout, isDarkMode, onToggl
     </View>
   );
 
+  const renderGiftsView = () => (
+    <View style={[s.viewWrap, { backgroundColor: theme.screen }]}>
+      {renderHeader('Gifts & Coins')}
+      <ScrollView contentContainerStyle={s.paymentsContent} showsVerticalScrollIndicator={false}>
+        <View
+          style={[
+            s.walletCard,
+            {
+              backgroundColor: isDark ? 'rgba(205,43,238,0.08)' : '#faf5ff',
+              borderColor: isDark ? 'rgba(205,43,238,0.22)' : '#e9d5ff',
+            },
+          ]}
+        >
+          <View style={s.walletWatermark}>
+            <MaterialIcons name="toll" size={88} color={isDark ? 'rgba(255,255,255,0.05)' : 'rgba(15,23,42,0.05)'} />
+          </View>
+          <View style={s.walletContent}>
+            <Text style={[s.sectionTitle, { color: theme.accent }]}>Kulsah Wallet</Text>
+            <Text style={[s.walletValue, { color: theme.text }]}>
+              1,240 <Text style={[s.walletUnit, { color: theme.accent }]}>Coins</Text>
+            </Text>
+            <View style={s.walletActions}>
+              <Pressable onPress={() => setActiveView('payments')} style={[s.walletPrimaryButton, { backgroundColor: theme.accent }]}>
+                <Text style={s.walletPrimaryButtonText}>Top Up Wallet</Text>
+              </Pressable>
+              <Pressable
+                onPress={() => setActiveView('payments')}
+                style={[
+                  s.walletIconButton,
+                  {
+                    backgroundColor: isDark ? 'rgba(255,255,255,0.04)' : '#ffffff',
+                    borderColor: isDark ? 'rgba(205,43,238,0.22)' : '#e9d5ff',
+                  },
+                ]}
+              >
+                <MaterialIcons name="history" size={20} color={theme.accent} />
+              </Pressable>
+            </View>
+          </View>
+        </View>
+
+        <View style={s.sectionBlock}>
+          <View style={s.rowBetween}>
+            <Text style={[s.sectionTitle, { color: secondaryText }]}>Digital Assets Stock</Text>
+            <Text style={[s.moreItemsMeta, { color: mutedText }]}>3 Types Owned</Text>
+          </View>
+          {ownedGifts.map((gift) => (
+            <View key={gift.name} style={[s.giftCard, { backgroundColor: elevatedSurface, borderColor: theme.border }]}>
+              <View style={s.giftLeft}>
+                <View style={[s.giftIconWrap, { backgroundColor: softSurface, borderColor: theme.border }]}>
+                  <MaterialIcons name={gift.icon as any} size={22} color={theme.accent} />
+                </View>
+                <View style={s.giftTextWrap}>
+                  <Text style={[s.giftTitle, { color: theme.text }]} numberOfLines={1}>
+                    {gift.name}
+                  </Text>
+                  <Text style={[s.giftDesc, { color: secondaryText }]}>{gift.desc}</Text>
+                </View>
+              </View>
+              <View style={s.giftRight}>
+                <Text style={[s.giftCount, { color: theme.accent }]}>{gift.count}</Text>
+                <Text style={[s.giftMeta, { color: mutedText }]}>Owned</Text>
+              </View>
+            </View>
+          ))}
+        </View>
+
+        <View style={s.sectionBlock}>
+          <Text style={[s.sectionTitle, { color: secondaryText }]}>More Items</Text>
+          <View
+            style={[
+              s.marketplaceCard,
+              {
+                backgroundColor: elevatedSurface,
+                borderColor: isDark ? 'rgba(255,255,255,0.12)' : '#cbd5e1',
+              },
+            ]}
+          >
+            <View style={[s.marketplaceIconWrap, { backgroundColor: softSurface }]}>
+              <MaterialIcons name="add-shopping-cart" size={22} color={secondaryText} />
+            </View>
+            <View style={s.marketplaceTextWrap}>
+              <Text style={[s.marketplaceTitle, { color: theme.text }]}>Discover New Gifts</Text>
+              <Text style={[s.marketplaceDesc, { color: secondaryText }]}>
+                Visit the Kulsah Marketplace to find more digital assets and support your favorite artists.
+              </Text>
+            </View>
+          </View>
+        </View>
+      </ScrollView>
+    </View>
+  );
+
   if (currentUser?.role === 'creator') {
     return <CreatorSettings onLogout={onLogout} />;
   }
   if (activeView === 'profile') return renderProfileView();
   if (activeView === 'identity') return renderIdentityView();
+  if (activeView === 'gifts') return renderGiftsView();
   if (activeView === 'payments') return renderPaymentsView();
 
   const sections: { title: string; items: SettingItem[] }[] = [
@@ -510,6 +611,7 @@ const FanSettings: React.FC<FanSettingsProps> = ({ onLogout, isDarkMode, onToggl
     {
       title: 'Premium & Billing',
       items: [
+        { label: 'Gifts & Coins', icon: CoinsIcon, desc: 'Wallet, stickers, and assets', id: 'gifts' },
         { label: 'Payment Hub', icon: PaymentsIcon, desc: 'Wallet and saved methods', id: 'payments' },
         { label: 'Active Subscriptions', icon: 'stars', desc: 'Creators you support', path: '/fan/subscriptions' },
       ],
@@ -518,7 +620,7 @@ const FanSettings: React.FC<FanSettingsProps> = ({ onLogout, isDarkMode, onToggl
       title: 'System',
       items: [
         { label: 'Global Alerts', icon: NotificationsIcon, desc: 'Manage your feed pings', id: 'notifications' },
-        { label: 'Vibe Signature', icon: 'settings-input-antenna', desc: 'Recalibrate your algorithm', path: '/vibe-picker' },
+        { label: 'Vibe Signature', icon: 'settings-input-antenna', desc: 'Recalibrate your algorithm', path: 'VibePicker' },
       ],
     },
   ];
@@ -845,6 +947,143 @@ const s = StyleSheet.create({
     borderRadius: 10,
   },
   paymentsContent: { padding: 16, paddingBottom: 120, gap: 16 },
+  walletCard: {
+    borderRadius: 32,
+    borderWidth: 1,
+    padding: 24,
+    overflow: 'hidden',
+  },
+  walletWatermark: {
+    position: 'absolute',
+    top: 20,
+    right: 18,
+  },
+  walletContent: { gap: 12 },
+  walletValue: {
+    fontSize: mediumScreen ? fontScale(32) : fontScale(28),
+    fontFamily: 'PlusJakartaSansExtraBold',
+    color: '#0f172a',
+    marginTop: 4,
+  },
+  walletUnit: {
+    fontSize: mediumScreen ? fontScale(18) : fontScale(14),
+    fontFamily: 'PlusJakartaSansExtraBold',
+    color: '#cd2bee',
+  },
+  walletActions: {
+    flexDirection: 'row',
+    gap: 12,
+    marginTop: 12,
+  },
+  walletPrimaryButton: {
+    flex: 1,
+    height: 56,
+    borderRadius: 999,
+    alignItems: 'center',
+    justifyContent: 'center',
+    backgroundColor: '#cd2bee',
+  },
+  walletPrimaryButtonText: {
+    color: '#fff',
+    fontSize: fontScale(10),
+    fontFamily: 'PlusJakartaSansExtraBold',
+    textTransform: 'uppercase',
+    letterSpacing: 1.5,
+  },
+  walletIconButton: {
+    width: 56,
+    height: 56,
+    borderRadius: 18,
+    borderWidth: 1,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  moreItemsMeta: {
+    fontSize: fontScale(9),
+    fontFamily: 'PlusJakartaSansExtraBold',
+    textTransform: 'uppercase',
+    letterSpacing: 1.5,
+  },
+  giftCard: {
+    padding: 16,
+    borderRadius: 24,
+    borderWidth: 1,
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+  },
+  giftLeft: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 14,
+    flex: 1,
+    paddingRight: 8,
+  },
+  giftIconWrap: {
+    width: 56,
+    height: 56,
+    borderRadius: 18,
+    borderWidth: 1,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  giftTextWrap: { flex: 1 },
+  giftTitle: {
+    fontSize: fontScale(12),
+    fontFamily: 'PlusJakartaSansExtraBold',
+    textTransform: 'uppercase',
+  },
+  giftDesc: {
+    marginTop: 2,
+    fontSize: fontScale(10),
+    fontFamily: 'PlusJakartaSansMedium',
+  },
+  giftRight: {
+    alignItems: 'flex-end',
+    minWidth: 48,
+  },
+  giftCount: {
+    fontSize: fontScale(18),
+    fontFamily: 'PlusJakartaSansExtraBold',
+    lineHeight: fontScale(20),
+  },
+  giftMeta: {
+    marginTop: 2,
+    fontSize: fontScale(8),
+    fontFamily: 'PlusJakartaSansExtraBold',
+    textTransform: 'uppercase',
+    letterSpacing: 1.5,
+  },
+  marketplaceCard: {
+    borderRadius: 24,
+    borderWidth: 1,
+    borderStyle: 'dashed',
+    alignItems: 'center',
+    paddingVertical: 22,
+    paddingHorizontal: 18,
+  },
+  marketplaceIconWrap: {
+    width: 48,
+    height: 48,
+    borderRadius: 24,
+    alignItems: 'center',
+    justifyContent: 'center',
+    marginBottom: 12,
+  },
+  marketplaceTextWrap: {
+    alignItems: 'center',
+    gap: 6,
+  },
+  marketplaceTitle: {
+    fontSize: fontScale(12),
+    fontFamily: 'PlusJakartaSansBold',
+  },
+  marketplaceDesc: {
+    fontSize: fontScale(10),
+    fontFamily: 'PlusJakartaSansMedium',
+    textAlign: 'center',
+    lineHeight: fontScale(16),
+  },
   methodCard: {
     padding: 14,
     borderRadius: 22,

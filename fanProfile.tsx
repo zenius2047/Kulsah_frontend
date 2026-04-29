@@ -71,10 +71,10 @@ const FanProfile: React.FC<FanProfileProps> = ({ onToggleRole }) => {
   ];
 
   const stats = [
-    { label: 'Supporting', value: '24', onPress: () => navigation.navigate('Feed') },
+    { label: 'Following', value: '24', onPress: () => navigation.navigate('Feed') },
     { label: 'Unlocked', value: '12', onPress: () => navigation.navigate('Feed') },
     {
-      label: 'Attending',
+      label: 'Events',
       value: '2',
       onPress: () => navigation.navigate('FanSettings', { view: 'identity', fromProfile: true }),
     },
@@ -395,7 +395,7 @@ const FanProfile: React.FC<FanProfileProps> = ({ onToggleRole }) => {
               {activeTab === 'Tickets' && (
                 <View style={s.listWrap}>
                   {[1, 2].map((item) => (
-                    <Pressable key={item} onPress={() => navigation.navigate('FanSettings', { view: 'identity', fromProfile: true })} style={s.ticketCard}>
+                    <Pressable key={item} onPress={() => navigation.navigate('FanTicket')} style={s.ticketCard}>
                       <View style={s.ticketLeft}>
                         <View style={s.ticketIconWrap}>
                           <MaterialIcons name="local-activity" size={24} color="#cd2bee" />
@@ -563,18 +563,19 @@ const s = StyleSheet.create({
     borderRadius: 28,
     paddingVertical: 16,
     paddingHorizontal: 12,
+    alignItems: 'center'
     // backgroundColor: 'rgba(255,255,255,0.05)',
     // borderWidth: 1,
     // borderColor: 'rgba(255,255,255,0.08)',
   },
   statValue: {
     color: '#fff',
-    fontSize: mediumScreen ? 28 : 24,
+    fontSize: mediumScreen? fontScale(16):fontScale(12),
     fontFamily: 'PlusJakartaSansExtraBold',
   },
   statLabel: {
     color: '#8f95af',
-    fontSize: 8,
+    fontSize: mediumScreen ? fontScale(12):fontScale(8),
     fontFamily: 'PlusJakartaSansExtraBold',
     textTransform: 'uppercase',
     letterSpacing: 1.2,
@@ -657,10 +658,10 @@ const s = StyleSheet.create({
   },
   tabIndicator: {
     position: 'absolute',
-    left: 8,
-    right: 8,
+    left: 20,
+    right: 20,
     bottom: -1,
-    height: 4,
+    height: 2,
     borderRadius: 999,
     backgroundColor: '#cd2bee',
   },

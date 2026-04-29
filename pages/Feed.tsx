@@ -724,7 +724,11 @@ useEffect(() => {
 
       {/* Bottom overlay: captions, ticket button */}
       <View style={{ position: 'absolute', bottom: 0, left: 5, right: 16, paddingBottom: 16, gap: 5 }}>
-         <View style={{
+         <Pressable 
+         onPress={()=>{
+          navigation.navigate('UseEffect');
+         }}
+         style={{
               backgroundColor: '#00000086',
               flexDirection: 'row',
               paddingHorizontal: 5,
@@ -746,7 +750,7 @@ useEffect(() => {
             }}>
               Style {" • "}{" Kulsah"}
             </Text>
-            </View>
+            </Pressable>
         <View style={{ flexDirection: 'row', alignItems: 'center', gap: 8 }}>
           <Pressable 
           onPress={()=> navigation.navigate('ArtistProfile', {isOwner: false, id: item.artist})}

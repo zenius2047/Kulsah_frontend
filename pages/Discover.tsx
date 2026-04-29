@@ -145,6 +145,12 @@ const Discover: React.FC<{ embedded?: boolean }> = ({ embedded = false }) => {
     },
   ];
 
+  const challenges = [
+    { id: 'c1', title: 'Night Vibes', creator: 'Mila Ray', participants: '1.2k', img: 'https://images.unsplash.com/photo-1547153760-18fc86324498?auto=format&fit=crop&q=80&w=800' },
+                { id: 'c2', title: 'Nebula Vocal', creator: 'Elena Rose', participants: '850', img: 'https://images.unsplash.com/photo-1516450360452-9312f5e86fc7?auto=format&fit=crop&q=80&w=800' },
+                { id: 'c3', title: 'Neon Pulse', creator: 'Zoe K', participants: '420', img: 'https://images.unsplash.com/photo-1550745165-9bc0b252726f?auto=format&fit=crop&q=80&w=800' }
+  ]
+
   return (
     <ScrollView
       keyboardShouldPersistTaps="handled"
@@ -374,6 +380,104 @@ const Discover: React.FC<{ embedded?: boolean }> = ({ embedded = false }) => {
           </View>
         )}
 
+
+        {(activeCategory === 'All' ) && (
+          <View>
+            <View style={{ paddingHorizontal: 16, flexDirection: 'row', justifyContent: 'space-between', marginVertical: 20 }}>
+              <Text style={{ color: theme.text, fontSize: mediumScreen ? 18 : 14, fontWeight: 'bold', fontFamily: 'PlusJakartaSansExtraBold' }}>TRENDING CHALLENGE</Text>
+              <Pressable>
+                <Text style={{ color: '#cd2bee', fontSize: mediumScreen ? 14 : 10, fontWeight: 'bold', fontFamily: 'PlusJakartaSansBold' }}>VIEW ORBIT</Text>
+              </Pressable>
+            </View>
+            <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={{ gap: 14, paddingHorizontal: 16 }}>
+              {challenges.map((event) => (
+                <Pressable key={event.id} onPress={() => navigation.navigate('ChallengeFeed')} style={{ width: 220 }}>
+                  <View style={{ borderRadius: 32, overflow: 'hidden', backgroundColor: cardBackground, height: 300, borderWidth: 1, borderColor: theme.border }}>
+                    <Image source={{ uri: event.img }} style={{ width: '100%', height: '100%', opacity: 0.7 }} />
+                    <LinearGradient
+                      colors={['transparent', 'rgba(0,0,0,0.18)', 'rgba(0,0,0,0.95)']}
+                      start={{ x: 0, y: 0 }}
+                      end={{ x: 0, y: 1 }}
+                      style={{
+                        position: 'absolute',
+                        top: 0,
+                        left: 0,
+                        right: 0,
+                        bottom: 0,
+                        padding: 18,
+                        justifyContent: 'flex-end',
+                      }}
+                    >
+                      <View style={{
+                        justifyContent:'flex-start'
+                      }}>
+                        <Text
+                          numberOfLines={1}
+                          style={{
+                            color: '#cd2bee',
+                            fontSize: mediumScreen ? 14 : 10,
+                            width: '90%',
+                            fontFamily: 'PlusJakartaSansBold',
+                            letterSpacing: 0.6,
+                          }}
+                        >
+                          @{event.creator}
+                        </Text>
+                        <Text
+                          numberOfLines={1}
+                          style={{
+                            color: 'white',
+                            fontSize: mediumScreen ? 18 : 14,
+                            // fontWeight: '800',
+                            // marginTop: 0,
+                            fontFamily: 'PlusJakartaSansExtraBold',
+                            width: '90%',
+                          }}
+                        >
+                          {event.title.toUpperCase()}
+                        </Text>
+                        {/* <View style={{ position: 'absolute', bottom: 2, right: 0 }}>
+                          <Text style={{ color: isDark ? '#888' : theme.textSecondary, fontSize: mediumScreen ? 12 : 9, fontWeight: 'bold', fontFamily: 'PlusJakartaSansBold' }}>FROM</Text>
+                          <Text style={{ color: 'white', fontSize: mediumScreen ? 22 : 18, fontWeight: 'bold', fontFamily: 'PlusJakartaSansExtraBold' }}>
+                            {event.price}
+                          </Text>
+                        </View> */}
+                         <Text style={{
+                          color: '#ffffff8c',
+                          fontSize: mediumScreen ? 12 : 8,
+                          fontFamily: 'PlusJakartaSansExtraBold',
+                          textTransform: 'uppercase',
+                          letterSpacing: 0.5
+                           }}>
+                       {event.participants}{" JOINED"}
+                      </Text>
+                      </View>
+                    </LinearGradient>
+
+                    <View
+                      style={{
+                        alignItems: 'center',
+                        justifyContent: 'center',
+                      }}
+                    >
+                      <Text style={{ color: 'white', fontSize: mediumScreen ? 11 : 9, marginLeft: 8, fontFamily: 'PlusJakartaSansBold' }}>
+                       {event.participants}
+                      </Text>
+                    </View>
+                  </View>
+                </Pressable>
+              ))}
+            </ScrollView>
+          </View>
+        )}
+
+
+
+
+
+
+
+
         {(activeCategory === 'All' || activeCategory === 'Videos' || activeCategory === 'Shorts') && (
           <View>
             <View style={{ paddingHorizontal: 16, flexDirection: 'row', justifyContent: 'space-between', marginBottom: 10, marginTop: 4 }}>
@@ -382,10 +486,10 @@ const Discover: React.FC<{ embedded?: boolean }> = ({ embedded = false }) => {
                 <Text style={{ color: '#cd2bee', fontSize: mediumScreen ? 15 : 11, fontWeight: 'bold', fontFamily: 'PlusJakartaSansBold' }}>SEE ALL</Text>
               </Pressable>
             </View>
-            <View style={{ gap: 16, paddingHorizontal: 16 }}>
+            <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={{ gap: 14, paddingHorizontal: 16 }}>
               {featuredClips.map((vid) => (
                 <Pressable key={vid.id} onPress={() => navigation.navigate('Feed')}>
-                  <View style={{ borderRadius: 28, overflow: 'hidden', backgroundColor: cardBackground, height: 270, borderWidth: 1, borderColor: theme.border }}>
+                  <View style={{ borderRadius: 28, overflow: 'hidden', backgroundColor: cardBackground, height: 270, width: 270, borderWidth: 1, borderColor: theme.border }}>
                     <Image source={{ uri: vid.img }} style={{ width: '100%', height: '100%', opacity: 0.75 }} />
                     <LinearGradient
                       colors={['transparent', 'rgba(0,0,0,0.22)', 'rgba(0,0,0,0.92)']}
@@ -441,7 +545,7 @@ const Discover: React.FC<{ embedded?: boolean }> = ({ embedded = false }) => {
                   </View>
                 </Pressable>
               ))}
-            </View>
+            </ScrollView>
           </View>
         )}
 
@@ -457,7 +561,7 @@ const Discover: React.FC<{ embedded?: boolean }> = ({ embedded = false }) => {
             </View>
             <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={{ gap: 12, paddingHorizontal: 16 }}>
               {featuredMerch.map((item) => (
-                <Pressable key={item.id} style={{ width: 180 }} onPress={() => navigation.navigate('CreateContent')}>
+                <Pressable key={item.id} style={{ width: 180 }} onPress={() => navigation.navigate('Store')}>
                   <View style={{ borderRadius: 24, overflow: 'hidden', backgroundColor: cardBackground, borderWidth: 1, borderColor: theme.border }}>
                     <Image source={{ uri: item.img }} style={{ width: '100%', aspectRatio: 1 }} />
                     <View style={{ position: 'absolute', top: 10, right: 10, backgroundColor: '#cd2bee', borderRadius: 999, paddingHorizontal: 10, paddingVertical: 6 }}>

@@ -23,67 +23,49 @@ type Creation = {
   views: string;
 };
 
-const SOUND_ART =
-  'https://lh3.googleusercontent.com/aida-public/AB6AXuC61afetuQOvzAcSKD24OE2MW7a7bEvHkhObFnOIPJ-oeWkSrzftUyGHRaKby2a22lYn-cwShpE-lclN-pFR8MNJRdG-RSPWnHXSkdEE47ghwuTJrusssbflNQf3k9TxyB3NwTm_tinGLP6XpR4VhsnTJcPZB2owGNFNIuxUCkDdgPHun40ZNsbNWLCO0xS1VCLmWyxbDgJdKRFb0oEo1AocuyyYKW-Fi4USu0G1Qzjy6C978TrKQlLkSPsRWodp975qO9LQg-egUf_';
+const EFFECT_ART =
+  'https://lh3.googleusercontent.com/aida-public/AB6AXuCksa1ikcmbA4qGqyrf6RiAzh-sNoYoaSgIZpIZpzImgJFBVhoBUetKCBHIJ0ZhbsZ056FBBwAocX_RnsT-sVqgFZDQkEZB1QWJUmHtPgg2y9yaYwtPAclWM-7oNhYvN1vmJUDtNfAO75yXorLZUlJhvunHaZslPB8ZDYBhdvLGr3Hj6XVdI0wVDqXry0YbWs3c4bN3ljCPxipsFa1PZWpnPuZmFf0U_l5BdN-32zsOPXOiVpP3YNmrAsvtpqc9w0aKYOmvQl_eHUY_';
 
 const creations: Creation[] = [
   {
     id: '1',
     image:
-      'https://lh3.googleusercontent.com/aida-public/AB6AXuCxEecIW0MbxoP0R6sY76WieREJyBfQGlm0s20wjifaBB_U7LDke3Eqbymzhy-07swoFnPyekLP4SkiIRFvyLMo0YvA3sur_J8ddIsONzw7BYp6XTQstDalHXlkArzQIwiY1aE49OK8AFVMkHAUaaXdCShwPfP7l2jqpake_8Oxb2Mvk_zDi1soRJCn4-BSOZEV2-Causb0w9RpKcn7EKWZq92H1oxRxvpxrDg6hnzDSDwfP0tUydHxh3-lrv5pVjKGBDJwu4v5G1jS',
-    views: '1.2M',
+      'https://lh3.googleusercontent.com/aida-public/AB6AXuAYsPvCP-H2OxBnNquSdWqftC2J-9HRnMG1Pk0ChJRgIzBlBzmJ_YJDhTy105E_Od7GTXz0Qb-8Wv4oJAqGi5InEsW7d1Go78sWfHSbEqQWQ20DygPxSAh5f8BRjQnToybHkXkfeFqhOUuxsWwJMr9dCES93JQspD7U1ngwpw6YBB1KZoS_qFLU7_bL-oFSoLxQr4Fh9ctZ_ul3ecYbLLb7a5YIkuwVqzE65dPcD7EZC_-vrPLYMaEwncOPkGsbvIDJLda6dpRbQx_d',
+    views: '432K',
   },
   {
     id: '2',
     image:
-      'https://lh3.googleusercontent.com/aida-public/AB6AXuAnPLpHtcxTN3zDUp-qdIlj7XIsJ6dhd2TB3oYgs2AgzUuzmetg46m5PEnCYOL3ysSo_5PvNv6cCrEVgJC2YZ7VS99egUciMHjXDrxA9GiSrdlFam4Vki9S6WAwe3oCX2-q7vH5icFHE5txQInrVy5NdjlhxQb5tBMtGxTMgvDFnHEVznEHkChwtL8V7LdGl9wcF8Ayvz_BxQtgtJYCZ7DN19xJWTvF1EhXUNe8b-VlaYM7nnb8COBsw8vdi7h0yfAmMTS_vBXb-IAT',
-    views: '856K',
+      'https://lh3.googleusercontent.com/aida-public/AB6AXuA0BwnTd_zOcXw4uaax91EHwJd8_sj_WuRXkxO1pBXiBU50D9t2VGNYFfEMucAD9Ve8TwVC551273I50hyJDhhjts9S3E6yU_J1s9cqKCHb8qA7wdTxnuTBMQ-j-j6ep1ZHHtY20fpvCrZfTFlt4RC54PIdCZIij9IKOgMhugpTt2JYV4IRIvmjBqhis-OcTE8P_1aohOzbSxsQlMaLVK_zYhsORxmHaSBOsBtLNhsaggx1mpnqbNLe7xO441pX3l9Lqm_kLq3t4g1A',
+    views: '2.1M',
   },
   {
     id: '3',
     image:
-      'https://lh3.googleusercontent.com/aida-public/AB6AXuBBdWGTBXUwWdly5qTb9OpxH6d90ay13a2RKc-kr5JXHril2NltbbFAMMzDgHDWfmPnmATPKwkl88S0l50iSlQczKzF3uAKAEqbypRdDMxeC7Ifcip0vJ-o7V0MTPviGioGw4upzOIdPXSdkSQhyAHJQnhsv8bs93yMP9OWY4oGOyqRWLBXjHUdkPkMnUnCVtj46Hw758J-V5EcsYnjJ4QPalP9FMK_Ej7niZZxIcuvFzy5vzCtJJSEIdjEeOfT3pZb_He2g3twWxOa',
-    views: '2.1M',
+      'https://lh3.googleusercontent.com/aida-public/AB6AXuDABRIBIDOe2iV6SQEz7M4yJy2dVrfmHMIHNfIPHdBe8mG6IU3my4GZHybFc2udMnuItC7OXiwP6AaF03WT-5NPrS_uiytpSxOHTj46paFNUHxkmMiB1vsj6rMXqL_Fk-uh4TModgu81wZFJt-PYGcs_O-xB_h5z86EcfnhrZOSh1lU3JxHrJ_3bKb6EI6uADCgIgxyTyoy-srXt3ERt_SALl-_Hwpdjurwt5DaQLKpKu2YICUKL_ZmYKo4ZVresHSxKv9WCI5VvOtE',
+    views: '128K',
   },
   {
     id: '4',
     image:
-      'https://lh3.googleusercontent.com/aida-public/AB6AXuCgt-GvQs2Gka66fVj1x04-XrMlSlGIHN049ZUjwVmRH--rNiQHrq018gHKBtksRm0N5gZCaxC2sRp8YdjoZcc33YIiCuHv4yAQ37Fvpkj6dIslTIqhSZLfTCbbzS77axVn4Bjnl4GP7peStS-yHJQEnrg958z9hauwPiWRQSq8xU_FE7jnTzcxFuC41VDbfF9gnIscYmgxUH60BlLj4ybxpal45GeDBjrmuZqewbtyCnVxsUjCYKBiioE99ADcpJ1J5I-ypWicSN95',
-    views: '432K',
+      'https://lh3.googleusercontent.com/aida-public/AB6AXuC7hpLWSnfInZz_re9gbYTYKGiaHHBRG_O7aXz_qm9I5RQbtsGCiU-2EbqqUk168f9ZJuGMkZi97WvIMPNO4hjr6oURZ4g0taewjVDWzbTsFfQwjAqcCnKP4mDoBG52IiaCU3l6GqLTp1XWci5ZutPpuYwk_WK4O5YrikM4vlSY810lHVOVsTpOlpnTya8UMD9irE2wAJd98BQc4SjNAtxJaUKiiLx4bCi4QWhOWKW55Z4iAL8o2zgW-fAuc5WJbBn1qKMp-7GY6GAU',
+    views: '890K',
   },
   {
     id: '5',
     image:
-      'https://lh3.googleusercontent.com/aida-public/AB6AXuAXP5Ir7NZj5Nm6wnfxdLL68FuFe9ZAake83PEwgXAGuw8iOLY3T8cShlY3VZZxDPHYsSCZrRjtuLWksD-CX0EaOqG4S4HtT6kVy7U63G4sfInq0viZYOvurbtlVS7gX1o9PUnMZQo7uo_XMEjpDI1GjKWGrK-O-t_CiKUmgT_brlhS4cRsEHBsJoyHDRsHvHe9oincu-uYvgiFJ_r7pQ9QmsZ50t8iYYE3qw0xRxR1_JP-68yPnntgGWGzVHMkVvfEZZfWFLYNCIcg',
-    views: '1.5M',
+      'https://lh3.googleusercontent.com/aida-public/AB6AXuCPHWj8EfATFcP_dZk8Zn8V0gFRRT5__X7L9GtoAdBwHUoiQXTZIRbTj_ViUNIVXulmBLA9hq3EqXom2d906_qVcpnoBT4Tnpd3W5v-qxlLswruwBgbYVTGJ98CAURoYXXx6qDmCEecRV2ezABiMelzspviQD79337u_WKbm1C5H9ZyAr-mbiHgHiOtOAhWqVQzZX_QnWSNZk-89vOtiZGJdviQuZ7PX6rVhmxxnIkcxZ9gp_aJ8EpKpJCwucwcgIkCQDDh0flqawaD',
+    views: '567K',
   },
   {
     id: '6',
     image:
-      'https://lh3.googleusercontent.com/aida-public/AB6AXuDYq9uxpz_uOvWVDECz7QoT1Zbpo2B0u3vRneJYPyJSHjzxnpDTavPti8pX4osBP1tgZpmBn9ZY54nLX0qTVVDfrbeOD7qBawbRzg-E2w1zM-2HApAkthnP_sJlfDqmm_0oU9g-tbSkZAV9d0kLs5hhW_1-oTAgZcjLQ0ZdPuU7Q-nDRrW8cV8DoeEnQSyFCsWvA9oGZu0eh1my9ZZjFPZSrUTjnJsj4jlx3GQOGT1zCeNlXRV2xa0Cj1r_sD3ba5Rrdh1zawcNJyUL',
-    views: '98K',
-  },
-  {
-    id: '7',
-    image:
-      'https://lh3.googleusercontent.com/aida-public/AB6AXuAwCTMe8bdCCs0La-IC2SbQsBDLBpWH4BUw_m3LCVutc5XSmDkzD4vufkpUcXIq166a1CGzhxTMN2KsxBYIMsAzIP1mJEqXo3ftoN3yaBsXh3Q29fY7_XJHiZE3U5XAhU79sJZ3O_gBp5eaulitFVpKdr_MRHtyQbiIvllDd_ea2q0d1bi804zDuqg0WhPS1nDkJvVu2CcRz4o0tQESVHIkguhpuOU_L7yeBGRZWlEkAV2P5ktIHdVMKEn3kqAMeWIIpxsmKA40tuss',
-    views: '312K',
-  },
-  {
-    id: '8',
-    image:
-      'https://lh3.googleusercontent.com/aida-public/AB6AXuAB5Np2f8_EZJEkljBG8u0-aj_oq3ZVlxzhTfK3Ug_zbpStBiv0N6PPJ7kVxhAY1gt3nmW0TaQAEYF55Fs-S7ldNsMrB07kL9DJ3szoFUfXmutMQLxCpJCKKPGTbTgpTD6QA0POeNuieBBLHwFBOKsZNYq4XRDn6kUjqtzwBqUdYyOBLLz-wHtKIrNc2GbbjRs69G9lvZSzMjhKM85G0E6wD6rS-GwsTdVZzve7Z-tly5pV0GfDUmuSqsxwNpz6LYUjz0nvYCO90vIn',
-    views: '670K',
-  },
-  {
-    id: '9',
-    image:
-      'https://lh3.googleusercontent.com/aida-public/AB6AXuDRzI1QrY5VmIDnIlAUv0bMZE_pOriHV0s6W5tkM9es6SFkeRWcmZR53tC38YwA7eMhEta88FEW1cONiaVCiqMkXUut_IGORSs4jQvthPW3k_psmqYSxJoaknAxlT-i1c_24nzh2hPEpAt8DN5DEKIOBgTR6wbijqryRendbGzpATU8yTYnJz-clqoBZtNf6fStQ_EcD8YtDmPosb9dCxH-HV-3_LRFfAK2-ePkgL4z8v_vBc0TOepERmCYEqI30vAVf62l51xtUnRp',
-    views: '2.5M',
+      'https://lh3.googleusercontent.com/aida-public/AB6AXuCTzfuIHkHe7adH33kqz4HAnV5P95EnTmvwlKwi4Rdz7ueziUvGwQuG6AVlG8-xFd_CL4D_oGf7p5yz6188WWgnnogO-lRtEjNStua3tZYDKOqqKoorXnslhdQ5j_DY216u0bdDgyaZN0emdA5ZnpVmhE4hyHQOsTyzuipwotnOeG7mxoMxcBbA-OfbIj88I1OZXsmicVHtF-HdHRYeXYUqUw3pk3PjxjKPXY2d8Qj8wRAovdYoWtrTBBaEevfe4KRG4t8mu0bQcfwZ',
+    views: '94K',
   },
 ];
 
-const UseSound: React.FC = () => {
+const UseEffect: React.FC = () => {
   const { isDark, theme } = useThemeMode();
   const navigation = useNavigation<any>();
   const insets = useSafeAreaInsets();
@@ -100,7 +82,7 @@ const UseSound: React.FC = () => {
   const headerButtonBackground = isDark ? 'rgba(255,255,255,0.04)' : theme.surface;
   const sectionBackground = isDark ? theme.screen : theme.background;
   const coverBorder = isDark ? 'rgba(255,255,255,0.12)' : theme.border;
-  const pillBackground = isDark ? 'rgba(147, 13, 242, 0.1)' : 'rgba(147, 13, 242, 0.08)';
+  const pillBackground = isDark ? 'rgba(205,43,238,0.1)' : 'rgba(205,43,238,0.08)';
   const metaText = isDark ? '#CBD5E1' : theme.textSecondary;
   const viewAllColor = isDark ? '#c084fc' : theme.accent;
   const cardBackground = isDark ? '#1e293b' : theme.surface;
@@ -125,20 +107,24 @@ const UseSound: React.FC = () => {
           style={StyleSheet.absoluteFill}
         />
 
-        <View style={[styles.header, { borderBottomColor: isDark ? 'rgba(147, 13, 242, 0.12)' : theme.border, backgroundColor: headerBackground }]}>
-          <Pressable style={[styles.headerButton, { backgroundColor: headerButtonBackground }]} onPress={() => navigation.goBack()}>
-            <MaterialIcons name="chevron-left" size={22} color={theme.text} />
-          </Pressable>
-          <Text style={[styles.headerTitle, { color: theme.text }]}>Sound</Text>
-          <Pressable style={[styles.headerButton, { backgroundColor: headerButtonBackground }]}>
-            <MaterialIcons name="share" size={20} color={theme.text} />
-          </Pressable>
+        <View style={[styles.header, { borderBottomColor: isDark ? 'rgba(205,43,238,0.12)' : theme.border, backgroundColor: headerBackground }]}>
+          <View style={styles.headerLeft}>
+            <Pressable style={[styles.headerButton, { backgroundColor: headerButtonBackground }]} onPress={() => navigation.goBack()}>
+              <MaterialIcons name="chevron-left" size={22} color={theme.text} />
+            </Pressable>
+            <Text style={[styles.headerTitle, { color: theme.text }]}>Effect Detail</Text>
+          </View>
+          <View style={styles.headerRight}>
+            <Pressable style={[styles.headerButton, { backgroundColor: headerButtonBackground }]}>
+              <MaterialIcons name="favorite" size={20} color="#cd2bee" />
+            </Pressable>
+            <Pressable style={[styles.headerButton, { backgroundColor: headerButtonBackground }]}>
+              <MaterialIcons name="share" size={20} color="#cd2bee" />
+            </Pressable>
+          </View>
         </View>
 
-        <ScrollView
-          showsVerticalScrollIndicator={false}
-          contentContainerStyle={styles.scrollContent}
-        >
+        <ScrollView showsVerticalScrollIndicator={false} contentContainerStyle={styles.scrollContent}>
           <View style={styles.heroSection}>
             <View style={styles.coverWrap}>
               <LinearGradient
@@ -147,37 +133,38 @@ const UseSound: React.FC = () => {
                 end={{ x: 1, y: 1 }}
                 style={styles.coverGlow}
               />
-              <Image source={{ uri: SOUND_ART }} style={[styles.coverImage, { borderColor: coverBorder }]} />
-              <View style={[styles.musicBadge, { borderColor: badgeBorder }]}>
-                <MaterialIcons name="music-note" size={18} color="#fff" />
+              <Image source={{ uri: EFFECT_ART }} style={[styles.coverImage, { borderColor: coverBorder }]} />
+              <LinearGradient colors={['transparent', 'rgba(0,0,0,0.62)']} style={styles.coverFade} />
+              <View style={[styles.playBadge, { borderColor: badgeBorder }]}>
+                <MaterialIcons name="play-arrow" size={20} color="#fff" />
               </View>
             </View>
 
             <View style={styles.titleBlock}>
-              <Text style={[styles.soundTitle, { color: theme.text }]}>Midnight Resonance</Text>
-              <Text style={[styles.soundArtist, { color: isDark ? '#c084fc' : theme.accent }]}>Hyper-Luxe feat. Luna Ray</Text>
+              <Text style={[styles.effectTitle, { color: theme.text }]}>Neon Glitch</Text>
+              <Text style={[styles.effectArtist, { color: isDark ? '#c084fc' : theme.accent }]}>by @VisualMaster</Text>
               <View style={[styles.metaPill, { backgroundColor: pillBackground }]}>
                 <MaterialIcons name="video-library" size={15} color="#C084FC" />
-                <Text style={[styles.metaPillText, { color: metaText }]}>2.4M videos created</Text>
+                <Text style={[styles.metaPillText, { color: metaText }]}>1.2M videos created</Text>
               </View>
             </View>
 
             <View style={styles.actionRow}>
-              <Pressable style={[styles.actionButton, styles.primaryButton]}>
-                <MaterialIcons name="play-arrow" size={22} color="#fff" />
-                <Text style={styles.actionButtonText}>Play Sample</Text>
-              </Pressable>
               <Pressable style={[styles.actionButton, styles.secondaryButton]}>
-                <MaterialIcons name="videocam" size={20} color="#fff" />
-                <Text style={styles.actionButtonText}>Use Sound</Text>
+                <MaterialIcons name="bookmark" size={20} color="#fff" />
+                <Text style={styles.actionButtonText}>Save</Text>
+              </Pressable>
+              <Pressable style={[styles.actionButton, styles.primaryButton]}>
+                <MaterialIcons name="movie-edit" size={20} color="#fff" />
+                <Text style={styles.actionButtonText}>Use Effect</Text>
               </Pressable>
             </View>
           </View>
 
           <View style={styles.sectionHeader}>
             <Text style={[styles.sectionTitle, { color: theme.text }]}>Trending Creations</Text>
-            <Pressable>
-              <Text style={[styles.viewAll, { color: viewAllColor }]}>View All</Text>
+            <Pressable style={styles.sortButton}>
+              <MaterialIcons name="sort" size={18} color={viewAllColor} />
             </Pressable>
           </View>
 
@@ -192,10 +179,7 @@ const UseSound: React.FC = () => {
                 ]}
               >
                 <Image source={{ uri: creation.image }} style={styles.cardImage} />
-                <LinearGradient
-                  colors={['transparent', 'rgba(0,0,0,0.75)']}
-                  style={styles.cardOverlay}
-                />
+                <LinearGradient colors={['transparent', 'rgba(0,0,0,0.75)']} style={styles.cardOverlay} />
                 <View style={styles.cardMeta}>
                   <MaterialIcons name="play-arrow" size={14} color="#fff" />
                   <Text style={styles.cardMetaText}>{creation.views}</Text>
@@ -225,6 +209,16 @@ const styles = StyleSheet.create({
     paddingBottom: 14,
     borderBottomWidth: 1,
   },
+  headerLeft: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 10,
+  },
+  headerRight: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 10,
+  },
   headerButton: {
     width: 40,
     height: 40,
@@ -246,16 +240,16 @@ const styles = StyleSheet.create({
     paddingBottom: 18,
   },
   coverWrap: {
-    width: 152,
-    height: 152,
+    width: 264,
+    height: 264,
     marginBottom: 22,
     position: 'relative',
   },
   coverGlow: {
     ...StyleSheet.absoluteFillObject,
     borderRadius: 28,
-    transform: [{ scale: 1.06 }],
-    opacity: 0.45,
+    transform: [{ scale: 1.04 }],
+    opacity: 0.42,
   },
   coverImage: {
     width: '100%',
@@ -263,16 +257,19 @@ const styles = StyleSheet.create({
     borderRadius: 24,
     borderWidth: 1,
   },
-  musicBadge: {
+  coverFade: {
+    ...StyleSheet.absoluteFillObject,
+    borderRadius: 24,
+  },
+  playBadge: {
     position: 'absolute',
-    right: -8,
-    bottom: -8,
-    width: 38,
-    height: 38,
-    borderRadius: 19,
-    backgroundColor: '#cd2bee',
-    borderWidth: 2,
-    borderColor: '#1b1022',
+    right: 14,
+    bottom: 14,
+    width: 42,
+    height: 42,
+    borderRadius: 21,
+    backgroundColor: 'rgba(0,0,0,0.42)',
+    borderWidth: 1,
     alignItems: 'center',
     justifyContent: 'center',
   },
@@ -280,14 +277,14 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     gap: 4,
   },
-  soundTitle: {
+  effectTitle: {
     fontFamily: 'PlusJakartaSansBold',
-    fontSize: mediumScreen ? fontScale(12): fontScale(16),
+    fontSize: mediumScreen ? fontScale(16) : fontScale(20),
     textAlign: 'center',
   },
-  soundArtist: {
+  effectArtist: {
     fontFamily: 'PlusJakartaSansMedium',
-    fontSize: mediumScreen ? fontScale(16): fontScale(12),
+    fontSize: mediumScreen ? fontScale(14) : fontScale(12),
     textAlign: 'center',
   },
   metaPill: {
@@ -301,17 +298,17 @@ const styles = StyleSheet.create({
   },
   metaPillText: {
     fontFamily: 'PlusJakartaSansMedium',
-    fontSize: mediumScreen ? fontScale(12):fontScale(8),
+    fontSize: mediumScreen ? fontScale(12) : fontScale(8),
   },
   actionRow: {
     flexDirection: 'row',
-    width: '80%',
+    width: '88%',
     gap: 12,
     marginTop: 18,
   },
   actionButton: {
     flex: 1,
-    minHeight: 48,
+    minHeight: 50,
     borderRadius: 999,
     flexDirection: 'row',
     alignItems: 'center',
@@ -328,11 +325,8 @@ const styles = StyleSheet.create({
   },
   secondaryButton: {
     backgroundColor: '#7c3aed',
-    shadowColor: '#7c3aed',
-    shadowOffset: { width: 0, height: 10 },
-    shadowOpacity: 0.24,
-    shadowRadius: 18,
-    elevation: 6,
+    borderWidth: 1,
+    borderColor: 'rgba(255,255,255,0.18)',
   },
   actionButtonText: {
     color: '#fff',
@@ -348,11 +342,13 @@ const styles = StyleSheet.create({
   },
   sectionTitle: {
     fontFamily: 'PlusJakartaSansBold',
-    fontSize: mediumScreen ? fontScale(16): fontScale(12),
+    fontSize: mediumScreen ? fontScale(16) : fontScale(12),
   },
-  viewAll: {
-    fontFamily: 'PlusJakartaSansBold',
-    fontSize: mediumScreen ? fontScale(14): fontScale(10),
+  sortButton: {
+    width: 28,
+    height: 28,
+    alignItems: 'center',
+    justifyContent: 'center',
   },
   grid: {
     flexDirection: 'row',
@@ -361,7 +357,6 @@ const styles = StyleSheet.create({
   card: {
     overflow: 'hidden',
     borderRadius: 2,
-    backgroundColor: '#1e293b',
     position: 'relative',
   },
   cardImage: {
@@ -386,5 +381,4 @@ const styles = StyleSheet.create({
   },
 });
 
-export default UseSound;
-
+export default UseEffect;

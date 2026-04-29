@@ -17,7 +17,7 @@ import VerifiedIcon from '../assets/icons/verified-svg.svg';
 import FireIcon from '../assets/icons/fireIcon-svg.svg';
 
 
-type Tab = 'Videos' | 'Premium' | 'Events' | 'Challenges' | 'Favorites' | 'Saved';
+type Tab = 'Videos' | 'Premium' | 'Tickets' | 'Events' | 'Challenges' | 'Favorites' | 'Saved';
 type Billing = 'monthly' | 'annually';
 type Step = 'details' | 'payment';
 
@@ -60,6 +60,10 @@ const events = [
   { id: 'e1', title: 'Neon Nights: Live Concert', meta: 'Sept 15, 2024', price: 'Free', img: 'https://images.unsplash.com/photo-1470225620780-dba8ba36b745?auto=format&fit=crop&q=80&w=600', location: 'Virtual Arena' },
   { id: 'e2', title: 'Synthwave Workshop', meta: 'Sept 20, 2024', price: '$25.00', img: 'https://images.unsplash.com/photo-1514525253361-bee8718a74a2?auto=format&fit=crop&q=80&w=600', location: 'Creator Studio' },
 ];
+const tickets = [
+  { id: 't1', title: 'Neon Nights: Live Concert', meta: 'Sept 15, 2024 - Virtual Arena' },
+  { id: 't2', title: 'Synthwave Workshop', meta: 'Sept 20, 2024 - Creator Studio' },
+];
 const challenges = [
   { id: 'c1', title: 'Vocal Harmony Challenge', meta: '45 fans - $300 + Feature', img: 'https://images.unsplash.com/photo-1516280440614-37939bbacd81?auto=format&fit=crop&q=80&w=800' },
   { id: 'c2', title: 'Midnight Remix', meta: '12 fans - Studio Equipment', img: 'https://images.unsplash.com/photo-1598488035139-bdbb2231ce04?auto=format&fit=crop&q=80&w=800' },
@@ -78,8 +82,8 @@ const  ArtistProfile: React.FC = () => {
   const { width } = useWindowDimensions();
   const navigation = useNavigation<any>();
   const isTablet = width >= 768;
-  const gridGap = isTablet ? 8 : 3;
-  const gridHorizontalPadding = isTablet ? 18 : 6;
+  const gridGap = isTablet ? 5 : 1;
+  const gridHorizontalPadding = isTablet ? 15 : 3;
   const gridItemWidth = (width - gridHorizontalPadding * 2 - gridGap * 2) / 3;
   const gridItemHeight = gridItemWidth * (16 / 9);
   const route = useRoute<any>();
@@ -89,7 +93,7 @@ const  ArtistProfile: React.FC = () => {
   const isOwner = route.params?.isOwner;
   const name = route.params?.id || 'Kulsah';
   // const isOwner = !route.params?.id || route.params?.id === 'Me';
-  const tabs = useMemo(() => (isOwner ? ['Videos', 'Premium', 'Events', 'Challenges', 'Favorites', 'Saved'] : ['Videos', 'Premium', 'Events', 'Challenges', 'Favorites']) as Tab[], [isOwner]);
+  const tabs = useMemo(() => (isOwner ? ['Videos', 'Premium', 'Tickets', 'Events', 'Challenges', 'Favorites', 'Saved'] : ['Videos', 'Premium', 'Tickets', 'Events', 'Challenges', 'Favorites']) as Tab[], [isOwner]);
   const [activeTab, setActiveTab] = useState<Tab>('Videos');
   const [billing, setBilling] = useState<Billing>('monthly');
   const [selectedSub, setSelectedSub] = useState(false);
@@ -247,6 +251,8 @@ const  ArtistProfile: React.FC = () => {
         <Text style={[s.bio, { color: theme.textSecondary }]}>"Exploring the nexus of synthwave rhythms and cinematic soul. Join the journey through the star systems of sound."</Text>
 
         {/* <View style={s.membership}><View style={s.membershipHeader}><Text style={s.section}>Membership</Text><View style={s.toggle}><Pressable onPress={() => setBilling('monthly')} style={[s.toggleBtn, billing === 'monthly' && s.toggleOn]}><Text style={s.toggleText}>Monthly</Text></Pressable><Pressable onPress={() => setBilling('annually')} style={[s.toggleBtn, billing === 'annually' && s.toggleOn]}><Text style={s.toggleText}>Yearly</Text></Pressable></View></View><Pressable onPress={() => { setSelectedSub(true); setStep('details'); }} style={s.card}><Text style={s.cardLabel}>{SUB.name}</Text><Text style={s.price}>${price} / {billing === 'monthly' ? 'mo' : 'yr'}</Text>{SUB.perks.map((perk) => <Text key={perk} style={s.perk}>- {perk}</Text>)}</Pressable></View> */}
+        {!isOwner && 
+        <>
         <View style={s.membershipHeader}>
             <Text style={[s.section, { color: theme.text }]}>Membership</Text>
             <View style={{ 
@@ -320,12 +326,14 @@ const  ArtistProfile: React.FC = () => {
               </View>
             </Pressable>
           </Pressable>
+        </>}
 
 
         <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={s.tabs}>{tabs.map((tab) => <Pressable key={tab} onPress={() => setActiveTab(tab)} style={s.tab}>
           {
             tab === 'Videos' ? <PlayIcon height={22} width={22} fill={activeTab === tab ? '#cd2bee' : '#69738d'}/>:
             tab === 'Premium'? <StarsIcon height={22} width={22} fill={activeTab === tab ? '#cd2bee' : '#69738d'}/>:
+            tab === 'Tickets'? <MaterialIcons name="local-activity" size={22} color={activeTab === tab ? '#cd2bee' : '#69738d'}/>:
             tab === 'Events'? <CalenderIcon height={22} width={22} fill={activeTab === tab ? '#cd2bee' : '#69738d'}/>:
             tab === 'Challenges'?<TrophyIcon height={22} width={22} fill={activeTab === tab ? '#cd2bee' : '#69738d'}/>:
             tab === 'Favorites'? <MaterialIcons name="favorite-border" size={22} color={activeTab === tab ? '#cd2bee' : '#69738d'}/>: <BookmarkIcon height={22} width={22} fill={activeTab === tab ? '#cd2bee' : '#69738d'}/>
@@ -333,6 +341,7 @@ const  ArtistProfile: React.FC = () => {
           {/* <MaterialIcons name={{ Videos: 'play-circle', Premium: 'stars', Events: 'calendar-month', Challenges: 'emoji-events', Favorites: 'favorite', Saved: 'bookmark' }[tab]}
           size={22} color={activeTab === tab ? '#cd2bee' : '#69738d'} /> */}
           <Text style={[s.tabText, { color: activeTab === tab ? '#cd2bee' : theme.textSecondary }, activeTab === tab && s.tabOn]}>{tab}</Text>
+          {activeTab === tab ? <View style={s.tabIndicator} /> : null}
           </Pressable>)}</ScrollView>
 
         <View style={s.body}>
@@ -346,6 +355,34 @@ const  ArtistProfile: React.FC = () => {
                 }
               })
             : null}
+          {activeTab === 'Tickets' ? (
+            <View style={s.stack}>
+              {tickets.map((ticket) => (
+                <Pressable
+                  key={ticket.id}
+                  onPress={() => navigation.navigate('EventDetail')}
+                  style={[
+                    s.ticketCard,
+                    {
+                      backgroundColor: isDark ? 'rgba(255,255,255,0.05)' : theme.surface,
+                      borderColor: theme.border,
+                    },
+                  ]}
+                >
+                  <View style={s.ticketLeft}>
+                    <View style={s.ticketIconWrap}>
+                      <MaterialIcons name="local-activity" size={24} color="#cd2bee" />
+                    </View>
+                    <View style={{ flex: 1 }}>
+                      <Text style={[s.ticketTitle, { color: theme.text }]}>{ticket.title}</Text>
+                      <Text style={[s.ticketMeta, { color: theme.textSecondary }]}>{ticket.meta}</Text>
+                    </View>
+                  </View>
+                  <MaterialIcons name="chevron-right" size={22} color={theme.textSecondary} />
+                </Pressable>
+              ))}
+            </View>
+          ) : null}
           {activeTab === 'Events' ? <View style={s.stack}>{events.map((item) =>
             <Pressable key={item.id} onPress={() => navigation.navigate('EventDetail')} style={[s.banner, { backgroundColor: isDark ? '#0f172a' : theme.surface }]}>
               <Image source={{ uri: item.img }} style={[s.image, {borderRadius: 0}]} />
@@ -496,7 +533,7 @@ const  ArtistProfile: React.FC = () => {
           {activeTab === 'Favorites' ? renderGrid(favorites) : null}
           {activeTab === 'Saved' ? 
           <View style={s.stack}>{sounds.map((sound) => 
-            <Pressable key={sound.id} onPress={() => navigation.navigate('UploadContent')}
+            <Pressable key={sound.id} onPress={() => navigation.navigate('RecordContent', { sound: {sound}})}
                 style={[s.sound, { backgroundColor: isDark ? 'rgba(255,255,255,0.05)' : theme.surface, borderWidth: isDark ? 0 : 1,
                     borderColor: theme.border }]}>
                       <Pressable onPress={() => setPlayingSoundId((cur) => cur === sound.id ? null : sound.id)} 
@@ -532,7 +569,7 @@ const s = StyleSheet.create({
   bio: { paddingHorizontal: 34, marginTop: 18, marginBottom: 18, color: '#8b94ad', fontSize: mediumScreen? fontScale(14):fontScale(12), lineHeight: 20, fontStyle: 'italic', textAlign: 'center', fontFamily: 'PlusJakartaSansMedium' },
   membership: { paddingHorizontal: 16, gap: 14 }, membershipHeader: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', paddingHorizontal: 16 }, section: { color: '#fff', fontSize: mediumScreen? 18: 14, fontFamily: 'PlusJakartaSansExtraBold', textTransform: 'uppercase' }, toggle: { flexDirection: 'row', gap: 6, padding: 6, borderRadius: 18, backgroundColor: 'rgba(255,255,255,0.05)' }, toggleBtn: { minHeight: 34, paddingHorizontal: 10, borderRadius: 12, alignItems: 'center', justifyContent: 'center' }, toggleOn: { backgroundColor: 'rgba(255,255,255,0.08)' }, toggleText: { color: '#8b94ad', fontSize: fontScale(10), fontFamily: 'PlusJakartaSansExtraBold', textTransform: 'uppercase' },
  cardLabel: { color: '#8b94ad', fontSize: fontScale(10), fontFamily: 'PlusJakartaSansExtraBold', textTransform: 'uppercase' }, price: { color: '#fff', fontSize: fontScale(28), fontFamily: 'PlusJakartaSansExtraBold' }, perk: { color: '#d4d8e8', fontSize: fontScale(12), fontFamily: 'PlusJakartaSansMedium' },
-  tabs: { paddingHorizontal: 16, paddingTop: 18, paddingBottom: 6 }, tab: { minWidth: 74, alignItems: 'center', paddingBottom: 14, marginRight: 14 }, tabText: { marginTop: 4, color: '#69738d', fontSize: fontScale(8), fontFamily: 'PlusJakartaSansExtraBold', textTransform: 'uppercase' }, tabOn: { color: '#cd2bee' }, body: { paddingHorizontal: 16, paddingTop: 18, gap: 18 },
+  tabs: { paddingHorizontal: 16, paddingTop: 18, paddingBottom: 6 }, tab: { minWidth: 74, alignItems: 'center', paddingBottom: 14, marginRight: 14 }, tabText: { marginTop: 4, color: '#69738d', fontSize: fontScale(8), fontFamily: 'PlusJakartaSansExtraBold', textTransform: 'uppercase' }, tabOn: { color: '#cd2bee' }, body: { paddingHorizontal: 16, paddingTop: 10, gap: 18 },
   videoGridWrap: { marginHorizontal: -16 },
   videoGrid: { flexDirection: 'row', flexWrap: 'wrap' },
   videoGridCard: { overflow: 'hidden', borderRadius: 2, position: 'relative' },
@@ -632,6 +669,50 @@ const s = StyleSheet.create({
   },
   accent: { color: '#cd2bee' },
   sep: { width: StyleSheet.hairlineWidth, height: 28, backgroundColor: '#ffffff2d' },
+  ticketCard: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    padding: 16,
+    borderRadius: 28,
+    borderWidth: 1,
+  },
+  ticketLeft: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 12,
+    flex: 1,
+  },
+  ticketIconWrap: {
+    width: 56,
+    height: 56,
+    borderRadius: 18,
+    backgroundColor: 'rgba(205,43,238,0.1)',
+    borderWidth: 1,
+    borderColor: 'rgba(205,43,238,0.24)',
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  ticketTitle: {
+    fontSize: fontScale(13),
+    fontFamily: 'PlusJakartaSansExtraBold',
+  },
+  ticketMeta: {
+    marginTop: 2,
+    fontSize: fontScale(10),
+    fontFamily: 'PlusJakartaSansBold',
+    textTransform: 'uppercase',
+    letterSpacing: 1.1,
+  },
+  tabIndicator: {
+    position: 'absolute',
+    left: 20,
+    right: 20,
+    bottom: -1,
+    height: 2,
+    borderRadius: 999,
+    backgroundColor: '#cd2bee',
+  },
 });
 
 export default ArtistProfile;

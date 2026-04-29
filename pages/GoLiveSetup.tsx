@@ -277,7 +277,7 @@ const GoLiveSetup: React.FC = () => {
         ) : (
           <Pressable
             onPress={() => navigation.navigate('CreatorLiveStream')}
-            style={[styles.primaryBtn, { backgroundColor: '#7c3aed' }]}
+            style={[styles.primaryBtn, { backgroundColor: '#cd2bee' }]}
           >
             <Text style={styles.primaryBtnText}>GO LIVE NOW</Text>
             <MaterialIcons name="sensors" size={20} color="#fff" />

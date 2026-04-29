@@ -19,6 +19,7 @@ import { useNavigation } from '@react-navigation/native';
 import { CameraView, useCameraPermissions } from 'expo-camera';
 import { fontScale } from '../fonts';
 import { VoteSheetContent } from './SoundSelect';
+import { mediumScreen } from '../types';
 
 type FilterItem = {
   id: string;
@@ -87,7 +88,7 @@ const sideControls: SideControl[] = [
 
 const modes = ['Live', 'Post', 'Create'] as const;
 
-const RecordContent: React.FC = () => {
+const RecordContent: React.FC = ({route}:any) => {
   const { isDark, theme } = useThemeMode();
   const navigation = useNavigation<any>();
   const insets = useSafeAreaInsets();
@@ -95,6 +96,21 @@ const RecordContent: React.FC = () => {
   const [facing, setFacing] = React.useState<'front' | 'back'>('front');
   const [activeMode, setMode] = React.useState<'Post'| 'Live' | 'Create'>('Post');
   const [soundSelectOpen, setSoundSelectOpen] = React.useState(false);
+  const [sound, setSound] = React.useState<{
+    title:string, 
+    id:string, 
+    meta:string, 
+    usage:string}| null>(null);
+
+
+  React.useEffect(()=>{
+          const sound = route?.params?.sound;
+          // console.log(sound);
+          if(sound){
+            // console.log(sound);
+              setSound(sound.sound);
+          }
+      }, [route?.params?.sound])
 
   const handleSideControlPress = async (controlId: string) => {
     if (controlId === 'flip') {
@@ -156,7 +172,7 @@ const RecordContent: React.FC = () => {
             <Pressable style={styles.soundButton} onPress={() => setSoundSelectOpen(true)}>
               <MaterialIcons name="music-note" size={20} color="#cd2bee" />
               <Text style={styles.soundButtonText} numberOfLines={1}>
-                Add Sound
+                {sound != null ? sound.title : 'Add Sound'}
               </Text>
             </Pressable>
 
@@ -393,7 +409,7 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     gap: 8,
-    maxWidth: 180,
+    maxWidth: '60%',
     paddingHorizontal: 16,
     paddingVertical: 10,
     borderRadius: 999,
@@ -404,8 +420,8 @@ const styles = StyleSheet.create({
   soundButtonText: {
     color: '#fff',
     fontFamily: 'PlusJakartaSansBold',
-    fontSize: fontScale(12),
-    maxWidth: 100,
+    fontSize: mediumScreen ? fontScale(14): fontScale(10),
+    maxWidth: '85%',
   },
   sideRailWrap: {
     position: 'absolute',

@@ -323,7 +323,7 @@ const CreateCommunityPost: React.FC = () => {
                 color={theme.accent}
                 style={isAiDrafting ? styles.spinIcon : undefined}
               />
-              <Text style={styles.aiButtonText}>{isAiDrafting ? 'DRAFTING' : 'AI SPARK'}</Text>
+              {/* <Text style={styles.aiButtonText}>{isAiDrafting ? 'DRAFTING' : 'AI SPARK'}</Text> */}
             </Pressable>
           </View>
 
@@ -486,7 +486,7 @@ const styles = StyleSheet.create({
   headerButton: {
     width: 44,
     height: 44,
-    borderRadius: 18,
+    borderRadius: 999,
     alignItems: 'center',
     justifyContent: 'center',
     backgroundColor: 'rgba(255,255,255,0.06)',
