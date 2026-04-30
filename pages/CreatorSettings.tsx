@@ -23,25 +23,21 @@ import EditIcon from '../assets/icons/edit-svg.svg';
 import ImageIcon from '../assets/icons/image-svg.svg';
 import LockIcon from '../assets/icons/lock-svg.svg';
 import MonitoringIcon from '../assets/icons/monitoring-svg.svg';
-import NotificationsIcon from '../assets/icons/notifications-svg.svg';
 import PaymentsIcon from '../assets/icons/payments-svg.svg';
 import SecurityIcon from '../assets/icons/security-svg.svg';
 import SellIcon from '../assets/icons/sell-svg.svg';
-import ShopIcon from '../assets/icons/shopping-bag-svg.svg';
 import StarsIcon from '../assets/icons/stars-svg.svg';
 import VisibilityOff from '../assets/icons/visibility-off-svg.svg';
 import VpnKeyIcon from '../assets/icons/vpn-key-svg.svg';
-import DevicesIcon from '../assets/icons/devices-svg.svg';
 import EventIcon from '../assets/icons/event-svg.svg';
 import VerifiedIcon from '../assets/icons/verified-svg.svg';
 import HandShakeIcon from '../assets/icons/handshake-svg.svg';
 import FireIcon from '../assets/icons/fire-svg.svg';
-import { SvgProps } from 'react-native-svg';
 import { mediumScreen, setDark, setUser, user } from '../types';
 import { fontScale } from '../fonts';
 
 
-type SettingsSubView = 'main' | 'socials' | 'tags' | 'security' | 'privacy' | 'identity';
+type SettingsSubView = 'main' | 'tags' | 'identity';
 
 interface CreatorSettingsProps {
   onLogout?: () => void;
@@ -52,7 +48,7 @@ interface CreatorSettingsProps {
 
 interface SettingItem {
   label: string;
-  icon: React.FC<SvgProps> |string;
+  icon: any;
   desc: string;
   isToggle?: boolean;
   enabled?: boolean;
@@ -77,7 +73,6 @@ const CreatorSettings: React.FC<CreatorSettingsProps> = ({ onLogout, isDarkMode,
   const [avatarImage, setAvatarImage] = useState('https://picsum.photos/seed/elena/200');
 
   const [showEvents, setShowEvents] = useState(true);
-  const [socials, setSocials] = useState({ instagram: '@elena_rose', twitter: '@elenarose_synth', website: 'elenarose.io' });
   const [tags, setTags] = useState<string[]>(['Synthwave', 'Indie-Soul', 'Live-Looping']);
 
   const [hideSubs, setHideSubs] = useState(false);
@@ -164,8 +159,6 @@ const CreatorSettings: React.FC<CreatorSettingsProps> = ({ onLogout, isDarkMode,
         title: 'Monetization Hub',
         items: [
           { label: 'Membership Tiers', icon: StarsIcon, desc: 'Manage pricing and exclusive perks', path: 'MembershipTiers' },
-          { label: 'Payout Settings', icon: PaymentsIcon, desc: 'Bank account and withdrawal methods', path: '/creator/revenue' },
-          { label: 'Financial Insights', icon: MonitoringIcon, desc: 'Deep revenue and transaction analytics', path: '/creator/analytics' },
         ] as SettingItem[],
       },
       {
@@ -174,7 +167,6 @@ const CreatorSettings: React.FC<CreatorSettingsProps> = ({ onLogout, isDarkMode,
           { label: 'Collaboration Hub', icon: HandShakeIcon, desc: 'Find and manage creative partnerships', action: () => { 
             navigation.navigate('ConnectHub')
           } },
-          { label: 'Social Links', icon: 'link', desc: 'Connect Instagram, Twitter, and more', action: () => setActiveSubView('socials') },
           { label: 'Discovery Tags', icon: SellIcon, desc: 'Edit genres and SEO keywords', action: () => setActiveSubView('tags') },
           {
             label: 'Events Visibility',
@@ -184,12 +176,14 @@ const CreatorSettings: React.FC<CreatorSettingsProps> = ({ onLogout, isDarkMode,
             enabled: showEvents,
             onToggle: () => void toggleEventsVisibility(),
           },
-          { label: 'Store Access', icon: ShopIcon, desc: 'Manage digital store items', path: '/creator/store' },
         ] as SettingItem[],
       },
       {
-        title: 'Security',
+        title: 'System',
         items: [
+          { label: 'Entry Passes & QR', icon: 'badge', desc: 'Manage event access, QR identity, and entry tools', action: () => navigation.navigate('FanSettings', { view: 'identity' }) },
+          { label: 'Vibe Alerts', icon: 'graphic-eq', desc: 'Tune notifications to your audience and genres', path: 'VibePicker' },
+          { label: 'Global Alerts', icon: 'campaign', desc: 'Platform-wide announcements and account updates', path: 'Notification' },
           {
             label: 'Two-Factor Auth',
             icon: 'security',
@@ -198,13 +192,14 @@ const CreatorSettings: React.FC<CreatorSettingsProps> = ({ onLogout, isDarkMode,
             enabled: twoFactor,
             onToggle: () => setTwoFactor((prev) => !prev),
           },
-          { label: 'Login Activity', icon: DevicesIcon, desc: 'Devices synced with this node', action: () => Alert.alert('Coming Soon') },
           { label: 'Signal Encryption', icon: VpnKeyIcon, desc: 'Private key management', action: () => Alert.alert('Coming Soon') },
         ] as SettingItem[],
       },
       {
-        title: 'Privacy',
+        title: 'Premium',
         items: [
+          { label: 'Active Subscriptions', icon: StarsIcon, desc: 'View and manage your current subscriber base', path: 'Subscribers' },
+          { label: 'Gifts and Coins', icon: 'redeem', desc: 'Track fan gifts, coin balances, and reward activity', action: () => navigation.navigate('FanSettings', { view: 'gifts' }) },
           {
             label: 'Incognito Subs',
             icon: VisibilityOff,
@@ -229,14 +224,13 @@ const CreatorSettings: React.FC<CreatorSettingsProps> = ({ onLogout, isDarkMode,
             enabled: contentProtection,
             onToggle: () => setContentProtection((prev) => !prev),
           },
-          { label: 'Push Notifications', icon: NotificationsIcon, desc: 'Manage tip and new sub alerts', path: '/notifications' },
         ] as SettingItem[],
       },
       {
-        title: 'AI & Performance',
+        title: 'Billings',
         items: [
-          { label: 'Gemini Strategy Engine', icon: 'auto-awesome', desc: 'AI-driven content recommendations', path: '/dashboard' },
-          { label: 'Fan Audit', icon: AnalyticsIcon, desc: 'Detailed subscriber demographics', path: '/subscribers' },
+          { label: 'Payout Settings', icon: PaymentsIcon, desc: 'Bank account and withdrawal methods', path: 'CreatorRevenue' },
+          { label: 'Financial Insights', icon: MonitoringIcon, desc: 'Revenue, withdrawals, and transaction analytics', path: 'CreatorAnalytics' },
         ] as SettingItem[],
       },
     ],
@@ -319,36 +313,6 @@ const CreatorSettings: React.FC<CreatorSettingsProps> = ({ onLogout, isDarkMode,
     </View>
   );
 
-  const SocialsView = () => (
-    <View style={[s.screen, { backgroundColor: theme.screen }]}>
-      {renderHeader('Galaxy Presence', () => setActiveSubView('main'))}
-      <ScrollView contentContainerStyle={s.subContent} showsVerticalScrollIndicator={false} keyboardShouldPersistTaps="handled">
-        <Text style={[s.sectionHeading, { color: theme.textSecondary }]}>Social Uplinks</Text>
-
-        {(['instagram', 'twitter', 'website'] as const).map((platform) => (
-          <View key={platform} style={s.formBlock}>
-            <Text style={[s.fieldName, { color: theme.textSecondary }]}>{platform}</Text>
-            <View style={[s.inputWrapRow, { borderColor: theme.border, backgroundColor: isDark ? '#ffffff08' : theme.surface }]}>
-              <Text style={s.inputPrefix}>{platform === 'website' ? 'link' : '@'}</Text>
-              <TextInput
-                value={socials[platform]}
-                onChangeText={(value) => setSocials((prev) => ({ ...prev, [platform]: value }))}
-                placeholderTextColor={theme.textMuted}
-                style={[s.inputWithPrefix, { color: theme.text }]}
-              />
-            </View>
-          </View>
-        ))}
-
-        <View style={[s.noteCard, { borderColor: isDark ? '#cd2bee32' : theme.border, backgroundColor: isDark ? '#cd2bee14' : theme.accentSoft }]}>
-          <Text style={[s.noteText, { color: theme.textSecondary }]}>
-            Connected uplinks appear on your public profile and allow fans to follow your journey across star systems.
-          </Text>
-        </View>
-      </ScrollView>
-    </View>
-  );
-
   const TagsView = () => (
     <View style={[s.screen, { backgroundColor: theme.screen }]}>
       {renderHeader('Discovery Tags', () => setActiveSubView('main'))}
@@ -378,7 +342,6 @@ const CreatorSettings: React.FC<CreatorSettingsProps> = ({ onLogout, isDarkMode,
   );
 
   if (activeSubView === 'identity') return <IdentityView />;
-  if (activeSubView === 'socials') return <SocialsView />;
   if (activeSubView === 'tags') return <TagsView />;
 
   return (

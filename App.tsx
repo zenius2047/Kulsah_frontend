@@ -37,6 +37,7 @@ import FanSettings from './pages/FanSettings';
 import GoLiveSetup from './pages/GoLiveSetup';
 import CreatorEvents from './pages/CreatorEvents';
 import CreatorAnalytics from './pages/CreatorAnalytics';
+import CreatorRevenue from './pages/CreatorRevenue';
 import CreatorLibrary from './pages/CreatorLibrary';
 import ChallengeCard from './pages/ChallengeScreen';
 import ChallengesScreen from './pages/ChallengeScreen';
@@ -74,7 +75,9 @@ import Notifications from './pages/Notifications';
 import StreakReward from './pages/StreakReward';
 import ErrorBoundary from './components/ErrorBoundary';
 import CreateCommunityPost from './pages/CreateCommunityPost';
+import CommunityPostDetail from './pages/CommunityPostDetail';
 import MembershipTiers from './pages/MembershipTiers';
+import Subscribers from './pages/Subscribers';
 import SplashScreen from './pages/SplashScreen';
 import GetStarted from './pages/GetStarted';
 import SignupVibes from './pages/SignupVibes';
@@ -467,8 +470,10 @@ const App: React.FC = () => {
                   <Stack.Screen name="CreatorEvents" component={CreatorEvents} />
                   <Stack.Screen name="/creator/analytics" component={CreatorAnalytics} />
                   <Stack.Screen name="CreatorAnalytics" component={CreatorAnalytics} />
+                  <Stack.Screen name="CreatorRevenue" component={CreatorRevenue} />
                   <Stack.Screen name="Community" component={Community} />
                   <Stack.Screen name="Analytics" component={CreatorAnalytics} />
+                  <Stack.Screen name="Subscribers" component={Subscribers} />
                   <Stack.Screen name="Challenges" component={ChallengesScreen} />
                   <Stack.Screen name="RecordContent" component={RecordContent}/>
                   <Stack.Screen name="CreateContent" component={CreateEvent}/>
@@ -494,6 +499,7 @@ const App: React.FC = () => {
                   <Stack.Screen name= "Notification" component={Notifications}/>
                   <Stack.Screen name= "StreakReward" component={StreakReward}/>
                   <Stack.Screen name= "CommunityPost" component={CreateCommunityPost}/>
+                  <Stack.Screen name= "CommunityPostDetail" component={CommunityPostDetail}/>
                   <Stack.Screen name= "Store" component={Store}/>
                   <Stack.Screen name= "UseSound" component={UseSound}/>
                   <Stack.Screen name= "UseEffect" component={UseEffect}/>

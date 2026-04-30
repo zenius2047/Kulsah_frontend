@@ -16,6 +16,7 @@ import { useNavigation } from '@react-navigation/native';
 import { MaterialIcons } from '@expo/vector-icons';
 import { useVideoPlayer, VideoView } from 'expo-video';
 import { mediumScreen, user } from '../types';
+import { fontScale } from '../fonts';
 
 interface Comment {
   id: string;
@@ -49,6 +50,8 @@ interface CommunityPost {
   isLiked: boolean;
   type: 'text' | 'image' | 'poll' | 'live';
   pollOptions?: PollOption[];
+  isFollowing: boolean;
+  isVerified: boolean;
 }
 
 interface CurrentUser {
@@ -76,6 +79,8 @@ const seedPosts: CommunityPost[] = [
     time: 'LIVE NOW',
     isLiked: false,
     type: 'live',
+    isFollowing: false,
+    isVerified: true,
   },
   {
     id: '1',
@@ -97,6 +102,8 @@ const seedPosts: CommunityPost[] = [
       { text: 'Acoustic Version', votes: 320 },
       { text: 'Extended Club Edit', votes: 120 },
     ],
+    isFollowing: true,
+    isVerified: false,
   },
   {
     id: '2',
@@ -113,6 +120,8 @@ const seedPosts: CommunityPost[] = [
     time: '5h ago',
     isLiked: true,
     type: 'image',
+    isFollowing: false,
+    isVerified: true,
   },
   {
     id: '3',
@@ -126,7 +135,10 @@ const seedPosts: CommunityPost[] = [
     time: '8h ago',
     isLiked: false,
     type: 'text',
+    isFollowing: false,
+    isVerified: true,
   },
+  
 ];
 
 const stickers = [
@@ -247,6 +259,18 @@ const Community: React.FC<{ embedded?: boolean }> = ({ embedded = false }) => {
     await savePosts(updated);
   };
 
+  const toggleFollow = async (id: string) => {
+    const updated = posts.map((post) =>
+      post.id === id
+        ? {
+            ...post,
+            isFollowing: !post.isFollowing,
+          }
+        : post,
+    );
+    await savePosts(updated);
+  };
+
   const handleAddComment = async (inputText?: string) => {
     const finalText = (inputText ?? commentText).trim();
     if (!finalText || !activeCommentPost) return;
@@ -295,6 +319,10 @@ const Community: React.FC<{ embedded?: boolean }> = ({ embedded = false }) => {
     setEditContent('');
   };
 
+  const openPostDetail = (postId: string) => {
+    navigation.navigate('CommunityPostDetail', { postId });
+  };
+
   if (loading) {
     return (
       <View style={[styles.loader, { backgroundColor: theme.background }]}>
@@ -324,13 +352,24 @@ const Community: React.FC<{ embedded?: boolean }> = ({ embedded = false }) => {
 
           return (
             <View key={post.id} style={[styles.postCard, { backgroundColor: panelSurface, borderColor: softBorder }]}>
+              <Pressable onPress={() => openPostDetail(post.id)}>
               <View style={styles.postHeader}>
                 <Pressable style={styles.authorRow} onPress={() => navigation.navigate('ArtistProfile')}>
                   <View style={styles.avatarRing}>
                     <Image source={{ uri: post.avatar }} style={styles.avatar} />
                   </View>
                   <View>
-                    <Text style={[styles.handleText, { color: theme.text }]}>@{post.handle}</Text>
+                    <View style={styles.handleMetaRow}>
+                      <Text style={[styles.handleText, { color: theme.text }]}>@{post.handle}</Text>
+                      {!post.isVerified ? (
+                          <MaterialIcons name="verified" size={16} color='#33aae4'/>
+                        ) : null}
+                      <Pressable style={styles.followMetaAction} onPress={() => void toggleFollow(post.id)} hitSlop={8}>
+                        <Text style={[styles.followStateText, { color: post.isFollowing ? mutedText : '#1877f2' }]}>
+                          {post.isFollowing ? 'Following' : 'Follow'}
+                        </Text>
+                      </Pressable>
+                    </View>
                     <Text style={[styles.timeText, { color: mutedText }]}>{post.time}</Text>
                   </View>
                 </Pressable>
@@ -427,13 +466,14 @@ const Community: React.FC<{ embedded?: boolean }> = ({ embedded = false }) => {
                   </Text>
                 </View>
               )}
+              </Pressable>
 
               <View style={[styles.actionBar, { borderTopColor: softBorder }]}>
                 <Pressable style={styles.actionItem} onPress={() => toggleLike(post.id)}>
                   <MaterialIcons name={post.isLiked ? 'favorite' : 'favorite-border'} size={23} color={post.isLiked ? '#cd2bee' : dimIcon} />
                   <Text style={[styles.actionText, { color: post.isLiked ? '#cd2bee' : mutedText }]}>{post.likes.toLocaleString()}</Text>
                 </Pressable>
-                <Pressable style={styles.actionItem} onPress={() => setActiveCommentPost(post.id)}>
+                <Pressable style={styles.actionItem} onPress={() => openPostDetail(post.id)}>
                   <MaterialIcons name="chat-bubble-outline" size={22} color={dimIcon} />
                   <Text style={[styles.actionText, { color: mutedText }]}>{post.comments.toLocaleString()}</Text>
                 </Pressable>
@@ -444,7 +484,7 @@ const Community: React.FC<{ embedded?: boolean }> = ({ embedded = false }) => {
               </View>
 
               {post.commentList && post.commentList.length > 0 && (
-                <View style={[styles.commentsSection, { borderTopColor: softBorder }]}>
+                <Pressable onPress={() => openPostDetail(post.id)} style={[styles.commentsSection, { borderTopColor: softBorder }]}>
                   {post.commentList.slice(0, 3).map((comment) => (
                     <View key={comment.id} style={styles.commentRow}>
                       <Image source={{ uri: comment.avatar }} style={styles.commentAvatar} />
@@ -463,11 +503,11 @@ const Community: React.FC<{ embedded?: boolean }> = ({ embedded = false }) => {
                   ))}
 
                   {post.comments > 3 && (
-                    <Pressable onPress={() => setActiveCommentPost(post.id)} style={styles.moreComments}>
+                    <Pressable onPress={() => openPostDetail(post.id)} style={styles.moreComments}>
                       <Text style={[styles.moreCommentsText, { color: mutedText }]}>View {post.comments - 3} more comments</Text>
                     </Pressable>
                   )}
-                </View>
+                </Pressable>
               )}
             </View>
           );
@@ -585,7 +625,10 @@ const styles = StyleSheet.create({
     padding: 2,
   },
   avatar: { height: '100%', width: '100%', borderRadius: 20 },
-  handleText: { color: '#fff', fontFamily: 'PlusJakartaSansBold', fontSize:  mediumScreen?17:13 },
+  handleMetaRow: { flexDirection: 'row', alignItems: 'center', gap: 6, flexWrap: 'wrap' },
+  followMetaAction: { flexDirection: 'row', alignItems: 'center', gap: 4 },
+  handleText: { color: '#fff', fontFamily: 'PlusJakartaSansBold', fontSize:  mediumScreen ? fontScale(16): fontScale(12) },
+  followStateText: { fontSize: mediumScreen ? fontScale(16): fontScale(12), fontFamily: 'PlusJakartaSansBold' },
   timeText: { color: '#94a3b8', fontSize: mediumScreen ? 14: 10, fontFamily: 'PlusJakartaSansBold', letterSpacing: 1.2 },
   optionsWrap: { position: 'relative' },
   optionsMenu: {

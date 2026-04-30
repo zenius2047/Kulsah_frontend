@@ -9,6 +9,7 @@ import {
   ScrollView,
   StyleSheet,
   Text,
+  useWindowDimensions,
   View,
 } from 'react-native';
 import { LinearGradient } from 'expo-linear-gradient';
@@ -50,9 +51,11 @@ type PremiumAsset = {
 const FanProfile: React.FC<FanProfileProps> = ({ onToggleRole }) => {
   const { isDark, theme } = useThemeMode();
   const navigation = useNavigation<any>();
+  const { width } = useWindowDimensions();
   const [activeTab, setActiveTab] = useState<ProfileTab>('Video');
   const [streak, setStreak] = useState<StreakData>({ count: 7 });
   const [selectedCreator, setSelectedCreator] = useState<string | null>(null);
+  const isTablet = width >= 768;
 
   useEffect(() => {
     setStreak({ count: 7 });
@@ -91,6 +94,14 @@ const FanProfile: React.FC<FanProfileProps> = ({ onToggleRole }) => {
   const favoriteVideos = [
     { id: 'fv1', title: 'Midnight Soul Session', artist: 'Elena Rose', views: '1.2M', img: 'https://picsum.photos/seed/vid1/400/225' },
     { id: 'fv2', title: 'Summer Tour BTS', artist: 'Burna Boy', views: '840K', img: 'https://picsum.photos/seed/vid2/400/225' },
+  ];
+  const fanVideos = [
+    { id: 'fv-grid-1', title: 'Midnight Soul Session', views: '2.4K views', img: 'https://picsum.photos/seed/vid1/400/225' },
+    { id: 'fv-grid-2', title: 'Summer Tour BTS', views: '8.2K views', img: 'https://picsum.photos/seed/vid2/400/225' },
+    { id: 'fv-grid-3', title: 'Neon Rehearsal', views: '4.1K views', img: 'https://picsum.photos/seed/vid3/400/225' },
+    { id: 'fv-grid-4', title: 'Studio Cut', views: '9.7K views', img: 'https://picsum.photos/seed/vid4/400/225' },
+    { id: 'fv-grid-5', title: 'Orbit Session', views: '6.3K views', img: 'https://picsum.photos/seed/vid5/400/225' },
+    { id: 'fv-grid-6', title: 'Afterglow Clip', views: '3.8K views', img: 'https://picsum.photos/seed/vid6/400/225' },
   ];
 
   const subscribedCreators: Creator[] = [
@@ -139,6 +150,34 @@ const FanProfile: React.FC<FanProfileProps> = ({ onToggleRole }) => {
               // params: { tabToRoute: 'challenges' },
             })
   };
+
+  const renderVideoGrid = (
+    items: Array<{ id: string; title: string; views?: string; img: string }>
+  ) => (
+    <View style={s.videoGridWrap}>
+      <View style={[s.videoGrid, { paddingHorizontal: isTablet ? 15 : 3 }]}>
+        {items.map((item) => (
+          <Pressable
+            key={item.id}
+            onPress={() => navigation.navigate('Feed')}
+            style={[
+              s.videoGridCard,
+              {
+                backgroundColor: isDark ? '#0f172a' : theme.surface,
+              },
+            ]}
+          >
+            <Image source={{ uri: item.img }} style={s.videoGridImage} />
+            <LinearGradient colors={['transparent', 'rgba(0,0,0,0.75)']} style={s.videoGridOverlay} />
+            <View style={s.videoGridMeta}>
+              <MaterialIcons name="play-arrow" size={14} color="#fff" />
+              <Text style={s.videoGridMetaText}>{item.views ?? item.title}</Text>
+            </View>
+          </Pressable>
+        ))}
+      </View>
+    </View>
+  );
 
   return (
     <View style={[s.screen, { backgroundColor: theme.screen }]}>
@@ -376,20 +415,7 @@ const FanProfile: React.FC<FanProfileProps> = ({ onToggleRole }) => {
               )}
 
               {activeTab === 'Video' && (
-                <View style={s.twoColGrid}>
-                  {[1, 2, 3, 4].map((item) => (
-                    <Pressable key={item} style={s.gridCard} onPress={() => navigation.navigate('Feed')}>
-                      <View style={s.verticalThumbWrap}>
-                        <Image source={{ uri: `https://picsum.photos/seed/vid${item}/300/533` }} style={s.thumbImage} />
-                        <LinearGradient colors={['transparent', 'rgba(0,0,0,0.66)']} style={StyleSheet.absoluteFillObject} />
-                        <View style={s.verticalMeta}>
-                          <MaterialIcons name="play-circle" size={16} color="#fff" />
-                          <Text style={s.verticalMetaText}>2.4K views</Text>
-                        </View>
-                      </View>
-                    </Pressable>
-                  ))}
-                </View>
+                renderVideoGrid(fanVideos)
               )}
 
               {activeTab === 'Tickets' && (
@@ -412,9 +438,9 @@ const FanProfile: React.FC<FanProfileProps> = ({ onToggleRole }) => {
               )}
 
               {activeTab === 'Saved' && (
-                <View style={s.twoColGrid}>
+                <View style={s.savedGrid}>
                   {[1, 2, 3, 4].map((item) => (
-                    <Pressable key={item} style={s.gridCard}>
+                    <Pressable key={item} style={s.savedCard}>
                       <View style={s.squareThumbWrap}>
                         <Image source={{ uri: `https://picsum.photos/seed/saved${item}/400/400` }} style={s.thumbImage} />
                         <View style={s.savedBadge}>
@@ -741,13 +767,60 @@ const s = StyleSheet.create({
     textTransform: 'uppercase',
     letterSpacing: 1.1,
   },
+  videoGridWrap: {
+    marginHorizontal: -20,
+  },
+  videoGrid: {
+    flexDirection: 'row',
+    flexWrap: 'wrap',
+    justifyContent: 'space-between',
+    rowGap: 1,
+  },
+  videoGridCard: {
+    overflow: 'hidden',
+    borderRadius: 2,
+    position: 'relative',
+    width: '33%',
+    height: 250,
+    // aspectRatio: 16 / 9,
+  },
+  videoGridImage: {
+    width: '100%',
+    height: '100%',
+  },
+  videoGridOverlay: {
+    ...StyleSheet.absoluteFillObject,
+  },
+  videoGridMeta: {
+    position: 'absolute',
+    left: 8,
+    bottom: 8,
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 2,
+  },
+  videoGridMetaText: {
+    color: '#fff',
+    fontFamily: 'PlusJakartaSansBold',
+    fontSize: fontScale(11),
+  },
   twoColGrid: {
     flexDirection: 'row',
     flexWrap: 'wrap',
     justifyContent: 'space-between',
-    gap: 14,
+    rowGap: 14,
   },
   gridCard: {
+    width: '31.5%',
+    gap: 3,
+  },
+  savedGrid: {
+    flexDirection: 'row',
+    flexWrap: 'wrap',
+    justifyContent: 'space-between',
+    rowGap: 14,
+  },
+  savedCard: {
     width: '47%',
     gap: 8,
   },
