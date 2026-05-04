@@ -89,6 +89,7 @@ import VerifyOtp from './VerifyOtp';
 import EmailVerification from './EmailVerification';
 import VibePicker from './pages/VibePicker';
 import FanTicketDetail from './pages/FanTicketDetail';
+import MarketPlace from './MarketPlace';
 
 
 const Stack = createNativeStackNavigator();
@@ -500,7 +501,7 @@ const App: React.FC = () => {
                   <Stack.Screen name= "StreakReward" component={StreakReward}/>
                   <Stack.Screen name= "CommunityPost" component={CreateCommunityPost}/>
                   <Stack.Screen name= "CommunityPostDetail" component={CommunityPostDetail}/>
-                  <Stack.Screen name= "Store" component={Store}/>
+                  <Stack.Screen name= "MarketPlace" component={MarketPlace}/>
                   <Stack.Screen name= "UseSound" component={UseSound}/>
                   <Stack.Screen name= "UseEffect" component={UseEffect}/>
                   <Stack.Screen name= "VibePicker" component={VibePicker}/>

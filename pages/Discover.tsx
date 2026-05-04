@@ -554,14 +554,14 @@ const Discover: React.FC<{ embedded?: boolean }> = ({ embedded = false }) => {
             <View style={{ flexDirection: 'row', justifyContent: 'space-between', marginBottom: 10, marginTop: 4, paddingHorizontal: 16 }}>
               <Text style={{ color: theme.text, fontSize: mediumScreen ? 18 : 14, fontWeight: 'bold', fontFamily: 'PlusJakartaSansExtraBold' }}>KULSAH STORE</Text>
               <Pressable onPress={() => {
-                navigation.navigate('Store')
+                navigation.navigate('MarketPlace')
               }}>
                 <Text style={{ color: '#cd2bee', fontSize: mediumScreen ? 15 : 11, fontWeight: 'bold', fontFamily: 'PlusJakartaSansBold' }}>BROWSE ALL</Text>
               </Pressable>
             </View>
             <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={{ gap: 12, paddingHorizontal: 16 }}>
               {featuredMerch.map((item) => (
-                <Pressable key={item.id} style={{ width: 180 }} onPress={() => navigation.navigate('Store')}>
+                <Pressable key={item.id} style={{ width: 180 }} onPress={() => navigation.navigate('MarketPlace')}>
                   <View style={{ borderRadius: 24, overflow: 'hidden', backgroundColor: cardBackground, borderWidth: 1, borderColor: theme.border }}>
                     <Image source={{ uri: item.img }} style={{ width: '100%', aspectRatio: 1 }} />
                     <View style={{ position: 'absolute', top: 10, right: 10, backgroundColor: '#cd2bee', borderRadius: 999, paddingHorizontal: 10, paddingVertical: 6 }}>

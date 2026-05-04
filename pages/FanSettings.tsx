@@ -576,7 +576,7 @@ const FanSettings: React.FC<FanSettingsProps> = ({ onLogout, isDarkMode, onToggl
     </View>
   );
 
-  if (currentUser?.role === 'creator') {
+  if (currentUser?.role === 'creator' && activeView === 'main') {
     return <CreatorSettings onLogout={onLogout} />;
   }
   if (activeView === 'profile') return renderProfileView();

@@ -82,10 +82,10 @@ const  ArtistProfile: React.FC = () => {
   const { width } = useWindowDimensions();
   const navigation = useNavigation<any>();
   const isTablet = width >= 768;
+  const gridColumns = 3;
   const gridGap = isTablet ? 5 : 1;
   const gridHorizontalPadding = isTablet ? 15 : 3;
-  const gridItemWidth = (width - gridHorizontalPadding * 2 - gridGap * 2) / 3;
-  const gridItemHeight = gridItemWidth * (16 / 9);
+  const gridItemWidth = `${99.8 / gridColumns}%` as const;
   const route = useRoute<any>();
   const [isFollowing, setIsFollowing] = useState(false);
   const [isLiked, setIsLiked] = useState(false);
@@ -139,9 +139,8 @@ const  ArtistProfile: React.FC = () => {
             s.videoGridCard,
             {
               width: gridItemWidth,
-              height: gridItemHeight,
+              aspectRatio: 9 / 16,
               marginBottom: gridGap,
-              marginRight: (index + 1) % 3 === 0 ? 0 : gridGap,
               backgroundColor: isDark ? '#0f172a' : theme.surface,
             },
           ]}
@@ -237,13 +236,13 @@ const  ArtistProfile: React.FC = () => {
               <Text style={[s.statLabel, {color: theme.text}]}>Subscribers</Text>
             </Pressable>
           </View>
-          <View style={s.actions}>{isOwner ? <>
-          <Pressable onPress={() => navigation.navigate('Settings')} style={[s.primary, {width:20}]}>
+          <View style={[s.actions, {width: isOwner ? '100%': '80%'}]}>{isOwner ? <>
+          <Pressable onPress={() => navigation.navigate('Settings')} style={[s.primary, {width: '30%'}]}>
             <EditIcon height={24} width={24} fill='white'/>
             <Text style={s.btnText}>{" "}Edit</Text>
             </Pressable>
             <Pressable onPress={share} 
-            style={[s.secondary, { backgroundColor: isDark ? 'rgba(255,255,255,0.06)' : theme.surface, flexDirection: 'row' , alignItems: 'center', justifyContent: 'center'}]}>
+            style={[s.secondary, { width: '30%', backgroundColor: isDark ? 'rgba(255,255,255,0.06)' : theme.surface, flexDirection: 'row' , alignItems: 'center', justifyContent: 'center'}]}>
             <MaterialIcons name='share' size={18}/>
             <Text style={[s.btnText, { color: theme.text }]}>{" "}Share</Text></Pressable></> : <><Pressable onPress={() => navigation.navigate('Chat')} style={[s.iconAction, { backgroundColor: isDark ? 'rgba(255,255,255,0.06)' : theme.surface }]}><MaterialIcons name="mail" size={20} color={theme.text} /></Pressable><Pressable onPress={() => { setFollowing((v) => !v); ping(following ? 'Unfollowed' : 'Following'); }} style={[s.secondary, { backgroundColor: isDark ? 'rgba(255,255,255,0.06)' : theme.surface }]}><Text style={[s.btnText, { color: theme.text }]}>{following ? 'Following' : 'Follow'}</Text></Pressable><Pressable onPress={() => { setSelectedSub(true); setStep('details'); }} style={s.primary}><Text style={s.btnText}>Subscribe</Text></Pressable></>}</View>
         </View>
@@ -495,7 +494,7 @@ const  ArtistProfile: React.FC = () => {
                         </View>
 
 
-                        <Pressable 
+                        {!isOwner && <Pressable 
                         onPress={()=>{
                           navigation.navigate('EventDetail')
                         }}
@@ -516,13 +515,7 @@ const  ArtistProfile: React.FC = () => {
                             textAlign: 'center',
                             fontSize: mediumScreen ? fontScale(12): fontScale(8),
                           }}>Get{"\n"}Ticket</Text>
-                        </Pressable>
-
-
-
-
-
-
+                        </Pressable>}
 
 
                       </View>
@@ -562,17 +555,17 @@ const s = StyleSheet.create({
   icon: { width: 40, height: 40, borderRadius: 20, alignItems: 'center', justifyContent: 'center', backgroundColor: 'rgba(255,255,255,0.06)' }, header: { paddingTop: 46, paddingHorizontal: 14, paddingBottom: 12, flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', backgroundColor: 'rgba(15,23,42,0.72)' }, headerBtn: { width: 40, height: 40, borderRadius: 20, alignItems: 'center', justifyContent: 'center', backgroundColor: 'rgba(255,255,255,0.06)' }, headerTitle: { flex: 1, textAlign: 'center', marginHorizontal: 10, color: '#fff', fontSize: mediumScreen? fontScale(16):fontScale(12), fontFamily: 'PlusJakartaSansExtraBold', textTransform: 'uppercase' },
   content: { paddingBottom: 120 }, cover: { height: 280 }, hero: { marginTop: -88, paddingHorizontal: 20, alignItems: 'center' }, avatarWrap: { width: 148, height: 148, borderRadius: 999, borderWidth: 1, borderColor: '#060913', padding: 7}, image: { width: '100%', height: '100%', borderRadius: 999 }, fire: { position: 'absolute', right: 12, bottom: -2, width: 40, height: 40, borderRadius: 999, backgroundColor: '#f97316', borderWidth: 0, borderColor: '#060913', alignItems: 'center', justifyContent: 'center', flexDirection: 'row' }, fireText: { color: '#fff', fontSize: fontScale(8), fontFamily: 'PlusJakartaSansExtraBold' },
   name: {color: '#fff', fontSize: fontScale(16), fontFamily: 'PlusJakartaSansBold', textTransform: 'uppercase' }, role: { marginTop: 4, color: '#cd2bee', fontSize: fontScale(9), fontFamily: 'PlusJakartaSansExtraBold', textTransform: 'uppercase', letterSpacing: 2 }, stat: { flex: 1, textAlign: 'center', color: '#fff', fontSize: fontScale(18), fontFamily: 'PlusJakartaSansExtraBold' }, muted: { color: '#7d859e', fontSize: fontScale(8), fontFamily: 'PlusJakartaSansExtraBold' }, purple: { color: '#cd2bee', fontFamily: 'PlusJakartaSansBold', fontSize: mediumScreen ? fontScale(12): fontScale(10) }, 
-  actions: { marginTop: 22, width: '80%', flexDirection: 'row', gap: 10, alignItems: 'center' },
+  actions: { marginTop: 22, flexDirection: 'row', gap: 10, alignItems: 'center', justifyContent: 'center' },
   action: { height: 56, borderRadius: 24, alignItems: 'center', justifyContent: 'center', flexDirection: 'row', gap: 8 }, 
-  primary: { flex: 1, backgroundColor: '#cd2bee', minHeight: 36, borderRadius: 34, alignItems: 'center', justifyContent: 'center', flexDirection: 'row', }, 
-  secondary: { flex: 1, height: 36, borderRadius: 34, alignItems: 'center', justifyContent: 'center', backgroundColor: 'rgba(255,255,255,0.06)' }, iconAction: { width: 56, height: 36, borderRadius: 24, alignItems: 'center', justifyContent: 'center', backgroundColor: 'rgba(255,255,255,0.06)' }, btnText: { color: '#fff', fontSize: mediumScreen ? 15:11, fontFamily: 'PlusJakartaSansExtraBold', textTransform: 'uppercase', lineHeight: 15}, follow: { flex: 1, height: 56, borderRadius: 24, alignItems: 'center', justifyContent: 'center', backgroundColor: 'rgba(255,255,255,0.06)' }, followOn: { backgroundColor: 'rgba(205,43,238,0.12)' }, followText: { color: '#fff', fontSize: fontScale(11), fontFamily: 'PlusJakartaSansExtraBold', textTransform: 'uppercase' }, followTextOn: { color: '#cd2bee' },
+  primary: { backgroundColor: '#cd2bee', minHeight: 36, borderRadius: 34, alignItems: 'center', justifyContent: 'center', flexDirection: 'row', }, 
+  secondary: { height: 36, borderRadius: 34, alignItems: 'center', justifyContent: 'center', backgroundColor: 'rgba(255,255,255,0.06)' }, iconAction: { width: 56, height: 36, borderRadius: 24, alignItems: 'center', justifyContent: 'center', backgroundColor: 'rgba(255,255,255,0.06)' }, btnText: { color: '#fff', fontSize: mediumScreen ? 15:11, fontFamily: 'PlusJakartaSansExtraBold', textTransform: 'uppercase', lineHeight: 15}, follow: { flex: 1, height: 56, borderRadius: 24, alignItems: 'center', justifyContent: 'center', backgroundColor: 'rgba(255,255,255,0.06)' }, followOn: { backgroundColor: 'rgba(205,43,238,0.12)' }, followText: { color: '#fff', fontSize: fontScale(11), fontFamily: 'PlusJakartaSansExtraBold', textTransform: 'uppercase' }, followTextOn: { color: '#cd2bee' },
   bio: { paddingHorizontal: 34, marginTop: 18, marginBottom: 18, color: '#8b94ad', fontSize: mediumScreen? fontScale(14):fontScale(12), lineHeight: 20, fontStyle: 'italic', textAlign: 'center', fontFamily: 'PlusJakartaSansMedium' },
   membership: { paddingHorizontal: 16, gap: 14 }, membershipHeader: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', paddingHorizontal: 16 }, section: { color: '#fff', fontSize: mediumScreen? 18: 14, fontFamily: 'PlusJakartaSansExtraBold', textTransform: 'uppercase' }, toggle: { flexDirection: 'row', gap: 6, padding: 6, borderRadius: 18, backgroundColor: 'rgba(255,255,255,0.05)' }, toggleBtn: { minHeight: 34, paddingHorizontal: 10, borderRadius: 12, alignItems: 'center', justifyContent: 'center' }, toggleOn: { backgroundColor: 'rgba(255,255,255,0.08)' }, toggleText: { color: '#8b94ad', fontSize: fontScale(10), fontFamily: 'PlusJakartaSansExtraBold', textTransform: 'uppercase' },
  cardLabel: { color: '#8b94ad', fontSize: fontScale(10), fontFamily: 'PlusJakartaSansExtraBold', textTransform: 'uppercase' }, price: { color: '#fff', fontSize: fontScale(28), fontFamily: 'PlusJakartaSansExtraBold' }, perk: { color: '#d4d8e8', fontSize: fontScale(12), fontFamily: 'PlusJakartaSansMedium' },
   tabs: { paddingHorizontal: 16, paddingTop: 18, paddingBottom: 6 }, tab: { minWidth: 74, alignItems: 'center', paddingBottom: 14, marginRight: 14 }, tabText: { marginTop: 4, color: '#69738d', fontSize: fontScale(8), fontFamily: 'PlusJakartaSansExtraBold', textTransform: 'uppercase' }, tabOn: { color: '#cd2bee' }, body: { paddingHorizontal: 16, paddingTop: 10, gap: 18 },
   videoGridWrap: { marginHorizontal: -16 },
-  videoGrid: { flexDirection: 'row', flexWrap: 'wrap' },
-  videoGridCard: { overflow: 'hidden', borderRadius: 2, position: 'relative' },
+  videoGrid: { flexDirection: 'row', flexWrap: 'wrap', justifyContent: 'space-between' },
+  videoGridCard: { overflow: 'hidden', borderRadius: 0, position: 'relative' },
   videoGridImage: { width: '100%', height: '100%' },
   videoGridOverlay: { ...StyleSheet.absoluteFillObject },
   videoGridMeta: { position: 'absolute', left: 8, bottom: 8, flexDirection: 'row', alignItems: 'center', gap: 2 },

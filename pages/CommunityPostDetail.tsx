@@ -1,4 +1,4 @@
-import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react';
+import React, { useCallback, useEffect, useMemo, useState } from 'react';
 import {
   ActivityIndicator,
   Image,
@@ -97,8 +97,7 @@ const CommunityPostDetail: React.FC = () => {
   const [post, setPost] = useState<CommunityPost | null>(null);
   const [currentUser, setCurrentUser] = useState<CurrentUser>({});
   const [commentText, setCommentText] = useState('');
-  const [replyingTo, setReplyingTo] = useState<Comment | null>(null);
-  const commentInputRef = useRef<TextInput | null>(null);
+  const [replyingTo, setReplyingTo] = useState<string | null>(null);
 
   const screenBg = isDark ? '#0b0d12' : '#f0f2f5';
   const cardBg = isDark ? '#121219' : '#ffffff';
@@ -211,9 +210,7 @@ const CommunityPostDetail: React.FC = () => {
   };
 
   const startReply = (comment: Comment) => {
-    setReplyingTo(comment);
-    setCommentText(`@${comment.handle} `);
-    commentInputRef.current?.focus();
+    setReplyingTo(`@${comment.handle}`);
   };
 
   if (loading) {
@@ -388,18 +385,22 @@ const CommunityPostDetail: React.FC = () => {
         <Image source={{ uri: currentUser.avatar || 'https://picsum.photos/seed/user/100/100' }} style={styles.composerAvatar} />
         <View style={[styles.inputShell, { backgroundColor: composerBg }]}>
           {replyingTo ? (
-            <View style={[styles.replyPill, { backgroundColor: isDark ? 'rgba(205,43,238,0.12)' : 'rgba(205,43,238,0.1)' }]}>
-              <Text style={styles.replyPillText}>Replying to @{replyingTo.handle}</Text>
-              <Pressable onPress={() => { setReplyingTo(null); setCommentText(''); }}>
-                <MaterialIcons name="close" size={14} color="#cd2bee" />
+            <View style={[styles.replyingBanner, { backgroundColor: composerBg, borderColor: softBorder }]}>
+              <View style={styles.replyingInfo}>
+                <MaterialIcons name="reply" size={16} color="#cd2bee" />
+                <Text style={[styles.replyingText, { color: mutedText }]}>
+                  Replying to <Text style={[styles.replyingTarget, { color: theme.text }]}>{replyingTo}</Text>
+                </Text>
+              </View>
+              <Pressable onPress={() => setReplyingTo(null)}>
+                <MaterialIcons name="close" size={18} color={mutedText} />
               </Pressable>
             </View>
           ) : null}
           <TextInput
-            ref={commentInputRef}
             value={commentText}
             onChangeText={setCommentText}
-            placeholder={replyingTo ? `Reply to @${replyingTo.handle}...` : 'Write a comment...'}
+            placeholder="Write a comment..."
             placeholderTextColor={theme.textSecondary}
             multiline
             style={[styles.bottomComposerInput, { color: theme.text }]}
@@ -527,18 +528,19 @@ const styles = StyleSheet.create({
     paddingRight: 10,
     paddingVertical: 8,
   },
-  replyPill: {
-    alignSelf: 'flex-start',
-    marginBottom: 6,
-    paddingLeft: 10,
-    paddingRight: 6,
-    paddingVertical: 5,
-    borderRadius: 999,
+  replyingBanner: {
     flexDirection: 'row',
     alignItems: 'center',
-    gap: 6,
+    justifyContent: 'space-between',
+    borderWidth: 1,
+    borderRadius: 14,
+    paddingHorizontal: 12,
+    paddingVertical: 8,
+    marginBottom: 10,
   },
-  replyPillText: { color: '#cd2bee', fontSize: mediumScreen ? fontScale(10) : fontScale(8), fontFamily: 'PlusJakartaSansBold' },
+  replyingInfo: { flexDirection: 'row', alignItems: 'center', gap: 8 },
+  replyingText: { fontSize: mediumScreen ? fontScale(10) : fontScale(8), fontFamily: 'PlusJakartaSansMedium' },
+  replyingTarget: { fontFamily: 'PlusJakartaSansBold' },
   bottomComposerInput: { maxHeight: 90, paddingVertical: 4, fontSize: mediumScreen ? 14 : 12, fontFamily: 'PlusJakartaSansMedium' },
   sendBtn: { position: 'absolute', right: 10, bottom: 10, padding: 4 },
   emptyState: { flex: 1, justifyContent: 'center', alignItems: 'center', paddingHorizontal: 24, gap: 12 },
