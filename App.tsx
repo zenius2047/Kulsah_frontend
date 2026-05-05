@@ -38,6 +38,7 @@ import GoLiveSetup from './pages/GoLiveSetup';
 import CreatorEvents from './pages/CreatorEvents';
 import CreatorAnalytics from './pages/CreatorAnalytics';
 import CreatorRevenue from './pages/CreatorRevenue';
+import FanSubscriptions from './pages/FanSubscriptions';
 import CreatorLibrary from './pages/CreatorLibrary';
 import ChallengeCard from './pages/ChallengeScreen';
 import ChallengesScreen from './pages/ChallengeScreen';
@@ -472,6 +473,7 @@ const App: React.FC = () => {
                   <Stack.Screen name="/creator/analytics" component={CreatorAnalytics} />
                   <Stack.Screen name="CreatorAnalytics" component={CreatorAnalytics} />
                   <Stack.Screen name="CreatorRevenue" component={CreatorRevenue} />
+                  <Stack.Screen name="FanSubscriptions" component={FanSubscriptions} />
                   <Stack.Screen name="Community" component={Community} />
                   <Stack.Screen name="Analytics" component={CreatorAnalytics} />
                   <Stack.Screen name="Subscribers" component={Subscribers} />

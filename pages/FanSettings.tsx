@@ -613,7 +613,7 @@ const FanSettings: React.FC<FanSettingsProps> = ({ onLogout, isDarkMode, onToggl
       items: [
         { label: 'Gifts & Coins', icon: CoinsIcon, desc: 'Wallet, stickers, and assets', id: 'gifts' },
         { label: 'Payment Hub', icon: PaymentsIcon, desc: 'Wallet and saved methods', id: 'payments' },
-        { label: 'Active Subscriptions', icon: 'stars', desc: 'Creators you support', path: '/fan/subscriptions' },
+        { label: 'Active Subscriptions', icon: 'stars', desc: 'Creators you support', path: 'FanSubscriptions' },
       ],
     },
     {

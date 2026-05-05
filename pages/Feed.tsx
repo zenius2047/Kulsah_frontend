@@ -1781,7 +1781,7 @@ const Feed: React.FC = () => {
   }, []);
 
   const handleTabSwipe = useCallback((direction: 'left' | 'right') => {
-    const tabOrder: Array<'following' | 'foryou' | 'premium'> = ['following', 'foryou', 'premium'];
+    const tabOrder: Array<'foryou' | 'following' | 'premium'> = ['foryou', 'following', 'premium'];
 
     setActiveTab((currentTab) => {
       const currentIndex = tabOrder.indexOf(currentTab);

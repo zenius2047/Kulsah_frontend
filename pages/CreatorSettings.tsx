@@ -198,7 +198,7 @@ const CreatorSettings: React.FC<CreatorSettingsProps> = ({ onLogout, isDarkMode,
       {
         title: 'Premium',
         items: [
-          { label: 'Active Subscriptions', icon: StarsIcon, desc: 'View and manage your current subscriber base', path: 'Subscribers' },
+          { label: 'Active Subscriptions', icon: StarsIcon, desc: 'View and manage your current subscriber base', path: 'FanSubscriptions' },
           { label: 'Gifts and Coins', icon: 'redeem', desc: 'Track fan gifts, coin balances, and reward activity', action: () => navigation.navigate('FanSettings', { view: 'gifts' }) },
           {
             label: 'Incognito Subs',
