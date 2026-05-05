@@ -257,7 +257,7 @@ const CreatorSettings: React.FC<CreatorSettingsProps> = ({ onLogout, isDarkMode,
     </View>
   );
 
-  const IdentityView = () => (
+  const renderIdentityView = () => (
     <View style={[s.screen, { backgroundColor: theme.screen }]}>
       {renderHeader('Identity & Bio', () => setActiveSubView('main'))}
       <ScrollView contentContainerStyle={s.subContent} showsVerticalScrollIndicator={false} keyboardShouldPersistTaps="handled">
@@ -313,7 +313,7 @@ const CreatorSettings: React.FC<CreatorSettingsProps> = ({ onLogout, isDarkMode,
     </View>
   );
 
-  const TagsView = () => (
+  const renderTagsView = () => (
     <View style={[s.screen, { backgroundColor: theme.screen }]}>
       {renderHeader('Discovery Tags', () => setActiveSubView('main'))}
       <ScrollView contentContainerStyle={s.subContent} showsVerticalScrollIndicator={false} keyboardShouldPersistTaps="handled">
@@ -341,8 +341,8 @@ const CreatorSettings: React.FC<CreatorSettingsProps> = ({ onLogout, isDarkMode,
     </View>
   );
 
-  if (activeSubView === 'identity') return <IdentityView />;
-  if (activeSubView === 'tags') return <TagsView />;
+  if (activeSubView === 'identity') return renderIdentityView();
+  if (activeSubView === 'tags') return renderTagsView();
 
   return (
     <View style={[s.screen, { backgroundColor: theme.screen }]}>

@@ -223,7 +223,7 @@ const ChatView: React.FC = () => {
   return (
     <KeyboardAvoidingView style={{ flex: 1 }} behavior={Platform.OS === 'ios' ? 'padding' : undefined} keyboardVerticalOffset={0}>
     <View style={[styles.screen, { backgroundColor: theme.screen }]}>
-      <Modal visible={callStatus !== 'idle'} transparent animationType="fade">
+      <Modal visible={callStatus !== 'idle'} transparent animationType="fade" statusBarTranslucent>
         <View style={[styles.callOverlay, { backgroundColor: callOverlayBg }]}>
           <View style={styles.callTop}>
             <Image source={{ uri: `https://picsum.photos/seed/${id}/300` }} style={styles.callAvatar} />

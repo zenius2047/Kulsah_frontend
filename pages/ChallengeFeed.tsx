@@ -291,6 +291,7 @@ const ChallengeFeed: React.FC = () => {
           visible={voteOpen}
           transparent
           animationType="slide"
+          statusBarTranslucent
           onRequestClose={() => setVoteOpen(false)}
         >
           <Pressable style={styles.sheetBackdrop} onPress={() => setVoteOpen(false)} />

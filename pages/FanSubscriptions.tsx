@@ -190,7 +190,9 @@ const FanSubscriptions: React.FC = () => {
         </View>
       </ScrollView>
 
-      <Modal visible={isManaging && !!selectedSub} animationType="slide" transparent onRequestClose={() => setIsManaging(false)}>
+      <Modal 
+      statusBarTranslucent
+      visible={isManaging && !!selectedSub} animationType="slide" transparent onRequestClose={() => setIsManaging(false)}>
         <View style={s.modalRoot}>
           <Pressable style={s.modalBackdrop} onPress={() => setIsManaging(false)} />
           {selectedSub ? (

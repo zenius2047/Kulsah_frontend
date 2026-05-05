@@ -148,6 +148,7 @@ const VideoFeedItem: React.FC<{
         visible={showComments}
         transparent
         animationType="slide"
+        statusBarTranslucent
         onRequestClose={() => setShowComments(false)}
       >
         <Pressable style={styles.modalBackdrop} onPress={() => setShowComments(false)}>

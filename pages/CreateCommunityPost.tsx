@@ -406,7 +406,7 @@ const CreateCommunityPost: React.FC = () => {
           </Pressable>
         </View>
 
-        <Modal visible={showEmojiPicker} transparent animationType="slide" onRequestClose={() => setShowEmojiPicker(false)}>
+        <Modal visible={showEmojiPicker} transparent animationType="slide" statusBarTranslucent onRequestClose={() => setShowEmojiPicker(false)}>
           <View style={styles.modalRoot}>
             <Pressable style={[styles.modalBackdrop, { backgroundColor: modalBackdrop }]} onPress={() => setShowEmojiPicker(false)} />
             <View style={[styles.modalCard, { backgroundColor: modalCardBackground, borderColor: headerBorder }]}>

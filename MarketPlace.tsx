@@ -360,7 +360,7 @@ const MarketPlace: React.FC = () => {
         </View>
       </Modal>
 
-      <Modal visible={!!checkoutItem} animationType="slide" transparent onRequestClose={closeCheckout}>
+      <Modal visible={!!checkoutItem} animationType="slide" transparent statusBarTranslucent onRequestClose={closeCheckout}>
         <View style={s.modalOverlay}>
           <Pressable style={s.modalBackdrop} onPress={closeCheckout} />
           <View style={[s.modalSheet, { backgroundColor: theme.card }]}>

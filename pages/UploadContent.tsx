@@ -566,7 +566,7 @@ const UploadContent: React.FC = () => {
         )}
       </ScrollView>
 
-      <Modal visible={isRecording} transparent animationType="fade">
+      <Modal visible={isRecording} transparent animationType="fade" statusBarTranslucent>
         <View style={s.modal}>
           <Text style={s.title}>Recording...</Text>
           <Pressable style={s.primary} onPress={() => { setIsRecording(false); setStep('edit'); }}><Text style={s.primaryText}>Stop</Text></Pressable>

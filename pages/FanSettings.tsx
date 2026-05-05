@@ -793,15 +793,17 @@ const s = StyleSheet.create({
   primaryButtonText: { color: '#fff', fontSize: fontScale(12), fontFamily: 'PlusJakartaSansExtraBold', textTransform: 'uppercase', letterSpacing: 2 },
   identityContent: { padding: 16, paddingBottom: 120, gap: 20 },
   carouselWrap: { gap: 12 },
-  cardSlide: { width: 320, paddingRight: 12 },
+  cardSlide: { width: 360, paddingRight: 12 },
   identityCard: {
     borderRadius: 28,
-    padding: 18,
+    padding: 24,
     backgroundColor: '#fff',
     borderWidth: 1,
     borderColor: '#e2e8f0',
     minHeight: 420,
     justifyContent: 'space-between',
+    
+
   },
   cardFront: { gap: 16 },
   cardBack: { gap: 14, alignItems: 'center' },

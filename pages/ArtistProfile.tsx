@@ -2,7 +2,7 @@ import { MaterialIcons } from '@expo/vector-icons';
 import { useNavigation, useRoute } from '@react-navigation/native';
 import React, { useMemo, useState } from 'react';
 import { useThemeMode } from '../theme';
-import { ActivityIndicator, Image, ImageBackground, Modal, Pressable, ScrollView, Share, StyleSheet, Text, TextInput, useWindowDimensions, View } from 'react-native';
+import { ActivityIndicator, Dimensions, Image, ImageBackground, Modal, Pressable, ScrollView, Share, StyleSheet, Text, TextInput, useWindowDimensions, View } from 'react-native';
 import { LinearGradient } from 'expo-linear-gradient';
 import PlayIcon from '../assets/icons/play-circle-svg.svg';
 import StarsIcon from '../assets/icons/premium-svg.svg';
@@ -20,6 +20,7 @@ import FireIcon from '../assets/icons/fireIcon-svg.svg';
 type Tab = 'Videos' | 'Premium' | 'Tickets' | 'Events' | 'Challenges' | 'Favorites' | 'Saved';
 type Billing = 'monthly' | 'annually';
 type Step = 'details' | 'payment';
+const { height: SCREEN_HEIGHT, width: SCREEN_WIDTH } = Dimensions.get('screen');
 
 interface SubscriptionTier {
   name: string;
@@ -132,7 +133,7 @@ const  ArtistProfile: React.FC = () => {
               return;
             }
             if (user!.role === 'creator') {
-              navigation.navigate('Video');
+              navigation.navigate('Feed');
             }
           }}
           style={[
@@ -191,7 +192,9 @@ const  ArtistProfile: React.FC = () => {
           <MaterialIcons name={isOwner ? 'settings' : 'share'} size={20} color={theme.text} />
         </Pressable>
       </View>
-      <ScrollView contentContainerStyle={s.content} showsVerticalScrollIndicator={false} keyboardShouldPersistTaps="handled">
+      <ScrollView 
+      stickyHeaderIndices={isOwner?[3]:[4]}
+      contentContainerStyle={s.content} showsVerticalScrollIndicator={false} keyboardShouldPersistTaps="handled">
         <ImageBackground 
         resizeMode="cover"
         source={{ uri: 'https://res.cloudinary.com/dir15sl86/image/upload/v1776789639/male24_uxspl8.png' }} style={s.cover}><LinearGradient colors={isDark ? ['rgba(0,0,0,0.1)', '#060913'] : ['rgba(255,255,255,0.06)', '#f8fafc']} style={StyleSheet.absoluteFillObject} /></ImageBackground>
@@ -551,9 +554,12 @@ const  ArtistProfile: React.FC = () => {
                                         <Text style={s.purple}>{sound.usage}
                                           </Text></Pressable>)}</View> : null}
         </View>
+        {/* <View style={{
+          height: mediumScreen ? 120:70,
+        }}/> */}
       </ScrollView>
 
-      <Modal visible={selectedSub} transparent animationType="slide" onRequestClose={() => !loading && setSelectedSub(false)}>
+      <Modal visible={selectedSub} transparent animationType="slide" statusBarTranslucent onRequestClose={() => !loading && setSelectedSub(false)}>
         <View style={s.overlay}><Pressable style={StyleSheet.absoluteFillObject} onPress={() => !loading && setSelectedSub(false)} /><View style={[s.modal, { backgroundColor: isDark ? '#0f172a' : theme.card, borderWidth: isDark ? 0 : 1, borderColor: theme.border }]}>{success ? <View style={s.stack}><MaterialIcons name="verified" size={56} color="#cd2bee" /><Text style={[s.modalTitle, { color: theme.text }]}>Identity Verified</Text><Pressable onPress={() => setSelectedSub(false)} style={s.primary}><Text style={s.btnText}>Start Watching</Text></Pressable></View> : <><Text style={[s.modalTitle, { color: theme.text }]}>{SUB.name} Access</Text>{step === 'details' ? <View style={s.stack}>{SUB.perks.map((perk) => <Text key={perk} style={[s.perk, { color: theme.text }]}>- {perk}</Text>)}</View> : <View style={s.stack}><View style={s.payRow}><Pressable onPress={() => setPaymentMethod('momo')} style={[s.payBtn, { backgroundColor: isDark ? 'rgba(255,255,255,0.05)' : theme.surface, borderWidth: isDark ? 0 : 1, borderColor: theme.border }, paymentMethod === 'momo' && s.toggleOn]}><Text style={[s.toggleText, { color: paymentMethod === 'momo' ? '#cd2bee' : theme.textSecondary }]}>Mobile Money</Text></Pressable><Pressable onPress={() => setPaymentMethod('bank')} style={[s.payBtn, { backgroundColor: isDark ? 'rgba(255,255,255,0.05)' : theme.surface, borderWidth: isDark ? 0 : 1, borderColor: theme.border }, paymentMethod === 'bank' && s.toggleOn]}><Text style={[s.toggleText, { color: paymentMethod === 'bank' ? '#cd2bee' : theme.textSecondary }]}>Bank Transfer</Text></Pressable></View>{paymentMethod === 'momo' ? <TextInput value={phone} onChangeText={setPhone} placeholder="+233 Mobile Number" placeholderTextColor={theme.textMuted} style={[s.input, { backgroundColor: isDark ? 'rgba(255,255,255,0.05)' : theme.surface, color: theme.text, borderWidth: isDark ? 0 : 1, borderColor: theme.border }]} /> : null}{paymentMethod === 'bank' ? <Text style={[s.sub, { color: theme.textSecondary }]}>EcoBank Ghana - 1441000234567 - KULSAH CREATOR HUB</Text> : null}</View>}<Pressable onPress={buy} disabled={loading} style={s.primary}>{loading ? <ActivityIndicator color="#fff" /> : <Text style={s.btnText}>{step === 'details' ? 'Continue to Payment' : `Pay $${price} Now`}</Text>}</Pressable></>}</View></View>
       </Modal>
     </View>
@@ -564,7 +570,7 @@ const s = StyleSheet.create({
   screen: { flex: 1, backgroundColor: '#060913' },
   toast: { position: 'absolute', top: 56, alignSelf: 'center', zIndex: 40, backgroundColor: '#cd2bee', color: '#fff', paddingHorizontal: 16, paddingVertical: 8, borderRadius: 999, fontSize: fontScale(10), fontFamily: 'PlusJakartaSansExtraBold' },
   icon: { width: 40, height: 40, borderRadius: 20, alignItems: 'center', justifyContent: 'center', backgroundColor: 'rgba(255,255,255,0.06)' }, header: { paddingTop: 46, paddingHorizontal: 14, paddingBottom: 12, flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', backgroundColor: 'rgba(15,23,42,0.72)' }, headerBtn: { width: 40, height: 40, borderRadius: 20, alignItems: 'center', justifyContent: 'center', backgroundColor: 'rgba(255,255,255,0.06)' }, headerTitle: { flex: 1, textAlign: 'center', marginHorizontal: 10, color: '#fff', fontSize: mediumScreen? fontScale(16):fontScale(12), fontFamily: 'PlusJakartaSansExtraBold', textTransform: 'uppercase' },
-  content: { paddingBottom: 120 }, cover: { height: 280 }, hero: { marginTop: -88, paddingHorizontal: 20, alignItems: 'center' }, avatarWrap: { width: 148, height: 148, borderRadius: 999, borderWidth: 1, borderColor: '#060913', padding: 7}, image: { width: '100%', height: '100%', borderRadius: 999 }, fire: { position: 'absolute', right: 12, bottom: -2, width: 40, height: 40, borderRadius: 999, backgroundColor: '#f97316', borderWidth: 0, borderColor: '#060913', alignItems: 'center', justifyContent: 'center', flexDirection: 'row' }, fireText: { color: '#fff', fontSize: fontScale(8), fontFamily: 'PlusJakartaSansExtraBold' },
+  content: { paddingBottom: 120, }, cover: { height: 280 }, hero: { marginTop: -88, paddingHorizontal: 20, alignItems: 'center' }, avatarWrap: { width: 148, height: 148, borderRadius: 999, borderWidth: 1, borderColor: '#060913', padding: 7}, image: { width: '100%', height: '100%', borderRadius: 999 }, fire: { position: 'absolute', right: 12, bottom: -2, width: 40, height: 40, borderRadius: 999, backgroundColor: '#f97316', borderWidth: 0, borderColor: '#060913', alignItems: 'center', justifyContent: 'center', flexDirection: 'row' }, fireText: { color: '#fff', fontSize: fontScale(8), fontFamily: 'PlusJakartaSansExtraBold' },
   name: {color: '#fff', fontSize: fontScale(16), fontFamily: 'PlusJakartaSansBold', textTransform: 'uppercase' }, role: { marginTop: 4, color: '#cd2bee', fontSize: fontScale(9), fontFamily: 'PlusJakartaSansExtraBold', textTransform: 'uppercase', letterSpacing: 2 }, stat: { flex: 1, textAlign: 'center', color: '#fff', fontSize: fontScale(18), fontFamily: 'PlusJakartaSansExtraBold' }, muted: { color: '#7d859e', fontSize: fontScale(8), fontFamily: 'PlusJakartaSansExtraBold' }, purple: { color: '#cd2bee', fontFamily: 'PlusJakartaSansBold', fontSize: mediumScreen ? fontScale(12): fontScale(10) }, 
   actions: { marginTop: 22, flexDirection: 'row', gap: 10, alignItems: 'center', justifyContent: 'center' },
   action: { height: 56, borderRadius: 24, alignItems: 'center', justifyContent: 'center', flexDirection: 'row', gap: 8 }, 
@@ -573,7 +579,18 @@ const s = StyleSheet.create({
   bio: { paddingHorizontal: 34, marginTop: 18, marginBottom: 18, color: '#8b94ad', fontSize: mediumScreen? fontScale(14):fontScale(12), lineHeight: 20, fontStyle: 'italic', textAlign: 'center', fontFamily: 'PlusJakartaSansMedium' },
   membership: { paddingHorizontal: 16, gap: 14 }, membershipHeader: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', paddingHorizontal: 16 }, section: { color: '#fff', fontSize: mediumScreen? 18: 14, fontFamily: 'PlusJakartaSansExtraBold', textTransform: 'uppercase' }, toggle: { flexDirection: 'row', gap: 6, padding: 6, borderRadius: 18, backgroundColor: 'rgba(255,255,255,0.05)' }, toggleBtn: { minHeight: 34, paddingHorizontal: 10, borderRadius: 12, alignItems: 'center', justifyContent: 'center' }, toggleOn: { backgroundColor: 'rgba(255,255,255,0.08)' }, toggleText: { color: '#8b94ad', fontSize: fontScale(10), fontFamily: 'PlusJakartaSansExtraBold', textTransform: 'uppercase' },
  cardLabel: { color: '#8b94ad', fontSize: fontScale(10), fontFamily: 'PlusJakartaSansExtraBold', textTransform: 'uppercase' }, price: { color: '#fff', fontSize: fontScale(28), fontFamily: 'PlusJakartaSansExtraBold' }, perk: { color: '#d4d8e8', fontSize: fontScale(12), fontFamily: 'PlusJakartaSansMedium' },
-  tabs: { paddingHorizontal: 16, paddingTop: 18, paddingBottom: 6 }, tab: { minWidth: 74, alignItems: 'center', paddingBottom: 14, marginRight: 14 }, tabText: { marginTop: 4, color: '#69738d', fontSize: fontScale(8), fontFamily: 'PlusJakartaSansExtraBold', textTransform: 'uppercase' }, tabOn: { color: '#cd2bee' }, body: { paddingHorizontal: 16, paddingTop: 10, gap: 18 },
+  tabs: { 
+    backgroundColor: 'white',
+    paddingHorizontal: 16, paddingTop: 18, paddingBottom: 6 }, tab: { minWidth: 74, alignItems: 'center', paddingBottom: 14, marginRight: 14 }, tabText: { marginTop: 4, color: '#69738d', fontSize: fontScale(8), fontFamily: 'PlusJakartaSansExtraBold', textTransform: 'uppercase' }, tabOn: { color: '#cd2bee' }, 
+  body: { 
+    paddingHorizontal: 16,
+    paddingTop: 10,
+    gap: 18,
+    backgroundColor: 'green',
+    // marginBottom: mediumScreen ? 120: 170,
+    minHeight: mediumScreen ? SCREEN_HEIGHT * 0.87: SCREEN_HEIGHT * 0.63,
+    // marginBottom: 450
+  },
   videoGridWrap: { marginHorizontal: -16 },
   videoGrid: { flexDirection: 'row', flexWrap: 'wrap', justifyContent: 'space-between' },
   videoGridCard: { overflow: 'hidden', borderRadius: 0, position: 'relative' },

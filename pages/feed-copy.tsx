@@ -236,7 +236,7 @@ const VideoFeedItem: React.FC<{
         {item.ticketsAvailable && <Text style={styles.ticket}>Tickets • {item.ticketLocation}</Text>}
       </View>
 
-      <Modal visible={showComments} transparent animationType="slide" onRequestClose={() => setShowComments(false)}>
+      <Modal visible={showComments} transparent animationType="slide" statusBarTranslucent onRequestClose={() => setShowComments(false)}>
         <Pressable style={styles.modalRoot} onPress={() => setShowComments(false)}>
           <Pressable style={styles.sheet} onPress={() => {}}>
             <Text style={styles.sheetTitle}>{item.comments} Comments</Text>
@@ -429,7 +429,7 @@ const FeedCopy: React.FC = () => {
         }
       />
 
-      <Modal visible={showSignupPrompt && isGuest} transparent animationType="fade" onRequestClose={() => setShowSignupPrompt(false)}>
+      <Modal visible={showSignupPrompt && isGuest} transparent animationType="fade" statusBarTranslucent onRequestClose={() => setShowSignupPrompt(false)}>
         <View style={styles.promptRoot}>
           <Pressable style={styles.promptBackdrop} onPress={() => setShowSignupPrompt(false)} />
           <View style={styles.promptCard}>

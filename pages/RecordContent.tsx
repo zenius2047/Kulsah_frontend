@@ -281,6 +281,7 @@ const RecordContent: React.FC = ({route}:any) => {
           visible={soundSelectOpen}
           transparent
           animationType="slide"
+          statusBarTranslucent
           onRequestClose={() => setSoundSelectOpen(false)}
         >
           <Pressable style={styles.modalBackdrop} onPress={() => setSoundSelectOpen(false)} />

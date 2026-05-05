@@ -245,7 +245,7 @@ const CreatorRevenue: React.FC = () => {
           </View>
         </View>
 
-        <View style={[s.aiCard, { backgroundColor: isDark ? 'rgba(205,43,238,0.08)' : theme.accentSoft, borderColor: 'rgba(205,43,238,0.24)' }]}>
+        {/* <View style={[s.aiCard, { backgroundColor: isDark ? 'rgba(205,43,238,0.08)' : theme.accentSoft, borderColor: 'rgba(205,43,238,0.24)' }]}>
           <View style={s.aiHeader}>
             <View style={s.aiHeaderLeft}>
               <View style={s.aiIconWrap}>
@@ -275,7 +275,7 @@ const CreatorRevenue: React.FC = () => {
               <Text style={s.aiMetaValue}>Significant</Text>
             </View>
           </View>
-        </View>
+        </View> */}
 
         <View style={s.transactionsSection}>
           <View style={s.sectionHeader}>
@@ -326,7 +326,7 @@ const CreatorRevenue: React.FC = () => {
         </View>
       </ScrollView>
 
-      <Modal visible={isPayoutModalOpen} animationType="slide" transparent onRequestClose={() => setIsPayoutModalOpen(false)}>
+      <Modal visible={isPayoutModalOpen} animationType="slide" transparent statusBarTranslucent onRequestClose={() => setIsPayoutModalOpen(false)}>
         <View style={s.modalRoot}>
           <Pressable style={s.modalBackdrop} onPress={() => setIsPayoutModalOpen(false)} />
           <View style={[s.modalCard, { backgroundColor: theme.background, borderColor: border, paddingBottom: Math.max(20, insets.bottom) }]}>
@@ -501,7 +501,7 @@ const s = StyleSheet.create({
   balanceValue: {
     color: '#22c55e',
     fontFamily: 'PlusJakartaSansExtraBold',
-    fontSize: mediumScreen ? fontScale(34) : fontScale(28),
+    fontSize: mediumScreen ? fontScale(24) : fontScale(20),
   },
   balanceUnit: {
     fontFamily: 'PlusJakartaSansBold',

@@ -400,6 +400,7 @@ const CreatorLiveStream: React.FC = () => {
           visible={isTipModalOpen}
           transparent
           animationType="slide"
+          statusBarTranslucent
           onRequestClose={() => !isProcessingSim && setIsTipModalOpen(false)}
         >
           <View style={styles.modalRoot}>
@@ -493,6 +494,7 @@ const CreatorLiveStream: React.FC = () => {
           visible={showEndConfirm}
           transparent
           animationType="fade"
+          statusBarTranslucent
           onRequestClose={() => setShowEndConfirm(false)}
         >
           <View style={styles.modalCenterRoot}>

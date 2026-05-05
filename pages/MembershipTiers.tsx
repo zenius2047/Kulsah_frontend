@@ -4,7 +4,9 @@ import React, { useMemo, useState } from 'react';
 import {
   ActivityIndicator,
   Alert,
+  KeyboardAvoidingView,
   Modal,
+  Platform,
   Pressable,
   ScrollView,
   StyleSheet,
@@ -118,7 +120,7 @@ const MembershipTiers: React.FC = () => {
           </Pressable>
           <Text style={[s.headerTitle, { color: theme.text }]}>Galaxy Economy</Text>
         </View>
-        <Pressable
+        {/* <Pressable
           onPress={getAiPricingAdvice}
           disabled={isAiLoading}
           style={[s.aiButton, { backgroundColor: isDark ? '#cd2bee24' : theme.accentSoft, borderColor: isDark ? '#cd2bee4a' : '#cd2bee2b' }]}
@@ -128,7 +130,7 @@ const MembershipTiers: React.FC = () => {
           ) : (
             <MaterialIcons name="auto-awesome" size={20} color={theme.accent} />
           )}
-        </Pressable>
+        </Pressable> */}
       </View>
 
       <ScrollView contentContainerStyle={s.content} showsVerticalScrollIndicator={false} keyboardShouldPersistTaps="handled">
@@ -221,81 +223,93 @@ const MembershipTiers: React.FC = () => {
         </Pressable>
       </View>
 
-      <Modal visible={isEditorOpen} transparent animationType="slide" onRequestClose={closeEditor}>
+      <Modal
+      statusBarTranslucent
+      visible={isEditorOpen} transparent animationType="slide" onRequestClose={closeEditor}>
         <View style={s.modalRoot}>
           <Pressable style={s.scrim} onPress={closeEditor} />
           {editingSub ? (
-            <View style={[s.modalCard, { backgroundColor: isDark ? theme.background : theme.card, borderTopColor: theme.border }]}>
-              <View style={[s.grabber, { backgroundColor: isDark ? '#ffffff20' : '#cbd5e1' }]} />
+            <KeyboardAvoidingView
+              behavior={Platform.OS === 'ios' ? 'padding' : undefined}
+              keyboardVerticalOffset={Platform.OS === 'ios' ? 24 : 0}
+              style={s.modalKeyboardWrap}
+            >
+              <View style={[s.modalCard, { backgroundColor: isDark ? theme.background : theme.card, borderTopColor: theme.border }]}>
+                <View style={[s.grabber, { backgroundColor: isDark ? '#ffffff20' : '#cbd5e1' }]} />
 
-              <View style={s.modalHeader}>
-                <Text style={[s.modalTitle, { color: theme.text }]}>Refine Subscription</Text>
-                <Pressable onPress={closeEditor} style={[s.modalClose, { backgroundColor: isDark ? '#ffffff12' : theme.surface, borderColor: theme.border }]}>
-                  <MaterialIcons name="close" size={18} color={theme.text} />
-                </Pressable>
+                <View style={s.modalHeader}>
+                  <Text style={[s.modalTitle, { color: theme.text }]}>Refine Subscription</Text>
+                  <Pressable onPress={closeEditor} style={[s.modalClose, { backgroundColor: isDark ? '#ffffff12' : theme.surface, borderColor: theme.border }]}>
+                    <MaterialIcons name="close" size={18} color={theme.text} />
+                  </Pressable>
+                </View>
+
+                <ScrollView
+                  showsVerticalScrollIndicator={false}
+                  keyboardShouldPersistTaps="handled"
+                  contentContainerStyle={s.modalContent}
+                >
+                  <View style={s.fieldBlock}>
+                    <Text style={[s.fieldLabel, { color: theme.textMuted }]}>Identity Label</Text>
+                    <TextInput
+                      value={editingSub.name}
+                      onChangeText={(value) => setEditingSub({ ...editingSub, name: value })}
+                      style={[s.textField, { color: theme.text, backgroundColor: isDark ? '#ffffff08' : theme.surface, borderColor: theme.border }]}
+                      placeholder="Subscription name"
+                      placeholderTextColor={theme.textMuted}
+                    />
+                  </View>
+
+                  <View style={s.fieldBlock}>
+                    <Text style={[s.fieldLabel, { color: theme.textMuted }]}>Pricing Strategy (USD)</Text>
+                    <View style={[s.priceEditorWrap, { backgroundColor: isDark ? '#ffffff08' : theme.surface, borderColor: theme.border }]}>
+                      <Text style={[s.editorDollar, { color: theme.accent }]}>$</Text>
+                      <TextInput
+                        value={editingSub.price}
+                        onChangeText={(value) => setEditingSub({ ...editingSub, price: value })}
+                        keyboardType="decimal-pad"
+                        style={[s.priceEditorInput, { color: theme.text }]}
+                        placeholder="0.00"
+                        placeholderTextColor={theme.textMuted}
+                      />
+                    </View>
+                  </View>
+
+                  <View style={s.fieldBlock}>
+                    <Text style={[s.fieldLabel, { color: theme.textMuted }]}>Perk Pipeline</Text>
+                    <View style={s.listWrap}>
+                      {editingSub.perks.map((perk, index) => (
+                        <View key={`${perk}-${index}`} style={[s.listItem, { backgroundColor: isDark ? '#ffffff08' : theme.surface, borderColor: theme.border }]}>
+                          <Text style={[s.listItemText, { color: theme.text }]}>{perk}</Text>
+                          <Pressable onPress={() => setEditingSub({ ...editingSub, perks: editingSub.perks.filter((_, i) => i !== index) })}>
+                            <MaterialIcons name="delete-outline" size={18} color="#ef4444" />
+                          </Pressable>
+                        </View>
+                      ))}
+                    </View>
+
+                    <View style={s.addRow}>
+                      <TextInput
+                        value={newPerkText}
+                        onChangeText={setNewPerkText}
+                        onSubmitEditing={addPerk}
+                        returnKeyType="done"
+                        placeholder="New value-add..."
+                        placeholderTextColor={theme.textMuted}
+                        style={[s.addInput, { color: theme.text, backgroundColor: isDark ? '#ffffff08' : theme.surface, borderColor: theme.border }]}
+                      />
+                      <Pressable onPress={addPerk} style={s.addButton}>
+                        <MaterialIcons name="add" size={22} color="#fff" />
+                      </Pressable>
+                    </View>
+                  </View>
+
+                  <Pressable onPress={saveSubscription} style={s.syncButton}>
+                    <Text style={s.syncButtonText}>Synchronize Subscription</Text>
+                  </Pressable>
+                </ScrollView>
               </View>
-
-              <ScrollView showsVerticalScrollIndicator={false} keyboardShouldPersistTaps="handled" contentContainerStyle={s.modalContent}>
-                <View style={s.fieldBlock}>
-                  <Text style={[s.fieldLabel, { color: theme.textMuted }]}>Identity Label</Text>
-                  <TextInput
-                    value={editingSub.name}
-                    onChangeText={(value) => setEditingSub({ ...editingSub, name: value })}
-                    style={[s.textField, { color: theme.text, backgroundColor: isDark ? '#ffffff08' : theme.surface, borderColor: theme.border }]}
-                    placeholder="Subscription name"
-                    placeholderTextColor={theme.textMuted}
-                  />
-                </View>
-
-                <View style={s.fieldBlock}>
-                  <Text style={[s.fieldLabel, { color: theme.textMuted }]}>Pricing Strategy (USD)</Text>
-                  <View style={[s.priceEditorWrap, { backgroundColor: isDark ? '#ffffff08' : theme.surface, borderColor: theme.border }]}>
-                    <Text style={[s.editorDollar, { color: theme.accent }]}>$</Text>
-                    <TextInput
-                      value={editingSub.price}
-                      onChangeText={(value) => setEditingSub({ ...editingSub, price: value })}
-                      keyboardType="decimal-pad"
-                      style={[s.priceEditorInput, { color: theme.text }]}
-                      placeholder="0.00"
-                      placeholderTextColor={theme.textMuted}
-                    />
-                  </View>
-                </View>
-
-                <View style={s.fieldBlock}>
-                  <Text style={[s.fieldLabel, { color: theme.textMuted }]}>Perk Pipeline</Text>
-                  <View style={s.listWrap}>
-                    {editingSub.perks.map((perk, index) => (
-                      <View key={`${perk}-${index}`} style={[s.listItem, { backgroundColor: isDark ? '#ffffff08' : theme.surface, borderColor: theme.border }]}>
-                        <Text style={[s.listItemText, { color: theme.text }]}>{perk}</Text>
-                        <Pressable onPress={() => setEditingSub({ ...editingSub, perks: editingSub.perks.filter((_, i) => i !== index) })}>
-                          <MaterialIcons name="delete-outline" size={18} color="#ef4444" />
-                        </Pressable>
-                      </View>
-                    ))}
-                  </View>
-
-                  <View style={s.addRow}>
-                    <TextInput
-                      value={newPerkText}
-                      onChangeText={setNewPerkText}
-                      onSubmitEditing={addPerk}
-                      returnKeyType="done"
-                      placeholder="New value-add..."
-                      placeholderTextColor={theme.textMuted}
-                      style={[s.addInput, { color: theme.text, backgroundColor: isDark ? '#ffffff08' : theme.surface, borderColor: theme.border }]}
-                    />
-                    <Pressable onPress={addPerk} style={s.addButton}>
-                      <MaterialIcons name="add" size={22} color="#fff" />
-                    </Pressable>
-                  </View>
-                </View>
-
-                <Pressable onPress={saveSubscription} style={s.syncButton}>
-                  <Text style={s.syncButtonText}>Synchronize Subscription</Text>
-                </Pressable>
-              </ScrollView>
-            </View>
+            </KeyboardAvoidingView>
           ) : null}
         </View>
       </Modal>
@@ -520,6 +534,9 @@ const s = StyleSheet.create({
     flex: 1,
     justifyContent: 'flex-end',
     backgroundColor: 'rgba(0,0,0,0.45)',
+  },
+  modalKeyboardWrap: {
+    justifyContent: 'flex-end',
   },
   scrim: { ...StyleSheet.absoluteFillObject },
   modalCard: {

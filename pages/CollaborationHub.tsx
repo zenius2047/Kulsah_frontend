@@ -623,7 +623,7 @@ const CollaborationHub: React.FC = () => {
         </View>
       </Modal>
 
-      <Modal visible={!!selectedPartner} transparent animationType="fade" onRequestClose={() => setSelectedPartner(null)}>
+      <Modal visible={!!selectedPartner} transparent animationType="fade" statusBarTranslucent onRequestClose={() => setSelectedPartner(null)}>
         <View style={styles.modalOverlay}>
           <Pressable style={styles.modalBackdrop} onPress={() => !isSending && setSelectedPartner(null)} />
           <View style={[styles.modalSheet, { backgroundColor: cardBg, borderColor: border }]}>

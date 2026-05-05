@@ -435,11 +435,19 @@ const Community: React.FC<{ embedded?: boolean }> = ({ embedded = false }) => {
 
               {post.images && post.images.length > 0 && (
                 <View style={styles.mediaOuter}>
-                  {post.images.map((img, idx) => (
-                    <View key={`${post.id}-${idx}`} style={[styles.imageFrame, { borderColor: softBorder }]}>
-                      <Image source={{ uri: img }} style={styles.postImage} />
-                    </View>
-                  ))}
+                  <View style={styles.imageGrid}>
+                    {post.images.map((img, idx) => (
+                      <View
+                        key={`${post.id}-${idx}`}
+                        style={[
+                          post.images!.length === 1 ? styles.imageFrame : styles.imageGridFrame,
+                          { borderColor: softBorder },
+                        ]}
+                      >
+                        <Image source={{ uri: img }} style={styles.postImage} />
+                      </View>
+                    ))}
+                  </View>
                 </View>
               )}
 
@@ -519,7 +527,7 @@ const Community: React.FC<{ embedded?: boolean }> = ({ embedded = false }) => {
         </View>
       </ScrollView>
 
-      <Modal visible={!!activeCommentPost} transparent animationType="fade" onRequestClose={() => setActiveCommentPost(null)}>
+      <Modal visible={!!activeCommentPost} transparent animationType="fade" statusBarTranslucent onRequestClose={() => setActiveCommentPost(null)}>
         <View style={styles.modalRoot}>
           <Pressable style={styles.modalBackdrop} onPress={() => setActiveCommentPost(null)} />
           <View style={[styles.modalCard, { backgroundColor: panelSurface, borderColor: softBorder }]}>
@@ -718,12 +726,26 @@ const styles = StyleSheet.create({
     backgroundColor: 'rgba(0,0,0,0.35)',
   },
   mediaOuter: { paddingHorizontal: 12, paddingBottom: 12 },
+  imageGrid: {
+    flexDirection: 'row',
+    flexWrap: 'wrap',
+    justifyContent: 'space-between',
+    gap: 8,
+  },
   imageFrame: {
     borderRadius: 24,
     overflow: 'hidden',
     borderWidth: 1,
     borderColor: 'rgba(255,255,255,0.12)',
     height: 210,
+  },
+  imageGridFrame: {
+    width: '48.8%',
+    height: 150,
+    borderRadius: 20,
+    overflow: 'hidden',
+    borderWidth: 1,
+    borderColor: 'rgba(255,255,255,0.12)',
   },
   postImage: { height: '100%', width: '100%' },
   pollWrap: { paddingHorizontal: 16, paddingBottom: 16, gap: 8 },

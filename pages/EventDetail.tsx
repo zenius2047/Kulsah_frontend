@@ -326,7 +326,7 @@ const EventDetail: React.FC = () => {
         </View>
       ) : null}
 
-      <Modal visible={reminderOpen} transparent animationType="slide" onRequestClose={() => setReminderOpen(false)}>
+      <Modal visible={reminderOpen} transparent animationType="slide" statusBarTranslucent onRequestClose={() => setReminderOpen(false)}>
         <View style={styles.modalRoot}>
           <Pressable style={styles.modalBackdrop} onPress={() => setReminderOpen(false)} />
           <View style={[styles.modalCard, { backgroundColor: isDark ? '#050505' : theme.background, borderColor: border, paddingBottom: Math.max(insets.bottom, 24) }]}>

@@ -304,7 +304,7 @@ const Player: React.FC = () => {
         </View>
       </ScrollView>
 
-      <Modal visible={queueOpen} transparent animationType="slide" onRequestClose={() => setQueueOpen(false)}>
+      <Modal visible={queueOpen} transparent animationType="slide" statusBarTranslucent onRequestClose={() => setQueueOpen(false)}>
         <View style={styles.modalRoot}>
           <Pressable style={styles.modalBackdrop} onPress={() => setQueueOpen(false)} />
           <View style={[styles.queueSheet, { backgroundColor: isDark ? '#050505' : theme.background, borderColor: border, paddingBottom: Math.max(insets.bottom, 24) }]}>

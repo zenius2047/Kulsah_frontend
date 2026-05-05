@@ -326,7 +326,7 @@ export default function CreatorLibrary() {
           </Pressable>
         ))}
       </ScrollView>
-      <Modal transparent visible={!!menuItem} animationType="fade" onRequestClose={() => setMenuItem(null)}>
+      <Modal transparent visible={!!menuItem} animationType="fade" statusBarTranslucent onRequestClose={() => setMenuItem(null)}>
         <Pressable style={s.overlay} onPress={() => setMenuItem(null)}>
           {menuItem ? (
             <View style={s.menu}>
@@ -340,7 +340,7 @@ export default function CreatorLibrary() {
         </Pressable>
       </Modal>
 
-      <Modal transparent visible={!!detailItem} animationType="slide" onRequestClose={() => setDetailItem(null)}>
+      <Modal transparent visible={!!detailItem} animationType="slide" statusBarTranslucent onRequestClose={() => setDetailItem(null)}>
         <View style={s.drawerWrap}>
           <Pressable style={StyleSheet.absoluteFill} onPress={() => setDetailItem(null)} />
           {detailItem ? (
