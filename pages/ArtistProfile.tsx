@@ -236,7 +236,7 @@ const  ArtistProfile: React.FC = () => {
               <Text style={[s.statLabel, {color: theme.text}]}>Subscribers</Text>
             </Pressable>
           </View>
-          <View style={[s.actions, {width: isOwner ? '100%': '80%'}]}>{isOwner ? <>
+          <View style={[s.actions, ]}>{isOwner ? <>
           <Pressable onPress={() => navigation.navigate('Settings')} style={[s.primary, {width: '30%'}]}>
             <EditIcon height={24} width={24} fill='white'/>
             <Text style={s.btnText}>{" "}Edit</Text>
@@ -244,7 +244,18 @@ const  ArtistProfile: React.FC = () => {
             <Pressable onPress={share} 
             style={[s.secondary, { width: '30%', backgroundColor: isDark ? 'rgba(255,255,255,0.06)' : theme.surface, flexDirection: 'row' , alignItems: 'center', justifyContent: 'center'}]}>
             <MaterialIcons name='share' size={18}/>
-            <Text style={[s.btnText, { color: theme.text }]}>{" "}Share</Text></Pressable></> : <><Pressable onPress={() => navigation.navigate('Chat')} style={[s.iconAction, { backgroundColor: isDark ? 'rgba(255,255,255,0.06)' : theme.surface }]}><MaterialIcons name="mail" size={20} color={theme.text} /></Pressable><Pressable onPress={() => { setFollowing((v) => !v); ping(following ? 'Unfollowed' : 'Following'); }} style={[s.secondary, { backgroundColor: isDark ? 'rgba(255,255,255,0.06)' : theme.surface }]}><Text style={[s.btnText, { color: theme.text }]}>{following ? 'Following' : 'Follow'}</Text></Pressable><Pressable onPress={() => { setSelectedSub(true); setStep('details'); }} style={s.primary}><Text style={s.btnText}>Subscribe</Text></Pressable></>}</View>
+            <Text style={[s.btnText, { color: theme.text }]}>{" "}Share</Text></Pressable></> : 
+            <><Pressable onPress={() => navigation.navigate('Chat')} 
+            style={[s.iconAction, { backgroundColor: isDark ? 'rgba(255,255,255,0.06)' : theme.surface }]}>
+              <MaterialIcons name="mail" size={20} color={theme.text} /></Pressable>
+                <Pressable onPress={() => { setFollowing((v) => !v); ping(following ? 'Unfollowed' : 'Following'); }} 
+                    style={[s.secondary, { backgroundColor: isDark ? 'rgba(255,255,255,0.06)' : theme.surface, width: '30%' }]}>
+                      <Text style={[s.btnText, { color: theme.text }]}>{following ? 'Following' : 'Follow'}
+                        </Text></Pressable>
+                        <Pressable onPress={() => { setSelectedSub(true); setStep('details'); }} style={[s.primary, {width: '30%'}]}>
+                          <Text style={s.btnText}>Subscribe</Text></Pressable>
+                          </>}
+                          </View>
         </View>
 
         <Text style={[s.bio, { color: theme.textSecondary }]}>"Exploring the nexus of synthwave rhythms and cinematic soul. Join the journey through the star systems of sound."</Text>
