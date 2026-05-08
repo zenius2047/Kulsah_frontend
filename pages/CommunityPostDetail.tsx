@@ -3,6 +3,7 @@ import {
   ActivityIndicator,
   Image,
   KeyboardAvoidingView,
+  Modal,
   Platform,
   Pressable,
   ScrollView,
@@ -18,7 +19,7 @@ import { MaterialIcons } from '@expo/vector-icons';
 import { useVideoPlayer, VideoView } from 'expo-video';
 import { useThemeMode } from '../theme';
 import { fontScale } from '../fonts';
-import { mediumScreen } from '../types';
+import { mediumScreen, user } from '../types';
 
 interface Comment {
   id: string;
@@ -27,12 +28,21 @@ interface Comment {
   avatar: string;
   text: string;
   time: string;
+  replys?: Reply[];
 }
 
 interface PollOption {
   text: string;
   votes: number;
   isSelected?: boolean;
+}
+
+interface Reply {
+  text: string;
+  username: string;
+  replyhandle: string;
+  time: string;
+  avatar: string;
 }
 
 interface CommunityPost {
@@ -92,12 +102,18 @@ const CommunityPostDetail: React.FC = () => {
   const navigation = useNavigation<any>();
   const route = useRoute<any>();
   const { isDark, theme } = useThemeMode();
+  const muted = theme.textMuted;
   const postId = route.params?.postId as string | undefined;
   const [loading, setLoading] = useState(true);
   const [post, setPost] = useState<CommunityPost | null>(null);
   const [currentUser, setCurrentUser] = useState<CurrentUser>({});
   const [commentText, setCommentText] = useState('');
-  const [replyingTo, setReplyingTo] = useState<string | null>(null);
+  const [replyingTo, setReplyingTo] = useState<Comment | null>(null);
+  const [selectedImage, setSelectedImage] = useState<string | null>(null);
+  const [commentUsername, setcommentUsername] = useState<string>('');
+  const [replyUsername, setReplyUsername] = useState<string>('');
+  const [replyAvatar, setReplyAvatar] = useState<string>('');
+  const [replyTime, setReplyTime] = useState<string>('');
 
   const screenBg = isDark ? '#0b0d12' : '#f0f2f5';
   const cardBg = isDark ? '#121219' : '#ffffff';
@@ -175,24 +191,57 @@ const CommunityPostDetail: React.FC = () => {
     });
   };
 
-  const addComment = async () => {
+  const addComment = async (commentId: string | null) => {
+    console.log('Comment Id from reply:', commentId);
+    setcommentUsername(user?.name ?? '')
     const finalText = commentText.trim();
     if (!finalText || !post) return;
-
+    console.log(Date.now().toString());
     const newComment: Comment = {
-      id: Date.now().toString(),
+      id: Math.random().toString(36).slice(2,8),
       user: currentUser.name || 'Anonymous',
       handle: normalizedHandle || 'user',
       avatar: currentUser.avatar || 'https://picsum.photos/seed/user/100/100',
       text: finalText,
       time: 'Just now',
     };
-
-    await persistPostUpdate((target) => ({
+    
+    await persistPostUpdate((target) => {
+        let updatedComment: Comment | null = null;
+        let listOfComment = target.commentList;
+      if(target.commentList && commentId){
+        updatedComment = target.commentList.find((item)=>item.id === commentId) ?? null;
+        console.log('comment to update',updatedComment);
+        if(updatedComment){
+          let replys: Reply[] = [];
+          if(updatedComment.replys){
+            console.log('this is reply that exists already:', replys);
+            replys = updatedComment.replys;
+          }
+          // listOfComment = [...target.commentList, {...updatedComment, reply: commentText}]
+          listOfComment = target.commentList.map((item) =>
+                  item.id === updatedComment?.id
+                    ? { ...updatedComment, replys: [...replys, {
+                      text: commentText, 
+                      username: commentUsername, 
+                      replyhandle: replyUsername,
+                      time: replyTime,
+                      avatar: replyAvatar
+                    }] }
+                    : item
+                );
+        }
+      }else{
+        console.log("this is the new comment:", newComment)
+        listOfComment = [newComment, ...(target.commentList || [])]
+      }
+      return ({
       ...target,
-      comments: target.comments + 1,
-      commentList: [newComment, ...(target.commentList || [])],
-    }));
+      comments: replyingTo ? target.comments : target.comments + 1,
+      commentList: listOfComment,
+    })
+    }
+  );
     setCommentText('');
     setReplyingTo(null);
   };
@@ -209,9 +258,9 @@ const CommunityPostDetail: React.FC = () => {
     }
   };
 
-  const startReply = (comment: Comment) => {
-    setReplyingTo(`@${comment.handle}`);
-  };
+  // const startReply = (comment: Comment) => {
+  //   setReplyingTo(`@${comment.handle}`);
+  // };
 
   if (loading) {
     return (
@@ -275,7 +324,7 @@ const CommunityPostDetail: React.FC = () => {
             <View style={styles.headerActions}>
               <Pressable style={[styles.followBtn, { backgroundColor: screenBg }]} onPress={() => void toggleFollow()}>
                 <Text style={[styles.followBtnText, { color: post.isFollowing ? mutedText : '#1877f2' }]}>
-                  {post.isFollowing ? 'Following' : 'Follow'}
+                  {post.isFollowing ? 'following' : 'follow'}
                 </Text>
               </Pressable>
               <Pressable style={[styles.iconBtn, { backgroundColor: screenBg }]}>
@@ -292,9 +341,24 @@ const CommunityPostDetail: React.FC = () => {
 
           {post.images && post.images.length > 0 && (
             <View style={styles.imageStack}>
-              {post.images.map((img, idx) => (
-                <Image key={`${post.id}-${idx}`} source={{ uri: img }} style={styles.postImage} />
-              ))}
+              <View style={styles.imageGrid}>
+                {post.images.map((img, idx) => {
+                  const singleImage = post.images!.length === 1;
+
+                  return (
+                    <Pressable
+                      key={`${post.id}-${idx}`}
+                      onPress={() => setSelectedImage(img)}
+                      style={[
+                        singleImage ? styles.singleImageFrame : styles.gridImageFrame,
+                        { borderColor: softBorder },
+                      ]}
+                    >
+                      <Image source={{ uri: img }} style={singleImage ? styles.postImageSingle : styles.postImageGrid} />
+                    </Pressable>
+                  );
+                })}
+              </View>
             </View>
           )}
 
@@ -362,11 +426,55 @@ const CommunityPostDetail: React.FC = () => {
                       </View>
                       <View style={styles.commentMetaRow}>
                         <Text style={[styles.commentMetaText, { color: mutedText }]}>Like</Text>
-                        <Pressable onPress={() => startReply(comment)}>
+                        <Pressable onPress={() => {
+                          setReplyingTo(comment);
+                          setReplyUsername(post.handle);
+                          setReplyTime(Date.now().toString());
+                          setReplyAvatar('https://picsum.photos/seed/luna-codes/120');
+                        }}>
                           <Text style={[styles.commentMetaText, { color: mutedText }]}>Reply</Text>
                         </Pressable>
                         <Text style={[styles.commentMetaText, { color: mutedText }]}>{comment.time}</Text>
                       </View>
+                      {comment.replys?.map((item)=>
+                            <View style={styles.replyWrap}>
+                                        <View style={[styles.replyLine, { backgroundColor: 'rgba(205,43,238,0.28)' }]} />
+                                        <View style={styles.replyRow}>
+                                          <Image source={{ uri: item.avatar }} style={styles.replyAvatar} />
+                                          <View style={styles.replyMain}>
+                                            <View style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', gap: 8, marginBottom: 2 }}>
+                                              <Text style={[styles.replyHandle, { color: theme.text }]}>@{item.replyhandle}</Text>
+                                              <Text style={[styles.replyTime, { color: muted }]}>{item.time}</Text>
+                                            </View>
+                                            <Text style={[styles.replyBody, { color: commentText }]}>
+                                              <Text style={{ color: '#cd2bee', fontFamily: 'PlusJakartaSansBold' }}>@{comment.handle} </Text>
+                                               {" "}{item.text}
+                                            </Text>
+                                            <View style={styles.replyActions}>
+                                              <Pressable onPress={() => {
+                                                setReplyingTo({
+                                                  id: Math.random().toString(36).slice(2,8),
+                                                  user: '',
+                                                  handle: '',
+                                                  avatar: '',
+                                                  text: commentText,
+                                                  time: '',
+                                                  // replys: []
+                                                });
+                                                setReplyUsername(item.username);
+                                                setReplyTime(Date.now().toString());
+                                                setReplyAvatar('https://picsum.photos/seed/luna-codes/120');
+                                              }}>
+                                                <Text style={[styles.replyActionText, { color: muted }]}>Reply</Text>
+                                              </Pressable>
+                                              
+                                              <Text style={[styles.replyActionText, { color: muted }]}>Like</Text>
+                                            </View>
+                                          </View>
+                                        </View>
+                                      </View>
+                      )
+                        }
                     </View>
                   </View>
                 ))}
@@ -381,6 +489,22 @@ const CommunityPostDetail: React.FC = () => {
         </View>
       </ScrollView>
 
+      <Modal visible={!!selectedImage} transparent animationType="fade" statusBarTranslucent onRequestClose={() => setSelectedImage(null)}>
+        <View style={styles.imageModalRoot}>
+          <Pressable style={styles.imageModalBackdrop} onPress={() => setSelectedImage(null)} />
+          <View style={styles.imageModalHeader}>
+            <Pressable onPress={() => setSelectedImage(null)} style={styles.imageModalCloseBtn}>
+              <MaterialIcons name="close" size={22} color="#fff" />
+            </Pressable>
+          </View>
+          {selectedImage ? (
+            <View style={styles.imageModalContent}>
+              <Image source={{ uri: selectedImage }} style={styles.imageModalImage} />
+            </View>
+          ) : null}
+        </View>
+      </Modal>
+
       <View style={[styles.bottomComposer, { borderTopColor: softBorder, backgroundColor: headerBg }]}>
         <Image source={{ uri: currentUser.avatar || 'https://picsum.photos/seed/user/100/100' }} style={styles.composerAvatar} />
         <View style={[styles.inputShell, { backgroundColor: composerBg }]}>
@@ -389,7 +513,7 @@ const CommunityPostDetail: React.FC = () => {
               <View style={styles.replyingInfo}>
                 <MaterialIcons name="reply" size={16} color="#cd2bee" />
                 <Text style={[styles.replyingText, { color: mutedText }]}>
-                  Replying to <Text style={[styles.replyingTarget, { color: theme.text }]}>{replyingTo}</Text>
+                  Replying to <Text style={[styles.replyingTarget, { color: theme.text }]}>@{replyingTo.handle}</Text>
                 </Text>
               </View>
               <Pressable onPress={() => setReplyingTo(null)}>
@@ -405,7 +529,7 @@ const CommunityPostDetail: React.FC = () => {
             multiline
             style={[styles.bottomComposerInput, { color: theme.text }]}
           />
-          <Pressable onPress={() => void addComment()} style={styles.sendBtn}>
+          <Pressable onPress={() => void addComment(replyingTo ? replyingTo.id : null)} style={styles.sendBtn}>
             <MaterialIcons name="send" size={18} color={commentText.trim() ? '#1877f2' : dimIcon} />
           </Pressable>
         </View>
@@ -472,7 +596,11 @@ const styles = StyleSheet.create({
   viewerPill: { flexDirection: 'row', alignItems: 'center', gap: 4, borderRadius: 999, backgroundColor: 'rgba(0,0,0,0.42)', paddingHorizontal: 10, paddingVertical: 5, borderWidth: 1, borderColor: 'rgba(255,255,255,0.22)' },
   viewerText: { color: '#fff', fontSize: mediumScreen ? 14 : 10, fontFamily: 'PlusJakartaSansBold' },
   imageStack: { marginBottom: 12 },
-  postImage: { width: '100%', height: 320, resizeMode: 'cover' },
+  imageGrid: { flexDirection: 'row', flexWrap: 'wrap', justifyContent: 'space-between', rowGap: 6, paddingHorizontal: 12 },
+  singleImageFrame: { width: '100%', height: 320, borderRadius: 20, overflow: 'hidden', borderWidth: 1 },
+  gridImageFrame: { width: '49%', aspectRatio: 1, borderRadius: 18, overflow: 'hidden', borderWidth: 1 },
+  postImageSingle: { width: '100%', height: '100%', resizeMode: 'cover' },
+  postImageGrid: { width: '100%', height: '100%', resizeMode: 'cover' },
   pollWrap: { paddingHorizontal: 12, paddingBottom: 14, gap: 8 },
   pollOption: { height: 52, borderRadius: 12, borderWidth: 1, overflow: 'hidden' },
   pollOptionSelected: { borderColor: 'rgba(205,43,238,0.35)' },
@@ -546,6 +674,44 @@ const styles = StyleSheet.create({
   emptyState: { flex: 1, justifyContent: 'center', alignItems: 'center', paddingHorizontal: 24, gap: 12 },
   emptyTitle: { fontSize: mediumScreen ? fontScale(18) : fontScale(14), fontFamily: 'PlusJakartaSansExtraBold', textTransform: 'uppercase' },
   emptyText: { textAlign: 'center', fontSize: mediumScreen ? 15 : 12, fontFamily: 'PlusJakartaSansMedium', lineHeight: 20 },
+  imageModalRoot: { flex: 1, backgroundColor: 'rgba(0,0,0,0.96)' },
+  imageModalBackdrop: { ...StyleSheet.absoluteFillObject },
+  imageModalHeader: {
+    position: 'absolute',
+    top: 48,
+    right: 16,
+    zIndex: 2,
+  },
+  imageModalCloseBtn: {
+    width: 42,
+    height: 42,
+    borderRadius: 21,
+    backgroundColor: 'rgba(255,255,255,0.12)',
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  imageModalContent: {
+    flex: 1,
+    alignItems: 'center',
+    justifyContent: 'center',
+    paddingHorizontal: 12,
+    paddingVertical: 64,
+  },
+  imageModalImage: {
+    width: '100%',
+    height: '100%',
+    resizeMode: 'contain',
+  },
+  replyWrap: { marginTop: 15, paddingLeft: 10, position: 'relative', gap: 10 },
+  replyLine: { position: 'absolute', left: 0, top: -6, bottom: 6, width: 2, borderRadius: 999 },
+  replyRow: { flexDirection: 'row', gap: 10 },
+  replyAvatar: { width: 32, height: 32, borderRadius: 16 },
+  replyMain: { flex: 1 },
+  replyHandle: { fontFamily: 'PlusJakartaSansBold', fontSize: mediumScreen ? fontScale(11):fontScale(8) },
+  replyTime: { fontFamily: 'PlusJakartaSansMedium', fontSize: mediumScreen ? fontScale(9): fontScale(6) },
+  replyBody: { fontFamily: 'PlusJakartaSansMedium', fontSize: mediumScreen ? fontScale(11): fontScale(8), lineHeight: 15 },
+  replyActions: { flexDirection: 'row', gap: 16, marginTop: 6 },
+  replyActionText: { fontFamily: 'PlusJakartaSansBold', fontSize: mediumScreen ? fontScale(10): fontScale(8) },
 });
 
 export default CommunityPostDetail;

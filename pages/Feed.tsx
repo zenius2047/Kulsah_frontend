@@ -36,6 +36,7 @@ import Reactions from './Reactions';
 import ErrorBoundary from '../components/ErrorBoundary';
 import SparkleIcon from '../assets/icons/sparkle-style.svg';
 import CommentIcon from '../assets/icons/comment-svg.svg';
+import KulCoinPrompt from '../components/KulCoinPrompt';
 
 interface FeedItem {
   id: string;
@@ -61,8 +62,31 @@ interface FeedItem {
   saves: string;
 }
 
+interface SubscriptionTier {
+  name: string;
+  price: string;
+  perks: string[];
+}
+
+interface FeedSubscriptionSelection {
+  itemId: string;
+  creatorName: string;
+  tier: SubscriptionTier;
+}
+
 const { height: SCREEN_HEIGHT, width: SCREEN_WIDTH } = Dimensions.get('screen');
 const FEED_ITEM_HEIGHT = SCREEN_HEIGHT * (Platform.OS === 'ios'? 0.92: 0.92);
+const MONTHLY_KULCOINS = 100;
+const YEARLY_KULCOINS = 1000;
+const INITIAL_SUBSCRIPTION: SubscriptionTier = {
+  name: 'Pulsar Access',
+  price: '9.99',
+  perks: [
+    'Exclusive Feed Access',
+    'Direct Messaging',
+    'Badge of Honor',
+  ],
+};
 
 const FeedQuickMenuModal: React.FC<{
   visible: boolean;
@@ -285,11 +309,310 @@ const FeedQuickMenuModal: React.FC<{
   );
 };
 
+const FeedSubscriptionModal: React.FC<{
+  visible: boolean;
+  selection: FeedSubscriptionSelection | null;
+  billingCycle: 'monthly' | 'annually';
+  coinBalance: number;
+  isProcessing: boolean;
+  showSuccess: boolean;
+  onClose: () => void;
+  onPurchase: () => void;
+}> = ({
+  visible,
+  selection,
+  billingCycle,
+  coinBalance,
+  isProcessing,
+  showSuccess,
+  onClose,
+  onPurchase,
+}) => {
+  const { isDark, theme } = useThemeMode();
+  const subscriptionCost = billingCycle === 'monthly' ? MONTHLY_KULCOINS : YEARLY_KULCOINS;
+  const subscriptionLabel = billingCycle === 'monthly' ? 'Monthly' : 'Annual';
+
+  return (
+    <Modal visible={visible} transparent animationType="slide" statusBarTranslucent onRequestClose={onClose}>
+      {selection ? (
+        <View style={{ flex: 1, backgroundColor: 'rgba(0,0,0,0.8)', justifyContent: 'flex-end' }}>
+          <Pressable style={{ flex: 1 }} onPress={onClose} />
+          <View
+            style={{
+              borderTopLeftRadius: 40,
+              borderTopRightRadius: 40,
+              borderTopWidth: 1,
+              borderColor: isDark ? 'rgba(255,255,255,0.08)' : theme.border,
+              backgroundColor: isDark ? '#08111f' : theme.card,
+              paddingHorizontal: 20,
+              paddingTop: 12,
+              paddingBottom: 28,
+              maxHeight: SCREEN_HEIGHT * 0.92,
+            }}
+          >
+            <View
+              style={{
+                width: 48,
+                height: 6,
+                borderRadius: 999,
+                alignSelf: 'center',
+                marginBottom: 12,
+                backgroundColor: isDark ? 'rgba(255,255,255,0.2)' : 'rgba(15,23,42,0.12)',
+              }}
+            />
+            {showSuccess ? (
+              <View style={{ paddingVertical: 28, rowGap: 28, alignItems: 'center' }}>
+                <View
+                  style={{
+                    width: 112,
+                    height: 112,
+                    borderRadius: 38,
+                    backgroundColor: 'rgba(205,43,238,0.18)',
+                    borderWidth: 2,
+                    borderColor: 'rgba(205,43,238,0.35)',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                  }}
+                >
+                  <MaterialIcons name="verified" size={54} color="#cd2bee" />
+                </View>
+                <Text
+                  style={{
+                    textAlign: 'center',
+                    color: theme.text,
+                    fontSize: mediumScreen ? fontScale(30) : fontScale(24),
+                    lineHeight: mediumScreen ? 40 : 30,
+                    fontFamily: 'PlusJakartaSansExtraBold',
+                    textTransform: 'uppercase',
+                  }}
+                >
+                  Identity{'\n'}Verified
+                </Text>
+                <Pressable
+                  onPress={onClose}
+                  style={{
+                    minHeight: 72,
+                    borderRadius: 30,
+                    backgroundColor: '#cd2bee',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                    paddingHorizontal: 18,
+                    alignSelf: 'stretch',
+                  }}
+                >
+                  <Text
+                    style={{
+                      color: '#fff',
+                      fontSize: mediumScreen ? fontScale(15) : fontScale(11),
+                      fontFamily: 'PlusJakartaSansExtraBold',
+                      textTransform: 'uppercase',
+                      letterSpacing: 2,
+                    }}
+                  >
+                    Start Watching
+                  </Text>
+                </Pressable>
+              </View>
+            ) : (
+              <ScrollView showsVerticalScrollIndicator={false} contentContainerStyle={{ paddingBottom: 8, rowGap: 24 }}>
+                <View style={{ flexDirection: 'row', alignItems: 'center', columnGap: 16 }}>
+                  <View
+                    style={{
+                      width: 78,
+                      height: 78,
+                      borderRadius: 28,
+                      backgroundColor: 'rgba(245,158,11,0.18)',
+                      borderWidth: 1,
+                      borderColor: 'rgba(245,158,11,0.35)',
+                      alignItems: 'center',
+                      justifyContent: 'center',
+                    }}
+                  >
+                    <MaterialIcons name="monetization-on" size={34} color="#f59e0b" />
+                  </View>
+                  <View style={{ flex: 1 }}>
+                    <Text
+                      style={{
+                        color: theme.text,
+                        fontSize: mediumScreen ? fontScale(22) : fontScale(18),
+                        fontFamily: 'PlusJakartaSansExtraBold',
+                        textTransform: 'uppercase',
+                      }}
+                    >
+                      {selection.tier.name} Access
+                    </Text>
+                    <Text
+                      style={{
+                        marginTop: 6,
+                        color: theme.textSecondary,
+                        fontSize: fontScale(9),
+                        fontFamily: 'PlusJakartaSansExtraBold',
+                        textTransform: 'uppercase',
+                        letterSpacing: 2,
+                      }}
+                    >
+                      {selection.creatorName} • {subscriptionLabel} • {subscriptionCost} KulCoins
+                    </Text>
+                  </View>
+                </View>
+
+                <View style={{ rowGap: 14 }}>
+                  <Text
+                    style={{
+                      marginLeft: 4,
+                      color: theme.textSecondary,
+                      fontSize: fontScale(8),
+                      fontFamily: 'PlusJakartaSansExtraBold',
+                      textTransform: 'uppercase',
+                      letterSpacing: 3,
+                    }}
+                  >
+                    Unlocked Privileges
+                  </Text>
+                  {selection.tier.perks.map((perk, i) => (
+                    <View
+                      key={`${perk}-${i}`}
+                      style={{
+                        flexDirection: 'row',
+                        alignItems: 'center',
+                        columnGap: 12,
+                        borderRadius: 24,
+                        borderWidth: 1,
+                        paddingHorizontal: 16,
+                        paddingVertical: 15,
+                        backgroundColor: isDark ? 'rgba(255,255,255,0.04)' : '#fff',
+                        borderColor: isDark ? 'rgba(255,255,255,0.06)' : 'rgba(15,23,42,0.06)',
+                      }}
+                    >
+                      <View
+                        style={{
+                          width: 32,
+                          height: 32,
+                          borderRadius: 12,
+                          backgroundColor: 'rgba(205,43,238,0.12)',
+                          alignItems: 'center',
+                          justifyContent: 'center',
+                        }}
+                      >
+                        <MaterialIcons name="check-circle" size={16} color="#cd2bee" />
+                      </View>
+                      <Text
+                        style={{
+                          flex: 1,
+                          color: theme.text,
+                          fontSize: mediumScreen ? fontScale(13) : fontScale(11),
+                          fontFamily: 'PlusJakartaSansBold',
+                        }}
+                      >
+                        {perk.trim()}
+                      </Text>
+                    </View>
+                  ))}
+
+                  <View
+                    style={{
+                      marginTop: 4,
+                      borderRadius: 28,
+                      borderWidth: 1,
+                      borderColor: 'rgba(245,158,11,0.2)',
+                      backgroundColor: 'rgba(245,158,11,0.08)',
+                      paddingHorizontal: 18,
+                      paddingVertical: 16,
+                      rowGap: 10,
+                    }}
+                  >
+                    <View style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', columnGap: 12 }}>
+                      <Text
+                        style={{
+                          color: '#d97706',
+                          fontSize: fontScale(8),
+                          fontFamily: 'PlusJakartaSansExtraBold',
+                          textTransform: 'uppercase',
+                          letterSpacing: 2,
+                        }}
+                      >
+                        Your Balance
+                      </Text>
+                      <Text
+                        style={{
+                          color: theme.text,
+                          fontSize: mediumScreen ? fontScale(18) : fontScale(14),
+                          fontFamily: 'PlusJakartaSansExtraBold',
+                        }}
+                      >
+                        {coinBalance} KC
+                      </Text>
+                    </View>
+                    <View style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', columnGap: 12 }}>
+                      <Text
+                        style={{
+                          color: theme.textSecondary,
+                          fontSize: fontScale(8),
+                          fontFamily: 'PlusJakartaSansExtraBold',
+                          textTransform: 'uppercase',
+                          letterSpacing: 1.5,
+                        }}
+                      >
+                        Subscription Cost
+                      </Text>
+                      <Text
+                        style={{
+                          color: '#cd2bee',
+                          fontSize: mediumScreen ? fontScale(18) : fontScale(14),
+                          fontFamily: 'PlusJakartaSansExtraBold',
+                        }}
+                      >
+                        -{subscriptionCost} KC
+                      </Text>
+                    </View>
+                  </View>
+                </View>
+
+                <Pressable
+                  onPress={onPurchase}
+                  disabled={isProcessing}
+                  style={{
+                    minHeight: 72,
+                    borderRadius: 30,
+                    backgroundColor: '#cd2bee',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                    paddingHorizontal: 18,
+                  }}
+                >
+                  {isProcessing ? (
+                    <MaterialIcons name="autorenew" size={24} color="#fff" />
+                  ) : (
+                    <View style={{ flexDirection: 'row', alignItems: 'center', columnGap: 10 }}>
+                      <Text
+                        style={{
+                          color: '#fff',
+                          fontSize: mediumScreen ? fontScale(15) : fontScale(11),
+                          fontFamily: 'PlusJakartaSansExtraBold',
+                          textTransform: 'uppercase',
+                          letterSpacing: 2,
+                        }}
+                      >
+                        Subscribe Now
+                      </Text>
+                      <MaterialIcons name="bolt" size={20} color="#fff" />
+                    </View>
+                  )}
+                </Pressable>
+              </ScrollView>
+            )}
+          </View>
+        </View>
+      ) : null}
+    </Modal>
+  );
+};
+
 
 const VideoFeedItem: React.FC<{
   item: FeedItem;
   isPlaying: boolean;
-  onSubscribe: (id: string) => void;
+  onSubscribe: (item: FeedItem) => void;
   isGlobalMuted: boolean;
   isLive?: boolean;
   onToggleMute: () => void;
@@ -788,18 +1111,27 @@ useEffect(() => {
               <Text style={{ color: '#fff', fontWeight: 'bold', fontSize: mediumScreen ? 12: 8 }}>Premium</Text>
             </View>
           )}
-          <View style={{
-            borderRadius: 6,
-            // borderColor: 'white',  
-            borderWidth: 1, 
-            paddingHorizontal: 6, 
-            justifyContent: 'center', 
-            alignItems: 'center', 
-            borderColor: item.isSubscribed ?'red': '#cd2bee',
-            backgroundColor: item.isSubscribed?'red': '#cd2bee',
-            paddingVertical: 3 }}>
-              <Text style={{ color: '#fff', fontWeight: 'bold', fontSize: mediumScreen ? 12: 8 }}>{item.isSubscribed ? 'Subscribed': 'Subscribe'}</Text>
-            </View>
+          <Pressable
+            onPress={() => {
+              if (!item.isSubscribed) {
+                onSubscribe(item);
+              }
+            }}
+            style={{
+              borderRadius: 6,
+              borderWidth: 1,
+              paddingHorizontal: 6,
+              justifyContent: 'center',
+              alignItems: 'center',
+              borderColor: item.isSubscribed ? 'red' : '#cd2bee',
+              backgroundColor: item.isSubscribed ? 'red' : '#cd2bee',
+              paddingVertical: 3,
+            }}
+          >
+            <Text style={{ color: '#fff', fontWeight: 'bold', fontSize: mediumScreen ? 12: 8 }}>
+              {item.isSubscribed ? 'Subscribed' : 'Subscribe'}
+            </Text>
+          </Pressable>
         </View>
 
         <View style={{
@@ -1752,6 +2084,12 @@ const Feed: React.FC = () => {
   }, [activeTab, items]);
 
   const [activeIndex, setActiveIndex] = useState(0);
+  const [selectedSubscription, setSelectedSubscription] = useState<FeedSubscriptionSelection | null>(null);
+  const [subscriptionBillingCycle] = useState<'monthly' | 'annually'>('monthly');
+  const [coinBalance, setCoinBalance] = useState(1250);
+  const [isProcessingSubscription, setIsProcessingSubscription] = useState(false);
+  const [showSubscriptionSuccess, setShowSubscriptionSuccess] = useState(false);
+  const [showKulCoinPrompt, setShowKulCoinPrompt] = useState(false);
 
 
   useEffect(() => {
@@ -1772,9 +2110,48 @@ const Feed: React.FC = () => {
   });
 
 
-  const handleSubscribe = useCallback((id: string) => {
-    setItems((prev) => prev.map((item) => (item.id === id ? { ...item, isSubscribed: true } : item)));
+  const handleSubscribe = useCallback((feedItem: FeedItem) => {
+    setSelectedSubscription({
+      itemId: feedItem.id,
+      creatorName: feedItem.artist,
+      tier: INITIAL_SUBSCRIPTION,
+    });
+    setShowSubscriptionSuccess(false);
   }, []);
+
+  const closeSubscriptionModal = useCallback(() => {
+    if (isProcessingSubscription) return;
+    setSelectedSubscription(null);
+    setShowSubscriptionSuccess(false);
+  }, [isProcessingSubscription]);
+
+  const handleSubscriptionPurchase = useCallback(() => {
+    if (!selectedSubscription) return;
+
+    const subscriptionCost =
+      subscriptionBillingCycle === 'monthly' ? MONTHLY_KULCOINS : YEARLY_KULCOINS;
+
+    if (coinBalance < subscriptionCost) {
+      setShowKulCoinPrompt(true);
+      return;
+    }
+
+    setIsProcessingSubscription(true);
+    setTimeout(() => {
+      setItems((prev) =>
+        prev.map((item) =>
+          item.id === selectedSubscription.itemId ? { ...item, isSubscribed: true } : item
+        )
+      );
+      setCoinBalance((prev) => prev - subscriptionCost);
+      setIsProcessingSubscription(false);
+      setShowSubscriptionSuccess(true);
+      setTimeout(() => {
+        setSelectedSubscription(null);
+        setShowSubscriptionSuccess(false);
+      }, 1800);
+    }, 1200);
+  }, [coinBalance, selectedSubscription, subscriptionBillingCycle]);
 
   const handleToggleMute = useCallback(() => {
     setIsGlobalMuted((v) => !v);
@@ -1971,7 +2348,10 @@ const Feed: React.FC = () => {
         
                   
                 </View>
-            <View
+            <Pressable
+            onPress={()=>{
+              navigation.navigate('StreakReward')
+            }}
             style={{
               // width: SCREEN_WIDTH * 0.2,
               // backgroundColor: 'blue',
@@ -1997,7 +2377,7 @@ const Feed: React.FC = () => {
               }}>
                 3
               </Text>
-            </View>
+            </Pressable>
 
       </View>
 
@@ -2045,6 +2425,28 @@ const Feed: React.FC = () => {
           </Pressable>
         </View>
       )}
+      <FeedSubscriptionModal
+        visible={!!selectedSubscription}
+        selection={selectedSubscription}
+        billingCycle={subscriptionBillingCycle}
+        coinBalance={coinBalance}
+        isProcessing={isProcessingSubscription}
+        showSuccess={showSubscriptionSuccess}
+        onClose={closeSubscriptionModal}
+        onPurchase={handleSubscriptionPurchase}
+      />
+      <KulCoinPrompt
+        isOpen={showKulCoinPrompt}
+        onClose={() => setShowKulCoinPrompt(false)}
+        requiredCoins={subscriptionBillingCycle === 'monthly' ? MONTHLY_KULCOINS : YEARLY_KULCOINS}
+        currentCoins={coinBalance}
+        onPurchaseKulCoins={() => {
+          setShowKulCoinPrompt(false);
+          setSelectedSubscription(null);
+          setShowSubscriptionSuccess(false);
+          navigation.navigate('TopUpCoins');
+        }}
+      />
     </View>
     </SafeAreaView>
   );

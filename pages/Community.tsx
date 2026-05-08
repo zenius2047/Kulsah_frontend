@@ -3,7 +3,9 @@ import { useThemeMode } from '../theme';
 import {
   ActivityIndicator,
   Image,
+  KeyboardAvoidingView,
   Modal,
+  Platform,
   Pressable,
   ScrollView,
   StyleSheet,
@@ -201,6 +203,9 @@ const Community: React.FC<{ embedded?: boolean }> = ({ embedded = false }) => {
 
   const isCreator = currentUser.role === 'creator';
   const normalizedHandle = (currentUser.handle ?? '').replace('@', '');
+  const activeCommentTarget = activeCommentPost
+    ? posts.find((post) => post.id === activeCommentPost) ?? null
+    : null;
 
   useEffect(() => {
     const load = async () => {
@@ -276,7 +281,7 @@ const Community: React.FC<{ embedded?: boolean }> = ({ embedded = false }) => {
     if (!finalText || !activeCommentPost) return;
 
     const newComment: Comment = {
-      id: Date.now().toString(),
+      id: `${Date.now()}-${Math.random().toString(36).slice(2, 8)}`,
       user: currentUser.name || 'Anonymous',
       handle: normalizedHandle || 'user',
       avatar: currentUser.avatar || 'https://picsum.photos/seed/user/100/100',
@@ -296,7 +301,11 @@ const Community: React.FC<{ embedded?: boolean }> = ({ embedded = false }) => {
 
     await savePosts(updated);
     setCommentText('');
-    setActiveCommentPost(null);
+  };
+
+  const openCommentModal = (postId: string) => {
+    setActiveCommentPost(postId);
+    setCommentText('');
   };
 
   const handleDeletePost = async (id: string) => {
@@ -366,7 +375,7 @@ const Community: React.FC<{ embedded?: boolean }> = ({ embedded = false }) => {
                         ) : null}
                       <Pressable style={styles.followMetaAction} onPress={() => void toggleFollow(post.id)} hitSlop={8}>
                         <Text style={[styles.followStateText, { color: post.isFollowing ? mutedText : '#1877f2' }]}>
-                          {post.isFollowing ? 'Following' : 'Follow'}
+                          {post.isFollowing ? 'following' : 'follow'}
                         </Text>
                       </Pressable>
                     </View>
@@ -481,7 +490,7 @@ const Community: React.FC<{ embedded?: boolean }> = ({ embedded = false }) => {
                   <MaterialIcons name={post.isLiked ? 'favorite' : 'favorite-border'} size={23} color={post.isLiked ? '#cd2bee' : dimIcon} />
                   <Text style={[styles.actionText, { color: post.isLiked ? '#cd2bee' : mutedText }]}>{post.likes.toLocaleString()}</Text>
                 </Pressable>
-                <Pressable style={styles.actionItem} onPress={() => openPostDetail(post.id)}>
+                <Pressable style={styles.actionItem} onPress={() => openCommentModal(post.id)}>
                   <MaterialIcons name="chat-bubble-outline" size={22} color={dimIcon} />
                   <Text style={[styles.actionText, { color: mutedText }]}>{post.comments.toLocaleString()}</Text>
                 </Pressable>
@@ -491,32 +500,6 @@ const Community: React.FC<{ embedded?: boolean }> = ({ embedded = false }) => {
                 </Pressable>
               </View>
 
-              {post.commentList && post.commentList.length > 0 && (
-                <Pressable onPress={() => openPostDetail(post.id)} style={[styles.commentsSection, { borderTopColor: softBorder }]}>
-                  {post.commentList.slice(0, 3).map((comment) => (
-                    <View key={comment.id} style={styles.commentRow}>
-                      <Image source={{ uri: comment.avatar }} style={styles.commentAvatar} />
-                      <View style={{ flex: 1 }}>
-                        <View style={[styles.commentBubble, { backgroundColor: faintSurfaceStrong }]}>
-                          <Text style={[styles.commentHandle, { color: theme.text }]}>@{comment.handle}</Text>
-                          <Text style={[styles.commentText, { color: theme.text }]}>{comment.text}</Text>
-                        </View>
-                        <View style={styles.commentMeta}>
-                          <Text style={[styles.commentMetaBtn, { color: mutedText }]}>Like</Text>
-                          <Text style={[styles.commentMetaBtn, { color: mutedText }]}>Reply</Text>
-                          <Text style={[styles.commentTime, { color: theme.textMuted }]}>{comment.time}</Text>
-                        </View>
-                      </View>
-                    </View>
-                  ))}
-
-                  {post.comments > 3 && (
-                    <Pressable onPress={() => openPostDetail(post.id)} style={styles.moreComments}>
-                      <Text style={[styles.moreCommentsText, { color: mutedText }]}>View {post.comments - 3} more comments</Text>
-                    </Pressable>
-                  )}
-                </Pressable>
-              )}
             </View>
           );
         })}
@@ -527,57 +510,131 @@ const Community: React.FC<{ embedded?: boolean }> = ({ embedded = false }) => {
         </View>
       </ScrollView>
 
-      <Modal visible={!!activeCommentPost} transparent animationType="fade" statusBarTranslucent onRequestClose={() => setActiveCommentPost(null)}>
-        <View style={styles.modalRoot}>
+      <Modal visible={!!activeCommentPost} transparent animationType="slide" statusBarTranslucent onRequestClose={() => setActiveCommentPost(null)}>
+        <KeyboardAvoidingView
+          style={styles.modalRoot}
+          behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
+          keyboardVerticalOffset={Platform.OS === 'ios' ? 24 : 0}
+        >
           <Pressable style={styles.modalBackdrop} onPress={() => setActiveCommentPost(null)} />
           <View style={[styles.modalCard, { backgroundColor: panelSurface, borderColor: softBorder }]}>
             <View style={[styles.modalGrabber, { backgroundColor: isDark ? '#374151' : '#cbd5e1' }]} />
-            <Text style={[styles.modalTitle, { color: theme.text }]}>ADD COMMENT</Text>
-
-            <TextInput
-              value={commentText}
-              onChangeText={setCommentText}
-              placeholder="What's on your mind?"
-              placeholderTextColor={theme.textSecondary}
-              multiline
-              style={[styles.modalInput, { borderColor: softBorder, backgroundColor: faintSurface, color: theme.text }]}
-            />
-
-            <View style={styles.emojiRow}>
-              {['🔥', '🙌', '❤️', '✨', '🌌', '🌍', '🚀', '💯'].map((emoji) => (
-                <Pressable key={emoji} onPress={() => setCommentText((prev) => `${prev}${emoji}`)} style={[styles.emojiBtn, { borderColor: softBorder, backgroundColor: faintSurface }]}>
-                  <Text style={styles.emojiText}>{emoji}</Text>
-                </Pressable>
-              ))}
+            <View style={styles.modalHeaderRow}>
+              {/* <View>
+                <Text style={[styles.modalTitle, { color: theme.text }]}>Comments</Text>
+                <Text style={[styles.modalSubtitle, { color: mutedText }]}>
+                  {activeCommentTarget?.comments.toLocaleString() ?? 0} thoughts in the room
+                </Text>
+              </View> */}
+              {/* <Pressable style={[styles.modalCloseBtn, { backgroundColor: faintSurface, borderColor: softBorder }]} onPress={() => setActiveCommentPost(null)}>
+                <MaterialIcons name="close" size={18} color={theme.text} />
+              </Pressable> */}
             </View>
 
-            <Text style={[styles.stickerTitle, { color: mutedText }]}>KULSAH STICKERS</Text>
-            <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={styles.stickerRow}>
-              {stickers.map((sticker) => (
-                <Pressable
-                  key={sticker.id}
-                  onPress={async () => {
-                    const withSticker = `${commentText} [Sticker:${sticker.id}] `;
-                    setCommentText(withSticker);
-                    await handleAddComment(withSticker);
-                  }}
-                  style={[styles.stickerBtn, { borderColor: softBorder }]}
-                >
-                  <Image source={{ uri: sticker.img }} style={styles.stickerImage} />
-                </Pressable>
-              ))}
-            </ScrollView>
+            {/* {activeCommentTarget ? (
+              <View style={[styles.modalPostPreview, { backgroundColor: faintSurface, borderColor: softBorder }]}>
+                <Image source={{ uri: activeCommentTarget.avatar }} style={styles.modalPostAvatar} />
+                <View style={styles.modalPostCopy}>
+                  <Text style={[styles.modalPostArtist, { color: theme.text }]}>{activeCommentTarget.artist}</Text>
+                  <Text style={[styles.modalPostSnippet, { color: mutedText }]} numberOfLines={2}>
+                    {activeCommentTarget.content}
+                  </Text>
+                </View>
+              </View>
+            ) : null} */}
 
-            <View style={styles.modalActions}>
-              <Pressable style={[styles.modalCancel, { borderColor: softBorder, backgroundColor: isDark ? 'transparent' : theme.surface }]} onPress={() => setActiveCommentPost(null)}>
-                <Text style={[styles.modalCancelText, { color: theme.text }]}>CANCEL</Text>
-              </Pressable>
-              <Pressable style={styles.modalPost} onPress={() => void handleAddComment()}>
-                <Text style={styles.modalPostText}>POST COMMENT</Text>
-              </Pressable>
+            {/* <ScrollView
+              showsVerticalScrollIndicator={false}
+              style={styles.modalCommentsScroll}
+              contentContainerStyle={styles.modalCommentsContent}
+              keyboardShouldPersistTaps="handled"
+            >
+              {activeCommentTarget?.commentList && activeCommentTarget.commentList.length > 0 ? (
+                activeCommentTarget.commentList.map((comment) => (
+                  <View key={comment.id} style={styles.modalCommentRow}>
+                    <Image source={{ uri: comment.avatar }} style={styles.modalCommentAvatar} />
+                    <View style={styles.modalCommentBody}>
+                      <View style={[styles.modalCommentBubble, { backgroundColor: panelElevated, borderColor: softBorder }]}>
+                        <View style={styles.modalCommentTopline}>
+                          <Text style={[styles.modalCommentAuthor, { color: theme.text }]}>{comment.user}</Text>
+                          <Text style={[styles.modalCommentHandle, { color: mutedText }]}>@{comment.handle}</Text>
+                        </View>
+                        <Text style={[styles.modalCommentText, { color: theme.text }]}>{comment.text}</Text>
+                      </View>
+                      <Text style={[styles.modalCommentTime, { color: mutedText }]}>{comment.time}</Text>
+                    </View>
+                  </View>
+                ))
+              ) : (
+                <View style={[styles.modalEmptyState, { borderColor: softBorder, backgroundColor: faintSurface }]}>
+                  <MaterialIcons name="forum" size={26} color={dimIcon} />
+                  <Text style={[styles.modalEmptyTitle, { color: theme.text }]}>Start the conversation</Text>
+                  <Text style={[styles.modalEmptyText, { color: mutedText }]}>Drop the first comment and get the thread moving.</Text>
+                </View>
+              )}
+            </ScrollView> */}
+
+                        <View style={[styles.modalComposer, { borderColor: softBorder, backgroundColor: panelElevated }]}>
+              <View style={styles.modalComposerHeader}>
+                <Text style={[styles.modalComposerTitle, { color: theme.text }]}>Say something</Text>
+                <Text style={[styles.modalComposerHint, { color: mutedText }]}>Fresh takes only</Text>
+              </View>
+
+              <TextInput
+                value={commentText}
+                onChangeText={setCommentText}
+                placeholder="Write a comment..."
+                placeholderTextColor={theme.textSecondary}
+                multiline
+                style={[styles.modalInput, { borderColor: softBorder, backgroundColor: faintSurface, color: theme.text }]}
+              />
+
+              <View style={styles.emojiRow}>
+                {['🔥', '🙌', '❤️', '✨', '🌌', '🌍', '🚀', '💯'].map((emoji) => (
+                  <Pressable
+                    key={emoji}
+                    onPress={() => setCommentText((prev) => `${prev}${emoji}`)}
+                    style={[styles.emojiBtn, { borderColor: softBorder, backgroundColor: faintSurface }]}
+                  >
+                    <Text style={styles.emojiText}>{emoji}</Text>
+                  </Pressable>
+                ))}
+              </View>
+
+              <Text style={[styles.stickerTitle, { color: mutedText }]}>KULSAH STICKERS</Text>
+              <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={styles.stickerRow}>
+                {stickers.map((sticker) => (
+                  <Pressable
+                    key={sticker.id}
+                    onPress={async () => {
+                      const withSticker = `${commentText} [Sticker:${sticker.id}] `.trim();
+                      await handleAddComment(withSticker);
+                    }}
+                    style={[styles.stickerBtn, { borderColor: softBorder }]}
+                  >
+                    <Image source={{ uri: sticker.img }} style={styles.stickerImage} />
+                  </Pressable>
+                ))}
+              </ScrollView>
+
+              <View style={styles.modalActions}>
+                <Pressable
+                  style={[styles.modalCancel, { borderColor: softBorder, backgroundColor: isDark ? 'transparent' : theme.surface }]}
+                  onPress={() => setActiveCommentPost(null)}
+                >
+                  <Text style={[styles.modalCancelText, { color: theme.text }]}>CLOSE</Text>
+                </Pressable>
+                <Pressable
+                  style={[styles.modalPost, !commentText.trim() && styles.modalPostDisabled]}
+                  onPress={() => void handleAddComment()}
+                  disabled={!commentText.trim()}
+                >
+                  <Text style={styles.modalPostText}>POST COMMENT</Text>
+                </Pressable>
+              </View>
             </View>
           </View>
-        </View>
+        </KeyboardAvoidingView>
       </Modal>
 
       {isCreator && (
@@ -636,7 +693,7 @@ const styles = StyleSheet.create({
   handleMetaRow: { flexDirection: 'row', alignItems: 'center', gap: 6, flexWrap: 'wrap' },
   followMetaAction: { flexDirection: 'row', alignItems: 'center', gap: 4 },
   handleText: { color: '#fff', fontFamily: 'PlusJakartaSansBold', fontSize:  mediumScreen ? fontScale(16): fontScale(12) },
-  followStateText: { fontSize: mediumScreen ? fontScale(16): fontScale(12), fontFamily: 'PlusJakartaSansBold' },
+  followStateText: { fontSize: mediumScreen ? fontScale(14): fontScale(10), fontFamily: 'PlusJakartaSansBold' },
   timeText: { color: '#94a3b8', fontSize: mediumScreen ? 14: 10, fontFamily: 'PlusJakartaSansBold', letterSpacing: 1.2 },
   optionsWrap: { position: 'relative' },
   optionsMenu: {
@@ -809,6 +866,54 @@ const styles = StyleSheet.create({
   },
   modalGrabber: { alignSelf: 'center', width: 42, height: 5, borderRadius: 4, backgroundColor: '#374151', marginBottom: 16 },
   modalTitle: { color: '#fff', fontSize: mediumScreen?21:18, fontFamily: 'PlusJakartaSansExtraBold', marginBottom: 12 },
+  modalHeaderRow: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', marginBottom: 14 },
+  modalSubtitle: { fontSize: mediumScreen ? 14 : 10, fontFamily: 'PlusJakartaSansBold', letterSpacing: 0.6 },
+  modalCloseBtn: {
+    height: 36,
+    width: 36,
+    borderRadius: 18,
+    borderWidth: 1,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  modalPostPreview: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 12,
+    borderWidth: 1,
+    borderRadius: 18,
+    padding: 12,
+    marginBottom: 14,
+  },
+  modalPostAvatar: { height: 44, width: 44, borderRadius: 22 },
+  modalPostCopy: { flex: 1, gap: 3 },
+  modalPostArtist: { fontSize: mediumScreen ? 16 : 12, fontFamily: 'PlusJakartaSansExtraBold' },
+  modalPostSnippet: { fontSize: mediumScreen ? 14 : 10, fontFamily: 'PlusJakartaSansMedium', lineHeight: 18 },
+  modalCommentsScroll: { maxHeight: 280, marginBottom: 14 },
+  modalCommentsContent: { gap: 12, paddingBottom: 6 },
+  modalCommentRow: { flexDirection: 'row', gap: 10, alignItems: 'flex-start' },
+  modalCommentAvatar: { height: 38, width: 38, borderRadius: 19, marginTop: 2 },
+  modalCommentBody: { flex: 1, gap: 6 },
+  modalCommentBubble: { borderRadius: 18, borderWidth: 1, paddingHorizontal: 12, paddingVertical: 10 },
+  modalCommentTopline: { flexDirection: 'row', alignItems: 'center', gap: 8, marginBottom: 4, flexWrap: 'wrap' },
+  modalCommentAuthor: { fontSize: mediumScreen ? 15 : 11, fontFamily: 'PlusJakartaSansExtraBold' },
+  modalCommentHandle: { fontSize: mediumScreen ? 13 : 10, fontFamily: 'PlusJakartaSansBold' },
+  modalCommentText: { fontSize: mediumScreen ? 15 : 11, fontFamily: 'PlusJakartaSansMedium', lineHeight: 20 },
+  modalCommentTime: { fontSize: mediumScreen ? 12 : 10, fontFamily: 'PlusJakartaSansMedium', paddingLeft: 8 },
+  modalEmptyState: {
+    borderWidth: 1,
+    borderRadius: 20,
+    paddingVertical: 26,
+    paddingHorizontal: 18,
+    alignItems: 'center',
+    gap: 8,
+  },
+  modalEmptyTitle: { fontSize: mediumScreen ? 16 : 12, fontFamily: 'PlusJakartaSansExtraBold' },
+  modalEmptyText: { fontSize: mediumScreen ? 14 : 10, fontFamily: 'PlusJakartaSansMedium', textAlign: 'center', lineHeight: 18 },
+  modalComposer: { borderWidth: 1, borderRadius: 22, padding: 14 },
+  modalComposerHeader: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', marginBottom: 10 },
+  modalComposerTitle: { fontSize: mediumScreen ? 15 : 11, fontFamily: 'PlusJakartaSansExtraBold' },
+  modalComposerHint: { fontSize: mediumScreen ? 12 : 9, fontFamily: 'PlusJakartaSansBold', letterSpacing: 1.2, textTransform: 'uppercase' },
   modalInput: {
     borderRadius: 16,
     minHeight: 100,
@@ -853,6 +958,7 @@ const styles = StyleSheet.create({
     alignItems: 'center',
   },
   modalPost: { flex: 1, height: 50, borderRadius: 14, backgroundColor: '#cd2bee', justifyContent: 'center', alignItems: 'center' },
+  modalPostDisabled: { opacity: 0.45 },
   modalCancelText: { color: '#fff', fontSize: mediumScreen?14:10, letterSpacing: 1.4, fontFamily: 'PlusJakartaSansExtraBold' },
   modalPostText: { color: '#fff', fontSize: mediumScreen?14:10, letterSpacing: 1.4, fontFamily: 'PlusJakartaSansExtraBold' },
   fab: {

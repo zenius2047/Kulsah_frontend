@@ -8,7 +8,7 @@ import { fontScale } from '../fonts';
 import { useThemeMode } from '../theme';
 import { mediumScreen } from '../types';
 
-type ReactionTab = 'Emoji' | 'Stickers' | 'Gifts';
+type ReactionTab =  'Gifts'| null;
 
 type ReactionComment = {
   id: string;
@@ -55,7 +55,7 @@ const commentsSeed: ReactionComment[] = [
 const Reactions: React.FC<{ onClose: () => void; title?: string }> = ({ onClose, title = 'Reactions' }) => {
   const { isDark, theme } = useThemeMode();
   const insets = useSafeAreaInsets();
-  const [activeTab, setActiveTab] = useState<ReactionTab>('Emoji');
+  const [activeTab, setActiveTab] = useState<ReactionTab>(null);
   const [replyingTo, setReplyingTo] = useState<string | null>('@pixel_warrior');
   const [message, setMessage] = useState('');
 
@@ -108,14 +108,14 @@ const Reactions: React.FC<{ onClose: () => void; title?: string }> = ({ onClose,
           </Pressable>
           <Text style={[styles.headerTitle, { color: theme.text }]}>{title}</Text>
           <Pressable style={styles.iconButton}>
-            <MaterialIcons name="settings" size={22} color={secondary} />
+            {/* <MaterialIcons name="settings" size={22} color={secondary} /> */}
           </Pressable>
         </View>
 
         <View style={styles.tabsRow}>
           {([
-            { label: 'Emoji', icon: 'mood' },
-            { label: 'Stickers', icon: 'sticky-note-2' },
+            // { label: 'Emoji', icon: 'mood' },
+            // { label: 'Stickers', icon: 'sticky-note-2' },
             { label: 'Gifts', icon: 'redeem' },
           ] as const).map((tab) => {
             const active = activeTab === tab.label;
@@ -229,9 +229,17 @@ const Reactions: React.FC<{ onClose: () => void; title?: string }> = ({ onClose,
               placeholderTextColor={muted}
               style={[styles.input, { color: theme.text }]}
             />
+            <View style={{
+              flexDirection: 'row',
+              // gap: 5,
+            }}>
+              <Pressable style={styles.inputIcon}>
+              <MaterialIcons name="sticky-note-2" size={22} color={secondary} />
+            </Pressable>
             <Pressable style={styles.inputIcon}>
               <MaterialIcons name="mood" size={22} color={secondary} />
             </Pressable>
+            </View>
             <Pressable style={styles.sendButton}>
               <MaterialIcons name="send" size={18} color="#fff" />
             </Pressable>
@@ -279,12 +287,12 @@ const styles = StyleSheet.create({
   commentMain: { flex: 1 },
   commentMetaRow: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', gap: 8, marginBottom: 2 },
   commentNameRow: { flexDirection: 'row', alignItems: 'center', gap: 4 },
-  commentHandle: { fontFamily: 'PlusJakartaSansBold', fontSize: mediumScreen ? fontScale(13) : fontScale(10), marginBottom: 5 },
+  commentHandle: { fontFamily: 'PlusJakartaSansBold', fontSize: mediumScreen ? fontScale(15) : fontScale(11), marginBottom: 5 },
   commentTime: { fontFamily: 'PlusJakartaSansMedium', fontSize: mediumScreen ? fontScale(10):fontScale(7) },
-  commentBody: { fontFamily: 'PlusJakartaSansMedium', fontSize: mediumScreen ? fontScale(12): fontScale(9), lineHeight: 16 },
+  commentBody: { fontFamily: 'PlusJakartaSansMedium', fontSize: mediumScreen ? fontScale(13): fontScale(10), lineHeight: 16 },
   actionRow: { flexDirection: 'row', alignItems: 'center', gap: 18, marginTop: 8 },
   metaAction: { flexDirection: 'row', alignItems: 'center', gap: 4 },
-  metaActionText: { fontFamily: 'PlusJakartaSansBold', fontSize: mediumScreen ? fontScale(10):fontScale(7) },
+  metaActionText: { fontFamily: 'PlusJakartaSansBold', fontSize: mediumScreen ? fontScale(12):fontScale(8) },
   replyWrap: { marginLeft: 34, paddingLeft: 18, position: 'relative', gap: 10 },
   replyLine: { position: 'absolute', left: 0, top: -6, bottom: 6, width: 2, borderRadius: 999 },
   replyRow: { flexDirection: 'row', gap: 10 },
@@ -294,7 +302,7 @@ const styles = StyleSheet.create({
   replyTime: { fontFamily: 'PlusJakartaSansMedium', fontSize: mediumScreen ? fontScale(9): fontScale(6) },
   replyBody: { fontFamily: 'PlusJakartaSansMedium', fontSize: mediumScreen ? fontScale(11): fontScale(8), lineHeight: 15 },
   replyActions: { flexDirection: 'row', gap: 16, marginTop: 6 },
-  replyActionText: { fontFamily: 'PlusJakartaSansBold', fontSize: mediumScreen ? fontScale(9): fontScale(6) },
+  replyActionText: { fontFamily: 'PlusJakartaSansBold', fontSize: mediumScreen ? fontScale(10): fontScale(8) },
   giftCard: { flexDirection: 'row', gap: 12, borderRadius: 20, padding: 14, overflow: 'hidden', borderWidth: 1 },
   giftHeaderRow: { flexDirection: 'row', alignItems: 'center', gap: 8 },
   giftLabel: { color: '#cd2bee', fontFamily: 'PlusJakartaSansExtraBold', fontSize: mediumScreen ? fontScale(9): fontScale(6), letterSpacing: 0.6, textTransform: 'uppercase' },

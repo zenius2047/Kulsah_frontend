@@ -251,7 +251,11 @@ const CreatorChallenges: React.FC = () => {
               {CHALLENGES.map((challenge) => {
                 const isOwner = challenge.creatorId === (user?.id || 'mila_ray_01');
                 return (
-                  <View key={challenge.id} style={[styles.featureCard, { borderColor: border }]}>
+                  <Pressable
+                   onPress={()=>{
+                    navigation.navigate('ChallengeFeed')
+                   }}
+                   key={challenge.id} style={[styles.featureCard, { borderColor: border }]}>
                     <Image source={{ uri: challenge.image }} style={styles.fillImage} />
                     <LinearGradient colors={['transparent', 'rgba(0,0,0,0.35)', 'rgba(0,0,0,0.94)']} style={StyleSheet.absoluteFillObject} />
                     <View style={styles.trending}>
@@ -290,7 +294,7 @@ const CreatorChallenges: React.FC = () => {
                         )}
                       </View>
                     </View>
-                  </View>
+                  </Pressable>
                 );
               })}
             </View>

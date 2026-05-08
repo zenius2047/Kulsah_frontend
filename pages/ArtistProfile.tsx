@@ -2,7 +2,7 @@ import { MaterialIcons } from '@expo/vector-icons';
 import { useNavigation, useRoute } from '@react-navigation/native';
 import React, { useMemo, useState } from 'react';
 import { useThemeMode } from '../theme';
-import { ActivityIndicator, Dimensions, Image, ImageBackground, Modal, Pressable, ScrollView, Share, StyleSheet, Text, TextInput, useWindowDimensions, View } from 'react-native';
+import { ActivityIndicator, Dimensions, Image, ImageBackground, Modal, Pressable, ScrollView, Share, StyleSheet, Text, useWindowDimensions, View } from 'react-native';
 import { LinearGradient } from 'expo-linear-gradient';
 import PlayIcon from '../assets/icons/play-circle-svg.svg';
 import StarsIcon from '../assets/icons/premium-svg.svg';
@@ -15,12 +15,12 @@ import { fontScale } from '../fonts';
 import { BlurView } from 'expo-blur';
 import VerifiedIcon from '../assets/icons/verified-svg.svg';
 import FireIcon from '../assets/icons/fireIcon-svg.svg';
+import KulCoinPrompt from '../components/KulCoinPrompt';
 
 
 type Tab = 'Videos' | 'Premium' | 'Tickets' | 'Events' | 'Challenges' | 'Favorites' | 'Saved';
 type Billing = 'monthly' | 'annually';
-type Step = 'details' | 'payment';
-const { height: SCREEN_HEIGHT, width: SCREEN_WIDTH } = Dimensions.get('screen');
+const { height: SCREEN_HEIGHT } = Dimensions.get('screen');
 
 interface SubscriptionTier {
   name: string;
@@ -40,7 +40,8 @@ const INITIAL_SUBSCRIPTION: SubscriptionTier = {
 
 
 
-const SUB = { name: 'Pulsar Access', price: '9.99', perks: ['Exclusive Feed Access', 'Direct Messaging', 'Badge of Honor'] };
+const MONTHLY_KULCOINS = 100;
+const YEARLY_KULCOINS = 1000;
 const videos = [
   { id: 'v1', title: 'Moonlight Symphony', views: '1.2M', duration: '4:20', img: 'https://images.unsplash.com/photo-1598488035139-bdbb2231ce04?auto=format&fit=crop&q=80&w=600' },
   { id: 'v2', title: 'Summer Tour Highlights', views: '450K', duration: '12:15', img: 'https://images.unsplash.com/photo-1514525253361-bee8718a74a2?auto=format&fit=crop&q=80&w=600' },
@@ -89,34 +90,23 @@ const  ArtistProfile: React.FC = () => {
   const gridItemWidth = `${99.8 / gridColumns}%` as const;
   const route = useRoute<any>();
   const [isFollowing, setIsFollowing] = useState(false);
-  const [isLiked, setIsLiked] = useState(false);
   const [likeCount, setLikeCount] = useState(84200);
   const isOwner = route.params?.isOwner;
   const name = route.params?.id || 'Kulsah';
   // const isOwner = !route.params?.id || route.params?.id === 'Me';
   const tabs = useMemo(() => (isOwner ? ['Videos', 'Premium', 'Tickets', 'Events', 'Challenges', 'Favorites', 'Saved'] : ['Videos', 'Premium', 'Tickets', 'Events', 'Challenges', 'Favorites']) as Tab[], [isOwner]);
   const [activeTab, setActiveTab] = useState<Tab>('Videos');
-  const [billing, setBilling] = useState<Billing>('monthly');
-  const [selectedSub, setSelectedSub] = useState(false);
-  const [step, setStep] = useState<Step>('details');
-  const [paymentMethod, setPaymentMethod] = useState<'momo' | 'bank' | null>(null);
-  const [phone, setPhone] = useState('');
-  const [loading, setLoading] = useState(false);
-  const [success, setSuccess] = useState(false);
+  const [selectedSub, setSelectedSub] = useState<SubscriptionTier | null>(null);
+  const [isProcessing, setIsProcessing] = useState(false);
+  const [showSuccess, setShowSuccess] = useState(false);
+  const [coinBalance, setCoinBalance] = useState(1250);
+  const [showKulCoinPrompt, setShowKulCoinPrompt] = useState(false);
   const [toast, setToast] = useState('');
   const [following, setFollowing] = useState(false);
   const [playingSoundId, setPlayingSoundId] = useState<string | null>(null);
   const [billingCycle, setBillingCycle] = useState<Billing>('monthly');
-  const price = billing === 'monthly' ? Number(SUB.price).toFixed(2) : (Number(SUB.price) * 12 * 0.85).toFixed(2);
   const ping = (m: string) => { setToast(m); setTimeout(() => setToast(''), 2200); };
   const share = async () => { try { await Share.share({ title: `${name} on Kulsah`, message: `Check out ${name}'s creative universe on Kulsah!` }); } catch { ping('Share failed'); } };
-  const buy = () => {
-    if (step === 'details') return setStep('payment');
-    if (!paymentMethod) return ping('Please select a payment method');
-    if (paymentMethod === 'momo' && !phone.trim()) return ping('Please complete MoMo details');
-    setLoading(true);
-    setTimeout(() => { setLoading(false); setSuccess(true); setTimeout(() => { setSelectedSub(false); setSuccess(false); ping(`Welcome to ${SUB.name}!`); }, 1600); }, 1200);
-  };
 
   const renderGrid = (
     items: Array<{ id: string; title: string; views?: string; img?: string }>,
@@ -124,7 +114,7 @@ const  ArtistProfile: React.FC = () => {
   ) => (
     <View style={s.videoGridWrap}>
       <View style={[s.videoGrid, { paddingHorizontal: gridHorizontalPadding }]}>
-      {items.map((item, index) => (
+      {items.map((item) => (
         <Pressable
           key={item.id}
           onPress={() => {
@@ -167,19 +157,40 @@ const  ArtistProfile: React.FC = () => {
     return (price * 12 * 0.85).toFixed(2);
   };
 
+  const subscriptionCost = billingCycle === 'monthly' ? MONTHLY_KULCOINS : YEARLY_KULCOINS;
+  const subscriptionLabel = billingCycle === 'monthly' ? 'Monthly' : 'Annual';
+
   const openSubscription = () => {
-    // setSelectedSub(INITIAL_SUBSCRIPTION);
-    // setModalStep('details');
-    // setPaymentMethod(null);
-    // setMomoProvider(null);
-    // setPhoneNumber('');
-    // setShowSuccess(false);
+    setSelectedSub(INITIAL_SUBSCRIPTION);
+    setShowSuccess(false);
   };
 
-  function replaceNewlineAfterComma(text:String, replacement = " ") {
-  return text.replace(/,\n/g, "," + replacement);
-}
- 
+  const closeSubscription = () => {
+    if (isProcessing) return;
+    setSelectedSub(null);
+    setShowSuccess(false);
+  };
+
+  const handlePurchase = () => {
+    if (!selectedSub) return;
+    if (coinBalance > subscriptionCost) {
+      setShowKulCoinPrompt(true);
+      return;
+    }
+
+    setIsProcessing(true);
+    setTimeout(() => {
+      setCoinBalance((prev) => prev - subscriptionCost);
+      setIsProcessing(false);
+      setShowSuccess(true);
+      setTimeout(() => {
+        setSelectedSub(null);
+        setShowSuccess(false);
+        ping(`Welcome to ${selectedSub.name}!`);
+      }, 1800);
+    }, 1200);
+  };
+
   return (
     <View style={[s.screen, { backgroundColor: theme.screen }]}>
       {toast ? <Text style={s.toast}>{toast}</Text> : null}
@@ -255,7 +266,7 @@ const  ArtistProfile: React.FC = () => {
                     style={[s.secondary, { backgroundColor: isDark ? 'rgba(255,255,255,0.06)' : theme.surface, width: '30%' }]}>
                       <Text style={[s.btnText, { color: theme.text }]}>{following ? 'Following' : 'Follow'}
                         </Text></Pressable>
-                        <Pressable onPress={() => { setSelectedSub(true); setStep('details'); }} style={[s.primary, {width: '30%'}]}>
+                        <Pressable onPress={openSubscription} style={[s.primary, {width: '30%'}]}>
                           <Text style={s.btnText}>Subscribe</Text></Pressable>
                           </>}
                           </View>
@@ -318,7 +329,7 @@ const  ArtistProfile: React.FC = () => {
                 <Text style={[s.perk, { color: theme.text }]}>{perk}</Text>
               </View>
             ))}
-            <Pressable>
+            <Pressable onPress={openSubscription}>
               <View style = {{
                 borderRadius: 20,
                 borderWidth: 1,
@@ -334,7 +345,7 @@ const  ArtistProfile: React.FC = () => {
                   fontFamily: 'PlusJakartaSansBold',
                   fontSize: mediumScreen? fontScale(12):fontScale(8),
                 }}>
-                  {billingCycle === 'monthly' ? 'SUBSCRIBE MONTHLY': 'SUBSCRIBE ANUALLY'}
+                  {billingCycle === 'monthly' ? 'SUBSCRIBE MONTHLY': 'SUBSCRIBE ANNUALLY'}
                 </Text>
               </View>
             </Pressable>
@@ -364,7 +375,7 @@ const  ArtistProfile: React.FC = () => {
                 if (isOwner) {
                   navigation.navigate('CreatorLibrary');
                 } else {
-                  setSelectedSub(true);
+                  openSubscription();
                 }
               })
             : null}
@@ -559,9 +570,96 @@ const  ArtistProfile: React.FC = () => {
         }}/> */}
       </ScrollView>
 
-      <Modal visible={selectedSub} transparent animationType="slide" statusBarTranslucent onRequestClose={() => !loading && setSelectedSub(false)}>
-        <View style={s.overlay}><Pressable style={StyleSheet.absoluteFillObject} onPress={() => !loading && setSelectedSub(false)} /><View style={[s.modal, { backgroundColor: isDark ? '#0f172a' : theme.card, borderWidth: isDark ? 0 : 1, borderColor: theme.border }]}>{success ? <View style={s.stack}><MaterialIcons name="verified" size={56} color="#cd2bee" /><Text style={[s.modalTitle, { color: theme.text }]}>Identity Verified</Text><Pressable onPress={() => setSelectedSub(false)} style={s.primary}><Text style={s.btnText}>Start Watching</Text></Pressable></View> : <><Text style={[s.modalTitle, { color: theme.text }]}>{SUB.name} Access</Text>{step === 'details' ? <View style={s.stack}>{SUB.perks.map((perk) => <Text key={perk} style={[s.perk, { color: theme.text }]}>- {perk}</Text>)}</View> : <View style={s.stack}><View style={s.payRow}><Pressable onPress={() => setPaymentMethod('momo')} style={[s.payBtn, { backgroundColor: isDark ? 'rgba(255,255,255,0.05)' : theme.surface, borderWidth: isDark ? 0 : 1, borderColor: theme.border }, paymentMethod === 'momo' && s.toggleOn]}><Text style={[s.toggleText, { color: paymentMethod === 'momo' ? '#cd2bee' : theme.textSecondary }]}>Mobile Money</Text></Pressable><Pressable onPress={() => setPaymentMethod('bank')} style={[s.payBtn, { backgroundColor: isDark ? 'rgba(255,255,255,0.05)' : theme.surface, borderWidth: isDark ? 0 : 1, borderColor: theme.border }, paymentMethod === 'bank' && s.toggleOn]}><Text style={[s.toggleText, { color: paymentMethod === 'bank' ? '#cd2bee' : theme.textSecondary }]}>Bank Transfer</Text></Pressable></View>{paymentMethod === 'momo' ? <TextInput value={phone} onChangeText={setPhone} placeholder="+233 Mobile Number" placeholderTextColor={theme.textMuted} style={[s.input, { backgroundColor: isDark ? 'rgba(255,255,255,0.05)' : theme.surface, color: theme.text, borderWidth: isDark ? 0 : 1, borderColor: theme.border }]} /> : null}{paymentMethod === 'bank' ? <Text style={[s.sub, { color: theme.textSecondary }]}>EcoBank Ghana - 1441000234567 - KULSAH CREATOR HUB</Text> : null}</View>}<Pressable onPress={buy} disabled={loading} style={s.primary}>{loading ? <ActivityIndicator color="#fff" /> : <Text style={s.btnText}>{step === 'details' ? 'Continue to Payment' : `Pay $${price} Now`}</Text>}</Pressable></>}</View></View>
+      <Modal visible={!!selectedSub} transparent animationType="slide" statusBarTranslucent onRequestClose={closeSubscription}>
+        {selectedSub ? (
+          <View style={s.overlay}>
+            <Pressable style={StyleSheet.absoluteFillObject} onPress={closeSubscription} />
+            <View style={[s.subscriptionModal, { backgroundColor: isDark ? '#08111f' : theme.card, borderColor: isDark ? 'rgba(255,255,255,0.08)' : theme.border }]}>
+              <View style={[s.modalHandle, { backgroundColor: isDark ? 'rgba(255,255,255,0.2)' : 'rgba(15,23,42,0.12)' }]} />
+              {showSuccess ? (
+                <View style={s.successWrap}>
+                  <View style={s.successBadge}>
+                    <MaterialIcons name="verified" size={54} color="#cd2bee" />
+                  </View>
+                  <Text style={[s.successTitle, { color: theme.text }]}>Identity{'\n'}Verified</Text>
+                  <Pressable onPress={closeSubscription} style={s.subscriptionPrimary}>
+                    <Text style={s.subscriptionPrimaryText}>Start Watching</Text>
+                  </Pressable>
+                </View>
+              ) : (
+                <ScrollView showsVerticalScrollIndicator={false} contentContainerStyle={s.subscriptionContent}>
+                  <View style={s.subscriptionHeader}>
+                    <View style={s.subscriptionIconWrap}>
+                      <MaterialIcons name="monetization-on" size={34} color="#f59e0b" />
+                    </View>
+                    <View style={s.subscriptionHeaderText}>
+                      <Text style={[s.subscriptionTitle, { color: theme.text }]}>{selectedSub.name}</Text>
+                      <Text style={[s.subscriptionMeta, { color: theme.textSecondary }]}>
+                        {subscriptionLabel} • {subscriptionCost} KulCoins
+                      </Text>
+                    </View>
+                  </View>
+
+                  <View style={s.subscriptionSection}>
+                    <Text style={[s.subscriptionLabel, { color: theme.textSecondary }]}>Unlocked Privileges</Text>
+                    {selectedSub.perks.map((perk, i) => (
+                      <View
+                        key={`${perk}-${i}`}
+                        style={[
+                          s.subscriptionPerkCard,
+                          {
+                            backgroundColor: isDark ? 'rgba(255,255,255,0.04)' : '#fff',
+                            borderColor: isDark ? 'rgba(255,255,255,0.06)' : 'rgba(15,23,42,0.06)',
+                          },
+                        ]}
+                      >
+                        <View style={s.subscriptionPerkIcon}>
+                          <MaterialIcons name="check-circle" size={16} color="#cd2bee" />
+                        </View>
+                        <Text style={[s.subscriptionPerkText, { color: theme.text }]}>{perk.trim()}</Text>
+                      </View>
+                    ))}
+
+                    <View style={s.balanceCard}>
+                      <View style={s.balanceRow}>
+                        <Text style={s.balanceLabel}>Your Balance</Text>
+                        <Text style={[s.balanceValue, { color: theme.text }]}>{coinBalance} KC</Text>
+                      </View>
+                      <View style={s.balanceRow}>
+                        <Text style={[s.balanceSubLabel, { color: theme.textSecondary }]}>Subscription Cost</Text>
+                        <Text style={s.balanceCost}>-{subscriptionCost} KC</Text>
+                      </View>
+                    </View>
+                  </View>
+
+                  <Pressable onPress={handlePurchase} disabled={isProcessing} style={s.subscriptionPrimary}>
+                    {isProcessing ? (
+                      <ActivityIndicator color="#fff" />
+                    ) : (
+                      <View style={s.subscriptionPrimaryInner}>
+                        <Text style={s.subscriptionPrimaryText}>Subscribe Now</Text>
+                        <MaterialIcons name="bolt" size={20} color="#fff" />
+                      </View>
+                    )}
+                  </Pressable>
+                </ScrollView>
+              )}
+            </View>
+          </View>
+        ) : null}
       </Modal>
+      <KulCoinPrompt
+        isOpen={showKulCoinPrompt}
+        onClose={() => setShowKulCoinPrompt(false)}
+        requiredCoins={subscriptionCost}
+        currentCoins={coinBalance}
+        onPurchaseKulCoins={() => {
+          setShowKulCoinPrompt(false);
+          setSelectedSub(null);
+          setShowSuccess(false);
+          navigation.navigate('TopUpCoins');
+        }}
+      />
     </View>
   );
 };
@@ -603,7 +701,165 @@ const s = StyleSheet.create({
   bannerBottom: { position: 'absolute', left: 18, right: 18, bottom: 18 }, eventCard: { height: 240, borderRadius: 40, overflow: 'hidden', backgroundColor: '#0f172a' }, chip: { position: 'absolute', top: 18, left: 18, flexDirection: 'row', alignItems: 'center', gap: 6, paddingHorizontal: 12, paddingVertical: 8, borderRadius: 999, backgroundColor: 'rgba(205,43,238,0.14)' }, chipText: { color: '#cd2bee', fontSize: fontScale(9), fontFamily: 'PlusJakartaSansExtraBold', textTransform: 'uppercase' },
   sound: { flexDirection: 'row', alignItems: 'center', gap: 12, padding: 14, borderRadius: 28, backgroundColor: 'rgba(255,255,255,0.05)' }, 
   play: { width: 58, height: 58, borderRadius: 20, backgroundColor: 'rgba(205,43,238,0.2)', alignItems: 'center', justifyContent: 'center' }, playOn: { backgroundColor: '#cd2bee' }, soundTitle: { color: '#fff', fontSize: mediumScreen ? fontScale(14): fontScale(10), fontFamily: 'PlusJakartaSansExtraBold', textTransform: 'uppercase' }, soundMeta: { marginTop: 4, color: '#8b94ad', fontSize: fontScale(9), fontFamily: 'PlusJakartaSansBold', textTransform: 'uppercase' }, soundUsage: { color: '#cd2bee', fontSize: fontScale(8), fontFamily: 'PlusJakartaSansExtraBold', textTransform: 'uppercase' },
-  overlay: { flex: 1, backgroundColor: 'rgba(0,0,0,0.72)', justifyContent: 'flex-end' }, modal: { backgroundColor: '#0f172a', borderTopLeftRadius: 34, borderTopRightRadius: 34, padding: 18, gap: 16 }, modalTitle: { color: '#fff', fontSize: fontScale(24), fontFamily: 'PlusJakartaSansExtraBold', textTransform: 'uppercase' }, modalPerk: { flexDirection: 'row', alignItems: 'center', gap: 10, padding: 14, borderRadius: 22, backgroundColor: 'rgba(255,255,255,0.05)' }, payRow: { flexDirection: 'row', gap: 8 }, payBtn: { flex: 1, minHeight: 42, borderRadius: 12, backgroundColor: 'rgba(255,255,255,0.05)', alignItems: 'center', justifyContent: 'center' }, input: { height: 48, borderRadius: 14, backgroundColor: 'rgba(255,255,255,0.05)', color: '#fff', paddingHorizontal: 12, fontFamily: 'PlusJakartaSansBold' }, bank: { color: '#8b94ad', fontSize: fontScale(11), fontFamily: 'PlusJakartaSansBold' }, success: { gap: 18, alignItems: 'center', paddingVertical: 10 },
+  overlay: { flex: 1, backgroundColor: 'rgba(0,0,0,0.8)', justifyContent: 'flex-end' },
+  subscriptionModal: {
+    borderTopLeftRadius: 40,
+    borderTopRightRadius: 40,
+    borderTopWidth: 1,
+    paddingHorizontal: 20,
+    paddingTop: 12,
+    paddingBottom: 28,
+    maxHeight: SCREEN_HEIGHT * 0.92,
+  },
+  modalHandle: {
+    width: 48,
+    height: 6,
+    borderRadius: 999,
+    alignSelf: 'center',
+    marginBottom: 12,
+  },
+  subscriptionContent: {
+    paddingBottom: 8,
+    rowGap: 24,
+  },
+  subscriptionHeader: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    columnGap: 16,
+  },
+  subscriptionIconWrap: {
+    width: 78,
+    height: 78,
+    borderRadius: 28,
+    backgroundColor: 'rgba(245,158,11,0.18)',
+    borderWidth: 1,
+    borderColor: 'rgba(245,158,11,0.35)',
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  subscriptionHeaderText: { flex: 1 },
+  subscriptionTitle: {
+    fontSize: mediumScreen ? fontScale(18) : fontScale(14),
+    fontFamily: 'PlusJakartaSansExtraBold',
+    textTransform: 'uppercase',
+  },
+  subscriptionMeta: {
+    marginTop: 6,
+    fontSize: fontScale(9),
+    fontFamily: 'PlusJakartaSansExtraBold',
+    textTransform: 'uppercase',
+    letterSpacing: 2,
+  },
+  subscriptionSection: { rowGap: 14 },
+  subscriptionLabel: {
+    marginLeft: 4,
+    fontSize: fontScale(8),
+    fontFamily: 'PlusJakartaSansExtraBold',
+    textTransform: 'uppercase',
+    letterSpacing: 3,
+  },
+  subscriptionPerkCard: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    columnGap: 12,
+    borderRadius: 24,
+    borderWidth: 1,
+    paddingHorizontal: 16,
+    paddingVertical: 15,
+  },
+  subscriptionPerkIcon: {
+    width: 32,
+    height: 32,
+    borderRadius: 12,
+    backgroundColor: 'rgba(205,43,238,0.12)',
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  subscriptionPerkText: {
+    flex: 1,
+    fontSize: mediumScreen ? fontScale(13) : fontScale(11),
+    fontFamily: 'PlusJakartaSansBold',
+  },
+  balanceCard: {
+    marginTop: 4,
+    borderRadius: 28,
+    borderWidth: 1,
+    borderColor: 'rgba(245,158,11,0.2)',
+    backgroundColor: 'rgba(245,158,11,0.08)',
+    paddingHorizontal: 18,
+    paddingVertical: 16,
+    rowGap: 10,
+  },
+  balanceRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    columnGap: 12,
+  },
+  balanceLabel: {
+    color: '#d97706',
+    fontSize: fontScale(8),
+    fontFamily: 'PlusJakartaSansExtraBold',
+    textTransform: 'uppercase',
+    letterSpacing: 2,
+  },
+  balanceSubLabel: {
+    fontSize: fontScale(8),
+    fontFamily: 'PlusJakartaSansExtraBold',
+    textTransform: 'uppercase',
+    letterSpacing: 1.5,
+  },
+  balanceValue: {
+    fontSize: mediumScreen ? fontScale(18) : fontScale(14),
+    fontFamily: 'PlusJakartaSansExtraBold',
+  },
+  balanceCost: {
+    color: '#cd2bee',
+    fontSize: mediumScreen ? fontScale(18) : fontScale(14),
+    fontFamily: 'PlusJakartaSansExtraBold',
+  },
+  subscriptionPrimary: {
+    minHeight: 55,
+    borderRadius: 999,
+    backgroundColor: '#cd2bee',
+    alignItems: 'center',
+    justifyContent: 'center',
+    paddingHorizontal: 18,
+  },
+  subscriptionPrimaryInner: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    columnGap: 10,
+  },
+  subscriptionPrimaryText: {
+    color: '#fff',
+    fontSize: mediumScreen ? fontScale(15) : fontScale(11),
+    fontFamily: 'PlusJakartaSansExtraBold',
+    textTransform: 'uppercase',
+    letterSpacing: 2,
+  },
+  successWrap: {
+    paddingVertical: 28,
+    rowGap: 28,
+    alignItems: 'center',
+  },
+  successBadge: {
+    width: 112,
+    height: 112,
+    borderRadius: 38,
+    backgroundColor: 'rgba(205,43,238,0.18)',
+    borderWidth: 2,
+    borderColor: 'rgba(205,43,238,0.35)',
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  successTitle: {
+    textAlign: 'center',
+    fontSize: mediumScreen ? fontScale(30) : fontScale(24),
+    lineHeight: mediumScreen ? 40 : 30,
+    fontFamily: 'PlusJakartaSansExtraBold',
+    textTransform: 'uppercase',
+  },
   switchBtn: {
     minWidth: 88,
     paddingHorizontal: 10,

@@ -60,7 +60,7 @@ import RewardConfig from './pages/RewardConfig';
 import Reward from './pages/Reward';
 import FinalStep from './pages/finalStep';
 import ChallengeParticipants from './pages/ChallengeParticipants';
-import ChallengeFeed from './pages/ChallengeFeed';
+import FeedChallenge from './pages/FeedChallenge';
 import Vote from './pages/SoundSelect';
 import FanArena from './pages/FanArena';
 import Library from './pages/Library';
@@ -91,6 +91,8 @@ import EmailVerification from './EmailVerification';
 import VibePicker from './pages/VibePicker';
 import FanTicketDetail from './pages/FanTicketDetail';
 import MarketPlace from './MarketPlace';
+import TopUpCoins from './pages/TopUpCoins';
+import ChallengeLeaderboard from './pages/ChallengeLeaderboard';
 
 
 const Stack = createNativeStackNavigator();
@@ -488,7 +490,7 @@ const App: React.FC = () => {
                   <Stack.Screen name="Reward" component={Reward}/>
                   <Stack.Screen name="finalStep" component={FinalStep}/>
                   <Stack.Screen name="challengeParticipants" component={ChallengeParticipants}/>
-                  <Stack.Screen name="ChallengeFeed" component={ChallengeFeed}/>
+                  <Stack.Screen name="ChallengeFeed" component={FeedChallenge}/>
                   <Stack.Screen name="Vote" component={Vote}/>
                   <Stack.Screen name="Video" component={Player}/>
                   <Stack.Screen name="EventDetail" component={EventDetail}/>
@@ -508,6 +510,8 @@ const App: React.FC = () => {
                   <Stack.Screen name= "UseEffect" component={UseEffect}/>
                   <Stack.Screen name= "VibePicker" component={VibePicker}/>
                   <Stack.Screen name= "FanTicket" component={FanTicketDetail}/>
+                  <Stack.Screen name="TopUpCoins" component={TopUpCoins} />
+                  <Stack.Screen name="ChallengeLeaderboard" component={ChallengeLeaderboard}/>
                 </>
               ) : (
                 <>
