@@ -8,6 +8,7 @@ import { fontScale } from '../fonts';
 import { useThemeMode } from '../theme';
 import { mediumScreen } from '../types';
 import EmojiStickerPicker from '../components/EmojiStickerPicker';
+import GiftDialog, { GiftSelection } from '../components/GiftDialog';
 
 
 // type ReactionTab =  'Gifts'| null;
@@ -19,6 +20,7 @@ type ReactionComment = {
   avatar: string;
   text: string;
   stickerUrl?: string;
+  gift?: GiftSelection;
   time: string;
   likes: number;
   verified?: boolean;
@@ -61,7 +63,19 @@ const CURRENT_USER = {
   avatar: 'https://picsum.photos/seed/current-user/120',
 };
 
-const Reactions: React.FC<{ onClose: () => void; title?: string }> = ({ onClose, title = 'Reactions' }) => {
+type ReactionsProps = {
+  onClose: () => void;
+  title?: string;
+  currentBalance?: number;
+  onBalanceChange?: (nextBalance: number) => void;
+};
+
+const Reactions: React.FC<ReactionsProps> = ({
+  onClose,
+  title = 'Reactions',
+  currentBalance,
+  onBalanceChange,
+}) => {
   const { isDark, theme } = useThemeMode();
   const insets = useSafeAreaInsets();
   // const [activeTab, setActiveTab] = useState<ReactionTab>(null);
@@ -70,6 +84,8 @@ const Reactions: React.FC<{ onClose: () => void; title?: string }> = ({ onClose,
   const [comments, setComments] = useState<ReactionComment[]>(commentsSeed);
   const [pickerOpen, setIsPickerOpen] = useState(false);
   const [pickerTab, setPickerTab] = useState<PickerTab>('emoji');
+  const [giftDialogOpen, setGiftDialogOpen] = useState(false);
+  const [localCoinBalance, setLocalCoinBalance] = useState(1250);
 
   const shellBackground = isDark ? 'rgba(10,5,13,0.92)' : 'rgba(255,255,255,0.96)';
   const cardBackground = isDark ? 'rgba(255,255,255,0.04)' : 'rgba(15,23,42,0.04)';
@@ -79,6 +95,7 @@ const Reactions: React.FC<{ onClose: () => void; title?: string }> = ({ onClose,
   const commentText = isDark ? '#d0c1d8' : theme.textSecondary;
   const sheetHeight = useMemo(() => 0.85, []);
   const [keyboardHeight, setKeyboardHeight] = useState(0);
+  const coinBalance = currentBalance ?? localCoinBalance;
 
   useEffect(() => {
     const showSubscription = Keyboard.addListener(
@@ -136,6 +153,29 @@ const Reactions: React.FC<{ onClose: () => void; title?: string }> = ({ onClose,
     ]);
     setIsPickerOpen(false);
     setReplyingTo(null);
+  };
+
+  const handleSendGift = (gift: GiftSelection) => {
+    setComments((prev) => [
+      ...prev,
+      createComment({ gift }),
+    ]);
+    const nextBalance = coinBalance - gift.price;
+    if (typeof currentBalance === 'number' && onBalanceChange) {
+      onBalanceChange(nextBalance);
+    } else {
+      setLocalCoinBalance(nextBalance);
+    }
+    setReplyingTo(null);
+  };
+
+  const handleTopUpSuccess = (amount: number) => {
+    const nextBalance = coinBalance + amount;
+    if (typeof currentBalance === 'number' && onBalanceChange) {
+      onBalanceChange(nextBalance);
+    } else {
+      setLocalCoinBalance(nextBalance);
+    }
   };
 
   return (
@@ -211,6 +251,22 @@ const Reactions: React.FC<{ onClose: () => void; title?: string }> = ({ onClose,
                   </View>
                   {comment.stickerUrl ? (
                     <Image source={{ uri: comment.stickerUrl }} style={styles.commentSticker} />
+                  ) : comment.gift ? (
+                    <View style={[styles.giftMessageCard, { backgroundColor: cardBackground, borderColor: softBorder }]}>
+                      <View style={styles.giftMessageMedia}>
+                        {comment.gift.isImage ? (
+                          <Image source={{ uri: comment.gift.icon }} style={styles.giftMessageImage} />
+                        ) : (
+                          <Text style={styles.giftMessageEmoji}>{comment.gift.icon}</Text>
+                        )}
+                      </View>
+                      <View style={styles.giftMessageCopy}>
+                        <Text style={[styles.giftMessageTitle, { color: theme.text }]}>{comment.gift.name}</Text>
+                        <Text style={[styles.giftMessagePrice, { color: muted }]}>
+                          Sent a gift worth {comment.gift.price} KC
+                        </Text>
+                      </View>
+                    </View>
                   ) : (
                     <Text style={[styles.commentBody, { color: commentText }]}>{comment.text}</Text>
                   )}
@@ -307,8 +363,7 @@ const Reactions: React.FC<{ onClose: () => void; title?: string }> = ({ onClose,
             }}>
             <Pressable
               onPress={() => {
-                setPickerTab('sticker');
-                setIsPickerOpen(true);
+                setGiftDialogOpen(true);
               }}
               style={styles.inputIcon}
             >
@@ -334,6 +389,17 @@ const Reactions: React.FC<{ onClose: () => void; title?: string }> = ({ onClose,
         </View>
       </View>
       </KeyboardAvoidingView>
+      <GiftDialog
+        isOpen={giftDialogOpen}
+        onClose={() => setGiftDialogOpen(false)}
+        creatorName={replyingTo ?? ""}
+        currentBalance={coinBalance}
+        onSendGift={(gift) => {
+          handleSendGift(gift);
+          setGiftDialogOpen(false);
+        }}
+        onTopUpSuccess={handleTopUpSuccess}
+      />
     </View>
   );
 };
@@ -374,6 +440,45 @@ const styles = StyleSheet.create({
   commentTime: { fontFamily: 'PlusJakartaSansMedium', fontSize: mediumScreen ? fontScale(10):fontScale(7) },
   commentBody: { fontFamily: 'PlusJakartaSansMedium', fontSize: mediumScreen ? fontScale(13): fontScale(10), lineHeight: 16 },
   commentSticker: { width: 120, height: 120, borderRadius: 22, marginTop: 4 },
+  giftMessageCard: {
+    marginTop: 4,
+    borderRadius: 22,
+    borderWidth: 1,
+    padding: 12,
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 10,
+  },
+  giftMessageMedia: {
+    width: 54,
+    height: 54,
+    borderRadius: 27,
+    overflow: 'hidden',
+    alignItems: 'center',
+    justifyContent: 'center',
+    backgroundColor: 'rgba(205,43,238,0.12)',
+  },
+  giftMessageImage: {
+    width: '100%',
+    height: '100%',
+  },
+  giftMessageEmoji: {
+    fontSize: 26,
+  },
+  giftMessageCopy: {
+    flex: 1,
+    gap: 3,
+  },
+  giftMessageTitle: {
+    fontFamily: 'PlusJakartaSansBold',
+    fontSize: mediumScreen ? fontScale(12) : fontScale(9),
+  },
+  giftMessagePrice: {
+    fontFamily: 'PlusJakartaSansMedium',
+    fontSize: mediumScreen ? fontScale(10) : fontScale(7),
+    textTransform: 'uppercase',
+    letterSpacing: 0.8,
+  },
   actionRow: { flexDirection: 'row', alignItems: 'center', gap: 18, marginTop: 8 },
   metaAction: { flexDirection: 'row', alignItems: 'center', gap: 4 },
   metaActionText: { fontFamily: 'PlusJakartaSansBold', fontSize: mediumScreen ? fontScale(12):fontScale(8) },

@@ -241,7 +241,7 @@ const SelectTickets: React.FC = () => {
           </View>
         </View>
 
-        <View style={[styles.aiCard, { borderColor: `${accent}24`, backgroundColor: `${accent}10` }]}>
+        {/* <View style={[styles.aiCard, { borderColor: `${accent}24`, backgroundColor: `${accent}10` }]}>
           <View style={styles.aiHeader}>
             <MaterialIcons name="auto-awesome" size={22} color={accent} />
             <Text style={[styles.aiTitle, { color: accent }]}>Gemini Scout</Text>
@@ -263,7 +263,7 @@ const SelectTickets: React.FC = () => {
               </Pressable>
             </>
           )}
-        </View>
+        </View> */}
 
         <Text style={[styles.sectionEyebrow, { color: subtle }]}>Available Tiers</Text>
         {TIERS.map((tier) => (

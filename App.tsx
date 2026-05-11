@@ -93,6 +93,8 @@ import FanTicketDetail from './pages/FanTicketDetail';
 import MarketPlace from './MarketPlace';
 import TopUpCoins from './pages/TopUpCoins';
 import ChallengeLeaderboard from './pages/ChallengeLeaderboard';
+import Events from './pages/Events';
+import TrendingVideos from './pages/TrendingVideos';
 
 
 const Stack = createNativeStackNavigator();
@@ -512,6 +514,8 @@ const App: React.FC = () => {
                   <Stack.Screen name= "FanTicket" component={FanTicketDetail}/>
                   <Stack.Screen name="TopUpCoins" component={TopUpCoins} />
                   <Stack.Screen name="ChallengeLeaderboard" component={ChallengeLeaderboard}/>
+                  <Stack.Screen name="Events" component={Events}/>
+                  <Stack.Screen name="TrendingVideos" component={TrendingVideos}/>
                 </>
               ) : (
                 <>

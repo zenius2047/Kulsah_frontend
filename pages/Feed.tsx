@@ -26,6 +26,7 @@ import { TurnCoverage } from '@google/genai/web';
 import { useEvent } from 'expo';
 import { NativeStackScreenProps } from '@react-navigation/native-stack';
 import { mediumScreen, RootStackParamList, smallWidth } from '../types';
+import { subscribeUser, user } from '../types';
 import TickIcon from '../assets/icons/ticket-svg.svg';
 import PlayFilledIcon from '../assets/icons/play-arrow-filled-svg.svg';
 import FireIcon from '../assets/icons/fireIcon-svg.svg';
@@ -37,6 +38,7 @@ import ErrorBoundary from '../components/ErrorBoundary';
 import SparkleIcon from '../assets/icons/sparkle-style.svg';
 import CommentIcon from '../assets/icons/comment-svg.svg';
 import KulCoinPrompt from '../components/KulCoinPrompt';
+import CreatorShareSheet from './CreatorShareSheet';
 
 interface FeedItem {
   id: string;
@@ -617,7 +619,20 @@ const VideoFeedItem: React.FC<{
   isGlobalMuted: boolean;
   isLive?: boolean;
   onToggleMute: () => void;
-}> = ({ item, onSubscribe, isGlobalMuted, onToggleMute, isPlaying , isLive }) => {
+  coinBalance: number;
+  onBalanceChange: (nextBalance: number) => void;
+  isCreatorViewer: boolean;
+}> = ({
+  item,
+  onSubscribe,
+  isGlobalMuted,
+  onToggleMute,
+  isPlaying,
+  isLive,
+  coinBalance,
+  onBalanceChange,
+  isCreatorViewer,
+}) => {
   // console.log("Viewport Height:", SCREEN_HEIGHT);
   // console.log("Viewport Width:", SCREEN_WIDTH);
   const navigation = useNavigation<any>();
@@ -1335,13 +1350,25 @@ useEffect(() => {
         animationType="slide"
         onRequestClose={() => setShowComments(false)}
       >
-        <Reactions onClose={() => setShowComments(false)} title={`${item.comments} Reactions`} />
+        <Reactions
+          onClose={() => setShowComments(false)}
+          title={`${item.comments} Reactions`}
+          currentBalance={coinBalance}
+          onBalanceChange={onBalanceChange}
+        />
       </Modal>
 
-      <FeedQuickMenuModal
-        visible={showMoreMenu}
-        onClose={() => setShowMoreMenu(false)}
-      />
+      {isCreatorViewer ? (
+        <CreatorShareSheet
+          visible={showMoreMenu}
+          onClose={() => setShowMoreMenu(false)}
+        />
+      ) : (
+        <FeedQuickMenuModal
+          visible={showMoreMenu}
+          onClose={() => setShowMoreMenu(false)}
+        />
+      )}
     </View>
   );
 };
@@ -2097,10 +2124,18 @@ const Feed: React.FC = () => {
   const [isProcessingSubscription, setIsProcessingSubscription] = useState(false);
   const [showSubscriptionSuccess, setShowSubscriptionSuccess] = useState(false);
   const [showKulCoinPrompt, setShowKulCoinPrompt] = useState(false);
+  const [isCreatorViewer, setIsCreatorViewer] = useState(user?.role === 'creator');
 
 
   useEffect(() => {
     console.log(`This is the value of mediumScreen : ${mediumScreen}`)
+  }, []);
+
+  useEffect(() => {
+    setIsCreatorViewer(user?.role === 'creator');
+    return subscribeUser((nextUser) => {
+      setIsCreatorViewer(nextUser?.role === 'creator');
+    });
   }, []);
 
   const onViewRef = React.useRef(
@@ -2232,10 +2267,13 @@ const Feed: React.FC = () => {
           isGlobalMuted={isGlobalMuted}
           onToggleMute={handleToggleMute}
           isLive={item.isLive}
+          coinBalance={coinBalance}
+          onBalanceChange={setCoinBalance}
+          isCreatorViewer={isCreatorViewer}
         />
       </ErrorBoundary>
     </View>
-  ), [activeIndex, feedItemHeight, handleSubscribe, handleToggleMute, isGlobalMuted]);
+  ), [activeIndex, coinBalance, feedItemHeight, handleSubscribe, handleToggleMute, isCreatorViewer, isGlobalMuted]);
 
   return (
     <SafeAreaView

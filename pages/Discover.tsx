@@ -293,13 +293,15 @@ const Discover: React.FC<{ embedded?: boolean }> = ({ embedded = false }) => {
           <View>
             <View style={{ paddingHorizontal: 16, flexDirection: 'row', justifyContent: 'space-between', marginVertical: 20 }}>
               <Text style={{ color: theme.text, fontSize: mediumScreen ? 16 : 12, fontWeight: 'bold', fontFamily: 'PlusJakartaSansExtraBold' }}>HOT TICKETS</Text>
-              <Pressable>
+              <Pressable onPress={()=>{
+                navigation.navigate('Events')
+              }}>
                 <Text style={{ color: '#cd2bee', fontSize: mediumScreen ? 14 : 10, fontWeight: 'bold', fontFamily: 'PlusJakartaSansBold' }}>FULL CALENDAR</Text>
               </Pressable>
             </View>
             <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={{ gap: 14, paddingHorizontal: 16 }}>
               {upcomingEvents.map((event) => (
-                <Pressable key={event.id} onPress={() => navigation.navigate('Community')} style={{ width: 320 }}>
+                <Pressable key={event.id} onPress={() => navigation.navigate('EventDetail')} style={{ width: 320 }}>
                   <View style={{ borderRadius: 32, overflow: 'hidden', backgroundColor: cardBackground, height: 300, borderWidth: 1, borderColor: theme.border }}>
                     <Image source={{ uri: event.img }} style={{ width: '100%', height: '100%', opacity: 0.7 }} />
                     <LinearGradient
@@ -482,14 +484,16 @@ const Discover: React.FC<{ embedded?: boolean }> = ({ embedded = false }) => {
           <View>
             <View style={{ paddingHorizontal: 16, flexDirection: 'row', justifyContent: 'space-between', marginBottom: 10, marginTop: 4 }}>
               <Text style={{ color: theme.text, fontSize: mediumScreen ? 18 : 14, fontWeight: 'bold', fontFamily: 'PlusJakartaSansExtraBold' }}>TRENDING VIDEO</Text>
-              <Pressable>
+              <Pressable onPress={()=>{
+                navigation.navigate("TrendingVideos")
+              }}>
                 <Text style={{ color: '#cd2bee', fontSize: mediumScreen ? 15 : 11, fontWeight: 'bold', fontFamily: 'PlusJakartaSansBold' }}>SEE ALL</Text>
               </Pressable>
             </View>
             <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={{ gap: 14, paddingHorizontal: 16 }}>
               {featuredClips.map((vid) => (
                 <Pressable key={vid.id} onPress={() => navigation.navigate('Feed')}>
-                  <View style={{ borderRadius: 28, overflow: 'hidden', backgroundColor: cardBackground, height: 270, width: 270, borderWidth: 1, borderColor: theme.border }}>
+                  <View style={{ borderRadius: 28, overflow: 'hidden', backgroundColor: cardBackground, height: 300, width: 220, borderWidth: 1, borderColor: theme.border }}>
                     <Image source={{ uri: vid.img }} style={{ width: '100%', height: '100%', opacity: 0.75 }} />
                     <LinearGradient
                       colors={['transparent', 'rgba(0,0,0,0.22)', 'rgba(0,0,0,0.92)']}
@@ -512,12 +516,22 @@ const Discover: React.FC<{ embedded?: boolean }> = ({ embedded = false }) => {
                         right: 0,
                       }}
                     >
-                      <Text style={{ color: 'white', fontSize: mediumScreen ? 21 : 17, fontWeight: 'bold', fontFamily: 'PlusJakartaSansExtraBold' }}>
+                      <Text style={{
+                          fontFamily: "PlusJakartaSansBold",
+                          fontSize: mediumScreen? fontScale(14): fontScale(10),
+                          color: '#cd2bee'
+                          
+                        }}>
+                         { `@ ${vid.artist}`}
+                        </Text>
+                      <Text
+                      numberOfLines={1}
+                      style={{ color: 'white', fontSize: mediumScreen ? fontScale(16) : fontScale(12),  fontFamily: 'PlusJakartaSansExtraBold' }}>
                         {vid.title.toUpperCase()}
                       </Text>
                       <View style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', gap: 12, marginTop: 6 }}>
-                        <Text style={{ color: theme.textSecondary, fontSize: mediumScreen ? 13 : 10, fontWeight: 'bold', fontFamily: 'PlusJakartaSansBold', flex: 1 }}>
-                          {`${vid.artist.toUpperCase()} - ${vid.views.toUpperCase()} VIEWS`}
+                        <Text style={{ color: theme.textSecondary, fontSize: mediumScreen ? fontScale(12) : fontScale(8),fontFamily: 'PlusJakartaSansBold',}}>
+                          {`${vid.views.toUpperCase()} VIEWS`}
                         </Text>
                         {vid.sound && (
                           <Pressable
@@ -535,9 +549,9 @@ const Discover: React.FC<{ embedded?: boolean }> = ({ embedded = false }) => {
                             }}
                           >
                             <MaterialIcons name="music-note" size={12} color="#cd2bee" />
-                            <Text style={{ color: isDark ? 'white' : theme.text, fontSize: fontScale(9), fontFamily: 'PlusJakartaSansBold' }} numberOfLines={1}>
+                            {/* <Text style={{ color: isDark ? 'white' : theme.text, fontSize: fontScale(9), fontFamily: 'PlusJakartaSansBold' }} numberOfLines={1}>
                               {vid.sound.title.toUpperCase()}
-                            </Text>
+                            </Text> */}
                           </Pressable>
                         )}
                       </View>
@@ -549,7 +563,7 @@ const Discover: React.FC<{ embedded?: boolean }> = ({ embedded = false }) => {
           </View>
         )}
 
-        {(activeCategory === 'All' || activeCategory === 'Creators') && (
+        {/* {(activeCategory === 'All' || activeCategory === 'Creators') && (
           <View style={{ paddingBottom: 10 }}>
             <View style={{ flexDirection: 'row', justifyContent: 'space-between', marginBottom: 10, marginTop: 4, paddingHorizontal: 16 }}>
               <Text style={{ color: theme.text, fontSize: mediumScreen ? 18 : 14, fontWeight: 'bold', fontFamily: 'PlusJakartaSansExtraBold' }}>KULSAH STORE</Text>
@@ -606,7 +620,7 @@ const Discover: React.FC<{ embedded?: boolean }> = ({ embedded = false }) => {
               ))}
             </ScrollView>
           </View>
-        )}
+        )} */}
       </View>
       <View style={{
         height: 100,

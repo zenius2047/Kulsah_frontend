@@ -4,14 +4,13 @@ import { useNavigation } from '@react-navigation/native';
 import { LinearGradient } from 'expo-linear-gradient';
 import { useEvent } from 'expo';
 import { useVideoPlayer, VideoView } from 'expo-video';
-import React, { useEffect, useMemo, useRef, useState } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import {
   Animated,
   Dimensions,
   DimensionValue,
   FlatList,
   Image,
-  Modal,
   Platform,
   Pressable,
   StatusBar,
@@ -23,6 +22,7 @@ import {
 import { SafeAreaView, useSafeAreaInsets } from 'react-native-safe-area-context';
 import { fontScale } from '../fonts';
 import { useThemeMode } from '../theme';
+import KulcoinTopUpDrawer from '../components/KulcoinTopUpDrawer';
 
 type ChallengeEntry = {
   id: string;
@@ -42,13 +42,6 @@ type ChallengeEntry = {
   isSeed?: boolean;
 };
 
-type KulcoinTopUpDrawerProps = {
-  currentBalance: number;
-  isOpen: boolean;
-  onClose: () => void;
-  onSuccess: (amount: number) => void;
-};
-
 type ChallengeVideoItemProps = {
   entry: ChallengeEntry;
   height: number;
@@ -58,13 +51,6 @@ type ChallengeVideoItemProps = {
 
 const VOTE_COST = 5;
 const KULCOIN_STORAGE_KEY = 'kulcoins';
-
-const coinPackages = [
-  { id: 1, coins: 50, price: 1, label: '1 GHS' },
-  { id: 2, coins: 250, price: 5, label: '5 GHS', popular: true },
-  { id: 3, coins: 600, price: 10, label: '10 GHS' },
-  { id: 4, coins: 1500, price: 25, label: '25 GHS' },
-];
 
 const baseEntries: ChallengeEntry[] = [
   {
@@ -122,134 +108,6 @@ const formatCount = (num: number) => {
   if (num >= 1000000) return `${(num / 1000000).toFixed(1)}M`;
   if (num >= 1000) return `${(num / 1000).toFixed(1)}K`;
   return `${num}`;
-};
-
-const KulcoinTopUpDrawer: React.FC<KulcoinTopUpDrawerProps> = ({
-  currentBalance,
-  isOpen,
-  onClose,
-  onSuccess,
-}) => {
-  const insets = useSafeAreaInsets();
-  const [selectedPackage, setSelectedPackage] = useState<number | null>(null);
-  const [isPaymentOpen, setIsPaymentOpen] = useState(false);
-
-  useEffect(() => {
-    if (!isOpen) {
-      setSelectedPackage(null);
-      setIsPaymentOpen(false);
-    }
-  }, [isOpen]);
-
-  const selectedPkgData = useMemo(
-    () => coinPackages.find((pkg) => pkg.id === selectedPackage) ?? null,
-    [selectedPackage]
-  );
-
-  const handlePaymentSuccess = () => {
-    if (!selectedPkgData) return;
-    onSuccess(selectedPkgData.coins);
-    setIsPaymentOpen(false);
-    onClose();
-  };
-
-  return (
-    <>
-      <Modal visible={isOpen} transparent animationType="slide" statusBarTranslucent onRequestClose={onClose}>
-        <View style={styles.modalRoot}>
-          <Pressable style={styles.modalBackdrop} onPress={onClose} />
-          <View style={[styles.drawerCard, { paddingBottom: Math.max(insets.bottom, 16) }]}>
-            <View style={styles.drawerHandle} />
-
-            <View style={styles.drawerHeader}>
-              <View style={styles.warningRow}>
-                <MaterialIcons name="warning" size={14} color="#cd2bee" />
-                <Text style={styles.warningText}>Insufficient Balance to Vote</Text>
-              </View>
-              <Text style={styles.drawerTitle}>Top Up Kulcoins</Text>
-              <Text style={styles.drawerBalance}>Current Balance: {currentBalance} KC</Text>
-            </View>
-
-            <View style={styles.packageGrid}>
-              {coinPackages.map((pkg) => {
-                const isSelected = pkg.id === selectedPackage;
-                return (
-                  <Pressable
-                    key={pkg.id}
-                    onPress={() => setSelectedPackage(pkg.id)}
-                    style={[styles.packageCard, isSelected ? styles.packageCardSelected : null]}
-                  >
-                    {pkg.popular ? (
-                      <View style={styles.bestValueChip}>
-                        <Text style={styles.bestValueText}>Best Value</Text>
-                      </View>
-                    ) : null}
-                    <View style={styles.packageIcon}>
-                      <MaterialIcons name="monetization-on" size={24} color="#cd2bee" />
-                    </View>
-                    <Text style={styles.packageCoins}>{pkg.coins}</Text>
-                    <Text style={styles.packageLabel}>{pkg.label}</Text>
-                  </Pressable>
-                );
-              })}
-            </View>
-
-            <View style={styles.drawerActions}>
-              <Pressable
-                onPress={() => {
-                  if (selectedPkgData) setIsPaymentOpen(true);
-                }}
-                disabled={!selectedPkgData}
-                style={[styles.purchaseButton, !selectedPkgData ? styles.buttonDisabled : null]}
-              >
-                <Text style={styles.purchaseButtonText}>Purchase Kulcoins</Text>
-                <MaterialIcons name="payments" size={20} color="#ffffff" />
-              </Pressable>
-
-              <Pressable onPress={onClose} style={styles.cancelTransactionButton}>
-                <Text style={styles.cancelTransactionText}>Cancel Transaction</Text>
-              </Pressable>
-            </View>
-          </View>
-        </View>
-      </Modal>
-
-      <Modal
-        visible={isPaymentOpen}
-        transparent
-        animationType="slide"
-        statusBarTranslucent
-        onRequestClose={() => setIsPaymentOpen(false)}
-      >
-        <View style={styles.modalRoot}>
-          <Pressable style={styles.modalBackdrop} onPress={() => setIsPaymentOpen(false)} />
-          <View style={[styles.paymentCard, { paddingBottom: Math.max(insets.bottom, 20) }]}>
-            <View style={styles.drawerHandle} />
-            <Text style={styles.paymentTitle}>Payment Gateway</Text>
-            {selectedPkgData ? (
-              <View style={styles.paymentSummary}>
-                <View style={styles.paymentRow}>
-                  <Text style={styles.paymentLabel}>Package</Text>
-                  <Text style={styles.paymentValue}>{selectedPkgData.coins} Kulcoins</Text>
-                </View>
-                <View style={styles.paymentRow}>
-                  <Text style={styles.paymentLabel}>Amount</Text>
-                  <Text style={styles.paymentAccent}>{selectedPkgData.price} GHS</Text>
-                </View>
-              </View>
-            ) : null}
-            <Pressable onPress={handlePaymentSuccess} style={styles.purchaseButton}>
-              <Text style={styles.purchaseButtonText}>Pay Now</Text>
-              <MaterialIcons name="arrow-forward" size={20} color="#ffffff" />
-            </Pressable>
-            <Pressable onPress={() => setIsPaymentOpen(false)} style={styles.cancelPaymentButton}>
-              <Text style={styles.cancelPaymentText}>Cancel</Text>
-            </Pressable>
-          </View>
-        </View>
-      </Modal>
-    </>
-  );
 };
 
 const ChallengeVideoItem: React.FC<ChallengeVideoItemProps> = ({
@@ -762,6 +620,7 @@ const FeedChallenge: React.FC = () => {
           isOpen={isTopUpOpen}
           onClose={() => setIsTopUpOpen(false)}
           onSuccess={(amount) => setKulcoins((prev) => prev + amount)}
+          warningText="Insufficient Balance to Vote"
         />
       </View>
     </SafeAreaView>
@@ -1134,212 +993,6 @@ const styles = StyleSheet.create({
     fontSize: fontScale(10),
     textTransform: 'uppercase',
     letterSpacing: 1.8,
-  },
-  modalRoot: {
-    flex: 1,
-    justifyContent: 'flex-end',
-  },
-  modalBackdrop: {
-    ...StyleSheet.absoluteFillObject,
-    backgroundColor: 'rgba(0,0,0,0.82)',
-  },
-  drawerCard: {
-    borderTopLeftRadius: 36,
-    borderTopRightRadius: 36,
-    paddingHorizontal: 20,
-    paddingTop: 14,
-    backgroundColor: '#111114',
-    borderTopWidth: 1,
-    borderColor: 'rgba(255,255,255,0.08)',
-  },
-  drawerHandle: {
-    width: 48,
-    height: 6,
-    borderRadius: 999,
-    alignSelf: 'center',
-    backgroundColor: 'rgba(255,255,255,0.16)',
-    marginBottom: 16,
-  },
-  drawerHeader: {
-    alignItems: 'center',
-    gap: 6,
-    marginBottom: 24,
-  },
-  warningRow: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: 6,
-  },
-  warningText: {
-    color: '#cd2bee',
-    fontFamily: 'PlusJakartaSansExtraBold',
-    fontSize: fontScale(7),
-    textTransform: 'uppercase',
-    letterSpacing: 1.2,
-  },
-  drawerTitle: {
-    color: '#ffffff',
-    fontFamily: 'PlusJakartaSansExtraBold',
-    fontSize: fontScale(20),
-    textTransform: 'uppercase',
-  },
-  drawerBalance: {
-    color: 'rgba(255,255,255,0.45)',
-    fontFamily: 'PlusJakartaSansExtraBold',
-    fontSize: fontScale(8),
-    textTransform: 'uppercase',
-    letterSpacing: 2,
-  },
-  packageGrid: {
-    flexDirection: 'row',
-    flexWrap: 'wrap',
-    justifyContent: 'space-between',
-    rowGap: 14,
-  },
-  packageCard: {
-    width: '48%',
-    alignItems: 'center',
-    gap: 6,
-    borderRadius: 26,
-    paddingHorizontal: 14,
-    paddingVertical: 18,
-    backgroundColor: 'rgba(255,255,255,0.05)',
-    borderWidth: 1,
-    borderColor: 'rgba(255,255,255,0.06)',
-  },
-  packageCardSelected: {
-    backgroundColor: 'rgba(205,43,238,0.16)',
-    borderColor: '#cd2bee',
-  },
-  bestValueChip: {
-    position: 'absolute',
-    top: -10,
-    alignSelf: 'center',
-    paddingHorizontal: 8,
-    paddingVertical: 4,
-    borderRadius: 999,
-    backgroundColor: '#cd2bee',
-  },
-  bestValueText: {
-    color: '#ffffff',
-    fontFamily: 'PlusJakartaSansExtraBold',
-    fontSize: fontScale(6),
-    textTransform: 'uppercase',
-    letterSpacing: 1,
-  },
-  packageIcon: {
-    width: 48,
-    height: 48,
-    borderRadius: 24,
-    alignItems: 'center',
-    justifyContent: 'center',
-    backgroundColor: 'rgba(205,43,238,0.12)',
-  },
-  packageCoins: {
-    color: '#ffffff',
-    fontFamily: 'PlusJakartaSansExtraBold',
-    fontSize: fontScale(18),
-  },
-  packageLabel: {
-    color: 'rgba(255,255,255,0.42)',
-    fontFamily: 'PlusJakartaSansExtraBold',
-    fontSize: fontScale(8),
-    textTransform: 'uppercase',
-    letterSpacing: 1.4,
-  },
-  drawerActions: {
-    gap: 14,
-    marginTop: 24,
-  },
-  purchaseButton: {
-    minHeight: 62,
-    borderRadius: 20,
-    alignItems: 'center',
-    justifyContent: 'center',
-    flexDirection: 'row',
-    gap: 10,
-    backgroundColor: '#cd2bee',
-  },
-  buttonDisabled: {
-    opacity: 0.5,
-  },
-  purchaseButtonText: {
-    color: '#ffffff',
-    fontFamily: 'PlusJakartaSansExtraBold',
-    fontSize: fontScale(11),
-  },
-  cancelTransactionButton: {
-    alignItems: 'center',
-    justifyContent: 'center',
-    paddingVertical: 10,
-  },
-  cancelTransactionText: {
-    color: 'rgba(255,255,255,0.26)',
-    fontFamily: 'PlusJakartaSansExtraBold',
-    fontSize: fontScale(8),
-    textTransform: 'uppercase',
-    letterSpacing: 2,
-  },
-  paymentCard: {
-    borderTopLeftRadius: 34,
-    borderTopRightRadius: 34,
-    paddingHorizontal: 20,
-    paddingTop: 14,
-    backgroundColor: '#111114',
-    borderTopWidth: 1,
-    borderColor: 'rgba(255,255,255,0.08)',
-  },
-  paymentTitle: {
-    color: '#ffffff',
-    textAlign: 'center',
-    fontFamily: 'PlusJakartaSansExtraBold',
-    fontSize: fontScale(18),
-    textTransform: 'uppercase',
-    marginBottom: 18,
-  },
-  paymentSummary: {
-    borderRadius: 22,
-    padding: 16,
-    marginBottom: 18,
-    backgroundColor: 'rgba(255,255,255,0.04)',
-    borderWidth: 1,
-    borderColor: 'rgba(255,255,255,0.08)',
-    gap: 12,
-  },
-  paymentRow: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'space-between',
-  },
-  paymentLabel: {
-    color: 'rgba(255,255,255,0.5)',
-    fontFamily: 'PlusJakartaSansBold',
-    fontSize: fontScale(10),
-  },
-  paymentValue: {
-    color: '#ffffff',
-    fontFamily: 'PlusJakartaSansExtraBold',
-    fontSize: fontScale(10),
-  },
-  paymentAccent: {
-    color: '#cd2bee',
-    fontFamily: 'PlusJakartaSansExtraBold',
-    fontSize: fontScale(10),
-  },
-  cancelPaymentButton: {
-    alignItems: 'center',
-    justifyContent: 'center',
-    minHeight: 54,
-    marginTop: 10,
-    borderRadius: 18,
-    backgroundColor: 'rgba(255,255,255,0.05)',
-  },
-  cancelPaymentText: {
-    color: 'rgba(255,255,255,0.5)',
-    fontFamily: 'PlusJakartaSansExtraBold',
-    fontSize: fontScale(9),
-    textTransform: 'uppercase',
-    letterSpacing: 1.4,
   },
 });
 

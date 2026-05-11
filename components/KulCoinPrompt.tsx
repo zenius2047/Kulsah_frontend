@@ -130,7 +130,7 @@ const KulCoinPrompt: React.FC<KulCoinPromptProps> = ({
                     letterSpacing: 2,
                   }}
                 >
-                  Purchase KulCoins
+                  Purchase
                 </Text>
               </Pressable>
 
