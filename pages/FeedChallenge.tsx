@@ -501,14 +501,14 @@ const ChallengeVideoItem: React.FC<ChallengeVideoItemProps> = ({
         {!entry.isSeed ? (
           <View style={styles.railAction}>
             <Pressable onPress={handleVote} style={styles.voteActionButton}>
-              <MaterialIcons name="how-to-vote" size={28} color="#ffffff" />
-              <Text style={styles.voteActionLabel}>Vote</Text>
+              <MaterialIcons name="how-to-vote" size={36} color="#ffffff" />
+              {/* <Text style={styles.voteActionLabel}>Vote</Text> */}
             </Pressable>
             <View style={styles.voteMeta}>
               <Text style={styles.railCount}>{formatCount(votesCount)}</Text>
-              <View style={styles.voteCostChip}>
+              {/* <View style={styles.voteCostChip}>
                 <Text style={styles.voteCostText}>5KC</Text>
-              </View>
+              </View> */}
             </View>
           </View>
         ) : null}
@@ -883,8 +883,8 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
   },
   voteActionButton: {
-    width: 62,
-    height: 62,
+    width: 42,
+    height: 42,
     borderRadius: 31,
     alignItems: 'center',
     justifyContent: 'center',

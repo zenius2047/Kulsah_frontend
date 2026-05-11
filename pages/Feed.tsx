@@ -78,6 +78,7 @@ const { height: SCREEN_HEIGHT, width: SCREEN_WIDTH } = Dimensions.get('screen');
 const FEED_ITEM_HEIGHT = SCREEN_HEIGHT * (Platform.OS === 'ios'? 0.92: 0.92);
 const MONTHLY_KULCOINS = 100;
 const YEARLY_KULCOINS = 1000;
+const INITIAL_TIME_UPDATE = { currentTime: 0 } as const;
 const INITIAL_SUBSCRIPTION: SubscriptionTier = {
   name: 'Pulsar Access',
   price: '9.99',
@@ -691,9 +692,8 @@ const VideoFeedItem: React.FC<{
   //   height: 0,
   // });
 
-
-   const loadedMetadata = useEvent(player, 'sourceLoad');
-   const timeUpdate: any = useEvent(player as any, 'timeUpdate', { currentTime: 0 });
+  const loadedMetadata = useEvent(player, 'sourceLoad');
+  const timeUpdate: any = useEvent(player as any, 'timeUpdate', INITIAL_TIME_UPDATE);
   const [dimensions, setDimensions] = useState({ width: 0, height: 0 });
   const isPortraitVideo =
     dimensions.width === 0 ||
@@ -701,9 +701,17 @@ const VideoFeedItem: React.FC<{
     dimensions.height >= dimensions.width;
 
   // Extract dimensions once the video source loads
+  const loadedTrack = loadedMetadata?.availableVideoTracks?.[0];
+  const loadedWidth = loadedTrack?.size?.width ?? 0;
+  const loadedHeight = loadedTrack?.size?.height ?? 0;
+  const loadedDuration = typeof (loadedMetadata as any)?.duration === 'number'
+    ? (loadedMetadata as any).duration
+    : 0;
+
   React.useEffect(() => {
-    if (loadedMetadata?.availableVideoTracks?.[0]) {
-      const { width, height } = loadedMetadata.availableVideoTracks[0].size;
+    if (loadedWidth > 0 && loadedHeight > 0) {
+      const width = loadedWidth;
+      const height = loadedHeight;
       setDimensions((prev) => (
         prev.width === width && prev.height === height ? prev : { width, height }
       ));
@@ -711,11 +719,10 @@ const VideoFeedItem: React.FC<{
       console.log(`This is the width : ${width} for the user ${item.handle} video`)
     }
 
-    const loadedDuration = (loadedMetadata as any)?.duration;
     if (typeof loadedDuration === 'number' && loadedDuration > 0) {
       setDuration((prev) => (prev === loadedDuration ? prev : loadedDuration));
     }
-  }, [loadedMetadata]);
+  }, [item.handle, loadedDuration, loadedWidth, loadedHeight]);
 
   useEffect(() => {
     if (isScrubbing) return;
@@ -724,7 +731,7 @@ const VideoFeedItem: React.FC<{
       const nextTime = Math.max(0, t);
       setCurrentTime((prev) => (prev === nextTime ? prev : nextTime));
     }
-  }, [timeUpdate, isScrubbing]);
+  }, [timeUpdate?.currentTime, isScrubbing]);
 
   useEffect(() => {
     const spinAnimation = Animated.loop(

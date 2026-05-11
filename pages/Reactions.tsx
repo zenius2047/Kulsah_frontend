@@ -7,14 +7,18 @@ import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { fontScale } from '../fonts';
 import { useThemeMode } from '../theme';
 import { mediumScreen } from '../types';
+import EmojiStickerPicker from '../components/EmojiStickerPicker';
 
-type ReactionTab =  'Gifts'| null;
+
+// type ReactionTab =  'Gifts'| null;
+type PickerTab = 'emoji' | 'sticker';
 
 type ReactionComment = {
   id: string;
   handle: string;
   avatar: string;
   text: string;
+  stickerUrl?: string;
   time: string;
   likes: number;
   verified?: boolean;
@@ -52,12 +56,20 @@ const commentsSeed: ReactionComment[] = [
   },
 ];
 
+const CURRENT_USER = {
+  handle: '@you',
+  avatar: 'https://picsum.photos/seed/current-user/120',
+};
+
 const Reactions: React.FC<{ onClose: () => void; title?: string }> = ({ onClose, title = 'Reactions' }) => {
   const { isDark, theme } = useThemeMode();
   const insets = useSafeAreaInsets();
-  const [activeTab, setActiveTab] = useState<ReactionTab>(null);
+  // const [activeTab, setActiveTab] = useState<ReactionTab>(null);
   const [replyingTo, setReplyingTo] = useState<string | null>('@pixel_warrior');
   const [message, setMessage] = useState('');
+  const [comments, setComments] = useState<ReactionComment[]>(commentsSeed);
+  const [pickerOpen, setIsPickerOpen] = useState(false);
+  const [pickerTab, setPickerTab] = useState<PickerTab>('emoji');
 
   const shellBackground = isDark ? 'rgba(10,5,13,0.92)' : 'rgba(255,255,255,0.96)';
   const cardBackground = isDark ? 'rgba(255,255,255,0.04)' : 'rgba(15,23,42,0.04)';
@@ -89,12 +101,51 @@ const Reactions: React.FC<{ onClose: () => void; title?: string }> = ({ onClose,
     };
   }, []);
 
+  const createComment = (overrides: Partial<ReactionComment>): ReactionComment => ({
+    id: `comment-${Date.now()}`,
+    handle: CURRENT_USER.handle,
+    avatar: CURRENT_USER.avatar,
+    text: '',
+    time: 'now',
+    likes: 0,
+    ...overrides,
+  });
+
+  const handleSendMessage = () => {
+    const nextMessage = message.trim();
+    if (!nextMessage) {
+      return;
+    }
+
+    setComments((prev) => [
+      ...prev,
+      createComment({ text: nextMessage }),
+    ]);
+    setMessage('');
+    setReplyingTo(null);
+  };
+
+  const handleEmojiSelect = (emoji: string) => {
+    setMessage((prev) => `${prev}${emoji}`);
+  };
+
+  const handleStickerSelect = (stickerUrl: string) => {
+    setComments((prev) => [
+      ...prev,
+      createComment({ stickerUrl }),
+    ]);
+    setIsPickerOpen(false);
+    setReplyingTo(null);
+  };
+
   return (
     <View style={styles.modalFrame}>
-      <View style={styles.backdrop}>
+      <Pressable
+      onPress={onClose}
+      style={styles.backdrop}>
         {/* <Image source={{ uri: 'https://picsum.photos/seed/neon-pulse-bg/1200/1800' }} style={styles.bgImage} /> */}
         <LinearGradient colors={['rgba(10,5,13,0.82)', 'rgba(10,5,13,0.28)', 'rgba(10,5,13,0.95)']} style={StyleSheet.absoluteFillObject} />
-      </View>
+      </Pressable>
 
       <KeyboardAvoidingView
         style={styles.keyboardShell}
@@ -102,9 +153,26 @@ const Reactions: React.FC<{ onClose: () => void; title?: string }> = ({ onClose,
         keyboardVerticalOffset={0}
       >
       <View style={[styles.sheet, { height: `${sheetHeight * 100}%`, backgroundColor: shellBackground, borderTopColor: softBorder, maxHeight: keyboardHeight > 0 ? Platform.OS === 'ios' ?'90%': '70%': '60%' }]}>
+        {pickerOpen && 
+            <View style={{
+              position: 'absolute',
+              top: Platform.OS === 'ios' && keyboardHeight > 0 ? 120 : Platform.OS === 'ios' ? 180: keyboardHeight > 0 ? 40:160,
+              left: 10,
+              right: 10,
+              zIndex: 3,
+              height: mediumScreen ? 150: 50,
+            }}>
+              <EmojiStickerPicker
+              isOpen={pickerOpen}
+              initialTab={pickerTab}
+              onClose={() => setIsPickerOpen(false)}
+              onEmojiSelect={handleEmojiSelect}
+              onStickerSelect={handleStickerSelect}
+              />
+              </View>}
         <View style={styles.header}>
           <Pressable onPress={onClose} style={styles.iconButton}>
-            <MaterialIcons name="close" size={22} color={secondary} />
+            {/* <MaterialIcons name="close" size={22} color={secondary} /> */}
           </Pressable>
           <Text style={[styles.headerTitle, { color: theme.text }]}>{title}</Text>
           <Pressable style={styles.iconButton}>
@@ -112,7 +180,7 @@ const Reactions: React.FC<{ onClose: () => void; title?: string }> = ({ onClose,
           </Pressable>
         </View>
 
-        <View style={styles.tabsRow}>
+        {/* <View style={styles.tabsRow}>
           {([
             // { label: 'Emoji', icon: 'mood' },
             // { label: 'Stickers', icon: 'sticky-note-2' },
@@ -126,10 +194,10 @@ const Reactions: React.FC<{ onClose: () => void; title?: string }> = ({ onClose,
               </Pressable>
             );
           })}
-        </View>
+        </View> */}
 
         <ScrollView showsVerticalScrollIndicator={false} contentContainerStyle={styles.content} keyboardShouldPersistTaps="handled">
-          {commentsSeed.map((comment) => (
+          {comments.map((comment) => (
             <View key={comment.id} style={styles.commentBlock}>
               <View style={styles.commentRow}>
                 <Image source={{ uri: comment.avatar }} style={styles.avatar} />
@@ -141,7 +209,11 @@ const Reactions: React.FC<{ onClose: () => void; title?: string }> = ({ onClose,
                     </View>
                     <Text style={[styles.commentTime, { color: muted }]}>{comment.time}</Text>
                   </View>
-                  <Text style={[styles.commentBody, { color: commentText }]}>{comment.text}</Text>
+                  {comment.stickerUrl ? (
+                    <Image source={{ uri: comment.stickerUrl }} style={styles.commentSticker} />
+                  ) : (
+                    <Text style={[styles.commentBody, { color: commentText }]}>{comment.text}</Text>
+                  )}
                   <View style={styles.actionRow}>
                     <Pressable onPress={() => setReplyingTo(comment.handle)} style={styles.metaAction}>
                       <MaterialIcons name="reply" size={14} color={muted} />
@@ -219,9 +291,9 @@ const Reactions: React.FC<{ onClose: () => void; title?: string }> = ({ onClose,
           ) : null}
 
           <View style={[styles.inputRow, { backgroundColor: cardBackground, borderColor: softBorder }]}>
-            <Pressable style={styles.inputIcon}>
+            {/* <Pressable style={styles.inputIcon}>
               <MaterialIcons name="add-circle" size={22} color={secondary} />
-            </Pressable>
+            </Pressable> */}
             <TextInput
               value={message}
               onChangeText={setMessage}
@@ -233,16 +305,27 @@ const Reactions: React.FC<{ onClose: () => void; title?: string }> = ({ onClose,
               flexDirection: 'row',
               // gap: 5,
             }}>
-              <Pressable style={styles.inputIcon}>
-              <MaterialIcons name="sticky-note-2" size={22} color={secondary} />
+            <Pressable
+              onPress={() => {
+                setPickerTab('sticker');
+                setIsPickerOpen(true);
+              }}
+              style={styles.inputIcon}
+            >
+              <MaterialIcons name="redeem" size={26} color={secondary} />
             </Pressable>
-            <Pressable style={styles.inputIcon}>
-              <MaterialIcons name="mood" size={22} color={secondary} />
+            <Pressable 
+            onPress={()=>{
+              setPickerTab('emoji');
+              setIsPickerOpen(true);
+            }}
+            style={styles.inputIcon}>
+              <MaterialIcons name="mood" size={26} color={pickerOpen ? "#cd2bee":secondary} />
             </Pressable>
             </View>
-            <Pressable style={styles.sendButton}>
+            {message && <Pressable onPress={handleSendMessage} style={styles.sendButton}>
               <MaterialIcons name="send" size={18} color="#fff" />
-            </Pressable>
+            </Pressable>}
           </View>
 
           {/* <View style={styles.homeIndicatorWrap}>
@@ -270,7 +353,7 @@ const styles = StyleSheet.create({
     borderTopLeftRadius: 40,
     borderTopRightRadius: 40,
     borderTopWidth: 1,
-    overflow: 'hidden',
+    // overflow: 'hidden',
     // maxHeight: '70%',
     // height: '60%'
   },
@@ -290,6 +373,7 @@ const styles = StyleSheet.create({
   commentHandle: { fontFamily: 'PlusJakartaSansBold', fontSize: mediumScreen ? fontScale(15) : fontScale(11), marginBottom: 5 },
   commentTime: { fontFamily: 'PlusJakartaSansMedium', fontSize: mediumScreen ? fontScale(10):fontScale(7) },
   commentBody: { fontFamily: 'PlusJakartaSansMedium', fontSize: mediumScreen ? fontScale(13): fontScale(10), lineHeight: 16 },
+  commentSticker: { width: 120, height: 120, borderRadius: 22, marginTop: 4 },
   actionRow: { flexDirection: 'row', alignItems: 'center', gap: 18, marginTop: 8 },
   metaAction: { flexDirection: 'row', alignItems: 'center', gap: 4 },
   metaActionText: { fontFamily: 'PlusJakartaSansBold', fontSize: mediumScreen ? fontScale(12):fontScale(8) },
@@ -312,7 +396,7 @@ const styles = StyleSheet.create({
   replyingBanner: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', borderWidth: 1, borderRadius: 14, paddingHorizontal: 12, paddingVertical: 8, marginBottom: 10 },
   replyingInfo: { flexDirection: 'row', alignItems: 'center', gap: 8 },
   replyingText: { fontFamily: 'PlusJakartaSansMedium', fontSize: mediumScreen ? fontScale(10): fontScale(7) },
-  inputRow: { minHeight: 52, borderRadius: 18, borderWidth: 1, flexDirection: 'row', alignItems: 'center', paddingHorizontal: 10, gap: 4 },
+  inputRow: { minHeight: 52, borderRadius: 999, borderWidth: 1, flexDirection: 'row', alignItems: 'center', paddingHorizontal: 10, gap: 4 },
   inputIcon: { width: 32, height: 32, borderRadius: 16, alignItems: 'center', justifyContent: 'center' },
   input: { flex: 1, minHeight: 39, fontFamily: 'PlusJakartaSansMedium', fontSize: mediumScreen ? fontScale(12):fontScale(9) },
   sendButton: { width: 36, height: 36, borderRadius: 12, alignItems: 'center', justifyContent: 'center', backgroundColor: '#cd2bee' },
