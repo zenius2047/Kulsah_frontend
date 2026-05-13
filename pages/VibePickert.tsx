@@ -36,7 +36,7 @@ const VIBES: Vibe[] = [
   { id: 'drill', label: 'Drill', img: 'https://images.unsplash.com/photo-1508700115892-45ecd05ae2ad?auto=format&fit=crop&q=80&w=400', desc: 'Urban intensity' },
 ];
 
-const VibePicker: React.FC = () => {
+const VibePickert: React.FC = () => {
   const navigation = useNavigation<any>();
   const insets = useSafeAreaInsets();
   const { width } = useWindowDimensions();
@@ -307,4 +307,4 @@ const styles = StyleSheet.create({
   },
 });
 
-export default VibePicker;
+export default VibePickert;
