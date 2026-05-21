@@ -3,7 +3,6 @@ import { useThemeMode } from '../theme';
 import {
   ActivityIndicator,
   Image,
-  ImageBackground,
   KeyboardAvoidingView,
   Modal,
   Platform,
@@ -14,13 +13,15 @@ import {
   TextInput,
   View,
 } from 'react-native';
-import { SafeAreaView } from 'react-native-safe-area-context';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { BlurView } from 'expo-blur';
+import { CameraView, useCameraPermissions } from 'expo-camera';
 import { LinearGradient } from 'expo-linear-gradient';
 import { MaterialIcons } from '@expo/vector-icons';
 import { useNavigation } from '@react-navigation/native';
 import { GoogleGenAI } from '@google/genai';
-import { fontScale } from '../fonts';
+import GiftDialog, { GiftSelection } from '../components/GiftDialog';
+import { FontSize } from '../fonts';
 import { mediumScreen } from '../types';
 
 interface ChatMessage {
@@ -31,9 +32,6 @@ interface ChatMessage {
   isSystem?: boolean;
 }
 
-const streamImage =
-  'https://images.unsplash.com/photo-1514525253361-bee8718a74a2?auto=format&fit=crop&q=80&w=1200';
-
 const statsConfig = [
   { label: 'Viewers', icon: 'visibility' as const, color: '#60a5fa' },
   { label: 'Likes', icon: 'favorite' as const, color: '#cd2bee' },
@@ -41,29 +39,27 @@ const statsConfig = [
   { label: 'Uplink', icon: 'signal-cellular-alt' as const, color: '#34d399' },
 ];
 
-const tipOptions = ['5.00', '10.00', '20.00', '50.00', '100.00'];
-
 const CreatorLiveStream: React.FC = () => {
   const { isDark, theme } = useThemeMode();
   const navigation = useNavigation<any>();
   const chatScrollRef = useRef<ScrollView | null>(null);
+  const insets = useSafeAreaInsets();
+  const [permission, requestPermission] = useCameraPermissions();
 
   const [sessionSeconds, setSessionSeconds] = useState(0);
   const [isMuted, setIsMuted] = useState(false);
-  const [isCamFlipped, setIsCamFlipped] = useState(false);
+  const [cameraFacing, setCameraFacing] = useState<'front' | 'back'>('front');
   const [aiAudit, setAiAudit] = useState<string | null>(null);
   const [isAiLoading, setIsAiLoading] = useState(false);
   const [showEndConfirm, setShowEndConfirm] = useState(false);
   const [broadcastText, setBroadcastText] = useState('');
 
-  const [isTipModalOpen, setIsTipModalOpen] = useState(false);
-  const [simTipAmount, setSimTipAmount] = useState('10.00');
-  const [isProcessingSim, setIsProcessingSim] = useState(false);
-  const [showSimSuccess, setShowSimSuccess] = useState(false);
+  const [giftDialogOpen, setGiftDialogOpen] = useState(false);
 
   const [viewers, setViewers] = useState(14284);
   const [likes, setLikes] = useState(128400);
   const [tips, setTips] = useState(1240.5);
+  const [coinBalance, setCoinBalance] = useState(1250);
 
   const [chatMessages, setChatMessages] = useState<ChatMessage[]>([
     { id: 1, user: 'Alex_Vibes', text: 'This lighting is next level!' },
@@ -148,51 +144,62 @@ const CreatorLiveStream: React.FC = () => {
     setBroadcastText('');
   };
 
-  const executeSimulatedTip = () => {
-    if (!simTipAmount) return;
-    setIsProcessingSim(true);
-    setTimeout(() => {
-      const amount = parseFloat(simTipAmount || '0');
-      setTips((prev) => prev + amount);
-      setChatMessages((prev) => [
-        ...prev,
-        {
-          id: Date.now(),
-          user: 'Simulated_Fan',
-          text: `just tipped $${amount.toFixed(2)} (Live Demo)`,
-          isTip: true,
-        },
-      ]);
-      setIsProcessingSim(false);
-      setShowSimSuccess(true);
-
-      setTimeout(() => {
-        setShowSimSuccess(false);
-        setIsTipModalOpen(false);
-      }, 1500);
-    }, 1200);
-  };
-
   const handleEndSession = () => {
     setShowEndConfirm(false);
     navigation.navigate('MainTabs');
   };
 
+  const handleSendGift = (gift: GiftSelection) => {
+    setCoinBalance((prev) => prev - gift.price);
+    setTips((prev) => prev + gift.price);
+    setChatMessages((prev) => [
+      ...prev,
+      {
+        id: Date.now(),
+        user: 'Gift_Fan',
+        text: `sent ${gift.name} worth ${gift.price} KC`,
+        isTip: true,
+      },
+    ]);
+  };
+
+  const toggleCameraFacing = () => {
+    setCameraFacing((current) => (current === 'front' ? 'back' : 'front'));
+  };
+
   return (
     <KeyboardAvoidingView style={{ flex: 1 }} behavior={Platform.OS === 'ios' ? 'padding' : undefined} keyboardVerticalOffset={0}>
-    <SafeAreaView style={[styles.safeArea, { backgroundColor: theme.background }]} edges={['top', 'left', 'right', 'bottom']}>
+    <View style={[styles.safeArea, { backgroundColor: theme.background }]}>
+      {!permission?.granted ? (
+        <View style={styles.permissionScreen}>
+          {!permission ? (
+            <>
+              <ActivityIndicator size="large" color="#ffffff" />
+              <Text style={styles.permissionText}>Loading camera...</Text>
+            </>
+          ) : (
+            <>
+              <MaterialIcons name="videocam" size={42} color="#ffffff" />
+              <Text style={styles.permissionTitle}>Camera access needed</Text>
+              <Text style={styles.permissionText}>
+                Turn on camera permission to preview your live stream before you go on air.
+              </Text>
+              <Pressable style={styles.permissionButton} onPress={() => void requestPermission()}>
+                <Text style={styles.permissionButtonText}>Enable Camera</Text>
+              </Pressable>
+            </>
+          )}
+        </View>
+      ) : (
       <View style={[styles.screen, { backgroundColor: theme.screen }]}>
-        <ImageBackground
-          source={{ uri: streamImage }}
-          style={styles.background}
-          imageStyle={isCamFlipped ? styles.backgroundImageFlipped : styles.backgroundImage}
-        >
+        <View style={styles.background}>
+          <CameraView style={StyleSheet.absoluteFill} facing={cameraFacing} />
           <LinearGradient
             colors={['rgba(0,0,0,0.72)', 'rgba(0,0,0,0.2)', 'rgba(0,0,0,0.92)']}
             style={StyleSheet.absoluteFill}
           />
 
-          <View style={styles.topHud}>
+          <View style={[styles.topHud, { paddingTop: Platform.OS === 'ios' ? 54 : insets.top }]}>
             <View style={[styles.topHudRow, {paddingHorizontal: 16}]}>
               <View style={styles.liveChip}>
                 <View style={styles.liveDot} />
@@ -200,7 +207,7 @@ const CreatorLiveStream: React.FC = () => {
               </View>
 
               <View style={styles.topActions}>
-                <Pressable
+                {/* <Pressable
                   onPress={getAIEnergyAudit}
                   disabled={isAiLoading}
                   style={[
@@ -213,7 +220,7 @@ const CreatorLiveStream: React.FC = () => {
                   ) : (
                     <MaterialIcons name="auto-awesome" size={22} color="#fff" />
                   )}
-                </Pressable>
+                </Pressable> */}
 
                 <Pressable
                   onPress={() => setShowEndConfirm(true)}
@@ -233,7 +240,7 @@ const CreatorLiveStream: React.FC = () => {
               <View style={{
                 width: 10,
               }}/>
-              {telemetry.map((stat, index) => ( 
+              {telemetry.map((stat, index) => (
                 <BlurView key={stat.label} intensity={28} tint="dark" style={styles.statCard}>
                   <MaterialIcons name={stat.icon} size={18} color={stat.color} />
                   <View>
@@ -248,7 +255,7 @@ const CreatorLiveStream: React.FC = () => {
             </ScrollView>
           </View>
 
-          {aiAudit ? (
+          {/* {aiAudit ? (
             <View style={styles.aiAuditWrap}>
               <BlurView intensity={28} tint="dark" style={styles.aiAuditCard}>
                 <Pressable style={styles.aiCloseBtn} onPress={() => setAiAudit(null)}>
@@ -263,9 +270,9 @@ const CreatorLiveStream: React.FC = () => {
                 <Text style={styles.aiText}>"{aiAudit}"</Text>
               </BlurView>
             </View>
-          ) : null}
+          ) : null} */}
 
-          <View style={styles.bottomZone}>
+          <View style={[styles.bottomZone,{paddingBottom: insets.bottom}]}>
             <View style={styles.contentRow}>
               <ScrollView
                 keyboardShouldPersistTaps="handled"
@@ -315,23 +322,23 @@ const CreatorLiveStream: React.FC = () => {
 
               <View style={styles.sideHud}>
                 <Pressable
-                  onPress={() => setIsTipModalOpen(true)}
+                  onPress={() => setGiftDialogOpen(true)}
                   style={[styles.sideHudButton, styles.sideHudPrimary]}
                 >
                   <MaterialIcons name="redeem" size={28} color="#fff" />
                 </Pressable>
 
                 <Pressable
-                  onPress={() => setIsCamFlipped((prev) => !prev)}
+                  onPress={toggleCameraFacing}
                   style={[
                     styles.sideHudButton,
-                    isCamFlipped ? styles.sideHudButtonActive : null,
+                    cameraFacing === 'back' ? styles.sideHudButtonActive : null,
                   ]}
                 >
                   <MaterialIcons
                     name="flip-camera-ios"
                     size={28}
-                    color={isCamFlipped ? '#cd2bee' : '#fff'}
+                    color={cameraFacing === 'back' ? '#cd2bee' : '#fff'}
                   />
                 </Pressable>
 
@@ -368,7 +375,7 @@ const CreatorLiveStream: React.FC = () => {
               </View>
             </View>
 
-            <View style={styles.broadcastRow}>
+            <View style={[styles.broadcastRow]}>
               <BlurView intensity={28} tint="dark" style={styles.broadcastInputWrap}>
                 <TextInput
                   value={broadcastText}
@@ -394,101 +401,19 @@ const CreatorLiveStream: React.FC = () => {
               </BlurView>
             </View>
           </View>
-        </ImageBackground>
+        </View>
 
-        <Modal
-          visible={isTipModalOpen}
-          transparent
-          animationType="slide"
-          statusBarTranslucent
-          onRequestClose={() => !isProcessingSim && setIsTipModalOpen(false)}
-        >
-          <View style={styles.modalRoot}>
-            <Pressable
-              style={styles.modalBackdrop}
-              disabled={isProcessingSim}
-              onPress={() => setIsTipModalOpen(false)}
-            />
-
-            <View style={styles.sheet}>
-              <View style={styles.sheetHandle} />
-
-              <View style={styles.sheetHeader}>
-                <Text style={styles.sheetTitle}>Kulsah Gift Simulation</Text>
-                <Text style={styles.sheetSubtitle}>Test your live alerts and revenue HUD</Text>
-              </View>
-
-              {showSimSuccess ? (
-                <View style={styles.successWrap}>
-                  <View style={styles.successIconWrap}>
-                    <MaterialIcons name="check-circle" size={56} color="#22c55e" />
-                  </View>
-                  <Text style={styles.successText}>Uplink Success</Text>
-                </View>
-              ) : (
-                <>
-                  <Text style={styles.amountLabel}>Select Mock Amount</Text>
-
-                  <View style={styles.amountGrid}>
-                    {tipOptions.map((amount) => {
-                      const selected = simTipAmount === amount;
-                      return (
-                        <Pressable
-                          key={amount}
-                          onPress={() => setSimTipAmount(amount)}
-                          style={[styles.amountButton, selected ? styles.amountButtonActive : null]}
-                        >
-                          <Text
-                            style={[
-                              styles.amountButtonText,
-                              selected ? styles.amountButtonTextActive : null,
-                            ]}
-                          >
-                            ${amount}
-                          </Text>
-                        </Pressable>
-                      );
-                    })}
-
-                    <TextInput
-                      value={simTipAmount}
-                      onChangeText={setSimTipAmount}
-                      keyboardType="decimal-pad"
-                      placeholder="Other"
-                      placeholderTextColor="rgba(255,255,255,0.25)"
-                      style={styles.amountInput}
-                    />
-                  </View>
-
-                  <View style={styles.simInfoCard}>
-                    <Text style={styles.simInfoKicker}>Simulation Mode</Text>
-                    <Text style={styles.simInfoText}>
-                      This will simulate an incoming fan gift in chat and update session revenue.
-                    </Text>
-                  </View>
-
-                  <Pressable
-                    onPress={executeSimulatedTip}
-                    disabled={isProcessingSim || !simTipAmount}
-                    style={[
-                      styles.confirmButton,
-                      isProcessingSim || !simTipAmount ? styles.confirmButtonDisabled : null,
-                    ]}
-                  >
-                    {isProcessingSim ? (
-                      <ActivityIndicator size="small" color="#fff" />
-                    ) : (
-                      <>
-                        <Text style={styles.confirmButtonText}>Confirm Mock Gift</Text>
-                        <MaterialIcons name="bolt" size={20} color="#fff" />
-                      </>
-                    )}
-                  </Pressable>
-                </>
-              )}
-            </View>
-          </View>
-        </Modal>
+        <GiftDialog
+          isOpen={giftDialogOpen}
+          onClose={() => setGiftDialogOpen(false)}
+          creatorName="Mila Ray"
+          currentBalance={coinBalance}
+          onSendGift={(gift) => {
+            handleSendGift(gift);
+            setGiftDialogOpen(false);
+          }}
+          onTopUpSuccess={(amount) => setCoinBalance((prev) => prev + amount)}
+        />
 
         <Modal
           visible={showEndConfirm}
@@ -528,7 +453,8 @@ const CreatorLiveStream: React.FC = () => {
           </View>
         </Modal>
       </View>
-    </SafeAreaView>
+      )}
+    </View>
     </KeyboardAvoidingView>
   );
 };
@@ -545,12 +471,40 @@ const styles = StyleSheet.create({
   background: {
     flex: 1,
   },
-  backgroundImage: {
-    resizeMode: 'cover',
+  permissionScreen: {
+    flex: 1,
+    alignItems: 'center',
+    justifyContent: 'center',
+    paddingHorizontal: 32,
+    backgroundColor: '#000',
   },
-  backgroundImageFlipped: {
-    resizeMode: 'cover',
-    transform: [{ scaleX: -1 }],
+  permissionTitle: {
+    color: '#fff',
+    fontFamily: 'PlusJakartaSansBold',
+    fontSize: mediumScreen ? FontSize.eighteen: FontSize.fourteen,
+    marginTop: 18,
+    marginBottom: 8,
+  },
+  permissionText: {
+    color: 'rgba(255,255,255,0.75)',
+    fontFamily: 'PlusJakartaSansMedium',
+    fontSize: mediumScreen ? FontSize.sixteen: FontSize.twelve,
+    lineHeight: 20,
+    textAlign: 'center',
+    marginTop: 10,
+  },
+  permissionButton: {
+    marginTop: 18,
+    paddingHorizontal: 18,
+    paddingVertical: 12,
+    borderRadius: 999,
+    backgroundColor: '#cd2bee',
+    width: "80%"
+  },
+  permissionButtonText: {
+    color: '#fff',
+    fontFamily: 'PlusJakartaSansBold',
+    fontSize: mediumScreen ? FontSize.sixteen: FontSize.twelve,
   },
   topHud: {
     paddingHorizontal: 0,
@@ -581,8 +535,8 @@ const styles = StyleSheet.create({
   },
   liveTime: {
     color: '#fff',
-    fontFamily: 'PlusJakartaSansExtraBold',
-    fontSize: fontScale(12),
+    fontFamily: 'PlusJakartaSansBold',
+    fontSize: mediumScreen ? FontSize.fourteen: FontSize.ten,
     letterSpacing: 2.4,
   },
   topActions: {
@@ -614,7 +568,7 @@ const styles = StyleSheet.create({
   endSessionText: {
     color: '#fff',
     fontFamily: 'PlusJakartaSansExtraBold',
-    fontSize: mediumScreen ? fontScale(14): fontScale(10),
+    fontSize: mediumScreen ? FontSize.fourteen: FontSize.ten,
     letterSpacing: 1.8,
     textTransform: 'uppercase',
   },
@@ -636,14 +590,14 @@ const styles = StyleSheet.create({
   statLabel: {
     color: 'rgba(255,255,255,0.38)',
     fontFamily: 'PlusJakartaSansBold',
-    fontSize: fontScale(8),
+    fontSize: mediumScreen ? FontSize.twelve: FontSize.eight,
     letterSpacing: 1.6,
     textTransform: 'uppercase',
   },
   statValue: {
     color: '#fff',
     fontFamily: 'PlusJakartaSansBold',
-    fontSize: mediumScreen ? fontScale(16): fontScale(12),
+    fontSize: mediumScreen ? FontSize.sixteen: FontSize.twelve,
     marginTop: 2,
   },
   aiAuditWrap: {
@@ -677,22 +631,22 @@ const styles = StyleSheet.create({
   aiKicker: {
     color: '#cd2bee',
     fontFamily: 'PlusJakartaSansExtraBold',
-    fontSize: fontScale(10),
+    fontSize: FontSize.ten,
     letterSpacing: 2.4,
     textTransform: 'uppercase',
   },
   aiText: {
     color: 'rgba(255,255,255,0.92)',
     fontFamily: 'PlusJakartaSansMedium',
-    fontSize: fontScale(14),
+    fontSize: FontSize.fourteen,
     lineHeight: 21,
     paddingRight: 24,
   },
   bottomZone: {
     marginTop: 'auto',
     paddingHorizontal: 16,
-    paddingBottom: 16,
-    gap: 16,
+    // paddingBottom: 16,
+    gap: 8,
   },
   contentRow: {
     flexDirection: 'row',
@@ -736,7 +690,7 @@ const styles = StyleSheet.create({
   chatUser: {
     color: 'rgba(205,43,238,0.76)',
     fontFamily: 'PlusJakartaSansExtraBold',
-    fontSize: fontScale(10),
+    fontSize: mediumScreen ? FontSize.twelve:FontSize.eight,
     letterSpacing: 1.4,
     textTransform: 'uppercase',
   },
@@ -749,7 +703,7 @@ const styles = StyleSheet.create({
   chatText: {
     color: '#fff',
     fontFamily: 'PlusJakartaSansMedium',
-    fontSize: fontScale(12),
+    fontSize: mediumScreen ? FontSize.fourteen: FontSize.ten,
     lineHeight: 17,
     marginTop: 2,
   },
@@ -804,6 +758,8 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     gap: 10,
+    backgroundColor: 'red'
+
   },
   broadcastInputWrap: {
     flex: 1,
@@ -820,7 +776,7 @@ const styles = StyleSheet.create({
     flex: 1,
     color: '#fff',
     fontFamily: 'PlusJakartaSansMedium',
-    fontSize: fontScale(14),
+    fontSize: mediumScreen ? FontSize.sixteen: FontSize.twelve,
   },
   moreButton: {
     width: 56,
@@ -865,13 +821,13 @@ const styles = StyleSheet.create({
   sheetTitle: {
     color: '#fff',
     fontFamily: 'PlusJakartaSansExtraBold',
-    fontSize: fontScale(21),
+    fontSize: mediumScreen ? FontSize.twenty: FontSize.sixteen,
     textAlign: 'center',
   },
   sheetSubtitle: {
     color: 'rgba(255,255,255,0.38)',
     fontFamily: 'PlusJakartaSansBold',
-    fontSize: fontScale(10),
+    fontSize: mediumScreen ? FontSize.twelve: FontSize.eight,
     marginTop: 6,
     letterSpacing: 1.6,
     textTransform: 'uppercase',
@@ -895,14 +851,14 @@ const styles = StyleSheet.create({
   successText: {
     color: '#22c55e',
     fontFamily: 'PlusJakartaSansExtraBold',
-    fontSize: fontScale(24),
+    fontSize: mediumScreen ? FontSize.twenty: FontSize.sixteen,
     letterSpacing: 4,
     textTransform: 'uppercase',
   },
   amountLabel: {
     color: 'rgba(255,255,255,0.4)',
     fontFamily: 'PlusJakartaSansExtraBold',
-    fontSize: fontScale(10),
+    fontSize: mediumScreen ? FontSize.fourteen: FontSize.ten,
     letterSpacing: 2.6,
     textTransform: 'uppercase',
     marginBottom: 12,
@@ -929,7 +885,7 @@ const styles = StyleSheet.create({
   amountButtonText: {
     color: 'rgba(255,255,255,0.7)',
     fontFamily: 'PlusJakartaSansExtraBold',
-    fontSize: fontScale(14),
+    fontSize: mediumScreen ? FontSize.sixteen:FontSize.twelve,
   },
   amountButtonTextActive: {
     color: '#fff',
@@ -944,7 +900,7 @@ const styles = StyleSheet.create({
     color: '#fff',
     textAlign: 'center',
     fontFamily: 'PlusJakartaSansExtraBold',
-    fontSize: fontScale(14),
+    fontSize: mediumScreen ? FontSize.sixteen: FontSize.twelve,
   },
   simInfoCard: {
     marginTop: 18,
@@ -957,7 +913,7 @@ const styles = StyleSheet.create({
   simInfoKicker: {
     color: '#cd2bee',
     fontFamily: 'PlusJakartaSansExtraBold',
-    fontSize: fontScale(10),
+    fontSize: mediumScreen ? FontSize.fourteen: FontSize.ten,
     letterSpacing: 1.8,
     textTransform: 'uppercase',
     marginBottom: 8,
@@ -965,7 +921,7 @@ const styles = StyleSheet.create({
   simInfoText: {
     color: 'rgba(255,255,255,0.72)',
     fontFamily: 'PlusJakartaSansMedium',
-    fontSize: fontScale(13),
+    fontSize: mediumScreen ? FontSize.sixteen: FontSize.twelve,
     lineHeight: 19,
   },
   confirmButton: {
@@ -984,7 +940,7 @@ const styles = StyleSheet.create({
   confirmButtonText: {
     color: '#fff',
     fontFamily: 'PlusJakartaSansExtraBold',
-    fontSize: fontScale(16),
+    fontSize: mediumScreen ? FontSize.eighteen:  FontSize.fourteen,
   },
   modalCenterRoot: {
     flex: 1,
@@ -1019,7 +975,7 @@ const styles = StyleSheet.create({
   confirmTitle: {
     color: '#fff',
     fontFamily: 'PlusJakartaSansExtraBold',
-    fontSize: mediumScreen ? fontScale(20): fontScale(16),
+    fontSize: mediumScreen ? FontSize.twenty: FontSize.sixteen,
     textTransform: 'uppercase',
     marginBottom: 12,
     textAlign: 'center',
@@ -1027,7 +983,7 @@ const styles = StyleSheet.create({
   confirmText: {
     color: 'rgba(255,255,255,0.68)',
     fontFamily: 'PlusJakartaSansMedium',
-    fontSize: mediumScreen ? fontScale(16): fontScale(12),
+    fontSize: mediumScreen ? FontSize.sixteen: FontSize.twelve,
     lineHeight: 15,
     textAlign: 'center',
     marginBottom: 24,
@@ -1044,7 +1000,7 @@ const styles = StyleSheet.create({
   shutdownButtonText: {
     color: '#fff',
     fontFamily: 'PlusJakartaSansBold',
-    fontSize: mediumScreen ? fontScale(16) : fontScale(12),
+    fontSize: mediumScreen ? FontSize.sixteen : FontSize.twelve,
     letterSpacing: 1.4,
     textTransform: 'uppercase',
   },
@@ -1060,7 +1016,7 @@ const styles = StyleSheet.create({
   keepStreamingText: {
     color: 'rgba(255,255,255,0.7)',
     fontFamily: 'PlusJakartaSansBold',
-    fontSize: mediumScreen ? fontScale(16) : fontScale(12),
+    fontSize: mediumScreen ? FontSize.sixteen : FontSize.twelve,
     letterSpacing: 1.4,
     textTransform: 'uppercase',
   },

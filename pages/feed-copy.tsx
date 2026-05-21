@@ -18,7 +18,7 @@ import { useNavigation } from '@react-navigation/native';
 import { MaterialIcons } from '@expo/vector-icons';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { useVideoPlayer, VideoView } from 'expo-video';
-import { fontScale } from '../fonts';
+import { FontSize } from '../fonts';
 
 type FeedTab = 'foryou' | 'premium';
 
@@ -455,23 +455,23 @@ const styles = StyleSheet.create({
   tabs: { flexDirection: 'row', borderWidth: 1, borderColor: 'rgba(255,255,255,0.2)', borderRadius: 999, padding: 2, backgroundColor: 'rgba(0,0,0,0.35)' },
   tab: { paddingHorizontal: 12, paddingVertical: 7, borderRadius: 999 },
   tabActive: { backgroundColor: 'rgba(255,255,255,0.2)' },
-  tabText: { color: 'rgba(255,255,255,0.5)', fontSize: fontScale(10), fontFamily: 'PlusJakartaSansBold' },
+  tabText: { color: 'rgba(255,255,255,0.5)', fontSize: FontSize.ten, fontFamily: 'PlusJakartaSansBold' },
   tabTextActive: { color: '#fff' },
   streak: { position: 'absolute', top: 102, left: 16, zIndex: 10, flexDirection: 'row', alignItems: 'center', gap: 4, borderWidth: 1, borderColor: 'rgba(249,115,22,0.5)', backgroundColor: 'rgba(249,115,22,0.2)', borderRadius: 999, paddingHorizontal: 8, paddingVertical: 4 },
-  streakLabel: { color: '#fb923c', fontSize: fontScale(10), fontFamily: 'PlusJakartaSansExtraBold' },
+  streakLabel: { color: '#fb923c', fontSize: FontSize.ten, fontFamily: 'PlusJakartaSansExtraBold' },
   item: { height: '100%', justifyContent: 'flex-end' },
   dim: { ...StyleSheet.absoluteFillObject, backgroundColor: 'rgba(0,0,0,0.35)' },
   rightRail: { position: 'absolute', right: 14, bottom: 94, alignItems: 'center', gap: 14 },
   avatar: { width: 48, height: 48, borderRadius: 24, borderWidth: 2, borderColor: '#fff' },
   railBtn: { alignItems: 'center' },
-  railLabel: { color: '#fff', fontSize: fontScale(10), fontFamily: 'PlusJakartaSansBold' },
+  railLabel: { color: '#fff', fontSize: FontSize.ten, fontFamily: 'PlusJakartaSansBold' },
   bottom: { paddingHorizontal: 16, paddingBottom: 88, width: '80%' },
-  handle: { color: '#fff', fontSize: fontScale(17), fontFamily: 'PlusJakartaSansExtraBold' },
+  handle: { color: '#fff', fontSize: FontSize.seventeen, fontFamily: 'PlusJakartaSansExtraBold' },
   caption: { color: '#fff', marginTop: 4, fontFamily: 'PlusJakartaSansBold' },
-  sound: { color: '#cbd5e1', marginTop: 6, fontSize: fontScale(12) },
+  sound: { color: '#cbd5e1', marginTop: 6, fontSize: FontSize.twelve },
   ticket: { color: '#22c55e', marginTop: 6, fontFamily: 'PlusJakartaSansBold' },
   lockOverlay: { ...StyleSheet.absoluteFillObject, backgroundColor: 'rgba(0,0,0,0.55)', justifyContent: 'center', alignItems: 'center', gap: 8 },
-  lockTitle: { color: '#fff', fontSize: fontScale(20), fontFamily: 'PlusJakartaSansExtraBold' },
+  lockTitle: { color: '#fff', fontSize: FontSize.twenty, fontFamily: 'PlusJakartaSansExtraBold' },
   unlockBtn: { marginTop: 10, backgroundColor: '#cd2bee', borderRadius: 14, paddingHorizontal: 20, height: 48, justifyContent: 'center' },
   unlockText: { color: '#fff', fontFamily: 'PlusJakartaSansExtraBold', letterSpacing: 1 },
   modalRoot: { flex: 1, backgroundColor: 'rgba(0,0,0,0.6)', justifyContent: 'flex-end' },
@@ -485,13 +485,13 @@ const styles = StyleSheet.create({
   emojiBtn: { width: 34, height: 34, borderRadius: 10, borderWidth: 1, borderColor: 'rgba(255,255,255,0.1)', justifyContent: 'center', alignItems: 'center' },
   inputRow: { marginTop: 10, borderWidth: 1, borderColor: 'rgba(255,255,255,0.1)', borderRadius: 14, paddingHorizontal: 10, flexDirection: 'row', alignItems: 'center', gap: 8 },
   input: { flex: 1, color: '#fff', minHeight: 44 },
-  postBtn: { color: '#cd2bee', fontFamily: 'PlusJakartaSansExtraBold', fontSize: fontScale(11) },
+  postBtn: { color: '#cd2bee', fontFamily: 'PlusJakartaSansExtraBold', fontSize: FontSize.eleven },
   footer: { height: 110, justifyContent: 'center', alignItems: 'center', gap: 8 },
-  footerText: { color: '#94a3b8', fontSize: fontScale(11) },
+  footerText: { color: '#94a3b8', fontSize: FontSize.eleven },
   promptRoot: { flex: 1, justifyContent: 'center', alignItems: 'center', paddingHorizontal: 20 },
   promptBackdrop: { ...StyleSheet.absoluteFillObject, backgroundColor: 'rgba(0,0,0,0.7)' },
   promptCard: { width: '100%', maxWidth: 360, borderRadius: 24, backgroundColor: '#111218', padding: 20, borderWidth: 1, borderColor: 'rgba(255,255,255,0.12)' },
-  promptTitle: { color: '#fff', fontSize: fontScale(21), fontFamily: 'PlusJakartaSansExtraBold', textAlign: 'center' },
+  promptTitle: { color: '#fff', fontSize: FontSize.twentyOne, fontFamily: 'PlusJakartaSansExtraBold', textAlign: 'center' },
   promptText: { color: '#a1a1aa', marginTop: 8, textAlign: 'center' },
   promptPrimary: { marginTop: 14, height: 48, borderRadius: 12, backgroundColor: '#cd2bee', justifyContent: 'center', alignItems: 'center' },
   promptPrimaryText: { color: '#fff', fontFamily: 'PlusJakartaSansExtraBold', letterSpacing: 1 },

@@ -1,4 +1,4 @@
-﻿import React, { useMemo, useState } from 'react';
+import React, { useMemo, useState } from 'react';
 import {
   KeyboardAvoidingView,
   Platform,
@@ -15,7 +15,7 @@ import { LinearGradient } from 'expo-linear-gradient';
 import { MaterialIcons } from '@expo/vector-icons';
 import { useNavigation } from '@react-navigation/native';
 import { useThemeMode } from '../theme';
-import { fontScale } from '../fonts';
+import { FontSize, fontScale } from '../fonts';
 import { mediumScreen } from '../types';
 import GoogleIcon from '../assets/icons/google-svg.svg';
 import AppleIcon from '../assets/icons/apple-logo-svg.svg';
@@ -136,7 +136,7 @@ const EmailPhone: React.FC = () => {
               </LinearGradient> */}
 
               {/* <Text style={[styles.brandTitle, { color: titleColor }]}>Welcome Back</Text> */}
-              <Text style={[styles.brandSubtitle, { color: bodyColor, marginTop: 20, fontSize: mediumScreen ? fontScale(14): fontScale(10) }]}>
+              <Text style={[styles.brandSubtitle, { color: bodyColor, marginTop: 20, fontSize: mediumScreen ? FontSize.fourteen: FontSize.ten }]}>
                 Enter your email or phone number
               </Text>
             </View>
@@ -159,11 +159,11 @@ const EmailPhone: React.FC = () => {
                       top: labelRaised ? 12 : '65%',
                       fontSize: labelRaised
                         ? mediumScreen
-                          ? fontScale(8.5)
-                          : fontScale(7)
+                          ? FontSize.eightHalf
+                          : FontSize.seven
                         : mediumScreen
-                          ? fontScale(14)
-                          : fontScale(10),
+                          ? FontSize.fourteen
+                          : FontSize.ten,
                       transform: [{ translateY: labelRaised ? 0 : -10 }],
                     },
                   ]}
@@ -282,7 +282,7 @@ const styles = StyleSheet.create({
   },
   headerTitle: {
     fontFamily: 'PlusJakartaSansExtraBold',
-    fontSize: mediumScreen ? fontScale(17) : fontScale(14.5),
+    fontSize: mediumScreen ? FontSize.seventeen : FontSize.fourteenHalf,
     letterSpacing: -0.4,
   },
   headerSpacer: {
@@ -333,14 +333,14 @@ const styles = StyleSheet.create({
   },
   brandTitle: {
     fontFamily: 'PlusJakartaSansExtraBold',
-    fontSize: mediumScreen ? fontScale(24) : fontScale(20),
+    fontSize: mediumScreen ? FontSize.twentyFour : FontSize.twenty,
     letterSpacing: -0.7,
     marginBottom: 6,
   },
   brandSubtitle: {
     fontFamily: 'PlusJakartaSansMedium',
-    fontSize: mediumScreen ? fontScale(10.5) : fontScale(9),
-    lineHeight: mediumScreen ? fontScale(14) : fontScale(12),
+    fontSize: mediumScreen ? FontSize.tenHalf : FontSize.nine,
+    lineHeight: mediumScreen ? FontSize.fourteen : FontSize.twelve,
     textAlign: 'center',
   },
   formBlock: {
@@ -363,7 +363,7 @@ const styles = StyleSheet.create({
     height: 40,
     paddingTop: 5,
     fontFamily: 'PlusJakartaSansMedium',
-    fontSize: mediumScreen ? fontScale(14) : fontScale(12),
+    fontSize: mediumScreen ? FontSize.fourteen : FontSize.twelve,
   },
   primaryButton: {
     borderRadius: 999,
@@ -386,7 +386,7 @@ const styles = StyleSheet.create({
   primaryButtonText: {
     color: '#ffffff',
     fontFamily: 'PlusJakartaSansExtraBold',
-    fontSize: mediumScreen ? fontScale(10) : fontScale(8.5),
+    fontSize: mediumScreen ? FontSize.ten : FontSize.eightHalf,
     letterSpacing: 1.2,
   },
   helpLink: {
@@ -395,7 +395,7 @@ const styles = StyleSheet.create({
   },
   helpLinkText: {
     fontFamily: 'PlusJakartaSansMedium',
-    fontSize: mediumScreen ? fontScale(12) : fontScale(8),
+    fontSize: mediumScreen ? FontSize.twelve : FontSize.eight,
   },
   dividerRow: {
     flexDirection: 'row',
@@ -409,7 +409,7 @@ const styles = StyleSheet.create({
   },
   dividerText: {
     fontFamily: 'PlusJakartaSansExtraBold',
-    fontSize: mediumScreen ? fontScale(7) : fontScale(6),
+    fontSize: mediumScreen ? FontSize.seven : FontSize.six,
     textTransform: 'uppercase',
     letterSpacing: 2.2,
   },
@@ -430,7 +430,7 @@ const styles = StyleSheet.create({
   },
   socialText: {
     fontFamily: 'PlusJakartaSansBold',
-    fontSize: mediumScreen ? fontScale(9.5) : fontScale(8),
+    fontSize: mediumScreen ? FontSize.nineHalf : FontSize.eight,
   },
   footer: {
     alignItems: 'center',
@@ -439,14 +439,14 @@ const styles = StyleSheet.create({
   },
   footerPrompt: {
     fontFamily: 'PlusJakartaSansMedium',
-    fontSize: mediumScreen ? fontScale(10) : fontScale(6),
+    fontSize: mediumScreen ? FontSize.ten : FontSize.six,
     textTransform: 'uppercase',
     letterSpacing: 1.2,
   },
   footerAction: {
     color: '#cd2bee',
     fontFamily: 'PlusJakartaSansExtraBold',
-    fontSize: mediumScreen ? fontScale(12) : fontScale(8),
+    fontSize: mediumScreen ? FontSize.twelve : FontSize.eight,
   },
 });
 

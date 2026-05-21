@@ -15,7 +15,7 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 import { LinearGradient } from 'expo-linear-gradient';
 import { MaterialIcons } from '@expo/vector-icons';
 import { useNavigation } from '@react-navigation/native';
-import { fontScale } from '../fonts';
+import { FontSize } from '../fonts';
 
 type FilterKey = 'Trending' | 'Recent' | 'Most Voted' | 'Featured';
 
@@ -291,7 +291,7 @@ const styles = StyleSheet.create({
     textAlign: 'center',
     color: '#ffffff',
     fontFamily: 'PlusJakartaSansBold',
-    fontSize: fontScale(15),
+    fontSize: FontSize.fifteen,
   },
   searchWrap: {
     position: 'relative',
@@ -311,7 +311,7 @@ const styles = StyleSheet.create({
     color: '#ffffff',
     backgroundColor: '#121212',
     fontFamily: 'PlusJakartaSans',
-    fontSize: fontScale(12),
+    fontSize: FontSize.twelve,
   },
   filterRow: {
     gap: 8,
@@ -332,7 +332,7 @@ const styles = StyleSheet.create({
   },
   filterText: {
     fontFamily: 'PlusJakartaSansBold',
-    fontSize: fontScale(10),
+    fontSize: FontSize.ten,
   },
   filterTextActive: {
     color: '#ffffff',
@@ -384,7 +384,7 @@ const styles = StyleSheet.create({
   voteText: {
     color: '#ffffff',
     fontFamily: 'PlusJakartaSansExtraBold',
-    fontSize: fontScale(10),
+    fontSize: FontSize.ten,
   },
   cardFooter: {
     position: 'absolute',
@@ -396,7 +396,7 @@ const styles = StyleSheet.create({
     color: '#ffffff',
     opacity: 0.92,
     fontFamily: 'PlusJakartaSansMedium',
-    fontSize: fontScale(10),
+    fontSize: FontSize.ten,
   },
   emptyState: {
     alignItems: 'center',
@@ -407,12 +407,12 @@ const styles = StyleSheet.create({
   emptyTitle: {
     color: '#ffffff',
     fontFamily: 'PlusJakartaSansBold',
-    fontSize: fontScale(16),
+    fontSize: FontSize.sixteen,
   },
   emptyText: {
     color: '#94a3b8',
     fontFamily: 'PlusJakartaSans',
-    fontSize: fontScale(13),
+    fontSize: FontSize.thirteen,
   },
 });
 

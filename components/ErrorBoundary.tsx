@@ -1,6 +1,8 @@
 import React from 'react';
 import { Pressable, Text, View } from 'react-native';
 
+import { FontSize } from '../fonts';
+
 type ErrorBoundaryProps = {
   children: React.ReactNode;
   fallbackTitle?: string;
@@ -53,7 +55,7 @@ class ErrorBoundary extends React.Component<ErrorBoundaryProps, ErrorBoundarySta
         <Text
           style={{
             color: '#fff',
-            fontSize: 18,
+            fontSize: FontSize.eighteen,
             fontFamily: 'PlusJakartaSansBold',
             textAlign: 'center',
           }}

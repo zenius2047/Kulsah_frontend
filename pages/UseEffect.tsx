@@ -14,7 +14,7 @@ import { SafeAreaView, useSafeAreaInsets } from 'react-native-safe-area-context'
 import { LinearGradient } from 'expo-linear-gradient';
 import { MaterialIcons } from '@expo/vector-icons';
 import { useNavigation } from '@react-navigation/native';
-import { fontScale } from '../fonts';
+import { FontSize } from '../fonts';
 import { mediumScreen } from '../types';
 
 type Creation = {
@@ -228,7 +228,7 @@ const styles = StyleSheet.create({
   },
   headerTitle: {
     fontFamily: 'PlusJakartaSansBold',
-    fontSize: fontScale(14),
+    fontSize: FontSize.fourteen,
   },
   scrollContent: {
     paddingBottom: 56,
@@ -279,12 +279,12 @@ const styles = StyleSheet.create({
   },
   effectTitle: {
     fontFamily: 'PlusJakartaSansBold',
-    fontSize: mediumScreen ? fontScale(16) : fontScale(20),
+    fontSize: mediumScreen ? FontSize.sixteen : FontSize.twenty,
     textAlign: 'center',
   },
   effectArtist: {
     fontFamily: 'PlusJakartaSansMedium',
-    fontSize: mediumScreen ? fontScale(14) : fontScale(12),
+    fontSize: mediumScreen ? FontSize.fourteen : FontSize.twelve,
     textAlign: 'center',
   },
   metaPill: {
@@ -298,7 +298,7 @@ const styles = StyleSheet.create({
   },
   metaPillText: {
     fontFamily: 'PlusJakartaSansMedium',
-    fontSize: mediumScreen ? fontScale(12) : fontScale(8),
+    fontSize: mediumScreen ? FontSize.twelve : FontSize.eight,
   },
   actionRow: {
     flexDirection: 'row',
@@ -331,7 +331,7 @@ const styles = StyleSheet.create({
   actionButtonText: {
     color: '#fff',
     fontFamily: 'PlusJakartaSansBold',
-    fontSize: mediumScreen ? fontScale(14) : fontScale(10),
+    fontSize: mediumScreen ? FontSize.fourteen : FontSize.ten,
   },
   sectionHeader: {
     flexDirection: 'row',
@@ -342,7 +342,7 @@ const styles = StyleSheet.create({
   },
   sectionTitle: {
     fontFamily: 'PlusJakartaSansBold',
-    fontSize: mediumScreen ? fontScale(16) : fontScale(12),
+    fontSize: mediumScreen ? FontSize.sixteen : FontSize.twelve,
   },
   sortButton: {
     width: 28,
@@ -377,7 +377,7 @@ const styles = StyleSheet.create({
   cardMetaText: {
     color: '#fff',
     fontFamily: 'PlusJakartaSansBold',
-    fontSize: fontScale(9),
+    fontSize: FontSize.nine,
   },
 });
 

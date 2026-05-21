@@ -12,7 +12,7 @@ import {
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { LinearGradient } from 'expo-linear-gradient';
 import { MaterialIcons } from '@expo/vector-icons';
-import { fontScale } from '../fonts';
+import { FontSize } from '../fonts';
 
 type PendingEntry = {
   id: string;
@@ -286,7 +286,7 @@ const styles = StyleSheet.create({
   liveLabel: {
     color: '#cd2bee',
     fontFamily: 'PlusJakartaSansExtraBold',
-    fontSize: fontScale(10),
+    fontSize: FontSize.ten,
     textTransform: 'uppercase',
     letterSpacing: 2,
     marginBottom: 8,
@@ -294,7 +294,7 @@ const styles = StyleSheet.create({
   pageTitle: {
     color: '#F8FAFC',
     fontFamily: 'PlusJakartaSansExtraBold',
-    fontSize: fontScale(27),
+    fontSize: FontSize.twentySeven,
   },
   timerPill: {
     alignSelf: 'flex-start',
@@ -325,7 +325,7 @@ const styles = StyleSheet.create({
   timerText: {
     color: '#94A3B8',
     fontFamily: 'PlusJakartaSansBold',
-    fontSize: fontScale(12),
+    fontSize: FontSize.twelve,
     textTransform: 'uppercase',
     letterSpacing: 0.8,
   },
@@ -394,14 +394,14 @@ const styles = StyleSheet.create({
   videoStatLabel: {
     color: '#94A3B8',
     fontFamily: 'PlusJakartaSansBold',
-    fontSize: fontScale(10),
+    fontSize: FontSize.ten,
     textTransform: 'uppercase',
     letterSpacing: 1,
   },
   videoStatValue: {
     color: '#fff',
     fontFamily: 'PlusJakartaSansExtraBold',
-    fontSize: fontScale(30),
+    fontSize: FontSize.thirty,
   },
   videoDivider: {
     width: 1,
@@ -434,7 +434,7 @@ const styles = StyleSheet.create({
   voterText: {
     color: '#94A3B8',
     fontFamily: 'PlusJakartaSansMedium',
-    fontSize: fontScale(12),
+    fontSize: FontSize.twelve,
   },
   actionRow: {
     flexDirection: 'row',
@@ -452,7 +452,7 @@ const styles = StyleSheet.create({
   secondaryButtonText: {
     color: '#E2E8F0',
     fontFamily: 'PlusJakartaSansBold',
-    fontSize: fontScale(14),
+    fontSize: FontSize.fourteen,
   },
   primaryButton: {
     paddingHorizontal: 24,
@@ -463,7 +463,7 @@ const styles = StyleSheet.create({
   primaryButtonText: {
     color: '#fff',
     fontFamily: 'PlusJakartaSansExtraBold',
-    fontSize: fontScale(14),
+    fontSize: FontSize.fourteen,
   },
   insightsGrid: {
     gap: 16,
@@ -484,7 +484,7 @@ const styles = StyleSheet.create({
   insightTitle: {
     color: '#F8FAFC',
     fontFamily: 'PlusJakartaSansBold',
-    fontSize: fontScale(15),
+    fontSize: FontSize.fifteen,
   },
   chartArea: {
     height: 128,
@@ -513,19 +513,19 @@ const styles = StyleSheet.create({
   chartLabelText: {
     color: '#64748B',
     fontFamily: 'PlusJakartaSansBold',
-    fontSize: fontScale(10),
+    fontSize: FontSize.ten,
     textTransform: 'uppercase',
   },
   insightSubtitle: {
     color: '#94A3B8',
     fontFamily: 'PlusJakartaSans',
-    fontSize: fontScale(12),
+    fontSize: FontSize.twelve,
     marginBottom: 16,
   },
   rewardValue: {
     color: '#fff',
     fontFamily: 'PlusJakartaSansExtraBold',
-    fontSize: fontScale(30),
+    fontSize: FontSize.thirty,
     fontStyle: 'italic',
     marginBottom: 14,
   },
@@ -543,7 +543,7 @@ const styles = StyleSheet.create({
   rewardHint: {
     color: '#64748B',
     fontFamily: 'PlusJakartaSansBold',
-    fontSize: fontScale(10),
+    fontSize: FontSize.ten,
     textTransform: 'uppercase',
     letterSpacing: 1,
     marginTop: 10,
@@ -557,7 +557,7 @@ const styles = StyleSheet.create({
   pendingTitle: {
     color: '#F8FAFC',
     fontFamily: 'PlusJakartaSansBold',
-    fontSize: fontScale(16),
+    fontSize: FontSize.sixteen,
   },
   pendingPill: {
     paddingHorizontal: 12,
@@ -568,7 +568,7 @@ const styles = StyleSheet.create({
   pendingPillText: {
     color: '#ffb781',
     fontFamily: 'PlusJakartaSansExtraBold',
-    fontSize: fontScale(10),
+    fontSize: FontSize.ten,
     textTransform: 'uppercase',
     letterSpacing: 1,
   },
@@ -609,13 +609,13 @@ const styles = StyleSheet.create({
   pendingEntryTitle: {
     color: '#F8FAFC',
     fontFamily: 'PlusJakartaSansBold',
-    fontSize: fontScale(13),
+    fontSize: FontSize.thirteen,
     marginBottom: 4,
   },
   pendingEntryTime: {
     color: '#64748B',
     fontFamily: 'PlusJakartaSans',
-    fontSize: fontScale(12),
+    fontSize: FontSize.twelve,
   },
   pendingProgressWrap: {
     gap: 8,
@@ -639,12 +639,12 @@ const styles = StyleSheet.create({
   pendingProgressValue: {
     color: '#ffb781',
     fontFamily: 'PlusJakartaSansBold',
-    fontSize: fontScale(10),
+    fontSize: FontSize.ten,
   },
   pendingStatus: {
     color: '#94A3B8',
     fontFamily: 'PlusJakartaSansBold',
-    fontSize: fontScale(10),
+    fontSize: FontSize.ten,
     textTransform: 'uppercase',
     letterSpacing: 1,
   },
@@ -656,7 +656,7 @@ const styles = StyleSheet.create({
   pendingQueueText: {
     color: '#64748B',
     fontFamily: 'PlusJakartaSansBold',
-    fontSize: fontScale(10),
+    fontSize: FontSize.ten,
     textTransform: 'uppercase',
     letterSpacing: 0.8,
     fontStyle: 'italic',
@@ -671,7 +671,7 @@ const styles = StyleSheet.create({
   guideTitle: {
     color: '#cd2bee',
     fontFamily: 'PlusJakartaSansExtraBold',
-    fontSize: fontScale(10),
+    fontSize: FontSize.ten,
     textTransform: 'uppercase',
     letterSpacing: 2,
     marginBottom: 14,
@@ -686,7 +686,7 @@ const styles = StyleSheet.create({
     flex: 1,
     color: '#CBD5E1',
     fontFamily: 'PlusJakartaSans',
-    fontSize: fontScale(13),
+    fontSize: FontSize.thirteen,
   },
 });
 

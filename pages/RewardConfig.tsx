@@ -14,6 +14,9 @@ import { MaterialIcons } from '@expo/vector-icons';
 import { useNavigation } from '@react-navigation/native';
 import { mediumScreen } from '../types';
 
+
+import { FontSize } from '../fonts';
+
 const strategyOptions = [
   {
     id: 'high-likes',
@@ -298,13 +301,13 @@ const styles = StyleSheet.create({
   },
   headerTitle: {
     fontFamily: 'PlusJakartaSansBold',
-    fontSize: mediumScreen ? 16 : 13,
+    fontSize: mediumScreen ? FontSize.sixteen : FontSize.thirteen,
     letterSpacing: 0.8,
   },
   headerBrand: {
     color: '#cd2bee',
     fontFamily: 'PlusJakartaSansExtraBold',
-    fontSize: mediumScreen ? 22 : 18,
+    fontSize: mediumScreen ? FontSize.twentyTwo : FontSize.eighteen,
     letterSpacing: -0.4,
   },
   scroll: {
@@ -331,18 +334,18 @@ const styles = StyleSheet.create({
   challengeBadgeText: {
     color: '#cd2bee',
     fontFamily: 'PlusJakartaSansBold',
-    fontSize: mediumScreen ? 14 : 10,
+    fontSize: mediumScreen ? FontSize.fourteen : FontSize.ten,
     textTransform: 'uppercase',
     letterSpacing: 0.9,
   },
   heroTitle: {
     fontFamily: 'PlusJakartaSansExtraBold',
-    fontSize: mediumScreen ? 21 : 18,
+    fontSize: mediumScreen ? FontSize.twentyOne : FontSize.eighteen,
     lineHeight: mediumScreen ? 34 : 30,
   },
   heroDescription: {
     fontFamily: 'PlusJakartaSansMedium',
-    fontSize: mediumScreen ? 16 : 12,
+    fontSize: mediumScreen ? FontSize.sixteen : FontSize.twelve,
     lineHeight: mediumScreen ? 24 : 18,
     maxWidth: 340,
   },
@@ -383,7 +386,7 @@ const styles = StyleSheet.create({
   },
   strategyTitle: {
     fontFamily: 'PlusJakartaSansBold',
-    fontSize: mediumScreen ? 17 : 14,
+    fontSize: mediumScreen ? FontSize.seventeen : FontSize.fourteen,
     marginBottom: 4,
   },
   strategyTitleMuted: {
@@ -391,7 +394,7 @@ const styles = StyleSheet.create({
   },
   strategyMeta: {
     fontFamily: 'PlusJakartaSansBold',
-    fontSize: mediumScreen ? 14 : 10,
+    fontSize: mediumScreen ? FontSize.fourteen : FontSize.ten,
     letterSpacing: 1.2,
     textTransform: 'uppercase',
   },
@@ -405,14 +408,14 @@ const styles = StyleSheet.create({
   },
   sectionTitle: {
     fontFamily: 'PlusJakartaSansBold',
-    fontSize: mediumScreen ? 13 : 9,
+    fontSize: mediumScreen ? FontSize.thirteen : FontSize.nine,
     letterSpacing: 1.4,
     textTransform: 'uppercase',
   },
   sectionHint: {
     color: '#cd2bee',
     fontFamily: 'PlusJakartaSansBold',
-    fontSize: mediumScreen ? 14 : 10,
+    fontSize: mediumScreen ? FontSize.fourteen : FontSize.ten,
     letterSpacing: 1.1,
   },
   rewardList: {
@@ -451,7 +454,7 @@ const styles = StyleSheet.create({
   },
   rewardTitle: {
     fontFamily: 'PlusJakartaSansBold',
-    fontSize: mediumScreen ? 16 : 13,
+    fontSize: mediumScreen ? FontSize.sixteen : FontSize.thirteen,
     flex: 1,
   },
   hotBadge: {
@@ -463,12 +466,12 @@ const styles = StyleSheet.create({
   hotBadgeText: {
     color: '#deb7ff',
     fontFamily: 'PlusJakartaSansExtraBold',
-    fontSize: mediumScreen ? 12 : 8,
+    fontSize: mediumScreen ? FontSize.twelve : FontSize.eight,
     letterSpacing: 0.5,
   },
   rewardDescription: {
     fontFamily: 'PlusJakartaSansMedium',
-    fontSize: mediumScreen ? 16 : 12,
+    fontSize: mediumScreen ? FontSize.sixteen : FontSize.twelve,
     lineHeight: mediumScreen ? 22 : 18,
   },
   customCard: {
@@ -485,13 +488,13 @@ const styles = StyleSheet.create({
   },
   customLabel: {
     fontFamily: 'PlusJakartaSansBold',
-    fontSize: mediumScreen ? 14 : 10,
+    fontSize: mediumScreen ? FontSize.fourteen : FontSize.ten,
     letterSpacing: 1.1,
     textTransform: 'uppercase',
   },
   customInput: {
     fontFamily: 'PlusJakartaSansMedium',
-    fontSize: mediumScreen ? 16 : 12,
+    fontSize: mediumScreen ? FontSize.sixteen : FontSize.twelve,
     padding: 0,
   },
   tipCard: {
@@ -505,7 +508,7 @@ const styles = StyleSheet.create({
   tipText: {
     flex: 1,
     fontFamily: 'PlusJakartaSansMedium',
-    fontSize: mediumScreen ? 16 : 12,
+    fontSize: mediumScreen ? FontSize.sixteen : FontSize.twelve,
     lineHeight: mediumScreen ? 22 : 18,
   },
   tipStrong: {
@@ -542,7 +545,7 @@ const styles = StyleSheet.create({
   ctaText: {
     color: '#fff',
     fontFamily: 'PlusJakartaSansBold',
-    fontSize: mediumScreen ? 14 : 10,
+    fontSize: mediumScreen ? FontSize.fourteen : FontSize.ten,
     letterSpacing: 2,
     textTransform: 'uppercase',
   },

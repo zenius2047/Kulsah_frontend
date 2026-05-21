@@ -1,4 +1,4 @@
-﻿import React, { useEffect, useMemo, useRef, useState } from 'react';
+import React, { useEffect, useMemo, useRef, useState } from 'react';
 import {
   Animated,
   Platform,
@@ -14,7 +14,7 @@ import { MaterialIcons } from '@expo/vector-icons';
 import { useNavigation, useRoute } from '@react-navigation/native';
 import { BlurView } from 'expo-blur';
 import { useThemeMode } from './theme';
-import { fontScale } from './fonts';
+import { FontSize } from './fonts';
 import { mediumScreen } from './types';
 
 const OTP_LENGTH = 4;
@@ -284,7 +284,7 @@ const styles = StyleSheet.create({
   brandText: {
     color: '#ffffff',
     fontFamily: 'PlusJakartaSansExtraBold',
-    fontSize: mediumScreen ? fontScale(20) : fontScale(17),
+    fontSize: mediumScreen ? FontSize.twenty : FontSize.seventeen,
     letterSpacing: -0.8,
     paddingVertical: 2,
   },
@@ -321,14 +321,14 @@ const styles = StyleSheet.create({
   },
   title: {
     fontFamily: 'PlusJakartaSansExtraBold',
-    fontSize: mediumScreen ? fontScale(28) : fontScale(24),
+    fontSize: mediumScreen ? FontSize.twentyEight : FontSize.twentyFour,
     letterSpacing: -1,
     marginBottom: 10,
   },
   subtitle: {
     fontFamily: 'PlusJakartaSansMedium',
-    fontSize: mediumScreen ? fontScale(13) : fontScale(11),
-    lineHeight: mediumScreen ? fontScale(21) : fontScale(18),
+    fontSize: mediumScreen ? FontSize.thirteen : FontSize.eleven,
+    lineHeight: mediumScreen ? FontSize.twentyOne : FontSize.eighteen,
     textAlign: 'center',
     paddingHorizontal: 8,
   },
@@ -357,11 +357,11 @@ const styles = StyleSheet.create({
   },
   otpDigit: {
     fontFamily: 'PlusJakartaSansExtraBold',
-    fontSize: mediumScreen ? fontScale(24) : fontScale(21),
+    fontSize: mediumScreen ? FontSize.twentyFour : FontSize.twentyOne,
   },
   otpPlaceholder: {
     fontFamily: 'PlusJakartaSansBold',
-    fontSize: mediumScreen ? fontScale(23) : fontScale(20),
+    fontSize: mediumScreen ? FontSize.twentyThree : FontSize.twenty,
   },
   cursor: {
     width: 2,
@@ -379,12 +379,12 @@ const styles = StyleSheet.create({
   },
   resendText: {
     fontFamily: 'PlusJakartaSansMedium',
-    fontSize: mediumScreen ? fontScale(13) : fontScale(11),
+    fontSize: mediumScreen ? FontSize.thirteen : FontSize.eleven,
   },
   resendAction: {
     color: '#cd2bee',
     fontFamily: 'PlusJakartaSansExtraBold',
-    fontSize: mediumScreen ? fontScale(13) : fontScale(11),
+    fontSize: mediumScreen ? FontSize.thirteen : FontSize.eleven,
   },
   primaryButton: {
     width: '100%',
@@ -409,7 +409,7 @@ const styles = StyleSheet.create({
   primaryButtonText: {
     color: '#ffffff',
     fontFamily: 'PlusJakartaSansExtraBold',
-    fontSize: mediumScreen ? fontScale(15) : fontScale(13),
+    fontSize: mediumScreen ? FontSize.fifteen : FontSize.thirteen,
   },
   keypadWrap: {
     borderTopWidth: 1,
@@ -438,7 +438,7 @@ const styles = StyleSheet.create({
   },
   keyText: {
     fontFamily: 'PlusJakartaSansExtraBold',
-    fontSize: mediumScreen ? fontScale(24) : fontScale(21),
+    fontSize: mediumScreen ? FontSize.twentyFour : FontSize.twentyOne,
   },
 });
 

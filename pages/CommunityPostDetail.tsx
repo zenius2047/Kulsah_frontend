@@ -10,7 +10,6 @@ import {
   Share,
   StyleSheet,
   Text,
-  TextInput,
   View,
 } from 'react-native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
@@ -18,8 +17,9 @@ import { useNavigation, useRoute } from '@react-navigation/native';
 import { MaterialIcons } from '@expo/vector-icons';
 import { useVideoPlayer, VideoView } from 'expo-video';
 import { useThemeMode } from '../theme';
-import { fontScale } from '../fonts';
+import { FontSize } from '../fonts';
 import { mediumScreen, user } from '../types';
+import KulsahInputBar from '../components/KulsahInputBar';
 
 interface Comment {
   id: string;
@@ -74,6 +74,51 @@ interface CurrentUser {
 
 const STORAGE_KEY = 'pulsar_community_posts';
 const USER_KEY = 'pulsar_user';
+
+const formatCommentTime = (value: string) => {
+  const parsedTime = Number(value);
+  const timestamp =
+    Number.isFinite(parsedTime) && parsedTime > 0
+      ? parsedTime
+      : Date.parse(value);
+
+  if (!Number.isFinite(timestamp)) {
+    return value;
+  }
+
+  const diffMs = Date.now() - timestamp;
+  const minuteMs = 60 * 1000;
+  const hourMs = 60 * minuteMs;
+  const dayMs = 24 * hourMs;
+  const weekMs = 7 * dayMs;
+
+  if (diffMs < hourMs) {
+    const minutes = Math.max(1, Math.floor(diffMs / minuteMs));
+    return `${minutes}m`;
+  }
+
+  if (diffMs < dayMs) {
+    const hours = Math.max(1, Math.floor(diffMs / hourMs));
+    return `${hours}h`;
+  }
+
+  if (diffMs < weekMs) {
+    const days = Math.max(1, Math.floor(diffMs / dayMs));
+    return `${days}d`;
+  }
+
+  if (diffMs < 8 * dayMs) {
+    return '1w';
+  }
+
+  return new Date(timestamp).toLocaleString(undefined, {
+    month: 'short',
+    day: 'numeric',
+    year: 'numeric',
+    hour: 'numeric',
+    minute: '2-digit',
+  });
+};
 
 const DetailLivePreview: React.FC<{ videoUrl: string; viewerCount?: number }> = ({ videoUrl, viewerCount }) => {
   const player = useVideoPlayer(videoUrl, (p) => {
@@ -203,9 +248,9 @@ const CommunityPostDetail: React.FC = () => {
       handle: normalizedHandle || 'user',
       avatar: currentUser.avatar || 'https://picsum.photos/seed/user/100/100',
       text: finalText,
-      time: 'Just now',
+      time: Date.now().toString(),
     };
-    
+
     await persistPostUpdate((target) => {
         let updatedComment: Comment | null = null;
         let listOfComment = target.commentList;
@@ -222,8 +267,8 @@ const CommunityPostDetail: React.FC = () => {
           listOfComment = target.commentList.map((item) =>
                   item.id === updatedComment?.id
                     ? { ...updatedComment, replys: [...replys, {
-                      text: commentText, 
-                      username: commentUsername, 
+                      text: commentText,
+                      username: commentUsername,
                       replyhandle: replyUsername,
                       time: replyTime,
                       avatar: replyAvatar
@@ -304,7 +349,7 @@ const CommunityPostDetail: React.FC = () => {
       <ScrollView contentContainerStyle={styles.scrollBody} showsVerticalScrollIndicator={false} keyboardShouldPersistTaps="handled">
         <View style={[styles.feedCard, { backgroundColor: cardBg, borderBottomColor: softBorder }]}>
           <View style={styles.postHeader}>
-            <Pressable style={styles.authorRow} onPress={() => navigation.navigate('ArtistProfile')}>
+            <Pressable style={styles.authorRow} onPress={() => navigation.navigate('ArtistProfile', { isOwner: false, id: post.artist })}>
               <Image source={{ uri: post.avatar }} style={styles.avatar} />
               <View style={styles.authorTextWrap}>
                 <View style={styles.authorNameRow}>
@@ -434,7 +479,7 @@ const CommunityPostDetail: React.FC = () => {
                         }}>
                           <Text style={[styles.commentMetaText, { color: mutedText }]}>Reply</Text>
                         </Pressable>
-                        <Text style={[styles.commentMetaText, { color: mutedText }]}>{comment.time}</Text>
+                        <Text style={[styles.commentMetaText, { color: mutedText }]}>{formatCommentTime(comment.time)}</Text>
                       </View>
                       {comment.replys?.map((item)=>
                             <View style={styles.replyWrap}>
@@ -444,7 +489,7 @@ const CommunityPostDetail: React.FC = () => {
                                           <View style={styles.replyMain}>
                                             <View style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', gap: 8, marginBottom: 2 }}>
                                               <Text style={[styles.replyHandle, { color: theme.text }]}>@{item.replyhandle}</Text>
-                                              <Text style={[styles.replyTime, { color: muted }]}>{item.time}</Text>
+                                              <Text style={[styles.replyTime, { color: muted }]}>{formatCommentTime(item.time)}</Text>
                                             </View>
                                             <Text style={[styles.replyBody, { color: commentText }]}>
                                               <Text style={{ color: '#cd2bee', fontFamily: 'PlusJakartaSansBold' }}>@{comment.handle} </Text>
@@ -453,7 +498,7 @@ const CommunityPostDetail: React.FC = () => {
                                             <View style={styles.replyActions}>
                                               <Pressable onPress={() => {
                                                 setReplyingTo({
-                                                  id: Math.random().toString(36).slice(2,8),
+                                                  id: comment.id,
                                                   user: '',
                                                   handle: '',
                                                   avatar: '',
@@ -467,7 +512,7 @@ const CommunityPostDetail: React.FC = () => {
                                               }}>
                                                 <Text style={[styles.replyActionText, { color: muted }]}>Reply</Text>
                                               </Pressable>
-                                              
+
                                               <Text style={[styles.replyActionText, { color: muted }]}>Like</Text>
                                             </View>
                                           </View>
@@ -507,7 +552,7 @@ const CommunityPostDetail: React.FC = () => {
 
       <View style={[styles.bottomComposer, { borderTopColor: softBorder, backgroundColor: headerBg }]}>
         <Image source={{ uri: currentUser.avatar || 'https://picsum.photos/seed/user/100/100' }} style={styles.composerAvatar} />
-        <View style={[styles.inputShell, { backgroundColor: composerBg }]}>
+        <View style={styles.inputShell}>
           {replyingTo ? (
             <View style={[styles.replyingBanner, { backgroundColor: composerBg, borderColor: softBorder }]}>
               <View style={styles.replyingInfo}>
@@ -521,17 +566,20 @@ const CommunityPostDetail: React.FC = () => {
               </Pressable>
             </View>
           ) : null}
-          <TextInput
+          <KulsahInputBar
             value={commentText}
             onChangeText={setCommentText}
             placeholder="Write a comment..."
             placeholderTextColor={theme.textSecondary}
             multiline
-            style={[styles.bottomComposerInput, { color: theme.text }]}
+            containerStyle={{ backgroundColor: composerBg, borderColor: softBorder }}
+            inputStyle={[styles.bottomComposerInput, { color: theme.text }]}
+            rightAccessory={(
+              <Pressable onPress={() => void addComment(replyingTo ? replyingTo.id : null)} style={styles.sendBtn}>
+                <MaterialIcons name="send" size={18} color={commentText.trim() ? '#1877f2' : dimIcon} />
+              </Pressable>
+            )}
           />
-          <Pressable onPress={() => void addComment(replyingTo ? replyingTo.id : null)} style={styles.sendBtn}>
-            <MaterialIcons name="send" size={18} color={commentText.trim() ? '#1877f2' : dimIcon} />
-          </Pressable>
         </View>
       </View>
     </KeyboardAvoidingView>
@@ -560,8 +608,8 @@ const styles = StyleSheet.create({
     alignItems: 'center',
   },
   headerCopy: { flex: 1 },
-  headerTitle: { fontSize: mediumScreen ? fontScale(15) : fontScale(12), fontFamily: 'PlusJakartaSansExtraBold' },
-  headerSubtitle: { fontSize: mediumScreen ? fontScale(10) : fontScale(8), fontFamily: 'PlusJakartaSansMedium' },
+  headerTitle: { fontSize: mediumScreen ? FontSize.fifteen : FontSize.twelve, fontFamily: 'PlusJakartaSansExtraBold' },
+  headerSubtitle: { fontSize: mediumScreen ? FontSize.ten : FontSize.eight, fontFamily: 'PlusJakartaSansMedium' },
   scrollBody: { paddingBottom: 96 },
   feedCard: { borderBottomWidth: 1, borderRadius: 28, overflow: 'hidden', marginHorizontal: 12, marginTop: 12 },
   postHeader: {
@@ -577,24 +625,24 @@ const styles = StyleSheet.create({
   avatar: { width: 42, height: 42, borderRadius: 21 },
   authorTextWrap: { flex: 1, gap: 2 },
   authorNameRow: { flexDirection: 'row', alignItems: 'center', gap: 4 },
-  authorName: { fontSize: mediumScreen ? fontScale(13) : fontScale(11), fontFamily: 'PlusJakartaSansBold' },
+  authorName: { fontSize: mediumScreen ? FontSize.thirteen : FontSize.eleven, fontFamily: 'PlusJakartaSansBold' },
   metaRow: { flexDirection: 'row', alignItems: 'center', gap: 4 },
-  handleSubtext: { fontSize: mediumScreen ? fontScale(10) : fontScale(8), fontFamily: 'PlusJakartaSansMedium' },
-  metaDot: { fontSize: 12, fontFamily: 'PlusJakartaSansBold' },
+  handleSubtext: { fontSize: mediumScreen ? FontSize.ten : FontSize.eight, fontFamily: 'PlusJakartaSansMedium' },
+  metaDot: { fontSize: FontSize.twelve, fontFamily: 'PlusJakartaSansBold' },
   headerActions: { flexDirection: 'row', alignItems: 'center', gap: 8 },
   followBtn: { minHeight: 32, paddingHorizontal: 12, borderRadius: 999, justifyContent: 'center', alignItems: 'center' },
-  followBtnText: { fontSize: mediumScreen ? fontScale(11) : fontScale(9), fontFamily: 'PlusJakartaSansBold' },
+  followBtnText: { fontSize: mediumScreen ? FontSize.eleven : FontSize.nine, fontFamily: 'PlusJakartaSansBold' },
   iconBtn: { width: 32, height: 32, borderRadius: 16, justifyContent: 'center', alignItems: 'center' },
   postContentWrap: { paddingHorizontal: 12, paddingBottom: 12 },
-  postContent: { fontSize: mediumScreen ? 16 : 14, lineHeight: 22, fontFamily: 'PlusJakartaSansMedium' },
+  postContent: { fontSize: mediumScreen ? FontSize.sixteen : FontSize.fourteen, lineHeight: 22, fontFamily: 'PlusJakartaSansMedium' },
   mediaWrap: { height: 280, marginBottom: 12, overflow: 'hidden' },
   video: { width: '100%', height: '100%' },
   liveBadges: { position: 'absolute', top: 10, left: 10, flexDirection: 'row', gap: 8 },
   livePill: { flexDirection: 'row', alignItems: 'center', gap: 5, borderRadius: 999, backgroundColor: '#ef4444', paddingHorizontal: 10, paddingVertical: 5 },
   liveDot: { height: 6, width: 6, borderRadius: 3, backgroundColor: '#fff' },
-  livePillText: { color: '#fff', fontSize: mediumScreen ? 14 : 10, fontFamily: 'PlusJakartaSansExtraBold', letterSpacing: 1 },
+  livePillText: { color: '#fff', fontSize: mediumScreen ? FontSize.fourteen : FontSize.ten, fontFamily: 'PlusJakartaSansExtraBold', letterSpacing: 1 },
   viewerPill: { flexDirection: 'row', alignItems: 'center', gap: 4, borderRadius: 999, backgroundColor: 'rgba(0,0,0,0.42)', paddingHorizontal: 10, paddingVertical: 5, borderWidth: 1, borderColor: 'rgba(255,255,255,0.22)' },
-  viewerText: { color: '#fff', fontSize: mediumScreen ? 14 : 10, fontFamily: 'PlusJakartaSansBold' },
+  viewerText: { color: '#fff', fontSize: mediumScreen ? FontSize.fourteen : FontSize.ten, fontFamily: 'PlusJakartaSansBold' },
   imageStack: { marginBottom: 12 },
   imageGrid: { flexDirection: 'row', flexWrap: 'wrap', justifyContent: 'space-between', rowGap: 6, paddingHorizontal: 12 },
   singleImageFrame: { width: '100%', height: 320, borderRadius: 20, overflow: 'hidden', borderWidth: 1 },
@@ -607,9 +655,9 @@ const styles = StyleSheet.create({
   pollFill: { position: 'absolute', left: 0, top: 0, bottom: 0, backgroundColor: 'rgba(205,43,238,0.08)' },
   pollFillSelected: { backgroundColor: 'rgba(205,43,238,0.16)' },
   pollContent: { flex: 1, flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', paddingHorizontal: 12 },
-  pollText: { fontSize: mediumScreen ? 16 : 12, fontFamily: 'PlusJakartaSansBold' },
-  pollPercent: { fontSize: mediumScreen ? 15 : 11, fontFamily: 'PlusJakartaSansExtraBold' },
-  pollFoot: { fontSize: mediumScreen ? 13 : 10, fontFamily: 'PlusJakartaSansMedium' },
+  pollText: { fontSize: mediumScreen ? FontSize.sixteen : FontSize.twelve, fontFamily: 'PlusJakartaSansBold' },
+  pollPercent: { fontSize: mediumScreen ? FontSize.fifteen : FontSize.eleven, fontFamily: 'PlusJakartaSansExtraBold' },
+  pollFoot: { fontSize: mediumScreen ? FontSize.thirteen : FontSize.ten, fontFamily: 'PlusJakartaSansMedium' },
   reactionSummary: {
     borderTopWidth: 1,
     borderBottomWidth: 1,
@@ -621,24 +669,24 @@ const styles = StyleSheet.create({
   },
   reactionLeft: { flexDirection: 'row', alignItems: 'center', gap: 6 },
   likeBadge: { width: 20, height: 20, borderRadius: 10, backgroundColor: '#cd2bee', alignItems: 'center', justifyContent: 'center' },
-  reactionSummaryText: { fontSize: mediumScreen ? fontScale(10) : fontScale(9), fontFamily: 'PlusJakartaSansMedium' },
+  reactionSummaryText: { fontSize: mediumScreen ? FontSize.ten : FontSize.nine, fontFamily: 'PlusJakartaSansMedium' },
   actionBar: { flexDirection: 'row', alignItems: 'center', paddingHorizontal: 12, paddingVertical: 6, gap: 15 },
   actionItem: { minHeight: 42, borderRadius: 8, flexDirection: 'row', alignItems: 'center', justifyContent: 'center', gap: 4 },
-  actionText: { fontSize: mediumScreen ? fontScale(11) : fontScale(9), fontFamily: 'PlusJakartaSansBold' },
+  actionText: { fontSize: mediumScreen ? FontSize.eleven : FontSize.nine, fontFamily: 'PlusJakartaSansBold' },
   commentsSection: { paddingHorizontal: 12, paddingTop: 12, paddingBottom: 20 },
   commentsHeader: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', paddingBottom: 12, borderBottomWidth: 1 },
-  commentsTitle: { fontSize: mediumScreen ? fontScale(13) : fontScale(11), fontFamily: 'PlusJakartaSansExtraBold' },
+  commentsTitle: { fontSize: mediumScreen ? FontSize.thirteen : FontSize.eleven, fontFamily: 'PlusJakartaSansExtraBold' },
   commentsStack: { gap: 14, paddingTop: 14 },
   commentRow: { flexDirection: 'row', gap: 8 },
   commentAvatar: { width: 34, height: 34, borderRadius: 17, marginTop: 2 },
   commentContentWrap: { flex: 1 },
   commentBubble: { borderRadius: 18, paddingHorizontal: 12, paddingVertical: 10 },
-  commentHandle: { fontSize: mediumScreen ? 13 : 11, fontFamily: 'PlusJakartaSansExtraBold', marginBottom: 3 },
-  commentTextBody: { fontSize: mediumScreen ? 15 : 12, lineHeight: 20, fontFamily: 'PlusJakartaSansMedium' },
+  commentHandle: { fontSize: mediumScreen ? FontSize.thirteen : FontSize.eleven, fontFamily: 'PlusJakartaSansExtraBold', marginBottom: 3 },
+  commentTextBody: { fontSize: mediumScreen ? FontSize.fifteen : FontSize.twelve, lineHeight: 20, fontFamily: 'PlusJakartaSansMedium' },
   commentMetaRow: { flexDirection: 'row', alignItems: 'center', gap: 12, paddingLeft: 10, marginTop: 6 },
-  commentMetaText: { fontSize: mediumScreen ? 11 : 10, fontFamily: 'PlusJakartaSansBold' },
+  commentMetaText: { fontSize: mediumScreen ? FontSize.eleven : FontSize.ten, fontFamily: 'PlusJakartaSansBold' },
   emptyComments: { minHeight: 120, alignItems: 'center', justifyContent: 'center', gap: 10 },
-  emptyCommentsText: { textAlign: 'center', fontSize: mediumScreen ? 14 : 11, fontFamily: 'PlusJakartaSansBold' },
+  emptyCommentsText: { textAlign: 'center', fontSize: mediumScreen ? FontSize.fourteen : FontSize.eleven, fontFamily: 'PlusJakartaSansBold' },
   bottomComposer: {
     borderTopWidth: 1,
     paddingHorizontal: 12,
@@ -650,11 +698,6 @@ const styles = StyleSheet.create({
   composerAvatar: { width: 34, height: 34, borderRadius: 17 },
   inputShell: {
     flex: 1,
-    minHeight: 42,
-    borderRadius: 22,
-    paddingLeft: 14,
-    paddingRight: 10,
-    paddingVertical: 8,
   },
   replyingBanner: {
     flexDirection: 'row',
@@ -667,13 +710,13 @@ const styles = StyleSheet.create({
     marginBottom: 10,
   },
   replyingInfo: { flexDirection: 'row', alignItems: 'center', gap: 8 },
-  replyingText: { fontSize: mediumScreen ? fontScale(10) : fontScale(8), fontFamily: 'PlusJakartaSansMedium' },
+  replyingText: { fontSize: mediumScreen ? FontSize.ten : FontSize.eight, fontFamily: 'PlusJakartaSansMedium' },
   replyingTarget: { fontFamily: 'PlusJakartaSansBold' },
-  bottomComposerInput: { maxHeight: 90, paddingVertical: 4, fontSize: mediumScreen ? 14 : 12, fontFamily: 'PlusJakartaSansMedium' },
-  sendBtn: { position: 'absolute', right: 10, bottom: 10, padding: 4 },
+  bottomComposerInput: { maxHeight: 90, paddingVertical: 4, fontSize: mediumScreen ? FontSize.fourteen : FontSize.twelve, fontFamily: 'PlusJakartaSansMedium' },
+  sendBtn: { width: 32, height: 32, borderRadius: 16, alignItems: 'center', justifyContent: 'center' },
   emptyState: { flex: 1, justifyContent: 'center', alignItems: 'center', paddingHorizontal: 24, gap: 12 },
-  emptyTitle: { fontSize: mediumScreen ? fontScale(18) : fontScale(14), fontFamily: 'PlusJakartaSansExtraBold', textTransform: 'uppercase' },
-  emptyText: { textAlign: 'center', fontSize: mediumScreen ? 15 : 12, fontFamily: 'PlusJakartaSansMedium', lineHeight: 20 },
+  emptyTitle: { fontSize: mediumScreen ? FontSize.eighteen : FontSize.fourteen, fontFamily: 'PlusJakartaSansExtraBold', textTransform: 'uppercase' },
+  emptyText: { textAlign: 'center', fontSize: mediumScreen ? FontSize.fifteen : FontSize.twelve, fontFamily: 'PlusJakartaSansMedium', lineHeight: 20 },
   imageModalRoot: { flex: 1, backgroundColor: 'rgba(0,0,0,0.96)' },
   imageModalBackdrop: { ...StyleSheet.absoluteFillObject },
   imageModalHeader: {
@@ -707,11 +750,11 @@ const styles = StyleSheet.create({
   replyRow: { flexDirection: 'row', gap: 10 },
   replyAvatar: { width: 32, height: 32, borderRadius: 16 },
   replyMain: { flex: 1 },
-  replyHandle: { fontFamily: 'PlusJakartaSansBold', fontSize: mediumScreen ? fontScale(11):fontScale(8) },
-  replyTime: { fontFamily: 'PlusJakartaSansMedium', fontSize: mediumScreen ? fontScale(9): fontScale(6) },
-  replyBody: { fontFamily: 'PlusJakartaSansMedium', fontSize: mediumScreen ? fontScale(11): fontScale(8), lineHeight: 15 },
+  replyHandle: { fontFamily: 'PlusJakartaSansBold', fontSize: mediumScreen ? FontSize.eleven:FontSize.eight },
+  replyTime: { fontFamily: 'PlusJakartaSansMedium', fontSize: mediumScreen ? FontSize.nine: FontSize.six },
+  replyBody: { fontFamily: 'PlusJakartaSansMedium', fontSize: mediumScreen ? FontSize.eleven: FontSize.eight, lineHeight: 15 },
   replyActions: { flexDirection: 'row', gap: 16, marginTop: 6 },
-  replyActionText: { fontFamily: 'PlusJakartaSansBold', fontSize: mediumScreen ? fontScale(10): fontScale(8) },
+  replyActionText: { fontFamily: 'PlusJakartaSansBold', fontSize: mediumScreen ? FontSize.ten: FontSize.eight },
 });
 
 export default CommunityPostDetail;

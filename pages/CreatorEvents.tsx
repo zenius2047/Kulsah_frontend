@@ -17,7 +17,7 @@ import {
 } from 'react-native';
 import { useNavigation, useRoute } from '@react-navigation/native';
 import { MaterialIcons } from '@expo/vector-icons';
-import { fontScale } from '../fonts';
+import { FontSize } from '../fonts';
 import { mediumScreen } from '../types';
 
 interface EventTicketTier {
@@ -315,10 +315,10 @@ const CreatorEvents: React.FC = () => {
         </View>
       </ScrollView>
 
-      <Modal 
+      <Modal
       visible={isModalOpen}
       statusBarTranslucent
-      transparent animationType="slide" 
+      transparent animationType="slide"
       onRequestClose={() => setIsModalOpen(false)}>
         <View style={styles.modalRoot}>
           <Pressable style={[styles.modalBackdrop, { backgroundColor: modalBackdrop }]} onPress={() => setIsModalOpen(false)} />
@@ -476,7 +476,7 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     alignItems: 'center',
   },
-  headerTitle: { fontSize: mediumScreen ? fontScale(16): fontScale(14), fontFamily: 'PlusJakartaSansExtraBold' },
+  headerTitle: { fontSize: mediumScreen ? FontSize.sixteen: FontSize.fourteen, fontFamily: 'PlusJakartaSansExtraBold' },
   addBtn: {
     width: 36,
     height: 36,
@@ -494,10 +494,10 @@ const styles = StyleSheet.create({
     padding: 14,
   },
   statPrimary: { borderColor: 'rgba(205,43,238,0.35)', backgroundColor: 'rgba(205,43,238,0.12)' },
-  statLabel: { fontSize: mediumScreen ?  fontScale(13):fontScale(9), letterSpacing: 1.1, fontFamily: 'PlusJakartaSansExtraBold' },
-  statValue: { fontSize: mediumScreen ? fontScale(24): fontScale(20), fontFamily: 'PlusJakartaSansExtraBold', marginTop: 2 },
-  statSub: { color: '#22c55e', fontSize: mediumScreen ? fontScale(14):fontScale(10), marginTop: 2, fontFamily: 'PlusJakartaSansBold' },
-  sectionTitle: { fontSize: mediumScreen ? fontScale(13):fontScale(9), letterSpacing: 2, fontFamily: 'PlusJakartaSansExtraBold', marginTop: 6 },
+  statLabel: { fontSize: mediumScreen ?  FontSize.thirteen:FontSize.nine, letterSpacing: 1.1, fontFamily: 'PlusJakartaSansExtraBold' },
+  statValue: { fontSize: mediumScreen ? FontSize.twentyFour: FontSize.twenty, fontFamily: 'PlusJakartaSansExtraBold', marginTop: 2 },
+  statSub: { color: '#22c55e', fontSize: mediumScreen ? FontSize.fourteen:FontSize.ten, marginTop: 2, fontFamily: 'PlusJakartaSansBold' },
+  sectionTitle: { fontSize: mediumScreen ? FontSize.thirteen:FontSize.nine, letterSpacing: 2, fontFamily: 'PlusJakartaSansExtraBold', marginTop: 6 },
   eventCard: {
     borderRadius: 24,
     borderWidth: 1,
@@ -505,17 +505,17 @@ const styles = StyleSheet.create({
     gap: 10,
   },
   eventTop: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'flex-start' },
-  eventTitle: { fontSize: mediumScreen ? fontScale(18): fontScale(14), fontFamily: 'PlusJakartaSansExtraBold' },
-  eventVenue: { fontSize: mediumScreen? fontScale(14):fontScale(10), marginTop: 2, fontFamily: 'PlusJakartaSansBold' },
+  eventTitle: { fontSize: mediumScreen ? FontSize.eighteen: FontSize.fourteen, fontFamily: 'PlusJakartaSansExtraBold' },
+  eventVenue: { fontSize: mediumScreen? FontSize.fourteen:FontSize.ten, marginTop: 2, fontFamily: 'PlusJakartaSansBold' },
   statusPill: { borderRadius: 999, borderWidth: 1, paddingHorizontal: 8, paddingVertical: 3 },
   statusLive: { borderColor: 'rgba(34,197,94,0.35)', backgroundColor: 'rgba(34,197,94,0.12)' },
   statusDraft: { borderColor: 'rgba(255,255,255,0.15)', backgroundColor: 'rgba(255,255,255,0.06)' },
-  statusText: { fontSize: mediumScreen ? fontScale(12): fontScale(8), letterSpacing: 1, fontFamily: 'PlusJakartaSansExtraBold' },
+  statusText: { fontSize: mediumScreen ? FontSize.twelve: FontSize.eight, letterSpacing: 1, fontFamily: 'PlusJakartaSansExtraBold' },
   typePill: { alignSelf: 'flex-start', borderRadius: 8, paddingHorizontal: 8, paddingVertical: 4, backgroundColor: 'rgba(205,43,238,0.15)' },
-  typeText: { color: '#cd2bee', fontSize: mediumScreen ? fontScale(12): fontScale(8), letterSpacing: 1, fontFamily: 'PlusJakartaSansExtraBold' },
+  typeText: { color: '#cd2bee', fontSize: mediumScreen ? FontSize.twelve: FontSize.eight, letterSpacing: 1, fontFamily: 'PlusJakartaSansExtraBold' },
   occupancyRow: { flexDirection: 'row', justifyContent: 'space-between', marginBottom: 6 },
-  occupancyText: { fontSize: mediumScreen ? fontScale(13): fontScale(9), fontFamily: 'PlusJakartaSansExtraBold' },
-  occupancyValue: { color: '#cd2bee', fontSize: mediumScreen ? fontScale(14): fontScale(10), fontFamily: 'PlusJakartaSansExtraBold' },
+  occupancyText: { fontSize: mediumScreen ? FontSize.thirteen: FontSize.nine, fontFamily: 'PlusJakartaSansExtraBold' },
+  occupancyValue: { color: '#cd2bee', fontSize: mediumScreen ? FontSize.fourteen: FontSize.ten, fontFamily: 'PlusJakartaSansExtraBold' },
   progressTrack: { height: 7, borderRadius: 5, overflow: 'hidden' },
   progressFill: { height: '100%', backgroundColor: '#cd2bee' },
   eventBottom: {
@@ -527,7 +527,7 @@ const styles = StyleSheet.create({
     alignItems: 'center',
   },
   revenueWrap: { flexDirection: 'row', alignItems: 'center', gap: 6 },
-  revenueText: { fontSize: mediumScreen ? fontScale(16):fontScale(12), fontFamily: 'PlusJakartaSansExtraBold' },
+  revenueText: { fontSize: mediumScreen ? FontSize.sixteen:FontSize.twelve, fontFamily: 'PlusJakartaSansExtraBold' },
   eventActions: { flexDirection: 'row', alignItems: 'center', gap: 6 },
   scanBtn: {
     height: 28,
@@ -540,7 +540,7 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     gap: 4,
   },
-  scanText: { color: '#cd2bee', fontSize: fontScale(9), fontFamily: 'PlusJakartaSansExtraBold' },
+  scanText: { color: '#cd2bee', fontSize: FontSize.nine, fontFamily: 'PlusJakartaSansExtraBold' },
   menuBtn: { width: 28, height: 28, borderRadius: 14, justifyContent: 'center', alignItems: 'center' },
   archiveCard: {
     borderRadius: 16,
@@ -551,8 +551,8 @@ const styles = StyleSheet.create({
     alignItems: 'center',
   },
   archiveLeft: { flexDirection: 'row', alignItems: 'center', gap: 8 },
-  archiveText: { fontSize: mediumScreen ? fontScale(14):fontScale(10), fontFamily: 'PlusJakartaSansBold' },
-  archiveStatus: { fontSize: mediumScreen ? fontScale(13):fontScale(9), fontFamily: 'PlusJakartaSansExtraBold' },
+  archiveText: { fontSize: mediumScreen ? FontSize.fourteen:FontSize.ten, fontFamily: 'PlusJakartaSansBold' },
+  archiveStatus: { fontSize: mediumScreen ? FontSize.thirteen:FontSize.nine, fontFamily: 'PlusJakartaSansExtraBold' },
   modalRoot: { flex: 1, justifyContent: 'flex-end' },
   modalBackdrop: { ...StyleSheet.absoluteFillObject },
   modalCard: {
@@ -565,12 +565,12 @@ const styles = StyleSheet.create({
   },
   grabber: { alignSelf: 'center', width: 40, height: 5, borderRadius: 3, marginBottom: 10 },
   modalHeader: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', marginBottom: 8 },
-  modalTitle: { fontSize: mediumScreen ? fontScale(18): fontScale(14), fontFamily: 'PlusJakartaSansExtraBold' },
-  inputLabel: { fontSize: mediumScreen ? fontScale(10): fontScale(8), letterSpacing: 1.4, fontFamily: 'PlusJakartaSansExtraBold' },
+  modalTitle: { fontSize: mediumScreen ? FontSize.eighteen: FontSize.fourteen, fontFamily: 'PlusJakartaSansExtraBold' },
+  inputLabel: { fontSize: mediumScreen ? FontSize.ten: FontSize.eight, letterSpacing: 1.4, fontFamily: 'PlusJakartaSansExtraBold' },
   coverBox: { height: 160, borderRadius: 22, borderWidth: 1, overflow: 'hidden' },
   coverImg: { width: '100%', height: '100%' },
   coverPlaceholder: { flex: 1, justifyContent: 'center', alignItems: 'center', gap: 6 },
-  coverText: { fontSize: fontScale(10), fontFamily: 'PlusJakartaSansBold' },
+  coverText: { fontSize: FontSize.ten, fontFamily: 'PlusJakartaSansBold' },
   typeRow: { flexDirection: 'row', gap: 6 },
   typeBtn: {
     flex: 1,
@@ -581,19 +581,19 @@ const styles = StyleSheet.create({
     alignItems: 'center',
   },
   typeBtnActive: { backgroundColor: '#cd2bee', borderColor: '#cd2bee' },
-  typeBtnText: { fontSize: mediumScreen ? fontScale(12):fontScale(8), fontFamily: 'PlusJakartaSansExtraBold' },
+  typeBtnText: { fontSize: mediumScreen ? FontSize.twelve:FontSize.eight, fontFamily: 'PlusJakartaSansExtraBold' },
   typeBtnTextActive: { color: '#fff' },
   input: {
     height: 48,
     borderRadius: 14,
     borderWidth: 1,
     paddingHorizontal: 12,
-    fontSize: fontScale(10),
+    fontSize: FontSize.ten,
     fontFamily: 'PlusJakartaSansBold',
   },
   locationHeader: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between' },
   verifiedTag: { flexDirection: 'row', alignItems: 'center', gap: 4 },
-  verifiedText: { color: '#22c55e', fontSize: fontScale(8), fontFamily: 'PlusJakartaSansExtraBold' },
+  verifiedText: { color: '#22c55e', fontSize: FontSize.eight, fontFamily: 'PlusJakartaSansExtraBold' },
   locationRow: { flexDirection: 'row', gap: 6, alignItems: 'center' },
   mapBtn: {
     width: 48,
@@ -615,10 +615,10 @@ const styles = StyleSheet.create({
     gap: 6,
     alignSelf: 'flex-start',
   },
-  mapsLinkText: { color: '#cd2bee', fontSize: fontScale(10), fontFamily: 'PlusJakartaSansBold' },
+  mapsLinkText: { color: '#cd2bee', fontSize: FontSize.ten, fontFamily: 'PlusJakartaSansBold' },
   descInput: { minHeight: 100, textAlignVertical: 'top', paddingTop: 12 },
   tierHeader: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center' },
-  addTierText: { color: '#cd2bee', fontSize: fontScale(10), fontFamily: 'PlusJakartaSansExtraBold' },
+  addTierText: { color: '#cd2bee', fontSize: FontSize.ten, fontFamily: 'PlusJakartaSansExtraBold' },
   tierCard: {
     borderRadius: 18,
     borderWidth: 1,
@@ -631,7 +631,7 @@ const styles = StyleSheet.create({
     borderRadius: 10,
     borderWidth: 1,
     paddingHorizontal: 10,
-    fontSize: fontScale(12),
+    fontSize: FontSize.twelve,
   },
   tierRow: { flexDirection: 'row', gap: 6 },
   modalFooter: {
@@ -654,9 +654,9 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     alignItems: 'center',
   },
-  draftText: { fontSize: mediumScreen ? fontScale(12): fontScale(8), letterSpacing: 1, fontFamily: 'PlusJakartaSansExtraBold' },
+  draftText: { fontSize: mediumScreen ? FontSize.twelve: FontSize.eight, letterSpacing: 1, fontFamily: 'PlusJakartaSansExtraBold' },
   launchBtn: { flex: 2, height: 50, borderRadius: 14, backgroundColor: '#cd2bee', justifyContent: 'center', alignItems: 'center' },
-  launchText: { color: '#fff', fontSize: mediumScreen ? fontScale(12): fontScale(8), letterSpacing: 1.1, fontFamily: 'PlusJakartaSansExtraBold' },
+  launchText: { color: '#fff', fontSize: mediumScreen ? FontSize.twelve: FontSize.eight, letterSpacing: 1.1, fontFamily: 'PlusJakartaSansExtraBold' },
 });
 
 export default CreatorEvents;

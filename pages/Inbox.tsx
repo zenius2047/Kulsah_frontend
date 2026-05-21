@@ -11,7 +11,7 @@ import {
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { MaterialIcons } from '@expo/vector-icons';
-import { fontScale } from '../fonts';
+import { FontSize } from '../fonts';
 import { mediumScreen } from '../types';
 import { useNavigation } from '@react-navigation/native';
 
@@ -237,31 +237,31 @@ const styles = StyleSheet.create({
     backgroundColor: '#cd2bee',
   },
   sectionHeaderRow: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', marginTop: 8, marginBottom: 12 },
-  sectionTitle: { fontFamily: 'PlusJakartaSansExtraBold', fontSize: fontScale(8), letterSpacing: 2 },
-  seeAll: { color: '#cd2bee', fontFamily: 'PlusJakartaSansBold', fontSize: fontScale(8), textTransform: 'uppercase' },
+  sectionTitle: { fontFamily: 'PlusJakartaSansExtraBold', fontSize: FontSize.eight, letterSpacing: 2 },
+  seeAll: { color: '#cd2bee', fontFamily: 'PlusJakartaSansBold', fontSize: FontSize.eight, textTransform: 'uppercase' },
   collabRow: { gap: 14, paddingBottom: 6 },
   collabItem: { alignItems: 'center', width: 74, gap: 6,},
   collabAvatarWrap: { width: 64, height: 64, borderRadius: 32, borderWidth: 2, padding: 2, },
   collabAvatarWrapGradient: { borderColor: '#cd2bee' },
   collabAvatar: { width: '100%', height: '100%', borderRadius: 30 },
   liveDot: { position: 'absolute', right: 2, bottom: 2, width: 12, height: 12, borderRadius: 6, backgroundColor: '#10b981', borderWidth: 2, borderColor: '#0a050d' },
-  collabName: { fontFamily: 'PlusJakartaSansBold', fontSize: fontScale(7), textTransform: 'uppercase' },
+  collabName: { fontFamily: 'PlusJakartaSansBold', fontSize: FontSize.seven, textTransform: 'uppercase' },
   searchRow: { marginTop: 12, minHeight: 52, borderWidth: 1, borderRadius: 16, flexDirection: 'row', alignItems: 'center', gap: 8, paddingHorizontal: 12 },
-  searchInput: { flex: 1, fontFamily: 'PlusJakartaSansMedium', fontSize: fontScale(10) },
+  searchInput: { flex: 1, fontFamily: 'PlusJakartaSansMedium', fontSize: FontSize.ten },
   chatList: { gap: 10 },
   chatCard: { borderWidth: 1, borderRadius: 18, padding: 12, flexDirection: 'row', alignItems: 'center', gap: 12 },
   chatAvatarWrap: { width: 56, height: 56, position: 'relative' },
   chatAvatar: { width: '100%', height: '100%', borderRadius: 28, borderWidth: 1, borderColor: 'rgba(255,255,255,0.1)' },
   chatAvatarUnread: { borderColor: '#cd2bee', borderWidth: 2 },
   vipBadge: { position: 'absolute', bottom: -2, right: -2, borderRadius: 8, backgroundColor: '#cd2bee', paddingHorizontal: 4, paddingVertical: 1 },
-  vipText: { color: '#fff', fontFamily: 'PlusJakartaSansExtraBold', fontSize: fontScale(6) },
+  vipText: { color: '#fff', fontFamily: 'PlusJakartaSansExtraBold', fontSize: FontSize.six },
   chatBody: { flex: 1 },
   chatTopRow: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', marginBottom: 4 },
   chatNameRow: { flexDirection: 'row', alignItems: 'center', gap: 6, flex: 1 },
-  chatName: { fontFamily: 'PlusJakartaSansBold', fontSize: fontScale(10) },
+  chatName: { fontFamily: 'PlusJakartaSansBold', fontSize: FontSize.ten },
   unreadDot: { width: 8, height: 8, borderRadius: 4, backgroundColor: '#cd2bee' },
-  chatTime: { fontFamily: 'PlusJakartaSansBold', fontSize: fontScale(7), textTransform: 'uppercase' },
-  chatMessage: { fontFamily: 'PlusJakartaSansMedium', fontSize: fontScale(9) },
+  chatTime: { fontFamily: 'PlusJakartaSansBold', fontSize: FontSize.seven, textTransform: 'uppercase' },
+  chatMessage: { fontFamily: 'PlusJakartaSansMedium', fontSize: FontSize.nine },
   headerLeft: {
     flexDirection: 'row',
     alignItems: 'center',
@@ -277,7 +277,7 @@ const styles = StyleSheet.create({
   },
   title: {
       color: '#F8FAFC',
-      fontSize: mediumScreen ? 21:18,
+      fontSize: mediumScreen ? FontSize.twentyOne:FontSize.eighteen,
       fontWeight: '900',
       letterSpacing: 0.5,
     },
@@ -287,7 +287,7 @@ const styles = StyleSheet.create({
   },
     subtitle: {
       color: '#D946EF',
-      fontSize: mediumScreen ? 12:8,
+      fontSize: mediumScreen ? FontSize.twelve:FontSize.eight,
       fontWeight: '900',
       letterSpacing: 2.5,
       marginTop: 2,

@@ -11,13 +11,13 @@ import {
   Text,
   View,
 } from 'react-native';
-import { SafeAreaView, useSafeAreaInsets } from 'react-native-safe-area-context';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { BlurView } from 'expo-blur';
 import { LinearGradient } from 'expo-linear-gradient';
 import { MaterialIcons } from '@expo/vector-icons';
 import { useNavigation } from '@react-navigation/native';
 import { CameraView, useCameraPermissions } from 'expo-camera';
-import { fontScale } from '../fonts';
+import { FontSize } from '../fonts';
 import { VoteSheetContent } from './SoundSelect';
 import { mediumScreen } from '../types';
 
@@ -97,9 +97,9 @@ const RecordContent: React.FC = ({route}:any) => {
   const [activeMode, setMode] = React.useState<'Post'| 'Live' | 'Create'>('Post');
   const [soundSelectOpen, setSoundSelectOpen] = React.useState(false);
   const [sound, setSound] = React.useState<{
-    title:string, 
-    id:string, 
-    meta:string, 
+    title:string,
+    id:string,
+    meta:string,
     usage:string}| null>(null);
 
 
@@ -119,7 +119,7 @@ const RecordContent: React.FC = ({route}:any) => {
   };
 
   return (
-    <SafeAreaView style={[styles.safeArea, { backgroundColor: theme.background, paddingTop: Platform.OS == 'ios' ? 54: insets.top }]} edges={[]}>
+    <View style={[styles.safeArea, { backgroundColor: theme.background }]}>
       {!permission?.granted ? <View style= {styles.screen}>
         {!permission ? (
               <>
@@ -146,7 +146,7 @@ const RecordContent: React.FC = ({route}:any) => {
 
         <CameraView style={StyleSheet.absoluteFill} facing={facing} />
 
-        <View style={styles.topArea}>
+        <View style={[styles.topArea, { paddingTop: Platform.OS === 'ios' ? 54 : insets.top }]}>
           <LinearGradient
             colors={['rgba(0,0,0,0.65)', 'rgba(0,0,0,0)']}
             style={styles.topFade}
@@ -267,7 +267,7 @@ const RecordContent: React.FC = ({route}:any) => {
                   setMode('Post')
                 }
               }
-              } 
+              }
               key={mode} style={styles.modeButton}>
                 <Text style={[styles.modeText, mode === 'Post' && activeMode === 'Post' && styles.modeTextActive]}>
                   {mode}
@@ -288,7 +288,7 @@ const RecordContent: React.FC = ({route}:any) => {
           <VoteSheetContent sheetMode onClose={() => setSoundSelectOpen(false)} />
         </Modal>
       </View>}
-    </SafeAreaView>
+    </View>
   );
 };
 
@@ -315,14 +315,14 @@ const styles = StyleSheet.create({
   permissionTitle: {
     color: '#fff',
     fontFamily: 'PlusJakartaSansBold',
-    fontSize: fontScale(20),
+    fontSize: FontSize.twenty,
     marginTop: 18,
     marginBottom: 8,
   },
   permissionText: {
     color: 'rgba(255,255,255,0.75)',
     fontFamily: 'PlusJakartaSansMedium',
-    fontSize: fontScale(14),
+    fontSize: FontSize.fourteen,
     lineHeight: 20,
     textAlign: 'center',
     marginTop: 10,
@@ -337,7 +337,7 @@ const styles = StyleSheet.create({
   permissionButtonText: {
     color: '#fff',
     fontFamily: 'PlusJakartaSansBold',
-    fontSize: fontScale(14),
+    fontSize: FontSize.fourteen,
   },
   topArea: {
     paddingHorizontal: 16,
@@ -361,14 +361,14 @@ const styles = StyleSheet.create({
   progressLabel: {
     color: 'rgba(255,255,255,0.85)',
     fontFamily: 'PlusJakartaSansBold',
-    fontSize: fontScale(11),
+    fontSize: FontSize.eleven,
     textTransform: 'uppercase',
     letterSpacing: 1,
   },
   progressTime: {
     color: '#fff',
     fontFamily: 'PlusJakartaSansMedium',
-    fontSize: fontScale(12),
+    fontSize: FontSize.twelve,
   },
   progressTrack: {
     height: 6,
@@ -421,7 +421,7 @@ const styles = StyleSheet.create({
   soundButtonText: {
     color: '#fff',
     fontFamily: 'PlusJakartaSansBold',
-    fontSize: mediumScreen ? fontScale(14): fontScale(10),
+    fontSize: mediumScreen ? FontSize.fourteen: FontSize.ten,
     maxWidth: '85%',
   },
   sideRailWrap: {
@@ -456,7 +456,7 @@ const styles = StyleSheet.create({
   sideLabel: {
     color: '#fff',
     fontFamily: 'PlusJakartaSansMedium',
-    fontSize: fontScale(8),
+    fontSize: FontSize.eight,
     textTransform: 'uppercase',
     marginTop: 2,
   },
@@ -510,7 +510,7 @@ const styles = StyleSheet.create({
     marginTop: 8,
     color: 'rgba(255,255,255,0.7)',
     fontFamily: 'PlusJakartaSansMedium',
-    fontSize: fontScale(12),
+    fontSize: FontSize.twelve,
   },
   filterTextActive: {
     color: '#cd2bee',
@@ -536,7 +536,7 @@ const styles = StyleSheet.create({
   utilityLabel: {
     color: '#fff',
     fontFamily: 'PlusJakartaSansBold',
-    fontSize: fontScale(10),
+    fontSize: FontSize.ten,
     textTransform: 'uppercase',
     marginTop: 8,
   },
@@ -595,7 +595,7 @@ const styles = StyleSheet.create({
   modeText: {
     color: 'rgba(255,255,255,0.4)',
     fontFamily: 'PlusJakartaSansBold',
-    fontSize: fontScale(14),
+    fontSize: FontSize.fourteen,
   },
   modeTextActive: {
     color: '#fff',

@@ -13,7 +13,7 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 import { LinearGradient } from 'expo-linear-gradient';
 import { MaterialIcons } from '@expo/vector-icons';
 import { mediumScreen } from '../types';
-import { fontScale } from '../fonts';
+import { FontSize } from '../fonts';
 
 type CreatorCard = {
   id: string;
@@ -221,7 +221,7 @@ const Featured: React.FC = () => {
                       {[
                         'https://lh3.googleusercontent.com/aida-public/AB6AXuDmbCyNqsTuCYW1W6yIj0MPJHo0SreQmWBm66IsT8d4LyT5hn3j4yPD0vsY5O_dP3wRYkiN-_66Hmuq0QZSgDZN9cgQkGwlgb5PO3SoZWOztamshxw_n387wCg5LiE0SVlN14rEp6W7DgSn2AIdD-LXWYTtGTHM_nzL4h1AJcPf67s4NTk1lCkwXFVj8p0ic7QGSSwV1GwbhBssAImr2YVnVxjjdOEgjGwWIiP4oAyN9w0rQWhquR7g3_NPIromQ6iwEcNO0lpA8Y7_',
                         'https://lh3.googleusercontent.com/aida-public/AB6AXuD_oysmU2MqCCSD4eC23FFCK1nR_Lm0rREWCKIfvNny6fnlijCz88V3eN5wKxn7YdCQoOsacyjEkpKwEfueIb1FqKWWtVYTMa3Z2212UkooC-vv1vl7ms6tJQMTKsy6shmKR4ikIAbQpH9VwLbvVK5flvD0_b5LWZosij8AiArW87-UzViFhuQumvESAeUWQkMO_xP5hrUdDO6s0HLeqAnbcjp4tcCjkItWbA21Lw_oO-bxWLnv3iSDih0SPiEBT1uBGn_x2ygQqkUG',
-                        
+
                       ].map((uri, index) => (
                         <Image
                           key={uri}
@@ -350,7 +350,7 @@ const styles = StyleSheet.create({
   brandName: {
     color: '#fff',
     fontFamily: 'PlusJakartaSansExtraBold',
-    fontSize: fontScale(18),
+    fontSize: FontSize.eighteen,
     textTransform: 'uppercase',
     letterSpacing: -0.6,
   },
@@ -379,7 +379,7 @@ const styles = StyleSheet.create({
   sidebarTitle: {
     color: '#cd2bee',
     fontFamily: 'PlusJakartaSansExtraBold',
-    fontSize: fontScale(20),
+    fontSize: FontSize.twenty,
     marginBottom: 24,
     paddingHorizontal: 12,
   },
@@ -400,7 +400,7 @@ const styles = StyleSheet.create({
   sidebarText: {
     color: '#94A3B8',
     fontFamily: 'PlusJakartaSansMedium',
-    fontSize: fontScale(15),
+    fontSize: FontSize.fifteen,
   },
   sidebarTextActive: {
     color: '#fff',
@@ -431,7 +431,7 @@ const styles = StyleSheet.create({
   mobileTabText: {
     color: '#94A3B8',
     fontFamily: 'PlusJakartaSansBold',
-    fontSize: fontScale(12),
+    fontSize: FontSize.twelve,
     textTransform: 'uppercase',
     letterSpacing: 0.7,
   },
@@ -447,7 +447,7 @@ const styles = StyleSheet.create({
     borderWidth: 1,
     borderColor: 'rgba(255,255,255,0.1)',
     marginBottom: 32,
-    
+
   },
   heroImage: {
     ...StyleSheet.absoluteFillObject,
@@ -490,7 +490,7 @@ const styles = StyleSheet.create({
   hotBadgeText: {
     color: '#cd2bee',
     fontFamily: 'PlusJakartaSansExtraBold',
-    fontSize: mediumScreen ? 14:10,
+    fontSize: mediumScreen ? FontSize.fourteen:FontSize.ten,
     letterSpacing: 1.2,
   },
   verifiedWrap: {
@@ -501,19 +501,19 @@ const styles = StyleSheet.create({
   verifiedText: {
     color: 'rgba(248,250,252,0.82)',
     fontFamily: 'PlusJakartaSansBold',
-    fontSize: mediumScreen ? 16:12,
+    fontSize: mediumScreen ? FontSize.sixteen:FontSize.twelve,
   },
   heroTitle: {
     color: '#fff',
     fontFamily: 'PlusJakartaSansExtraBold',
-    fontSize: mediumScreen ? 16: 13,
+    fontSize: mediumScreen ? FontSize.sixteen: FontSize.thirteen,
     // lineHeight: 34,
     marginBottom: 12,
   },
   heroDescription: {
     color: '#CBD5E1',
     fontFamily: 'PlusJakartaSansMedium',
-    fontSize: mediumScreen? 14: 12,
+    fontSize: mediumScreen? FontSize.fourteen: FontSize.twelve,
     // lineHeight: 22,
     // maxWidth: '95%',
   },
@@ -528,7 +528,7 @@ const styles = StyleSheet.create({
   prizeLabel: {
     color: '#94A3B8',
     fontFamily: 'PlusJakartaSansExtraBold',
-    fontSize: mediumScreen ? 14:10,
+    fontSize: mediumScreen ? FontSize.fourteen:FontSize.ten,
     textTransform: 'uppercase',
     letterSpacing: 1.2,
     marginBottom: 6,
@@ -536,14 +536,14 @@ const styles = StyleSheet.create({
   prizeValue: {
     color: '#fff',
     fontFamily: 'PlusJakartaSansExtraBold',
-    fontSize: mediumScreen ? 26:22,
+    fontSize: mediumScreen ? FontSize.twentySix:FontSize.twentyTwo,
     marginBottom: 6,
     letterSpacing: -1
   },
   prizeTime: {
     color: '#cd2bee',
     fontFamily: 'PlusJakartaSansBold',
-    fontSize: fontScale(12),
+    fontSize: FontSize.twelve,
     textTransform: 'uppercase',
     marginBottom: 16,
     textAlign: 'center'
@@ -562,7 +562,7 @@ const styles = StyleSheet.create({
   joinButtonText: {
     color: '#fff',
     fontFamily: 'PlusJakartaSansBold',
-    fontSize: fontScale(13),
+    fontSize: FontSize.thirteen,
     letterSpacing: 0.6,
   },
   sectionHeader: {
@@ -574,12 +574,12 @@ const styles = StyleSheet.create({
   sectionTitle: {
     color: '#fff',
     fontFamily: 'PlusJakartaSansExtraBold',
-    fontSize: mediumScreen ? 21: 18,
+    fontSize: mediumScreen ? FontSize.twentyOne: FontSize.eighteen,
   },
   sectionLink: {
     color: '#cd2bee',
     fontFamily: 'PlusJakartaSansExtraBold',
-    fontSize: mediumScreen ?14: 10,
+    fontSize: mediumScreen ?FontSize.fourteen: FontSize.ten,
     textTransform: 'uppercase',
     letterSpacing: 1.4,
   },
@@ -617,7 +617,7 @@ const styles = StyleSheet.create({
   exclusiveLabel: {
     color: '#cd2bee',
     fontFamily: 'PlusJakartaSansExtraBold',
-    fontSize: mediumScreen ? 15:11,
+    fontSize: mediumScreen ? FontSize.fifteen:FontSize.eleven,
     textTransform: 'uppercase',
     letterSpacing: 1.6,
     marginBottom: 8,
@@ -625,13 +625,13 @@ const styles = StyleSheet.create({
   largeCardTitle: {
     color: '#fff',
     fontFamily: 'PlusJakartaSansExtraBold',
-    fontSize: mediumScreen? 21:18,
+    fontSize: mediumScreen? FontSize.twentyOne:FontSize.eighteen,
     marginBottom: 8,
   },
   largeCardDescription: {
     color: '#CBD5E1',
     fontFamily: 'PlusJakartaSansMedium',
-    fontSize: mediumScreen ? 16:12,
+    fontSize: mediumScreen ? FontSize.sixteen:FontSize.twelve,
     lineHeight: 18,
     maxWidth: 360,
     marginBottom: 18,
@@ -662,12 +662,12 @@ const styles = StyleSheet.create({
   stackAvatarCountText: {
     color: '#fff',
     fontFamily: 'PlusJakartaSansExtraBold',
-    fontSize: fontScale(6),
+    fontSize: FontSize.six,
   },
   activeCreatorsText: {
     color: '#94A3B8',
     fontFamily: 'PlusJakartaSansExtraBold',
-    fontSize: mediumScreen ? 14:10,
+    fontSize: mediumScreen ? FontSize.fourteen:FontSize.ten,
     textTransform: 'uppercase',
     letterSpacing: 1.4,
   },
@@ -698,14 +698,14 @@ const styles = StyleSheet.create({
   progressCardTitle: {
     color: '#fff',
     fontFamily: 'PlusJakartaSansBold',
-    fontSize: mediumScreen ? 21: 18,
+    fontSize: mediumScreen ? FontSize.twentyOne: FontSize.eighteen,
     lineHeight: 28,
     marginBottom: 10,
   },
   progressCardDescription: {
     color: '#94A3B8',
     fontFamily: 'PlusJakartaSans',
-    fontSize: fontScale(14),
+    fontSize: FontSize.fourteen,
     lineHeight: 21,
     marginBottom: 24,
   },
@@ -731,14 +731,14 @@ const styles = StyleSheet.create({
   progressLabel: {
     color: '#64748B',
     fontFamily: 'PlusJakartaSansExtraBold',
-    fontSize: fontScale(10),
+    fontSize: FontSize.ten,
     textTransform: 'uppercase',
     letterSpacing: 1.2,
   },
   progressValue: {
     color: '#fff',
     fontFamily: 'PlusJakartaSansExtraBold',
-    fontSize: fontScale(12),
+    fontSize: FontSize.twelve,
   },
   creatorRail: {
     gap: 14,
@@ -768,7 +768,7 @@ const styles = StyleSheet.create({
   creatorTitle: {
     color: '#fff',
     fontFamily: 'PlusJakartaSansExtraBold',
-    fontSize: fontScale(10),
+    fontSize: FontSize.ten,
     textTransform: 'uppercase',
     letterSpacing: 0.6,
     marginBottom: 4,
@@ -776,7 +776,7 @@ const styles = StyleSheet.create({
   creatorHandle: {
     color: '#CBD5E1',
     fontFamily: 'PlusJakartaSansBold',
-    fontSize: fontScale(12),
+    fontSize: FontSize.twelve,
   },
   submitCard: {
     width: 160,
@@ -792,7 +792,7 @@ const styles = StyleSheet.create({
     marginTop: 10,
     color: '#64748B',
     fontFamily: 'PlusJakartaSansExtraBold',
-    fontSize: fontScale(11),
+    fontSize: FontSize.eleven,
     textTransform: 'uppercase',
     letterSpacing: 1.2,
     textAlign: 'center',

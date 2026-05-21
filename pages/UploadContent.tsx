@@ -21,7 +21,7 @@ import { LinearGradient } from 'expo-linear-gradient';
 import PlayIcon from '../assets/icons/play-arrow-svg.svg';
 import ImageIcon from '../assets/icons/image-svg.svg';
 import VideoCamIcon from '../assets/icons/videocam-svg.svg';
-import { fontScale } from '../fonts';
+import { FontSize } from '../fonts';
 
 type Step = 'select' | 'edit' | 'post';
 type ActiveTool = 'none' | 'filters' | 'adjust' | 'voice' | 'captions' | 'trim';
@@ -170,14 +170,14 @@ const UploadContent: React.FC = () => {
                   height : 14,
                   borderRadius: 7,
                   backgroundColor: 'red'
-                }}>   
+                }}>
                 </View>
                 <View>
                   <Text style={{
                     fontFamily: 'PlusJakartaBold',
                     color: 'white',
                     fontWeight: 'bold',
-                    fontSize: fontScale(12),
+                    fontSize: FontSize.twelve,
 
                   }}>  LIVE PREVIEW</Text>
                 </View>
@@ -211,14 +211,14 @@ const UploadContent: React.FC = () => {
                 <Text style={{
                   color: '#rgba(255 255 255 / 0.7)',
                   fontWeight: '700',
-                  fontSize: fontScale(10),
+                  fontSize: FontSize.ten,
                   marginTop: 10
                 }}>
                   Connect with your fans instantly
                 </Text>
               </View>
               </LinearGradient>
-              
+
             </View>
 
             <View
@@ -248,7 +248,7 @@ const UploadContent: React.FC = () => {
               <Text
               style={{
                 color: '#64748b',
-                fontSize: fontScale(8),
+                fontSize: FontSize.eight,
                 fontWeight: '900',
                 marginTop: 6,
               }}
@@ -270,7 +270,7 @@ const UploadContent: React.FC = () => {
                 borderRadius: 50,
                 padding: 10,
               }}>
-                <VideoCamIcon 
+                <VideoCamIcon
                 height={24}
                 width={24}
                 fill='#3b82f6'/>
@@ -278,7 +278,7 @@ const UploadContent: React.FC = () => {
               <Text
               style={{
                 color: '#64748b',
-                fontSize: fontScale(8),
+                fontSize: FontSize.eight,
                 fontWeight: '900',
                 marginTop: 6,
               }}
@@ -300,7 +300,7 @@ const UploadContent: React.FC = () => {
                 borderRadius: 50,
                 padding: 10,
               }}>
-                <ImageIcon 
+                <ImageIcon
                 height={24}
                 width={24}
                 fill='#10B981'/>
@@ -308,7 +308,7 @@ const UploadContent: React.FC = () => {
               <Text
               style={{
                 color: '#64748b',
-                fontSize: fontScale(8),
+                fontSize: FontSize.eight,
                 fontWeight: '900',
                 marginTop: 6,
               }}
@@ -327,7 +327,7 @@ const UploadContent: React.FC = () => {
           <Text style={{
             color: '#FFFFFF66',
             fontWeight: '900',
-            fontSize: fontScale(10),
+            fontSize: FontSize.ten,
             letterSpacing: 3
           }}>
             RECENT MEDIA
@@ -337,7 +337,7 @@ const UploadContent: React.FC = () => {
           <Text style={{
             color: '#CD2BEE',
             fontWeight: '900',
-            fontSize: fontScale(10),
+            fontSize: FontSize.ten,
             letterSpacing: 3
           }}>
             VIEW ALL
@@ -360,7 +360,7 @@ const UploadContent: React.FC = () => {
             </View>
           </>
         )}
-        
+
         {step === 'edit' && (
           <>
             <View style={[s.preview, { height: 550 }]}>
@@ -373,17 +373,17 @@ const UploadContent: React.FC = () => {
               height: '70%'
             }}>
               {(['trim', 'filters', 'adjust', 'voice', 'captions'] as ActiveTool[]).map((t) => (
-                
+
                 <View style={{
                   justifyContent: 'center',
                   alignItems: 'center'
                 }}>
                 <Pressable key={t} style={[s.chip, tool === t && s.chipActive]} onPress={() => setTool(t)}>
                   <MaterialIcons name={
-                    t==='trim'? 'content-cut' : 
-                    t ==='filters' ? 'auto-awesome': 
-                    t ==='adjust' ? 'tune' : 
-                    t==='voice' ? 'graphic-eq': 'closed-caption'} 
+                    t==='trim'? 'content-cut' :
+                    t ==='filters' ? 'auto-awesome':
+                    t ==='adjust' ? 'tune' :
+                    t==='voice' ? 'graphic-eq': 'closed-caption'}
                     size={30}
                     color = 'white'
                     ></MaterialIcons>
@@ -431,7 +431,7 @@ const UploadContent: React.FC = () => {
                 borderRadius: 32,
               }}
               >
-                
+
               </View>
               </View>
               <View
@@ -444,14 +444,14 @@ const UploadContent: React.FC = () => {
                 <Text
                 style={{
                   color: '#FFFFFF99',
-                  fontSize: fontScale(10),
+                  fontSize: FontSize.ten,
                   fontWeight: '900'
                 }}
                 >0:12</Text>
                 <Text
                 style={{
                   color: '#FFFFFF99',
-                  fontSize: fontScale(10),
+                  fontSize: FontSize.ten,
                   fontWeight: '900'
                 }}
                 >0:45</Text>
@@ -463,7 +463,7 @@ const UploadContent: React.FC = () => {
             </View>
             {captionsEnabled && <Text style={s.captionPreview}>{captionText}</Text>}
             {/* <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={s.chips}>
-              
+
             </ScrollView> */}
 
             {tool === 'filters' && (
@@ -590,22 +590,22 @@ const s = StyleSheet.create({
   row: { flexDirection: 'row', gap: 8, alignItems: 'center' },
   rowWrap: { flexDirection: 'row', flexWrap: 'wrap', gap: 8 },
   chips: { gap: 8 },
-  chip: { borderWidth: 1, borderColor: '#FFFFFF1A', 
+  chip: { borderWidth: 1, borderColor: '#FFFFFF1A',
     borderRadius: 32,
-    paddingHorizontal: 0, 
-    paddingVertical: 0, 
-    height : 60, width: 60, 
-    justifyContent: 'center', 
+    paddingHorizontal: 0,
+    paddingVertical: 0,
+    height : 60, width: 60,
+    justifyContent: 'center',
     alignItems: 'center',
     backgroundColor: '#00000066'
   },
   chipActive: { backgroundColor: '#cd2bee', borderColor: '#cd2bee' },
-  chipText: { color: '#ffffffb3', fontSize: fontScale(8), fontWeight: '900' },
+  chipText: { color: '#ffffffb3', fontSize: FontSize.eight, fontWeight: '900' },
   chipTextActive: { color: '#cd2bee' },
   panel: { backgroundColor: '#15151A', borderRadius: 12, padding: 12, gap: 10 },
   panelTitle: { color: '#cd2bee', fontWeight: '800' },
-  text: { color: '#eee', fontSize: fontScale(12) },
-  muted: { color: '#8A8A8F', fontSize: fontScale(11) },
+  text: { color: '#eee', fontSize: FontSize.twelve },
+  muted: { color: '#8A8A8F', fontSize: FontSize.eleven },
   input: { backgroundColor: '#15151A', borderRadius: 12, color: '#fff', padding: 12, borderWidth: 1, borderColor: '#333' },
   primary: { flex: 1, height: 64, backgroundColor: '#cd2bee', borderRadius: 32, alignItems: 'center', justifyContent: 'center', flexDirection: 'row' },
   primaryText: { color: '#fff', fontWeight: '800' },
@@ -617,7 +617,7 @@ const s = StyleSheet.create({
   sound: { width: 80, height: 80, borderRadius: 12, marginBottom: 4 },
   modal: { flex: 1, backgroundColor: 'rgba(0,0,0,0.9)', alignItems: 'center', justifyContent: 'center', gap: 12, padding: 24 },
   center: { flex: 1, alignItems: 'center', justifyContent: 'center', gap: 12, padding: 24 },
-  title: { color: '#fff', fontWeight: '900', fontSize: fontScale(18), textAlign: 'center' },
+  title: { color: '#fff', fontWeight: '900', fontSize: FontSize.eighteen, textAlign: 'center' },
 });
 
 export default UploadContent;

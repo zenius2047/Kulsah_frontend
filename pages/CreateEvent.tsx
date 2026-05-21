@@ -13,7 +13,7 @@ import { LinearGradient } from 'expo-linear-gradient';
 import { MaterialIcons } from '@expo/vector-icons';
 import { mediumScreen } from '../types';
 import { useNavigation } from '@react-navigation/native';
-import { fontScale } from '../fonts';
+import { FontSize } from '../fonts';
 
 const toolItems = [
   { label: 'Editor', icon: 'photo-camera' as const },
@@ -130,7 +130,7 @@ const CreateEvent: React.FC = () => {
           showsVerticalScrollIndicator={false}
           contentContainerStyle={styles.scrollContent}
         >
-          <ScrollView
+          {/* <ScrollView
             horizontal
             showsHorizontalScrollIndicator={false}
             contentContainerStyle={styles.toolsRow}
@@ -143,7 +143,7 @@ const CreateEvent: React.FC = () => {
                 <Text style={[styles.toolLabel, { color: subtle }]}>{item.label}</Text>
               </Pressable>
             ))}
-          </ScrollView>
+          </ScrollView> */}
 
           <View style={styles.heroRow}>
             <Pressable style={styles.newVideoCard}>
@@ -189,7 +189,7 @@ const CreateEvent: React.FC = () => {
             ))}
           </View>
 
-          <View style={styles.section}>
+          {/* <View style={styles.section}>
             <View style={styles.sectionHeader}>
               <Text style={[styles.templatesTitle, { color: titleTone }]}>Templates</Text>
               <Pressable style={[styles.searchButton, { backgroundColor: softSurface }]}>
@@ -253,7 +253,7 @@ const CreateEvent: React.FC = () => {
                 ))}
               </View>
             </View>
-          </View>
+          </View> */}
 
           <View style={styles.section}>
             <View style={styles.sectionHeader}>
@@ -327,7 +327,7 @@ const styles = StyleSheet.create({
   },
   headerTitle: {
     fontFamily: 'PlusJakartaSansExtraBold',
-    fontSize: mediumScreen ? 16: 13,
+    fontSize: mediumScreen ? FontSize.sixteen: FontSize.thirteen,
     letterSpacing: 3.2,
   },
   headerSpacer: {
@@ -357,7 +357,7 @@ const styles = StyleSheet.create({
   },
   toolLabel: {
     fontFamily: 'PlusJakartaSansBold',
-    fontSize: mediumScreen ? 12: 8,
+    fontSize: mediumScreen ? FontSize.twelve: FontSize.eight,
     lineHeight: 13,
     letterSpacing: 1,
     textAlign: 'center',
@@ -390,7 +390,7 @@ const styles = StyleSheet.create({
   newVideoTitle: {
     color: '#000000',
     fontFamily: 'PlusJakartaSansExtraBold',
-    fontSize: mediumScreen ? 16: 13,
+    fontSize: mediumScreen ? FontSize.sixteen: FontSize.thirteen,
   },
   draftCard: {
     flex: 1,
@@ -412,12 +412,12 @@ const styles = StyleSheet.create({
   draftCount: {
     color: '#ffffff',
     fontFamily: 'PlusJakartaSansExtraBold',
-    fontSize: fontScale(28),
+    fontSize: FontSize.twentyEight,
   },
   draftLabel: {
     color: '#ffffff',
     fontFamily: 'PlusJakartaSansBold',
-    fontSize: mediumScreen ? 14: 10,
+    fontSize: mediumScreen ? FontSize.fourteen: FontSize.ten,
     letterSpacing: 1.2,
   },
   actionsColumn: {
@@ -444,12 +444,12 @@ const styles = StyleSheet.create({
   },
   actionTitle: {
     fontFamily: 'PlusJakartaSansExtraBold',
-    fontSize: mediumScreen ? 16: 13,
+    fontSize: mediumScreen ? FontSize.sixteen: FontSize.thirteen,
     marginBottom: 4,
   },
   actionDescription: {
     fontFamily: 'PlusJakartaSansMedium',
-    fontSize: mediumScreen ? 16: 12,
+    fontSize: mediumScreen ? FontSize.sixteen: FontSize.twelve,
     lineHeight: 20,
   },
   section: {
@@ -463,7 +463,7 @@ const styles = StyleSheet.create({
   },
   templatesTitle: {
     fontFamily: 'PlusJakartaSansExtraBold',
-    fontSize: mediumScreen ? 21: 18,
+    fontSize: mediumScreen ? FontSize.twentyOne: FontSize.eighteen,
     letterSpacing: -0.6,
   },
   searchButton: {
@@ -483,7 +483,7 @@ const styles = StyleSheet.create({
   },
   tabText: {
     fontFamily: 'PlusJakartaSansBold',
-    fontSize: mediumScreen ? 18:14,
+    fontSize: mediumScreen ? FontSize.eighteen:FontSize.fourteen,
     marginBottom: 12,
   },
   tabTextActive: {
@@ -543,22 +543,22 @@ const styles = StyleSheet.create({
   templateName: {
     color: '#ffffff',
     fontFamily: 'PlusJakartaSansExtraBold',
-    fontSize: mediumScreen ? 15:11,
+    fontSize: mediumScreen ? FontSize.fifteen:FontSize.eleven,
     letterSpacing: 0.6,
   },
   templateMeta: {
     fontFamily: 'PlusJakartaSansMedium',
-    fontSize: mediumScreen ? 14:10,
+    fontSize: mediumScreen ? FontSize.fourteen:FontSize.ten,
     marginTop: 3,
   },
   soundSectionTitle: {
     fontFamily: 'PlusJakartaSansExtraBold',
-    fontSize: mediumScreen ? 20:16,
+    fontSize: mediumScreen ? FontSize.twenty:FontSize.sixteen,
   },
   seeAllText: {
     color: '#cd2bee',
     fontFamily: 'PlusJakartaSansBold',
-    fontSize: mediumScreen ? 16:12,
+    fontSize: mediumScreen ? FontSize.sixteen:FontSize.twelve,
     letterSpacing: 1,
     textTransform: 'uppercase',
   },
@@ -580,12 +580,12 @@ const styles = StyleSheet.create({
   },
   soundTitle: {
     fontFamily: 'PlusJakartaSansBold',
-    fontSize: mediumScreen ? 16:13,
+    fontSize: mediumScreen ? FontSize.sixteen:FontSize.thirteen,
     marginBottom: 4,
   },
   soundMeta: {
     fontFamily: 'PlusJakartaSansMedium',
-    fontSize: mediumScreen ? 16:12,
+    fontSize: mediumScreen ? FontSize.sixteen:FontSize.twelve,
   },
   soundAddButton: {
     width: 32,

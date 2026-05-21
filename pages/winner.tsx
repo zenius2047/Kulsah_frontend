@@ -11,7 +11,7 @@ import {
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { LinearGradient } from 'expo-linear-gradient';
 import { MaterialIcons } from '@expo/vector-icons';
-import { fontScale } from '../fonts';
+import { FontSize } from '../fonts';
 
 const completedChallenges = [
   'https://lh3.googleusercontent.com/aida-public/AB6AXuBxZ1KLLhqU68Nxsc2iwdJRQhOJu0SSiYWV6cAGJ_lMmLaenC2imrnOCB6FqJWkZR_alkNRc-fwLRg0dlxqKhnSZitQThNRHWLdZkYncgXoe47MZOQemMm79hGT1MVLxJD6kVjsQaLRoMtZCn60FCRiw3jataJhfItAeyHRrQbynHUU4Bu-SsxtsQOV0xea1-fxdaOeTdG4N5FWds94Tlm7D91OQbvkQo5GhXQ-RDv2y35iLWztd2JHmS5Cqzu7GhC78Z8N9AAGXJps',
@@ -172,7 +172,7 @@ const styles = StyleSheet.create({
   topTitle: {
     color: '#F8FAFC',
     fontFamily: 'PlusJakartaSansExtraBold',
-    fontSize: fontScale(18),
+    fontSize: FontSize.eighteen,
     letterSpacing: -0.5,
   },
   backgroundLeaks: {
@@ -223,13 +223,13 @@ const styles = StyleSheet.create({
   congratsText: {
     color: '#cd2bee',
     fontFamily: 'PlusJakartaSansExtraBold',
-    fontSize: fontScale(12),
+    fontSize: FontSize.twelve,
     letterSpacing: 1.5,
   },
   heroTitle: {
     color: '#F8FAFC',
     fontFamily: 'PlusJakartaSansExtraBold',
-    fontSize: fontScale(39),
+    fontSize: FontSize.thirtyNine,
     lineHeight: 40,
     textAlign: 'center',
   },
@@ -316,13 +316,13 @@ const styles = StyleSheet.create({
   name: {
     color: '#F8FAFC',
     fontFamily: 'PlusJakartaSansBold',
-    fontSize: fontScale(25),
+    fontSize: FontSize.twentyFive,
     marginBottom: 4,
   },
   handle: {
     color: '#cd2bee',
     fontFamily: 'PlusJakartaSansMedium',
-    fontSize: fontScale(16),
+    fontSize: FontSize.sixteen,
     marginBottom: 20,
   },
   divider: {
@@ -338,14 +338,14 @@ const styles = StyleSheet.create({
   challengeLabel: {
     color: '#94A3B8',
     fontFamily: 'PlusJakartaSansExtraBold',
-    fontSize: fontScale(10),
+    fontSize: FontSize.ten,
     letterSpacing: 1.8,
     marginBottom: 6,
   },
   challengeTitle: {
     color: '#F8FAFC',
     fontFamily: 'PlusJakartaSansBold',
-    fontSize: fontScale(20),
+    fontSize: FontSize.twenty,
     textAlign: 'center',
   },
   rewardGrid: {
@@ -364,7 +364,7 @@ const styles = StyleSheet.create({
   rewardLabel: {
     color: '#94A3B8',
     fontFamily: 'PlusJakartaSansExtraBold',
-    fontSize: fontScale(10),
+    fontSize: FontSize.ten,
     letterSpacing: 1.2,
     marginTop: 8,
     marginBottom: 6,
@@ -372,7 +372,7 @@ const styles = StyleSheet.create({
   rewardValue: {
     color: '#F8FAFC',
     fontFamily: 'PlusJakartaSansExtraBold',
-    fontSize: fontScale(20),
+    fontSize: FontSize.twenty,
   },
   primaryButton: {
     width: '100%',
@@ -394,7 +394,7 @@ const styles = StyleSheet.create({
   primaryButtonText: {
     color: '#fff',
     fontFamily: 'PlusJakartaSansExtraBold',
-    fontSize: fontScale(18),
+    fontSize: FontSize.eighteen,
     letterSpacing: 1.4,
   },
   secondaryButton: {
@@ -413,7 +413,7 @@ const styles = StyleSheet.create({
   secondaryButtonText: {
     color: '#CBD5E1',
     fontFamily: 'PlusJakartaSansBold',
-    fontSize: fontScale(14),
+    fontSize: FontSize.fourteen,
     letterSpacing: 0.8,
     textTransform: 'uppercase',
   },
@@ -426,7 +426,7 @@ const styles = StyleSheet.create({
   completedLabel: {
     color: '#64748B',
     fontFamily: 'PlusJakartaSansExtraBold',
-    fontSize: fontScale(10),
+    fontSize: FontSize.ten,
     letterSpacing: 2.2,
     textAlign: 'center',
     marginBottom: 16,

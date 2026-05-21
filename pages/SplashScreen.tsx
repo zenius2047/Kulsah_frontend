@@ -5,7 +5,7 @@ import { useThemeMode } from '../theme';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import K from '../assets/icons/k.svg'
 import { mediumScreen } from '../types';
-import { fontScale } from '../fonts';
+import { FontSize } from '../fonts';
 
 
 const { height: SCREEN_HEIGHT, width: SCREEN_WIDTH } = Dimensions.get('screen');
@@ -23,7 +23,7 @@ const {isDark, theme} = useThemeMode();
         alignItems: 'center',
         justifyContent: 'center'
     }}>
-        
+
     <View style={{
         // backgroundColor: 'red',
         // height: 50,
@@ -44,7 +44,7 @@ const {isDark, theme} = useThemeMode();
             alignItems: 'flex-end'
         }}>
             <Text style={{
-            fontSize: mediumScreen ? fontScale(34): fontScale(30),
+            fontSize: mediumScreen ? FontSize.thirtyFour: FontSize.thirty,
             fontFamily: 'GudlaExtraBold',
             letterSpacing: 0.5,
             color: isDark ? 'white': 'black'
@@ -52,7 +52,7 @@ const {isDark, theme} = useThemeMode();
                 ulsah
             </Text>
             <Text style={{
-            fontSize: mediumScreen ? fontScale(6): fontScale(6),
+            fontSize: mediumScreen ? FontSize.six: FontSize.six,
             fontFamily: 'GudlaRegular',
             color: isDark ? 'white': 'black',
             letterSpacing: 0.4

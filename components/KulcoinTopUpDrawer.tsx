@@ -1,10 +1,11 @@
 import { MaterialIcons } from '@expo/vector-icons';
 import React, { useEffect, useMemo, useState } from 'react';
-import { Modal, Pressable, StyleSheet, Text, TextInput, View } from 'react-native';
+import { Modal, Pressable, StyleSheet, Text, View } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
-import { fontScale } from '../fonts';
+import { FontSize } from '../fonts';
 import { useThemeMode } from '../theme';
 import { mediumScreen } from '../types';
+import KulsahInputBar from './KulsahInputBar';
 
 type KulcoinTopUpDrawerProps = {
   currentBalance: number;
@@ -150,9 +151,7 @@ const KulcoinTopUpDrawer: React.FC<KulcoinTopUpDrawerProps> = ({
                     </Text>
                   </View>
                 </View>
-                <View style={[styles.customInputWrap, { backgroundColor: customInputBg, borderColor: customInputBorder }]}>
-                  <Text style={styles.customCurrency}>GHS</Text>
-                  <TextInput
+                <KulsahInputBar
                     value={customAmount}
                     onFocus={() => setSelectedPackage(CUSTOM_PACKAGE_ID)}
                     onChangeText={(value) => {
@@ -163,9 +162,10 @@ const KulcoinTopUpDrawer: React.FC<KulcoinTopUpDrawerProps> = ({
                     keyboardType="decimal-pad"
                     placeholder="Enter amount"
                     placeholderTextColor={tertiaryText}
-                    style={[styles.customInput, { color: titleColor }]}
+                    containerStyle={[styles.customInputWrap, { backgroundColor: customInputBg, borderColor: customInputBorder }]}
+                    inputStyle={[styles.customInput, { color: titleColor }]}
+                    leftAccessory={<Text style={styles.customCurrency}>GHS</Text>}
                   />
-                </View>
                 <Text style={[styles.customEstimate, { color: mutedText }]}>
                   {customPkgData
                     ? `You will receive about ${customPkgData.coins} KC`
@@ -274,20 +274,20 @@ const styles = StyleSheet.create({
   warningText: {
     color: '#cd2bee',
     fontFamily: 'PlusJakartaSansExtraBold',
-    fontSize: fontScale(7),
+    fontSize: FontSize.seven,
     textTransform: 'uppercase',
     letterSpacing: 1.2,
   },
   drawerTitle: {
     color: '#ffffff',
     fontFamily: 'PlusJakartaSansExtraBold',
-    fontSize: mediumScreen ? fontScale(18): fontScale(14),
+    fontSize: mediumScreen ? FontSize.eighteen: FontSize.fourteen,
     textTransform: 'uppercase',
   },
   drawerBalance: {
     color: 'rgba(255,255,255,0.45)',
     fontFamily: 'PlusJakartaSansExtraBold',
-    fontSize: fontScale(8),
+    fontSize: FontSize.eight,
     textTransform: 'uppercase',
     letterSpacing: 2,
   },
@@ -334,13 +334,13 @@ const styles = StyleSheet.create({
   customTitle: {
     color: '#ffffff',
     fontFamily: 'PlusJakartaSansExtraBold',
-    fontSize: fontScale(12),
+    fontSize: FontSize.twelve,
     textTransform: 'uppercase',
   },
   customSubtitle: {
     color: 'rgba(255,255,255,0.48)',
     fontFamily: 'PlusJakartaSansBold',
-    fontSize: fontScale(8),
+    fontSize: FontSize.eight,
   },
   customInputWrap: {
     minHeight: 54,
@@ -356,20 +356,20 @@ const styles = StyleSheet.create({
   customCurrency: {
     color: '#cd2bee',
     fontFamily: 'PlusJakartaSansExtraBold',
-    fontSize: fontScale(10),
+    fontSize: FontSize.ten,
     textTransform: 'uppercase',
   },
   customInput: {
     flex: 1,
     color: '#ffffff',
     fontFamily: 'PlusJakartaSansExtraBold',
-    fontSize: fontScale(12),
+    fontSize: FontSize.twelve,
     paddingVertical: 0,
   },
   customEstimate: {
     color: 'rgba(255,255,255,0.56)',
     fontFamily: 'PlusJakartaSansBold',
-    fontSize: fontScale(8),
+    fontSize: FontSize.eight,
   },
   bestValueChip: {
     position: 'absolute',
@@ -383,7 +383,7 @@ const styles = StyleSheet.create({
   bestValueText: {
     color: '#ffffff',
     fontFamily: 'PlusJakartaSansExtraBold',
-    fontSize: fontScale(6),
+    fontSize: FontSize.six,
     textTransform: 'uppercase',
     letterSpacing: 1,
   },
@@ -398,12 +398,12 @@ const styles = StyleSheet.create({
   packageCoins: {
     color: '#ffffff',
     fontFamily: 'PlusJakartaSansExtraBold',
-    fontSize: mediumScreen ? fontScale(18): fontScale(14),
+    fontSize: mediumScreen ? FontSize.eighteen: FontSize.fourteen,
   },
   packageLabel: {
     color: 'rgba(255,255,255,0.42)',
     fontFamily: 'PlusJakartaSansExtraBold',
-    fontSize: fontScale(8),
+    fontSize: FontSize.eight,
     textTransform: 'uppercase',
     letterSpacing: 1.4,
   },
@@ -426,7 +426,7 @@ const styles = StyleSheet.create({
   purchaseButtonText: {
     color: '#ffffff',
     fontFamily: 'PlusJakartaSansExtraBold',
-    fontSize: fontScale(11),
+    fontSize: FontSize.eleven,
   },
   cancelTransactionButton: {
     alignItems: 'center',
@@ -436,7 +436,7 @@ const styles = StyleSheet.create({
   cancelTransactionText: {
     color: 'rgba(255,255,255,0.26)',
     fontFamily: 'PlusJakartaSansExtraBold',
-    fontSize: fontScale(8),
+    fontSize: FontSize.eight,
     textTransform: 'uppercase',
     letterSpacing: 2,
   },
@@ -453,7 +453,7 @@ const styles = StyleSheet.create({
     color: '#ffffff',
     textAlign: 'center',
     fontFamily: 'PlusJakartaSansExtraBold',
-    fontSize: fontScale(18),
+    fontSize: FontSize.eighteen,
     textTransform: 'uppercase',
     marginBottom: 18,
   },
@@ -474,17 +474,17 @@ const styles = StyleSheet.create({
   paymentLabel: {
     color: 'rgba(255,255,255,0.5)',
     fontFamily: 'PlusJakartaSansBold',
-    fontSize: fontScale(10),
+    fontSize: FontSize.ten,
   },
   paymentValue: {
     color: '#ffffff',
     fontFamily: 'PlusJakartaSansExtraBold',
-    fontSize: fontScale(10),
+    fontSize: FontSize.ten,
   },
   paymentAccent: {
     color: '#cd2bee',
     fontFamily: 'PlusJakartaSansExtraBold',
-    fontSize: fontScale(10),
+    fontSize: FontSize.ten,
   },
   cancelPaymentButton: {
     alignItems: 'center',
@@ -497,7 +497,7 @@ const styles = StyleSheet.create({
   cancelPaymentText: {
     color: 'rgba(255,255,255,0.5)',
     fontFamily: 'PlusJakartaSansExtraBold',
-    fontSize: fontScale(9),
+    fontSize: FontSize.nine,
     textTransform: 'uppercase',
     letterSpacing: 1.4,
   },

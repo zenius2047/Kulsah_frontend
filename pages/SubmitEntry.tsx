@@ -14,7 +14,7 @@ import {
 } from 'react-native';
 import { MaterialIcons } from '@expo/vector-icons';
 import { useNavigation } from '@react-navigation/native';
-import { fontScale } from '../fonts';
+import { FontSize } from '../fonts';
 
 const previewImage =
   'https://lh3.googleusercontent.com/aida-public/AB6AXuDhFOftNzhs814shqXm7wsAjhpwgP6vdnALyuid0Wfz-EnNLz-62RACTh85zIywL8WoBz1HuyX-nfeEHJ-I6SrmLZJQvP9lXpMHO1vwvZVjYORCfTKexBTzDZounMgCXAAniKec20F8gMW3jJtkvU2f5DjjLu1GhLyMGomadglNeGEbriDqwCKQkMeBpc3obvTvhuG5cINCuKXP1i6v9u-fGTyWtwo7nGMa3Y9_NNvdnVt8z_U3NJsKZfECzDg6dyvdMqB9bOIfE77E';
@@ -291,7 +291,7 @@ const styles = StyleSheet.create({
   },
   headerTitle: {
     fontFamily: 'PlusJakartaSansBold',
-    fontSize: fontScale(13),
+    fontSize: FontSize.thirteen,
   },
   headerPostButton: {
     paddingHorizontal: 16,
@@ -301,7 +301,7 @@ const styles = StyleSheet.create({
   headerPostText: {
     color: '#cd2bee',
     fontFamily: 'PlusJakartaSansBold',
-    fontSize: fontScale(12),
+    fontSize: FontSize.twelve,
   },
   content: {
     paddingTop: 108,
@@ -340,7 +340,7 @@ const styles = StyleSheet.create({
   previewDurationText: {
     color: '#fff',
     fontFamily: 'PlusJakartaSansBold',
-    fontSize: fontScale(10),
+    fontSize: FontSize.ten,
     letterSpacing: 0.7,
   },
   formColumn: {
@@ -353,7 +353,7 @@ const styles = StyleSheet.create({
   inputLabel: {
     marginLeft: 4,
     fontFamily: 'PlusJakartaSansBold',
-    fontSize: fontScale(10),
+    fontSize: FontSize.ten,
     textTransform: 'uppercase',
     letterSpacing: 0.8,
   },
@@ -362,7 +362,7 @@ const styles = StyleSheet.create({
     paddingHorizontal: 14,
     paddingVertical: 12,
     fontFamily: 'PlusJakartaSansMedium',
-    fontSize: fontScale(12),
+    fontSize: FontSize.twelve,
   },
   textArea: {
     minHeight: 92,
@@ -371,7 +371,7 @@ const styles = StyleSheet.create({
     paddingVertical: 12,
     textAlignVertical: 'top',
     fontFamily: 'PlusJakartaSansMedium',
-    fontSize: fontScale(12),
+    fontSize: FontSize.twelve,
   },
   section: {
     gap: 12,
@@ -384,12 +384,12 @@ const styles = StyleSheet.create({
   },
   sectionTitle: {
     fontFamily: 'PlusJakartaSansBold',
-    fontSize: fontScale(15),
+    fontSize: FontSize.fifteen,
   },
   sectionHint: {
     color: '#cd2bee',
     fontFamily: 'PlusJakartaSansBold',
-    fontSize: fontScale(10),
+    fontSize: FontSize.ten,
     textTransform: 'uppercase',
     letterSpacing: 0.8,
   },
@@ -418,7 +418,7 @@ const styles = StyleSheet.create({
   activeTagText: {
     color: '#cd2bee',
     fontFamily: 'PlusJakartaSansBold',
-    fontSize: fontScale(13),
+    fontSize: FontSize.thirteen,
   },
   addTagButton: {
     flexDirection: 'row',
@@ -430,7 +430,7 @@ const styles = StyleSheet.create({
   },
   addTagText: {
     fontFamily: 'PlusJakartaSansBold',
-    fontSize: fontScale(10),
+    fontSize: FontSize.ten,
     textTransform: 'uppercase',
     letterSpacing: 0.8,
   },
@@ -448,7 +448,7 @@ const styles = StyleSheet.create({
   },
   suggestedChipText: {
     fontFamily: 'PlusJakartaSansMedium',
-    fontSize: fontScale(12),
+    fontSize: FontSize.twelve,
   },
   permissionsCard: {
     borderRadius: 20,
@@ -478,12 +478,12 @@ const styles = StyleSheet.create({
   },
   permissionTitle: {
     fontFamily: 'PlusJakartaSansBold',
-    fontSize: fontScale(11),
+    fontSize: FontSize.eleven,
   },
   permissionSubtitle: {
     marginTop: 2,
     fontFamily: 'PlusJakartaSans',
-    fontSize: fontScale(11),
+    fontSize: FontSize.eleven,
   },
   advancedButton: {
     flexDirection: 'row',
@@ -494,7 +494,7 @@ const styles = StyleSheet.create({
   },
   advancedText: {
     fontFamily: 'PlusJakartaSansBold',
-    fontSize: fontScale(10),
+    fontSize: FontSize.ten,
     textTransform: 'uppercase',
     letterSpacing: 1,
   },
@@ -518,7 +518,7 @@ const styles = StyleSheet.create({
   postVideoText: {
     color: '#fff',
     fontFamily: 'PlusJakartaSansExtraBold',
-    fontSize: fontScale(12),
+    fontSize: FontSize.twelve,
     letterSpacing: 1.1,
   },
 });

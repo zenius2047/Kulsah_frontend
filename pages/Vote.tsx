@@ -12,7 +12,7 @@ import {
 import { MaterialIcons } from '@expo/vector-icons';
 import { LinearGradient } from 'expo-linear-gradient';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
-import { fontScale } from '../fonts';
+import { FontSize } from '../fonts';
 
 type CoinPack = {
   id: string;
@@ -259,7 +259,7 @@ const styles = StyleSheet.create({
   brand: {
     color: '#f8fafc',
     fontFamily: 'PlusJakartaSansExtraBold',
-    fontSize: fontScale(14),
+    fontSize: FontSize.fourteen,
     fontStyle: 'italic',
     letterSpacing: 0.6,
   },
@@ -282,7 +282,7 @@ const styles = StyleSheet.create({
   walletChipText: {
     color: '#f8fafc',
     fontFamily: 'PlusJakartaSansBold',
-    fontSize: fontScale(9),
+    fontSize: FontSize.nine,
     textTransform: 'uppercase',
     letterSpacing: 0.8,
   },
@@ -327,19 +327,19 @@ const styles = StyleSheet.create({
   hotBadgeText: {
     color: '#d68cef',
     fontFamily: 'PlusJakartaSansExtraBold',
-    fontSize: fontScale(7),
+    fontSize: FontSize.seven,
     letterSpacing: 1.1,
     fontStyle: 'italic',
   },
   heroTitle: {
     color: '#ffffff',
     fontFamily: 'PlusJakartaSansExtraBold',
-    fontSize: fontScale(17),
+    fontSize: FontSize.seventeen,
   },
   heroSubtitle: {
     color: '#94a3b8',
     fontFamily: 'PlusJakartaSansMedium',
-    fontSize: fontScale(9),
+    fontSize: FontSize.nine,
     lineHeight: 18,
   },
   sectionHeader: {
@@ -351,13 +351,13 @@ const styles = StyleSheet.create({
   modalTitle: {
     color: '#ffffff',
     fontFamily: 'PlusJakartaSansExtraBold',
-    fontSize: fontScale(16),
+    fontSize: FontSize.sixteen,
   },
   modalSubtitle: {
     marginTop: 4,
     color: '#94a3b8',
     fontFamily: 'PlusJakartaSansMedium',
-    fontSize: fontScale(9),
+    fontSize: FontSize.nine,
   },
   balancePill: {
     flexDirection: 'row',
@@ -374,7 +374,7 @@ const styles = StyleSheet.create({
   balanceText: {
     color: '#ffffff',
     fontFamily: 'PlusJakartaSansBold',
-    fontSize: fontScale(11),
+    fontSize: FontSize.eleven,
   },
   packSection: {
     paddingHorizontal: 16,
@@ -385,7 +385,7 @@ const styles = StyleSheet.create({
     paddingHorizontal: 6,
     color: '#64748b',
     fontFamily: 'PlusJakartaSansExtraBold',
-    fontSize: fontScale(7),
+    fontSize: FontSize.seven,
     textTransform: 'uppercase',
     letterSpacing: 1.5,
   },
@@ -431,7 +431,7 @@ const styles = StyleSheet.create({
   packCoins: {
     color: '#e2e8f0',
     fontFamily: 'PlusJakartaSansBold',
-    fontSize: fontScale(11),
+    fontSize: FontSize.eleven,
   },
   packCoinsSelected: {
     color: '#ffffff',
@@ -439,7 +439,7 @@ const styles = StyleSheet.create({
   packPrice: {
     color: '#94a3b8',
     fontFamily: 'PlusJakartaSansBold',
-    fontSize: fontScale(8),
+    fontSize: FontSize.eight,
     letterSpacing: 0.4,
     textTransform: 'uppercase',
   },
@@ -459,7 +459,7 @@ const styles = StyleSheet.create({
   bestValueText: {
     color: '#d68cef',
     fontFamily: 'PlusJakartaSansExtraBold',
-    fontSize: fontScale(6),
+    fontSize: FontSize.six,
     letterSpacing: 1,
     fontStyle: 'italic',
   },
@@ -482,7 +482,7 @@ const styles = StyleSheet.create({
   },
   packActionText: {
     fontFamily: 'PlusJakartaSansExtraBold',
-    fontSize: fontScale(8),
+    fontSize: FontSize.eight,
     letterSpacing: 0.8,
   },
   packActionTextDefault: {
@@ -510,7 +510,7 @@ const styles = StyleSheet.create({
   confirmButtonText: {
     color: '#ffffff',
     fontFamily: 'PlusJakartaSansExtraBold',
-    fontSize: fontScale(11),
+    fontSize: FontSize.eleven,
   },
   cancelButton: {
     alignItems: 'center',
@@ -521,7 +521,7 @@ const styles = StyleSheet.create({
   cancelButtonText: {
     color: '#64748b',
     fontFamily: 'PlusJakartaSansExtraBold',
-    fontSize: fontScale(8),
+    fontSize: FontSize.eight,
     textTransform: 'uppercase',
     letterSpacing: 1.4,
   },

@@ -12,7 +12,7 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 import { LinearGradient } from 'expo-linear-gradient';
 import { MaterialIcons } from '@expo/vector-icons';
 import { useNavigation } from '@react-navigation/native';
-import { fontScale } from '../fonts';
+import { FontSize } from '../fonts';
 import { mediumScreen } from '../types';
 
 const PREVIEW_IMAGE =
@@ -293,7 +293,7 @@ const styles = StyleSheet.create({
   },
   headerTitle: {
     fontFamily: 'PlusJakartaSansExtraBold',
-    fontSize: mediumScreen? fontScale(16):fontScale(12),
+    fontSize: mediumScreen? FontSize.sixteen:FontSize.twelve,
     letterSpacing: -0.3,
   },
   scroll: {
@@ -320,18 +320,18 @@ const styles = StyleSheet.create({
   stepBadgeText: {
     color: '#cd2bee',
     fontFamily: 'PlusJakartaSansBold',
-    fontSize: mediumScreen? fontScale(12):fontScale(8),
+    fontSize: mediumScreen? FontSize.twelve:FontSize.eight,
     textTransform: 'uppercase',
     letterSpacing: 1,
   },
   heroTitle: {
     fontFamily: 'PlusJakartaSansExtraBold',
-    fontSize: mediumScreen ? fontScale(14):fontScale(14),
+    fontSize: mediumScreen ? FontSize.fourteen:FontSize.fourteen,
     lineHeight: 40,
   },
   heroSubtitle: {
     fontFamily: 'PlusJakartaSansMedium',
-    fontSize: mediumScreen? fontScale(16):fontScale(12),
+    fontSize: mediumScreen? FontSize.sixteen:FontSize.twelve,
     lineHeight: 22,
     maxWidth: 420,
   },
@@ -350,7 +350,7 @@ const styles = StyleSheet.create({
   sectionEyebrow: {
     color: '#cd2bee',
     fontFamily: 'PlusJakartaSansBold',
-    fontSize: mediumScreen? fontScale(14):fontScale(10),
+    fontSize: mediumScreen? FontSize.fourteen:FontSize.ten,
     letterSpacing: 1.4,
     textTransform: 'uppercase',
   },
@@ -392,7 +392,7 @@ const styles = StyleSheet.create({
   hotPillText: {
     color: '#ffffff',
     fontFamily: 'PlusJakartaSansExtraBold',
-    fontSize: mediumScreen? fontScale(12):fontScale(8),
+    fontSize: mediumScreen? FontSize.twelve:FontSize.eight,
   },
   enteredPill: {
     paddingHorizontal: 12,
@@ -405,7 +405,7 @@ const styles = StyleSheet.create({
   enteredPillText: {
     color: '#ffffff',
     fontFamily: 'PlusJakartaSansExtraBold',
-    fontSize: mediumScreen? fontScale(12):fontScale(8),
+    fontSize: mediumScreen? FontSize.twelve:FontSize.eight,
   },
   previewBody: {
     padding: 20,
@@ -413,12 +413,12 @@ const styles = StyleSheet.create({
   },
   previewTitle: {
     fontFamily: 'PlusJakartaSansBold',
-    fontSize: mediumScreen? fontScale(16):fontScale(12),
+    fontSize: mediumScreen? FontSize.sixteen:FontSize.twelve,
     lineHeight: 32,
   },
   previewDescription: {
     fontFamily: 'PlusJakartaSansMedium',
-    fontSize: mediumScreen? fontScale(16):fontScale(12),
+    fontSize: mediumScreen? FontSize.sixteen:FontSize.twelve,
     lineHeight: 20,
   },
   joiningRow: {
@@ -452,12 +452,12 @@ const styles = StyleSheet.create({
   avatarCountText: {
     color: '#ffffff',
     fontFamily: 'PlusJakartaSansBold',
-    fontSize: fontScale(10),
+    fontSize: FontSize.ten,
   },
   joiningText: {
     color: '#cd2bee',
     fontFamily: 'PlusJakartaSansBold',
-    fontSize: fontScale(12),
+    fontSize: FontSize.twelve,
   },
   bentoGrid: {
     gap: 14,
@@ -488,24 +488,24 @@ const styles = StyleSheet.create({
   },
   infoLabel: {
     fontFamily: 'PlusJakartaSansBold',
-    fontSize: mediumScreen? fontScale(16):fontScale(12),
+    fontSize: mediumScreen? FontSize.sixteen:FontSize.twelve,
     textTransform: 'uppercase',
     letterSpacing: 1.1,
   },
   infoTitle: {
     fontFamily: 'PlusJakartaSansBold',
-    fontSize: mediumScreen? fontScale(18):fontScale(14),
+    fontSize: mediumScreen? FontSize.eighteen:FontSize.fourteen,
     lineHeight: 26,
   },
   infoText: {
     fontFamily: 'PlusJakartaSansMedium',
-    fontSize: mediumScreen? fontScale(16):fontScale(12),
+    fontSize: mediumScreen? FontSize.sixteen:FontSize.twelve,
     lineHeight: 18,
   },
   rewardValue: {
     color: '#ffade8',
     fontFamily: 'PlusJakartaSansExtraBold',
-    fontSize: mediumScreen? fontScale(16):fontScale(12),
+    fontSize: mediumScreen? FontSize.sixteen:FontSize.twelve,
   },
   rewardChip: {
     alignSelf: 'flex-start',
@@ -520,7 +520,7 @@ const styles = StyleSheet.create({
   rewardChipText: {
     color: '#cbd5e1',
     fontFamily: 'PlusJakartaSansBold',
-    fontSize: mediumScreen? fontScale(14):fontScale(10),
+    fontSize: mediumScreen? FontSize.fourteen:FontSize.ten,
   },
   checklistCard: {
     position: 'relative',
@@ -546,7 +546,7 @@ const styles = StyleSheet.create({
   },
   checklistTitle: {
     fontFamily: 'PlusJakartaSansBold',
-    fontSize: mediumScreen? fontScale(18):fontScale(14),
+    fontSize: mediumScreen? FontSize.eighteen:FontSize.fourteen,
   },
   checklistList: {
     gap: 20,
@@ -567,11 +567,11 @@ const styles = StyleSheet.create({
   checklistItemTitle: {
     color: '#ffffff',
     fontFamily: 'PlusJakartaSansBold',
-    fontSize: mediumScreen? fontScale(16):fontScale(12),
+    fontSize: mediumScreen? FontSize.sixteen:FontSize.twelve,
   },
   checklistItemSubtitle: {
     fontFamily: 'PlusJakartaSansMedium',
-    fontSize: mediumScreen? fontScale(14):fontScale(10),
+    fontSize: mediumScreen? FontSize.fourteen:FontSize.ten,
   },
   costSection: {
     paddingTop: 20,
@@ -585,11 +585,11 @@ const styles = StyleSheet.create({
   },
   costLabel: {
     fontFamily: 'PlusJakartaSansMedium',
-    fontSize: mediumScreen? fontScale(14):fontScale(12),
+    fontSize: mediumScreen? FontSize.fourteen:FontSize.twelve,
   },
   costValue: {
     fontFamily: 'PlusJakartaSansBold',
-    fontSize: mediumScreen? fontScale(14):fontScale(10),
+    fontSize: mediumScreen? FontSize.fourteen:FontSize.ten,
   },
   totalRow: {
     flexDirection: 'row',
@@ -598,12 +598,12 @@ const styles = StyleSheet.create({
   },
   totalLabel: {
     fontFamily: 'PlusJakartaSansBold',
-    fontSize: mediumScreen? fontScale(16):fontScale(12),
+    fontSize: mediumScreen? FontSize.sixteen:FontSize.twelve,
   },
   totalValue: {
     color: '#cd2bee',
     fontFamily: 'PlusJakartaSansExtraBold',
-    fontSize: mediumScreen? fontScale(16):fontScale(12),
+    fontSize: mediumScreen? FontSize.sixteen:FontSize.twelve,
   },
   launchButton: {
     flexDirection: 'row',
@@ -622,11 +622,11 @@ const styles = StyleSheet.create({
   launchButtonText: {
     color: '#ffffff',
     fontFamily: 'PlusJakartaSansBold',
-    fontSize: mediumScreen? fontScale(14):fontScale(10),
+    fontSize: mediumScreen? FontSize.fourteen:FontSize.ten,
   },
   disclaimer: {
     fontFamily: 'PlusJakartaSansBold',
-    fontSize: mediumScreen? fontScale(12):fontScale(8),
+    fontSize: mediumScreen? FontSize.twelve:FontSize.eight,
     lineHeight: 16,
     textAlign: 'center',
     textTransform: 'uppercase',
@@ -646,7 +646,7 @@ const styles = StyleSheet.create({
   },
   editButtonText: {
     fontFamily: 'PlusJakartaSansBold',
-    fontSize: mediumScreen? fontScale(16):fontScale(12),
+    fontSize: mediumScreen? FontSize.sixteen:FontSize.twelve,
   },
   draftButton: {
     alignItems: 'center',
@@ -655,7 +655,7 @@ const styles = StyleSheet.create({
   },
   draftButtonText: {
     fontFamily: 'PlusJakartaSansBold',
-    fontSize: mediumScreen? fontScale(16):fontScale(12),
+    fontSize: mediumScreen? FontSize.sixteen:FontSize.twelve,
   },
 });
 

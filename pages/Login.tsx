@@ -1,4 +1,4 @@
-﻿import React from 'react';
+import React from 'react';
 import { LinearGradient } from 'expo-linear-gradient';
 import { MaterialIcons } from '@expo/vector-icons';
 import {
@@ -13,7 +13,7 @@ import {
 } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
 import type { UserRole } from '../types';
-import { fontScale } from '../fonts';
+import { FontSize } from '../fonts';
 
 interface LoginProps {
   onLogin: (role: UserRole) => void;
@@ -172,14 +172,14 @@ const styles = StyleSheet.create({
   },
   brandTitle: {
     color: '#f7f5f8',
-    fontSize: fontScale(36),
-    lineHeight: fontScale(38),
+    fontSize: FontSize.thirtySix,
+    lineHeight: FontSize.thirtyEight,
     fontFamily: 'PlusJakartaSansExtraBold',
     letterSpacing: -1.4,
   },
   brandSubtitle: {
     color: 'rgba(148,163,184,0.8)',
-    fontSize: fontScale(11),
+    fontSize: FontSize.eleven,
     fontFamily: 'PlusJakartaSansBold',
     textTransform: 'uppercase',
     letterSpacing: 1.6,
@@ -207,7 +207,7 @@ const styles = StyleSheet.create({
   },
   cardTitle: {
     color: '#f7f5f8',
-    fontSize: fontScale(24),
+    fontSize: FontSize.twentyFour,
     fontFamily: 'PlusJakartaSansExtraBold',
     textAlign: 'center',
     marginBottom: 24,
@@ -229,7 +229,7 @@ const styles = StyleSheet.create({
   },
   secondaryButtonText: {
     color: '#f7f5f8',
-    fontSize: fontScale(14),
+    fontSize: FontSize.fourteen,
     fontFamily: 'PlusJakartaSansBold',
   },
   googleMark: {
@@ -242,12 +242,12 @@ const styles = StyleSheet.create({
   },
   googleMarkText: {
     color: '#f7f5f8',
-    fontSize: fontScale(12),
+    fontSize: FontSize.twelve,
     fontFamily: 'PlusJakartaSansExtraBold',
   },
   appleMark: {
     color: '#f7f5f8',
-    fontSize: fontScale(13),
+    fontSize: FontSize.thirteen,
     fontFamily: 'PlusJakartaSansExtraBold',
   },
   primaryButton: {
@@ -267,14 +267,14 @@ const styles = StyleSheet.create({
   },
   primaryButtonText: {
     color: '#ffffff',
-    fontSize: fontScale(14),
+    fontSize: FontSize.fourteen,
     fontFamily: 'PlusJakartaSansExtraBold',
   },
   legalText: {
     marginTop: 24,
     color: '#64748b',
-    fontSize: fontScale(11),
-    lineHeight: fontScale(18),
+    fontSize: FontSize.eleven,
+    lineHeight: FontSize.eighteen,
     fontFamily: 'PlusJakartaSansMedium',
     textAlign: 'center',
     paddingHorizontal: 8,
@@ -291,12 +291,12 @@ const styles = StyleSheet.create({
   },
   creatorPrompt: {
     color: '#94a3b8',
-    fontSize: fontScale(13),
+    fontSize: FontSize.thirteen,
     fontFamily: 'PlusJakartaSansMedium',
   },
   creatorAction: {
     color: '#cd2bee',
-    fontSize: fontScale(14),
+    fontSize: FontSize.fourteen,
     fontFamily: 'PlusJakartaSansExtraBold',
   },
   previewGrid: {

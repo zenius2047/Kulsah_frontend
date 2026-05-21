@@ -11,7 +11,7 @@ import {
   View,
 } from 'react-native';
 import { MaterialIcons } from '@expo/vector-icons';
-import { fontScale } from '../fonts';
+import { FontSize } from '../fonts';
 
 type VoteTab = 'Hot' | 'For You' | 'Favourites' | 'Recents';
 
@@ -278,7 +278,7 @@ const styles = StyleSheet.create({
   },
   headerTitle: {
     fontFamily: 'PlusJakartaSansExtraBold',
-    fontSize: fontScale(13),
+    fontSize: FontSize.thirteen,
   },
   content: {
     paddingHorizontal: 24,
@@ -298,7 +298,7 @@ const styles = StyleSheet.create({
   searchInput: {
     flex: 1,
     fontFamily: 'PlusJakartaSansMedium',
-    fontSize: fontScale(10),
+    fontSize: FontSize.ten,
   },
   tabsScroll: {
     marginBottom: 24,
@@ -315,7 +315,7 @@ const styles = StyleSheet.create({
   },
   tabText: {
     fontFamily: 'PlusJakartaSansExtraBold',
-    fontSize: fontScale(8),
+    fontSize: FontSize.eight,
     letterSpacing: 1.2,
     textTransform: 'uppercase',
   },
@@ -332,7 +332,7 @@ const styles = StyleSheet.create({
   },
   sectionTitle: {
     fontFamily: 'PlusJakartaSansBold',
-    fontSize: fontScale(11),
+    fontSize: FontSize.eleven,
   },
   hotBadge: {
     paddingHorizontal: 12,
@@ -345,7 +345,7 @@ const styles = StyleSheet.create({
   hotBadgeText: {
     color: '#cd2bee',
     fontFamily: 'PlusJakartaSansExtraBold',
-    fontSize: fontScale(8),
+    fontSize: FontSize.eight,
     textTransform: 'uppercase',
     letterSpacing: 1.2,
   },
@@ -390,15 +390,15 @@ const styles = StyleSheet.create({
   },
   trackTitle: {
     fontFamily: 'PlusJakartaSansBold',
-    fontSize: fontScale(9),
+    fontSize: FontSize.nine,
   },
   trackArtist: {
     fontFamily: 'PlusJakartaSansMedium',
-    fontSize: fontScale(9),
+    fontSize: FontSize.nine,
   },
   trackDuration: {
     fontFamily: 'PlusJakartaSansBold',
-    fontSize: fontScale(9),
+    fontSize: FontSize.nine,
     marginTop: 2,
   },
   trackActions: {

@@ -10,7 +10,7 @@ import {
   View,
 } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
-import { fontScale } from '../fonts';
+import { FontSize } from '../fonts';
 import { useThemeMode } from '../theme';
 
 type ShareFriend = {
@@ -54,7 +54,7 @@ const sharePlatforms: SharePlatform[] = [
   { id: 'whatsapp', label: 'WhatsApp', icon: 'chat', bg: 'rgba(34,197,94,0.15)', color: '#4ade80', border: 'rgba(34,197,94,0.26)' },
   { id: 'instagram', label: 'Instagram', icon: 'photo-camera', bg: 'rgba(217,70,239,0.16)', color: '#f472b6', border: 'rgba(236,72,153,0.28)' },
   { id: 'facebook', label: 'Facebook', icon: 'groups', bg: 'rgba(24,119,242,0.14)', color: '#60a5fa', border: 'rgba(24,119,242,0.25)' },
-  { id: 'sms', label: 'SMS', icon: 'sms', bg: 'rgba(255,255,255,0.08)', color: '#e2e8f0', border: 'rgba(255,255,255,0.12)' },
+  // { id: 'sms', label: 'SMS', icon: 'sms', bg: 'rgba(255,255,255,0.08)', color: '#e2e8f0', border: 'rgba(255,255,255,0.12)' },
   { id: 'copy', label: 'Copy Link', icon: 'link', bg: 'rgba(217,21,210,0.15)', color: '#d915d2', border: 'rgba(217,21,210,0.24)' },
 ];
 
@@ -111,7 +111,7 @@ const CreatorShareSheet: React.FC<CreatorShareSheetProps> = ({ visible, onClose 
             <View style={styles.section}>
               <View style={styles.sectionHeader}>
                 <Text style={[styles.sectionTitle, { color: textPrimary }]}>Send to Friends</Text>
-                <Text style={styles.sectionAccent}>Share the pulse</Text>
+                {/* <Text style={styles.sectionAccent}>Share the pulse</Text> */}
               </View>
 
               <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={styles.friendsRow}>
@@ -230,7 +230,7 @@ const styles = StyleSheet.create({
     borderRadius: 999,
   },
   content: {
-    paddingHorizontal: 20,
+    // paddingHorizontal: 20,
     paddingTop: 8,
   },
   section: {
@@ -241,21 +241,25 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'space-between',
     marginBottom: 16,
+    paddingHorizontal: 16,
   },
   sectionTitle: {
     fontFamily: 'PlusJakartaSansExtraBold',
-    fontSize: fontScale(14),
+    fontSize: FontSize.fourteen,
+    paddingHorizontal: 16,
+
   },
   sectionAccent: {
     color: '#d915d2',
     fontFamily: 'PlusJakartaSansExtraBold',
-    fontSize: fontScale(7),
+    fontSize: FontSize.seven,
     textTransform: 'uppercase',
     letterSpacing: 1.4,
   },
   friendsRow: {
     gap: 16,
     paddingVertical: 4,
+    paddingHorizontal: 16
   },
   friendCard: {
     alignItems: 'center',
@@ -270,14 +274,14 @@ const styles = StyleSheet.create({
     height: 66,
     borderRadius: 33,
     padding: 2,
-    backgroundColor: '#cd2bee',
+    // backgroundColor: '#cd2bee',
   },
   friendAvatar: {
     width: '100%',
     height: '100%',
     borderRadius: 31,
-    borderWidth: 2,
-    borderColor: '#0a050d',
+    // borderWidth: 2,
+    // borderColor: '#0a050d',
   },
   onlineDot: {
     position: 'absolute',
@@ -292,11 +296,12 @@ const styles = StyleSheet.create({
   },
   friendName: {
     fontFamily: 'PlusJakartaSansBold',
-    fontSize: fontScale(8),
+    fontSize: FontSize.eight,
   },
   platformRow: {
     gap: 16,
     paddingVertical: 4,
+    paddingHorizontal: 16,
   },
   platformCard: {
     alignItems: 'center',
@@ -313,7 +318,7 @@ const styles = StyleSheet.create({
   },
   platformLabel: {
     fontFamily: 'PlusJakartaSansExtraBold',
-    fontSize: fontScale(6.8),
+    fontSize: FontSize.sixPointEight,
     textTransform: 'uppercase',
     letterSpacing: 0.7,
     textAlign: 'center',
@@ -321,10 +326,11 @@ const styles = StyleSheet.create({
   actionRow: {
     gap: 12,
     paddingBottom: 4,
+    paddingHorizontal: 16,
   },
   actionTile: {
     width: 104,
-    minHeight: 100,
+    minHeight: 60,
     borderRadius: 18,
     borderWidth: 1,
     alignItems: 'center',
@@ -335,7 +341,7 @@ const styles = StyleSheet.create({
   },
   actionText: {
     fontFamily: 'PlusJakartaSansMedium',
-    fontSize: fontScale(8),
+    fontSize: FontSize.eight,
     textAlign: 'center',
     lineHeight: 14,
   },

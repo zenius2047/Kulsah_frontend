@@ -15,7 +15,7 @@ import {
 } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { HEIGHT, user, WIDTH } from '../types';
-import { FontSize, fontScale } from '../fonts';
+import { FontSize } from '../fonts';
 import NotificationIcon from '../assets/icons/notifications-svg.svg';
 import MovieIcon from '../assets/icons/movie-edit-svg.svg';
 import TicketIcon from '../assets/icons/ticket-svg.svg';
@@ -229,8 +229,8 @@ const ArtistDashboard: React.FC<ArtistDashboardProps> = ({ onToggleRole }) => {
             <Pressable key={m.label} onPress={() => navigation.navigate(m.path)} style={s.metricCard}>
               <View style={s.metricTop}>
                 <View style={[s.metricIconWrap, ]}>
-                  {(m.label === 'Live Viewers' ||m.label === 'Engagement Rate') ?<MaterialIcons name={m.icon as any} size={24} color={m.color} /> : 
-                  m.label === 'Subscribers' ? 
+                  {(m.label === 'Live Viewers' ||m.label === 'Engagement Rate') ?<MaterialIcons name={m.icon as any} size={24} color={m.color} /> :
+                  m.label === 'Subscribers' ?
                   <StarsIcon height={24} width={24} fill={m.color}/>: <PlayCircle height={24} width={24} fill={m.color}/>}
                 </View>
                 <View
@@ -239,7 +239,7 @@ const ArtistDashboard: React.FC<ArtistDashboardProps> = ({ onToggleRole }) => {
                   backgroundColor: '#10b9811a',
                   paddingHorizontal: 8,
                   paddingVertical: 4,
-                }} 
+                }}
                 >
                   <Text style={s.metricGrowth}>{m.growth}</Text>
                 </View>
@@ -299,7 +299,7 @@ const ArtistDashboard: React.FC<ArtistDashboardProps> = ({ onToggleRole }) => {
               padding: 16,
             }}
             >
-            <View 
+            <View
             style={{
               height : 55,
               width: 55,
@@ -310,7 +310,7 @@ const ArtistDashboard: React.FC<ArtistDashboardProps> = ({ onToggleRole }) => {
               borderRadius: 16,
               width: '100%',
               height: '100%'
-             }}/> 
+             }}/>
              <View style={{
               position: 'absolute',
               right: -4,
@@ -342,8 +342,8 @@ const ArtistDashboard: React.FC<ArtistDashboardProps> = ({ onToggleRole }) => {
                 color: '#ffffff',
                 fontFamily: 'PlusJakartaSansBold',
                 // textTransform: 'uppercase',
-                fontSize: fontScale(12),
-                
+                fontSize: FontSize.twelve,
+
               }}>
               {item.partner}
             </Text>
@@ -481,8 +481,8 @@ const s = StyleSheet.create({
     backgroundColor: '#ffffff20',
   },
   liveInnerRow: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center' },
-  liveTitle: { color: '#fff', fontWeight: '900', fontSize: fontScale(16), textTransform: 'uppercase' },
-  liveSubtitle: { color: '#ffffffd2', fontSize: fontScale(10), marginTop: 2, fontWeight: '700' },
+  liveTitle: { color: '#fff', fontWeight: '900', fontSize: FontSize.sixteen, textTransform: 'uppercase' },
+  liveSubtitle: { color: '#ffffffd2', fontSize: FontSize.ten, marginTop: 2, fontWeight: '700' },
   liveIconWrap: {
     width: 44,
     height: 44,
@@ -522,7 +522,7 @@ const s = StyleSheet.create({
   actionIconBlue: { backgroundColor: '#3b82f61a', borderColor: '#3b82f64a' },
   actionIconGreen: { backgroundColor: '#22c55e1a', borderColor: '#22c55e4a' },
   actionIconOrange: { backgroundColor: '#f973161a', borderColor: '#f973164a' },
-  actionTitle: { 
+  actionTitle: {
     color: '#fff',
     // fontWeight: '800',
     fontFamily: 'PlusJakartaSansExtraBold',
@@ -530,9 +530,9 @@ const s = StyleSheet.create({
     letterSpacing: -0.5
   },
   actionMeta: {
-    color: '#ffffff66', 
+    color: '#ffffff66',
     fontSize: FontSize.eight,
-    textTransform: 'uppercase', 
+    textTransform: 'uppercase',
     fontFamily: 'PlusJakartaSansBold',
     marginTop: 2 },
   dualRow: { flexDirection: 'row', gap: 10, paddingHorizontal: 16, marginVertical : 20 },
@@ -615,7 +615,7 @@ const s = StyleSheet.create({
     fontFamily: 'PlusJakartaSansBold',
     letterSpacing: 2
   },
-  aiText: { 
+  aiText: {
     color: '#ffffffe6',
     fontSize: FontSize.small,
     lineHeight: 20,
@@ -639,7 +639,7 @@ const s = StyleSheet.create({
   aiButtonDisabled: { opacity: 0.55 },
   aiButtonText: {
     color: '#fff',
-    fontSize: fontScale(11),
+    fontSize: FontSize.eleven,
     // fontWeight: '900',
     textTransform: 'uppercase',
     fontFamily: 'PlusJakartaSansExtraBold',
@@ -673,7 +673,7 @@ const s = StyleSheet.create({
   },
   metricGrowth: {
     color: '#22c55e',
-    fontSize: fontScale(10),
+    fontSize: FontSize.ten,
     fontWeight: '900',
     textTransform: 'uppercase',
     letterSpacing: 0.8,
@@ -686,7 +686,7 @@ const s = StyleSheet.create({
    },
   metricLabel: {
     color: '#FFFFFF66',
-    fontSize: fontScale(10),
+    fontSize: FontSize.ten,
     textTransform: 'uppercase',
     letterSpacing: 1,
     fontFamily: 'PlusJakartaSansBold'
@@ -700,15 +700,15 @@ const s = StyleSheet.create({
     padding: 14,
     gap: 10,
   },
-  chartTitle: { color: '#fff', fontSize: fontScale(14), fontWeight: '900', textTransform: 'uppercase' },
+  chartTitle: { color: '#fff', fontSize: FontSize.fourteen, fontWeight: '900', textTransform: 'uppercase' },
   chartList: { gap: 10 },
   chartRowWrap: { gap: 5 },
   chartRowHeader: { flexDirection: 'row', justifyContent: 'space-between' },
-  chartDay: { color: '#c7cade', fontSize: fontScale(12), fontWeight: '700' },
-  chartViews: { color: '#8e91a6', fontSize: fontScale(11) },
+  chartDay: { color: '#c7cade', fontSize: FontSize.twelve, fontWeight: '700' },
+  chartViews: { color: '#8e91a6', fontSize: FontSize.eleven },
   barTrack: { height: 6, backgroundColor: '#1f2435', borderRadius: 999, overflow: 'hidden' },
   barFill: { height: '100%', backgroundColor: '#2563eb', borderRadius: 999 },
-  chartTotal: { color: '#d6daee', fontWeight: '800', marginTop: 4, fontSize: fontScale(12) },
+  chartTotal: { color: '#d6daee', fontWeight: '800', marginTop: 4, fontSize: FontSize.twelve },
   switchWrap: { paddingTop: 6, alignItems: 'center' },
   switchButton: {
     borderRadius: 20,
@@ -722,7 +722,7 @@ const s = StyleSheet.create({
     justifyContent: 'center',
     gap: 8,
   },
-  switchText: { color: '#9ea0b6', fontSize: fontScale(12), fontWeight: '800', textTransform: 'uppercase', letterSpacing: 1 },
+  switchText: { color: '#9ea0b6', fontSize: FontSize.twelve, fontWeight: '800', textTransform: 'uppercase', letterSpacing: 1 },
 });
 
 export default ArtistDashboard;

@@ -13,6 +13,9 @@ import { useNavigation } from '@react-navigation/native';
 
 
 
+
+import { FontSize } from '../fonts';
+
 interface Props {
   videoLink: string;
 }
@@ -153,7 +156,7 @@ const navigation = useNavigation<any>()
             paddingVertical: 16,
             borderBottomColor: '#ffffff27',
             borderBottomWidth: 1
-            
+
         }}>
             <View style={{
                 gap: 15,
@@ -163,7 +166,7 @@ const navigation = useNavigation<any>()
                 <BadgeIcon height={34} width={34} fill='#cd2bee'/>
             <Text style={{
                 fontFamily: "PlusJakartaSansBold",
-                fontSize: mediumScreen ? 22: 16,
+                fontSize: mediumScreen ? FontSize.twentyTwo: FontSize.sixteen,
                 color: !isDark ? 'black': 'white',
             }}>
                 Arena
@@ -178,7 +181,7 @@ const navigation = useNavigation<any>()
                 <NotificationIcon fill={!isDark ? 'black': 'white'} height={24} width={24}/>
             </View>
         </View> */}
-        
+
         {/* Active, Featured..... tabs */}
         <View style={{
             flexDirection: 'row',
@@ -198,7 +201,7 @@ const navigation = useNavigation<any>()
                  <Text style={{
                     color: activeTab === tab ? isDark ? '#ffffff': '#000000': isDark ? '#ffffff5d':'#0000005d',
                     fontFamily: "PlusJakartaSansBold",
-                    fontSize: mediumScreen ? 18: 14,
+                    fontSize: mediumScreen ? FontSize.eighteen: FontSize.fourteen,
                     marginBottom: 10,
                  }}>
                     {tab}
@@ -212,13 +215,13 @@ const navigation = useNavigation<any>()
                  />}
                 </Pressable>))}
         </View>
-        
-        {activeTab === 'Active' && 
+
+        {activeTab === 'Active' &&
         <ScrollView
         showsVerticalScrollIndicator = {false}
         >
         {activeContents.map((content)=>(
-        <View 
+        <View
         key = {content.username}
         style={{
             marginTop: 35,
@@ -230,7 +233,7 @@ const navigation = useNavigation<any>()
             borderColor: isDark ?'#ffffff40': '#00000040',
             borderWidth: 1,
         }}>
-        
+
         {/*First Row........... */}
         <View style={{
             flexDirection: 'row',
@@ -244,7 +247,7 @@ const navigation = useNavigation<any>()
                 // backgroundColor: 'blue',
                 borderColor: '#cd2bee',
                 borderWidth: 2,
-                
+
             }}>
                 <Image
                 source={{uri: content.avatar}}
@@ -256,18 +259,18 @@ const navigation = useNavigation<any>()
                 width: '100%'
                 }}
                 />
-                
+
             </View>
             <View>
                 <Text style={{
-                    fontSize: mediumScreen ? 18: 14,
+                    fontSize: mediumScreen ? FontSize.eighteen: FontSize.fourteen,
                     fontFamily: 'PlusJakartaSansBold',
                     color: isDark ? 'white': 'black',
                 }}>
                     {content.creator}
                 </Text>
                 <Text style={{
-                    fontSize: mediumScreen ? 14: 10,
+                    fontSize: mediumScreen ? FontSize.fourteen: FontSize.ten,
                     fontFamily: 'PlusJakartaSans',
                     color: isDark ? 'grey': 'black',
                 }}>
@@ -284,12 +287,12 @@ const navigation = useNavigation<any>()
                 borderColor: '#cd2bee',
                 borderWidth: 1,
             }}>
-                <Text 
+                <Text
                 numberOfLines={1}
                 style={{
                     color: '#cd2bee',
                     fontFamily: 'PlusJakartaSansBold',
-                    fontSize: mediumScreen ? 16 : 12,
+                    fontSize: mediumScreen ? FontSize.sixteen : FontSize.twelve,
                 }}>
                     {content.tag}
                 </Text>
@@ -308,9 +311,9 @@ const navigation = useNavigation<any>()
             alignItems: 'center',
             paddingRight: 18
         }}>
-        
+
         {[1,2,3].map((item)=>(
-            <View 
+            <View
             key={item}
             style={{
                 borderRightWidth: item !== 3 ? 0.5 : 0,
@@ -324,7 +327,7 @@ const navigation = useNavigation<any>()
             <Text style={{
                 color: isDark ? 'grey' : 'black',
                 fontFamily: 'PlusJakartaSansBold',
-                fontSize: mediumScreen ? 16: 12,
+                fontSize: mediumScreen ? FontSize.sixteen: FontSize.twelve,
                 // paddingHorizontal: 12,
                 // paddingTop: 12,
             }}>
@@ -333,7 +336,7 @@ const navigation = useNavigation<any>()
             <Text style={{
                 color: isDark ? item===3 ? '#cd2bee':'white' : item===3 ? '#cd2bee':'black',
                 fontFamily: 'PlusJakartaSansBold',
-                fontSize: mediumScreen ? 14: 10,
+                fontSize: mediumScreen ? FontSize.fourteen: FontSize.ten,
                 paddingHorizontal: 12,
             }}>
                 {item === 1 ? content.entries: item===2 ? content.views: content.timeLeft}
@@ -351,7 +354,7 @@ const navigation = useNavigation<any>()
         }}>
             <Text style={{
                 color: isDark ? 'grey': 'black',
-                fontSize: mediumScreen ? 14 : 10,
+                fontSize: mediumScreen ? FontSize.fourteen : FontSize.ten,
                 fontFamily: 'PlusJakartaSansBold',
             }}>
                 RECENT PARTICIPANTS
@@ -363,14 +366,14 @@ const navigation = useNavigation<any>()
              >
                 <Text style={{
                 color: 'purple',
-                fontSize: mediumScreen ? 14 : 10,
+                fontSize: mediumScreen ? FontSize.fourteen : FontSize.ten,
                 fontFamily: 'PlusJakartaSansBold',
              }}>
                 VIEW ALL
             </Text>
              </Pressable>
         </View>
-        
+
         {/*Participants............. */}
         <View style={{
             flexDirection: 'row',
@@ -415,7 +418,7 @@ const navigation = useNavigation<any>()
         <Text style={{
             fontFamily: 'PlusJakartaSansBold',
             color: !isDark ? 'white': 'black',
-            fontSize: mediumScreen ? 20: 16,
+            fontSize: mediumScreen ? FontSize.twenty: FontSize.sixteen,
             lineHeight: 35
         }}>
             {'  Join Challenge'}
@@ -429,7 +432,7 @@ const navigation = useNavigation<any>()
         }}
         />
         </ScrollView>}
-        
+
         {activeTab === 'Featured' && <Featured/>}
         {activeTab === 'My Entry' && <MyEntry />}
         {activeTab === 'History' && <ParticipantHistory />}
@@ -438,7 +441,7 @@ const navigation = useNavigation<any>()
 
 
 
-        
+
         </View>
     )
 };

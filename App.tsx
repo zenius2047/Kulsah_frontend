@@ -1,11 +1,12 @@
 import React, { useEffect, useState } from 'react';
 import { useThemeMode } from './theme';
-import { View, StyleSheet, ActivityIndicator, Text, Pressable, StatusBar, Dimensions , Image, useWindowDimensions, Platform} from 'react-native';
+import { View, StyleSheet, ActivityIndicator, Text, TextInput, Pressable, StatusBar, Dimensions , Image, useWindowDimensions, Platform} from 'react-native';
 import { NavigationContainer, createNavigationContainerRef } from '@react-navigation/native';
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { MaterialIcons,} from '@expo/vector-icons';
+import * as Font from 'expo-font';
 import { useFonts } from 'expo-font';
 import ExploreIcon from './assets/icons/explore-svg.svg';
 // import LocalLibraryIcon from './assets/icons/local_library-svg.svg';
@@ -95,7 +96,11 @@ import TopUpCoins from './pages/TopUpCoins';
 import ChallengeLeaderboard from './pages/ChallengeLeaderboard';
 import Events from './pages/Events';
 import TrendingVideos from './pages/TrendingVideos';
+import Search from './pages/Search';
 
+
+
+import { FontFamily, FontSize } from './fonts';
 
 const Stack = createNativeStackNavigator();
 const Tab = createBottomTabNavigator();
@@ -105,7 +110,14 @@ const navigationRef = createNavigationContainerRef();
 
 const TextWithDefaults = Text as unknown as { defaultProps?: { style?: unknown } };
 TextWithDefaults.defaultProps = TextWithDefaults.defaultProps || {};
-TextWithDefaults.defaultProps.style = [{ fontFamily: 'PlusJakartaSans' }, TextWithDefaults.defaultProps.style];
+TextWithDefaults.defaultProps.style = [{ fontFamily: FontFamily.regular }, TextWithDefaults.defaultProps.style];
+
+const TextInputWithDefaults = TextInput as unknown as { defaultProps?: { style?: unknown } };
+TextInputWithDefaults.defaultProps = TextInputWithDefaults.defaultProps || {};
+TextInputWithDefaults.defaultProps.style = [
+  { fontFamily: FontFamily.regular },
+  TextInputWithDefaults.defaultProps.style,
+];
 
 
 
@@ -127,7 +139,7 @@ const CreatorTabs = ({ isDarkMode }: TabsProps) => {
   const tabBarHeight = (Platform.OS === 'ios' ? SCREEN_HEIGHT * 0.08 : SCREEN_HEIGHT * 0.07 +insets.bottom);
 
   return (
-    <Tab.Navigator 
+    <Tab.Navigator
     id="creator-tabs"
     safeAreaInsets={{ bottom: 0 }}
     screenOptions={({ route }) => ({
@@ -135,6 +147,9 @@ const CreatorTabs = ({ isDarkMode }: TabsProps) => {
         tabBarActiveTintColor: route.name === 'Galaxy' ? '#ffffff' : isDarkMode ? '#ffffff' : '#000000',
         tabBarInactiveTintColor: '#8E8E93',
         sceneStyle: { backgroundColor: '#000' },
+        tabBarLabelStyle:{
+          fontFamily: 'PlusJakartaSansBold'
+        },
         tabBarStyle: [
           styles.tabBar,
           {
@@ -178,7 +193,7 @@ const CreatorTabs = ({ isDarkMode }: TabsProps) => {
         },
       })}
       options={{
-        tabBarIcon: ({ color, size }) => 
+        tabBarIcon: ({ color, size }) =>
         <View
         style={{
           height: 55,
@@ -193,8 +208,8 @@ const CreatorTabs = ({ isDarkMode }: TabsProps) => {
         </View>
       }}
     />
-    <Tab.Screen 
-    name="Signal" 
+    <Tab.Screen
+    name="Signal"
     component={Inbox}
     options = {{
       tabBarIcon: ({ color, size, focused }) => (
@@ -204,7 +219,7 @@ const CreatorTabs = ({ isDarkMode }: TabsProps) => {
           color={color}
         />
       ),
-      
+
     }}
     />
     <Tab.Screen
@@ -215,7 +230,7 @@ const CreatorTabs = ({ isDarkMode }: TabsProps) => {
         id: user?.id,
       }}
       options={{
-        tabBarIcon: ({ color, size }) => 
+        tabBarIcon: ({ color, size }) =>
         <View
         style={{
           height: 30,
@@ -283,8 +298,8 @@ const FanTabs = ({isDarkMode, user, onTap}: TabsProps) => {
           ),
       }}
     />
-    <Tab.Screen 
-    name="Discover" 
+    <Tab.Screen
+    name="Discover"
     component={FanArena}
     options = {{
       tabBarLabel: 'Arena',
@@ -297,8 +312,8 @@ const FanTabs = ({isDarkMode, user, onTap}: TabsProps) => {
     }}
     listeners={{ tabPress: guardGuestTab }}
     />
-    <Tab.Screen 
-    name="Community" 
+    <Tab.Screen
+    name="Community"
     component={Community}
     options = {{
       tabBarIcon: ({ color, size, focused }) =>
@@ -310,8 +325,8 @@ const FanTabs = ({isDarkMode, user, onTap}: TabsProps) => {
     }}
     listeners={{ tabPress: guardGuestTab }}
     />
-    <Tab.Screen 
-    name="Signal" 
+    <Tab.Screen
+    name="Signal"
     component={Inbox}
     options = {{
       tabBarIcon: ({ color, size, focused }) => (
@@ -370,9 +385,9 @@ const App: React.FC = () => {
   const onTap = () => {
     setVisible(true);
   }
-  
 
-  const [fontsLoaded] = useFonts({
+
+  const [fontsLoaded, fontError] = useFonts({
       ...MaterialIcons.font,
       PlusJakartaSans:require('./assets/fonts/PlusJakartaSans-Regular.ttf'),
       PlusJakartaSansBold:require('./assets/fonts/PlusJakartaSans-Bold.ttf'),
@@ -381,6 +396,22 @@ const App: React.FC = () => {
       GudlaRegular:require('./assets/fonts/GCGudlakDemo-Regular.ttf'),
       GudlaExtraBold:require('./assets/fonts/GCGudlakDemo-ExtraBold.ttf'),
     });
+
+  useEffect(() => {
+    if (!fontsLoaded && !fontError) {
+      return;
+    }
+
+    console.log('Font debug', {
+      fontsLoaded,
+      fontError: fontError?.message,
+      plusJakartaSans: Font.isLoaded('PlusJakartaSans'),
+      plusJakartaSansMedium: Font.isLoaded('PlusJakartaSansMedium'),
+      plusJakartaSansBold: Font.isLoaded('PlusJakartaSansBold'),
+      plusJakartaSansExtraBold: Font.isLoaded('PlusJakartaSansExtraBold'),
+      loadedFonts: Font.getLoadedFonts().filter((name) => name.includes('PlusJakartaSans')),
+    });
+  }, [fontsLoaded, fontError]);
 
   useEffect(() => {
     setHeight(vh);
@@ -440,7 +471,7 @@ const App: React.FC = () => {
     await AsyncStorage.setItem('pulsar_user', JSON.stringify(mockUser));
   };
 
-  if(!fontsLoaded){
+  if(!fontsLoaded && !fontError){
     return null;
   }
 
@@ -516,6 +547,7 @@ const App: React.FC = () => {
                   <Stack.Screen name="ChallengeLeaderboard" component={ChallengeLeaderboard}/>
                   <Stack.Screen name="Events" component={Events}/>
                   <Stack.Screen name="TrendingVideos" component={TrendingVideos}/>
+                  <Stack.Screen name="Search" component={Search}/>
                 </>
               ) : (
                 <>
@@ -582,7 +614,7 @@ const styles = StyleSheet.create({
     elevation: 0,
     height: SCREEN_HEIGHT * 0.08,
     paddingBottom: 0,
-    fontSize: mediumScreen ? 12: 8,
+    fontSize: mediumScreen ? FontSize.twelve: FontSize.eight,
     fontFamily: "PlusJakartaSans",
     // backgroundColor: 'blue'
   },

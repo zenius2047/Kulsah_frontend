@@ -1,4 +1,4 @@
-﻿import { MaterialIcons } from '@expo/vector-icons';
+import { MaterialIcons } from '@expo/vector-icons';
 import { LinearGradient } from 'expo-linear-gradient';
 import { useNavigation } from '@react-navigation/native';
 import React from 'react';
@@ -14,7 +14,7 @@ import {
   View,
 } from 'react-native';
 import { SafeAreaView, useSafeAreaInsets } from 'react-native-safe-area-context';
-import { fontScale } from '../fonts';
+import { FontSize } from '../fonts';
 import { mediumScreen } from '../types';
 import GradientText from '../components/GradientText';
 import KulsahBlack from '../assets/icons/kulsah-black-svg.svg';
@@ -70,11 +70,11 @@ const GetStarted: React.FC = () => {
   const avatarMoreBackground = isDark ? 'rgba(255,255,255,0.08)' : theme.surface;
   const communityTextColor = isDark ? '#94a3b8' : theme.textMuted;
   const disclaimerColor = isDark ? 'rgba(208,193,216,0.65)' : theme.textMuted;
-  
+
 
   return (
-    <SafeAreaView style={[s.screen, { 
-      backgroundColor: theme.background, 
+    <SafeAreaView style={[s.screen, {
+      backgroundColor: theme.background,
       paddingTop: Platform.OS === 'ios'? 54: insets.top
        }]} edges={['left', 'right']}>
       <StatusBar barStyle={isDark ? 'light-content' : 'dark-content'} translucent backgroundColor="transparent" />
@@ -233,15 +233,15 @@ const s = StyleSheet.create({
   },
   badgeText: {
     color: '#cd2bee',
-    fontSize: mediumScreen ? fontScale(12):fontScale(8),
+    fontSize: mediumScreen ? FontSize.twelve:FontSize.eight,
     fontFamily: 'PlusJakartaSansExtraBold',
     letterSpacing: 2,
     textTransform: 'uppercase',
   },
   title: {
     color: '#f8fafc',
-    fontSize: mediumScreen ? fontScale(32) : fontScale(28),
-    lineHeight: mediumScreen ? fontScale(36) : fontScale(32),
+    fontSize: mediumScreen ? FontSize.thirtyTwo : FontSize.twentyEight,
+    lineHeight: mediumScreen ? FontSize.thirtySix : FontSize.thirtyTwo,
     textAlign: 'center',
     fontFamily: 'PlusJakartaSansExtraBold',
     letterSpacing: -1.2,
@@ -252,8 +252,8 @@ const s = StyleSheet.create({
     gap: 2,
   },
   titleAccent: {
-    fontSize: mediumScreen ? fontScale(32) : fontScale(28),
-    lineHeight: mediumScreen ? fontScale(36) : fontScale(32),
+    fontSize: mediumScreen ? FontSize.thirtyTwo : FontSize.twentyEight,
+    lineHeight: mediumScreen ? FontSize.thirtySix : FontSize.thirtyTwo,
     textAlign: 'center',
     fontFamily: 'PlusJakartaSansExtraBold',
     letterSpacing: -1.2,
@@ -261,7 +261,7 @@ const s = StyleSheet.create({
   },
   subtitle: {
     marginTop: 5,
-    fontSize: mediumScreen ? fontScale(16):fontScale(12),
+    fontSize: mediumScreen ? FontSize.sixteen:FontSize.twelve,
     fontFamily: 'PlusJakartaSansMedium',
     textAlign: 'center',
   },
@@ -290,14 +290,14 @@ const s = StyleSheet.create({
   },
   featureTitle: {
     color: '#f8fafc',
-    fontSize: mediumScreen ? fontScale(16):fontScale(12),
+    fontSize: mediumScreen ? FontSize.sixteen:FontSize.twelve,
     fontFamily: 'PlusJakartaSansExtraBold',
   },
   featureBody: {
     marginTop: 3,
     color: '#d0c1d8',
-    fontSize: mediumScreen ? fontScale(14):fontScale(10),
-    lineHeight: fontScale(16),
+    fontSize: mediumScreen ? FontSize.fourteen:FontSize.ten,
+    lineHeight: FontSize.sixteen,
     fontFamily: 'PlusJakartaSansMedium',
   },
   footerBlock: {
@@ -328,12 +328,12 @@ const s = StyleSheet.create({
   },
   avatarMoreText: {
     color: '#f8fafc',
-    fontSize: mediumScreen ? fontScale(12):fontScale(8),
+    fontSize: mediumScreen ? FontSize.twelve:FontSize.eight,
     fontFamily: 'PlusJakartaSansExtraBold',
   },
   communityText: {
     color: '#94a3b8',
-    fontSize: mediumScreen ? fontScale(12):fontScale(8),
+    fontSize: mediumScreen ? FontSize.twelve:FontSize.eight,
     fontFamily: 'PlusJakartaSansExtraBold',
     textTransform: 'uppercase',
     letterSpacing: 1.7,
@@ -358,7 +358,7 @@ const s = StyleSheet.create({
   },
   ctaText: {
     color: '#ffffff',
-    fontSize: mediumScreen ? fontScale(16):fontScale(12),
+    fontSize: mediumScreen ? FontSize.sixteen:FontSize.twelve,
     fontFamily: 'PlusJakartaSansExtraBold',
     textTransform: 'uppercase',
     letterSpacing: 1,
@@ -366,8 +366,8 @@ const s = StyleSheet.create({
   disclaimer: {
     color: 'rgba(208,193,216,0.65)',
     textAlign: 'center',
-    fontSize: mediumScreen ? fontScale(10):fontScale(8),
-    lineHeight: fontScale(12),
+    fontSize: mediumScreen ? FontSize.ten:FontSize.eight,
+    lineHeight: FontSize.twelve,
     fontFamily: 'PlusJakartaSansBold',
     paddingHorizontal: 8,
   },

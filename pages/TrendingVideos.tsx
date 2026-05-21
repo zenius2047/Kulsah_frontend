@@ -11,7 +11,7 @@ import {
   View,
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
-import { fontScale } from '../fonts';
+import { FontSize } from '../fonts';
 import { useThemeMode } from '../theme';
 import { mediumScreen } from '../types';
 
@@ -338,7 +338,7 @@ const styles = StyleSheet.create({
   },
   headerTitle: {
     fontFamily: 'PlusJakartaSansExtraBold',
-    fontSize: mediumScreen ? fontScale(16) : fontScale(13),
+    fontSize: mediumScreen ? FontSize.sixteen : FontSize.thirteen,
     textTransform: 'uppercase',
     letterSpacing: 2,
   },
@@ -346,7 +346,7 @@ const styles = StyleSheet.create({
     color: '#cd2bee',
     marginTop: 4,
     fontFamily: 'PlusJakartaSansExtraBold',
-    fontSize: fontScale(7),
+    fontSize: FontSize.seven,
     textTransform: 'uppercase',
     letterSpacing: 1.5,
   },
@@ -368,7 +368,7 @@ const styles = StyleSheet.create({
   searchInput: {
     flex: 1,
     fontFamily: 'PlusJakartaSansBold',
-    fontSize: fontScale(10),
+    fontSize: FontSize.ten,
   },
   filterScroll: {
     gap: 10,
@@ -390,7 +390,7 @@ const styles = StyleSheet.create({
   },
   filterChipText: {
     fontFamily: 'PlusJakartaSansExtraBold',
-    fontSize: fontScale(7),
+    fontSize: FontSize.seven,
     textTransform: 'uppercase',
     letterSpacing: 1.2,
   },
@@ -430,13 +430,13 @@ const styles = StyleSheet.create({
   rankLabel: {
     color: '#64748b',
     fontFamily: 'PlusJakartaSansExtraBold',
-    fontSize: fontScale(6.5),
+    fontSize: FontSize.sixHalf,
     textTransform: 'uppercase',
     letterSpacing: 1.2,
   },
   rankValue: {
     fontFamily: 'PlusJakartaSansExtraBold',
-    fontSize: fontScale(16),
+    fontSize: FontSize.sixteen,
   },
   playOverlay: {
     ...StyleSheet.absoluteFillObject,
@@ -475,14 +475,14 @@ const styles = StyleSheet.create({
   tagText: {
     color: '#ffffff',
     fontFamily: 'PlusJakartaSansExtraBold',
-    fontSize: fontScale(6.5),
+    fontSize: FontSize.sixHalf,
     textTransform: 'uppercase',
     letterSpacing: 1.1,
   },
   videoTitle: {
     color: '#ffffff',
     fontFamily: 'PlusJakartaSansExtraBold',
-    fontSize: mediumScreen ? fontScale(16) : fontScale(12),
+    fontSize: mediumScreen ? FontSize.sixteen : FontSize.twelve,
     textTransform: 'uppercase',
     width: '86%',
   },
@@ -526,14 +526,14 @@ const styles = StyleSheet.create({
   },
   metaLabel: {
     fontFamily: 'PlusJakartaSansExtraBold',
-    fontSize: fontScale(6.5),
+    fontSize: FontSize.sixHalf,
     textTransform: 'uppercase',
     letterSpacing: 1.2,
     marginBottom: 4,
   },
   creatorName: {
     fontFamily: 'PlusJakartaSansExtraBold',
-    fontSize: fontScale(9.5),
+    fontSize: FontSize.nineHalf,
     textTransform: 'uppercase',
   },
   impactWrap: {
@@ -542,7 +542,7 @@ const styles = StyleSheet.create({
   impactValue: {
     color: '#cd2bee',
     fontFamily: 'PlusJakartaSansExtraBold',
-    fontSize: fontScale(12),
+    fontSize: FontSize.twelve,
     textTransform: 'uppercase',
   },
   emptyState: {
@@ -560,18 +560,18 @@ const styles = StyleSheet.create({
   },
   emptyTitle: {
     fontFamily: 'PlusJakartaSansExtraBold',
-    fontSize: fontScale(15),
+    fontSize: FontSize.fifteen,
     textTransform: 'uppercase',
   },
   emptyBody: {
     fontFamily: 'PlusJakartaSansBold',
-    fontSize: fontScale(9),
+    fontSize: FontSize.nine,
     textAlign: 'center',
   },
   resetText: {
     color: '#cd2bee',
     fontFamily: 'PlusJakartaSansExtraBold',
-    fontSize: fontScale(8),
+    fontSize: FontSize.eight,
     textTransform: 'uppercase',
     letterSpacing: 1.2,
     marginTop: 8,

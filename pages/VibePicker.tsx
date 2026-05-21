@@ -4,6 +4,7 @@ import { LinearGradient } from 'expo-linear-gradient';
 import React, { useState } from 'react';
 import {
   Image,
+  Platform,
   Pressable,
   ScrollView,
   StyleSheet,
@@ -12,7 +13,8 @@ import {
   View,
 } from 'react-native';
 import { SafeAreaView, useSafeAreaInsets } from 'react-native-safe-area-context';
-import { fontScale } from '../fonts';
+import { FontSize } from '../fonts';
+import { useThemeMode } from '../theme';
 import { mediumScreen } from '../types';
 
 interface Vibe {
@@ -40,12 +42,16 @@ const VibePicker: React.FC = () => {
   const navigation = useNavigation<any>();
   const insets = useSafeAreaInsets();
   const { width } = useWindowDimensions();
+  const { isDark, theme } = useThemeMode();
   const [selected, setSelected] = useState<Set<string>>(new Set());
 
   const contentWidth = width - 32;
   const cardGap = 16;
   const cardWidth = (contentWidth - cardGap) / 2;
   const hasSelected = selected.size > 0;
+  const cardBorder = isDark ? 'rgba(255,255,255,0.06)' : theme.border;
+  const cardBackground = isDark ? 'rgba(255,255,255,0.04)' : 'rgba(255,255,255,0.94)';
+  const footerBase = isDark ? '#060913' : theme.background;
 
   const toggleVibe = (id: string) => {
     setSelected((prev) => {
@@ -62,22 +68,24 @@ const VibePicker: React.FC = () => {
   };
 
   return (
-    <SafeAreaView style={styles.safeArea} edges={['left', 'right']}>
-      <View style={styles.screen}>
+    <SafeAreaView style={[styles.safeArea, { backgroundColor: theme.background }]} edges={['left', 'right']}>
+      <View style={[styles.screen, { backgroundColor: theme.screen }]}>
         <LinearGradient
-          colors={['rgba(205,43,238,0.14)', 'rgba(205,43,238,0)']}
+          colors={[theme.accentSoft, 'transparent']}
           style={styles.backgroundGradient}
         />
 
-        <View style={[styles.header, { paddingTop: insets.top + 48 }]}>
-          <Text style={styles.title}>Pick your vibe</Text>
-          <Text style={styles.subtitle}>Select 1 or more vibe to personalize your galaxy.</Text>
-        </View>
+
 
         <ScrollView
           showsVerticalScrollIndicator={false}
           contentContainerStyle={[styles.scrollContent, { paddingBottom: insets.bottom + 160 }]}
         >
+          <View style={[styles.header, { paddingTop: Platform.OS === "ios" ? 54 : insets.top}]}>
+          <Text style={[styles.title, { color: theme.text }]}>Pick your vibe</Text>
+          <Text style={[styles.subtitle, { color: theme.textMuted }]}>Select 1 or more vibe to personalize your galaxy.</Text>
+        </View>
+
           <View style={styles.grid}>
             {VIBES.map((vibe, index) => {
               const isSelected = selected.has(vibe.id);
@@ -95,8 +103,9 @@ const VibePicker: React.FC = () => {
                     {
                       width: cardWidth,
                       marginRight: isRightColumn ? 0 : cardGap,
-                      borderColor: isSelected ? '#cd2bee' : 'rgba(255,255,255,0.06)',
-                      shadowColor: isSelected ? '#cd2bee' : '#000',
+                      borderColor: isSelected ? theme.accent : cardBorder,
+                      shadowColor: isSelected ? theme.accent : theme.shadow,
+                      backgroundColor: cardBackground,
                       transform: [{ scale: pressed ? 0.95 : 1 }],
                     },
                     isSelected && styles.cardSelected,
@@ -116,7 +125,7 @@ const VibePicker: React.FC = () => {
 
                   <View style={styles.cardCopy}>
                     <Text style={styles.cardTitle}>{vibe.label}</Text>
-                    <Text style={styles.cardDesc}>{vibe.desc}</Text>
+                    <Text style={[styles.cardDesc, { color: isDark ? 'rgba(255,255,255,0.6)' : 'rgba(255,255,255,0.82)' }]}>{vibe.desc}</Text>
                   </View>
                 </Pressable>
               );
@@ -125,11 +134,11 @@ const VibePicker: React.FC = () => {
         </ScrollView>
 
         <LinearGradient
-          colors={['rgba(6,9,19,0)', '#060913', '#060913']}
+          colors={['transparent', footerBase, footerBase]}
           style={[styles.footer, { paddingBottom: insets.bottom + 24 }]}
           pointerEvents="box-none"
         >
-          <Pressable
+          {hasSelected && <Pressable
             onPress={handleContinue}
             disabled={!hasSelected}
             accessibilityRole="button"
@@ -142,12 +151,12 @@ const VibePicker: React.FC = () => {
           >
             <Text style={[styles.continueText, !hasSelected && styles.continueTextDisabled]}>Enter the Galaxy</Text>
             <MaterialIcons
-              name="arrow-forward"
+              name="chevron-right"
               size={24}
               color={hasSelected ? '#fff' : 'rgba(255,255,255,0.22)'}
               style={hasSelected ? styles.continueIconActive : undefined}
             />
-          </Pressable>
+          </Pressable>}
         </LinearGradient>
       </View>
     </SafeAreaView>
@@ -157,11 +166,9 @@ const VibePicker: React.FC = () => {
 const styles = StyleSheet.create({
   safeArea: {
     flex: 1,
-    backgroundColor: '#060913',
   },
   screen: {
     flex: 1,
-    backgroundColor: '#060913',
   },
   backgroundGradient: {
     position: 'absolute',
@@ -176,16 +183,14 @@ const styles = StyleSheet.create({
     alignItems: 'center',
   },
   title: {
-    color: '#fff',
-    fontSize: mediumScreen ? fontScale(38) : fontScale(34),
+    fontSize: mediumScreen ? FontSize.twentyEight : FontSize.twentyFour,
     fontFamily: 'PlusJakartaSansExtraBold',
     letterSpacing: -1.4,
     textAlign: 'center',
   },
   subtitle: {
     marginTop: 8,
-    color: 'rgba(255,255,255,0.5)',
-    fontSize: fontScale(13),
+    fontSize: mediumScreen ? FontSize.sixteen:FontSize.twelve,
     fontFamily: 'PlusJakartaSansMedium',
     textAlign: 'center',
   },
@@ -198,12 +203,12 @@ const styles = StyleSheet.create({
     flexWrap: 'wrap',
   },
   card: {
-    aspectRatio: 0.8,
+    // aspectRatio: 2,
+    height: 200,
     marginBottom: 16,
     borderRadius: 32,
     borderWidth: 2,
     overflow: 'hidden',
-    backgroundColor: 'rgba(255,255,255,0.04)',
     shadowOffset: { width: 0, height: 14 },
     shadowOpacity: 0.2,
     shadowRadius: 22,
@@ -248,17 +253,17 @@ const styles = StyleSheet.create({
   },
   cardTitle: {
     color: '#fff',
-    fontSize: mediumScreen ? fontScale(20) : fontScale(18),
+    fontSize: mediumScreen ? FontSize.eighteen : FontSize.fourteen,
     fontFamily: 'PlusJakartaSansExtraBold',
-    lineHeight: mediumScreen ? fontScale(25) : fontScale(22),
+    lineHeight: mediumScreen ? FontSize.nineteen : FontSize.fifteen,
   },
   cardDesc: {
-    marginTop: 4,
+    // marginTop: 4,
     color: 'rgba(255,255,255,0.6)',
-    fontSize: fontScale(10),
+    fontSize: mediumScreen ? FontSize.twelve: FontSize.eight,
     fontFamily: 'PlusJakartaSansBold',
     textTransform: 'uppercase',
-    letterSpacing: 2,
+    // letterSpacing: 0.5,
   },
   footer: {
     position: 'absolute',
@@ -270,12 +275,12 @@ const styles = StyleSheet.create({
   },
   continueButton: {
     width: '100%',
-    height: 72,
-    borderRadius: 32,
+    height: 52,
+    borderRadius: 999,
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'center',
-    gap: 12,
+    gap: 2,
     shadowOffset: { width: 0, height: 18 },
     shadowOpacity: 0.34,
     shadowRadius: 24,
@@ -296,8 +301,9 @@ const styles = StyleSheet.create({
   },
   continueText: {
     color: '#fff',
-    fontSize: fontScale(20),
+    fontSize: mediumScreen ? FontSize.eighteen: FontSize.fourteen,
     fontFamily: 'PlusJakartaSansExtraBold',
+    lineHeight: 15
   },
   continueTextDisabled: {
     color: 'rgba(255,255,255,0.22)',

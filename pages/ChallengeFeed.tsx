@@ -1,4 +1,4 @@
-﻿import React, { useEffect, useRef, useState } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import { useThemeMode } from '../theme';
 import {
   FlatList,
@@ -17,7 +17,7 @@ import { LinearGradient } from 'expo-linear-gradient';
 import { MaterialIcons } from '@expo/vector-icons';
 import { useNavigation } from '@react-navigation/native';
 import { useVideoPlayer, VideoView } from 'expo-video';
-import { fontScale } from '../fonts';
+import { FontSize } from '../fonts';
 import { VoteModalContent } from './Vote';
 
 type ChallengeFeedItem = {
@@ -41,7 +41,7 @@ const challengeItems: ChallengeFeedItem[] = [
     handle: '@music_pro_entry',
     caption:
       'Dropping some heavy bass for the #MusicChallenge24. This drop is insane! #trending #viral #musicapp',
-    audio: 'Original Track - Neon Nights (ft. Synthwave Collective) • Exclusive Audio',
+    audio: 'Original Track - Neon Nights (ft. Synthwave Collective) � Exclusive Audio',
     likes: '1.2k',
     comments: '450',
     shares: '128',
@@ -59,7 +59,7 @@ const challengeItems: ChallengeFeedItem[] = [
     handle: '@elena_rose',
     caption:
       'Private challenge rehearsal with the full neon squad. Clean transitions only. #challenge #creatorbattle',
-    audio: 'Nebula Draft Session • Private Creator Pass',
+    audio: 'Nebula Draft Session � Private Creator Pass',
     likes: '2.4M',
     comments: '88.1K',
     shares: '4.9K',
@@ -74,7 +74,7 @@ const challengeItems: ChallengeFeedItem[] = [
     handle: '@mthorne_bass',
     caption:
       'Subscriber rehearsal cut from the winter challenge set. We are taking this one all the way. #bass #livecut',
-    audio: 'Winter Tour Set Draft • Marcus Thorne',
+    audio: 'Winter Tour Set Draft � Marcus Thorne',
     likes: '450K',
     comments: '12.2K',
     shares: '970',
@@ -89,7 +89,7 @@ const challengeItems: ChallengeFeedItem[] = [
     handle: '@zionking_afro',
     caption:
       'Live from the main stage challenge lane. Crowd energy is unreal and the entry visuals are locked in. #afrobeats #live',
-    audio: 'Main Stage Crowd Take • Zion King',
+    audio: 'Main Stage Crowd Take � Zion King',
     likes: '1.2M',
     comments: '45.8K',
     shares: '8.5K',
@@ -408,7 +408,7 @@ const styles = StyleSheet.create({
   actionLabel: {
     color: '#ffffff',
     fontFamily: 'PlusJakartaSansBold',
-    fontSize: fontScale(11),
+    fontSize: FontSize.eleven,
     textTransform: 'uppercase',
     letterSpacing: 0.8,
   },
@@ -445,12 +445,12 @@ const styles = StyleSheet.create({
   creatorHandle: {
     color: '#ffffff',
     fontFamily: 'PlusJakartaSansBold',
-    fontSize: fontScale(22),
+    fontSize: FontSize.twentyTwo,
   },
   caption: {
     color: '#e2e8f0',
     fontFamily: 'PlusJakartaSansMedium',
-    fontSize: fontScale(16),
+    fontSize: FontSize.sixteen,
     lineHeight: 22,
   },
   captionAccent: {
@@ -467,7 +467,7 @@ const styles = StyleSheet.create({
     flex: 1,
     color: '#ffffff',
     fontFamily: 'PlusJakartaSansMedium',
-    fontSize: fontScale(14),
+    fontSize: FontSize.fourteen,
   },
   progressWrap: {
     position: 'absolute',

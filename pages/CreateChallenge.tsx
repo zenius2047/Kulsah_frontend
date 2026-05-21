@@ -14,7 +14,7 @@ import { LinearGradient } from 'expo-linear-gradient';
 import { MaterialIcons } from '@expo/vector-icons';
 import { useNavigation } from '@react-navigation/native';
 import { mediumScreen } from '../types';
-import { fontScale } from '../fonts';
+import { FontSize } from '../fonts';
 
 const referenceMedia = [
   {
@@ -280,7 +280,7 @@ const CreateChallenge: React.FC = () => {
           </View>
 
           <View style={styles.footerAction}>
-            <Pressable 
+            <Pressable
             onPress={()=>{
               if(criteria === 'vote'){
                 navigation.navigate('RevenueSplit')
@@ -354,7 +354,7 @@ const styles = StyleSheet.create({
   },
   headerTitle: {
     fontFamily: 'PlusJakartaSansExtraBold',
-    fontSize: mediumScreen ? 16:13,
+    fontSize: mediumScreen ? FontSize.sixteen:FontSize.thirteen,
     letterSpacing: 1.4,
   },
   scroll: {
@@ -382,21 +382,21 @@ const styles = StyleSheet.create({
   label: {
     color: '#c084fc',
     fontFamily: 'PlusJakartaSansExtraBold',
-    fontSize: mediumScreen ? 12:8,
+    fontSize: mediumScreen ? FontSize.twelve:FontSize.eight,
     letterSpacing: 1.6,
     textTransform: 'uppercase',
     marginBottom: 10,
   },
   labelMuted: {
     fontFamily: 'PlusJakartaSansExtraBold',
-    fontSize: mediumScreen ? 12:8,
+    fontSize: mediumScreen ? FontSize.twelve:FontSize.eight,
     letterSpacing: 1.4,
     textTransform: 'uppercase',
     marginBottom: 12,
   },
   titleInput: {
     fontFamily: 'PlusJakartaSansExtraBold',
-    fontSize: mediumScreen ? 20: 16,
+    fontSize: mediumScreen ? FontSize.twenty: FontSize.sixteen,
     padding: 0,
   },
   titleUnderline: {
@@ -409,7 +409,7 @@ const styles = StyleSheet.create({
     // paddingHorizontal: 0,
     paddingVertical: 14,
     fontFamily: 'PlusJakartaSansBold',
-    fontSize: mediumScreen ? 18:14,
+    fontSize: mediumScreen ? FontSize.eighteen:FontSize.fourteen,
     lineHeight: 22,
   },
   sectionTitleRow: {
@@ -419,7 +419,7 @@ const styles = StyleSheet.create({
   },
   sectionTitle: {
     fontFamily: 'PlusJakartaSansExtraBold',
-    fontSize: mediumScreen ? 15:11,
+    fontSize: mediumScreen ? FontSize.fifteen:FontSize.eleven,
     letterSpacing: 1.8,
     textTransform: 'uppercase',
   },
@@ -455,7 +455,7 @@ const styles = StyleSheet.create({
   uploadLabel: {
     color: '#ffffff',
     fontFamily: 'PlusJakartaSansExtraBold',
-    fontSize: mediumScreen ? 14:10,
+    fontSize: mediumScreen ? FontSize.fourteen:FontSize.ten,
     letterSpacing: 1.4,
     textTransform: 'uppercase',
   },
@@ -469,7 +469,7 @@ const styles = StyleSheet.create({
   mediaBadge: {
     color: '#ffffff',
     fontFamily: 'PlusJakartaSansBold',
-    fontSize: fontScale(10),
+    fontSize: FontSize.ten,
     backgroundColor: 'rgba(0,0,0,0.4)',
     paddingHorizontal: 8,
     paddingVertical: 6,
@@ -519,14 +519,14 @@ const styles = StyleSheet.create({
   },
   criteriaTitle: {
     fontFamily: 'PlusJakartaSansExtraBold',
-    fontSize: mediumScreen ? 14:10,
+    fontSize: mediumScreen ? FontSize.fourteen:FontSize.ten,
     letterSpacing: 1.2,
     textTransform: 'uppercase',
     textAlign: 'center',
   },
   criteriaMeta: {
     fontFamily: 'PlusJakartaSansMedium',
-    fontSize: mediumScreen ? 14:10,
+    fontSize: mediumScreen ? FontSize.fourteen:FontSize.ten,
     textTransform: 'uppercase',
     textAlign: 'center',
     marginTop: 6,
@@ -539,7 +539,7 @@ const styles = StyleSheet.create({
   inviteCounter: {
     color: '#c084fc',
     fontFamily: 'PlusJakartaSansBold',
-    fontSize: mediumScreen? 14:10,
+    fontSize: mediumScreen? FontSize.fourteen:FontSize.ten,
     letterSpacing: 1.2,
   },
   searchCard: {
@@ -555,7 +555,7 @@ const styles = StyleSheet.create({
   searchInput: {
     // flex: 1,
     fontFamily: 'PlusJakartaSans',
-    fontSize: mediumScreen?15:12,
+    fontSize: mediumScreen?FontSize.fifteen:FontSize.twelve,
     padding: 0,
     // textAlign: 'center'
     // lineHeight: 24,
@@ -592,7 +592,7 @@ const styles = StyleSheet.create({
   },
   creatorHandle: {
     fontFamily: 'PlusJakartaSansBold',
-    fontSize: mediumScreen? 14:10,
+    fontSize: mediumScreen? FontSize.fourteen:FontSize.ten,
   },
   addCreatorButton: {
     width: 70,
@@ -606,7 +606,7 @@ const styles = StyleSheet.create({
   },
   browseLabel: {
     fontFamily: 'PlusJakartaSansBold',
-    fontSize: fontScale(10),
+    fontSize: FontSize.ten,
   },
   footerAction: {
     paddingTop: 8,
@@ -630,14 +630,14 @@ const styles = StyleSheet.create({
   launchButtonText: {
     color: '#ffffff',
     fontFamily: 'PlusJakartaSansExtraBold',
-    fontSize: mediumScreen ? fontScale(14) : fontScale(10),
+    fontSize: mediumScreen ? FontSize.fourteen : FontSize.ten,
     letterSpacing: 1.8,
     textTransform: 'uppercase',
   },
   footerNote: {
     color: '#64748b',
     fontFamily: 'PlusJakartaSansMedium',
-    fontSize: mediumScreen ? 14:10,
+    fontSize: mediumScreen ? FontSize.fourteen:FontSize.ten,
     textAlign: 'center',
     textTransform: 'uppercase',
     lineHeight: 16,

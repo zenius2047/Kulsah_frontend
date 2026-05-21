@@ -11,6 +11,9 @@ import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import CreatorChallenges from './CreatorChallenges';
 
 
+
+import { FontSize } from '../fonts';
+
 const Arena :React.FC = ({route}:any)=>{
     const { isDark, theme } = useThemeMode();
     const [activeTab, setActiveTab] = useState<string | "challenges" | "community">('community');
@@ -30,7 +33,7 @@ const Arena :React.FC = ({route}:any)=>{
         flex: 1,
         paddingTop: Platform.OS == 'ios' ? 54: insets.top,
     }}>
-    
+
     {/* <View style={{
         flexDirection: 'row',
         paddingHorizontal: 16,
@@ -45,7 +48,7 @@ const Arena :React.FC = ({route}:any)=>{
         <Text style={{
             color: theme.text,
             fontFamily: 'PlusJakartaSansExtraBold',
-            fontSize: mediumScreen ? 22: 18,
+            fontSize: mediumScreen ? FontSize.twentyTwo: FontSize.eighteen,
             lineHeight:25,
         }}> Arena
             </Text>
@@ -62,7 +65,7 @@ const Arena :React.FC = ({route}:any)=>{
         width={30}
         fill={isDark ? 'white': 'black'}
         />
-        {activeTab === 'challenges' && <Pressable 
+        {activeTab === 'challenges' && <Pressable
         onPress= {()=>{
             navigation.navigate('CreateChallenge');
         }}
@@ -87,7 +90,7 @@ const Arena :React.FC = ({route}:any)=>{
         backgroundColor: theme.screen,
     }}>
     {["community","challenges"].map((item)=>(
-        <Pressable 
+        <Pressable
         key={item}
         onPress={()=>setActiveTab(item)}
         style={{
@@ -99,7 +102,7 @@ const Arena :React.FC = ({route}:any)=>{
             color: activeTab === item ? isDark ? '#ffffff': '#000000': isDark ? '#ffffff5d':'#0000005d',
             textTransform: 'capitalize',
             fontFamily: "PlusJakartaSansBold",
-            fontSize: mediumScreen ? 20: 16,
+            fontSize: mediumScreen ? FontSize.twenty: FontSize.sixteen,
             marginBottom: 10
         }}>
             {item}
@@ -109,7 +112,7 @@ const Arena :React.FC = ({route}:any)=>{
             height: 2.5,
             width: 70,
             backgroundColor: '#cd2bee',
-            
+
         }}
         />}
         </Pressable>

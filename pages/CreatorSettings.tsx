@@ -34,7 +34,7 @@ import VerifiedIcon from '../assets/icons/verified-svg.svg';
 import HandShakeIcon from '../assets/icons/handshake-svg.svg';
 import FireIcon from '../assets/icons/fire-svg.svg';
 import { mediumScreen, setDark, setUser, user } from '../types';
-import { fontScale } from '../fonts';
+import { FontSize } from '../fonts';
 
 
 type SettingsSubView = 'main' | 'tags' | 'identity';
@@ -164,7 +164,7 @@ const CreatorSettings: React.FC<CreatorSettingsProps> = ({ onLogout, isDarkMode,
       {
         title: 'Galaxy Presence',
         items: [
-          { label: 'Collaboration Hub', icon: HandShakeIcon, desc: 'Find and manage creative partnerships', action: () => { 
+          { label: 'Collaboration Hub', icon: HandShakeIcon, desc: 'Find and manage creative partnerships', action: () => {
             navigation.navigate('ConnectHub')
           } },
           { label: 'Discovery Tags', icon: SellIcon, desc: 'Edit genres and SEO keywords', action: () => setActiveSubView('tags') },
@@ -430,7 +430,7 @@ const CreatorSettings: React.FC<CreatorSettingsProps> = ({ onLogout, isDarkMode,
         </View>
       </ScrollView>
       </SafeAreaView>
-      
+
     </View>
   );
 };
@@ -458,7 +458,7 @@ const s = StyleSheet.create({
     justifyContent: 'center',
     backgroundColor: '#ffffff14',
   },
-  headerTitle: { color: '#fff', fontSize: mediumScreen ? fontScale(16): fontScale(12), fontFamily: 'PlusJakartaSansExtraBold', textTransform: 'uppercase' },
+  headerTitle: { color: '#fff', fontSize: mediumScreen ? FontSize.sixteen: FontSize.twelve, fontFamily: 'PlusJakartaSansExtraBold', textTransform: 'uppercase' },
   donePill: {
     paddingHorizontal: 10,
     paddingVertical: 6,
@@ -469,12 +469,12 @@ const s = StyleSheet.create({
   },
   donePillText: {
     color: '#cd2bee',
-    fontSize: fontScale(10),
+    fontSize: FontSize.ten,
     fontFamily: 'PlusJakartaSansBold',
     textTransform: 'uppercase',
     letterSpacing: 1,
   },
-  saveText: { color: '#cd2bee', fontSize: fontScale(11), fontWeight: '900', textTransform: 'uppercase' },
+  saveText: { color: '#cd2bee', fontSize: FontSize.eleven, fontWeight: '900', textTransform: 'uppercase' },
   banner: { height: 180, marginHorizontal: 16, marginTop: 12, borderRadius: 22, overflow: 'hidden' },
   bannerImage: { borderRadius: 22 },
   bannerShade: { ...StyleSheet.absoluteFillObject, backgroundColor: '#0000004f' },
@@ -495,8 +495,8 @@ const s = StyleSheet.create({
     borderColor: '#cd2bee',
     padding: 5,
     backgroundColor: 'black',
-    width: 96, 
-    height: 96, 
+    width: 96,
+    height: 96,
     borderRadius: 48,
     alignItems: 'center',
     justifyContent: 'center'
@@ -517,10 +517,10 @@ const s = StyleSheet.create({
   },
   profileNameBlock: { paddingBottom: 10 },
   nameRow: { flexDirection: 'row', alignItems: 'center', gap: 6, justifyContent: 'center',},
-  profileName: { color: '#fff', fontSize: fontScale(16), fontFamily: 'PlusJakartaSansExtraBold' },
+  profileName: { color: '#fff', fontSize: FontSize.sixteen, fontFamily: 'PlusJakartaSansExtraBold' },
   profileHandle: {
     color: '#cd2bee',
-    fontSize: fontScale(10),
+    fontSize: FontSize.ten,
     fontFamily: 'PlusJakartaSansBold',
     textTransform: 'uppercase',
     letterSpacing: 0.5,
@@ -529,7 +529,7 @@ const s = StyleSheet.create({
   sectionBlock: { marginTop: 18, paddingHorizontal: 16 },
   sectionTitle: {
     color: '#8b90a8',
-    fontSize: fontScale(9),
+    fontSize: FontSize.nine,
     fontFamily: 'PlusJakartaSansExtraBold',
     textTransform: 'uppercase',
     letterSpacing: 2.0,
@@ -559,8 +559,8 @@ const s = StyleSheet.create({
     borderColor: 'rgba(0 0 0 / 0.05)',
   },
   itemCopy: { flex: 1 },
-  itemLabel: { color: '#fff', fontFamily: 'PlusJakartaSansExtraBold', fontSize: mediumScreen ? fontScale(16):fontScale(12) },
-  itemDesc: { color: '#8e91a6', marginTop: 0, fontSize: fontScale(11), fontFamily: 'PlusJakartaSansMedium' },
+  itemLabel: { color: '#fff', fontFamily: 'PlusJakartaSansExtraBold', fontSize: mediumScreen ? FontSize.sixteen:FontSize.twelve },
+  itemDesc: { color: '#8e91a6', marginTop: 0, fontSize: FontSize.eleven, fontFamily: 'PlusJakartaSansMedium' },
   footerActions: { paddingHorizontal: 16, marginTop: 22, gap: 10 },
   signOutBtn: {
     height: 58,
@@ -573,7 +573,7 @@ const s = StyleSheet.create({
     flexDirection: 'row',
     gap: 8,
   },
-  signOutText: { color: '#fff', fontFamily: 'PlusJakartaSansBold', fontSize: fontScale(12) },
+  signOutText: { color: '#fff', fontFamily: 'PlusJakartaSansBold', fontSize: FontSize.twelve },
   deactivateBtn: {
     height: 58,
     borderRadius: 22,
@@ -585,12 +585,12 @@ const s = StyleSheet.create({
     flexDirection: 'row',
     gap: 8,
   },
-  deactivateText: { color: '#ef4444', fontFamily: 'PlusJakartaSansBold', fontSize: fontScale(12) },
+  deactivateText: { color: '#ef4444', fontFamily: 'PlusJakartaSansBold', fontSize: FontSize.twelve },
   versionText: {
     marginTop: 2,
     color: '#70758f',
     textAlign: 'center',
-    fontSize: fontScale(9),
+    fontSize: FontSize.nine,
     letterSpacing: 1.5,
     textTransform: 'uppercase',
     fontWeight: '900',
@@ -599,7 +599,7 @@ const s = StyleSheet.create({
   formBlock: { gap: 8 },
   inputLabel: {
     color: '#8b90a8',
-    fontSize: mediumScreen ? fontScale(14):fontScale(10),
+    fontSize: mediumScreen ? FontSize.fourteen:FontSize.ten,
     fontFamily: 'PlusJakartaSansExtraBold',
     textTransform: 'uppercase',
     letterSpacing: 2,
@@ -619,10 +619,10 @@ const s = StyleSheet.create({
     color: '#cd2bee',
     fontWeight: '900',
     textTransform: 'uppercase',
-    fontSize: fontScale(12),
+    fontSize: FontSize.twelve,
     marginRight: 6,
   },
-  inputWithPrefix: { flex: 1, color: '#fff', fontWeight: '700', fontSize: fontScale(14), paddingVertical: 0 },
+  inputWithPrefix: { flex: 1, color: '#fff', fontWeight: '700', fontSize: FontSize.fourteen, paddingVertical: 0 },
   input: {
     height: 54,
     borderRadius: 16,
@@ -631,19 +631,19 @@ const s = StyleSheet.create({
     backgroundColor: '#ffffff08',
     color: '#fff',
     fontFamily: 'PlusJakartaSansBold',
-    fontSize: mediumScreen ? fontScale(14):fontScale(10),
+    fontSize: mediumScreen ? FontSize.fourteen:FontSize.ten,
     paddingHorizontal: 14,
   },
   helpText: {
     color: '#7f849f',
-    fontSize: mediumScreen ? fontScale(12):fontScale(8),
+    fontSize: mediumScreen ? FontSize.twelve:FontSize.eight,
     textTransform: 'uppercase',
     letterSpacing: 1,
     fontFamily: 'PlusJakartaSansBold',
     paddingHorizontal: 3,
   },
   rowBetween: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center' },
-  counterText: { color: '#8f95af', fontSize: fontScale(10), fontFamily: 'PlusJakartaSansBold' },
+  counterText: { color: '#8f95af', fontSize: FontSize.ten, fontFamily: 'PlusJakartaSansBold' },
   counterWarn: { color: '#ef4444' },
   textarea: {
     minHeight: 120,
@@ -652,7 +652,7 @@ const s = StyleSheet.create({
     borderColor: '#ffffff1a',
     backgroundColor: '#ffffff08',
     color: '#fff',
-    fontSize: mediumScreen ? fontScale(14):fontScale(10),
+    fontSize: mediumScreen ? FontSize.fourteen:FontSize.ten,
     fontFamily: 'PlusJakartaSansBold',
     lineHeight: 20,
     paddingHorizontal: 14,
@@ -665,10 +665,10 @@ const s = StyleSheet.create({
     backgroundColor: '#cd2bee14',
     padding: 14,
   },
-  noteText: { color: '#c5c9de', fontSize: mediumScreen ? fontScale(14):fontScale(10), fontStyle: 'italic', lineHeight: 18 },
+  noteText: { color: '#c5c9de', fontSize: mediumScreen ? FontSize.fourteen:FontSize.ten, fontStyle: 'italic', lineHeight: 18 },
   sectionHeading: {
     color: '#8b90a8',
-    fontSize: fontScale(9),
+    fontSize: FontSize.nine,
     fontFamily: 'PlusJakartaSansExtraBold',
     textTransform: 'uppercase',
     letterSpacing: 2.5,
@@ -677,7 +677,7 @@ const s = StyleSheet.create({
   },
   fieldName: {
     color: '#8f95af',
-    fontSize: fontScale(9),
+    fontSize: FontSize.nine,
     fontFamily: 'PlusJakartaSansBold',
     textTransform: 'uppercase',
     letterSpacing: 1.4,
@@ -695,7 +695,7 @@ const s = StyleSheet.create({
   tagChipOn: { backgroundColor: '#cd2bee', borderColor: '#cd2bee' },
   tagText: {
     color: '#a8adc4',
-    fontSize: fontScale(10),
+    fontSize: FontSize.ten,
     fontFamily: 'PlusJakartaSansExtraBold',
     textTransform: 'uppercase',
     letterSpacing: 1.1,
@@ -703,7 +703,7 @@ const s = StyleSheet.create({
   tagTextOn: { color: '#fff' },
   tagsFooter: {
     color: '#8f95af',
-    fontSize: fontScale(10),
+    fontSize: FontSize.ten,
     textTransform: 'uppercase',
     letterSpacing: 1.1,
     textAlign: 'center',

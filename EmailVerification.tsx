@@ -1,4 +1,4 @@
-﻿import React from 'react';
+import React from 'react';
 import {
   ImageBackground,
   Platform,
@@ -14,7 +14,7 @@ import { MaterialIcons } from '@expo/vector-icons';
 import { BlurView } from 'expo-blur';
 import { useNavigation, useRoute } from '@react-navigation/native';
 import { useThemeMode } from './theme';
-import { fontScale } from './fonts';
+import { FontSize } from './fonts';
 import { mediumScreen } from './types';
 
 const BRAND_GRADIENT = ['#cd2bee', '#cd2bee'] as const;
@@ -204,12 +204,12 @@ const styles = StyleSheet.create({
   },
   brandText: {
     fontFamily: 'PlusJakartaSansExtraBold',
-    fontSize: mediumScreen ? fontScale(20) : fontScale(17),
+    fontSize: mediumScreen ? FontSize.twenty : FontSize.seventeen,
     letterSpacing: -0.8,
   },
   headerTitle: {
     fontFamily: 'PlusJakartaSansBold',
-    fontSize: mediumScreen ? fontScale(14) : fontScale(12),
+    fontSize: mediumScreen ? FontSize.fourteen : FontSize.twelve,
     letterSpacing: -0.3,
   },
   content: {
@@ -259,21 +259,21 @@ const styles = StyleSheet.create({
   },
   title: {
     fontFamily: 'PlusJakartaSansExtraBold',
-    fontSize: mediumScreen ? fontScale(31) : fontScale(27),
+    fontSize: mediumScreen ? FontSize.thirtyOne : FontSize.twentySeven,
     letterSpacing: -1,
     textAlign: 'center',
     marginBottom: 12,
   },
   subtitle: {
     fontFamily: 'PlusJakartaSansMedium',
-    fontSize: mediumScreen ? fontScale(17) : fontScale(14),
+    fontSize: mediumScreen ? FontSize.seventeen : FontSize.fourteen,
     textAlign: 'center',
     marginBottom: 4,
   },
   emailText: {
     color: '#cd2bee',
     fontFamily: 'PlusJakartaSansBold',
-    fontSize: mediumScreen ? fontScale(17) : fontScale(14),
+    fontSize: mediumScreen ? FontSize.seventeen : FontSize.fourteen,
     textAlign: 'center',
   },
   actionBlock: {
@@ -297,7 +297,7 @@ const styles = StyleSheet.create({
   primaryText: {
     color: '#ffffff',
     fontFamily: 'PlusJakartaSansExtraBold',
-    fontSize: mediumScreen ? fontScale(15) : fontScale(13),
+    fontSize: mediumScreen ? FontSize.fifteen : FontSize.thirteen,
     letterSpacing: 1.1,
     textTransform: 'uppercase',
   },
@@ -317,7 +317,7 @@ const styles = StyleSheet.create({
   },
   dividerText: {
     fontFamily: 'PlusJakartaSansBold',
-    fontSize: mediumScreen ? fontScale(8.5) : fontScale(7.5),
+    fontSize: mediumScreen ? FontSize.eightHalf : FontSize.sevenHalf,
     textTransform: 'uppercase',
     letterSpacing: 1.5,
   },
@@ -329,7 +329,7 @@ const styles = StyleSheet.create({
   resendText: {
     color: '#cd2bee',
     fontFamily: 'PlusJakartaSansExtraBold',
-    fontSize: mediumScreen ? fontScale(14) : fontScale(12),
+    fontSize: mediumScreen ? FontSize.fourteen : FontSize.twelve,
   },
   infoCard: {
     marginTop: 36,
@@ -350,15 +350,15 @@ const styles = StyleSheet.create({
   },
   infoTitle: {
     fontFamily: 'PlusJakartaSansExtraBold',
-    fontSize: mediumScreen ? fontScale(10) : fontScale(9),
+    fontSize: mediumScreen ? FontSize.ten : FontSize.nine,
     textTransform: 'uppercase',
     letterSpacing: 1.6,
     marginBottom: 6,
   },
   infoText: {
     fontFamily: 'PlusJakartaSansMedium',
-    fontSize: mediumScreen ? fontScale(12) : fontScale(10),
-    lineHeight: mediumScreen ? fontScale(18) : fontScale(15),
+    fontSize: mediumScreen ? FontSize.twelve : FontSize.ten,
+    lineHeight: mediumScreen ? FontSize.eighteen : FontSize.fifteen,
   },
 });
 

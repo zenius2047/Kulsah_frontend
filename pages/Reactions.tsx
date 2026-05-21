@@ -1,14 +1,15 @@
 import React, { useEffect, useMemo, useState } from 'react';
-import { Image, Keyboard, KeyboardAvoidingView, Platform, Pressable, ScrollView, StyleSheet, Text, TextInput, View } from 'react-native';
+import { Image, Keyboard, KeyboardAvoidingView, Platform, Pressable, ScrollView, StyleSheet, Text, View } from 'react-native';
 import { MaterialIcons } from '@expo/vector-icons';
 import { BlurView } from 'expo-blur';
 import { LinearGradient } from 'expo-linear-gradient';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
-import { fontScale } from '../fonts';
+import { FontSize } from '../fonts';
 import { useThemeMode } from '../theme';
 import { mediumScreen } from '../types';
 import EmojiStickerPicker from '../components/EmojiStickerPicker';
 import GiftDialog, { GiftSelection } from '../components/GiftDialog';
+import KulsahInputBar from '../components/KulsahInputBar';
 
 
 // type ReactionTab =  'Gifts'| null;
@@ -193,7 +194,7 @@ const Reactions: React.FC<ReactionsProps> = ({
         keyboardVerticalOffset={0}
       >
       <View style={[styles.sheet, { height: `${sheetHeight * 100}%`, backgroundColor: shellBackground, borderTopColor: softBorder, maxHeight: keyboardHeight > 0 ? Platform.OS === 'ios' ?'90%': '70%': '60%' }]}>
-        {pickerOpen && 
+        {pickerOpen &&
             <View style={{
               position: 'absolute',
               top: Platform.OS === 'ios' && keyboardHeight > 0 ? 120 : Platform.OS === 'ios' ? 180: keyboardHeight > 0 ? 40:160,
@@ -346,42 +347,41 @@ const Reactions: React.FC<ReactionsProps> = ({
             </View>
           ) : null}
 
-          <View style={[styles.inputRow, { backgroundColor: cardBackground, borderColor: softBorder }]}>
-            {/* <Pressable style={styles.inputIcon}>
-              <MaterialIcons name="add-circle" size={22} color={secondary} />
-            </Pressable> */}
-            <TextInput
+          <KulsahInputBar
               value={message}
               onChangeText={setMessage}
               placeholder="Join the discussion..."
               placeholderTextColor={muted}
-              style={[styles.input, { color: theme.text }]}
+              containerStyle={{ backgroundColor: cardBackground, borderColor: softBorder, paddingBottom: insets.bottom }}
+              rightAccessory={(
+                <>
+                  <View style={styles.inputActions}>
+                    <Pressable
+                      onPress={() => {
+                        setGiftDialogOpen(true);
+                      }}
+                      style={styles.inputIcon}
+                    >
+                      <MaterialIcons name="redeem" size={26} color={secondary} />
+                    </Pressable>
+                    <Pressable
+                      onPress={() => {
+                        setPickerTab('emoji');
+                        setIsPickerOpen(true);
+                      }}
+                      style={styles.inputIcon}
+                    >
+                      <MaterialIcons name="mood" size={26} color={pickerOpen ? '#cd2bee' : secondary} />
+                    </Pressable>
+                  </View>
+                  {message ? (
+                    <Pressable onPress={handleSendMessage} style={styles.sendButton}>
+                      <MaterialIcons name="send" size={18} color="#fff" />
+                    </Pressable>
+                  ) : null}
+                </>
+              )}
             />
-            <View style={{
-              flexDirection: 'row',
-              // gap: 5,
-            }}>
-            <Pressable
-              onPress={() => {
-                setGiftDialogOpen(true);
-              }}
-              style={styles.inputIcon}
-            >
-              <MaterialIcons name="redeem" size={26} color={secondary} />
-            </Pressable>
-            <Pressable 
-            onPress={()=>{
-              setPickerTab('emoji');
-              setIsPickerOpen(true);
-            }}
-            style={styles.inputIcon}>
-              <MaterialIcons name="mood" size={26} color={pickerOpen ? "#cd2bee":secondary} />
-            </Pressable>
-            </View>
-            {message && <Pressable onPress={handleSendMessage} style={styles.sendButton}>
-              <MaterialIcons name="send" size={18} color="#fff" />
-            </Pressable>}
-          </View>
 
           {/* <View style={styles.homeIndicatorWrap}>
             <View style={[styles.homeIndicator, { backgroundColor: isDark ? 'rgba(255,255,255,0.12)' : 'rgba(15,23,42,0.12)' }]} />
@@ -425,10 +425,10 @@ const styles = StyleSheet.create({
   },
   header: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', paddingHorizontal: 24, paddingVertical: 18 },
   iconButton: { width: 40, height: 40, borderRadius: 20, alignItems: 'center', justifyContent: 'center' },
-  headerTitle: { fontFamily: 'PlusJakartaSansExtraBold', fontSize: mediumScreen ? fontScale(14):fontScale(10), textTransform: 'uppercase', letterSpacing: 0.8 },
+  headerTitle: { fontFamily: 'PlusJakartaSansExtraBold', fontSize: mediumScreen ? FontSize.fourteen:FontSize.ten, textTransform: 'uppercase', letterSpacing: 0.8 },
   tabsRow: { flexDirection: 'row', paddingHorizontal: 16, paddingBottom: 8, gap: 8 },
   tabButton: { flex: 1, minHeight: 46, borderRadius: 18, flexDirection: 'row', alignItems: 'center', justifyContent: 'center', gap: 8 },
-  tabText: { fontFamily: 'PlusJakartaSansExtraBold', fontSize: fontScale(8), textTransform: 'uppercase', letterSpacing: 0.2 },
+  tabText: { fontFamily: 'PlusJakartaSansExtraBold', fontSize: FontSize.eight, textTransform: 'uppercase', letterSpacing: 0.2 },
   content: { paddingHorizontal: 24, paddingTop: 10, paddingBottom: 18, gap: 22 },
   commentBlock: { gap: 12 },
   commentRow: { flexDirection: 'row', gap: 12 },
@@ -436,9 +436,9 @@ const styles = StyleSheet.create({
   commentMain: { flex: 1 },
   commentMetaRow: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', gap: 8, marginBottom: 2 },
   commentNameRow: { flexDirection: 'row', alignItems: 'center', gap: 4 },
-  commentHandle: { fontFamily: 'PlusJakartaSansBold', fontSize: mediumScreen ? fontScale(15) : fontScale(11), marginBottom: 5 },
-  commentTime: { fontFamily: 'PlusJakartaSansMedium', fontSize: mediumScreen ? fontScale(10):fontScale(7) },
-  commentBody: { fontFamily: 'PlusJakartaSansMedium', fontSize: mediumScreen ? fontScale(13): fontScale(10), lineHeight: 16 },
+  commentHandle: { fontFamily: 'PlusJakartaSansBold', fontSize: mediumScreen ? FontSize.fifteen : FontSize.eleven, marginBottom: 5 },
+  commentTime: { fontFamily: 'PlusJakartaSansMedium', fontSize: mediumScreen ? FontSize.ten:FontSize.seven },
+  commentBody: { fontFamily: 'PlusJakartaSansMedium', fontSize: mediumScreen ? FontSize.thirteen: FontSize.ten, lineHeight: 16 },
   commentSticker: { width: 120, height: 120, borderRadius: 22, marginTop: 4 },
   giftMessageCard: {
     marginTop: 4,
@@ -463,7 +463,7 @@ const styles = StyleSheet.create({
     height: '100%',
   },
   giftMessageEmoji: {
-    fontSize: 26,
+    fontSize: FontSize.twentySix,
   },
   giftMessageCopy: {
     flex: 1,
@@ -471,39 +471,38 @@ const styles = StyleSheet.create({
   },
   giftMessageTitle: {
     fontFamily: 'PlusJakartaSansBold',
-    fontSize: mediumScreen ? fontScale(12) : fontScale(9),
+    fontSize: mediumScreen ? FontSize.twelve : FontSize.nine,
   },
   giftMessagePrice: {
     fontFamily: 'PlusJakartaSansMedium',
-    fontSize: mediumScreen ? fontScale(10) : fontScale(7),
+    fontSize: mediumScreen ? FontSize.ten : FontSize.seven,
     textTransform: 'uppercase',
     letterSpacing: 0.8,
   },
   actionRow: { flexDirection: 'row', alignItems: 'center', gap: 18, marginTop: 8 },
   metaAction: { flexDirection: 'row', alignItems: 'center', gap: 4 },
-  metaActionText: { fontFamily: 'PlusJakartaSansBold', fontSize: mediumScreen ? fontScale(12):fontScale(8) },
+  metaActionText: { fontFamily: 'PlusJakartaSansBold', fontSize: mediumScreen ? FontSize.twelve:FontSize.eight },
   replyWrap: { marginLeft: 34, paddingLeft: 18, position: 'relative', gap: 10 },
   replyLine: { position: 'absolute', left: 0, top: -6, bottom: 6, width: 2, borderRadius: 999 },
   replyRow: { flexDirection: 'row', gap: 10 },
   replyAvatar: { width: 32, height: 32, borderRadius: 16 },
   replyMain: { flex: 1 },
-  replyHandle: { fontFamily: 'PlusJakartaSansBold', fontSize: mediumScreen ? fontScale(11):fontScale(8) },
-  replyTime: { fontFamily: 'PlusJakartaSansMedium', fontSize: mediumScreen ? fontScale(9): fontScale(6) },
-  replyBody: { fontFamily: 'PlusJakartaSansMedium', fontSize: mediumScreen ? fontScale(11): fontScale(8), lineHeight: 15 },
+  replyHandle: { fontFamily: 'PlusJakartaSansBold', fontSize: mediumScreen ? FontSize.eleven:FontSize.eight },
+  replyTime: { fontFamily: 'PlusJakartaSansMedium', fontSize: mediumScreen ? FontSize.nine: FontSize.six },
+  replyBody: { fontFamily: 'PlusJakartaSansMedium', fontSize: mediumScreen ? FontSize.eleven: FontSize.eight, lineHeight: 15 },
   replyActions: { flexDirection: 'row', gap: 16, marginTop: 6 },
-  replyActionText: { fontFamily: 'PlusJakartaSansBold', fontSize: mediumScreen ? fontScale(10): fontScale(8) },
+  replyActionText: { fontFamily: 'PlusJakartaSansBold', fontSize: mediumScreen ? FontSize.ten: FontSize.eight },
   giftCard: { flexDirection: 'row', gap: 12, borderRadius: 20, padding: 14, overflow: 'hidden', borderWidth: 1 },
   giftHeaderRow: { flexDirection: 'row', alignItems: 'center', gap: 8 },
-  giftLabel: { color: '#cd2bee', fontFamily: 'PlusJakartaSansExtraBold', fontSize: mediumScreen ? fontScale(9): fontScale(6), letterSpacing: 0.6, textTransform: 'uppercase' },
+  giftLabel: { color: '#cd2bee', fontFamily: 'PlusJakartaSansExtraBold', fontSize: mediumScreen ? FontSize.nine: FontSize.six, letterSpacing: 0.6, textTransform: 'uppercase' },
   giftMetaRow: { flexDirection: 'row', alignItems: 'center', gap: 8, marginTop: 6 },
-  giftText: { fontFamily: 'PlusJakartaSansMedium', fontSize: mediumScreen ? fontScale(11):fontScale(8) },
+  giftText: { fontFamily: 'PlusJakartaSansMedium', fontSize: mediumScreen ? FontSize.eleven:FontSize.eight },
   inputShell: { borderTopWidth: 1, paddingHorizontal: 16, paddingTop: 12 },
   replyingBanner: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', borderWidth: 1, borderRadius: 14, paddingHorizontal: 12, paddingVertical: 8, marginBottom: 10 },
   replyingInfo: { flexDirection: 'row', alignItems: 'center', gap: 8 },
-  replyingText: { fontFamily: 'PlusJakartaSansMedium', fontSize: mediumScreen ? fontScale(10): fontScale(7) },
-  inputRow: { minHeight: 52, borderRadius: 999, borderWidth: 1, flexDirection: 'row', alignItems: 'center', paddingHorizontal: 10, gap: 4 },
+  replyingText: { fontFamily: 'PlusJakartaSansMedium', fontSize: mediumScreen ? FontSize.ten: FontSize.seven },
+  inputActions: { flexDirection: 'row' },
   inputIcon: { width: 32, height: 32, borderRadius: 16, alignItems: 'center', justifyContent: 'center' },
-  input: { flex: 1, minHeight: 39, fontFamily: 'PlusJakartaSansMedium', fontSize: mediumScreen ? fontScale(12):fontScale(9) },
   sendButton: { width: 36, height: 36, borderRadius: 12, alignItems: 'center', justifyContent: 'center', backgroundColor: '#cd2bee' },
   homeIndicatorWrap: { alignItems: 'center', paddingTop: 10 },
   homeIndicator: { width: 128, height: 4, borderRadius: 999 },

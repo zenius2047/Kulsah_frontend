@@ -3,7 +3,7 @@ import { MaterialIcons } from '@expo/vector-icons';
 import { Modal, Pressable, Text, View } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
 import { useThemeMode } from '../theme';
-import { fontScale } from '../fonts';
+import { FontSize } from '../fonts';
 import { mediumScreen } from '../types';
 
 interface KulCoinPromptProps {
@@ -76,7 +76,7 @@ const KulCoinPrompt: React.FC<KulCoinPromptProps> = ({
             <Text
               style={{
                 color: theme.text,
-                fontSize: mediumScreen ? fontScale(22) : fontScale(18),
+                fontSize: mediumScreen ? FontSize.twentyTwo : FontSize.eighteen,
                 fontFamily: 'PlusJakartaSansExtraBold',
                 textTransform: 'uppercase',
                 textAlign: 'center',
@@ -89,7 +89,7 @@ const KulCoinPrompt: React.FC<KulCoinPromptProps> = ({
             <Text
               style={{
                 color: isDark ? 'rgba(255,255,255,0.45)' : '#64748b',
-                fontSize: fontScale(11),
+                fontSize: FontSize.eleven,
                 fontFamily: 'PlusJakartaSansMedium',
                 lineHeight: 20,
                 textAlign: 'center',
@@ -124,7 +124,7 @@ const KulCoinPrompt: React.FC<KulCoinPromptProps> = ({
                 <Text
                   style={{
                     color: '#fff',
-                    fontSize: fontScale(10),
+                    fontSize: FontSize.ten,
                     fontFamily: 'PlusJakartaSansExtraBold',
                     textTransform: 'uppercase',
                     letterSpacing: 2,
@@ -148,7 +148,7 @@ const KulCoinPrompt: React.FC<KulCoinPromptProps> = ({
                 <Text
                   style={{
                     color: isDark ? 'rgba(255,255,255,0.6)' : '#64748b',
-                    fontSize: fontScale(10),
+                    fontSize: FontSize.ten,
                     fontFamily: 'PlusJakartaSansExtraBold',
                     textTransform: 'uppercase',
                     letterSpacing: 2,
@@ -177,7 +177,7 @@ const KulCoinPrompt: React.FC<KulCoinPromptProps> = ({
               <Text
                 style={{
                   color: '#22c55e',
-                  fontSize: fontScale(7),
+                  fontSize: FontSize.seven,
                   fontFamily: 'PlusJakartaSansExtraBold',
                   textTransform: 'uppercase',
                   letterSpacing: 1.4,

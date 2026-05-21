@@ -31,7 +31,7 @@ import TickIcon from '../assets/icons/ticket-svg.svg';
 import PlayFilledIcon from '../assets/icons/play-arrow-filled-svg.svg';
 import FireIcon from '../assets/icons/fireIcon-svg.svg';
 import BookMarkIcon from '../assets/icons/bookmark-svg.svg';
-import { fontScale } from '../fonts';
+import { FontSize } from '../fonts';
 import LiveLogo from '../assets/icons/live-svg.svg';
 import Reactions from './Reactions';
 import ErrorBoundary from '../components/ErrorBoundary';
@@ -160,7 +160,7 @@ const FeedQuickMenuModal: React.FC<{
                       textTransform: 'uppercase',
                       letterSpacing: 1,
                       fontFamily: 'PlusJakartaSansBold',
-                      fontSize: fontScale(9),
+                      fontSize: FontSize.nine,
                     }}
                   >
                     {action.label}
@@ -187,7 +187,7 @@ const FeedQuickMenuModal: React.FC<{
                   }}
                 >
                   <MaterialIcons name={row.icon as any} size={22} color={iconTone} />
-                  <Text style={{ color: textPrimary, fontSize: fontScale(12), fontFamily: 'PlusJakartaSansMedium' }}>
+                  <Text style={{ color: textPrimary, fontSize: FontSize.twelve, fontFamily: 'PlusJakartaSansMedium' }}>
                     {row.label}
                   </Text>
                 </Pressable>
@@ -206,7 +206,7 @@ const FeedQuickMenuModal: React.FC<{
               >
                 <View style={{ flexDirection: 'row', alignItems: 'center', gap: 14 }}>
                   <MaterialIcons name={'auto-graph' as any} size={22} color={iconTone} />
-                  <Text style={{ color: textPrimary, fontSize: fontScale(12), fontFamily: 'PlusJakartaSansMedium' }}>
+                  <Text style={{ color: textPrimary, fontSize: FontSize.twelve, fontFamily: 'PlusJakartaSansMedium' }}>
                     Auto-scroll
                   </Text>
                   <View
@@ -219,7 +219,7 @@ const FeedQuickMenuModal: React.FC<{
                       paddingVertical: 2,
                     }}
                   >
-                    <Text style={{ color: '#cd2bee', fontSize: fontScale(7), fontFamily: 'PlusJakartaSansExtraBold' }}>NEW</Text>
+                    <Text style={{ color: '#cd2bee', fontSize: FontSize.seven, fontFamily: 'PlusJakartaSansExtraBold' }}>NEW</Text>
                   </View>
                 </View>
                 <View
@@ -249,7 +249,7 @@ const FeedQuickMenuModal: React.FC<{
                 }}
               >
                 <MaterialIcons name={'qr-code' as any} size={22} color={iconTone} />
-                <Text style={{ color: textPrimary, fontSize: fontScale(12), fontFamily: 'PlusJakartaSansMedium' }}>
+                <Text style={{ color: textPrimary, fontSize: FontSize.twelve, fontFamily: 'PlusJakartaSansMedium' }}>
                   QR code
                 </Text>
               </Pressable>
@@ -274,7 +274,7 @@ const FeedQuickMenuModal: React.FC<{
                   }}
                 >
                   <MaterialIcons name={row.icon as any} size={22} color={row.tint ?? iconTone} />
-                  <Text style={{ color: textPrimary, fontSize: fontScale(12), fontFamily: 'PlusJakartaSansMedium' }}>
+                  <Text style={{ color: textPrimary, fontSize: FontSize.twelve, fontFamily: 'PlusJakartaSansMedium' }}>
                     {row.label}
                   </Text>
                 </Pressable>
@@ -299,7 +299,7 @@ const FeedQuickMenuModal: React.FC<{
                   }}
                 >
                   <MaterialIcons name={row.icon as any} size={22} color={iconTone} />
-                  <Text style={{ color: textPrimary, fontSize: fontScale(12), fontFamily: 'PlusJakartaSansMedium' }}>
+                  <Text style={{ color: textPrimary, fontSize: FontSize.twelve, fontFamily: 'PlusJakartaSansMedium' }}>
                     {row.label}
                   </Text>
                 </Pressable>
@@ -383,7 +383,7 @@ const FeedSubscriptionModal: React.FC<{
                   style={{
                     textAlign: 'center',
                     color: theme.text,
-                    fontSize: mediumScreen ? fontScale(30) : fontScale(24),
+                    fontSize: mediumScreen ? FontSize.thirty : FontSize.twentyFour,
                     lineHeight: mediumScreen ? 40 : 30,
                     fontFamily: 'PlusJakartaSansExtraBold',
                     textTransform: 'uppercase',
@@ -406,7 +406,7 @@ const FeedSubscriptionModal: React.FC<{
                   <Text
                     style={{
                       color: '#fff',
-                      fontSize: mediumScreen ? fontScale(15) : fontScale(11),
+                      fontSize: mediumScreen ? FontSize.fifteen : FontSize.eleven,
                       fontFamily: 'PlusJakartaSansExtraBold',
                       textTransform: 'uppercase',
                       letterSpacing: 2,
@@ -437,7 +437,7 @@ const FeedSubscriptionModal: React.FC<{
                     <Text
                       style={{
                         color: theme.text,
-                        fontSize: mediumScreen ? fontScale(22) : fontScale(18),
+                        fontSize: mediumScreen ? FontSize.twentyTwo : FontSize.eighteen,
                         fontFamily: 'PlusJakartaSansExtraBold',
                         textTransform: 'uppercase',
                       }}
@@ -448,7 +448,7 @@ const FeedSubscriptionModal: React.FC<{
                       style={{
                         marginTop: 6,
                         color: theme.textSecondary,
-                        fontSize: fontScale(9),
+                        fontSize: FontSize.nine,
                         fontFamily: 'PlusJakartaSansExtraBold',
                         textTransform: 'uppercase',
                         letterSpacing: 2,
@@ -464,7 +464,7 @@ const FeedSubscriptionModal: React.FC<{
                     style={{
                       marginLeft: 4,
                       color: theme.textSecondary,
-                      fontSize: fontScale(8),
+                      fontSize: FontSize.eight,
                       fontFamily: 'PlusJakartaSansExtraBold',
                       textTransform: 'uppercase',
                       letterSpacing: 3,
@@ -503,7 +503,7 @@ const FeedSubscriptionModal: React.FC<{
                         style={{
                           flex: 1,
                           color: theme.text,
-                          fontSize: mediumScreen ? fontScale(13) : fontScale(11),
+                          fontSize: mediumScreen ? FontSize.thirteen : FontSize.eleven,
                           fontFamily: 'PlusJakartaSansBold',
                         }}
                       >
@@ -528,7 +528,7 @@ const FeedSubscriptionModal: React.FC<{
                       <Text
                         style={{
                           color: '#d97706',
-                          fontSize: fontScale(8),
+                          fontSize: FontSize.eight,
                           fontFamily: 'PlusJakartaSansExtraBold',
                           textTransform: 'uppercase',
                           letterSpacing: 2,
@@ -539,7 +539,7 @@ const FeedSubscriptionModal: React.FC<{
                       <Text
                         style={{
                           color: theme.text,
-                          fontSize: mediumScreen ? fontScale(18) : fontScale(14),
+                          fontSize: mediumScreen ? FontSize.eighteen : FontSize.fourteen,
                           fontFamily: 'PlusJakartaSansExtraBold',
                         }}
                       >
@@ -550,7 +550,7 @@ const FeedSubscriptionModal: React.FC<{
                       <Text
                         style={{
                           color: theme.textSecondary,
-                          fontSize: fontScale(8),
+                          fontSize: FontSize.eight,
                           fontFamily: 'PlusJakartaSansExtraBold',
                           textTransform: 'uppercase',
                           letterSpacing: 1.5,
@@ -561,7 +561,7 @@ const FeedSubscriptionModal: React.FC<{
                       <Text
                         style={{
                           color: '#cd2bee',
-                          fontSize: mediumScreen ? fontScale(18) : fontScale(14),
+                          fontSize: mediumScreen ? FontSize.eighteen : FontSize.fourteen,
                           fontFamily: 'PlusJakartaSansExtraBold',
                         }}
                       >
@@ -590,7 +590,7 @@ const FeedSubscriptionModal: React.FC<{
                       <Text
                         style={{
                           color: '#fff',
-                          fontSize: mediumScreen ? fontScale(15) : fontScale(11),
+                          fontSize: mediumScreen ? FontSize.fifteen : FontSize.eleven,
                           fontFamily: 'PlusJakartaSansExtraBold',
                           textTransform: 'uppercase',
                           letterSpacing: 2,
@@ -796,7 +796,7 @@ const VideoFeedItem: React.FC<{
   // }, [sourceLoad])
   // useEffect(player, 'sourceLoad', () => {
   //   const tracks = event?.availableVideoTracks;
-    
+
   // });
 
    useEffect(() => {
@@ -876,8 +876,8 @@ useEffect(() => {
             bottom: 0
           }]}
           allowsPictureInPicture
-          
-          
+
+
         />
         <Pressable
         onPress={handleVideoTap}
@@ -907,7 +907,7 @@ useEffect(() => {
         bottom: 0,
         alignItems: 'center',
         gap: 20,
-        
+
       }}>
         <Pressable style={{}}>
           <View style={{
@@ -933,7 +933,7 @@ useEffect(() => {
               height: 15,
             }}>
               <Text style={{
-                fontSize: mediumScreen ? 8: 4,
+                fontSize: mediumScreen ? FontSize.eight: 4,
                 color: 'white',
                 fontFamily: 'PlusJakartaSansBold'
               }}>
@@ -959,7 +959,7 @@ useEffect(() => {
 
         {/* {!item.isSubscribed && (
           <Pressable onPress={() => onSubscribe(item.id)} style={{ marginBottom: 16 }}>
-            <Text style={{ color: 'white', fontSize: fontScale(12) }}>Add</Text>
+            <Text style={{ color: 'white', fontSize: FontSize.twelve }}>Add</Text>
           </Pressable>
         )} */}
 
@@ -975,7 +975,7 @@ useEffect(() => {
          }}
         >
           <MaterialIcons name='favorite' size={32} color={isLiked ? '#cd2bee' : 'white'} />
-          <Text style={{ color: 'white', fontWeight: 'bold', fontSize: mediumScreen ? 14:10, fontFamily: "PlusJakartaSansBold" }}>{item.likes}</Text>
+          <Text style={{ color: 'white', fontSize: mediumScreen ? FontSize.fourteen:FontSize.ten, fontFamily: "PlusJakartaSansBold" }}>{item.likes}</Text>
         </Pressable>
 
         <Pressable onPress={() => setShowComments(true)} style={{
@@ -986,7 +986,7 @@ useEffect(() => {
           elevation: 4,
           alignItems: 'center' }}>
           <CommentIcon height={32} width={32} fill="white" />
-          <Text style={{ color: 'white', fontSize: mediumScreen ? 14:10, fontFamily: "PlusJakartaSansBold"}}>{item.comments}</Text>
+          <Text style={{ color: 'white', fontSize: mediumScreen ? FontSize.fourteen:FontSize.ten, fontFamily: "PlusJakartaSansBold"}}>{item.comments}</Text>
         </Pressable>
 
         {/* <Pressable onPress={() => navigation.navigate('ArtistProfile')} style={{
@@ -1022,7 +1022,7 @@ useEffect(() => {
               <MaterialIcons name="star" size={36} color={item.isSubscribed ? '#cd2bee' : 'white'} />
             </View>
           </View>
-          <Text style={{ color: item.isSubscribed ? '#cd2bee' : 'white', fontSize: mediumScreen ? 14:10, fontFamily: "PlusJakartaSansBold" }}>
+          <Text style={{ color: item.isSubscribed ? '#cd2bee' : 'white', fontSize: mediumScreen ? FontSize.fourteen:FontSize.ten, fontFamily: "PlusJakartaSansBold" }}>
             {item.isSubscribed ? 'SUBBED' : 'Sub'}
           </Text>
         </Pressable> */}
@@ -1035,7 +1035,7 @@ useEffect(() => {
           elevation: 4,
           alignItems: 'center' }}>
           <MaterialIcons name="bookmark" size={30} color="white" />
-          <Text style={{ color: 'white', fontSize: mediumScreen ? 14:10, fontFamily: "PlusJakartaSansBold" }}>{item.saves}</Text>
+          <Text style={{ color: 'white', fontSize: mediumScreen ? FontSize.fourteen:FontSize.ten, fontFamily: "PlusJakartaSansBold" }}>{item.saves}</Text>
         </Pressable>
 
         <Pressable onPress={() => {}} style={{
@@ -1046,7 +1046,7 @@ useEffect(() => {
           elevation: 4,
           alignItems: 'center' }}>
           <MaterialIcons name="share" size={28} color="white" />
-          <Text style={{ color: 'white', fontSize: mediumScreen ? 14:10, fontFamily: "PlusJakartaSansBold" }}>{item.bookmarks}</Text>
+          <Text style={{ color: 'white', fontSize: mediumScreen ? FontSize.fourteen:FontSize.ten, fontFamily: "PlusJakartaSansBold" }}>{item.bookmarks}</Text>
         </Pressable>
 
         <Pressable onPress={() => setShowMoreMenu(true)} style={{
@@ -1057,7 +1057,7 @@ useEffect(() => {
           elevation: 4,
           alignItems: 'center' }}>
           <MaterialIcons name="more-horiz" size={30} color="white" />
-          {/* <Text style={{ color: 'white', fontSize: mediumScreen ? 14:10, fontFamily: "PlusJakartaSansBold" }}>More</Text> */}
+          {/* <Text style={{ color: 'white', fontSize: mediumScreen ? FontSize.fourteen:FontSize.ten, fontFamily: "PlusJakartaSansBold" }}>More</Text> */}
         </Pressable>
 
         <View style={
@@ -1069,7 +1069,7 @@ useEffect(() => {
 
       {/* Bottom overlay: captions, ticket button */}
       <View style={{ position: 'absolute', bottom: 0, left: 5, right: 16, paddingBottom: 16, gap: 5 }}>
-         <Pressable 
+         <Pressable
          onPress={()=>{
           navigation.navigate('UseEffect');
          }}
@@ -1089,7 +1089,7 @@ useEffect(() => {
             numberOfLines={1}
             style={{
               color: '#ffffffcc',
-              fontSize: mediumScreen ? fontScale(10): fontScale(8),
+              fontSize: mediumScreen ? FontSize.ten: FontSize.eight,
               lineHeight: 20,
               fontFamily: 'PlusJakartaSansMedium'
             }}>
@@ -1097,7 +1097,7 @@ useEffect(() => {
             </Text>
             </Pressable>
         <View style={{ flexDirection: 'row', alignItems: 'center', gap: 8 }}>
-          <Pressable 
+          <Pressable
           onPress={()=> navigation.navigate('ArtistProfile', {isOwner: false, id: item.artist})}
           >
             <View style={{
@@ -1113,11 +1113,11 @@ useEffect(() => {
                 maxWidth: SCREEN_WIDTH * 0.3
               }}>
                 <Text
-              numberOfLines={1} 
+              numberOfLines={1}
               style={{
                 color: 'white',
                 fontFamily: 'PlusJakartaSansBold',
-                fontSize: mediumScreen ? 18: 14,
+                fontSize: mediumScreen ? FontSize.eighteen: FontSize.fourteen,
                 }}>@{item.handle}</Text>
               </View>
               <View style={{
@@ -1130,7 +1130,7 @@ useEffect(() => {
           </Pressable>
           {item.isPremium && (
             <View style={{ borderRadius: 6,  borderWidth: 1, paddingHorizontal: 6, justifyContent: 'center', alignItems: 'center', paddingVertical: 3, borderColor: 'white' }}>
-              <Text style={{ color: '#fff', fontWeight: 'bold', fontSize: mediumScreen ? 12: 8 }}>Premium</Text>
+              <Text style={{ color: '#fff', fontWeight: 'bold', fontSize: mediumScreen ? FontSize.twelve: FontSize.eight }}>Premium</Text>
             </View>
           )}
           <Pressable
@@ -1150,7 +1150,7 @@ useEffect(() => {
               paddingVertical: 3,
             }}
           >
-            <Text style={{ color: '#fff', fontWeight: 'bold', fontSize: mediumScreen ? 12: 8 }}>
+            <Text style={{ color: '#fff', fontWeight: 'bold', fontSize: mediumScreen ? FontSize.twelve: FontSize.eight }}>
               {item.isSubscribed ? 'Subscribed' : 'Subscribe'}
             </Text>
           </Pressable>
@@ -1166,7 +1166,7 @@ useEffect(() => {
           }}>
             <Text
           numberOfLines={lineNumber}
-          style={{ color: 'white', marginTop: 4, fontFamily:'PlusJakartaSans', fontSize: mediumScreen ? 14: 10 }}>
+          style={{ color: 'white', marginTop: 4, fontFamily:'PlusJakartaSans', fontSize: mediumScreen ? FontSize.fourteen: FontSize.ten }}>
           {item.caption}
         </Text>
           </View>
@@ -1177,7 +1177,7 @@ useEffect(() => {
         }}
         >
           <Text style={{
-            color: 'white', marginTop: 4, fontFamily:'PlusJakartaSansExtraBold', fontSize: mediumScreen ? 14: 10
+            color: 'white', marginTop: 4, fontFamily:'PlusJakartaSansExtraBold', fontSize: mediumScreen ? FontSize.fourteen: FontSize.ten
           }}>
           more
           </Text></Pressable>}
@@ -1217,10 +1217,10 @@ useEffect(() => {
             marginRight: 15,
           }}>
             <Text
-          numberOfLines={1} 
+          numberOfLines={1}
           style={{
             color: '#ffffffcc',
-            fontSize: mediumScreen ? fontScale(10): fontScale(8),
+            fontSize: mediumScreen ? FontSize.ten: FontSize.eight,
             lineHeight: 20,
             fontFamily: 'PlusJakartaSansMedium',
           }}>
@@ -1228,7 +1228,7 @@ useEffect(() => {
           </Text>
           <Text style={{
             color: '#ffffffcc',
-            fontSize: mediumScreen ? fontScale(10): fontScale(8),
+            fontSize: mediumScreen ? FontSize.ten: FontSize.eight,
             lineHeight: 20,
             fontFamily: 'PlusJakartaSansMedium'
           }}>
@@ -1236,7 +1236,7 @@ useEffect(() => {
           </Text>
           </Pressable>
 
-          
+
 
         </View>
 
@@ -1251,7 +1251,7 @@ useEffect(() => {
               paddingHorizontal: 10,
               paddingVertical: 6,
               borderRadius: 20,
-              alignSelf: 'flex-start', 
+              alignSelf: 'flex-start',
               flexDirection: 'row',
               alignItems: 'center',
               justifyContent: 'center'
@@ -1259,7 +1259,7 @@ useEffect(() => {
             // onPress={() => navigation.navigate('Video')}
           >
             <TickIcon height={14} width={14}/>
-            <Text style={{ color: 'black', fontFamily: 'PlusJakartaSansBold', fontSize: mediumScreen ? 10: 8, textTransform: 'uppercase' }}>  Tickets • {item.ticketLocation}</Text>
+            <Text style={{ color: 'black', fontFamily: 'PlusJakartaSansBold', fontSize: mediumScreen ? FontSize.ten: FontSize.eight, textTransform: 'uppercase' }}>  Tickets • {item.ticketLocation}</Text>
           </Pressable>
         )}
 
@@ -1330,16 +1330,16 @@ useEffect(() => {
           </View>
 
           {/* <View style={{ flexDirection: 'row', justifyContent: 'space-between', marginTop: 3 }}>
-            <Text style={{ color: '#cbd5e1', fontSize: mediumScreen ? 10 : 8, fontFamily: 'PlusJakartaSansBold' }}>
+            <Text style={{ color: '#cbd5e1', fontSize: mediumScreen ? FontSize.ten : FontSize.eight, fontFamily: 'PlusJakartaSansBold' }}>
               {formatTime(effectiveCurrentTime)}
             </Text>
-            <Text style={{ color: '#cbd5e1', fontSize: mediumScreen ? 10 : 8, fontFamily: 'PlusJakartaSansBold' }}>
+            <Text style={{ color: '#cbd5e1', fontSize: mediumScreen ? FontSize.ten : FontSize.eight, fontFamily: 'PlusJakartaSansBold' }}>
               {formatTime(duration)}
             </Text>
           </View> */}
         </View>
 
-        {/* <Text style={{ color: '#cbd5e1', marginTop: 6, fontSize: mediumScreen ? 8: 8 }}>{isPlaying ? 'Playing' : 'Paused'} preview</Text> */}
+        {/* <Text style={{ color: '#cbd5e1', marginTop: 6, fontSize: mediumScreen ? FontSize.eight: FontSize.eight }}>{isPlaying ? 'Playing' : 'Paused'} preview</Text> */}
       </View>
 
       {/* Comments modal */}
@@ -2087,7 +2087,7 @@ const Feed: React.FC = () => {
       bookmarks: '2.5k',
       saves: '2.5k',
     },
-    
+
     {
       id: '85',
       artist: 'nasa',
@@ -2251,7 +2251,7 @@ const Feed: React.FC = () => {
       <ErrorBoundary
         fallback={
           <View style={{ flex: 1, alignItems: 'center', justifyContent: 'center', paddingHorizontal: 24, backgroundColor: 'black' }}>
-            <Text style={{ color: 'white', fontSize: fontScale(18), fontFamily: 'PlusJakartaSansBold', textAlign: 'center' }}>
+            <Text style={{ color: 'white', fontSize: FontSize.eighteen, fontFamily: 'PlusJakartaSansBold', textAlign: 'center' }}>
               This post could not be loaded
             </Text>
             <Text style={{ color: '#94a3b8', marginTop: 8, textAlign: 'center', fontFamily: 'PlusJakartaSans' }}>
@@ -2299,12 +2299,12 @@ const Feed: React.FC = () => {
           paddingHorizontal: 10
         }}
       >
-        
+
         <View style={{
           width: "9%",
           // backgroundColor: 'blue'
         }}>
-          <Pressable 
+          <Pressable
         style = {{
           borderColor: '#888',
           borderWidth: 1,
@@ -2316,7 +2316,7 @@ const Feed: React.FC = () => {
           justifyContent: 'center',
           backgroundColor: 'rgba(0,0,0,0.2)',
         }}
-        onPress={() => navigation.navigate('Challenges')}>
+        onPress={() => navigation.navigate('Search')}>
           <MaterialIcons name="search" size={18} color="white" />
         </Pressable>
         </View>
@@ -2340,7 +2340,7 @@ const Feed: React.FC = () => {
               </Pressable>
                   <Pressable onPress={() => setActiveTab("foryou")} style={{ justifyContent: 'center', alignItems: 'center',  }}>
                     <View style={{justifyContent: 'center', alignItems: 'center'}}>
-                      <Text style={[{ color: "#94a3b8", fontSize: smallWidth ? 10.5 : mediumScreen ? 13.5:8.5, fontFamily: "PlusJakartaSansBold", letterSpacing: -0.2, marginBottom: 5 }, activeTab === "foryou" && {color: 'white', letterSpacing: 1, fontFamily: 'PlusJakartaSansExtraBold'}]}>
+                      <Text style={[{ color: "#94a3b8", fontSize: smallWidth ? FontSize.tenHalf : mediumScreen ? FontSize.thirteenHalf:FontSize.eightHalf, fontFamily: "PlusJakartaSansBold", letterSpacing: -0.2, marginBottom: 5 }, activeTab === "foryou" && {color: 'white', letterSpacing: 1, fontFamily: 'PlusJakartaSansExtraBold'}]}>
                         FOR YOU
                       </Text>
                       {activeTab === "foryou" && <View style={{
@@ -2353,7 +2353,7 @@ const Feed: React.FC = () => {
                   </Pressable>
                   <Pressable onPress={() => setActiveTab("following")} style={{ justifyContent: 'center', alignItems: 'center',}}>
                     <View style={{alignItems: 'center', justifyContent: 'center'}}>
-                      <Text style={[{ color: "#94a3b8", fontSize: smallWidth ? 10.5 : mediumScreen ? 13.5:8.5, fontFamily: "PlusJakartaSansBold", marginBottom: 5 }, activeTab === "following" && {color: 'white', letterSpacing: 1, fontFamily: 'PlusJakartaSansExtraBold'}]}>
+                      <Text style={[{ color: "#94a3b8", fontSize: smallWidth ? FontSize.tenHalf : mediumScreen ? FontSize.thirteenHalf:FontSize.eightHalf, fontFamily: "PlusJakartaSansBold", marginBottom: 5 }, activeTab === "following" && {color: 'white', letterSpacing: 1, fontFamily: 'PlusJakartaSansExtraBold'}]}>
                         FOLLOWING
                       </Text>
                       {activeTab === "following" && <View style={{
@@ -2366,7 +2366,7 @@ const Feed: React.FC = () => {
                   </Pressable>
                   {/* <Pressable onPress={() => setActiveTab("challenges")} style={{ justifyContent: 'center', alignItems: 'center',}}>
                     <View style={{ justifyContent: 'center', alignItems: 'center',}}>
-                      <Text style={[{ color: "#94a3b8", fontSize: smallWidth ? 10.5 : mediumScreen ? 13.5:8.5, fontFamily: "PlusJakartaSansBold", marginBottom: 5 }, activeTab === "challenges" && {color: 'white', letterSpacing: 1, fontFamily: 'PlusJakartaSansExtraBold', marginBottom: 5}]}>
+                      <Text style={[{ color: "#94a3b8", fontSize: smallWidth ? FontSize.tenHalf : mediumScreen ? FontSize.thirteenHalf:FontSize.eightHalf, fontFamily: "PlusJakartaSansBold", marginBottom: 5 }, activeTab === "challenges" && {color: 'white', letterSpacing: 1, fontFamily: 'PlusJakartaSansExtraBold', marginBottom: 5}]}>
                         CHALLENGES
                       </Text>
                       {activeTab === "challenges" && <View style={{
@@ -2379,7 +2379,7 @@ const Feed: React.FC = () => {
                   </Pressable> */}
                   <Pressable onPress={() => setActiveTab("premium")} style={{ justifyContent: 'center', alignItems: 'center',}}>
                     <View style={{ justifyContent: 'center', alignItems: 'center',}}>
-                      <Text style={[{ color: "#94a3b8", fontSize: smallWidth ? 10.5 : mediumScreen ? 13.5:8.5, fontFamily: "PlusJakartaSansBold", marginBottom: 5 }, activeTab === "premium" && {color: 'white', letterSpacing: 1, fontFamily: 'PlusJakartaSansExtraBold', marginBottom: 5}]}>
+                      <Text style={[{ color: "#94a3b8", fontSize: smallWidth ? FontSize.tenHalf : mediumScreen ? FontSize.thirteenHalf:FontSize.eightHalf, fontFamily: "PlusJakartaSansBold", marginBottom: 5 }, activeTab === "premium" && {color: 'white', letterSpacing: 1, fontFamily: 'PlusJakartaSansExtraBold', marginBottom: 5}]}>
                         PREMIUM
                       </Text>
                       {activeTab === "premium" && <View style={{
@@ -2390,8 +2390,8 @@ const Feed: React.FC = () => {
                       }}/>}
                     </View>
                   </Pressable>
-        
-                  
+
+
                 </View>
             <Pressable
             onPress={()=>{
@@ -2413,12 +2413,12 @@ const Feed: React.FC = () => {
             }}
             >
               <FireIcon fill='#f97316' height={15} width={15}/>
-              <Text 
+              <Text
               numberOfLines={1}
               style={{
                 color: '#f97316',
                 fontFamily: "PlusJakartaSansBold",
-                fontSize: mediumScreen ? 14: 10,
+                fontSize: mediumScreen ? FontSize.fourteen: FontSize.ten,
               }}>
                 3
               </Text>
@@ -2443,7 +2443,7 @@ const Feed: React.FC = () => {
           disableIntervalMomentum
           ListFooterComponent={() => (
             <View style={{ height: SCREEN_HEIGHT * 0.08, justifyContent: 'center', alignItems: 'center', backgroundColor: 'gold' }}>
-              <Text style={{ color: '#94a3b8', fontSize: fontScale(11) }}>Syncing more galaxy feed...</Text>
+              <Text style={{ color: '#94a3b8', fontSize: FontSize.eleven }}>Syncing more galaxy feed...</Text>
             </View>
           )}
           getItemLayout={(_, index) => ({
@@ -2461,7 +2461,7 @@ const Feed: React.FC = () => {
         </View>
       ) : (
         <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center', paddingHorizontal: 24 }}>
-          <Text style={{ color: 'white', fontSize: fontScale(18), fontWeight: '800' }}>Your Orbit is Empty</Text>
+          <Text style={{ color: 'white', fontSize: FontSize.eighteen, fontWeight: '800' }}>Your Orbit is Empty</Text>
           <Text style={{ color: '#94a3b8', marginTop: 8, textAlign: 'center' }}>
             Follow creators in the galaxy to see their latest transmissions.
           </Text>
@@ -2506,7 +2506,7 @@ const StyleSheet = {
     left: 0,
     margin: 0,
     padding: 0,
-    
+
   },
   tabWrap: {
     flexDirection: "row",

@@ -15,7 +15,7 @@ import {
   View,
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
-import { fontScale } from './fonts';
+import { FontSize } from './fonts';
 import { useThemeMode } from './theme';
 import { mediumScreen } from './types';
 
@@ -287,7 +287,7 @@ const MarketPlace: React.FC = () => {
         </View>
       </ScrollView>
 
-      <Modal 
+      <Modal
       statusBarTranslucent
       visible={!!viewingProduct} animationType="slide" transparent onRequestClose={() => setViewingProduct(null)}>
         <View style={s.modalOverlay}>
@@ -614,7 +614,7 @@ const s = StyleSheet.create({
     paddingHorizontal: 10,
   },
   headerTitle: {
-    fontSize: mediumScreen ? fontScale(18) : fontScale(14),
+    fontSize: mediumScreen ? FontSize.eighteen : FontSize.fourteen,
     fontFamily: 'PlusJakartaSansExtraBold',
     textTransform: 'uppercase',
   },
@@ -632,7 +632,7 @@ const s = StyleSheet.create({
   },
   headerSubText: {
     color: '#cd2bee',
-    fontSize: mediumScreen ? fontScale(10):fontScale(6),
+    fontSize: mediumScreen ? FontSize.ten:FontSize.six,
     fontFamily: 'PlusJakartaSansExtraBold',
     textTransform: 'uppercase',
     letterSpacing: 1.8,
@@ -658,7 +658,7 @@ const s = StyleSheet.create({
   },
   searchInput: {
     flex: 1,
-    fontSize: mediumScreen ? fontScale(14): fontScale(10),
+    fontSize: mediumScreen ? FontSize.fourteen: FontSize.ten,
     fontFamily: 'PlusJakartaSansBold',
   },
   categoriesRow: {
@@ -679,7 +679,7 @@ const s = StyleSheet.create({
     borderColor: '#cd2bee',
   },
   categoryText: {
-    fontSize: mediumScreen ? fontScale(12):fontScale(8),
+    fontSize: mediumScreen ? FontSize.twelve:FontSize.eight,
     fontFamily: 'PlusJakartaSansExtraBold',
     textTransform: 'uppercase',
     letterSpacing: 1.4,
@@ -714,14 +714,14 @@ const s = StyleSheet.create({
   },
   productName: {
     color: '#fff',
-    fontSize: mediumScreen ? fontScale(13):fontScale(9),
+    fontSize: mediumScreen ? FontSize.thirteen:FontSize.nine,
     fontFamily: 'PlusJakartaSansExtraBold',
     textTransform: 'uppercase',
   },
   productPrice: {
     marginTop: 3,
     color: '#cd2bee',
-    fontSize: mediumScreen ? fontScale(12):fontScale(8),
+    fontSize: mediumScreen ? FontSize.twelve:FontSize.eight,
     fontFamily: 'PlusJakartaSansExtraBold',
   },
   buyButton: {
@@ -733,7 +733,7 @@ const s = StyleSheet.create({
     justifyContent: 'center',
   },
   buyButtonText: {
-    fontSize: mediumScreen ? fontScale(12):fontScale(8),
+    fontSize: mediumScreen ? FontSize.twelve:FontSize.eight,
     fontFamily: 'PlusJakartaSansExtraBold',
     textTransform: 'uppercase',
     letterSpacing: 1.4,
@@ -753,7 +753,7 @@ const s = StyleSheet.create({
   },
   emptyTitle: {
     marginTop: 16,
-    fontSize: fontScale(12),
+    fontSize: FontSize.twelve,
     fontFamily: 'PlusJakartaSansExtraBold',
     textTransform: 'uppercase',
     letterSpacing: 1.4,
@@ -770,7 +770,7 @@ const s = StyleSheet.create({
   },
   resetButtonText: {
     color: '#cd2bee',
-    fontSize: fontScale(10),
+    fontSize: FontSize.ten,
     fontFamily: 'PlusJakartaSansExtraBold',
     textTransform: 'uppercase',
     letterSpacing: 1.4,
@@ -807,13 +807,13 @@ const s = StyleSheet.create({
     gap: 12,
   },
   sheetTitle: {
-    fontSize: mediumScreen ? fontScale(18):fontScale(14),
+    fontSize: mediumScreen ? FontSize.eighteen:FontSize.fourteen,
     fontFamily: 'PlusJakartaSansExtraBold',
     textTransform: 'uppercase',
   },
   sheetCaption: {
     marginTop: 4,
-    fontSize: fontScale(8),
+    fontSize: FontSize.eight,
     fontFamily: 'PlusJakartaSansExtraBold',
     textTransform: 'uppercase',
     letterSpacing: 1.6,
@@ -849,7 +849,7 @@ const s = StyleSheet.create({
   },
   detailPriceTagText: {
     color: '#cd2bee',
-    fontSize: fontScale(10),
+    fontSize: FontSize.ten,
     fontFamily: 'PlusJakartaSansExtraBold',
   },
   detailBlock: {
@@ -863,14 +863,14 @@ const s = StyleSheet.create({
   },
   detailCategory: {
     color: '#cd2bee',
-    fontSize: mediumScreen ? fontScale(14) : fontScale(10),
+    fontSize: mediumScreen ? FontSize.fourteen : FontSize.ten,
     fontFamily: 'PlusJakartaSansExtraBold',
     textTransform: 'uppercase',
     letterSpacing: 2,
   },
   detailName: {
     marginTop: 4,
-    fontSize: mediumScreen ? fontScale(20):fontScale(16),
+    fontSize: mediumScreen ? FontSize.twenty:FontSize.sixteen,
     fontFamily: 'PlusJakartaSansExtraBold',
     textTransform: 'uppercase',
   },
@@ -879,14 +879,14 @@ const s = StyleSheet.create({
     justifyContent: 'flex-end',
   },
   issuerLabel: {
-    fontSize: mediumScreen ? fontScale(12):fontScale(8),
+    fontSize: mediumScreen ? FontSize.twelve:FontSize.eight,
     fontFamily: 'PlusJakartaSansExtraBold',
     textTransform: 'uppercase',
     letterSpacing: 1.2,
   },
   issuerValue: {
     marginTop: 4,
-    fontSize: mediumScreen ? fontScale(16): fontScale(12),
+    fontSize: mediumScreen ? FontSize.sixteen: FontSize.twelve,
     fontFamily: 'PlusJakartaSansBold',
   },
   descriptionCard: {
@@ -895,7 +895,7 @@ const s = StyleSheet.create({
     padding: 16,
   },
   descriptionText: {
-    fontSize: mediumScreen ? fontScale(16): fontScale(12),
+    fontSize: mediumScreen ? FontSize.sixteen: FontSize.twelve,
     fontFamily: 'PlusJakartaSansMedium',
     lineHeight: 17,
   },
@@ -909,7 +909,7 @@ const s = StyleSheet.create({
     gap: 12,
   },
   inventoryLabel: {
-    fontSize: mediumScreen ? fontScale(14):fontScale(10),
+    fontSize: mediumScreen ? FontSize.fourteen:FontSize.ten,
     fontFamily: 'PlusJakartaSansExtraBold',
     textTransform: 'uppercase',
     letterSpacing: 1.2,
@@ -929,7 +929,7 @@ const s = StyleSheet.create({
   },
   quantityValue: {
     textAlign: 'center',
-    fontSize: mediumScreen ? fontScale(16): fontScale(12),
+    fontSize: mediumScreen ? FontSize.sixteen: FontSize.twelve,
     fontFamily: 'PlusJakartaSansExtraBold',
   },
   detailActions: {
@@ -948,7 +948,7 @@ const s = StyleSheet.create({
   },
   primaryCtaText: {
     color: '#fff',
-    fontSize: mediumScreen ? fontScale(14): fontScale(10),
+    fontSize: mediumScreen ? FontSize.fourteen: FontSize.ten,
     fontFamily: 'PlusJakartaSansExtraBold',
     textTransform: 'uppercase',
     letterSpacing: 1.2,
@@ -966,7 +966,7 @@ const s = StyleSheet.create({
   },
   confirmButtonText: {
     color: '#fff',
-    fontSize:mediumScreen ? fontScale(14):fontScale(10),
+    fontSize:mediumScreen ? FontSize.fourteen:FontSize.ten,
     fontFamily: 'PlusJakartaSansExtraBold',
     textTransform: 'uppercase',
     letterSpacing: 1.4,
@@ -1005,25 +1005,25 @@ const s = StyleSheet.create({
     justifyContent: 'space-between',
   },
   reviewName: {
-    fontSize: mediumScreen ? fontScale(12):fontScale(8),
+    fontSize: mediumScreen ? FontSize.twelve:FontSize.eight,
     fontFamily: 'PlusJakartaSansExtraBold',
     textTransform: 'uppercase',
   },
   reviewArtist: {
     marginTop: 4,
-    fontSize: mediumScreen ? fontScale(10): fontScale(6),
+    fontSize: mediumScreen ? FontSize.ten: FontSize.six,
     fontFamily: 'PlusJakartaSansBold',
     textTransform: 'uppercase',
     letterSpacing: 1.2,
   },
   reviewAmount: {
     color: '#cd2bee',
-    fontSize: mediumScreen ? fontScale(14):fontScale(10),
+    fontSize: mediumScreen ? FontSize.fourteen:FontSize.ten,
     fontFamily: 'PlusJakartaSansExtraBold',
   },
   removeText: {
     color: '#ef4444',
-    fontSize: fontScale(9),
+    fontSize: FontSize.nine,
     fontFamily: 'PlusJakartaSansExtraBold',
     textTransform: 'uppercase',
   },
@@ -1037,23 +1037,23 @@ const s = StyleSheet.create({
     alignItems: 'center',
   },
   totalLabel: {
-    fontSize: mediumScreen ? fontScale(12):fontScale(8),
+    fontSize: mediumScreen ? FontSize.twelve:FontSize.eight,
     fontFamily: 'PlusJakartaSansExtraBold',
     textTransform: 'uppercase',
     letterSpacing: 1.2,
   },
   totalValue: {
-    fontSize: mediumScreen ? fontScale(14):fontScale(10),
+    fontSize: mediumScreen ? FontSize.fourteen:FontSize.ten,
     fontFamily: 'PlusJakartaSansBold',
   },
   totalMainLabel: {
-    fontSize: mediumScreen ? fontScale(16):fontScale(12),
+    fontSize: mediumScreen ? FontSize.sixteen:FontSize.twelve,
     fontFamily: 'PlusJakartaSansExtraBold',
     textTransform: 'uppercase',
   },
   totalMainValue: {
     color: '#cd2bee',
-    fontSize: mediumScreen ? fontScale(18):fontScale(14),
+    fontSize: mediumScreen ? FontSize.eighteen:FontSize.fourteen,
     fontFamily: 'PlusJakartaSansExtraBold',
   },
   divider: {
@@ -1081,14 +1081,14 @@ const s = StyleSheet.create({
     flex: 1,
   },
   paymentTitle: {
-    fontSize: fontScale(10),
+    fontSize: FontSize.ten,
     fontFamily: 'PlusJakartaSansExtraBold',
     textTransform: 'uppercase',
     letterSpacing: 1.2,
   },
   paymentMeta: {
     marginTop: 4,
-    fontSize: fontScale(12),
+    fontSize: FontSize.twelve,
     fontFamily: 'PlusJakartaSansBold',
   },
   momoExtras: {
@@ -1117,17 +1117,17 @@ const s = StyleSheet.create({
   },
   providerBadgeText: {
     color: '#fff',
-    fontSize: fontScale(10),
+    fontSize: FontSize.ten,
     fontFamily: 'PlusJakartaSansExtraBold',
   },
   providerText: {
-    fontSize: fontScale(8),
+    fontSize: FontSize.eight,
     fontFamily: 'PlusJakartaSansExtraBold',
     textTransform: 'uppercase',
     textAlign: 'center',
   },
   inputLabel: {
-    fontSize: fontScale(9),
+    fontSize: FontSize.nine,
     fontFamily: 'PlusJakartaSansExtraBold',
     textTransform: 'uppercase',
     letterSpacing: 1.2,
@@ -1142,7 +1142,7 @@ const s = StyleSheet.create({
   },
   input: {
     flex: 1,
-    fontSize: fontScale(12),
+    fontSize: FontSize.twelve,
     fontFamily: 'PlusJakartaSansBold',
   },
   verifiedRow: {
@@ -1158,7 +1158,7 @@ const s = StyleSheet.create({
   },
   verifiedText: {
     color: '#22c55e',
-    fontSize: fontScale(8),
+    fontSize: FontSize.eight,
     fontFamily: 'PlusJakartaSansExtraBold',
     textTransform: 'uppercase',
   },
@@ -1181,14 +1181,14 @@ const s = StyleSheet.create({
   },
   successTitle: {
     marginTop: 24,
-    fontSize: fontScale(28),
+    fontSize: FontSize.twentyEight,
     fontFamily: 'PlusJakartaSansExtraBold',
     textTransform: 'uppercase',
     textAlign: 'center',
   },
   successCopy: {
     marginTop: 10,
-    fontSize: fontScale(12),
+    fontSize: FontSize.twelve,
     fontFamily: 'PlusJakartaSansMedium',
     lineHeight: 21,
     textAlign: 'center',
@@ -1203,14 +1203,14 @@ const s = StyleSheet.create({
     alignItems: 'center',
   },
   orderLabel: {
-    fontSize: fontScale(10),
+    fontSize: FontSize.ten,
     fontFamily: 'PlusJakartaSansExtraBold',
     textTransform: 'uppercase',
     letterSpacing: 1.2,
   },
   orderValue: {
     marginTop: 8,
-    fontSize: fontScale(14),
+    fontSize: FontSize.fourteen,
     fontFamily: 'PlusJakartaSansExtraBold',
     textTransform: 'uppercase',
   },
@@ -1223,7 +1223,7 @@ const s = StyleSheet.create({
     justifyContent: 'center',
   },
   backOrbitButtonText: {
-    fontSize: fontScale(12),
+    fontSize: FontSize.twelve,
     fontFamily: 'PlusJakartaSansExtraBold',
     textTransform: 'uppercase',
     letterSpacing: 1.4,

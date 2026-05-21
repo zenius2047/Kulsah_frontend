@@ -10,7 +10,7 @@ import {
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { MaterialIcons } from '@expo/vector-icons';
 import { useThemeMode } from '../theme';
-import { fontScale } from '../fonts';
+import { FontSize, fontScale } from '../fonts';
 import { mediumScreen } from '../types';
 
 const Notifications: React.FC = () => {
@@ -163,7 +163,7 @@ const styles = StyleSheet.create({
   section: { marginBottom: 24 },
   sectionTitle: {
     fontFamily: 'PlusJakartaSansExtraBold',
-    fontSize: mediumScreen ? fontScale(12):fontScale(8),
+    fontSize: mediumScreen ? FontSize.twelve:FontSize.eight,
     letterSpacing: 2,
     marginBottom: 14,
   },
@@ -181,7 +181,7 @@ const styles = StyleSheet.create({
     backgroundColor: 'rgba(205,43,238,0.2)',
     color: '#cd2bee',
     fontFamily: 'PlusJakartaSansExtraBold',
-    fontSize: fontScale(6),
+    fontSize: FontSize.six,
     paddingHorizontal: 8,
     paddingVertical: 4,
     borderRadius: 999,
@@ -198,31 +198,31 @@ const styles = StyleSheet.create({
   },
   titleText: {
     fontFamily: 'PlusJakartaSansBold',
-    fontSize: fontScale(10),
+    fontSize: FontSize.ten,
     marginBottom: 6,
     paddingRight: 70,
   },
   titleSmall: {
     fontFamily: 'PlusJakartaSansBold',
-    fontSize: fontScale(10),
+    fontSize: FontSize.ten,
     marginBottom: 4,
   },
   accentText: { color: '#cd2bee' },
   bodyText: {
     fontFamily: 'PlusJakartaSansMedium',
-    fontSize: fontScale(9),
-    lineHeight: fontScale(13),
+    fontSize: FontSize.nine,
+    lineHeight: FontSize.thirteen,
     marginBottom: 10,
   },
   inlineText: {
     fontFamily: 'PlusJakartaSansMedium',
-    fontSize: fontScale(9),
+    fontSize: FontSize.nine,
     marginBottom: 4,
   },
   strongText: { fontFamily: 'PlusJakartaSansBold' },
   timeText: {
     fontFamily: 'PlusJakartaSansMedium',
-    fontSize: fontScale(7),
+    fontSize: FontSize.seven,
     textTransform: 'uppercase',
   },
   joinButton: {
@@ -240,7 +240,7 @@ const styles = StyleSheet.create({
   joinButtonText: {
     color: '#ffffff',
     fontFamily: 'PlusJakartaSansExtraBold',
-    fontSize: fontScale(7),
+    fontSize: FontSize.seven,
     textTransform: 'uppercase',
     letterSpacing: 1.3,
   },
@@ -275,15 +275,15 @@ const styles = StyleSheet.create({
   },
   quoteText: {
     fontFamily: 'PlusJakartaSansMedium',
-    fontSize: fontScale(8.5),
+    fontSize: FontSize.eightHalf,
     fontStyle: 'italic',
-    lineHeight: fontScale(13),
+    lineHeight: FontSize.thirteen,
   },
   replyText: {
     marginTop: 8,
     color: '#cd2bee',
     fontFamily: 'PlusJakartaSansBold',
-    fontSize: fontScale(7),
+    fontSize: FontSize.seven,
     textTransform: 'uppercase',
     letterSpacing: 1,
   },
@@ -296,7 +296,7 @@ const styles = StyleSheet.create({
   followButtonText: {
     color: '#cd2bee',
     fontFamily: 'PlusJakartaSansBold',
-    fontSize: mediumScreen ? fontScale(6.5):fontScale(4.5),
+    fontSize: mediumScreen ? FontSize.sixHalf:FontSize.fourHalf,
     textTransform: 'uppercase',
     letterSpacing: 1,
   },

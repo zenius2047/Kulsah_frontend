@@ -5,6 +5,8 @@ import { mediumScreen } from '../types';
 import Discover from './Discover';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
+import { FontSize } from '../fonts';
+
 const FanArena: React.FC = () => {
   const { isDark, theme } = useThemeMode();
   const insets = useSafeAreaInsets();
@@ -29,7 +31,7 @@ const FanArena: React.FC = () => {
           style={{
             color: isDark ? '#ffffff' : '#000000',
             fontFamily: 'PlusJakartaSansBold',
-            fontSize: mediumScreen ? 20 : 16,
+            fontSize: mediumScreen ? FontSize.twenty : FontSize.sixteen,
             // marginBottom: 10,
           }}
         >

@@ -12,7 +12,7 @@ import {
   View,
 } from 'react-native';
 import { SafeAreaView, useSafeAreaInsets } from 'react-native-safe-area-context';
-import { fontScale } from '../fonts';
+import { FontSize } from '../fonts';
 import { mediumScreen } from '../types';
 
 interface Vibe {
@@ -177,7 +177,7 @@ const styles = StyleSheet.create({
   },
   title: {
     color: '#fff',
-    fontSize: mediumScreen ? fontScale(38) : fontScale(34),
+    fontSize: mediumScreen ? FontSize.thirtyEight : FontSize.thirtyFour,
     fontFamily: 'PlusJakartaSansExtraBold',
     letterSpacing: -1.4,
     textAlign: 'center',
@@ -185,7 +185,7 @@ const styles = StyleSheet.create({
   subtitle: {
     marginTop: 8,
     color: 'rgba(255,255,255,0.5)',
-    fontSize: fontScale(13),
+    fontSize: FontSize.thirteen,
     fontFamily: 'PlusJakartaSansMedium',
     textAlign: 'center',
   },
@@ -248,14 +248,14 @@ const styles = StyleSheet.create({
   },
   cardTitle: {
     color: '#fff',
-    fontSize: mediumScreen ? fontScale(20) : fontScale(18),
+    fontSize: mediumScreen ? FontSize.twenty : FontSize.eighteen,
     fontFamily: 'PlusJakartaSansExtraBold',
-    lineHeight: mediumScreen ? fontScale(25) : fontScale(22),
+    lineHeight: mediumScreen ? FontSize.twentyFive : FontSize.twentyTwo,
   },
   cardDesc: {
     marginTop: 4,
     color: 'rgba(255,255,255,0.6)',
-    fontSize: fontScale(10),
+    fontSize: FontSize.ten,
     fontFamily: 'PlusJakartaSansBold',
     textTransform: 'uppercase',
     letterSpacing: 2,
@@ -296,7 +296,7 @@ const styles = StyleSheet.create({
   },
   continueText: {
     color: '#fff',
-    fontSize: fontScale(20),
+    fontSize: FontSize.twenty,
     fontFamily: 'PlusJakartaSansExtraBold',
   },
   continueTextDisabled: {

@@ -3,7 +3,7 @@ import { useThemeMode } from '../theme';
 import { Image, ImageBackground, Pressable, StatusBar, Text, View } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
 import { MaterialIcons } from '@expo/vector-icons';
-import { fontScale } from '../fonts';
+import { FontSize } from '../fonts';
 
 interface OnboardingProps {
   onLogin: (role: 'fan' | 'creator') => void;
@@ -60,10 +60,10 @@ const Onboarding: React.FC<OnboardingProps> = ({ onLogin }) => {
             <ElephantLogo />
           </View>
           <Text style={{
-            color: 
+            color:
             'white',
             marginTop: 18,
-            fontSize: fontScale(52), 
+            fontSize: FontSize.fiftyTwo,
             // fontWeight: '900',
             letterSpacing: -1,
             fontFamily: 'PlusJakartaSansExtraBold'
@@ -72,7 +72,7 @@ const Onboarding: React.FC<OnboardingProps> = ({ onLogin }) => {
             style={{
               color: '#cd2bee',
               marginTop: 8,
-              fontSize: fontScale(10),
+              fontSize: FontSize.ten,
               fontWeight: '800',
               letterSpacing: 6,
               textTransform: 'uppercase',
@@ -84,13 +84,13 @@ const Onboarding: React.FC<OnboardingProps> = ({ onLogin }) => {
           </Text>
         </View>
 
-        <View style={{ 
+        <View style={{
           alignItems: 'center',
           justifyContent: 'center'
           }}>
           <Text style={{
             color: 'white',
-            fontSize: fontScale(28),
+            fontSize: FontSize.twentyEight,
             fontWeight: '900',
             textAlign: 'center',
             lineHeight: 38,
@@ -101,9 +101,9 @@ const Onboarding: React.FC<OnboardingProps> = ({ onLogin }) => {
           </Text>
           <Text style={{
             color: '#64748b',
-            marginTop: 14, 
-            textAlign: 'center', 
-            fontSize: fontScale(14), 
+            marginTop: 14,
+            textAlign: 'center',
+            fontSize: FontSize.fourteen,
             lineHeight: 18,
             // fontWeight: '800',
             fontFamily: 'PlusJakartaSansBold'
@@ -125,7 +125,7 @@ const Onboarding: React.FC<OnboardingProps> = ({ onLogin }) => {
               flexDirection: 'row'
             }}
           >
-            <Text style={{ color: 'white', fontSize: fontScale(16), fontWeight: '900', textTransform: 'uppercase' }}>Join The Galaxy </Text>
+            <Text style={{ color: 'white', fontSize: FontSize.sixteen, fontWeight: '900', textTransform: 'uppercase' }}>Join The Galaxy </Text>
             <MaterialIcons name="arrow-forward" size={34} color='white'></MaterialIcons>
           </Pressable>
 
@@ -140,19 +140,19 @@ const Onboarding: React.FC<OnboardingProps> = ({ onLogin }) => {
               marginBottom: 16,
             }}
           >
-            <Text style={{ color: '#111827', fontSize: fontScale(18), fontWeight: '900', textTransform: 'uppercase' }}>Join as Creator</Text>
+            <Text style={{ color: '#111827', fontSize: FontSize.eighteen, fontWeight: '900', textTransform: 'uppercase' }}>Join as Creator</Text>
           </Pressable> */}
 
           <Pressable onPress={() => onLogin('fan')} style={{ alignItems: 'center', paddingVertical: 10 }}>
-            <Text style={{ color: '#94a3b8', fontSize: fontScale(12), fontWeight: '800', letterSpacing: 2, textTransform: 'uppercase' }}>
+            <Text style={{ color: '#94a3b8', fontSize: FontSize.twelve, fontWeight: '800', letterSpacing: 2, textTransform: 'uppercase' }}>
               Sign In to Hub
             </Text>
           </Pressable>
 
           <View style={{ flexDirection: 'row', justifyContent: 'center', gap: 28, marginTop: 10 }}>
-            <Text style={{ color: '#64748b', fontSize: fontScale(10), fontWeight: '800', textTransform: 'uppercase' }}>Privacy</Text>
-            <Text style={{ color: '#64748b', fontSize: fontScale(10), fontWeight: '800', textTransform: 'uppercase' }}>Security</Text>
-            <Text style={{ color: '#64748b', fontSize: fontScale(10), fontWeight: '800', textTransform: 'uppercase' }}>Legal</Text>
+            <Text style={{ color: '#64748b', fontSize: FontSize.ten, fontWeight: '800', textTransform: 'uppercase' }}>Privacy</Text>
+            <Text style={{ color: '#64748b', fontSize: FontSize.ten, fontWeight: '800', textTransform: 'uppercase' }}>Security</Text>
+            <Text style={{ color: '#64748b', fontSize: FontSize.ten, fontWeight: '800', textTransform: 'uppercase' }}>Legal</Text>
           </View>
         </View>
       </View>

@@ -14,6 +14,9 @@ import { MaterialIcons } from '@expo/vector-icons';
 import { useNavigation } from '@react-navigation/native';
 import { mediumScreen } from '../types';
 
+
+import { FontSize } from '../fonts';
+
 const creatorAvatar =
   'https://lh3.googleusercontent.com/aida-public/AB6AXuDcdWdJodmB8sMBcrMDYhE2cLRhTL5bvZdZwuz6sDZA3vg70icHCnVxvepuAyGDEw739DXsxuY86-unMcCqQJvrkZD1Rb_Nn2BHfeg37VOQ7ncJujS26RdpXjx37HO21pGqL28ipU3YQ9ahEM3Yl52sUo5K4BlIx9jECYGQyNYCfolLObGysbiuUVvq92tuBWJWp4A-p_nP-de3syT2Sr7Mc367D-llkelrbFWR7aQ75jfG3PFsAqeed5l2yXIU-0j4S4gPEcIqwC5v';
 
@@ -242,12 +245,12 @@ const styles = StyleSheet.create({
   },
   headerTitle: {
     fontFamily: 'PlusJakartaSansBold',
-    fontSize: mediumScreen ? 16 : 12,
+    fontSize: mediumScreen ? FontSize.sixteen : FontSize.twelve,
   },
   headerBrand: {
     color: '#cd2bee',
     fontFamily: 'PlusJakartaSansExtraBold',
-    fontSize: mediumScreen ? 20 : 16,
+    fontSize: mediumScreen ? FontSize.twenty : FontSize.sixteen,
     letterSpacing: -0.4,
     marginRight: 12,
   },
@@ -310,7 +313,7 @@ const styles = StyleSheet.create({
   heroPillText: {
     color: '#ffffff',
     fontFamily: 'PlusJakartaSansBold',
-    fontSize: mediumScreen ? 14 : 10,
+    fontSize: mediumScreen ? FontSize.fourteen : FontSize.ten,
     letterSpacing: 0.8,
     textTransform: 'uppercase',
   },
@@ -321,13 +324,13 @@ const styles = StyleSheet.create({
   heroTitle: {
     color: '#f8fafc',
     fontFamily: 'PlusJakartaSansExtraBold',
-    fontSize: mediumScreen ? 26 : 22,
+    fontSize: mediumScreen ? FontSize.twentySix : FontSize.twentyTwo,
     lineHeight: mediumScreen ? 34 : 30,
     textAlign: 'center',
   },
   heroText: {
     fontFamily: 'PlusJakartaSansMedium',
-    fontSize: mediumScreen ? 16 : 12,
+    fontSize: mediumScreen ? FontSize.sixteen : FontSize.twelve,
     lineHeight: mediumScreen ? 24 : 18,
     textAlign: 'center',
   },
@@ -354,11 +357,11 @@ const styles = StyleSheet.create({
   },
   valueTitle: {
     fontFamily: 'PlusJakartaSansBold',
-    fontSize: mediumScreen ? 17 : 14,
+    fontSize: mediumScreen ? FontSize.seventeen : FontSize.fourteen,
   },
   valueText: {
     fontFamily: 'PlusJakartaSansMedium',
-    fontSize: mediumScreen ? 16 : 12,
+    fontSize: mediumScreen ? FontSize.sixteen : FontSize.twelve,
     lineHeight: mediumScreen ? 22 : 18,
   },
   insightShell: {
@@ -378,11 +381,11 @@ const styles = StyleSheet.create({
   },
   insightTitle: {
     fontFamily: 'PlusJakartaSansMedium',
-    fontSize: mediumScreen ? 16 : 13,
+    fontSize: mediumScreen ? FontSize.sixteen : FontSize.thirteen,
   },
   insightText: {
     fontFamily: 'PlusJakartaSansMedium',
-    fontSize: mediumScreen ? 16 : 12,
+    fontSize: mediumScreen ? FontSize.sixteen : FontSize.twelve,
     lineHeight: mediumScreen ? 22 : 18,
   },
   actions: {
@@ -406,7 +409,7 @@ const styles = StyleSheet.create({
   primaryButtonText: {
     color: '#ffffff',
     fontFamily: 'PlusJakartaSansBold',
-    fontSize: mediumScreen ? 14 : 10,
+    fontSize: mediumScreen ? FontSize.fourteen : FontSize.ten,
     letterSpacing: 1.1,
   },
   secondaryButton: {
@@ -420,7 +423,7 @@ const styles = StyleSheet.create({
   },
   secondaryButtonText: {
     fontFamily: 'PlusJakartaSansBold',
-    fontSize: mediumScreen ? 14 : 10,
+    fontSize: mediumScreen ? FontSize.fourteen : FontSize.ten,
     letterSpacing: 0.8,
   },
   reachSection: {
@@ -435,14 +438,14 @@ const styles = StyleSheet.create({
   },
   reachLabel: {
     fontFamily: 'PlusJakartaSansBold',
-    fontSize: mediumScreen ? 14 : 10,
+    fontSize: mediumScreen ? FontSize.fourteen : FontSize.ten,
     textTransform: 'uppercase',
     letterSpacing: 1.2,
   },
   reachValue: {
     color: '#cd2bee',
     fontFamily: 'PlusJakartaSansBold',
-    fontSize: mediumScreen ? 14 : 10,
+    fontSize: mediumScreen ? FontSize.fourteen : FontSize.ten,
     textTransform: 'uppercase',
     letterSpacing: 1.2,
   },

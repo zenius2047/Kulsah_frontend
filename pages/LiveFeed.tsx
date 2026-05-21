@@ -4,7 +4,8 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 import { MaterialIcons } from '@expo/vector-icons';
 import { LinearGradient } from 'expo-linear-gradient';
 import { useThemeMode } from '../theme';
-import { fontScale } from '../fonts';
+import { FontSize } from '../fonts';
+import GiftDialog, { GiftSelection } from '../components/GiftDialog';
 
 interface Creator {
   id: string;
@@ -88,10 +89,13 @@ const LIVE_CARDS: LiveCard[] = [
 const LiveFeed: React.FC = () => {
   const { isDark, theme } = useThemeMode();
   const viewportHeight = Dimensions.get('screen').height;
-  const creatorStripHeight = viewportHeight * 0.13;
+  const creatorStripHeight = viewportHeight * 0.18;
   const [keyboardHeight, setKeyboardHeight] = useState(0);
   const [focusedCardId, setFocusedCardId] = useState<string | null>(null);
   const [commentDrafts, setCommentDrafts] = useState<Record<string, string>>({});
+  const [giftDialogOpen, setGiftDialogOpen] = useState(false);
+  const [giftTarget, setGiftTarget] = useState<LiveCard | null>(null);
+  const [coinBalance, setCoinBalance] = useState(1250);
   const [commentsByCard, setCommentsByCard] = useState<Record<string, ChatMessage[]>>({
     '1': [
       { id: 1, user: 'Alex_Vibes', text: 'This lighting is next level!' },
@@ -126,6 +130,29 @@ const LiveFeed: React.FC = () => {
     }));
   };
 
+  const openGiftDialog = (card: LiveCard) => {
+    setGiftTarget(card);
+    setGiftDialogOpen(true);
+  };
+
+  const handleSendGift = (gift: GiftSelection) => {
+    if (!giftTarget) return;
+
+    setCoinBalance((prev) => prev - gift.price);
+    setCommentsByCard((prev) => ({
+      ...prev,
+      [giftTarget.id]: [
+        ...(prev[giftTarget.id] ?? []),
+        {
+          id: Date.now(),
+          user: 'You',
+          text: `sent ${gift.name} worth ${gift.price} KC`,
+          isTip: true,
+        },
+      ],
+    }));
+  };
+
   useEffect(() => {
     const showEvent = Platform.OS === 'ios' ? 'keyboardWillShow' : 'keyboardDidShow';
     const hideEvent = Platform.OS === 'ios' ? 'keyboardWillHide' : 'keyboardDidHide';
@@ -146,7 +173,7 @@ const LiveFeed: React.FC = () => {
   }, []);
 
   const renderCreatorStrip = () => (
-    <View style={{ height: creatorStripHeight, backgroundColor: theme.background}}>
+    <View style={{ height: creatorStripHeight, backgroundColor: theme.background, paddingTop: viewportHeight * 0.05}}>
       <FlatList
         data={CREATORS}
         horizontal
@@ -173,7 +200,7 @@ const LiveFeed: React.FC = () => {
   );
 
   const renderLiveCard = ({ item: card, index }: { item: LiveCard; index: number }) => {
-    const cardHeight = index === 0 ? viewportHeight * 0.82: viewportHeight * 0.93;
+    const cardHeight = index === 0 ? viewportHeight * 0.825: viewportHeight ;
     const cardComments = (commentsByCard[card.id] ?? []).slice(-3);
     const composerLift = focusedCardId === card.id ? Math.max(keyboardHeight - 24, 0) : 0;
 
@@ -185,13 +212,14 @@ const LiveFeed: React.FC = () => {
             shadowColor: isDark ? '#000000' : '#0f172a',
             borderColor: isDark ? 'rgba(255,255,255,0.08)' : 'rgba(15,23,42,0.08)',
             height: cardHeight,
-            backgroundColor: 'black'
+            backgroundColor: 'black',
+
           },
         ]}
       >
         <ImageBackground
           source={{ uri: card.background }}
-          style={[styles.card, { height: '100%' }]}
+          style={[styles.card, { height: '100%', paddingTop: index !== 0 ? viewportHeight * 0.025 : 0 }]}
           imageStyle={styles.cardImage}
         >
           <View style={styles.cardTint} />
@@ -300,7 +328,7 @@ const LiveFeed: React.FC = () => {
                 </View>
 
                 <View style={styles.metricBlock}>
-                  <Pressable style={styles.metricButton}>
+                  <Pressable style={styles.metricButton} onPress={() => openGiftDialog(card)}>
                     <MaterialIcons name="redeem" size={22} color="#ffffff" />
                   </Pressable>
                   <Text style={styles.metricText}>Gift</Text>
@@ -325,9 +353,9 @@ const LiveFeed: React.FC = () => {
     style={[styles.safeArea, { backgroundColor: theme.background }]} edges={[]}>
       <View style={[styles.screen, {
         backgroundColor: theme.background,
-        paddingTop: viewportHeight * 0.05,
+        // paddingTop: viewportHeight * 0.05,
         height: viewportHeight
-        
+
 
          }]}>
         <FlatList
@@ -339,11 +367,25 @@ const LiveFeed: React.FC = () => {
           ListHeaderComponent={renderCreatorStrip}
           showsVerticalScrollIndicator={false}
           contentContainerStyle={styles.content}
+          snapToAlignment='start'
+          decelerationRate='fast'
+          snapToInterval={viewportHeight}
           style={{
             backgroundColor: 'black'
           }}
         />
       </View>
+      <GiftDialog
+        isOpen={giftDialogOpen}
+        onClose={() => setGiftDialogOpen(false)}
+        creatorName={giftTarget?.host ?? 'Creator'}
+        currentBalance={coinBalance}
+        onSendGift={(gift) => {
+          handleSendGift(gift);
+          setGiftDialogOpen(false);
+        }}
+        onTopUpSuccess={(amount) => setCoinBalance((prev) => prev + amount)}
+      />
     </SafeAreaView>
   );
 };
@@ -365,7 +407,7 @@ const styles = StyleSheet.create({
     marginBottom: 14,
   },
   sectionTitle: {
-    fontSize: fontScale(6),
+    fontSize: FontSize.six,
     fontFamily: 'PlusJakartaSansExtraBold',
     letterSpacing: 2.6,
     textTransform: 'uppercase',
@@ -403,7 +445,7 @@ const styles = StyleSheet.create({
   },
   creatorHandle: {
     marginTop: 10,
-    fontSize: fontScale(7.5),
+    fontSize: FontSize.sevenHalf,
     fontFamily: 'PlusJakartaSansBold',
   },
   feedStack: {
@@ -456,7 +498,7 @@ const styles = StyleSheet.create({
   },
   liveBadgeText: {
     color: '#ffdad6',
-    fontSize: fontScale(7),
+    fontSize: FontSize.seven,
     fontFamily: 'PlusJakartaSansExtraBold',
     letterSpacing: 2.2,
   },
@@ -473,7 +515,7 @@ const styles = StyleSheet.create({
   },
   viewerBadgeText: {
     color: '#f8fafc',
-    fontSize: fontScale(7),
+    fontSize: FontSize.seven,
     fontFamily: 'PlusJakartaSansBold',
   },
   bottomOverlay: {
@@ -525,7 +567,7 @@ const styles = StyleSheet.create({
   chatUser: {
     color: 'rgba(205,43,238,0.76)',
     fontFamily: 'PlusJakartaSansExtraBold',
-    fontSize: fontScale(8.5),
+    fontSize: FontSize.eightHalf,
     letterSpacing: 1.1,
     textTransform: 'uppercase',
   },
@@ -538,7 +580,7 @@ const styles = StyleSheet.create({
   chatText: {
     color: '#fff',
     fontFamily: 'PlusJakartaSansMedium',
-    fontSize: fontScale(10.5),
+    fontSize: FontSize.tenHalf,
     lineHeight: 15,
     marginTop: 2,
   },
@@ -560,12 +602,12 @@ const styles = StyleSheet.create({
   },
   hostName: {
     color: '#ffffff',
-    fontSize: fontScale(14),
+    fontSize: FontSize.fourteen,
     fontFamily: 'PlusJakartaSansExtraBold',
   },
   hostSubtitle: {
     color: '#d1d5db',
-    fontSize: fontScale(7),
+    fontSize: FontSize.seven,
     fontFamily: 'PlusJakartaSansMedium',
     marginTop: 2,
   },
@@ -584,7 +626,7 @@ const styles = StyleSheet.create({
     flex: 1,
     color: '#fff',
     fontFamily: 'PlusJakartaSansMedium',
-    fontSize: fontScale(11),
+    fontSize: FontSize.eleven,
   },
   joinButton: {
     alignSelf: 'flex-start',
@@ -600,7 +642,7 @@ const styles = StyleSheet.create({
   },
   joinButtonText: {
     color: '#ffffff',
-    fontSize: fontScale(9),
+    fontSize: FontSize.nine,
     fontFamily: 'PlusJakartaSansExtraBold',
     letterSpacing: 1.8,
     textTransform: 'uppercase',
@@ -626,7 +668,7 @@ const styles = StyleSheet.create({
   },
   metricText: {
     color: '#ffffff',
-    fontSize: fontScale(7.5),
+    fontSize: FontSize.sevenHalf,
     fontFamily: 'PlusJakartaSansBold',
   },
   bottomNav: {
@@ -661,7 +703,7 @@ const styles = StyleSheet.create({
   },
   navLabel: {
     marginTop: 4,
-    fontSize: fontScale(6.5),
+    fontSize: FontSize.sixHalf,
     fontFamily: 'PlusJakartaSansBold',
     letterSpacing: 0.8,
     textTransform: 'uppercase',

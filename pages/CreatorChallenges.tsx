@@ -6,7 +6,7 @@ import { MaterialIcons } from '@expo/vector-icons';
 import { LinearGradient } from 'expo-linear-gradient';
 import { useNavigation } from '@react-navigation/native';
 import { mediumScreen, user } from '../types';
-import { fontScale } from '../fonts';
+import { FontSize } from '../fonts';
 import TrophyIcon from '../assets/icons/trophy-svg.svg';
 import SubmissionIcon from '../assets/icons/upload-svg.svg';
 import DraftIcon from '../assets/icons/draft-svg.svg';
@@ -187,7 +187,7 @@ const CreatorChallenges: React.FC = () => {
           </Pressable>
         </View> */}
 
-        <Pressable 
+        <Pressable
         onPress={()=>{
           navigation.navigate('CreateChallenge')
         }}
@@ -233,7 +233,7 @@ const CreatorChallenges: React.FC = () => {
             </View>
           </LinearGradient>
 
-          <View style={[styles.tabBar, { 
+          <View style={[styles.tabBar, {
             // backgroundColor: surface, borderColor: border
              }]}>
             {renderTab('challenges', 'Challenges')}
@@ -399,7 +399,7 @@ const CreatorChallenges: React.FC = () => {
                     </View>
                   </View>
                   <View style={styles.featureBottom}>
-                    <Text style={[styles.featureTitle, { fontSize: mediumScreen ? 18 : 14, marginTop: 10 }]}>{invite.title}</Text>
+                    <Text style={[styles.featureTitle, { fontSize: mediumScreen ? FontSize.eighteen : FontSize.fourteen, marginTop: 10 }]}>{invite.title}</Text>
                     <Text style={[styles.featureDesc, { fontStyle: 'italic' }]} numberOfLines={2}>"{invite.description}"</Text>
                     <View style={styles.inviteFooter}>
                       <View style={{
@@ -469,7 +469,7 @@ const styles = StyleSheet.create({
     textAlign: 'center',
     paddingHorizontal: 16,
     fontFamily: 'PlusJakartaSansExtraBold',
-    fontSize: mediumScreen ? 18 : 15,
+    fontSize: mediumScreen ? FontSize.eighteen : FontSize.fifteen,
     textTransform: 'uppercase',
     letterSpacing: 0.6,
   },
@@ -480,20 +480,20 @@ const styles = StyleSheet.create({
     width: 64, height: 64, borderRadius: 20, alignItems: 'center', justifyContent: 'center',
     backgroundColor: 'rgba(205,43,238,0.14)', borderWidth: 1, borderColor: 'rgba(205,43,238,0.3)',
   },
-  heroTitle: { fontFamily: 'PlusJakartaSansExtraBold', fontSize: mediumScreen ? 20 : 16, textTransform: 'uppercase' },
-  heroMeta: { marginTop: 4, fontFamily: 'PlusJakartaSansExtraBold', fontSize: fontScale(8), textTransform: 'uppercase', letterSpacing: 2 },
+  heroTitle: { fontFamily: 'PlusJakartaSansExtraBold', fontSize: mediumScreen ? FontSize.twenty : FontSize.sixteen, textTransform: 'uppercase' },
+  heroMeta: { marginTop: 4, fontFamily: 'PlusJakartaSansExtraBold', fontSize: FontSize.eight, textTransform: 'uppercase', letterSpacing: 2 },
   metricRow: { flexDirection: 'row', gap: 12, marginTop: 24 },
   metricCard: { flex: 1, borderRadius: 24, borderWidth: 1, padding: 16 },
-  metricValue: { fontFamily: 'PlusJakartaSansExtraBold', fontSize: mediumScreen ? 22 : 18 },
-  metricLabel: { marginTop: 4, fontFamily: 'PlusJakartaSansExtraBold', fontSize: fontScale(8), textTransform: 'uppercase', letterSpacing: 1.8 },
+  metricValue: { fontFamily: 'PlusJakartaSansExtraBold', fontSize: mediumScreen ? FontSize.twentyTwo : FontSize.eighteen },
+  metricLabel: { marginTop: 4, fontFamily: 'PlusJakartaSansExtraBold', fontSize: FontSize.eight, textTransform: 'uppercase', letterSpacing: 1.8 },
   tabBar: { flexDirection: 'row', borderRadius: 0, borderWidth: 0, padding: 0, justifyContent: 'space-around' },
   tabButton: { flex: 0, minHeight: 48, borderRadius: 14, alignItems: 'center', justifyContent: 'center', position: 'relative' },
-  tabText: { fontFamily: 'PlusJakartaSansExtraBold', fontSize: mediumScreen ? fontScale(10): fontScale(6), textTransform: 'uppercase', letterSpacing: 1.4 },
+  tabText: { fontFamily: 'PlusJakartaSansExtraBold', fontSize: mediumScreen ? FontSize.ten: FontSize.six, textTransform: 'uppercase', letterSpacing: 1.4 },
   dot: { position: 'absolute', top: 10, right: 12, width: 6, height: 6, borderRadius: 3, backgroundColor: '#cd2bee' },
   section: { gap: 16 },
   sectionRow: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', paddingHorizontal: 4 },
-  sectionTitle: { fontFamily: 'PlusJakartaSansBold', fontSize: fontScale(8), textTransform: 'uppercase', letterSpacing: 2.4 },
-  sectionAccent: { color: '#cd2bee', fontFamily: 'PlusJakartaSansExtraBold', fontSize: fontScale(8), textTransform: 'uppercase', letterSpacing: 1.8 },
+  sectionTitle: { fontFamily: 'PlusJakartaSansBold', fontSize: FontSize.eight, textTransform: 'uppercase', letterSpacing: 2.4 },
+  sectionAccent: { color: '#cd2bee', fontFamily: 'PlusJakartaSansExtraBold', fontSize: FontSize.eight, textTransform: 'uppercase', letterSpacing: 1.8 },
   featureCard: { height: 320, borderRadius: 48, overflow: 'hidden', borderWidth: 1, backgroundColor: '#111827' },
   fillImage: { ...StyleSheet.absoluteFillObject, width: undefined, height: undefined },
   trending: {
@@ -501,18 +501,18 @@ const styles = StyleSheet.create({
     paddingHorizontal: 14, paddingVertical: 8, borderRadius: 999, backgroundColor: 'rgba(205,43,238,0.15)',
     borderWidth: 1, borderColor: 'rgba(205,43,238,0.3)',
   },
-  trendingText: { color: '#cd2bee', fontFamily: 'PlusJakartaSansExtraBold', fontSize: fontScale(8), textTransform: 'uppercase', letterSpacing: 1.4 },
+  trendingText: { color: '#cd2bee', fontFamily: 'PlusJakartaSansExtraBold', fontSize: FontSize.eight, textTransform: 'uppercase', letterSpacing: 1.4 },
   featureBottom: { position: 'absolute', left: 24, right: 24, bottom: 24, gap: 14 },
-  featureTitle: { color: '#fff', fontFamily: 'PlusJakartaSansExtraBold', fontSize: mediumScreen ? 18 : 14, textTransform: 'uppercase' },
-  featureDesc: { color: 'rgba(255,255,255,0.65)', fontFamily: 'PlusJakartaSansMedium', fontSize: fontScale(10), lineHeight: 18 },
+  featureTitle: { color: '#fff', fontFamily: 'PlusJakartaSansExtraBold', fontSize: mediumScreen ? FontSize.eighteen : FontSize.fourteen, textTransform: 'uppercase' },
+  featureDesc: { color: 'rgba(255,255,255,0.65)', fontFamily: 'PlusJakartaSansMedium', fontSize: FontSize.ten, lineHeight: 18 },
   featureStats: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'flex-end', borderTopWidth: 1, borderTopColor: 'rgba(255,255,255,0.1)', paddingTop: 12, gap: 10 },
-  featureLabel: { color: 'rgba(255,255,255,0.4)', fontFamily: 'PlusJakartaSansExtraBold', fontSize: fontScale(7), textTransform: 'uppercase', letterSpacing: 0.8 },
-  featureValue: { color: '#fff', marginTop: 4, fontFamily: 'PlusJakartaSansExtraBold', fontSize: fontScale(9), textTransform: 'uppercase' },
-  reward: { color: '#cd2bee', fontFamily: 'PlusJakartaSansExtraBold', fontSize: fontScale(7), textTransform: 'uppercase', letterSpacing: 1.4, flexShrink: 1, textAlign: 'left',  },
+  featureLabel: { color: 'rgba(255,255,255,0.4)', fontFamily: 'PlusJakartaSansExtraBold', fontSize: FontSize.seven, textTransform: 'uppercase', letterSpacing: 0.8 },
+  featureValue: { color: '#fff', marginTop: 4, fontFamily: 'PlusJakartaSansExtraBold', fontSize: FontSize.nine, textTransform: 'uppercase' },
+  reward: { color: '#cd2bee', fontFamily: 'PlusJakartaSansExtraBold', fontSize: FontSize.seven, textTransform: 'uppercase', letterSpacing: 1.4, flexShrink: 1, textAlign: 'left',  },
   actionRow: { flexDirection: 'row', gap: 10 },
   primaryAction: { flex: 1, minHeight: 48, borderRadius: 24, backgroundColor: '#cd2bee', alignItems: 'center', justifyContent: 'center', flexDirection: 'row', gap: 8, paddingHorizontal: 16 },
   primaryActionAlt: { backgroundColor: '#b012d4' },
-  primaryActionText: { color: '#fff', fontFamily: 'PlusJakartaSansExtraBold', fontSize: fontScale(8), textTransform: 'uppercase', letterSpacing: 1.6 },
+  primaryActionText: { color: '#fff', fontFamily: 'PlusJakartaSansExtraBold', fontSize: FontSize.eight, textTransform: 'uppercase', letterSpacing: 1.6 },
   iconAction: { width: 48, height: 48, borderRadius: 18, backgroundColor: 'rgba(255,255,255,0.12)', borderWidth: 1, borderColor: 'rgba(255,255,255,0.1)', alignItems: 'center', justifyContent: 'center' },
   listCard: { borderRadius: 28, borderWidth: 1, padding: 14, flexDirection: 'row', gap: 14, alignItems: 'center' },
   thumbWrap: { width: 96, height: 96, borderRadius: 18, overflow: 'hidden' },
@@ -520,42 +520,42 @@ const styles = StyleSheet.create({
   listBody: { flex: 1, minWidth: 0 },
   authorRow: { flexDirection: 'row', alignItems: 'center', gap: 8, marginBottom: 4 },
   authorAvatar: { width: 20, height: 20, borderRadius: 10 },
-  authorName: { fontFamily: 'PlusJakartaSansExtraBold', fontSize: fontScale(8), textTransform: 'uppercase', letterSpacing: 1, flex: 1 },
-  listTitle: { fontFamily: 'PlusJakartaSansExtraBold', fontSize: fontScale(10), textTransform: 'uppercase' },
-  listMeta: { marginTop: 4, fontFamily: 'PlusJakartaSansBold', fontSize: fontScale(8), textTransform: 'uppercase', letterSpacing: 1.4 },
+  authorName: { fontFamily: 'PlusJakartaSansExtraBold', fontSize: FontSize.eight, textTransform: 'uppercase', letterSpacing: 1, flex: 1 },
+  listTitle: { fontFamily: 'PlusJakartaSansExtraBold', fontSize: FontSize.ten, textTransform: 'uppercase' },
+  listMeta: { marginTop: 4, fontFamily: 'PlusJakartaSansBold', fontSize: FontSize.eight, textTransform: 'uppercase', letterSpacing: 1.4 },
   inlineStats: { flexDirection: 'row', gap: 14, marginTop: 10 },
   inlineStat: { flexDirection: 'row', alignItems: 'center', gap: 4 },
-  inlineStatText: { fontFamily: 'PlusJakartaSansExtraBold', fontSize: fontScale(9) },
+  inlineStatText: { fontFamily: 'PlusJakartaSansExtraBold', fontSize: FontSize.nine },
   sideActions: { gap: 10 },
   sideBtn: { width: 40, height: 40, borderRadius: 12, borderWidth: 1, alignItems: 'center', justifyContent: 'center' },
   dashedBtn: { minHeight: 54, borderRadius: 18, borderWidth: 1, borderStyle: 'dashed', alignItems: 'center', justifyContent: 'center', paddingHorizontal: 16 },
-  dashedBtnText: { color: '#cd2bee', fontFamily: 'PlusJakartaSansExtraBold', fontSize: fontScale(8), textTransform: 'uppercase', letterSpacing: 1.8 },
+  dashedBtnText: { color: '#cd2bee', fontFamily: 'PlusJakartaSansExtraBold', fontSize: FontSize.eight, textTransform: 'uppercase', letterSpacing: 1.8 },
   draftImage: { width: 80, height: 80, borderRadius: 18, opacity: 0.65 },
   draftMeta: { flexDirection: 'row', gap: 10, marginTop: 8, flexWrap: 'wrap' },
-  rewardMini: { color: '#cd2bee', fontFamily: 'PlusJakartaSansExtraBold', fontSize: fontScale(7), textTransform: 'uppercase', letterSpacing: 1.4 },
-  smallText: { fontFamily: 'PlusJakartaSansBold', fontSize: fontScale(7), textTransform: 'uppercase', letterSpacing: 1.2 },
+  rewardMini: { color: '#cd2bee', fontFamily: 'PlusJakartaSansExtraBold', fontSize: FontSize.seven, textTransform: 'uppercase', letterSpacing: 1.4 },
+  smallText: { fontFamily: 'PlusJakartaSansBold', fontSize: FontSize.seven, textTransform: 'uppercase', letterSpacing: 1.2 },
   resumeBtn: { minHeight: 40, paddingHorizontal: 16, borderRadius: 12, borderWidth: 1, alignItems: 'center', justifyContent: 'center' },
-  resumeBtnText: { fontFamily: 'PlusJakartaSansExtraBold', fontSize: fontScale(7), textTransform: 'uppercase', letterSpacing: 1.6 },
+  resumeBtnText: { fontFamily: 'PlusJakartaSansExtraBold', fontSize: FontSize.seven, textTransform: 'uppercase', letterSpacing: 1.6 },
   inviteCard: { minHeight: 298, borderRadius: 48, overflow: 'hidden', borderWidth: 1, backgroundColor: '#111827' },
   inviteTop: { position: 'absolute', top: 24, left: 24, right: 24, flexDirection: 'row', justifyContent: 'space-between', alignItems: 'flex-start' },
   inviterPill: { flexDirection: 'row', alignItems: 'center', gap: 10, backgroundColor: 'rgba(0,0,0,0.4)', borderWidth: 1, borderColor: 'rgba(255,255,255,0.1)', padding: 8, paddingRight: 14, borderRadius: 999 },
   inviterAvatar: { width: 32, height: 32, borderRadius: 16, borderWidth: 1, borderColor: 'rgba(205,43,238,0.4)' },
-  inviteTag: { color: 'rgba(255,255,255,0.45)', fontFamily: 'PlusJakartaSansExtraBold', fontSize: fontScale(6.5), textTransform: 'uppercase', letterSpacing: 1.4 },
-  inviterName: { color: '#fff', fontFamily: 'PlusJakartaSansExtraBold', fontSize: fontScale(8), textTransform: 'uppercase', marginTop: 2 },
+  inviteTag: { color: 'rgba(255,255,255,0.45)', fontFamily: 'PlusJakartaSansExtraBold', fontSize: FontSize.sixHalf, textTransform: 'uppercase', letterSpacing: 1.4 },
+  inviterName: { color: '#fff', fontFamily: 'PlusJakartaSansExtraBold', fontSize: FontSize.eight, textTransform: 'uppercase', marginTop: 2 },
   statusPill: { paddingHorizontal: 12, paddingVertical: 6, borderRadius: 999, borderWidth: 1 },
   pending: { backgroundColor: 'rgba(249,115,22,0.16)', borderColor: 'rgba(249,115,22,0.35)' },
   accepted: { backgroundColor: 'rgba(16,185,129,0.16)', borderColor: 'rgba(16,185,129,0.35)' },
-  statusText: { fontFamily: 'PlusJakartaSansExtraBold', fontSize: fontScale(7), color: '#fff', textTransform: 'uppercase', letterSpacing: 1.4 },
+  statusText: { fontFamily: 'PlusJakartaSansExtraBold', fontSize: FontSize.seven, color: '#fff', textTransform: 'uppercase', letterSpacing: 1.4 },
   inviteFooter: { justifyContent: 'space-between', alignItems: 'flex-start', gap: 12 },
   inviteActions: { flexDirection: 'row', gap: 8, flexWrap: 'wrap', justifyContent: 'flex-end' },
   acceptBtn: { minHeight: 40, paddingHorizontal: 20, borderRadius: 12, backgroundColor: '#cd2bee', alignItems: 'center', justifyContent: 'center' },
   declineBtn: { minHeight: 40, paddingHorizontal: 16, borderRadius: 12, backgroundColor: 'rgba(255,255,255,0.08)', borderWidth: 1, borderColor: 'rgba(255,255,255,0.1)', alignItems: 'center', justifyContent: 'center' },
   collabBtn: { minHeight: 40, paddingHorizontal: 18, borderRadius: 12, backgroundColor: '#10b981', alignItems: 'center', justifyContent: 'center', flexDirection: 'row', gap: 6 },
-  acceptBtnText: { color: '#fff', fontFamily: 'PlusJakartaSansExtraBold', fontSize: fontScale(8), textTransform: 'uppercase', letterSpacing: 1.4 },
-  declineBtnText: { color: 'rgba(255,255,255,0.7)', fontFamily: 'PlusJakartaSansExtraBold', fontSize: fontScale(8), textTransform: 'uppercase', letterSpacing: 1.4 },
+  acceptBtnText: { color: '#fff', fontFamily: 'PlusJakartaSansExtraBold', fontSize: FontSize.eight, textTransform: 'uppercase', letterSpacing: 1.4 },
+  declineBtnText: { color: 'rgba(255,255,255,0.7)', fontFamily: 'PlusJakartaSansExtraBold', fontSize: FontSize.eight, textTransform: 'uppercase', letterSpacing: 1.4 },
   tipCard: { borderRadius: 32, borderWidth: 1, padding: 20, alignItems: 'center', gap: 8 },
-  tipTitle: { color: '#cd2bee', fontFamily: 'PlusJakartaSansExtraBold', fontSize: fontScale(8), textTransform: 'uppercase', letterSpacing: 1.8 },
-  tipBody: { textAlign: 'center', fontFamily: 'PlusJakartaSansMedium', fontSize: fontScale(9), lineHeight: 18 },
+  tipTitle: { color: '#cd2bee', fontFamily: 'PlusJakartaSansExtraBold', fontSize: FontSize.eight, textTransform: 'uppercase', letterSpacing: 1.8 },
+  tipBody: { textAlign: 'center', fontFamily: 'PlusJakartaSansMedium', fontSize: FontSize.nine, lineHeight: 18 },
 });
 
 export default CreatorChallenges;

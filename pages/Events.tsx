@@ -12,7 +12,7 @@ import {
   View,
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
-import { fontScale } from '../fonts';
+import { FontSize } from '../fonts';
 import { useThemeMode } from '../theme';
 import { mediumScreen } from '../types';
 
@@ -507,7 +507,7 @@ const styles = StyleSheet.create({
   },
   headerTitle: {
     fontFamily: 'PlusJakartaSansExtraBold',
-    fontSize: mediumScreen ? fontScale(16) : fontScale(13),
+    fontSize: mediumScreen ? FontSize.sixteen : FontSize.thirteen,
     textTransform: 'uppercase',
     letterSpacing: 2,
   },
@@ -515,7 +515,7 @@ const styles = StyleSheet.create({
     color: '#cd2bee',
     marginTop: 4,
     fontFamily: 'PlusJakartaSansExtraBold',
-    fontSize: fontScale(7),
+    fontSize: FontSize.seven,
     textTransform: 'uppercase',
     letterSpacing: 1.5,
   },
@@ -537,7 +537,7 @@ const styles = StyleSheet.create({
   searchInput: {
     flex: 1,
     fontFamily: 'PlusJakartaSansBold',
-    fontSize: fontScale(10),
+    fontSize: FontSize.ten,
   },
   filterScroll: {
     gap: 10,
@@ -559,7 +559,7 @@ const styles = StyleSheet.create({
   },
   filterChipText: {
     fontFamily: 'PlusJakartaSansExtraBold',
-    fontSize: fontScale(7),
+    fontSize: FontSize.seven,
     textTransform: 'uppercase',
     letterSpacing: 1.2,
   },
@@ -571,14 +571,14 @@ const styles = StyleSheet.create({
   },
   monthTitle: {
     fontFamily: 'PlusJakartaSansExtraBold',
-    fontSize: mediumScreen ? fontScale(24) : fontScale(20),
+    fontSize: mediumScreen ? FontSize.twentyFour : FontSize.twenty,
     textTransform: 'uppercase',
   },
   monthYear: {
     marginTop: 4,
     color: '#cd2bee',
     fontFamily: 'PlusJakartaSansExtraBold',
-    fontSize: fontScale(8),
+    fontSize: FontSize.eight,
     textTransform: 'uppercase',
     letterSpacing: 2,
   },
@@ -631,14 +631,14 @@ const styles = StyleSheet.create({
   dateBadgeMonth: {
     color: '#64748b',
     fontFamily: 'PlusJakartaSansExtraBold',
-    fontSize: fontScale(6.5),
+    fontSize: FontSize.sixHalf,
     textTransform: 'uppercase',
     letterSpacing: 1.2,
   },
   dateBadgeDay: {
     color: '#cd2bee',
     fontFamily: 'PlusJakartaSansExtraBold',
-    fontSize: fontScale(18),
+    fontSize: FontSize.eighteen,
   },
   typeBadge: {
     position: 'absolute',
@@ -651,7 +651,7 @@ const styles = StyleSheet.create({
   typeBadgeText: {
     color: '#ffffff',
     fontFamily: 'PlusJakartaSansExtraBold',
-    fontSize: fontScale(6.5),
+    fontSize: FontSize.sixHalf,
     textTransform: 'uppercase',
     letterSpacing: 1.2,
   },
@@ -670,14 +670,14 @@ const styles = StyleSheet.create({
   locationText: {
     color: 'rgba(255,255,255,0.82)',
     fontFamily: 'PlusJakartaSansExtraBold',
-    fontSize: fontScale(7),
+    fontSize: FontSize.seven,
     textTransform: 'uppercase',
     letterSpacing: 1.1,
   },
   eventTitle: {
     color: '#ffffff',
     fontFamily: 'PlusJakartaSansExtraBold',
-    fontSize: mediumScreen ? fontScale(20) : fontScale(17),
+    fontSize: mediumScreen ? FontSize.twenty : FontSize.seventeen,
     width: '82%',
     textTransform: 'uppercase',
   },
@@ -722,14 +722,14 @@ const styles = StyleSheet.create({
   },
   metaLabel: {
     fontFamily: 'PlusJakartaSansExtraBold',
-    fontSize: fontScale(6.5),
+    fontSize: FontSize.sixHalf,
     textTransform: 'uppercase',
     letterSpacing: 1.2,
     marginBottom: 4,
   },
   creatorName: {
     fontFamily: 'PlusJakartaSansExtraBold',
-    fontSize: fontScale(9.5),
+    fontSize: FontSize.nineHalf,
     textTransform: 'uppercase',
   },
   ticketCopy: {
@@ -738,7 +738,7 @@ const styles = StyleSheet.create({
   ticketPrice: {
     color: '#cd2bee',
     fontFamily: 'PlusJakartaSansExtraBold',
-    fontSize: fontScale(14),
+    fontSize: FontSize.fourteen,
     textTransform: 'uppercase',
   },
   ctaButton: {
@@ -751,7 +751,7 @@ const styles = StyleSheet.create({
   },
   ctaText: {
     fontFamily: 'PlusJakartaSansExtraBold',
-    fontSize: fontScale(8),
+    fontSize: FontSize.eight,
     textTransform: 'uppercase',
     letterSpacing: 1.3,
   },
@@ -770,12 +770,12 @@ const styles = StyleSheet.create({
   },
   emptyTitle: {
     fontFamily: 'PlusJakartaSansExtraBold',
-    fontSize: fontScale(16),
+    fontSize: FontSize.sixteen,
     textTransform: 'uppercase',
   },
   emptyBody: {
     fontFamily: 'PlusJakartaSansBold',
-    fontSize: fontScale(10),
+    fontSize: FontSize.ten,
   },
   modalRoot: {
     flex: 1,
@@ -796,13 +796,13 @@ const styles = StyleSheet.create({
   },
   modalTitle: {
     fontFamily: 'PlusJakartaSansExtraBold',
-    fontSize: fontScale(18),
+    fontSize: FontSize.eighteen,
     textTransform: 'uppercase',
     marginBottom: 6,
   },
   modalSubtitle: {
     fontFamily: 'PlusJakartaSansBold',
-    fontSize: fontScale(9),
+    fontSize: FontSize.nine,
     marginBottom: 22,
   },
   modalSummary: {
@@ -821,7 +821,7 @@ const styles = StyleSheet.create({
   },
   modalRowLabel: {
     fontFamily: 'PlusJakartaSansExtraBold',
-    fontSize: fontScale(7),
+    fontSize: FontSize.seven,
     textTransform: 'uppercase',
     letterSpacing: 1.2,
   },
@@ -829,13 +829,13 @@ const styles = StyleSheet.create({
     flex: 1,
     textAlign: 'right',
     fontFamily: 'PlusJakartaSansExtraBold',
-    fontSize: fontScale(9),
+    fontSize: FontSize.nine,
     textTransform: 'uppercase',
   },
   modalPrice: {
     color: '#cd2bee',
     fontFamily: 'PlusJakartaSansExtraBold',
-    fontSize: fontScale(10),
+    fontSize: FontSize.ten,
     textTransform: 'uppercase',
   },
   modalActions: {
@@ -860,14 +860,14 @@ const styles = StyleSheet.create({
   },
   modalButtonTextSecondary: {
     fontFamily: 'PlusJakartaSansExtraBold',
-    fontSize: fontScale(8),
+    fontSize: FontSize.eight,
     textTransform: 'uppercase',
     letterSpacing: 1.2,
   },
   modalButtonTextPrimary: {
     color: '#ffffff',
     fontFamily: 'PlusJakartaSansExtraBold',
-    fontSize: fontScale(8),
+    fontSize: FontSize.eight,
     textTransform: 'uppercase',
     letterSpacing: 1.2,
   },
@@ -887,13 +887,13 @@ const styles = StyleSheet.create({
   },
   successTitle: {
     fontFamily: 'PlusJakartaSansExtraBold',
-    fontSize: fontScale(18),
+    fontSize: FontSize.eighteen,
     textTransform: 'uppercase',
   },
   successBody: {
     textAlign: 'center',
     fontFamily: 'PlusJakartaSansBold',
-    fontSize: fontScale(10),
+    fontSize: FontSize.ten,
   },
 });
 

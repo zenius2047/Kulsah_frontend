@@ -17,6 +17,9 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 import { mediumScreen } from '../types';
 
 
+
+import { FontSize } from '../fonts';
+
 type MessageTab = 'direct' | 'subs' | 'pitches';
 type ChatType = 'direct' | 'pitches';
 type TierType = 'Gold' | 'Silver' | null;
@@ -304,13 +307,13 @@ const styles = StyleSheet.create({
   },
   title: {
     color: '#F8FAFC',
-    fontSize: mediumScreen?21:18,
+    fontSize: mediumScreen?FontSize.twentyOne:FontSize.eighteen,
     fontWeight: '900',
     letterSpacing: 0.5,
   },
   subtitle: {
     color: '#D946EF',
-    fontSize: mediumScreen?12:8,
+    fontSize: mediumScreen?FontSize.twelve:FontSize.eight,
     fontWeight: '900',
     letterSpacing: 2.5,
     marginTop: 2,
@@ -355,20 +358,20 @@ const styles = StyleSheet.create({
   },
   summaryLabel: {
     color: '#64748B',
-    fontSize: mediumScreen?13:9,
+    fontSize: mediumScreen?FontSize.thirteen:FontSize.nine,
     fontWeight: '900',
     letterSpacing: 1.8,
   },
   summaryLabelActive: {
     color: '#D946EF',
-    fontSize: mediumScreen?13:9,
+    fontSize: mediumScreen?FontSize.thirteen:FontSize.nine,
     fontWeight: '900',
     letterSpacing: 1.8,
     textAlign: 'right',
   },
   summaryValue: {
     color: '#F8FAFC',
-    fontSize: mediumScreen ? 15:11,
+    fontSize: mediumScreen ? FontSize.fifteen:FontSize.eleven,
     fontWeight: '700',
     marginTop: 2,
   },
@@ -387,7 +390,7 @@ const styles = StyleSheet.create({
   searchInput: {
     flex: 1,
     color: '#F8FAFC',
-    fontSize: mediumScreen?18:14,
+    fontSize: mediumScreen?FontSize.eighteen:FontSize.fourteen,
     fontWeight: '500',
   },
   tabsWrap: {
@@ -404,7 +407,7 @@ const styles = StyleSheet.create({
   },
   tabText: {
     color: '#64748B',
-    fontSize: mediumScreen?14:10,
+    fontSize: mediumScreen?FontSize.fourteen:FontSize.ten,
     fontWeight: '900',
     letterSpacing: 2.2,
     textTransform: 'uppercase',
@@ -507,14 +510,14 @@ const styles = StyleSheet.create({
   },
   name: {
     color: '#F8FAFC',
-    fontSize: mediumScreen?16:13,
+    fontSize: mediumScreen?FontSize.sixteen:FontSize.thirteen,
     fontWeight: '900',
     textTransform: 'uppercase',
     flexShrink: 1,
   },
   pitchBadge: {
     color: '#D946EF',
-    fontSize: mediumScreen?12:8,
+    fontSize: mediumScreen?FontSize.twelve:FontSize.eight,
     fontWeight: '900',
     letterSpacing: 1.1,
     borderWidth: 1,
@@ -526,7 +529,7 @@ const styles = StyleSheet.create({
   },
   time: {
     color: '#64748B',
-    fontSize: mediumScreen?14:10,
+    fontSize: mediumScreen?FontSize.fourteen:FontSize.ten,
     fontWeight: '900',
     letterSpacing: 1.4,
   },
@@ -535,7 +538,7 @@ const styles = StyleSheet.create({
   },
   message: {
     color: '#94A3B8',
-    fontSize: mediumScreen?17:13,
+    fontSize: mediumScreen?FontSize.seventeen:FontSize.thirteen,
     fontWeight: '500',
   },
   messageUnread: {
@@ -550,7 +553,7 @@ const styles = StyleSheet.create({
   },
   metaTier: {
     color: '#D946EF',
-    fontSize: mediumScreen?13:9,
+    fontSize: mediumScreen?FontSize.thirteen:FontSize.nine,
     fontWeight: '900',
     letterSpacing: 1.3,
   },
@@ -562,7 +565,7 @@ const styles = StyleSheet.create({
   },
   metaLtv: {
     color: '#4ADE80',
-    fontSize: mediumScreen?13:9,
+    fontSize: mediumScreen?FontSize.thirteen:FontSize.nine,
     fontWeight: '900',
     letterSpacing: 1.3,
   },
@@ -578,7 +581,7 @@ const styles = StyleSheet.create({
   },
   emptyText: {
     color: '#64748B',
-    fontSize: mediumScreen?14:10,
+    fontSize: mediumScreen?FontSize.fourteen:FontSize.ten,
     fontWeight: '900',
     letterSpacing: 2,
   },

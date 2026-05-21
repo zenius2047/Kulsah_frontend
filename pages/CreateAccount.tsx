@@ -1,4 +1,4 @@
-﻿import React from 'react';
+import React from 'react';
 import { FontAwesome, MaterialIcons } from '@expo/vector-icons';
 import { LinearGradient } from 'expo-linear-gradient';
 import {
@@ -13,7 +13,7 @@ import {
   View,
 } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
-import { fontScale } from '../fonts';
+import { FontSize } from '../fonts';
 
 const heroImage =
   'https://lh3.googleusercontent.com/aida-public/AB6AXuCQ3om81-SiKgJwDpjboC8Nuo0ZQ_S5zMyq-49XPhird3g_bOUDeTLN9A90A3mKpBRdleJhGui80HhTd_UmVdFrq6ihXbzUTaNWAMEHwLcQCY4KDIC0snF9_LE1tPpNGe6rMx-S_5KYOus9eURRHkU4ez22Un42e7tEh5psFB1VNUD65yNYF86JocopBe4MP5v0_WxF4z2v1d_TSxB0duA8ABkWzRFsB4DVgesG_7ONuPxSpqleNLgd-Gz3u8cDY8FpyjF_juRJnU8H';
@@ -209,14 +209,14 @@ const styles = StyleSheet.create({
   },
   brandTitle: {
     color: '#f7f5f8',
-    fontSize: fontScale(38),
-    lineHeight: fontScale(40),
+    fontSize: FontSize.thirtyEight,
+    lineHeight: FontSize.forty,
     fontFamily: 'PlusJakartaSansExtraBold',
     letterSpacing: -1.4,
   },
   brandSubtitle: {
     color: 'rgba(148,163,184,0.78)',
-    fontSize: fontScale(11),
+    fontSize: FontSize.eleven,
     fontFamily: 'PlusJakartaSansBold',
     textTransform: 'uppercase',
     letterSpacing: 1.5,
@@ -249,7 +249,7 @@ const styles = StyleSheet.create({
   },
   cardTitle: {
     color: '#f7f5f8',
-    fontSize: fontScale(24),
+    fontSize: FontSize.twentyFour,
     fontFamily: 'PlusJakartaSansExtraBold',
     textAlign: 'center',
     marginBottom: 28,
@@ -271,7 +271,7 @@ const styles = StyleSheet.create({
   },
   secondaryButtonText: {
     color: '#f7f5f8',
-    fontSize: fontScale(14),
+    fontSize: FontSize.fourteen,
     fontFamily: 'PlusJakartaSansBold',
     letterSpacing: -0.2,
   },
@@ -295,7 +295,7 @@ const styles = StyleSheet.create({
   },
   primaryButtonText: {
     color: '#ffffff',
-    fontSize: fontScale(14),
+    fontSize: FontSize.fourteen,
     fontFamily: 'PlusJakartaSansExtraBold',
     letterSpacing: -0.2,
   },
@@ -306,8 +306,8 @@ const styles = StyleSheet.create({
   legalText: {
     marginTop: 26,
     color: '#64748b',
-    fontSize: fontScale(11),
-    lineHeight: fontScale(18),
+    fontSize: FontSize.eleven,
+    lineHeight: FontSize.eighteen,
     fontFamily: 'PlusJakartaSansMedium',
     textAlign: 'center',
     paddingHorizontal: 8,
@@ -325,12 +325,12 @@ const styles = StyleSheet.create({
   },
   creatorPrompt: {
     color: '#94a3b8',
-    fontSize: fontScale(13),
+    fontSize: FontSize.thirteen,
     fontFamily: 'PlusJakartaSansMedium',
   },
   creatorAction: {
     color: '#cd2bee',
-    fontSize: fontScale(14),
+    fontSize: FontSize.fourteen,
     fontFamily: 'PlusJakartaSansExtraBold',
   },
   previewGrid: {

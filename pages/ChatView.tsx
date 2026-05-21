@@ -8,7 +8,6 @@ import {
   ScrollView,
   StyleSheet,
   Text,
-  TextInput,
   View,
   Image,
 } from 'react-native';
@@ -16,8 +15,9 @@ import { useNavigation, useRoute } from '@react-navigation/native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { MaterialIcons } from '@expo/vector-icons';
 import { GoogleGenAI } from '@google/genai';
-import { fontScale } from '../fonts';
+import { FontSize } from '../fonts';
 import { mediumScreen } from '../types';
+import KulsahInputBar from '../components/KulsahInputBar';
 
 interface Message {
   id: number;
@@ -396,7 +396,7 @@ const ChatView: React.FC = () => {
             <View style={styles.emojiRow}>
               {emojiSet.map((emoji) => (
                 <Pressable key={emoji} onPress={() => addEmoji(emoji)} style={[styles.emojiBtn, { borderColor: border, backgroundColor: isDark ? 'transparent' : theme.card }]}>
-                  <Text style={{ fontSize: fontScale(18) }}>{emoji}</Text>
+                  <Text style={{ fontSize: FontSize.eighteen }}>{emoji}</Text>
                 </Pressable>
               ))}
             </View>
@@ -415,19 +415,20 @@ const ChatView: React.FC = () => {
             <MaterialIcons name="add" size={28} color={isToolsOpen ? '#fff' : '#cd2bee'} />
           </Pressable>
 
-          <View style={[styles.inputWrap, { borderColor: border, backgroundColor: softSurface }]}>
-            <TextInput
+          <KulsahInputBar
               value={msg}
               onChangeText={setMsg}
               placeholder={isCreator ? 'Broadcasting to your community...' : `Message ${id.replace('_', ' ')}...`}
               placeholderTextColor={mutedText}
-              style={[styles.input, { color: primaryText }]}
+              containerStyle={[styles.inputWrap, { borderColor: border, backgroundColor: softSurface }]}
+              inputStyle={[styles.input, { color: primaryText }]}
               onSubmitEditing={() => handleSend()}
+              rightAccessory={(
+                <Pressable onPress={() => setShowEmojiPicker((v) => !v)}>
+                  <MaterialIcons name="mood" size={22} color={showEmojiPicker ? '#cd2bee' : mutedText} />
+                </Pressable>
+              )}
             />
-            <Pressable onPress={() => setShowEmojiPicker((v) => !v)}>
-              <MaterialIcons name="mood" size={22} color={showEmojiPicker ? '#cd2bee' : mutedText} />
-            </Pressable>
-          </View>
 
           <Pressable onPress={() => handleSend()} disabled={!msg.trim()} style={[styles.sendBtn, !msg.trim() && styles.sendBtnDisabled]}>
             <MaterialIcons name="send" size={20} color="#fff" />
@@ -451,8 +452,8 @@ const styles = StyleSheet.create({
   },
   callTop: { alignItems: 'center', gap: 10 },
   callAvatar: { width: 132, height: 132, borderRadius: 36, borderWidth: 3, borderColor: 'rgba(205,43,238,0.35)' },
-  callName: { fontSize: fontScale(27), fontFamily: 'PlusJakartaSansExtraBold' },
-  callStatus: { color: '#cd2bee', fontSize: fontScale(11), letterSpacing: 2, fontFamily: 'PlusJakartaSansExtraBold' },
+  callName: { fontSize: FontSize.twentySeven, fontFamily: 'PlusJakartaSansExtraBold' },
+  callStatus: { color: '#cd2bee', fontSize: FontSize.eleven, letterSpacing: 2, fontFamily: 'PlusJakartaSansExtraBold' },
   callActions: { flexDirection: 'row', alignItems: 'center', gap: 24 },
   callBtn: {
     width: 58,
@@ -484,8 +485,8 @@ const styles = StyleSheet.create({
   profileWrap: { position: 'relative' },
   profileAvatar: { width: 42, height: 42, borderRadius: 21, borderWidth: 2, borderColor: 'rgba(205,43,238,0.5)' },
   onlineDot: { position: 'absolute', right: -1, bottom: -1, width: 10, height: 10, borderRadius: 5, backgroundColor: '#22c55e' },
-  userName: { fontSize: fontScale(12), fontFamily: 'PlusJakartaSansExtraBold' },
-  userSub: { fontSize: fontScale(10), fontFamily: 'PlusJakartaSansBold' },
+  userName: { fontSize: FontSize.twelve, fontFamily: 'PlusJakartaSansExtraBold' },
+  userSub: { fontSize: FontSize.ten, fontFamily: 'PlusJakartaSansBold' },
   metaCard: {
     marginTop: 10,
     borderRadius: 16,
@@ -497,16 +498,16 @@ const styles = StyleSheet.create({
     justifyContent: 'space-between',
     gap: 8,
   },
-  metaLabel: { fontSize: fontScale(8), fontFamily: 'PlusJakartaSansExtraBold', letterSpacing: 1 },
-  metaValue: { fontSize: fontScale(11), fontFamily: 'PlusJakartaSansExtraBold' },
+  metaLabel: { fontSize: FontSize.eight, fontFamily: 'PlusJakartaSansExtraBold', letterSpacing: 1 },
+  metaValue: { fontSize: FontSize.eleven, fontFamily: 'PlusJakartaSansExtraBold' },
   metaDivider: { width: 1, height: 20 },
   messages: { flex: 1, paddingHorizontal: 14, paddingTop: 10 },
   msgRow: { marginBottom: 14 },
   msgBubble: { maxWidth: '86%', borderRadius: 20, paddingHorizontal: 14, paddingVertical: 11 },
   msgMine: { backgroundColor: '#cd2bee' },
   msgOther: { backgroundColor: 'rgba(255,255,255,0.08)', borderWidth: 1, borderColor: 'rgba(255,255,255,0.06)' },
-  msgText: { fontSize: mediumScreen? fontScale(16) :fontScale(12), lineHeight: 19, fontFamily: 'PlusJakartaSansMedium' },
-  msgMeta: { marginTop: 5, fontSize: mediumScreen ? fontScale(12):fontScale(8), fontFamily: 'PlusJakartaSansBold' },
+  msgText: { fontSize: mediumScreen? FontSize.sixteen :FontSize.twelve, lineHeight: 19, fontFamily: 'PlusJakartaSansMedium' },
+  msgMeta: { marginTop: 5, fontSize: mediumScreen ? FontSize.twelve:FontSize.eight, fontFamily: 'PlusJakartaSansBold' },
   dropBubble: {
     maxWidth: '86%',
     borderRadius: 24,
@@ -517,8 +518,8 @@ const styles = StyleSheet.create({
     gap: 6,
   },
   dropThumb: { borderRadius: 14, backgroundColor: '#000', height: 120, justifyContent: 'center', alignItems: 'center' },
-  dropTitle: { color: '#cd2bee', fontSize: fontScale(9), fontFamily: 'PlusJakartaSansExtraBold' },
-  dropName: { fontSize: fontScale(12), fontFamily: 'PlusJakartaSansBold' },
+  dropTitle: { color: '#cd2bee', fontSize: FontSize.nine, fontFamily: 'PlusJakartaSansExtraBold' },
+  dropName: { fontSize: FontSize.twelve, fontFamily: 'PlusJakartaSansBold' },
   tipBubble: {
     maxWidth: '86%',
     borderRadius: 24,
@@ -530,8 +531,8 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
   },
-  tipLabel: { color: '#22c55e', fontSize: fontScale(10), fontFamily: 'PlusJakartaSansExtraBold' },
-  tipAmount: { fontSize: fontScale(13), fontFamily: 'PlusJakartaSansBold' },
+  tipLabel: { color: '#22c55e', fontSize: FontSize.ten, fontFamily: 'PlusJakartaSansExtraBold' },
+  tipAmount: { fontSize: FontSize.thirteen, fontFamily: 'PlusJakartaSansBold' },
   stickerBubble: {
     borderRadius: 14,
     overflow: 'hidden',
@@ -553,8 +554,8 @@ const styles = StyleSheet.create({
     gap: 4,
   },
   toolItem: { flexDirection: 'row', alignItems: 'center', gap: 10, padding: 10, borderRadius: 14 },
-  toolTitle: { fontSize: fontScale(11), fontFamily: 'PlusJakartaSansExtraBold' },
-  toolSub: { fontSize: fontScale(9), fontFamily: 'PlusJakartaSansBold' },
+  toolTitle: { fontSize: FontSize.eleven, fontFamily: 'PlusJakartaSansExtraBold' },
+  toolSub: { fontSize: FontSize.nine, fontFamily: 'PlusJakartaSansBold' },
   footer: {
     paddingTop: 6,
     paddingHorizontal: 12,
@@ -563,7 +564,7 @@ const styles = StyleSheet.create({
   },
   repliesRow: { gap: 8, paddingVertical: 6 },
   replyChip: { borderRadius: 999, borderWidth: 1, paddingHorizontal: 12, paddingVertical: 8 },
-  replyText: { color: '#cd2bee', fontSize: fontScale(10), fontFamily: 'PlusJakartaSansExtraBold' },
+  replyText: { color: '#cd2bee', fontSize: FontSize.ten, fontFamily: 'PlusJakartaSansExtraBold' },
   emojiPanel: {
     borderRadius: 16,
     borderWidth: 1,
@@ -595,6 +596,7 @@ const styles = StyleSheet.create({
   inputWrap: {
     flex: 1,
     height: 48,
+    minHeight: 48,
     borderRadius: 24,
     borderWidth: 1,
     paddingHorizontal: 12,
@@ -602,10 +604,9 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     gap: 8,
   },
-  input: { flex: 1, fontSize: mediumScreen? fontScale(12): fontScale(8), fontFamily: 'PlusJakartaSansBold' },
+  input: { flex: 1, fontSize: mediumScreen? FontSize.twelve: FontSize.eight, fontFamily: 'PlusJakartaSansBold' },
   sendBtn: { width: 48, height: 48, borderRadius: 24, backgroundColor: '#cd2bee', justifyContent: 'center', alignItems: 'center' },
   sendBtnDisabled: { backgroundColor: 'rgba(255,255,255,0.12)' },
 });
 
 export default ChatView;
-

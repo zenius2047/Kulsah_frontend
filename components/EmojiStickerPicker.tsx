@@ -8,14 +8,14 @@ import {
   StyleProp,
   StyleSheet,
   Text,
-  TextInput,
   View,
   ViewStyle,
 } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
-import { fontScale } from '../fonts';
+import { FontSize } from '../fonts';
 import { useThemeMode } from '../theme';
 import { mediumScreen } from '../types';
+import KulsahInputBar from './KulsahInputBar';
 
 type PickerTab = 'emoji' | 'sticker';
 
@@ -200,30 +200,27 @@ const EmojiStickerPicker: React.FC<EmojiStickerPickerProps> = ({
 
           {showSearch ? (
             <View style={[styles.searchWrap, { borderBottomColor: theme.border }]}>
-              <View
-                style={[
-                  styles.searchField,
-                  {
-                    backgroundColor: theme.surface,
-                    borderColor: theme.border,
-                  },
-                ]}
-              >
-                <MaterialIcons name={activeTab === 'emoji' ? "mood": "sticky-note-2"} size={18} color={theme.textMuted} />
-                <TextInput
+              <KulsahInputBar
                   value={searchQuery}
                   onChangeText={setSearchQuery}
                   placeholder={`Search ${activeTab === 'emoji' ? 'emojis' : 'stickers'}`}
                   placeholderTextColor={theme.textMuted}
-                  style={[styles.searchInput, { color: theme.text }]}
+                  containerStyle={[
+                    styles.searchField,
+                    {
+                      backgroundColor: theme.surface,
+                      borderColor: theme.border,
+                    },
+                  ]}
+                  inputStyle={[styles.searchInput, { color: theme.text }]}
                   autoFocus
+                  leftAccessory={<MaterialIcons name={activeTab === 'emoji' ? "mood": "sticky-note-2"} size={18} color={theme.textMuted} />}
+                  rightAccessory={searchQuery ? (
+                    <Pressable onPress={() => setSearchQuery('')}>
+                      <MaterialIcons name="close" size={18} color={theme.textMuted} />
+                    </Pressable>
+                  ) : null}
                 />
-                {searchQuery ? (
-                  <Pressable onPress={() => setSearchQuery('')}>
-                    <MaterialIcons name="close" size={18} color={theme.textMuted} />
-                  </Pressable>
-                ) : null}
-              </View>
             </View>
           ) : null}
 
@@ -336,7 +333,7 @@ const styles = StyleSheet.create({
   },
   tabText: {
     fontFamily: 'PlusJakartaSansExtraBold',
-    fontSize: fontScale(8),
+    fontSize: FontSize.eight,
     textTransform: 'uppercase',
     letterSpacing: 1.4,
   },
@@ -366,7 +363,7 @@ const styles = StyleSheet.create({
     flex: 1,
     minHeight: 40,
     fontFamily: 'PlusJakartaSansMedium',
-    fontSize: fontScale(9),
+    fontSize: FontSize.nine,
   },
   scrollContent: {
     padding: 16,
@@ -385,7 +382,7 @@ const styles = StyleSheet.create({
     padding: 5
   },
   emojiText: {
-    fontSize: mediumScreen ? 26: 16,
+    fontSize: mediumScreen ? FontSize.twentySix: FontSize.sixteen,
     // lineHeight: 22
   },
   stickerGrid: {
@@ -418,7 +415,7 @@ const styles = StyleSheet.create({
   stickerLabel: {
     color: '#ffffff',
     fontFamily: 'PlusJakartaSansExtraBold',
-    fontSize: fontScale(6.5),
+    fontSize: FontSize.sixHalf,
     textTransform: 'uppercase',
     letterSpacing: 1.2,
     textAlign: 'center',
@@ -431,14 +428,14 @@ const styles = StyleSheet.create({
   footerText: {
     textAlign: 'center',
     fontFamily: 'PlusJakartaSansExtraBold',
-    fontSize: fontScale(6.5),
+    fontSize: FontSize.sixHalf,
     textTransform: 'uppercase',
     letterSpacing: 2.4,
   },
   emptyText: {
     textAlign: 'center',
     fontFamily: 'PlusJakartaSansBold',
-    fontSize: fontScale(8),
+    fontSize: FontSize.eight,
     paddingVertical: 18,
     textTransform: 'uppercase',
     letterSpacing: 1.2,

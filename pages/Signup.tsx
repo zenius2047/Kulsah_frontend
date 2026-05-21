@@ -1,6 +1,6 @@
 import React, { useMemo, useState } from 'react';
 import { useThemeMode } from '../theme';
-import { Image, Pressable, ScrollView, Text, TextInput, View, KeyboardAvoidingView, Platform } from 'react-native';
+import { Image, Pressable, ScrollView, Text, View, KeyboardAvoidingView, Platform } from 'react-native';
 import { useNavigation, useRoute } from '@react-navigation/native';
 import type { User, UserRole } from '../types';
 import { MaterialIcons } from '@expo/vector-icons';
@@ -9,7 +9,8 @@ import StarsIcon from '../assets/icons/stars-svg.svg';
 import TicketIcon from '../assets/icons/ticket-svg.svg';
 import VerifyIcon from '../assets/icons/verified-svg.svg';
 import AsyncStorage from '@react-native-async-storage/async-storage';
-import { fontScale } from '../fonts';
+import { FontSize } from '../fonts';
+import KulsahInputBar from '../components/KulsahInputBar';
 
 interface SignupProps {
   onLogin: (role: UserRole, redirectTo?: string) => void;
@@ -53,8 +54,8 @@ export const SignupVibesStep: React.FC<SignupVibesStepProps> = ({
   onContinue,
 }) => (
   <View style={{ gap: 14 }}>
-    <Text style={{ color: 'white', fontSize: fontScale(30), fontWeight: '900' }}>Inspirations</Text>
-    <Text style={{ color: '#cbd5e1' }}>Select your preferred creative orbits.</Text>
+    <Text style={{ color: 'white', fontSize: FontSize.heading, fontFamily: "PlusJakartaSansExtraBold" }}>Inspirations</Text>
+    <Text style={{ color: '#cbd5e1', fontSize: FontSize.eleven, fontFamily: "PlusJakartaSansBold" }}>Select your preferred creative orbits.</Text>
     <View style={{ flexDirection: 'row', flexWrap: 'wrap', gap: 10 }}>
       {INSPIRATIONS.map((tag) => {
         const isSelected = selectedVibes.has(tag.id);
@@ -70,9 +71,18 @@ export const SignupVibesStep: React.FC<SignupVibesStepProps> = ({
               borderColor: isSelected ? '#cd2bee' : 'rgba(255,255,255,0.1)',
             }}
           >
-            <Image source={{ uri: tag.img }} style={{ width: '100%', height: 88 }} />
-            <View style={{ padding: 8, backgroundColor: 'rgba(0,0,0,0.6)' }}>
-              <Text style={{ color: 'white', fontSize: fontScale(11), fontWeight: '700' }}>{tag.label}</Text>
+            <Image source={{ uri: tag.img }} style={{ width: '100%', height: 140 }} />
+            <View style={{
+              padding: 8,
+              backgroundColor: 'rgba(0,0,0,0.3)',
+              position: 'absolute',
+              bottom: 0,
+              left: 0,
+              right: 0,
+              top: 0,
+              justifyContent: 'flex-end'
+              }}>
+              <Text style={{ color: 'white', fontSize: FontSize.eleven, fontFamily: "PlusJakartaSansBold" }}>{tag.label}</Text>
             </View>
           </Pressable>
         );
@@ -89,7 +99,7 @@ export const SignupVibesStep: React.FC<SignupVibesStepProps> = ({
         justifyContent: 'center',
       }}
     >
-      <Text style={{ color: 'white', fontWeight: '900' }}>Secure Orbits</Text>
+      <Text style={{ color: 'white', fontFamily: "PlusJakartaSansBold" }}>Secure Orbits</Text>
     </Pressable>
   </View>
 );
@@ -104,7 +114,6 @@ const Signup: React.FC<SignupProps> = ({ onLogin }) => {
   const [formData, setFormData] = useState({ name: '', email: '', password: '' });
   const [selectedVibes, setSelectedVibes] = useState<Set<string>>(new Set(params.initialSelectedVibes ?? []));
   const [isProcessing, setIsProcessing] = useState(false);
-  const [isFocused, setIsFocused] = useState(false);
   const [user, setUser] = useState<User>({id: "", name: "", role: 'fan'});
 
   const steps: OnboardingStep[] = useMemo(
@@ -115,7 +124,7 @@ const Signup: React.FC<SignupProps> = ({ onLogin }) => {
 
   function generateRandom10Digit(): string {
   let result = "";
-  
+
   for (let i = 0; i < 10; i++) {
     result += Math.floor(Math.random() * 10);
   }
@@ -189,17 +198,17 @@ const Signup: React.FC<SignupProps> = ({ onLogin }) => {
         ) : (
           <View style={{ width: 24 }} />
         )}
-        <Text style={{ color: 'white', fontWeight: '900', fontSize: fontScale(20) }}>KULSAH</Text>
+        <Text style={{ color: 'white', fontFamily: "PlusJakartaSansExtraBold", fontSize: FontSize.twenty }}>KULSAH</Text>
         <View style={{ width: 24 }} />
       </View>
 
       <ScrollView contentContainerStyle={{ paddingHorizontal: 22, paddingBottom: 30 }} keyboardShouldPersistTaps="handled">
         {step === 'welcome' && (
           <View style={{ gap: 18 }}>
-            <Text style={{ color: 'white', fontSize: fontScale(40), textTransform: 'uppercase', fontFamily: 'PlusJakartaSansExtraBold'}}>{'Enter the\nGalaxy.'}</Text>
+            <Text style={{ color: 'white', fontSize: FontSize.forty, textTransform: 'uppercase', fontFamily: 'PlusJakartaSansExtraBold'}}>{'Enter the\nGalaxy.'}</Text>
             <Text style={{
               color: '#ffffff99',
-              fontSize: fontScale(16),
+              fontSize: FontSize.sixteen,
               lineHeight: 18,
               fontFamily: 'PlusJakartaSansBold'
                }}>
@@ -211,10 +220,10 @@ const Signup: React.FC<SignupProps> = ({ onLogin }) => {
               'Secure Exclusive Entry',
             ].map((item) => (
               <View key={item} style={{ flexDirection: 'row', alignItems: 'center', gap: 10 }}>
-                <View style={{ 
-                  width: 46, 
-                  height: 46, 
-                  borderRadius: 14, 
+                <View style={{
+                  width: 46,
+                  height: 46,
+                  borderRadius: 14,
                   borderColor: '#e5e7eb',
                   borderWidth: 1,
                   // backgroundColor: 'rgba(205,43,238,0.16)',
@@ -223,25 +232,25 @@ const Signup: React.FC<SignupProps> = ({ onLogin }) => {
                    }}>
                   {
                     item === 'Cinematic Transmissions' ? <MovieIcon height = {24} width= {24} fill= '#cd2bee'></MovieIcon>:
-                    item === 'Unlock Premium Vaults' ? <StarsIcon height = {24} width= {24} fill= '#cd2bee'></StarsIcon>: 
+                    item === 'Unlock Premium Vaults' ? <StarsIcon height = {24} width= {24} fill= '#cd2bee'></StarsIcon>:
                     <TicketIcon height = {24} width= {24} fill= '#cd2bee'></TicketIcon>
                   }
                 </View>
-                <Text style={{ color: '#ffffffcc', fontWeight: '700', fontFamily: 'PlusJakartaSansMedium' }}>{item}</Text>
+                <Text style={{ color: '#ffffffcc', fontFamily: 'PlusJakartaSansMedium' }}>{item}</Text>
               </View>
             ))}
             <Pressable
               onPress={handleNext}
               style={{ backgroundColor: '#cd2bee', borderRadius: 20, height: 56, alignItems: 'center', justifyContent: 'center', marginTop: 6 }}
             >
-              <Text style={{ color: 'white', fontWeight: '900' }}>Get Started</Text>
+              <Text style={{ color: 'white', fontFamily: "PlusJakartaSansBold"}}>Get Started</Text>
             </Pressable>
           </View>
         )}
 
         {step === 'name' && (
           <View style={{ gap: 14 }}>
-            <Text style={{ color: 'white', fontSize: fontScale(30), fontFamily: 'PlusJakartaSansExtraBold' }}>YOUR ALIAS</Text>
+            <Text style={{ color: 'white', fontSize: FontSize.thirty, fontFamily: 'PlusJakartaSansExtraBold' }}>YOUR ALIAS</Text>
             <Text style={{
               color: '#FFFFFF99',
               fontFamily: 'PlusJakartaSansMedium'
@@ -250,32 +259,29 @@ const Signup: React.FC<SignupProps> = ({ onLogin }) => {
             style={{
               color: '#94a3b8',
               fontFamily: 'PlusJakartaSansBold',
-              fontSize: fontScale(10),
+              fontSize: FontSize.ten,
               letterSpacing: 4,
               marginTop: 35,
               marginBottom: 10
             }}
             >DISPLAY NAME</Text>
-            <TextInput
+            <KulsahInputBar
               value={formData.name}
               onChangeText={(name) => setFormData({ ...formData, name })}
               placeholder="e.g. Alex Moon"
-              onFocus={() => setIsFocused(true)}
-              onBlur={() => setIsFocused(false)}
               placeholderTextColor="#94a3b8"
-              style={{
+              containerStyle={{
                 backgroundColor: 'rgba(255,255,255,0.08)',
-                color: 'white',
                 borderRadius: 28,
-                borderColor: !isFocused ? '#ffffff14': '#3b82f680',
+                borderColor: '#ffffff14',
                 borderWidth: 1,
                 height: 64,
                 paddingHorizontal: 24,
-                // paddingVertical: 29,
-                justifyContent: 'center',
-                alignItems: 'center',
+              }}
+              inputStyle={{
+                color: 'white',
                 fontFamily: 'PlusJakartaSansBold',
-                fontSize: fontScale(16),
+                fontSize: FontSize.sixteen,
               }}
             />
               {formData.name.length > 2 && <View
@@ -293,9 +299,9 @@ const Signup: React.FC<SignupProps> = ({ onLogin }) => {
               style = {{
                 fontFamily: "PlusJakartaSansBold",
                 color: '#cb2bee',
-                fontSize: fontScale(9),
+                fontSize: FontSize.nine,
                 letterSpacing: 4,
-              }} 
+              }}
               >
                 PUBLIC PREVIEW
               </Text>
@@ -316,11 +322,11 @@ const Signup: React.FC<SignupProps> = ({ onLogin }) => {
                   paddingVertical:4,
                   alignItems: 'center'
                 }}>
-                  <Text 
+                  <Text
                   style = {{
                     fontFamily: 'PlusJakartaSansBold',
                     color: '#cd2bee',
-                    fontSize: fontScale(20),
+                    fontSize: FontSize.twenty,
                     textAlign: 'center'
                   }}
                   >
@@ -332,11 +338,11 @@ const Signup: React.FC<SignupProps> = ({ onLogin }) => {
                   marginLeft: 15,
                 }}
                 >
-                <Text 
+                <Text
                 style={{
                   fontFamily: 'PlusJakartaSansBold',
                   color: 'white',
-                  fontSize: fontScale(16),
+                  fontSize: FontSize.sixteen,
                 }}
                 >
                   {formData.name}
@@ -344,8 +350,7 @@ const Signup: React.FC<SignupProps> = ({ onLogin }) => {
                 <Text style={{
                   color: '#94a3b8',
                   letterSpacing: 1,
-                  fontSize: fontScale(10),
-                  fontWeight: '700',
+                  fontSize: FontSize.ten,
                   fontFamily: 'PlusJakartaSans',
                 }}>
                   NEW ARRIVAL {'#'}0042
@@ -353,7 +358,7 @@ const Signup: React.FC<SignupProps> = ({ onLogin }) => {
                 </View>
               </View>
               </View>}
-              
+
             <Pressable
               disabled={formData.name.length < 2}
               onPress={handleNext}
@@ -364,7 +369,7 @@ const Signup: React.FC<SignupProps> = ({ onLogin }) => {
                 alignItems: 'center',
                 justifyContent: 'center',
               }}
-            ><Text style={{ color: 'white', fontWeight: '900' }}>Continue</Text>
+            ><Text style={{ color: 'white', fontFamily: "PlusJakartaSansBold" }}>Continue</Text>
             </Pressable>
           </View>
         )}
@@ -373,30 +378,41 @@ const Signup: React.FC<SignupProps> = ({ onLogin }) => {
 
         {step === 'credentials' && (
           <View style={{ gap: 14 }}>
-            <Text style={{ color: 'white', fontSize: fontScale(30), fontWeight: '900' }}>Uplink Keys</Text>
+            <Text style={{ color: 'white', fontSize: FontSize.thirty, fontFamily: "PlusJakartaSansExtraBold" }}>Uplink Keys</Text>
             <Text style={{ color: '#cbd5e1' }}>Synchronize your account with our secure node.</Text>
-            <TextInput
+            <KulsahInputBar
               value={formData.email}
               onChangeText={(email) => setFormData({ ...formData, email })}
               placeholder="name@nexus.io"
               keyboardType="email-address"
               autoCapitalize="none"
               placeholderTextColor="#94a3b8"
-              style={{ backgroundColor: 'rgba(255,255,255,0.08)', color: 'white', borderRadius: 18, paddingHorizontal: 14, paddingVertical: 14 }}
+              containerStyle={{
+                backgroundColor: 'rgba(255,255,255,0.08)',
+                borderColor: '#ffffff14',
+              }}
+              inputStyle={{ color: 'white' }}
             />
-            <View style={{ backgroundColor: 'rgba(255,255,255,0.08)', borderRadius: 18, paddingHorizontal: 14, paddingVertical: 4 }}>
-              <TextInput
-                value={formData.password}
-                onChangeText={(password) => setFormData({ ...formData, password })}
-                placeholder="Min. 8 characters"
-                secureTextEntry={!showPassword}
-                placeholderTextColor="#94a3b8"
-                style={{ color: 'white', paddingVertical: 10 }}
-              />
-              <Pressable onPress={() => setShowPassword((v) => !v)} style={{ position: 'absolute', right: 14, top: 12 }}>
-                <Text style={{ color: '#cbd5e1' }}>{showPassword ? 'visibility_off' : 'visibility'}</Text>
-              </Pressable>
-            </View>
+            <KulsahInputBar
+              value={formData.password}
+              onChangeText={(password) => setFormData({ ...formData, password })}
+              placeholder="Min. 8 characters"
+              secureTextEntry={!showPassword}
+              placeholderTextColor="#94a3b8"
+              containerStyle={{
+                backgroundColor: 'rgba(255,255,255,0.08)',
+                borderColor: '#ffffff14',
+              }}
+              inputStyle={{ color: 'white' }}
+              rightAccessory={(
+                <Pressable
+                  onPress={() => setShowPassword((v) => !v)}
+                  style={{ width: 36, height: 36, borderRadius: 18, alignItems: 'center', justifyContent: 'center' }}
+                >
+                  <MaterialIcons name={showPassword ? 'visibility-off' : 'visibility'} size={22} color="#cbd5e1" />
+                </Pressable>
+              )}
+            />
             <Pressable
               disabled={formData.password.length < 8 || !formData.email || isProcessing}
               onPress={handleSubmit}
@@ -411,7 +427,7 @@ const Signup: React.FC<SignupProps> = ({ onLogin }) => {
                 justifyContent: 'center',
               }}
             >
-              <Text style={{ color: 'white', fontWeight: '900' }}>{isProcessing ? 'Processing...' : 'Register'}</Text>
+              <Text style={{ color: 'white', fontFamily: "PlusJakartaSansBold" }}>{isProcessing ? 'Processing...' : 'Register'}</Text>
             </Pressable>
           </View>
         )}
@@ -440,9 +456,9 @@ const Signup: React.FC<SignupProps> = ({ onLogin }) => {
               <VerifyIcon fill='white' height={90} width={90}  strokeWidth={0}/>
             </View>
             </View>
-            <Text style={{ color: 'white', fontSize: fontScale(34), textAlign: 'center', fontFamily: 'PlusJakartaSansExtraBold' }}>{'IDENTITY\nSECURED'}</Text>
+            <Text style={{ color: 'white', fontSize: FontSize.thirtyFour, textAlign: 'center', fontFamily: 'PlusJakartaSansExtraBold' }}>{'IDENTITY\nSECURED'}</Text>
             <Text style={{ color: '#cbd5e1', textAlign: 'center' }}>
-              Welcome home,{'\n'}<Text style={{ color: '#cd2bee', fontWeight: '900' }}>{formData.name || 'Fan'}</Text>.
+              Welcome home,{'\n'}<Text style={{ color: '#cd2bee', fontFamily: "PlusJakartaSansBold" }}>{formData.name || 'Fan'}</Text>.
             </Text>
             <Pressable
               onPress={completeOnboarding}
@@ -451,8 +467,8 @@ const Signup: React.FC<SignupProps> = ({ onLogin }) => {
                 borderRadius: 20, height: 56, alignItems: 'center', justifyContent: 'center', width: '80%' }}
             >
               <Text style={{
-                color: 'white', 
-                fontWeight: '900',
+                color: 'white',
+                fontFamily: "PlusJakartaSansBold",
                 textTransform: 'uppercase'
                  }}>ENTER THE GALAXY</Text>
             </Pressable>
@@ -465,6 +481,4 @@ const Signup: React.FC<SignupProps> = ({ onLogin }) => {
 };
 
 export default Signup;
-
-
 

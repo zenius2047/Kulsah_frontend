@@ -1,6 +1,6 @@
 import { MaterialIcons } from '@expo/vector-icons';
 import { useNavigation, useRoute } from '@react-navigation/native';
-import React, { useMemo, useState } from 'react';
+import React, { useEffect, useMemo, useState } from 'react';
 import { useThemeMode } from '../theme';
 import { ActivityIndicator, Dimensions, Image, ImageBackground, Modal, Pressable, ScrollView, Share, StyleSheet, Text, useWindowDimensions, View } from 'react-native';
 import { LinearGradient } from 'expo-linear-gradient';
@@ -10,15 +10,16 @@ import CalenderIcon from '../assets/icons/calendar-svg.svg';
 import TrophyIcon from '../assets/icons/trophy-svg.svg';
 import BookmarkIcon from '../assets/icons/bookmark-svg.svg';
 import EditIcon from '../assets/icons/edit-svg.svg';
-import { mediumScreen, user } from '../types';
-import { fontScale } from '../fonts';
+import { mediumScreen, subscribeUser, user, User } from '../types';
+import { FontSize } from '../fonts';
 import { BlurView } from 'expo-blur';
 import VerifiedIcon from '../assets/icons/verified-svg.svg';
 import FireIcon from '../assets/icons/fireIcon-svg.svg';
+import PublicIcon from '../assets/icons/public-svg.svg';
 import KulCoinPrompt from '../components/KulCoinPrompt';
 
 
-type Tab = 'Videos' | 'Premium' | 'Tickets' | 'Events' | 'Challenges' | 'Favorites' | 'Saved';
+type Tab = 'Videos' | 'Public' | 'Premium'  | 'Tickets' | 'Events' | 'Challenges' | 'Favorites' | 'Saved';
 type Billing = 'monthly' | 'annually';
 const { height: SCREEN_HEIGHT } = Dimensions.get('screen');
 
@@ -89,12 +90,18 @@ const  ArtistProfile: React.FC = () => {
   const gridHorizontalPadding = isTablet ? 15 : 3;
   const gridItemWidth = `${99.8 / gridColumns}%` as const;
   const route = useRoute<any>();
+  const [currentUser, setCurrentUser] = useState<User | null>(user);
   const [isFollowing, setIsFollowing] = useState(false);
   const [likeCount, setLikeCount] = useState(84200);
-  const isOwner = route.params?.isOwner;
+  const isOwner = route.params?.isOwner ?? false;
   const name = route.params?.id || 'Kulsah';
   // const isOwner = !route.params?.id || route.params?.id === 'Me';
-  const tabs = useMemo(() => (isOwner ? ['Videos', 'Premium', 'Tickets', 'Events', 'Challenges', 'Favorites', 'Saved'] : ['Videos', 'Premium', 'Tickets', 'Events', 'Challenges', 'Favorites']) as Tab[], [isOwner]);
+  const tabs = useMemo(() => {
+    if (isOwner) {
+      return ['Videos', 'Public', 'Premium',  'Tickets', 'Events', 'Challenges', 'Favorites', 'Saved'] as Tab[];
+    }
+    return ['Videos', 'Public', 'Premium',  'Events', 'Challenges'] as Tab[];
+  }, [isOwner]);
   const [activeTab, setActiveTab] = useState<Tab>('Videos');
   const [selectedSub, setSelectedSub] = useState<SubscriptionTier | null>(null);
   const [isProcessing, setIsProcessing] = useState(false);
@@ -107,6 +114,13 @@ const  ArtistProfile: React.FC = () => {
   const [billingCycle, setBillingCycle] = useState<Billing>('monthly');
   const ping = (m: string) => { setToast(m); setTimeout(() => setToast(''), 2200); };
   const share = async () => { try { await Share.share({ title: `${name} on Kulsah`, message: `Check out ${name}'s creative universe on Kulsah!` }); } catch { ping('Share failed'); } };
+
+  useEffect(() => subscribeUser(setCurrentUser), []);
+  useEffect(() => {
+    if (!tabs.includes(activeTab)) {
+      setActiveTab('Videos');
+    }
+  }, [activeTab, tabs]);
 
   const renderGrid = (
     items: Array<{ id: string; title: string; views?: string; img?: string }>,
@@ -122,7 +136,7 @@ const  ArtistProfile: React.FC = () => {
               onPressItem();
               return;
             }
-            if (user!.role === 'creator') {
+            if (currentUser?.role === 'creator') {
               navigation.navigate('Feed');
             }
           }}
@@ -203,15 +217,15 @@ const  ArtistProfile: React.FC = () => {
           <MaterialIcons name={isOwner ? 'settings' : 'share'} size={20} color={theme.text} />
         </Pressable>
       </View>
-      <ScrollView 
+      <ScrollView
       stickyHeaderIndices={isOwner?[3]:[4]}
       contentContainerStyle={s.content} showsVerticalScrollIndicator={false} keyboardShouldPersistTaps="handled">
-        <ImageBackground 
+        <ImageBackground
         resizeMode="cover"
         source={{ uri: 'https://res.cloudinary.com/dir15sl86/image/upload/v1776789639/male24_uxspl8.png' }} style={s.cover}><LinearGradient colors={isDark ? ['rgba(0,0,0,0.1)', '#060913'] : ['rgba(255,255,255,0.06)', '#f8fafc']} style={StyleSheet.absoluteFillObject} /></ImageBackground>
         <View style={s.hero}>
           <View style={[s.avatarWrap, { borderColor: 'rgba(59 130 246 / 0.5)' }]}>
-            <Image source={{ uri: 'https://res.cloudinary.com/dir15sl86/image/upload/v1776764686/35464_ama_gubuoc.jpg' }} 
+            <Image source={{ uri: 'https://res.cloudinary.com/dir15sl86/image/upload/v1776764686/35464_ama_gubuoc.jpg' }}
                 style={s.image} />
                   <Pressable
                   onPress={()=>{
@@ -255,14 +269,14 @@ const  ArtistProfile: React.FC = () => {
             <EditIcon height={24} width={24} fill='white'/>
             <Text style={s.btnText}>{" "}Edit</Text>
             </Pressable>
-            <Pressable onPress={share} 
+            <Pressable onPress={share}
             style={[s.secondary, { width: '30%', backgroundColor: isDark ? 'rgba(255,255,255,0.06)' : theme.surface, flexDirection: 'row' , alignItems: 'center', justifyContent: 'center'}]}>
             <MaterialIcons name='share' size={18}/>
-            <Text style={[s.btnText, { color: theme.text }]}>{" "}Share</Text></Pressable></> : 
-            <><Pressable onPress={() => navigation.navigate('Chat')} 
+            <Text style={[s.btnText, { color: theme.text }]}>{" "}Share</Text></Pressable></> :
+            <><Pressable onPress={() => navigation.navigate('Chat')}
             style={[s.iconAction, { backgroundColor: isDark ? 'rgba(255,255,255,0.06)' : theme.surface }]}>
               <MaterialIcons name="mail" size={20} color={theme.text} /></Pressable>
-                <Pressable onPress={() => { setFollowing((v) => !v); ping(following ? 'Unfollowed' : 'Following'); }} 
+                <Pressable onPress={() => { setFollowing((v) => !v); ping(following ? 'Unfollowed' : 'Following'); }}
                     style={[s.secondary, { backgroundColor: isDark ? 'rgba(255,255,255,0.06)' : theme.surface, width: '30%' }]}>
                       <Text style={[s.btnText, { color: theme.text }]}>{following ? 'Following' : 'Follow'}
                         </Text></Pressable>
@@ -275,11 +289,11 @@ const  ArtistProfile: React.FC = () => {
         <Text style={[s.bio, { color: theme.textSecondary }]}>"Exploring the nexus of synthwave rhythms and cinematic soul. Join the journey through the star systems of sound."</Text>
 
         {/* <View style={s.membership}><View style={s.membershipHeader}><Text style={s.section}>Membership</Text><View style={s.toggle}><Pressable onPress={() => setBilling('monthly')} style={[s.toggleBtn, billing === 'monthly' && s.toggleOn]}><Text style={s.toggleText}>Monthly</Text></Pressable><Pressable onPress={() => setBilling('annually')} style={[s.toggleBtn, billing === 'annually' && s.toggleOn]}><Text style={s.toggleText}>Yearly</Text></Pressable></View></View><Pressable onPress={() => { setSelectedSub(true); setStep('details'); }} style={s.card}><Text style={s.cardLabel}>{SUB.name}</Text><Text style={s.price}>${price} / {billing === 'monthly' ? 'mo' : 'yr'}</Text>{SUB.perks.map((perk) => <Text key={perk} style={s.perk}>- {perk}</Text>)}</Pressable></View> */}
-        {!isOwner && 
+        {!isOwner &&
         <>
         <View style={s.membershipHeader}>
             <Text style={[s.section, { color: theme.text }]}>Membership</Text>
-            <View style={{ 
+            <View style={{
               flexDirection: 'row',
               gap: 6,
               alignItems: 'center',
@@ -304,7 +318,7 @@ const  ArtistProfile: React.FC = () => {
                   <Text
                       style = {{
                         color: "rgb(34 197 94)",
-                        fontSize: fontScale(8),
+                        fontSize: FontSize.eight,
                         fontFamily: 'PlusJakartaSansExtraBold',
                         textTransform: 'uppercase'
                       }}>-15%</Text>
@@ -315,7 +329,7 @@ const  ArtistProfile: React.FC = () => {
 
 
           <Pressable style={[s.card, { backgroundColor: isDark ? '#ffffff0d' : theme.card, borderColor: theme.border, shadowColor: theme.shadow, shadowOpacity: isDark ? 0 : 0.08, shadowRadius: 16, elevation: isDark ? 0 : 2 }]} onPress={openSubscription}>
-            <Text style={[s.cardTitle, { color: theme.textSecondary }]}>{INITIAL_SUBSCRIPTION.name}</Text>
+            <Text style={[s.cardTitle, { color: theme.textSecondary, fontFamily: "PlusJakartaSansMedium" }]}>{INITIAL_SUBSCRIPTION.name}</Text>
             <View style={s.priceLine}>
               <Text style={[s.cardPrice, { color: theme.text }]}>${calculatePrice(INITIAL_SUBSCRIPTION.price)}</Text>
               <Text style={[s.priceSuffix, { color: theme.textSecondary }]}>/{billingCycle === 'monthly' ? 'mo' : 'yr'}</Text>
@@ -343,7 +357,7 @@ const  ArtistProfile: React.FC = () => {
                   color: theme.text,
                   // fontWeight: 'bold',
                   fontFamily: 'PlusJakartaSansBold',
-                  fontSize: mediumScreen? fontScale(12):fontScale(8),
+                  fontSize: mediumScreen? FontSize.twelve:FontSize.eight,
                 }}>
                   {billingCycle === 'monthly' ? 'SUBSCRIBE MONTHLY': 'SUBSCRIBE ANNUALLY'}
                 </Text>
@@ -356,7 +370,8 @@ const  ArtistProfile: React.FC = () => {
         <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={s.tabs}>{tabs.map((tab) => <Pressable key={tab} onPress={() => setActiveTab(tab)} style={s.tab}>
           {
             tab === 'Videos' ? <PlayIcon height={22} width={22} fill={activeTab === tab ? '#cd2bee' : '#69738d'}/>:
-            tab === 'Premium'? <StarsIcon height={22} width={22} fill={activeTab === tab ? '#cd2bee' : '#69738d'}/>:
+            tab === 'Premium' ? <StarsIcon height={22} width={22} fill={activeTab === tab ? '#cd2bee' : '#69738d'}/>:
+            tab === 'Public' ? <PublicIcon height={22} width={22} fill={activeTab === tab ? '#cd2bee' : '#69738d'}/>:
             tab === 'Tickets'? <MaterialIcons name="local-activity" size={22} color={activeTab === tab ? '#cd2bee' : '#69738d'}/>:
             tab === 'Events'? <CalenderIcon height={22} width={22} fill={activeTab === tab ? '#cd2bee' : '#69738d'}/>:
             tab === 'Challenges'?<TrophyIcon height={22} width={22} fill={activeTab === tab ? '#cd2bee' : '#69738d'}/>:
@@ -370,7 +385,7 @@ const  ArtistProfile: React.FC = () => {
 
         <View style={s.body}>
           {activeTab === 'Videos' ? renderGrid(videos) : null}
-          {activeTab === 'Premium'
+          {activeTab === 'Premium' || activeTab === 'Public'
             ? renderGrid(premiumVideos, () => {
                 if (isOwner) {
                   navigation.navigate('CreatorLibrary');
@@ -445,13 +460,13 @@ const  ArtistProfile: React.FC = () => {
                             <Text style={{
                           color: '#cd2bee',
                           fontFamily: 'PlusJakartaSansBold',
-                          fontSize: fontScale(12),
+                          fontSize: FontSize.twelve,
                           lineHeight: 15,
                         }}>
                           {item.price}
                         </Text>
                           </BlurView>
-                        
+
                       </View>
                     </View>
                       <View style={{
@@ -484,8 +499,8 @@ const  ArtistProfile: React.FC = () => {
                           <View style={{
                             marginLeft: 5
                           }}>
-                            <Text style={[{ color: '#ffffff66', width: '100%', fontSize: mediumScreen ? fontScale(12): fontScale(8), fontFamily: 'PlusJakartaSansExtraBold'}]}>Date</Text>
-                          <Text style={[s.sub, { color: '#dbe4f0', width: '70%', fontSize: mediumScreen ? fontScale(10): fontScale(6) }]}>{item.meta}</Text>
+                            <Text style={[{ color: '#ffffff66', width: '100%', fontSize: mediumScreen ? FontSize.twelve: FontSize.eight, fontFamily: 'PlusJakartaSansExtraBold'}]}>Date</Text>
+                          <Text style={[s.sub, { color: '#dbe4f0', width: '70%', fontSize: mediumScreen ? FontSize.ten: FontSize.six }]}>{item.meta}</Text>
                           </View>
                         </View>
 
@@ -513,13 +528,13 @@ const  ArtistProfile: React.FC = () => {
                           <View style={{
                             marginLeft: 5
                           }}>
-                            <Text style={[{ color: '#ffffff66', width: '100%', fontSize: mediumScreen ? fontScale(12): fontScale(8), fontFamily: 'PlusJakartaSansExtraBold'}]}>Location</Text>
-                          <Text style={[s.sub, { color: '#dbe4f0', width: '60%', fontSize: mediumScreen ? fontScale(10): fontScale(6) }]}>{item.location}</Text>
+                            <Text style={[{ color: '#ffffff66', width: '100%', fontSize: mediumScreen ? FontSize.twelve: FontSize.eight, fontFamily: 'PlusJakartaSansExtraBold'}]}>Location</Text>
+                          <Text style={[s.sub, { color: '#dbe4f0', width: '60%', fontSize: mediumScreen ? FontSize.ten: FontSize.six }]}>{item.location}</Text>
                           </View>
                         </View>
 
 
-                        {!isOwner && <Pressable 
+                        {!isOwner && <Pressable
                         onPress={()=>{
                           navigation.navigate('EventDetail')
                         }}
@@ -538,7 +553,7 @@ const  ArtistProfile: React.FC = () => {
                           <Text style={{
                             fontFamily: 'PlusJakartaSansBold',
                             textAlign: 'center',
-                            fontSize: mediumScreen ? fontScale(12): fontScale(8),
+                            fontSize: mediumScreen ? FontSize.twelve: FontSize.eight,
                           }}>Get{"\n"}Ticket</Text>
                         </Pressable>}
 
@@ -549,12 +564,12 @@ const  ArtistProfile: React.FC = () => {
                   </View> : null}
           {activeTab === 'Challenges' ? <View style={s.stack}>{challenges.map((item) => <Pressable key={item.id} onPress={() => navigation.navigate('Challenges')} style={[s.banner, { backgroundColor: isDark ? '#0f172a' : theme.surface }]}><Image source={{ uri: item.img }} style={[s.image, {borderRadius: 0}]} /><LinearGradient colors={['transparent', 'rgba(0,0,0,0.9)']} style={StyleSheet.absoluteFillObject} /><View style={s.bannerBottom}><Text style={s.bannerText}>{item.title}</Text><Text style={[s.sub, { color: '#dbe4f0' }]}>{item.meta}</Text></View></Pressable>)}</View> : null}
           {activeTab === 'Favorites' ? renderGrid(favorites) : null}
-          {activeTab === 'Saved' ? 
-          <View style={s.stack}>{sounds.map((sound) => 
+          {activeTab === 'Saved' ?
+          <View style={s.stack}>{sounds.map((sound) =>
             <Pressable key={sound.id} onPress={() => navigation.navigate('RecordContent', { sound: {sound}})}
                 style={[s.sound, { backgroundColor: isDark ? 'rgba(255,255,255,0.05)' : theme.surface, borderWidth: isDark ? 0 : 1,
                     borderColor: theme.border }]}>
-                      <Pressable onPress={() => setPlayingSoundId((cur) => cur === sound.id ? null : sound.id)} 
+                      <Pressable onPress={() => setPlayingSoundId((cur) => cur === sound.id ? null : sound.id)}
                           style={[s.play, playingSoundId === sound.id && s.playOn]}>
                             <MaterialIcons name={playingSoundId === sound.id ? 'pause' : 'play-arrow'} size={24} color="#fff" />
                                 </Pressable><View style={{ flex: 1 }}>
@@ -666,25 +681,25 @@ const  ArtistProfile: React.FC = () => {
 
 const s = StyleSheet.create({
   screen: { flex: 1, backgroundColor: '#060913' },
-  toast: { position: 'absolute', top: 56, alignSelf: 'center', zIndex: 40, backgroundColor: '#cd2bee', color: '#fff', paddingHorizontal: 16, paddingVertical: 8, borderRadius: 999, fontSize: fontScale(10), fontFamily: 'PlusJakartaSansExtraBold' },
-  icon: { width: 40, height: 40, borderRadius: 20, alignItems: 'center', justifyContent: 'center', backgroundColor: 'rgba(255,255,255,0.06)' }, header: { paddingTop: 46, paddingHorizontal: 14, paddingBottom: 12, flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', backgroundColor: 'rgba(15,23,42,0.72)' }, headerBtn: { width: 40, height: 40, borderRadius: 20, alignItems: 'center', justifyContent: 'center', backgroundColor: 'rgba(255,255,255,0.06)' }, headerTitle: { flex: 1, textAlign: 'center', marginHorizontal: 10, color: '#fff', fontSize: mediumScreen? fontScale(16):fontScale(12), fontFamily: 'PlusJakartaSansExtraBold', textTransform: 'uppercase' },
-  content: { paddingBottom: 120, }, cover: { height: 280 }, hero: { marginTop: -88, paddingHorizontal: 20, alignItems: 'center' }, avatarWrap: { width: 148, height: 148, borderRadius: 999, borderWidth: 1, borderColor: '#060913', padding: 7}, image: { width: '100%', height: '100%', borderRadius: 999 }, fire: { position: 'absolute', right: 12, bottom: -2, width: 40, height: 40, borderRadius: 999, backgroundColor: '#f97316', borderWidth: 0, borderColor: '#060913', alignItems: 'center', justifyContent: 'center', flexDirection: 'row' }, fireText: { color: '#fff', fontSize: fontScale(8), fontFamily: 'PlusJakartaSansExtraBold' },
-  name: {color: '#fff', fontSize: fontScale(16), fontFamily: 'PlusJakartaSansBold', textTransform: 'uppercase' }, role: { marginTop: 4, color: '#cd2bee', fontSize: fontScale(9), fontFamily: 'PlusJakartaSansExtraBold', textTransform: 'uppercase', letterSpacing: 2 }, stat: { flex: 1, textAlign: 'center', color: '#fff', fontSize: fontScale(18), fontFamily: 'PlusJakartaSansExtraBold' }, muted: { color: '#7d859e', fontSize: fontScale(8), fontFamily: 'PlusJakartaSansExtraBold' }, purple: { color: '#cd2bee', fontFamily: 'PlusJakartaSansBold', fontSize: mediumScreen ? fontScale(12): fontScale(10) }, 
+  toast: { position: 'absolute', top: 56, alignSelf: 'center', zIndex: 40, backgroundColor: '#cd2bee', color: '#fff', paddingHorizontal: 16, paddingVertical: 8, borderRadius: 999, fontSize: FontSize.ten, fontFamily: 'PlusJakartaSansExtraBold' },
+  icon: { width: 40, height: 40, borderRadius: 20, alignItems: 'center', justifyContent: 'center', backgroundColor: 'rgba(255,255,255,0.06)' }, header: { paddingTop: 46, paddingHorizontal: 14, paddingBottom: 12, flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', backgroundColor: 'rgba(15,23,42,0.72)' }, headerBtn: { width: 40, height: 40, borderRadius: 20, alignItems: 'center', justifyContent: 'center', backgroundColor: 'rgba(255,255,255,0.06)' }, headerTitle: { flex: 1, textAlign: 'center', marginHorizontal: 10, color: '#fff', fontSize: mediumScreen? FontSize.sixteen:FontSize.twelve, fontFamily: 'PlusJakartaSansExtraBold', textTransform: 'uppercase' },
+  content: { paddingBottom: 120, }, cover: { height: 280 }, hero: { marginTop: -88, paddingHorizontal: 20, alignItems: 'center' }, avatarWrap: { width: 148, height: 148, borderRadius: 999, borderWidth: 1, borderColor: '#060913', padding: 7}, image: { width: '100%', height: '100%', borderRadius: 999 }, fire: { position: 'absolute', right: 12, bottom: -2, width: 40, height: 40, borderRadius: 999, backgroundColor: '#f97316', borderWidth: 0, borderColor: '#060913', alignItems: 'center', justifyContent: 'center', flexDirection: 'row' }, fireText: { color: '#fff', fontSize: FontSize.eight, fontFamily: 'PlusJakartaSansExtraBold' },
+  name: {color: '#fff', fontSize: FontSize.sixteen, fontFamily: 'PlusJakartaSansBold', textTransform: 'uppercase' }, role: { marginTop: 4, color: '#cd2bee', fontSize: FontSize.nine, fontFamily: 'PlusJakartaSansExtraBold', textTransform: 'uppercase', letterSpacing: 2 }, stat: { flex: 1, textAlign: 'center', color: '#fff', fontSize: FontSize.eighteen, fontFamily: 'PlusJakartaSansExtraBold' }, muted: { color: '#7d859e', fontSize: FontSize.eight, fontFamily: 'PlusJakartaSansExtraBold' }, purple: { color: '#cd2bee', fontFamily: 'PlusJakartaSansBold', fontSize: mediumScreen ? FontSize.twelve: FontSize.ten },
   actions: { marginTop: 22, flexDirection: 'row', gap: 10, alignItems: 'center', justifyContent: 'center' },
-  action: { height: 56, borderRadius: 24, alignItems: 'center', justifyContent: 'center', flexDirection: 'row', gap: 8 }, 
-  primary: { backgroundColor: '#cd2bee', minHeight: 36, borderRadius: 34, alignItems: 'center', justifyContent: 'center', flexDirection: 'row', }, 
-  secondary: { height: 36, borderRadius: 34, alignItems: 'center', justifyContent: 'center', backgroundColor: 'rgba(255,255,255,0.06)' }, iconAction: { width: 56, height: 36, borderRadius: 24, alignItems: 'center', justifyContent: 'center', backgroundColor: 'rgba(255,255,255,0.06)' }, btnText: { color: '#fff', fontSize: mediumScreen ? 15:11, fontFamily: 'PlusJakartaSansExtraBold', textTransform: 'uppercase', lineHeight: 15}, follow: { flex: 1, height: 56, borderRadius: 24, alignItems: 'center', justifyContent: 'center', backgroundColor: 'rgba(255,255,255,0.06)' }, followOn: { backgroundColor: 'rgba(205,43,238,0.12)' }, followText: { color: '#fff', fontSize: fontScale(11), fontFamily: 'PlusJakartaSansExtraBold', textTransform: 'uppercase' }, followTextOn: { color: '#cd2bee' },
-  bio: { paddingHorizontal: 34, marginTop: 18, marginBottom: 18, color: '#8b94ad', fontSize: mediumScreen? fontScale(14):fontScale(12), lineHeight: 20, fontStyle: 'italic', textAlign: 'center', fontFamily: 'PlusJakartaSansMedium' },
-  membership: { paddingHorizontal: 16, gap: 14 }, membershipHeader: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', paddingHorizontal: 16 }, section: { color: '#fff', fontSize: mediumScreen? 18: 14, fontFamily: 'PlusJakartaSansExtraBold', textTransform: 'uppercase' }, toggle: { flexDirection: 'row', gap: 6, padding: 6, borderRadius: 18, backgroundColor: 'rgba(255,255,255,0.05)' }, toggleBtn: { minHeight: 34, paddingHorizontal: 10, borderRadius: 12, alignItems: 'center', justifyContent: 'center' }, toggleOn: { backgroundColor: 'rgba(255,255,255,0.08)' }, toggleText: { color: '#8b94ad', fontSize: fontScale(10), fontFamily: 'PlusJakartaSansExtraBold', textTransform: 'uppercase' },
- cardLabel: { color: '#8b94ad', fontSize: fontScale(10), fontFamily: 'PlusJakartaSansExtraBold', textTransform: 'uppercase' }, price: { color: '#fff', fontSize: fontScale(28), fontFamily: 'PlusJakartaSansExtraBold' }, perk: { color: '#d4d8e8', fontSize: fontScale(12), fontFamily: 'PlusJakartaSansMedium' },
-  tabs: { 
+  action: { height: 56, borderRadius: 24, alignItems: 'center', justifyContent: 'center', flexDirection: 'row', gap: 8 },
+  primary: { backgroundColor: '#cd2bee', minHeight: 36, borderRadius: 34, alignItems: 'center', justifyContent: 'center', flexDirection: 'row', },
+  secondary: { height: 36, borderRadius: 34, alignItems: 'center', justifyContent: 'center', backgroundColor: 'rgba(255,255,255,0.06)' }, iconAction: { width: 56, height: 36, borderRadius: 24, alignItems: 'center', justifyContent: 'center', backgroundColor: 'rgba(255,255,255,0.06)' }, btnText: { color: '#fff', fontSize: mediumScreen ? FontSize.fifteen:FontSize.eleven, fontFamily: 'PlusJakartaSansExtraBold', textTransform: 'uppercase', lineHeight: 15}, follow: { flex: 1, height: 56, borderRadius: 24, alignItems: 'center', justifyContent: 'center', backgroundColor: 'rgba(255,255,255,0.06)' }, followOn: { backgroundColor: 'rgba(205,43,238,0.12)' }, followText: { color: '#fff', fontSize: FontSize.eleven, fontFamily: 'PlusJakartaSansExtraBold', textTransform: 'uppercase' }, followTextOn: { color: '#cd2bee' },
+  bio: { paddingHorizontal: 34, marginTop: 18, marginBottom: 18, color: '#8b94ad', fontSize: mediumScreen? FontSize.fourteen:FontSize.twelve, lineHeight: 20, fontStyle: 'italic', textAlign: 'center', fontFamily: 'PlusJakartaSansMedium' },
+  membership: { paddingHorizontal: 16, gap: 14 }, membershipHeader: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', paddingHorizontal: 16 }, section: { color: '#fff', fontSize: mediumScreen? FontSize.eighteen: FontSize.fourteen, fontFamily: 'PlusJakartaSansExtraBold', textTransform: 'uppercase' }, toggle: { flexDirection: 'row', gap: 6, padding: 6, borderRadius: 18, backgroundColor: 'rgba(255,255,255,0.05)' }, toggleBtn: { minHeight: 34, paddingHorizontal: 10, borderRadius: 12, alignItems: 'center', justifyContent: 'center' }, toggleOn: { backgroundColor: 'rgba(255,255,255,0.08)' }, toggleText: { color: '#8b94ad', fontSize: FontSize.ten, fontFamily: 'PlusJakartaSansExtraBold', textTransform: 'uppercase' },
+ cardLabel: { color: '#8b94ad', fontSize: FontSize.ten, fontFamily: 'PlusJakartaSansExtraBold', textTransform: 'uppercase' }, price: { color: '#fff', fontSize: FontSize.twentyEight, fontFamily: 'PlusJakartaSansExtraBold' }, perk: { color: '#d4d8e8', fontSize: FontSize.twelve, fontFamily: 'PlusJakartaSansMedium' },
+  tabs: {
     backgroundColor: 'white',
-    paddingHorizontal: 16, paddingTop: 18, paddingBottom: 6 }, tab: { minWidth: 74, alignItems: 'center', paddingBottom: 14, marginRight: 14 }, tabText: { marginTop: 4, color: '#69738d', fontSize: fontScale(8), fontFamily: 'PlusJakartaSansExtraBold', textTransform: 'uppercase' }, tabOn: { color: '#cd2bee' }, 
-  body: { 
+    paddingHorizontal: 16, paddingTop: 18, paddingBottom: 6 }, tab: { minWidth: 74, alignItems: 'center', paddingBottom: 14, marginRight: 14 }, tabText: { marginTop: 4, color: '#69738d', fontSize: FontSize.eight, fontFamily: 'PlusJakartaSansExtraBold', textTransform: 'uppercase' }, tabOn: { color: '#cd2bee' },
+  body: {
     paddingHorizontal: 16,
     paddingTop: 10,
     gap: 18,
-    backgroundColor: 'green',
+    // backgroundColor: 'green',
     // marginBottom: mediumScreen ? 120: 170,
     minHeight: mediumScreen ? SCREEN_HEIGHT * 0.87: SCREEN_HEIGHT * 0.63,
     // marginBottom: 450
@@ -695,12 +710,12 @@ const s = StyleSheet.create({
   videoGridImage: { width: '100%', height: '100%' },
   videoGridOverlay: { ...StyleSheet.absoluteFillObject },
   videoGridMeta: { position: 'absolute', left: 8, bottom: 8, flexDirection: 'row', alignItems: 'center', gap: 2 },
-  videoGridMetaText: { color: '#fff', fontFamily: 'PlusJakartaSansBold', fontSize: fontScale(11) },
-  sub: { marginTop: 0, color: '#9ca3af', fontSize: fontScale(8), fontFamily: 'PlusJakartaSansExtraBold', textTransform: 'uppercase' },
-  stack: { gap: 16 }, banner: { height: 230, borderRadius: 40, overflow: 'hidden', backgroundColor: '#0f172a' }, bannerText: { color: '#fff', fontSize: mediumScreen ? fontScale(16):fontScale(12), fontFamily: 'PlusJakartaSansExtraBold', textTransform: 'uppercase', width:'50%' }, 
-  bannerBottom: { position: 'absolute', left: 18, right: 18, bottom: 18 }, eventCard: { height: 240, borderRadius: 40, overflow: 'hidden', backgroundColor: '#0f172a' }, chip: { position: 'absolute', top: 18, left: 18, flexDirection: 'row', alignItems: 'center', gap: 6, paddingHorizontal: 12, paddingVertical: 8, borderRadius: 999, backgroundColor: 'rgba(205,43,238,0.14)' }, chipText: { color: '#cd2bee', fontSize: fontScale(9), fontFamily: 'PlusJakartaSansExtraBold', textTransform: 'uppercase' },
-  sound: { flexDirection: 'row', alignItems: 'center', gap: 12, padding: 14, borderRadius: 28, backgroundColor: 'rgba(255,255,255,0.05)' }, 
-  play: { width: 58, height: 58, borderRadius: 20, backgroundColor: 'rgba(205,43,238,0.2)', alignItems: 'center', justifyContent: 'center' }, playOn: { backgroundColor: '#cd2bee' }, soundTitle: { color: '#fff', fontSize: mediumScreen ? fontScale(14): fontScale(10), fontFamily: 'PlusJakartaSansExtraBold', textTransform: 'uppercase' }, soundMeta: { marginTop: 4, color: '#8b94ad', fontSize: fontScale(9), fontFamily: 'PlusJakartaSansBold', textTransform: 'uppercase' }, soundUsage: { color: '#cd2bee', fontSize: fontScale(8), fontFamily: 'PlusJakartaSansExtraBold', textTransform: 'uppercase' },
+  videoGridMetaText: { color: '#fff', fontFamily: 'PlusJakartaSansBold', fontSize: FontSize.eleven },
+  sub: { marginTop: 0, color: '#9ca3af', fontSize: FontSize.eight, fontFamily: 'PlusJakartaSansExtraBold', textTransform: 'uppercase' },
+  stack: { gap: 16 }, banner: { height: 230, borderRadius: 40, overflow: 'hidden', backgroundColor: '#0f172a' }, bannerText: { color: '#fff', fontSize: mediumScreen ? FontSize.sixteen:FontSize.twelve, fontFamily: 'PlusJakartaSansExtraBold', textTransform: 'uppercase', width:'50%' },
+  bannerBottom: { position: 'absolute', left: 18, right: 18, bottom: 18 }, eventCard: { height: 240, borderRadius: 40, overflow: 'hidden', backgroundColor: '#0f172a' }, chip: { position: 'absolute', top: 18, left: 18, flexDirection: 'row', alignItems: 'center', gap: 6, paddingHorizontal: 12, paddingVertical: 8, borderRadius: 999, backgroundColor: 'rgba(205,43,238,0.14)' }, chipText: { color: '#cd2bee', fontSize: FontSize.nine, fontFamily: 'PlusJakartaSansExtraBold', textTransform: 'uppercase' },
+  sound: { flexDirection: 'row', alignItems: 'center', gap: 12, padding: 14, borderRadius: 28, backgroundColor: 'rgba(255,255,255,0.05)' },
+  play: { width: 58, height: 58, borderRadius: 20, backgroundColor: 'rgba(205,43,238,0.2)', alignItems: 'center', justifyContent: 'center' }, playOn: { backgroundColor: '#cd2bee' }, soundTitle: { color: '#fff', fontSize: mediumScreen ? FontSize.fourteen: FontSize.ten, fontFamily: 'PlusJakartaSansExtraBold', textTransform: 'uppercase' }, soundMeta: { marginTop: 4, color: '#8b94ad', fontSize: FontSize.nine, fontFamily: 'PlusJakartaSansBold', textTransform: 'uppercase' }, soundUsage: { color: '#cd2bee', fontSize: FontSize.eight, fontFamily: 'PlusJakartaSansExtraBold', textTransform: 'uppercase' },
   overlay: { flex: 1, backgroundColor: 'rgba(0,0,0,0.8)', justifyContent: 'flex-end' },
   subscriptionModal: {
     borderTopLeftRadius: 40,
@@ -739,13 +754,13 @@ const s = StyleSheet.create({
   },
   subscriptionHeaderText: { flex: 1 },
   subscriptionTitle: {
-    fontSize: mediumScreen ? fontScale(18) : fontScale(14),
+    fontSize: mediumScreen ? FontSize.eighteen : FontSize.fourteen,
     fontFamily: 'PlusJakartaSansExtraBold',
     textTransform: 'uppercase',
   },
   subscriptionMeta: {
     marginTop: 6,
-    fontSize: fontScale(9),
+    fontSize: FontSize.nine,
     fontFamily: 'PlusJakartaSansExtraBold',
     textTransform: 'uppercase',
     letterSpacing: 2,
@@ -753,7 +768,7 @@ const s = StyleSheet.create({
   subscriptionSection: { rowGap: 14 },
   subscriptionLabel: {
     marginLeft: 4,
-    fontSize: fontScale(8),
+    fontSize: FontSize.eight,
     fontFamily: 'PlusJakartaSansExtraBold',
     textTransform: 'uppercase',
     letterSpacing: 3,
@@ -777,7 +792,7 @@ const s = StyleSheet.create({
   },
   subscriptionPerkText: {
     flex: 1,
-    fontSize: mediumScreen ? fontScale(13) : fontScale(11),
+    fontSize: mediumScreen ? FontSize.thirteen : FontSize.eleven,
     fontFamily: 'PlusJakartaSansBold',
   },
   balanceCard: {
@@ -798,24 +813,24 @@ const s = StyleSheet.create({
   },
   balanceLabel: {
     color: '#d97706',
-    fontSize: fontScale(8),
+    fontSize: FontSize.eight,
     fontFamily: 'PlusJakartaSansExtraBold',
     textTransform: 'uppercase',
     letterSpacing: 2,
   },
   balanceSubLabel: {
-    fontSize: fontScale(8),
+    fontSize: FontSize.eight,
     fontFamily: 'PlusJakartaSansExtraBold',
     textTransform: 'uppercase',
     letterSpacing: 1.5,
   },
   balanceValue: {
-    fontSize: mediumScreen ? fontScale(18) : fontScale(14),
+    fontSize: mediumScreen ? FontSize.eighteen : FontSize.fourteen,
     fontFamily: 'PlusJakartaSansExtraBold',
   },
   balanceCost: {
     color: '#cd2bee',
-    fontSize: mediumScreen ? fontScale(18) : fontScale(14),
+    fontSize: mediumScreen ? FontSize.eighteen : FontSize.fourteen,
     fontFamily: 'PlusJakartaSansExtraBold',
   },
   subscriptionPrimary: {
@@ -833,7 +848,7 @@ const s = StyleSheet.create({
   },
   subscriptionPrimaryText: {
     color: '#fff',
-    fontSize: mediumScreen ? fontScale(15) : fontScale(11),
+    fontSize: mediumScreen ? FontSize.fifteen : FontSize.eleven,
     fontFamily: 'PlusJakartaSansExtraBold',
     textTransform: 'uppercase',
     letterSpacing: 2,
@@ -855,7 +870,7 @@ const s = StyleSheet.create({
   },
   successTitle: {
     textAlign: 'center',
-    fontSize: mediumScreen ? fontScale(30) : fontScale(24),
+    fontSize: mediumScreen ? FontSize.thirty : FontSize.twentyFour,
     lineHeight: mediumScreen ? 40 : 30,
     fontFamily: 'PlusJakartaSansExtraBold',
     textTransform: 'uppercase',
@@ -871,15 +886,15 @@ const s = StyleSheet.create({
     // backgroundColor: '#ffffff14',
   },
   switchBtnOn: { backgroundColor: '#FFFFFF', borderWidth: 0, flexDirection: 'row' },
-  switchText: { color: '#a9a9bd', fontSize: mediumScreen? fontScale(12):fontScale(8), fontWeight: '900', textTransform: 'uppercase' },
+  switchText: { color: '#a9a9bd', fontSize: mediumScreen? FontSize.twelve:FontSize.eight, fontWeight: '900', textTransform: 'uppercase' },
   switchTextOn: { color: '#cd2bee' },
-  cardPrice: { 
+  cardPrice: {
     color: '#fff',
-    fontSize: fontScale(30),
+    fontSize: FontSize.thirty,
     lineHeight: 42,
-    // fontWeight: '900', 
+    // fontWeight: '900',
     fontFamily: 'PlusJakartaSansBold' },
-  card: { 
+  card: {
     backgroundColor: '#ffffff0d',
     borderWidth: 1,
     borderColor: '#e5e7eb',
@@ -888,26 +903,27 @@ const s = StyleSheet.create({
     paddingVertical: 16,
     gap: 8,
     marginHorizontal: 15,
-    marginTop: 10,
+    marginVertical: 20,
   },
   cardTitle: {
     color: '#9ea0a5',
-    fontSize: fontScale(9),
+    fontSize: FontSize.nine,
     textTransform: 'uppercase',
-    fontWeight: '800',
+    // fontWeight: '800',
     letterSpacing: 1.5,
+    fontFamily: "PlusJakartaSansMedium"
   },
   priceLine: { flexDirection: 'row', alignItems: 'flex-end' },
   saveText: {
     color: '#22c55e',
-    fontSize: fontScale(10),
+    fontSize: FontSize.ten,
     textTransform: 'uppercase',
     fontWeight: '900',
     letterSpacing: 0.5,
   },
-  priceSuffix: { 
+  priceSuffix: {
     color: '#818398',
-    fontSize: fontScale(12),
+    fontSize: FontSize.twelve,
     marginBottom: 8,
     marginLeft: 4,
     fontFamily: 'PlusJakartaSansBold'
@@ -935,10 +951,10 @@ const s = StyleSheet.create({
   },
   statsTablet: { paddingHorizontal: 24 },
   statBlock: { flex: 1, alignItems: 'center' },
-  statValue: { color: '#fff', fontSize: mediumScreen? fontScale(16):fontScale(12), fontFamily: 'PlusJakartaSansExtraBold' },
+  statValue: { color: '#fff', fontSize: mediumScreen? FontSize.sixteen:FontSize.twelve, fontFamily: 'PlusJakartaSansExtraBold' },
   statLabel: {
     color: '#9ea0b6',
-    fontSize: mediumScreen? fontScale(12):fontScale(8),
+    fontSize: mediumScreen? FontSize.twelve:FontSize.eight,
     textTransform: 'uppercase',
     letterSpacing: 1.2,
     marginTop: 2,
@@ -971,12 +987,12 @@ const s = StyleSheet.create({
     justifyContent: 'center',
   },
   ticketTitle: {
-    fontSize: fontScale(13),
+    fontSize: FontSize.thirteen,
     fontFamily: 'PlusJakartaSansExtraBold',
   },
   ticketMeta: {
     marginTop: 2,
-    fontSize: fontScale(10),
+    fontSize: FontSize.ten,
     fontFamily: 'PlusJakartaSansBold',
     textTransform: 'uppercase',
     letterSpacing: 1.1,

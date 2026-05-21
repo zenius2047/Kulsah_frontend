@@ -7,14 +7,14 @@ import {
   ScrollView,
   StyleSheet,
   Text,
-  TextInput,
   View,
 } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
-import { fontScale } from '../fonts';
+import { FontSize } from '../fonts';
 import { useThemeMode } from '../theme';
 import { mediumScreen } from '../types';
 import KulcoinTopUpDrawer from './KulcoinTopUpDrawer';
+import KulsahInputBar from './KulsahInputBar';
 
 type GiftCategory = 'general' | 'food' | 'fashion';
 
@@ -149,14 +149,13 @@ const GiftDialog: React.FC<GiftDialogProps> = ({
             <View style={styles.handle} />
 
             <View style={styles.content}>
-            <View style={[styles.fakeInput, { backgroundColor: isDark ? 'rgba(255,255,255,0.05)' : '#f1f5f9', borderColor: theme.border }]}>
-              <TextInput
+            <KulsahInputBar
                 placeholder={`Send a gift to ${creatorName}...`}
                 placeholderTextColor={theme.textMuted}
-                style={[styles.fakeInputText, { color: theme.text }]}
+                containerStyle={[styles.fakeInput, { backgroundColor: isDark ? 'rgba(255,255,255,0.05)' : '#f1f5f9', borderColor: theme.border }]}
+                inputStyle={[styles.fakeInputText, { color: theme.text }]}
                 editable={false}
               />
-            </View>
 
             {/* <View style={styles.toolbar}>
               <View style={styles.toolbarLeft}>
@@ -343,7 +342,7 @@ const styles = StyleSheet.create({
   },
   fakeInputText: {
     fontFamily: 'PlusJakartaSansMedium',
-    fontSize: fontScale(10),
+    fontSize: FontSize.ten,
   },
   toolbar: {
     flexDirection: 'row',
@@ -406,7 +405,7 @@ const styles = StyleSheet.create({
   },
   categoryChipText: {
     fontFamily: 'PlusJakartaSansExtraBold',
-    fontSize: fontScale(7),
+    fontSize: FontSize.seven,
     textTransform: 'uppercase',
     letterSpacing: 1.4,
   },
@@ -442,7 +441,7 @@ const styles = StyleSheet.create({
     height: '100%',
   },
   giftEmoji: {
-    fontSize: 30,
+    fontSize: FontSize.thirty,
   },
   giftCopy: {
     alignItems: 'center',
@@ -450,7 +449,7 @@ const styles = StyleSheet.create({
   },
   giftName: {
     fontFamily: 'PlusJakartaSansBold',
-    fontSize: fontScale(7),
+    fontSize: FontSize.seven,
     textAlign: 'center',
   },
   giftPriceRow: {
@@ -460,7 +459,7 @@ const styles = StyleSheet.create({
   },
   giftPrice: {
     fontFamily: 'PlusJakartaSansExtraBold',
-    fontSize: fontScale(6.5),
+    fontSize: FontSize.sixHalf,
     textTransform: 'uppercase',
   },
   footer: {
@@ -473,7 +472,7 @@ const styles = StyleSheet.create({
   rechargeLabel: {
     color: '#f43f5e',
     fontFamily: 'PlusJakartaSansBold',
-    fontSize: mediumScreen ? fontScale(14): fontScale(10),
+    fontSize: mediumScreen ? FontSize.fourteen: FontSize.ten,
     textTransform: 'uppercase',
     letterSpacing: 1.3,
     // marginBottom: 8,
@@ -499,11 +498,11 @@ const styles = StyleSheet.create({
   balanceCoinText: {
     color: '#78350f',
     fontFamily: 'PlusJakartaSansExtraBold',
-    fontSize: fontScale(7),
+    fontSize: FontSize.seven,
   },
   balanceValue: {
     fontFamily: 'PlusJakartaSansExtraBold',
-    fontSize: mediumScreen ? fontScale(14):fontScale(10),
+    fontSize: mediumScreen ? FontSize.fourteen:FontSize.ten,
     lineHeight: 14
   },
   sendButton: {
@@ -522,7 +521,7 @@ const styles = StyleSheet.create({
   },
   sendButtonText: {
     fontFamily: 'PlusJakartaSansExtraBold',
-    fontSize: fontScale(9),
+    fontSize: FontSize.nine,
     textTransform: 'uppercase',
     letterSpacing: 1.5,
   },

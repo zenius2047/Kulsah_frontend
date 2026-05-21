@@ -13,7 +13,7 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 import { MaterialIcons } from '@expo/vector-icons';
 import { useNavigation } from '@react-navigation/native';
 import { LinearGradient } from 'expo-linear-gradient';
-import { fontScale } from '../fonts';
+import { FontSize } from '../fonts';
 
 const CreatePost: React.FC = () => {
   const { isDark, theme } = useThemeMode();
@@ -139,7 +139,7 @@ const styles = StyleSheet.create({
     paddingHorizontal: 16,
     color: '#F8FAFC',
     fontFamily: 'PlusJakartaSansBold',
-    fontSize: fontScale(16),
+    fontSize: FontSize.sixteen,
   },
   postChip: {
     paddingHorizontal: 16,
@@ -150,7 +150,7 @@ const styles = StyleSheet.create({
   postChipText: {
     color: '#cd2bee',
     fontFamily: 'PlusJakartaSansBold',
-    fontSize: fontScale(16),
+    fontSize: FontSize.sixteen,
   },
   scroll: {
     flex: 1,
@@ -176,12 +176,12 @@ const styles = StyleSheet.create({
   name: {
     color: '#F8FAFC',
     fontFamily: 'PlusJakartaSansBold',
-    fontSize: fontScale(15),
+    fontSize: FontSize.fifteen,
   },
   subtitle: {
     color: 'rgba(205,43,238,0.75)',
     fontFamily: 'PlusJakartaSansMedium',
-    fontSize: fontScale(11),
+    fontSize: FontSize.eleven,
     marginTop: 4,
   },
   input: {
@@ -191,7 +191,7 @@ const styles = StyleSheet.create({
     marginBottom: 24,
     color: '#F8FAFC',
     fontFamily: 'PlusJakartaSans',
-    fontSize: fontScale(18),
+    fontSize: FontSize.eighteen,
     lineHeight: 28,
     backgroundColor: 'rgba(205,43,238,0.1)',
   },
@@ -218,13 +218,13 @@ const styles = StyleSheet.create({
   uploadTitle: {
     color: '#F8FAFC',
     fontFamily: 'PlusJakartaSansBold',
-    fontSize: fontScale(20),
+    fontSize: FontSize.twenty,
     marginBottom: 8,
   },
   uploadText: {
     color: '#94A3B8',
     fontFamily: 'PlusJakartaSans',
-    fontSize: fontScale(14),
+    fontSize: FontSize.fourteen,
     textAlign: 'center',
     lineHeight: 20,
     maxWidth: 280,
@@ -245,7 +245,7 @@ const styles = StyleSheet.create({
   browseButtonText: {
     color: '#fff',
     fontFamily: 'PlusJakartaSansBold',
-    fontSize: fontScale(14),
+    fontSize: FontSize.fourteen,
     textAlign: 'center',
   },
   bottomActions: {
@@ -281,7 +281,7 @@ const styles = StyleSheet.create({
   publishButtonText: {
     color: '#fff',
     fontFamily: 'PlusJakartaSansBold',
-    fontSize: fontScale(18),
+    fontSize: FontSize.eighteen,
   },
 });
 

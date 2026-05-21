@@ -12,7 +12,7 @@ import {
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { LinearGradient } from 'expo-linear-gradient';
 import { MaterialIcons } from '@expo/vector-icons';
-import { fontScale } from '../fonts';
+import { FontSize } from '../fonts';
 
 type HistoryStatus = 'Winner' | 'Top 10%' | 'Participated';
 
@@ -221,13 +221,13 @@ const styles = StyleSheet.create({
   pageTitle: {
     color: '#F8FAFC',
     fontFamily: 'PlusJakartaSansExtraBold',
-    fontSize: fontScale(18),
+    fontSize: FontSize.eighteen,
     marginBottom: 8,
   },
   pageSubtitle: {
     color: '#94A3B8',
     fontFamily: 'PlusJakartaSans',
-    fontSize: fontScale(12),
+    fontSize: FontSize.twelve,
   },
   timelineWrap: {
     position: 'relative',
@@ -300,7 +300,7 @@ const styles = StyleSheet.create({
   dateText: {
     color: '#64748B',
     fontFamily: 'PlusJakartaSansBold',
-    fontSize: fontScale(8),
+    fontSize: FontSize.eight,
     textTransform: 'uppercase',
     letterSpacing: 1.1,
   },
@@ -323,7 +323,7 @@ const styles = StyleSheet.create({
   },
   statusPillText: {
     fontFamily: 'PlusJakartaSansExtraBold',
-    fontSize: fontScale(8),
+    fontSize: FontSize.eight,
     textTransform: 'uppercase',
   },
   statusPillTextWinner: {
@@ -338,13 +338,13 @@ const styles = StyleSheet.create({
   cardTitle: {
     color: '#F8FAFC',
     fontFamily: 'PlusJakartaSansBold',
-    fontSize: fontScale(16),
+    fontSize: FontSize.sixteen,
     marginBottom: 8,
   },
   cardDescription: {
     color: '#94A3B8',
     fontFamily: 'PlusJakartaSans',
-    fontSize: fontScale(12),
+    fontSize: FontSize.twelve,
     marginBottom: 18,
   },
   statsRow: {
@@ -358,7 +358,7 @@ const styles = StyleSheet.create({
   statLabel: {
     color: '#64748B',
     fontFamily: 'PlusJakartaSansBold',
-    fontSize: fontScale(8),
+    fontSize: FontSize.eight,
     textTransform: 'uppercase',
     letterSpacing: 1,
     marginBottom: 4,
@@ -366,7 +366,7 @@ const styles = StyleSheet.create({
   statValue: {
     color: '#F8FAFC',
     fontFamily: 'PlusJakartaSansExtraBold',
-    fontSize: fontScale(14),
+    fontSize: FontSize.fourteen,
   },
   rewardWinner: {
     color: '#cd2bee',
@@ -396,7 +396,7 @@ const styles = StyleSheet.create({
   viewEntryText: {
     color: '#cd2bee',
     fontFamily: 'PlusJakartaSansBold',
-    fontSize: fontScale(12),
+    fontSize: FontSize.twelve,
     textTransform: 'uppercase',
     letterSpacing: 0.8,
   },

@@ -7,7 +7,7 @@ import { MaterialIcons } from '@expo/vector-icons';
 import { LinearGradient } from 'expo-linear-gradient';
 import Svg, { Circle } from 'react-native-svg';
 import { mediumScreen } from '../types';
-import { fontScale } from '../fonts';
+import { FontSize } from '../fonts';
 
 const CREATOR_RATIO = 0.2;
 const WINNER_RATIO = 0.3;
@@ -297,7 +297,7 @@ const styles = StyleSheet.create({
   },
   headerTitle: {
     fontFamily: 'PlusJakartaSansBold',
-    fontSize: mediumScreen ? 18:15,
+    fontSize: mediumScreen ? FontSize.eighteen:FontSize.fifteen,
   },
   scroll: {
     flex: 1,
@@ -324,11 +324,11 @@ const styles = StyleSheet.create({
   },
   chartValue: {
     fontFamily: 'PlusJakartaSansExtraBold',
-    fontSize: mediumScreen ? 29:25,
+    fontSize: mediumScreen ? FontSize.twentyNine:FontSize.twentyFive,
   },
   chartLabel: {
     fontFamily: 'PlusJakartaSansBold',
-    fontSize: mediumScreen ? 14:10,
+    fontSize: mediumScreen ? FontSize.fourteen:FontSize.ten,
     textTransform: 'uppercase',
     letterSpacing: 1.2,
   },
@@ -360,13 +360,13 @@ const styles = StyleSheet.create({
   },
   legendLabel: {
     fontFamily: 'PlusJakartaSansBold',
-    fontSize: fontScale(10),
+    fontSize: FontSize.ten,
     textTransform: 'uppercase',
     letterSpacing: 0.9,
   },
   legendValue: {
     fontFamily: 'PlusJakartaSansBold',
-    fontSize: mediumScreen? 19:15,
+    fontSize: mediumScreen? FontSize.nineteen:FontSize.fifteen,
   },
   glassCard: {
     borderRadius: 22,
@@ -384,7 +384,7 @@ const styles = StyleSheet.create({
   estimateLabel: {
     color: '#cd2bee',
     fontFamily: 'PlusJakartaSansBold',
-    fontSize: fontScale(10),
+    fontSize: FontSize.ten,
     textTransform: 'uppercase',
     letterSpacing: 1.2,
     marginBottom: 4,
@@ -392,7 +392,7 @@ const styles = StyleSheet.create({
   estimateValue: {
     color: '#ffffff',
     fontFamily: 'PlusJakartaSansExtraBold',
-    fontSize: fontScale(34),
+    fontSize: FontSize.thirtyFour,
   },
   editButton: {
     width: 36,
@@ -453,7 +453,7 @@ const styles = StyleSheet.create({
   sliderScaleText: {
     color: '#64748b',
     fontFamily: 'PlusJakartaSansBold',
-    fontSize: fontScale(10),
+    fontSize: FontSize.ten,
     textTransform: 'uppercase',
     letterSpacing: 1.1,
   },
@@ -462,7 +462,7 @@ const styles = StyleSheet.create({
   },
   breakdownHeading: {
     fontFamily: 'PlusJakartaSansBold',
-    fontSize: mediumScreen? 13:9,
+    fontSize: mediumScreen? FontSize.thirteen:FontSize.nine,
     textTransform: 'uppercase',
     letterSpacing: 2,
     paddingHorizontal: 4,
@@ -503,17 +503,17 @@ const styles = StyleSheet.create({
   },
   breakdownTitle: {
     fontFamily: 'PlusJakartaSansBold',
-    fontSize: fontScale(13),
+    fontSize: FontSize.thirteen,
     flex: 1,
   },
   breakdownAmount: {
     color: '#ffffff',
     fontFamily: 'PlusJakartaSansExtraBold',
-    fontSize: fontScale(24),
+    fontSize: FontSize.twentyFour,
   },
   breakdownText: {
     fontFamily: 'PlusJakartaSansMedium',
-    fontSize: mediumScreen? 16:12,
+    fontSize: mediumScreen? FontSize.sixteen:FontSize.twelve,
     lineHeight: 18,
   },
   footer: {
@@ -540,7 +540,7 @@ const styles = StyleSheet.create({
   footerButtonText: {
     color: '#ffffff',
     fontFamily: 'PlusJakartaSansBold',
-    fontSize: mediumScreen? 14:10,
+    fontSize: mediumScreen? FontSize.fourteen:FontSize.ten,
     textTransform: 'uppercase',
     letterSpacing: 1.5,
   },

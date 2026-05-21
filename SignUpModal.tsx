@@ -1,4 +1,4 @@
-﻿import React from 'react';
+import React from 'react';
 import { MaterialIcons } from '@expo/vector-icons';
 import { BlurView } from 'expo-blur';
 import {
@@ -14,7 +14,7 @@ import Facebook from './assets/icons/facebook-svg.svg';
 import Google from './assets/icons/google-svg.svg';
 import Apple from './assets/icons/apple-logo-svg.svg';
 import { mediumScreen, setUser, user } from './types';
-import { fontScale } from './fonts';
+import { FontSize } from './fonts';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 
 type SignUpModalProps = {
@@ -109,13 +109,13 @@ type AuthButtonProps = {
 };
 
 const AuthButton: React.FC<AuthButtonProps> = ({ provider, label, isDark }) => (
-  
+
 
 
 
   <Pressable
   onPress={async()=>{
-    
+
     // const mockUser: User = {
     //   id: role === 'creator' ? 'mila_ray_01' : 'alex_rivera_42',
     //   name: role === 'creator' ? 'Mila Ray' : 'Alex Rivera',
@@ -126,7 +126,7 @@ const AuthButton: React.FC<AuthButtonProps> = ({ provider, label, isDark }) => (
     // setCurrentUser(user);
     await AsyncStorage.setItem('pulsar_user', JSON.stringify(user));
     navigation.navigate('MainTabs');
-  
+
   }}
   style={[styles.authButton, {backgroundColor: '#00000006'}]}>
     {/* Replace this placeholder with the matching provider SVG icon when assets are ready. */}
@@ -180,7 +180,7 @@ const styles = StyleSheet.create({
     alignItems: 'center',
   },
   title: {
-    fontSize: mediumScreen ? fontScale(20): fontScale(16),
+    fontSize: mediumScreen ? FontSize.twenty: FontSize.sixteen,
     lineHeight: 20,
     // fontWeight: '900',
     textTransform: 'uppercase',
@@ -189,7 +189,7 @@ const styles = StyleSheet.create({
     letterSpacing: -0.6,
   },
   description: {
-    fontSize: mediumScreen ? fontScale(20): fontScale(10),
+    fontSize: mediumScreen ? FontSize.twenty: FontSize.ten,
     lineHeight: 15,
     // fontWeight: '600',
     textAlign: 'center',
@@ -224,13 +224,13 @@ const styles = StyleSheet.create({
   },
   authIconPlaceholderText: {
     color: '#cd2bee',
-    fontSize: 11,
+    fontSize: FontSize.eleven,
     // fontWeight: '900',
     textTransform: 'uppercase',
     fontFamily: 'PlusJakartaSansExtraBold'
   },
   authButtonText: {
-    fontSize: mediumScreen ? fontScale(14): fontScale(10),
+    fontSize: mediumScreen ? FontSize.fourteen: FontSize.ten,
     // fontWeight: '800',
     fontFamily: "PlusJakartaSansBold"
   },
@@ -245,7 +245,7 @@ const styles = StyleSheet.create({
   },
   primaryButtonText: {
     color: '#ffffff',
-    fontSize: mediumScreen ? fontScale(14): fontScale(10),
+    fontSize: mediumScreen ? FontSize.fourteen: FontSize.ten,
     // fontWeight: '900',
     textTransform: 'uppercase',
     letterSpacing: 1,
@@ -258,7 +258,7 @@ const styles = StyleSheet.create({
     paddingHorizontal: 20,
   },
   secondaryButtonText: {
-    fontSize: mediumScreen ? fontScale(14):fontScale(10),
+    fontSize: mediumScreen ? FontSize.fourteen:FontSize.ten,
     // fontWeight: '900',
     textTransform: 'uppercase',
     letterSpacing: 1.6,
@@ -266,7 +266,7 @@ const styles = StyleSheet.create({
   },
   legalText: {
     marginTop: 18,
-    fontSize: mediumScreen ? fontScale(14):fontScale(10),
+    fontSize: mediumScreen ? FontSize.fourteen:FontSize.ten,
     lineHeight: 17,
     // fontWeight: '600',
     fontFamily: 'PlusJakartaSansBold',
