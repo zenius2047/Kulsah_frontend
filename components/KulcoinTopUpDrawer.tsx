@@ -3,7 +3,7 @@ import React, { useEffect, useMemo, useState } from 'react';
 import { Modal, Pressable, StyleSheet, Text, View } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { FontSize } from '../fonts';
-import { useThemeMode } from '../theme';
+import { useThemeMode, PRIMARY_COLOR, primaryColorAlpha } from "../theme";
 import { mediumScreen } from '../types';
 import KulsahInputBar from './KulsahInputBar';
 
@@ -84,7 +84,7 @@ const KulcoinTopUpDrawer: React.FC<KulcoinTopUpDrawerProps> = ({
   const cardBorder = isDark ? 'rgba(255,255,255,0.06)' : 'rgba(15,23,42,0.08)';
   const customInputBg = isDark ? 'rgba(255,255,255,0.04)' : 'rgba(15,23,42,0.03)';
   const customInputBorder = isDark ? 'rgba(255,255,255,0.08)' : 'rgba(15,23,42,0.1)';
-  const selectedBg = isDark ? 'rgba(205,43,238,0.16)' : 'rgba(205,43,238,0.1)';
+  const selectedBg = isDark ? primaryColorAlpha(0.16) : primaryColorAlpha(0.1);
   const cancelBg = isDark ? 'rgba(255,255,255,0.05)' : 'rgba(15,23,42,0.05)';
 
   return (
@@ -97,7 +97,7 @@ const KulcoinTopUpDrawer: React.FC<KulcoinTopUpDrawerProps> = ({
 
             <View style={styles.drawerHeader}>
               <View style={styles.warningRow}>
-                <MaterialIcons name="warning" size={14} color="#cd2bee" />
+                <MaterialIcons name="warning" size={14} color={PRIMARY_COLOR} />
                 <Text style={styles.warningText}>{warningText}</Text>
               </View>
               <Text style={[styles.drawerTitle, { color: titleColor }]}>Top Up Kulcoins</Text>
@@ -123,7 +123,7 @@ const KulcoinTopUpDrawer: React.FC<KulcoinTopUpDrawerProps> = ({
                       </View>
                     ) : null}
                     <View style={styles.packageIcon}>
-                      <MaterialIcons name="monetization-on" size={24} color="#cd2bee" />
+                      <MaterialIcons name="monetization-on" size={24} color={PRIMARY_COLOR} />
                     </View>
                     <Text style={[styles.packageCoins, { color: titleColor }]}>{pkg.coins}</Text>
                     <Text style={[styles.packageLabel, { color: tertiaryText }]}>{pkg.label}</Text>
@@ -142,7 +142,7 @@ const KulcoinTopUpDrawer: React.FC<KulcoinTopUpDrawerProps> = ({
               >
                 <View style={styles.customHeader}>
                   <View style={styles.packageIcon}>
-                    <MaterialIcons name="edit" size={22} color="#cd2bee" />
+                    <MaterialIcons name="edit" size={22} color={PRIMARY_COLOR} />
                   </View>
                   <View style={styles.customCopy}>
                     <Text style={[styles.customTitle, { color: titleColor }]}>Custom Amount</Text>
@@ -272,7 +272,7 @@ const styles = StyleSheet.create({
     gap: 6,
   },
   warningText: {
-    color: '#cd2bee',
+    color: PRIMARY_COLOR,
     fontFamily: 'PlusJakartaSansExtraBold',
     fontSize: FontSize.seven,
     textTransform: 'uppercase',
@@ -309,8 +309,8 @@ const styles = StyleSheet.create({
     borderColor: 'rgba(255,255,255,0.06)',
   },
   packageCardSelected: {
-    backgroundColor: 'rgba(205,43,238,0.16)',
-    borderColor: '#cd2bee',
+    backgroundColor: primaryColorAlpha(0.16),
+    borderColor: PRIMARY_COLOR,
   },
   customCard: {
     width: '100%',
@@ -354,7 +354,7 @@ const styles = StyleSheet.create({
     borderColor: 'rgba(255,255,255,0.08)',
   },
   customCurrency: {
-    color: '#cd2bee',
+    color: PRIMARY_COLOR,
     fontFamily: 'PlusJakartaSansExtraBold',
     fontSize: FontSize.ten,
     textTransform: 'uppercase',
@@ -378,7 +378,7 @@ const styles = StyleSheet.create({
     paddingHorizontal: 8,
     paddingVertical: 4,
     borderRadius: 999,
-    backgroundColor: '#cd2bee',
+    backgroundColor: PRIMARY_COLOR,
   },
   bestValueText: {
     color: '#ffffff',
@@ -393,7 +393,7 @@ const styles = StyleSheet.create({
     borderRadius: 24,
     alignItems: 'center',
     justifyContent: 'center',
-    backgroundColor: 'rgba(205,43,238,0.12)',
+    backgroundColor: primaryColorAlpha(0.12),
   },
   packageCoins: {
     color: '#ffffff',
@@ -418,7 +418,7 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     flexDirection: 'row',
     gap: 10,
-    backgroundColor: '#cd2bee',
+    backgroundColor: PRIMARY_COLOR,
   },
   buttonDisabled: {
     opacity: 0.5,
@@ -482,7 +482,7 @@ const styles = StyleSheet.create({
     fontSize: FontSize.ten,
   },
   paymentAccent: {
-    color: '#cd2bee',
+    color: PRIMARY_COLOR,
     fontFamily: 'PlusJakartaSansExtraBold',
     fontSize: FontSize.ten,
   },

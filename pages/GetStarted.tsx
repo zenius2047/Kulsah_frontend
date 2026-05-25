@@ -19,7 +19,7 @@ import { mediumScreen } from '../types';
 import GradientText from '../components/GradientText';
 import KulsahBlack from '../assets/icons/kulsah-black-svg.svg';
 import KulsahWhite from '../assets/icons/kulsah-white-svg.svg';
-import { useThemeMode } from '../theme';
+import { useThemeMode, PRIMARY_COLOR, primaryColorAlpha } from "../theme";
 
 
 const heroImage =
@@ -32,22 +32,22 @@ const fanImages = [
 ];
 
 const heroGradient = ['rgba(10,5,13,0.05)', 'rgba(10,5,13,0.55)', 'rgba(10,5,13,0.96)'] as const;
-const ctaGradient = ['#cd2bee', '#cd2bee'] as const;
+const ctaGradient = [PRIMARY_COLOR, PRIMARY_COLOR] as const;
 
 const featureCards = [
   {
     icon: 'explore' as const,
     title: 'Discover new content',
     body: 'Explore trending videos, rising creators, and fresh content.',
-    tint: '#cd2bee',
-    soft: 'rgba(205,43,238,0.18)',
+    tint: PRIMARY_COLOR,
+    soft: primaryColorAlpha(0.18),
   },
   {
     icon: 'confirmation-number' as const,
     title: 'Exclusive event tickets',
     body: 'Access and purchase tickets to live shows, concerts, and creator events.',
-    tint: '#cd2bee',
-    soft: 'rgba(205,43,238,0.18)',
+    tint: PRIMARY_COLOR,
+    soft: primaryColorAlpha(0.18),
   },
   {
     icon: 'forum' as const,
@@ -179,7 +179,7 @@ const s = StyleSheet.create({
     width: 320,
     height: 320,
     borderRadius: 160,
-    backgroundColor: 'rgba(205,43,238,0.18)',
+    backgroundColor: primaryColorAlpha(0.18),
     opacity: 0.8,
   },
   meshSecondary: {
@@ -189,7 +189,7 @@ const s = StyleSheet.create({
     width: 260,
     height: 260,
     borderRadius: 130,
-    backgroundColor: 'rgba(205,43,238,0.16)',
+    backgroundColor: primaryColorAlpha(0.16),
     opacity: 0.75,
   },
   content: {
@@ -227,12 +227,12 @@ const s = StyleSheet.create({
     paddingHorizontal: 16,
     paddingVertical: 7,
     borderRadius: 999,
-    backgroundColor: 'rgba(205,43,238,0.18)',
+    backgroundColor: primaryColorAlpha(0.18),
     borderWidth: 1,
-    borderColor: 'rgba(205,43,238,0.30)',
+    borderColor: primaryColorAlpha(0.30),
   },
   badgeText: {
-    color: '#cd2bee',
+    color: PRIMARY_COLOR,
     fontSize: mediumScreen ? FontSize.twelve:FontSize.eight,
     fontFamily: 'PlusJakartaSansExtraBold',
     letterSpacing: 2,
@@ -339,12 +339,12 @@ const s = StyleSheet.create({
     letterSpacing: 1.7,
   },
   communityAccent: {
-    color: '#cd2bee',
+    color: PRIMARY_COLOR,
   },
   ctaButton: {
     borderRadius: 22,
     overflow: 'hidden',
-    shadowColor: '#cd2bee',
+    shadowColor: PRIMARY_COLOR,
     shadowOpacity: 0.35,
     shadowRadius: 20,
     shadowOffset: { width: 0, height: 10 },

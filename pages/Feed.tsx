@@ -1,5 +1,5 @@
 import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react';
-import { useThemeMode } from '../theme';
+import { useThemeMode, PRIMARY_COLOR, primaryColorAlpha } from "../theme";
 import {
   Dimensions,
   FlatList,
@@ -153,7 +153,7 @@ const FeedQuickMenuModal: React.FC<{
                     gap: 6,
                   }}
                 >
-                  <MaterialIcons name={action.icon as any} size={30} color="#cd2bee" />
+                  <MaterialIcons name={action.icon as any} size={30} color={PRIMARY_COLOR} />
                   <Text
                     style={{
                       color: textPrimary,
@@ -213,13 +213,13 @@ const FeedQuickMenuModal: React.FC<{
                     style={{
                       borderRadius: 999,
                       borderWidth: 1,
-                      borderColor: 'rgba(205,43,238,0.4)',
-                      backgroundColor: 'rgba(205,43,238,0.2)',
+                      borderColor: primaryColorAlpha(0.4),
+                      backgroundColor: primaryColorAlpha(0.2),
                       paddingHorizontal: 7,
                       paddingVertical: 2,
                     }}
                   >
-                    <Text style={{ color: '#cd2bee', fontSize: FontSize.seven, fontFamily: 'PlusJakartaSansExtraBold' }}>NEW</Text>
+                    <Text style={{ color: PRIMARY_COLOR, fontSize: FontSize.seven, fontFamily: 'PlusJakartaSansExtraBold' }}>NEW</Text>
                   </View>
                 </View>
                 <View
@@ -370,14 +370,14 @@ const FeedSubscriptionModal: React.FC<{
                     width: 112,
                     height: 112,
                     borderRadius: 38,
-                    backgroundColor: 'rgba(205,43,238,0.18)',
+                    backgroundColor: primaryColorAlpha(0.18),
                     borderWidth: 2,
-                    borderColor: 'rgba(205,43,238,0.35)',
+                    borderColor: primaryColorAlpha(0.35),
                     alignItems: 'center',
                     justifyContent: 'center',
                   }}
                 >
-                  <MaterialIcons name="verified" size={54} color="#cd2bee" />
+                  <MaterialIcons name="verified" size={54} color={PRIMARY_COLOR} />
                 </View>
                 <Text
                   style={{
@@ -396,7 +396,7 @@ const FeedSubscriptionModal: React.FC<{
                   style={{
                     minHeight: 72,
                     borderRadius: 30,
-                    backgroundColor: '#cd2bee',
+                    backgroundColor: PRIMARY_COLOR,
                     alignItems: 'center',
                     justifyContent: 'center',
                     paddingHorizontal: 18,
@@ -492,12 +492,12 @@ const FeedSubscriptionModal: React.FC<{
                           width: 32,
                           height: 32,
                           borderRadius: 12,
-                          backgroundColor: 'rgba(205,43,238,0.12)',
+                          backgroundColor: primaryColorAlpha(0.12),
                           alignItems: 'center',
                           justifyContent: 'center',
                         }}
                       >
-                        <MaterialIcons name="check-circle" size={16} color="#cd2bee" />
+                        <MaterialIcons name="check-circle" size={16} color={PRIMARY_COLOR} />
                       </View>
                       <Text
                         style={{
@@ -560,7 +560,7 @@ const FeedSubscriptionModal: React.FC<{
                       </Text>
                       <Text
                         style={{
-                          color: '#cd2bee',
+                          color: PRIMARY_COLOR,
                           fontSize: mediumScreen ? FontSize.eighteen : FontSize.fourteen,
                           fontFamily: 'PlusJakartaSansExtraBold',
                         }}
@@ -577,7 +577,7 @@ const FeedSubscriptionModal: React.FC<{
                   style={{
                     minHeight: 72,
                     borderRadius: 30,
-                    backgroundColor: '#cd2bee',
+                    backgroundColor: PRIMARY_COLOR,
                     alignItems: 'center',
                     justifyContent: 'center',
                     paddingHorizontal: 18,
@@ -946,7 +946,7 @@ useEffect(() => {
               alignItems: 'center',
               justifyContent: 'center',
               // paddingVertical: 3,
-              backgroundColor: '#cd2bee',
+              backgroundColor: PRIMARY_COLOR,
               bottom: -8,
               position: 'absolute',
               height: 20,
@@ -974,7 +974,7 @@ useEffect(() => {
           elevation: 4,
          }}
         >
-          <MaterialIcons name='favorite' size={32} color={isLiked ? '#cd2bee' : 'white'} />
+          <MaterialIcons name='favorite' size={32} color={isLiked ? PRIMARY_COLOR : 'white'} />
           <Text style={{ color: 'white', fontSize: mediumScreen ? FontSize.fourteen:FontSize.ten, fontFamily: "PlusJakartaSansBold" }}>{item.likes}</Text>
         </Pressable>
 
@@ -1000,14 +1000,14 @@ useEffect(() => {
             // borderRadius: 20,
             // width: 40,
             // height: 40,
-            // borderColor: item.isSubscribed ? '#cd2bee' : 'white',
+            // borderColor: item.isSubscribed ? PRIMARY_COLOR : 'white',
             // borderWidth: 1,
             justifyContent: 'center',
             alignItems: 'center',
           }}>
             <View style={{
               // borderWidth: 2,
-              // borderColor: item.isSubscribed ? '#cd2bee' : 'white',
+              // borderColor: item.isSubscribed ? PRIMARY_COLOR : 'white',
               // height: 24,
               // width: 24,
               // borderRadius: 12,
@@ -1019,10 +1019,10 @@ useEffect(() => {
               shadowRadius: 6,
               elevation: 4,
             }}>
-              <MaterialIcons name="star" size={36} color={item.isSubscribed ? '#cd2bee' : 'white'} />
+              <MaterialIcons name="star" size={36} color={item.isSubscribed ? PRIMARY_COLOR : 'white'} />
             </View>
           </View>
-          <Text style={{ color: item.isSubscribed ? '#cd2bee' : 'white', fontSize: mediumScreen ? FontSize.fourteen:FontSize.ten, fontFamily: "PlusJakartaSansBold" }}>
+          <Text style={{ color: item.isSubscribed ? PRIMARY_COLOR : 'white', fontSize: mediumScreen ? FontSize.fourteen:FontSize.ten, fontFamily: "PlusJakartaSansBold" }}>
             {item.isSubscribed ? 'SUBBED' : 'Sub'}
           </Text>
         </Pressable> */}
@@ -1145,8 +1145,8 @@ useEffect(() => {
               paddingHorizontal: 6,
               justifyContent: 'center',
               alignItems: 'center',
-              borderColor: item.isSubscribed ? 'red' : '#cd2bee',
-              backgroundColor: item.isSubscribed ? 'red' : '#cd2bee',
+              borderColor: item.isSubscribed ? 'red' : PRIMARY_COLOR,
+              backgroundColor: item.isSubscribed ? 'red' : PRIMARY_COLOR,
               paddingVertical: 3,
             }}
           >
@@ -2344,7 +2344,7 @@ const Feed: React.FC = () => {
                         FOR YOU
                       </Text>
                       {activeTab === "foryou" && <View style={{
-                        backgroundColor: '#cd2bee',
+                        backgroundColor: PRIMARY_COLOR,
                         height: 2,
                         width: 20,
                         // marginTop: 5
@@ -2357,7 +2357,7 @@ const Feed: React.FC = () => {
                         FOLLOWING
                       </Text>
                       {activeTab === "following" && <View style={{
-                        backgroundColor: '#cd2bee',
+                        backgroundColor: PRIMARY_COLOR,
                         height: 2,
                         width: 20,
                         // marginTop: 5
@@ -2370,7 +2370,7 @@ const Feed: React.FC = () => {
                         CHALLENGES
                       </Text>
                       {activeTab === "challenges" && <View style={{
-                        backgroundColor: '#cd2bee',
+                        backgroundColor: PRIMARY_COLOR,
                         height: 2,
                         width: 20,
                         // marginTop: 5
@@ -2383,7 +2383,7 @@ const Feed: React.FC = () => {
                         PREMIUM
                       </Text>
                       {activeTab === "premium" && <View style={{
-                        backgroundColor: '#cd2bee',
+                        backgroundColor: PRIMARY_COLOR,
                         height: 2,
                         width: 20,
                         // marginTop: 5
@@ -2466,7 +2466,7 @@ const Feed: React.FC = () => {
             Follow creators in the galaxy to see their latest transmissions.
           </Text>
           <Pressable onPress={() => setActiveTab('foryou')} style={{ marginTop: 18 }}>
-            <Text style={{ color: '#cd2bee', fontWeight: '700' }}>Discover Creators</Text>
+            <Text style={{ color: PRIMARY_COLOR, fontWeight: '700' }}>Discover Creators</Text>
           </Pressable>
         </View>
       )}

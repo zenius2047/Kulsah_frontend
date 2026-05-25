@@ -11,7 +11,7 @@ import {
   View,
 } from 'react-native';
 import { FontSize } from '../fonts';
-import { useThemeMode } from '../theme';
+import { useThemeMode, PRIMARY_COLOR, primaryColorAlpha } from "../theme";
 import { mediumScreen, setUser, user as globalUser } from '../types';
 
 type CoinPackage = {
@@ -121,7 +121,7 @@ const TopUpCoins: React.FC = () => {
 
   return (
     <View style={{ flex: 1, backgroundColor: screenBg }}>
-      <View style={{ position: 'absolute', top: -80, left: -80, width: 220, height: 220, borderRadius: 999, backgroundColor: 'rgba(205,43,238,0.18)' }} />
+      <View style={{ position: 'absolute', top: -80, left: -80, width: 220, height: 220, borderRadius: 999, backgroundColor: primaryColorAlpha(0.18) }} />
       <View style={{ position: 'absolute', bottom: -100, right: -80, width: 240, height: 240, borderRadius: 999, backgroundColor: 'rgba(37,99,235,0.12)' }} />
 
       <View
@@ -171,14 +171,14 @@ const TopUpCoins: React.FC = () => {
             borderRadius: 40,
             padding: 24,
             alignItems: 'center',
-            backgroundColor: isDark ? 'rgba(205,43,238,0.08)' : 'rgba(205,43,238,0.06)',
+            backgroundColor: isDark ? primaryColorAlpha(0.08) : primaryColorAlpha(0.06),
             borderWidth: 1,
-            borderColor: 'rgba(205,43,238,0.26)',
+            borderColor: primaryColorAlpha(0.26),
           }}
         >
           <Text
             style={{
-              color: '#cd2bee',
+              color: PRIMARY_COLOR,
               fontSize: FontSize.eight,
               fontFamily: 'PlusJakartaSansExtraBold',
               textTransform: 'uppercase',
@@ -201,7 +201,7 @@ const TopUpCoins: React.FC = () => {
                 >
                   {currentCoins.toLocaleString()}
                 </Text>
-                <MaterialIcons name="monetization-on" size={32} color="#cd2bee" />
+                <MaterialIcons name="monetization-on" size={32} color={PRIMARY_COLOR} />
               </>
             )}
           </View>
@@ -245,9 +245,9 @@ const TopUpCoins: React.FC = () => {
                     paddingHorizontal: 14,
                     paddingVertical: 18,
                     alignItems: 'center',
-                    backgroundColor: isSelected ? 'rgba(205,43,238,0.2)' : packageBg,
+                    backgroundColor: isSelected ? primaryColorAlpha(0.2) : packageBg,
                     borderWidth: 1,
-                    borderColor: isSelected ? '#cd2bee' : packageBorder,
+                    borderColor: isSelected ? PRIMARY_COLOR : packageBorder,
                   }}
                 >
                   {pkg.popular ? (
@@ -256,7 +256,7 @@ const TopUpCoins: React.FC = () => {
                         position: 'absolute',
                         top: -10,
                         alignSelf: 'center',
-                        backgroundColor: '#cd2bee',
+                        backgroundColor: PRIMARY_COLOR,
                         paddingHorizontal: 10,
                         paddingVertical: 5,
                         borderRadius: 999,
@@ -281,13 +281,13 @@ const TopUpCoins: React.FC = () => {
                       width: 48,
                       height: 48,
                       borderRadius: 999,
-                      backgroundColor: 'rgba(205,43,238,0.12)',
+                      backgroundColor: primaryColorAlpha(0.12),
                       alignItems: 'center',
                       justifyContent: 'center',
                       marginBottom: 10,
                     }}
                   >
-                    <MaterialIcons name="monetization-on" size={24} color="#cd2bee" />
+                    <MaterialIcons name="monetization-on" size={24} color={PRIMARY_COLOR} />
                   </View>
 
                   <Text
@@ -320,7 +320,7 @@ const TopUpCoins: React.FC = () => {
                       paddingHorizontal: 14,
                       paddingVertical: 8,
                       borderRadius: 999,
-                      backgroundColor: isSelected ? '#cd2bee' : unselectedPill,
+                      backgroundColor: isSelected ? PRIMARY_COLOR : unselectedPill,
                     }}
                   >
                     <Text
@@ -346,7 +346,7 @@ const TopUpCoins: React.FC = () => {
             style={{
               minHeight: 72,
               borderRadius: 28,
-              backgroundColor: '#cd2bee',
+              backgroundColor: PRIMARY_COLOR,
               opacity: selectedPackage === null ? 0.5 : 1,
               alignItems: 'center',
               justifyContent: 'center',
@@ -454,7 +454,7 @@ const TopUpCoins: React.FC = () => {
                 </View>
                 <View style={{ flexDirection: 'row', justifyContent: 'space-between' }}>
                   <Text style={{ color: theme.textSecondary, fontFamily: 'PlusJakartaSansBold' }}>Amount</Text>
-                  <Text style={{ color: '#cd2bee', fontFamily: 'PlusJakartaSansExtraBold' }}>
+                  <Text style={{ color: PRIMARY_COLOR, fontFamily: 'PlusJakartaSansExtraBold' }}>
                     {selectedPkgData.price} GHS
                   </Text>
                 </View>
@@ -467,7 +467,7 @@ const TopUpCoins: React.FC = () => {
               style={{
                 minHeight: 60,
                 borderRadius: 20,
-                backgroundColor: '#cd2bee',
+                backgroundColor: PRIMARY_COLOR,
                 alignItems: 'center',
                 justifyContent: 'center',
               }}
@@ -531,15 +531,15 @@ const TopUpCoins: React.FC = () => {
               width: 128,
               height: 128,
               borderRadius: 999,
-              backgroundColor: 'rgba(205,43,238,0.2)',
+              backgroundColor: primaryColorAlpha(0.2),
               borderWidth: 2,
-              borderColor: '#cd2bee',
+              borderColor: PRIMARY_COLOR,
               alignItems: 'center',
               justifyContent: 'center',
               marginBottom: 28,
             }}
           >
-            <MaterialIcons name="check-circle" size={64} color="#cd2bee" />
+            <MaterialIcons name="check-circle" size={64} color={PRIMARY_COLOR} />
           </View>
 
           <Text
@@ -574,12 +574,12 @@ const TopUpCoins: React.FC = () => {
               borderRadius: 999,
               paddingHorizontal: 18,
               paddingVertical: 12,
-              backgroundColor: 'rgba(205,43,238,0.12)',
+              backgroundColor: primaryColorAlpha(0.12),
               borderWidth: 1,
-              borderColor: 'rgba(205,43,238,0.3)',
+              borderColor: primaryColorAlpha(0.3),
             }}
           >
-            <MaterialIcons name="monetization-on" size={20} color="#cd2bee" />
+            <MaterialIcons name="monetization-on" size={20} color={PRIMARY_COLOR} />
             <Text
               style={{
                 color: theme.text,

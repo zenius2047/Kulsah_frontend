@@ -1,5 +1,5 @@
 import React, { useMemo, useState } from 'react';
-import { useThemeMode } from '../theme';
+import { useThemeMode, PRIMARY_COLOR, primaryColorAlpha } from "../theme";
 import {
   Image,
   Pressable,
@@ -137,9 +137,9 @@ export const VoteSheetContent: React.FC<VoteSheetContentProps> = ({ onClose, she
                 <Pressable
                   key={tab}
                   onPress={() => setActiveTab(tab)}
-                  style={[styles.tabButton, { borderBottomColor: isActive ? '#cd2bee' : 'transparent' }]}
+                  style={[styles.tabButton, { borderBottomColor: isActive ? PRIMARY_COLOR : 'transparent' }]}
                 >
-                  <Text style={[styles.tabText, { color: isActive ? '#cd2bee' : subtleText }]}>
+                  <Text style={[styles.tabText, { color: isActive ? PRIMARY_COLOR : subtleText }]}>
                     {tab}
                   </Text>
                 </Pressable>
@@ -149,7 +149,7 @@ export const VoteSheetContent: React.FC<VoteSheetContentProps> = ({ onClose, she
 
           <View style={styles.sectionHeader}>
             <View style={styles.sectionTitleRow}>
-              <MaterialIcons name="bolt" size={20} color="#cd2bee" />
+              <MaterialIcons name="bolt" size={20} color={PRIMARY_COLOR} />
               <Text style={[styles.sectionTitle, { color: theme.text }]}>Trending Audio</Text>
             </View>
             <View style={styles.hotBadge}>
@@ -191,10 +191,10 @@ export const VoteSheetContent: React.FC<VoteSheetContentProps> = ({ onClose, she
                 <View style={styles.trackActions}>
                   <View style={styles.utilityActions}>
                     <Pressable style={styles.utilityButton}>
-                      <MaterialIcons name="bookmark-border" size={22} color="#cd2bee" />
+                      <MaterialIcons name="bookmark-border" size={22} color={PRIMARY_COLOR} />
                     </Pressable>
                     <Pressable style={styles.utilityButton}>
-                      <MaterialIcons name="content-cut" size={22} color="#cd2bee" />
+                      <MaterialIcons name="content-cut" size={22} color={PRIMARY_COLOR} />
                     </Pressable>
                   </View>
 
@@ -338,12 +338,12 @@ const styles = StyleSheet.create({
     paddingHorizontal: 12,
     paddingVertical: 6,
     borderRadius: 999,
-    backgroundColor: 'rgba(205,43,238,0.1)',
+    backgroundColor: primaryColorAlpha(0.1),
     borderWidth: 1,
-    borderColor: 'rgba(205,43,238,0.2)',
+    borderColor: primaryColorAlpha(0.2),
   },
   hotBadgeText: {
-    color: '#cd2bee',
+    color: PRIMARY_COLOR,
     fontFamily: 'PlusJakartaSansExtraBold',
     fontSize: FontSize.eight,
     textTransform: 'uppercase',
@@ -426,8 +426,8 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
   },
   selectButtonActive: {
-    backgroundColor: '#cd2bee',
-    shadowColor: '#cd2bee',
+    backgroundColor: PRIMARY_COLOR,
+    shadowColor: PRIMARY_COLOR,
     shadowOffset: { width: 0, height: 0 },
     shadowOpacity: 0.35,
     shadowRadius: 14,

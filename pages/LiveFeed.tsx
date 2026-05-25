@@ -3,7 +3,7 @@ import { Dimensions, FlatList, Image, ImageBackground, Keyboard, Platform, Press
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { MaterialIcons } from '@expo/vector-icons';
 import { LinearGradient } from 'expo-linear-gradient';
-import { useThemeMode } from '../theme';
+import { useThemeMode, PRIMARY_COLOR, primaryColorAlpha } from "../theme";
 import { FontSize } from '../fonts';
 import GiftDialog, { GiftSelection } from '../components/GiftDialog';
 
@@ -183,7 +183,7 @@ const LiveFeed: React.FC = () => {
         renderItem={({ item: creator }) => (
           <View style={[styles.creatorItem]}>
             <LinearGradient
-              colors={['#cd2bee', '#cd2bee']}
+              colors={[PRIMARY_COLOR, PRIMARY_COLOR]}
               start={{ x: 0, y: 0 }}
               end={{ x: 1, y: 1 }}
               style={styles.creatorRing}
@@ -274,7 +274,7 @@ const LiveFeed: React.FC = () => {
                       </View>
 
                       {message.isTip ? <MaterialIcons name="verified" size={14} color="#4ade80" /> : null}
-                      {message.isSystem ? <MaterialIcons name="campaign" size={14} color="#cd2bee" /> : null}
+                      {message.isSystem ? <MaterialIcons name="campaign" size={14} color={PRIMARY_COLOR} /> : null}
                     </View>
                   ))}
                 </View>
@@ -313,7 +313,7 @@ const LiveFeed: React.FC = () => {
                     <MaterialIcons
                       name="send"
                       size={20}
-                      color={(commentDrafts[card.id] ?? '').trim() ? '#cd2bee' : 'rgba(255,255,255,0.25)'}
+                      color={(commentDrafts[card.id] ?? '').trim() ? PRIMARY_COLOR : 'rgba(255,255,255,0.25)'}
                     />
                   </Pressable>
                 </View>
@@ -430,7 +430,7 @@ const styles = StyleSheet.create({
     padding: 3,
     justifyContent: 'center',
     alignItems: 'center',
-    shadowColor: '#cd2bee',
+    shadowColor: PRIMARY_COLOR,
     shadowOpacity: 0.35,
     shadowRadius: 16,
     shadowOffset: { width: 0, height: 8 },
@@ -553,8 +553,8 @@ const styles = StyleSheet.create({
     borderColor: 'rgba(34,197,94,0.28)',
   },
   chatSystemCard: {
-    backgroundColor: 'rgba(205,43,238,0.14)',
-    borderColor: 'rgba(205,43,238,0.24)',
+    backgroundColor: primaryColorAlpha(0.14),
+    borderColor: primaryColorAlpha(0.24),
   },
   chatAvatar: {
     width: 28,
@@ -565,7 +565,7 @@ const styles = StyleSheet.create({
     flex: 1,
   },
   chatUser: {
-    color: 'rgba(205,43,238,0.76)',
+    color: primaryColorAlpha(0.76),
     fontFamily: 'PlusJakartaSansExtraBold',
     fontSize: FontSize.eightHalf,
     letterSpacing: 1.1,
@@ -575,7 +575,7 @@ const styles = StyleSheet.create({
     color: '#4ade80',
   },
   chatUserSystem: {
-    color: '#cd2bee',
+    color: PRIMARY_COLOR,
   },
   chatText: {
     color: '#fff',
@@ -594,7 +594,7 @@ const styles = StyleSheet.create({
     height: 44,
     borderRadius: 22,
     borderWidth: 2,
-    borderColor: '#cd2bee',
+    borderColor: PRIMARY_COLOR,
     marginRight: 12,
   },
   hostText: {
@@ -630,11 +630,11 @@ const styles = StyleSheet.create({
   },
   joinButton: {
     alignSelf: 'flex-start',
-    backgroundColor: '#cd2bee',
+    backgroundColor: PRIMARY_COLOR,
     paddingHorizontal: 26,
     paddingVertical: 12,
     borderRadius: 999,
-    shadowColor: '#cd2bee',
+    shadowColor: PRIMARY_COLOR,
     shadowOpacity: 0.34,
     shadowRadius: 18,
     shadowOffset: { width: 0, height: 10 },
@@ -694,8 +694,8 @@ const styles = StyleSheet.create({
     borderRadius: 22,
   },
   navItemActive: {
-    backgroundColor: 'rgba(205,43,238,0.18)',
-    shadowColor: '#cd2bee',
+    backgroundColor: primaryColorAlpha(0.18),
+    shadowColor: PRIMARY_COLOR,
     shadowOpacity: 0.25,
     shadowRadius: 16,
     shadowOffset: { width: 0, height: 8 },

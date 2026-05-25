@@ -1,5 +1,5 @@
 import React, { useMemo, useState } from 'react';
-import { useThemeMode } from '../theme';
+import { useThemeMode, PRIMARY_COLOR, primaryColorAlphaHex } from "../theme";
 import { GoogleGenAI } from '@google/genai';
 import { useNavigation } from '@react-navigation/native';
 import { MaterialIcons } from '@expo/vector-icons';
@@ -135,7 +135,7 @@ export default function CreatorLibrary() {
             <Text style={s.title}>Media Library</Text>
           </View>
           <Pressable style={[s.iconBtn, {backgroundColor: '#1f1022bf', borderWidth: 1, borderColor: '#ffffff14'}]} onPress={() => navigation.navigate('UploadContent')}>
-            <MaterialIcons name="add" size={22} color="#cd2bee" />
+            <MaterialIcons name="add" size={22} color={PRIMARY_COLOR} />
           </Pressable>
         </View>
 
@@ -166,7 +166,7 @@ export default function CreatorLibrary() {
           <Text style={s.aiTitle}>Cinematic Strategy</Text>
           <Text style={s.aiText}>{audit || 'Gemini is ready to audit your visual library for engagement potential.'}</Text>
           <Pressable style={s.auditBtn} onPress={runAudit} disabled={isAuditing}>
-            {isAuditing ? <ActivityIndicator color="#cd2bee" /> : <Text style={s.auditBtnText}>Audit Content Value</Text>}
+            {isAuditing ? <ActivityIndicator color={PRIMARY_COLOR} /> : <Text style={s.auditBtnText}>Audit Content Value</Text>}
           </Pressable>
         </View> */}
 
@@ -177,7 +177,7 @@ export default function CreatorLibrary() {
         }}>
           <Text style={s.section}>Trending Sounds</Text>
           <Text style={{
-            color: '#cd2bee',
+            color: PRIMARY_COLOR,
             fontSize: FontSize.ten,
             textTransform: 'uppercase',
             fontFamily: 'PlusJakartaSansExtraBold'
@@ -265,7 +265,7 @@ export default function CreatorLibrary() {
                   <Text style={[s.itemMeta, {
                     color:
                     item.type === 'public'? '#60a5fa' :
-                    item.type === 'premium' ? '#cd2bee' :
+                    item.type === 'premium' ? PRIMARY_COLOR :
                     item.type === 'live' ? '#4ade80': '#ffffff4d',
                     borderRadius: 4,
                     borderWidth: 1,
@@ -357,7 +357,7 @@ export default function CreatorLibrary() {
                 <Pressable style={[s.protocolBtn, detailItem.type === 'public' && s.protocolBtnActive]} onPress={() => syncProtocol('public')}><Text style={s.protocolText}>Public</Text></Pressable>
                 <Pressable style={[s.protocolBtn, detailItem.type === 'premium' && s.protocolBtnActive]} onPress={() => syncProtocol('premium')}><Text style={s.protocolText}>Premium</Text></Pressable>
               </View>
-              {isConverting ? <ActivityIndicator color="#cd2bee" /> : null}
+              {isConverting ? <ActivityIndicator color={PRIMARY_COLOR} /> : null}
             </View>
           ) : null}
         </View>
@@ -378,14 +378,14 @@ const s = StyleSheet.create({
   tabs: { gap: 14, paddingTop: 10, paddingBottom: 4,  paddingHorizontal: 16, },
   tabBtn: { alignItems: 'center', gap: 6, marginTop: 20 },
   tabText: { color: '#94a3b8', textTransform: 'uppercase', fontSize: FontSize.ten, fontFamily: 'PlusJakartaSansExtraBold', letterSpacing: 2, },
-  tabTextActive: { color: '#cd2bee' },
-  tabDot: { width: '100%', height: 4, borderRadius: 999, backgroundColor: '#cd2bee' },
+  tabTextActive: { color: PRIMARY_COLOR },
+  tabDot: { width: '100%', height: 4, borderRadius: 999, backgroundColor: PRIMARY_COLOR },
   content: {gap: 12, paddingBottom: 120 },
-  aiCard: { borderRadius: 18, borderWidth: 1, borderColor: '#cd2bee3a', backgroundColor: '#cd2bee14', padding: 12, gap: 10 },
-  aiTitle: { color: '#cd2bee', textTransform: 'uppercase', fontWeight: '900', fontSize: FontSize.nine },
+  aiCard: { borderRadius: 18, borderWidth: 1, borderColor: primaryColorAlphaHex('3a'), backgroundColor: primaryColorAlphaHex('14'), padding: 12, gap: 10 },
+  aiTitle: { color: PRIMARY_COLOR, textTransform: 'uppercase', fontWeight: '900', fontSize: FontSize.nine },
   aiText: { color: '#d9dce9', fontStyle: 'italic', fontSize: FontSize.thirteen },
-  auditBtn: { height: 40, borderRadius: 10, borderWidth: 1, borderColor: '#cd2bee50', alignItems: 'center', justifyContent: 'center' },
-  auditBtnText: { color: '#cd2bee', textTransform: 'uppercase', fontWeight: '900', fontSize: FontSize.ten },
+  auditBtn: { height: 40, borderRadius: 10, borderWidth: 1, borderColor: primaryColorAlphaHex('50'), alignItems: 'center', justifyContent: 'center' },
+  auditBtnText: { color: PRIMARY_COLOR, textTransform: 'uppercase', fontWeight: '900', fontSize: FontSize.ten },
   section: { color: '#fff', fontSize: FontSize.sixteen, textTransform: 'uppercase', fontFamily: 'PlusJakartaSansExtraBold' },
   trendingRow: { gap: 20, },
   soundCard: { width: 104, alignItems: 'center',justifyContent: 'center',},
@@ -417,7 +417,7 @@ const s = StyleSheet.create({
   drawerImg: { width: '100%', height: 180, borderRadius: 14 },
   drawerMeta: { color: '#c2c7da', fontSize: FontSize.twelve },
   protocolBtn: { flex: 1, height: 38, borderRadius: 10, borderWidth: 1, borderColor: '#ffffff1f', alignItems: 'center', justifyContent: 'center', backgroundColor: '#ffffff08' },
-  protocolBtnActive: { borderColor: '#cd2bee80', backgroundColor: '#cd2bee' },
+  protocolBtnActive: { borderColor: primaryColorAlphaHex('80'), backgroundColor: PRIMARY_COLOR },
   protocolText: { color: '#fff', fontWeight: '900', textTransform: 'uppercase', fontSize: FontSize.ten },
 });
 

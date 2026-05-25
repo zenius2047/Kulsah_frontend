@@ -12,7 +12,7 @@ import {
 } from 'react-native';
 import { SafeAreaView, useSafeAreaInsets } from 'react-native-safe-area-context';
 import { FontSize } from '../fonts';
-import { useThemeMode } from '../theme';
+import { useThemeMode, PRIMARY_COLOR, primaryColorAlpha } from "../theme";
 
 type LeaderboardTab = 'rankings' | 'rules' | 'prizes';
 
@@ -176,7 +176,7 @@ const ChallengeLeaderboard: React.FC = () => {
                   <Text
                     style={[
                       styles.tabText,
-                      { color: active ? '#cd2bee' : mutedText },
+                      { color: active ? PRIMARY_COLOR : mutedText },
                     ]}
                   >
                     {tab.label}
@@ -203,7 +203,7 @@ const ChallengeLeaderboard: React.FC = () => {
                 </View>
 
                 <View style={styles.winnerPodiumItem}>
-                  <MaterialIcons name="emoji-events" size={34} color="#cd2bee" style={styles.trophyIcon} />
+                  <MaterialIcons name="emoji-events" size={34} color={PRIMARY_COLOR} style={styles.trophyIcon} />
                   <View style={styles.winnerAvatarRing}>
                     <Image source={{ uri: topThree[1].avatar }} style={styles.winnerAvatar} />
                   </View>
@@ -252,7 +252,7 @@ const ChallengeLeaderboard: React.FC = () => {
                       </View>
                       <Image source={{ uri: fan.entry }} style={[styles.entryThumb, { borderColor }]} />
                       <Pressable style={styles.heartButton}>
-                        <MaterialIcons name="favorite" size={20} color="#cd2bee" />
+                        <MaterialIcons name="favorite" size={20} color={PRIMARY_COLOR} />
                       </Pressable>
                     </View>
                   ))}
@@ -260,7 +260,7 @@ const ChallengeLeaderboard: React.FC = () => {
               </View>
 
               <LinearGradient
-                colors={['#cd2bee', '#db2777'] as const}
+                colors={[PRIMARY_COLOR, '#db2777'] as const}
                 start={{ x: 0, y: 0 }}
                 end={{ x: 1, y: 0 }}
                 style={styles.userRankCard}
@@ -287,7 +287,7 @@ const ChallengeLeaderboard: React.FC = () => {
             <View style={styles.sectionGap}>
               <View style={[styles.rulesCard, { backgroundColor: cardBg, borderColor }]}>
                 <View style={styles.rulesHeader}>
-                  <MaterialIcons name="gavel" size={24} color="#cd2bee" />
+                  <MaterialIcons name="gavel" size={24} color={PRIMARY_COLOR} />
                   <Text style={[styles.rulesTitle, { color: theme.text }]}>Challenge Rules</Text>
                 </View>
 
@@ -362,9 +362,9 @@ const ChallengeLeaderboard: React.FC = () => {
               <MaterialIcons
                 name={item.icon as keyof typeof MaterialIcons.glyphMap}
                 size={24}
-                color={item.active ? '#cd2bee' : mutedText}
+                color={item.active ? PRIMARY_COLOR : mutedText}
               />
-              <Text style={[styles.navText, { color: item.active ? '#cd2bee' : mutedText }]}>
+              <Text style={[styles.navText, { color: item.active ? PRIMARY_COLOR : mutedText }]}>
                 {item.label}
               </Text>
             </View>
@@ -472,9 +472,9 @@ const styles = StyleSheet.create({
     height: 118,
     borderRadius: 59,
     borderWidth: 4,
-    borderColor: '#cd2bee',
+    borderColor: PRIMARY_COLOR,
     padding: 4,
-    backgroundColor: 'rgba(205,43,238,0.12)',
+    backgroundColor: primaryColorAlpha(0.12),
   },
   winnerAvatar: {
     width: '100%',
@@ -492,7 +492,7 @@ const styles = StyleSheet.create({
     fontSize: FontSize.seven,
   },
   winnerBadge: {
-    backgroundColor: '#cd2bee',
+    backgroundColor: PRIMARY_COLOR,
   },
   winnerBadgeText: {
     color: '#ffffff',
@@ -509,7 +509,7 @@ const styles = StyleSheet.create({
     textAlign: 'center',
   },
   voteAccent: {
-    color: '#cd2bee',
+    color: PRIMARY_COLOR,
     fontFamily: 'PlusJakartaSansBold',
     fontSize: FontSize.seven,
     textTransform: 'uppercase',
@@ -522,7 +522,7 @@ const styles = StyleSheet.create({
     textAlign: 'center',
   },
   winnerVotes: {
-    color: '#cd2bee',
+    color: PRIMARY_COLOR,
     fontFamily: 'PlusJakartaSansExtraBold',
     fontSize: FontSize.eight,
     textTransform: 'uppercase',
@@ -645,7 +645,7 @@ const styles = StyleSheet.create({
     backgroundColor: '#ffffff',
   },
   boostButtonText: {
-    color: '#cd2bee',
+    color: PRIMARY_COLOR,
     fontFamily: 'PlusJakartaSansExtraBold',
     fontSize: FontSize.eight,
     textTransform: 'uppercase',
@@ -677,10 +677,10 @@ const styles = StyleSheet.create({
     borderRadius: 17,
     alignItems: 'center',
     justifyContent: 'center',
-    backgroundColor: 'rgba(205,43,238,0.12)',
+    backgroundColor: primaryColorAlpha(0.12),
   },
   ruleIndexText: {
-    color: '#cd2bee',
+    color: PRIMARY_COLOR,
     fontFamily: 'PlusJakartaSansExtraBold',
     fontSize: FontSize.nine,
   },
@@ -737,7 +737,7 @@ const styles = StyleSheet.create({
     gap: 4,
   },
   prizeRank: {
-    color: '#cd2bee',
+    color: PRIMARY_COLOR,
     fontFamily: 'PlusJakartaSansExtraBold',
     fontSize: FontSize.seven,
     textTransform: 'uppercase',

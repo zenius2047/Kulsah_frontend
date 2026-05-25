@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { useThemeMode } from '../theme';
+import { useThemeMode, PRIMARY_COLOR } from "../theme";
 import { View, Text, Pressable, Platform } from 'react-native';
 import { mediumScreen } from '../types';
 import { MaterialIcons } from '@expo/vector-icons';
@@ -111,7 +111,7 @@ const Arena :React.FC = ({route}:any)=>{
         style={{
             height: 2.5,
             width: 70,
-            backgroundColor: '#cd2bee',
+            backgroundColor: PRIMARY_COLOR,
 
         }}
         />}

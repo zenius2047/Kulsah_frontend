@@ -2,6 +2,7 @@ import React from 'react';
 import { Pressable, Text, View } from 'react-native';
 
 import { FontSize } from '../fonts';
+import { PRIMARY_COLOR } from "../theme";
 
 type ErrorBoundaryProps = {
   children: React.ReactNode;
@@ -79,7 +80,7 @@ class ErrorBoundary extends React.Component<ErrorBoundaryProps, ErrorBoundarySta
             paddingHorizontal: 16,
             paddingVertical: 10,
             borderRadius: 999,
-            backgroundColor: '#cd2bee',
+            backgroundColor: PRIMARY_COLOR,
           }}
         >
           <Text style={{ color: '#fff', fontFamily: 'PlusJakartaSansBold' }}>

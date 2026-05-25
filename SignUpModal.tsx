@@ -8,7 +8,7 @@ import {
   Text,
   View,
 } from 'react-native';
-import { useThemeMode } from './theme';
+import { useThemeMode, PRIMARY_COLOR, primaryColorAlpha } from "./theme";
 import TikTok from './assets/icons/tik-tok-svg.svg';
 import Facebook from './assets/icons/facebook-svg.svg';
 import Google from './assets/icons/google-svg.svg';
@@ -60,7 +60,7 @@ const SignUpModal: React.FC<SignUpModalProps> = ({
               styles.iconWrap,
               {
                 backgroundColor: theme.accentSoft,
-                borderColor: 'rgba(205,43,238,0.18)',
+                borderColor: primaryColorAlpha(0.18),
               },
             ]}
           >
@@ -204,7 +204,7 @@ const styles = StyleSheet.create({
     minHeight: 54,
     borderRadius: 16,
     // borderWidth: 1,
-    // borderColor: '#cd2bee',
+    // borderColor: PRIMARY_COLOR,
     // backgroundColor: isDark,
     flexDirection: 'row',
     alignItems: 'center',
@@ -223,7 +223,7 @@ const styles = StyleSheet.create({
     backgroundColor: 'rgba(255,255,255,0.08)',
   },
   authIconPlaceholderText: {
-    color: '#cd2bee',
+    color: PRIMARY_COLOR,
     fontSize: FontSize.eleven,
     // fontWeight: '900',
     textTransform: 'uppercase',

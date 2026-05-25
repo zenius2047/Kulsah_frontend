@@ -16,7 +16,7 @@ import AsyncStorage from '@react-native-async-storage/async-storage';
 import { useNavigation, useRoute } from '@react-navigation/native';
 import { MaterialIcons } from '@expo/vector-icons';
 import { useVideoPlayer, VideoView } from 'expo-video';
-import { useThemeMode } from '../theme';
+import { useThemeMode, PRIMARY_COLOR, primaryColorAlpha } from "../theme";
 import { FontSize } from '../fonts';
 import { mediumScreen, user } from '../types';
 import KulsahInputBar from '../components/KulsahInputBar';
@@ -441,8 +441,8 @@ const CommunityPostDetail: React.FC = () => {
 
           <View style={styles.actionBar}>
             <Pressable style={styles.actionItem} onPress={() => void toggleLike()}>
-              <MaterialIcons name={post.isLiked ? 'favorite' : 'favorite-border'} size={20} color={post.isLiked ? '#cd2bee' : dimIcon} />
-              <Text style={[styles.actionText, { color: post.isLiked ? '#cd2bee' : mutedText }]}>{post.likes.toLocaleString()}</Text>
+              <MaterialIcons name={post.isLiked ? 'favorite' : 'favorite-border'} size={20} color={post.isLiked ? PRIMARY_COLOR : dimIcon} />
+              <Text style={[styles.actionText, { color: post.isLiked ? PRIMARY_COLOR : mutedText }]}>{post.likes.toLocaleString()}</Text>
             </Pressable>
             <Pressable style={styles.actionItem}>
               <MaterialIcons name="chat-bubble-outline" size={20} color={dimIcon} />
@@ -483,7 +483,7 @@ const CommunityPostDetail: React.FC = () => {
                       </View>
                       {comment.replys?.map((item)=>
                             <View style={styles.replyWrap}>
-                                        <View style={[styles.replyLine, { backgroundColor: 'rgba(205,43,238,0.28)' }]} />
+                                        <View style={[styles.replyLine, { backgroundColor: primaryColorAlpha(0.28) }]} />
                                         <View style={styles.replyRow}>
                                           <Image source={{ uri: item.avatar }} style={styles.replyAvatar} />
                                           <View style={styles.replyMain}>
@@ -492,7 +492,7 @@ const CommunityPostDetail: React.FC = () => {
                                               <Text style={[styles.replyTime, { color: muted }]}>{formatCommentTime(item.time)}</Text>
                                             </View>
                                             <Text style={[styles.replyBody, { color: commentText }]}>
-                                              <Text style={{ color: '#cd2bee', fontFamily: 'PlusJakartaSansBold' }}>@{comment.handle} </Text>
+                                              <Text style={{ color: PRIMARY_COLOR, fontFamily: 'PlusJakartaSansBold' }}>@{comment.handle} </Text>
                                                {" "}{item.text}
                                             </Text>
                                             <View style={styles.replyActions}>
@@ -556,7 +556,7 @@ const CommunityPostDetail: React.FC = () => {
           {replyingTo ? (
             <View style={[styles.replyingBanner, { backgroundColor: composerBg, borderColor: softBorder }]}>
               <View style={styles.replyingInfo}>
-                <MaterialIcons name="reply" size={16} color="#cd2bee" />
+                <MaterialIcons name="reply" size={16} color={PRIMARY_COLOR} />
                 <Text style={[styles.replyingText, { color: mutedText }]}>
                   Replying to <Text style={[styles.replyingTarget, { color: theme.text }]}>@{replyingTo.handle}</Text>
                 </Text>
@@ -651,9 +651,9 @@ const styles = StyleSheet.create({
   postImageGrid: { width: '100%', height: '100%', resizeMode: 'cover' },
   pollWrap: { paddingHorizontal: 12, paddingBottom: 14, gap: 8 },
   pollOption: { height: 52, borderRadius: 12, borderWidth: 1, overflow: 'hidden' },
-  pollOptionSelected: { borderColor: 'rgba(205,43,238,0.35)' },
-  pollFill: { position: 'absolute', left: 0, top: 0, bottom: 0, backgroundColor: 'rgba(205,43,238,0.08)' },
-  pollFillSelected: { backgroundColor: 'rgba(205,43,238,0.16)' },
+  pollOptionSelected: { borderColor: primaryColorAlpha(0.35) },
+  pollFill: { position: 'absolute', left: 0, top: 0, bottom: 0, backgroundColor: primaryColorAlpha(0.08) },
+  pollFillSelected: { backgroundColor: primaryColorAlpha(0.16) },
   pollContent: { flex: 1, flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', paddingHorizontal: 12 },
   pollText: { fontSize: mediumScreen ? FontSize.sixteen : FontSize.twelve, fontFamily: 'PlusJakartaSansBold' },
   pollPercent: { fontSize: mediumScreen ? FontSize.fifteen : FontSize.eleven, fontFamily: 'PlusJakartaSansExtraBold' },
@@ -668,7 +668,7 @@ const styles = StyleSheet.create({
     justifyContent: 'space-between',
   },
   reactionLeft: { flexDirection: 'row', alignItems: 'center', gap: 6 },
-  likeBadge: { width: 20, height: 20, borderRadius: 10, backgroundColor: '#cd2bee', alignItems: 'center', justifyContent: 'center' },
+  likeBadge: { width: 20, height: 20, borderRadius: 10, backgroundColor: PRIMARY_COLOR, alignItems: 'center', justifyContent: 'center' },
   reactionSummaryText: { fontSize: mediumScreen ? FontSize.ten : FontSize.nine, fontFamily: 'PlusJakartaSansMedium' },
   actionBar: { flexDirection: 'row', alignItems: 'center', paddingHorizontal: 12, paddingVertical: 6, gap: 15 },
   actionItem: { minHeight: 42, borderRadius: 8, flexDirection: 'row', alignItems: 'center', justifyContent: 'center', gap: 4 },

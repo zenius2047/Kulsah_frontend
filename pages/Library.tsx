@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { useThemeMode } from '../theme';
+import { useThemeMode, PRIMARY_COLOR, primaryColorAlpha } from "../theme";
 import {
   Image,
   Platform,
@@ -167,7 +167,7 @@ const Library: React.FC = () => {
                 <Text
                   style={[
                     styles.filterChipText,
-                    { color: isActive ? '#cd2bee' : theme.textSecondary },
+                    { color: isActive ? PRIMARY_COLOR : theme.textSecondary },
                   ]}
                 >
                   {filter}
@@ -186,9 +186,9 @@ const Library: React.FC = () => {
                 style={[
                   styles.card,
                   {
-                    borderColor: isSelected ? '#cd2bee' : theme.border,
+                    borderColor: isSelected ? PRIMARY_COLOR : theme.border,
                     borderWidth: isSelected ? 2 : 1,
-                    shadowColor: isSelected ? '#cd2bee' : '#000',
+                    shadowColor: isSelected ? PRIMARY_COLOR : '#000',
                     shadowOpacity: isSelected ? 0.28 : 0.12,
                   },
                 ]}
@@ -254,11 +254,11 @@ const styles = StyleSheet.create({
     fontSize: FontSize.fifteen,
   },
   selectButton: {
-    backgroundColor: '#cd2bee',
+    backgroundColor: PRIMARY_COLOR,
     paddingHorizontal: 20,
     paddingVertical: 10,
     borderRadius: 999,
-    shadowColor: '#cd2bee',
+    shadowColor: PRIMARY_COLOR,
     shadowOffset: { width: 0, height: 0 },
     shadowOpacity: 0.4,
     shadowRadius: 18,
@@ -287,8 +287,8 @@ const styles = StyleSheet.create({
     borderWidth: 1,
   },
   filterChipActive: {
-    backgroundColor: 'rgba(205,43,238,0.2)',
-    borderColor: 'rgba(205,43,238,0.3)',
+    backgroundColor: primaryColorAlpha(0.2),
+    borderColor: primaryColorAlpha(0.3),
   },
   filterChipText: {
     fontFamily: 'PlusJakartaSansBold',
@@ -340,7 +340,7 @@ const styles = StyleSheet.create({
     width: 24,
     height: 24,
     borderRadius: 12,
-    backgroundColor: '#cd2bee',
+    backgroundColor: PRIMARY_COLOR,
     alignItems: 'center',
     justifyContent: 'center',
   },

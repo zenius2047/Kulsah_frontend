@@ -16,7 +16,7 @@ import {
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { FontSize } from './fonts';
-import { useThemeMode } from './theme';
+import { useThemeMode, PRIMARY_COLOR, primaryColorAlpha } from "./theme";
 import { mediumScreen } from './types';
 
 interface Product {
@@ -238,7 +238,7 @@ const MarketPlace: React.FC = () => {
                   s.productVisual,
                   {
                     backgroundColor: isDark ? '#111827' : '#e2e8f0',
-                    borderColor: product.category === 'Passes' ? 'rgba(205,43,238,0.32)' : theme.border,
+                    borderColor: product.category === 'Passes' ? primaryColorAlpha(0.32) : theme.border,
                   },
                 ]}
               >
@@ -628,10 +628,10 @@ const s = StyleSheet.create({
     width: 6,
     height: 6,
     borderRadius: 999,
-    backgroundColor: '#cd2bee',
+    backgroundColor: PRIMARY_COLOR,
   },
   headerSubText: {
-    color: '#cd2bee',
+    color: PRIMARY_COLOR,
     fontSize: mediumScreen ? FontSize.ten:FontSize.six,
     fontFamily: 'PlusJakartaSansExtraBold',
     textTransform: 'uppercase',
@@ -675,8 +675,8 @@ const s = StyleSheet.create({
     justifyContent: 'center',
   },
   categoryChipActive: {
-    backgroundColor: '#cd2bee',
-    borderColor: '#cd2bee',
+    backgroundColor: PRIMARY_COLOR,
+    borderColor: PRIMARY_COLOR,
   },
   categoryText: {
     fontSize: mediumScreen ? FontSize.twelve:FontSize.eight,
@@ -720,7 +720,7 @@ const s = StyleSheet.create({
   },
   productPrice: {
     marginTop: 3,
-    color: '#cd2bee',
+    color: PRIMARY_COLOR,
     fontSize: mediumScreen ? FontSize.twelve:FontSize.eight,
     fontFamily: 'PlusJakartaSansExtraBold',
   },
@@ -764,12 +764,12 @@ const s = StyleSheet.create({
     paddingHorizontal: 18,
     height: 40,
     borderRadius: 14,
-    backgroundColor: 'rgba(205,43,238,0.12)',
+    backgroundColor: primaryColorAlpha(0.12),
     alignItems: 'center',
     justifyContent: 'center',
   },
   resetButtonText: {
-    color: '#cd2bee',
+    color: PRIMARY_COLOR,
     fontSize: FontSize.ten,
     fontFamily: 'PlusJakartaSansExtraBold',
     textTransform: 'uppercase',
@@ -843,12 +843,12 @@ const s = StyleSheet.create({
     paddingHorizontal: 14,
     paddingVertical: 9,
     borderRadius: 16,
-    backgroundColor: 'rgba(205,43,238,0.2)',
+    backgroundColor: primaryColorAlpha(0.2),
     borderWidth: 1,
-    borderColor: 'rgba(205,43,238,0.35)',
+    borderColor: primaryColorAlpha(0.35),
   },
   detailPriceTagText: {
-    color: '#cd2bee',
+    color: PRIMARY_COLOR,
     fontSize: FontSize.ten,
     fontFamily: 'PlusJakartaSansExtraBold',
   },
@@ -862,7 +862,7 @@ const s = StyleSheet.create({
     gap: 12,
   },
   detailCategory: {
-    color: '#cd2bee',
+    color: PRIMARY_COLOR,
     fontSize: mediumScreen ? FontSize.fourteen : FontSize.ten,
     fontFamily: 'PlusJakartaSansExtraBold',
     textTransform: 'uppercase',
@@ -940,7 +940,7 @@ const s = StyleSheet.create({
     flex: 1.35,
     minHeight: 58,
     borderRadius: 999,
-    backgroundColor: '#cd2bee',
+    backgroundColor: PRIMARY_COLOR,
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'center',
@@ -956,7 +956,7 @@ const s = StyleSheet.create({
   confirmButton: {
     height: 56,
     borderRadius: 18,
-    backgroundColor: '#cd2bee',
+    backgroundColor: PRIMARY_COLOR,
     alignItems: 'center',
     justifyContent: 'center',
     marginTop: 15
@@ -1017,7 +1017,7 @@ const s = StyleSheet.create({
     letterSpacing: 1.2,
   },
   reviewAmount: {
-    color: '#cd2bee',
+    color: PRIMARY_COLOR,
     fontSize: mediumScreen ? FontSize.fourteen:FontSize.ten,
     fontFamily: 'PlusJakartaSansExtraBold',
   },
@@ -1052,7 +1052,7 @@ const s = StyleSheet.create({
     textTransform: 'uppercase',
   },
   totalMainValue: {
-    color: '#cd2bee',
+    color: PRIMARY_COLOR,
     fontSize: mediumScreen ? FontSize.eighteen:FontSize.fourteen,
     fontFamily: 'PlusJakartaSansExtraBold',
   },

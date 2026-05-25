@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { useThemeMode } from '../theme';
+import { useThemeMode, PRIMARY_COLOR, primaryColorAlpha } from "../theme";
 import {
   Image,
   Pressable,
@@ -28,7 +28,7 @@ const actionCards = [
     title: 'Create Event',
     description: 'Schedule a live session or digital workshop with your fans.',
     icon: 'calendar-today' as const,
-    tint: '#cd2bee',
+    tint: PRIMARY_COLOR,
     bg: 'rgba(147, 13, 242, 0.16)',
     route: 'CreatorEvents',
     params: { openComposer: true },
@@ -37,7 +37,7 @@ const actionCards = [
     title: 'Challenge',
     description: 'Viral prompts for your community.',
     icon: 'emoji-events' as const,
-    tint: '#cd2bee',
+    tint: PRIMARY_COLOR,
     bg: 'rgba(217, 21, 210, 0.16)',
     route: 'CreateChallenge',
   },
@@ -152,7 +152,7 @@ const CreateEvent: React.FC = () => {
               </View>
               <Text style={styles.newVideoTitle}>New video</Text>
               <LinearGradient
-                colors={['rgba(205,43,238,0.08)', 'transparent']}
+                colors={[primaryColorAlpha(0.08), 'transparent']}
                 style={StyleSheet.absoluteFill}
               />
             </Pressable>
@@ -556,7 +556,7 @@ const styles = StyleSheet.create({
     fontSize: mediumScreen ? FontSize.twenty:FontSize.sixteen,
   },
   seeAllText: {
-    color: '#cd2bee',
+    color: PRIMARY_COLOR,
     fontFamily: 'PlusJakartaSansBold',
     fontSize: mediumScreen ? FontSize.sixteen:FontSize.twelve,
     letterSpacing: 1,

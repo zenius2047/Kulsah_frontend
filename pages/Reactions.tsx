@@ -5,7 +5,7 @@ import { BlurView } from 'expo-blur';
 import { LinearGradient } from 'expo-linear-gradient';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { FontSize } from '../fonts';
-import { useThemeMode } from '../theme';
+import { useThemeMode, PRIMARY_COLOR, primaryColorAlpha } from "../theme";
 import { mediumScreen } from '../types';
 import EmojiStickerPicker from '../components/EmojiStickerPicker';
 import GiftDialog, { GiftSelection } from '../components/GiftDialog';
@@ -230,8 +230,8 @@ const Reactions: React.FC<ReactionsProps> = ({
             const active = activeTab === tab.label;
             return (
               <Pressable key={tab.label} onPress={() => setActiveTab(tab.label)} style={[styles.tabButton, active && { backgroundColor: cardBackground }]}>
-                <MaterialIcons name={tab.icon} size={18} color={active ? '#cd2bee' : secondary} />
-                <Text style={[styles.tabText, { color: active ? '#cd2bee' : secondary }]}>{tab.label}</Text>
+                <MaterialIcons name={tab.icon} size={18} color={active ? PRIMARY_COLOR : secondary} />
+                <Text style={[styles.tabText, { color: active ? PRIMARY_COLOR : secondary }]}>{tab.label}</Text>
               </Pressable>
             );
           })}
@@ -246,7 +246,7 @@ const Reactions: React.FC<ReactionsProps> = ({
                   <View style={styles.commentMetaRow}>
                     <View style={styles.commentNameRow}>
                       <Text style={[styles.commentHandle, { color: theme.text }]}>{comment.handle}</Text>
-                      {comment.verified ? <MaterialIcons name="verified" size={14} color="#cd2bee" /> : null}
+                      {comment.verified ? <MaterialIcons name="verified" size={14} color={PRIMARY_COLOR} /> : null}
                     </View>
                     <Text style={[styles.commentTime, { color: muted }]}>{comment.time}</Text>
                   </View>
@@ -286,7 +286,7 @@ const Reactions: React.FC<ReactionsProps> = ({
 
               {comment.reply ? (
                 <View style={styles.replyWrap}>
-                  <View style={[styles.replyLine, { backgroundColor: 'rgba(205,43,238,0.28)' }]} />
+                  <View style={[styles.replyLine, { backgroundColor: primaryColorAlpha(0.28) }]} />
                   <View style={styles.replyRow}>
                     <Image source={{ uri: comment.reply.avatar }} style={styles.replyAvatar} />
                     <View style={styles.replyMain}>
@@ -295,7 +295,7 @@ const Reactions: React.FC<ReactionsProps> = ({
                         <Text style={[styles.replyTime, { color: muted }]}>{comment.reply.time}</Text>
                       </View>
                       <Text style={[styles.replyBody, { color: commentText }]}>
-                        <Text style={{ color: '#cd2bee', fontFamily: 'PlusJakartaSansBold' }}>{comment.handle} </Text>
+                        <Text style={{ color: PRIMARY_COLOR, fontFamily: 'PlusJakartaSansBold' }}>{comment.handle} </Text>
                         {comment.reply.text}
                       </Text>
                       <View style={styles.replyActions}>
@@ -309,7 +309,7 @@ const Reactions: React.FC<ReactionsProps> = ({
             </View>
           ))}
 
-          <BlurView intensity={32} tint={isDark ? 'dark' : 'light'} style={[styles.giftCard, { borderColor: 'rgba(205,43,238,0.18)' }]}>
+          <BlurView intensity={32} tint={isDark ? 'dark' : 'light'} style={[styles.giftCard, { borderColor: primaryColorAlpha(0.18) }]}>
             <Image source={{ uri: 'https://picsum.photos/seed/marcus-digital/120' }} style={styles.avatar} />
             <View style={{ flex: 1 }}>
               <View style={styles.giftHeaderRow}>
@@ -317,7 +317,7 @@ const Reactions: React.FC<ReactionsProps> = ({
                 <Text style={styles.giftLabel}>GIFTER</Text>
               </View>
               <View style={styles.giftMetaRow}>
-                <MaterialIcons name="redeem" size={18} color="#cd2bee" />
+                <MaterialIcons name="redeem" size={18} color={PRIMARY_COLOR} />
                 <Text style={[styles.giftText, { color: theme.text }]}>Sent a Hyper-Glow Gift</Text>
               </View>
             </View>
@@ -336,7 +336,7 @@ const Reactions: React.FC<ReactionsProps> = ({
           {replyingTo ? (
             <View style={[styles.replyingBanner, { backgroundColor: cardBackground, borderColor: softBorder }]}>
               <View style={styles.replyingInfo}>
-                <MaterialIcons name="reply" size={16} color="#cd2bee" />
+                <MaterialIcons name="reply" size={16} color={PRIMARY_COLOR} />
                 <Text style={[styles.replyingText, { color: secondary }]}>
                   Replying to <Text style={{ color: theme.text, fontFamily: 'PlusJakartaSansBold' }}>{replyingTo}</Text>
                 </Text>
@@ -371,7 +371,7 @@ const Reactions: React.FC<ReactionsProps> = ({
                       }}
                       style={styles.inputIcon}
                     >
-                      <MaterialIcons name="mood" size={26} color={pickerOpen ? '#cd2bee' : secondary} />
+                      <MaterialIcons name="mood" size={26} color={pickerOpen ? PRIMARY_COLOR : secondary} />
                     </Pressable>
                   </View>
                   {message ? (
@@ -456,7 +456,7 @@ const styles = StyleSheet.create({
     overflow: 'hidden',
     alignItems: 'center',
     justifyContent: 'center',
-    backgroundColor: 'rgba(205,43,238,0.12)',
+    backgroundColor: primaryColorAlpha(0.12),
   },
   giftMessageImage: {
     width: '100%',
@@ -494,7 +494,7 @@ const styles = StyleSheet.create({
   replyActionText: { fontFamily: 'PlusJakartaSansBold', fontSize: mediumScreen ? FontSize.ten: FontSize.eight },
   giftCard: { flexDirection: 'row', gap: 12, borderRadius: 20, padding: 14, overflow: 'hidden', borderWidth: 1 },
   giftHeaderRow: { flexDirection: 'row', alignItems: 'center', gap: 8 },
-  giftLabel: { color: '#cd2bee', fontFamily: 'PlusJakartaSansExtraBold', fontSize: mediumScreen ? FontSize.nine: FontSize.six, letterSpacing: 0.6, textTransform: 'uppercase' },
+  giftLabel: { color: PRIMARY_COLOR, fontFamily: 'PlusJakartaSansExtraBold', fontSize: mediumScreen ? FontSize.nine: FontSize.six, letterSpacing: 0.6, textTransform: 'uppercase' },
   giftMetaRow: { flexDirection: 'row', alignItems: 'center', gap: 8, marginTop: 6 },
   giftText: { fontFamily: 'PlusJakartaSansMedium', fontSize: mediumScreen ? FontSize.eleven:FontSize.eight },
   inputShell: { borderTopWidth: 1, paddingHorizontal: 16, paddingTop: 12 },
@@ -503,7 +503,7 @@ const styles = StyleSheet.create({
   replyingText: { fontFamily: 'PlusJakartaSansMedium', fontSize: mediumScreen ? FontSize.ten: FontSize.seven },
   inputActions: { flexDirection: 'row' },
   inputIcon: { width: 32, height: 32, borderRadius: 16, alignItems: 'center', justifyContent: 'center' },
-  sendButton: { width: 36, height: 36, borderRadius: 12, alignItems: 'center', justifyContent: 'center', backgroundColor: '#cd2bee' },
+  sendButton: { width: 36, height: 36, borderRadius: 12, alignItems: 'center', justifyContent: 'center', backgroundColor: PRIMARY_COLOR },
   homeIndicatorWrap: { alignItems: 'center', paddingTop: 10 },
   homeIndicator: { width: 128, height: 4, borderRadius: 999 },
 });

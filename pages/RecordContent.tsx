@@ -1,5 +1,5 @@
 import React from 'react';
-import { useThemeMode } from '../theme';
+import { useThemeMode, PRIMARY_COLOR, primaryColorAlpha } from "../theme";
 import {
   ActivityIndicator,
   Image,
@@ -174,7 +174,7 @@ const RecordContent: React.FC = ({route}:any) => {
             </BlurView>
 
             <Pressable style={styles.soundButton} onPress={() => setSoundSelectOpen(true)}>
-              <MaterialIcons name="music-note" size={20} color="#cd2bee" />
+              <MaterialIcons name="music-note" size={20} color={PRIMARY_COLOR} />
               <Text style={styles.soundButtonText} numberOfLines={1}>
                 {sound != null ? sound.title : 'Add Sound'}
               </Text>
@@ -200,7 +200,7 @@ const RecordContent: React.FC = ({route}:any) => {
                   <MaterialIcons
                     name={control.icon}
                     size={24}
-                    color={control.active ? '#cd2bee' : '#fff'}
+                    color={control.active ? PRIMARY_COLOR : '#fff'}
                   />
                 </View>
                 <Text style={[styles.sideLabel, control.active ? styles.sideLabelActive : null]}>
@@ -250,7 +250,7 @@ const RecordContent: React.FC = ({route}:any) => {
 
             <Pressable style={styles.utilityAction}>
               <BlurView intensity={24} tint="dark" style={styles.effectsCircle}>
-                <MaterialIcons name="auto-fix-high" size={28} color="#cd2bee" />
+                <MaterialIcons name="auto-fix-high" size={28} color={PRIMARY_COLOR} />
               </BlurView>
               <Text style={[styles.utilityLabel, styles.utilityLabelActive]}>Effects</Text>
             </Pressable>
@@ -336,7 +336,7 @@ const styles = StyleSheet.create({
     paddingHorizontal: 18,
     paddingVertical: 12,
     borderRadius: 999,
-    backgroundColor: '#cd2bee',
+    backgroundColor: PRIMARY_COLOR,
     alignItems: 'center',
     justifyContent: 'center'
   },
@@ -386,8 +386,8 @@ const styles = StyleSheet.create({
     width: '40%',
     height: '100%',
     borderRadius: 999,
-    backgroundColor: '#cd2bee',
-    shadowColor: '#cd2bee',
+    backgroundColor: PRIMARY_COLOR,
+    shadowColor: PRIMARY_COLOR,
     shadowOffset: { width: 0, height: 0 },
     shadowOpacity: 0.9,
     shadowRadius: 10,
@@ -467,7 +467,7 @@ const styles = StyleSheet.create({
     marginTop: 2,
   },
   sideLabelActive: {
-    color: '#cd2bee',
+    color: PRIMARY_COLOR,
     fontFamily: 'PlusJakartaSansBold',
   },
   bottomArea: {
@@ -498,7 +498,7 @@ const styles = StyleSheet.create({
   },
   filterThumbActive: {
     borderWidth: 2,
-    borderColor: '#cd2bee',
+    borderColor: PRIMARY_COLOR,
     opacity: 1,
   },
   filterRing: {
@@ -510,7 +510,7 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'center',
     borderWidth: 4,
-    borderColor: 'rgba(205,43,238,0.18)',
+    borderColor: primaryColorAlpha(0.18),
   },
   filterText: {
     marginTop: 8,
@@ -519,7 +519,7 @@ const styles = StyleSheet.create({
     fontSize: FontSize.twelve,
   },
   filterTextActive: {
-    color: '#cd2bee',
+    color: PRIMARY_COLOR,
     fontFamily: 'PlusJakartaSansBold',
   },
   primaryActions: {
@@ -547,7 +547,7 @@ const styles = StyleSheet.create({
     marginTop: 8,
   },
   utilityLabelActive: {
-    color: '#cd2bee',
+    color: PRIMARY_COLOR,
   },
   recordWrap: {
     alignItems: 'center',
@@ -610,7 +610,7 @@ const styles = StyleSheet.create({
     width: '100%',
     height: 2,
     borderRadius: 999,
-    backgroundColor: '#cd2bee',
+    backgroundColor: PRIMARY_COLOR,
     marginTop: 6,
   },
 });

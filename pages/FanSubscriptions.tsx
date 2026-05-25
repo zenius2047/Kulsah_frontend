@@ -13,7 +13,7 @@ import {
 } from 'react-native';
 import { SafeAreaView, useSafeAreaInsets } from 'react-native-safe-area-context';
 import { FontSize } from '../fonts';
-import { useThemeMode } from '../theme';
+import { useThemeMode, PRIMARY_COLOR, primaryColorAlpha } from "../theme";
 import { mediumScreen } from '../types';
 
 type SubscriptionItem = {
@@ -139,7 +139,7 @@ const FanSubscriptions: React.FC = () => {
               <View style={s.subscriptionHeaderText}>
                 <View style={s.nameRow}>
                   <Text style={[s.name, { color: titleColor }]}>{sub.name}</Text>
-                  <MaterialIcons name="verified" size={16} color="#cd2bee" />
+                  <MaterialIcons name="verified" size={16} color={PRIMARY_COLOR} />
                 </View>
                 <View style={[s.planChip, { backgroundColor: isDark ? 'rgba(255,255,255,0.08)' : softBg }]}>
                   <Text style={[s.planChipText, { color: subtle }]}>{sub.billingCycle} Membership</Text>
@@ -225,7 +225,7 @@ const FanSubscriptions: React.FC = () => {
                 <Text style={[s.microLabel, { color: muted }]}>Subscription Actions</Text>
                 <Pressable onPress={() => navigation.navigate('Chat')} style={[s.actionCard, { backgroundColor: softBg, borderColor: border }]}>
                   <View style={s.actionLeft}>
-                    <MaterialIcons name="chat" size={20} color="#cd2bee" />
+                    <MaterialIcons name="chat" size={20} color={PRIMARY_COLOR} />
                     <Text style={[s.actionText, { color: titleColor }]}>Message Creator</Text>
                   </View>
                   <MaterialIcons name="chevron-right" size={20} color={muted} />
@@ -276,12 +276,12 @@ const s = StyleSheet.create({
     paddingHorizontal: 12,
     paddingVertical: 7,
     borderRadius: 999,
-    backgroundColor: 'rgba(205,43,238,0.16)',
+    backgroundColor: primaryColorAlpha(0.16),
     borderWidth: 1,
-    borderColor: 'rgba(205,43,238,0.28)',
+    borderColor: primaryColorAlpha(0.28),
   },
   headerBadgeText: {
-    color: '#cd2bee',
+    color: PRIMARY_COLOR,
     fontFamily: 'PlusJakartaSansExtraBold',
     fontSize: mediumScreen ? FontSize.ten : FontSize.eight,
     textTransform: 'uppercase',
@@ -386,7 +386,7 @@ const s = StyleSheet.create({
   },
   priceValue: {
     marginTop: 4,
-    color: '#cd2bee',
+    color: PRIMARY_COLOR,
     fontFamily: 'PlusJakartaSansExtraBold',
     fontSize: mediumScreen ? FontSize.fourteen : FontSize.twelve,
   },
@@ -398,7 +398,7 @@ const s = StyleSheet.create({
     flex: 1,
     height: 48,
     borderRadius: 18,
-    backgroundColor: '#cd2bee',
+    backgroundColor: PRIMARY_COLOR,
     alignItems: 'center',
     justifyContent: 'center',
   },
@@ -437,7 +437,7 @@ const s = StyleSheet.create({
     justifyContent: 'center',
   },
   discoverText: {
-    color: '#cd2bee',
+    color: PRIMARY_COLOR,
     fontFamily: 'PlusJakartaSansExtraBold',
     fontSize: mediumScreen ? FontSize.ten : FontSize.eight,
     textTransform: 'uppercase',
@@ -488,7 +488,7 @@ const s = StyleSheet.create({
   },
   modalMeta: {
     marginTop: 4,
-    color: '#cd2bee',
+    color: PRIMARY_COLOR,
     fontFamily: 'PlusJakartaSansExtraBold',
     fontSize: mediumScreen ? FontSize.nine : FontSize.eight,
     textTransform: 'uppercase',

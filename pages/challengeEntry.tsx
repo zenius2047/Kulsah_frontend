@@ -1,5 +1,5 @@
 import React from 'react';
-import { useThemeMode } from '../theme';
+import { useThemeMode, PRIMARY_COLOR } from "../theme";
 import {
   Image,
   Pressable,
@@ -117,7 +117,7 @@ const ChallengeEntry: React.FC = () => {
                 <Text style={styles.audioMeta}>Vibe Architect • 0:30</Text>
               </View>
 
-              <MaterialIcons name="check-circle" size={22} color="#cd2bee" />
+              <MaterialIcons name="check-circle" size={22} color={PRIMARY_COLOR} />
             </Pressable>
           </View>
 
@@ -139,7 +139,7 @@ const ChallengeEntry: React.FC = () => {
             )}
             style={[styles.uploadCard, styles.libraryCard, { backgroundColor: isDark ? 'rgba(255,255,255,0.06)' : theme.card, borderColor: cardBorder }]}>
               <View style={styles.libraryIconCircle}>
-                <MaterialIcons name="upload-file" size={30} color="#cd2bee" />
+                <MaterialIcons name="upload-file" size={30} color={PRIMARY_COLOR} />
               </View>
               <Text style={[styles.libraryLabel, { color: theme.text }]}>Upload Library</Text>
             </Pressable>
@@ -204,7 +204,7 @@ const styles = StyleSheet.create({
     borderWidth: 1,
     borderColor: 'rgba(217, 21, 210, 0.18)',
     backgroundColor: 'rgba(217, 21, 210, 0.12)',
-    shadowColor: '#cd2bee',
+    shadowColor: PRIMARY_COLOR,
     shadowOffset: { width: 0, height: 16 },
     shadowOpacity: 0.12,
     shadowRadius: 24,
@@ -233,7 +233,7 @@ const styles = StyleSheet.create({
     paddingHorizontal: 10,
     paddingVertical: 4,
     borderRadius: 999,
-    backgroundColor: '#cd2bee',
+    backgroundColor: PRIMARY_COLOR,
     alignSelf: 'flex-start',
   },
   liveBadgeText: {
@@ -265,7 +265,7 @@ const styles = StyleSheet.create({
     lineHeight: 22,
   },
   hashTag: {
-    color: '#cd2bee',
+    color: PRIMARY_COLOR,
     fontFamily: 'PlusJakartaSansBold',
   },
   audioSection: {
@@ -284,7 +284,7 @@ const styles = StyleSheet.create({
     fontSize: FontSize.thirteen,
   },
   seeAll: {
-    color: '#cd2bee',
+    color: PRIMARY_COLOR,
     fontFamily: 'PlusJakartaSansBold',
     fontSize: FontSize.ten,
   },
@@ -345,8 +345,8 @@ const styles = StyleSheet.create({
     paddingVertical: 24,
   },
   recordCard: {
-    backgroundColor: '#cd2bee',
-    shadowColor: '#cd2bee',
+    backgroundColor: PRIMARY_COLOR,
+    shadowColor: PRIMARY_COLOR,
     shadowOffset: { width: 0, height: 12 },
     shadowOpacity: 0.28,
     shadowRadius: 20,

@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { useThemeMode } from '../theme';
+import { useThemeMode, PRIMARY_COLOR, primaryColorAlpha } from "../theme";
 import { Image, Linking, Modal, Pressable, ScrollView, Share, StyleSheet, Text, View } from 'react-native';
 import { SafeAreaView, useSafeAreaInsets } from 'react-native-safe-area-context';
 import { LinearGradient } from 'expo-linear-gradient';
@@ -133,7 +133,7 @@ const EventDetail: React.FC = () => {
   const soft = isDark ? 'rgba(255,255,255,0.06)' : 'rgba(15,23,42,0.05)';
   const subtle = isDark ? '#94a3b8' : theme.textSecondary;
   const faint = isDark ? 'rgba(255,255,255,0.45)' : theme.textMuted;
-  const accent = isDark ? '#cd2bee' : '#a21caf';
+  const accent = isDark ? PRIMARY_COLOR : '#a21caf';
 
   useEffect(() => {
     const unsubscribe = subscribeUser(setCurrentUser);
@@ -203,7 +203,7 @@ const EventDetail: React.FC = () => {
               </Pressable>
             ) : null}
             <Pressable onPress={() => setReminderOpen(true)} style={[styles.topButton, { borderColor: 'rgba(255,255,255,0.12)' }]}>
-              <MaterialIcons name={activeReminder ? 'notifications-active' : 'notifications'} size={22} color={activeReminder ? '#cd2bee' : '#fff'} />
+              <MaterialIcons name={activeReminder ? 'notifications-active' : 'notifications'} size={22} color={activeReminder ? PRIMARY_COLOR : '#fff'} />
             </Pressable>
             <Pressable onPress={handleShare} style={[styles.topButton, { borderColor: 'rgba(255,255,255,0.12)' }]}>
               <MaterialIcons name="share" size={22} color="#fff" />
@@ -284,7 +284,7 @@ const EventDetail: React.FC = () => {
               <Pressable onPress={openMap} style={[styles.mapCard, { borderColor: border }]}>
                 <Image source={{ uri: 'https://images.unsplash.com/photo-1526778548025-fa2f459cd5c1?auto=format&fit=crop&q=80&w=800' }} style={styles.mapImage} />
                 <LinearGradient colors={['transparent', 'rgba(0,0,0,0.6)']} style={StyleSheet.absoluteFillObject} />
-                <View style={styles.mapOverlay}><MaterialIcons name="location-on" size={36} color="#cd2bee" /><Text style={styles.mapText}>Tap to navigate</Text></View>
+                <View style={styles.mapOverlay}><MaterialIcons name="location-on" size={36} color={PRIMARY_COLOR} /><Text style={styles.mapText}>Tap to navigate</Text></View>
               </Pressable>
 
               <View style={[styles.tipCard, { backgroundColor: soft, borderColor: border }]}>
@@ -348,7 +348,7 @@ const EventDetail: React.FC = () => {
 };
 
 const styles = StyleSheet.create({
-  safeArea: { flex: 1 }, toastWrap: { position: 'absolute', left: 20, right: 20, zIndex: 50, alignItems: 'center' }, toastText: { color: '#fff', backgroundColor: '#cd2bee', paddingHorizontal: 18, paddingVertical: 10, borderRadius: 999, fontFamily: 'PlusJakartaSansExtraBold', fontSize: mediumScreen ? FontSize.ten : FontSize.eight, textTransform: 'uppercase', letterSpacing: 1.4 },
+  safeArea: { flex: 1 }, toastWrap: { position: 'absolute', left: 20, right: 20, zIndex: 50, alignItems: 'center' }, toastText: { color: '#fff', backgroundColor: PRIMARY_COLOR, paddingHorizontal: 18, paddingVertical: 10, borderRadius: 999, fontFamily: 'PlusJakartaSansExtraBold', fontSize: mediumScreen ? FontSize.ten : FontSize.eight, textTransform: 'uppercase', letterSpacing: 1.4 },
   hero: { height: 320, width: '100%' }, heroImage: { width: '100%', height: '100%' }, topButton: { position: 'absolute', width: 42, height: 42, borderRadius: 21, backgroundColor: 'rgba(0,0,0,0.34)', alignItems: 'center', justifyContent: 'center', borderWidth: 1 }, topRight: { position: 'absolute', right: 16, flexDirection: 'row', gap: 10 },
   content: { paddingHorizontal: 16, gap: 22 }, panel: { borderRadius: 28, borderWidth: 1, padding: 18, gap: 18 }, rowBetween: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', gap: 12 }, eyebrowAccent: { fontFamily: 'PlusJakartaSansExtraBold', fontSize: mediumScreen ? FontSize.nine : FontSize.seven, textTransform: 'uppercase', letterSpacing: 1.8 }, title: { fontFamily: 'PlusJakartaSansExtraBold', fontSize: mediumScreen ? FontSize.twenty: FontSize.sixteen, lineHeight: mediumScreen ? 28 : 22 }, fastBadge: { backgroundColor: 'rgba(239,68,68,0.12)', borderRadius: 999, paddingHorizontal: 10, paddingVertical: 6, borderWidth: 1, borderColor: 'rgba(239,68,68,0.22)' }, fastBadgeText: { color: '#ef4444', fontFamily: 'PlusJakartaSansExtraBold', fontSize: mediumScreen ? FontSize.nine : FontSize.seven, textTransform: 'uppercase', letterSpacing: 1 },
   infoBlock: { borderTopWidth: 1, borderBottomWidth: 1, paddingVertical: 16, gap: 14 }, infoRow: { flexDirection: 'row', alignItems: 'center', gap: 12 }, infoIcon: { width: 42, height: 42, borderRadius: 14, borderWidth: 1, alignItems: 'center', justifyContent: 'center' }, infoTitle: { fontFamily: 'PlusJakartaSansBold', fontSize: mediumScreen ? FontSize.thirteen : FontSize.eleven }, infoSub: { fontFamily: 'PlusJakartaSansMedium', fontSize: mediumScreen ? FontSize.eleven : FontSize.nine },
@@ -363,11 +363,11 @@ const styles = StyleSheet.create({
   statValueLarge: { marginTop: 6, fontFamily: 'PlusJakartaSansExtraBold', fontSize: mediumScreen ? FontSize.eighteen: FontSize.fourteen },
   statValue: { marginTop: 6, fontFamily: 'PlusJakartaSansExtraBold', fontSize: mediumScreen ? FontSize.sixteen: FontSize.twelve, textTransform: 'uppercase' },
   statMeta: { marginTop: 3, fontFamily: 'PlusJakartaSansBold', fontSize: mediumScreen ? FontSize.ten : FontSize.eight },
-  performanceCard: { borderRadius: 22, padding: 14, backgroundColor: 'rgba(205,43,238,0.08)', borderWidth: 1, borderColor: 'rgba(205,43,238,0.2)', gap: 10 },
-  performanceLabel: { color: '#cd2bee', fontFamily: 'PlusJakartaSansExtraBold', fontSize: mediumScreen ? FontSize.ten : FontSize.eight, textTransform: 'uppercase', letterSpacing: 1.2 },
-  performanceMeta: { color: '#cd2bee', fontFamily: 'PlusJakartaSansBold', fontSize: mediumScreen ? FontSize.ten : FontSize.eight },
+  performanceCard: { borderRadius: 22, padding: 14, backgroundColor: primaryColorAlpha(0.08), borderWidth: 1, borderColor: primaryColorAlpha(0.2), gap: 10 },
+  performanceLabel: { color: PRIMARY_COLOR, fontFamily: 'PlusJakartaSansExtraBold', fontSize: mediumScreen ? FontSize.ten : FontSize.eight, textTransform: 'uppercase', letterSpacing: 1.2 },
+  performanceMeta: { color: PRIMARY_COLOR, fontFamily: 'PlusJakartaSansBold', fontSize: mediumScreen ? FontSize.ten : FontSize.eight },
   performanceTrack: { height: 8, borderRadius: 999, overflow: 'hidden', backgroundColor: 'rgba(148,163,184,0.2)' },
-  performanceFill: { height: '100%', borderRadius: 999, backgroundColor: '#cd2bee' },
+  performanceFill: { height: '100%', borderRadius: 999, backgroundColor: PRIMARY_COLOR },
   sectionGap: { gap: 12 }, eyebrow: { fontFamily: 'PlusJakartaSansExtraBold', fontSize: mediumScreen ? FontSize.nine : FontSize.seven, textTransform: 'uppercase', letterSpacing: 1.6 }, spinner: { width: 16, height: 16, borderRadius: 8, borderWidth: 2 }, mapCard: { aspectRatio: 16 / 9, borderRadius: 22, overflow: 'hidden', borderWidth: 1 }, mapImage: { width: '100%', height: '100%' }, mapOverlay: { ...StyleSheet.absoluteFillObject, alignItems: 'center', justifyContent: 'center', gap: 6 }, mapText: { color: '#fff', fontFamily: 'PlusJakartaSansExtraBold', fontSize: mediumScreen ? FontSize.ten : FontSize.eight, textTransform: 'uppercase', letterSpacing: 1.2 },
   tipCard: { borderRadius: 22, borderWidth: 1, padding: 16, gap: 12 }, body: { fontFamily: 'PlusJakartaSansMedium', fontSize: mediumScreen ? FontSize.thirteen : FontSize.eleven, lineHeight: mediumScreen ? 24 : 20 }, tipRow: { flexDirection: 'row', alignItems: 'flex-start', gap: 8 }, tipText: { flex: 1, fontFamily: 'PlusJakartaSansMedium', fontSize: mediumScreen ? FontSize.eleven : FontSize.nine, lineHeight: mediumScreen ? 20 : 16 }, routeButton: { height: 46, borderRadius: 22, alignItems: 'center', justifyContent: 'center', flexDirection: 'row', gap: 8 }, routeButtonText: { color: '#fff', fontFamily: 'PlusJakartaSansExtraBold', fontSize: mediumScreen ? FontSize.ten : FontSize.eight, textTransform: 'uppercase', letterSpacing: 1.2 },
   sectionTitle: { fontFamily: 'PlusJakartaSansExtraBold', fontSize: mediumScreen ? FontSize.eighteen : FontSize.sixteen }, ticketRow: { borderWidth: 1, borderRadius: 20, padding: 16, flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', marginTop: 10 }, ticketTitle: { fontFamily: 'PlusJakartaSansBold', fontSize: mediumScreen ? FontSize.twelve : FontSize.ten }, ticketMeta: { marginTop: 4, fontFamily: 'PlusJakartaSansMedium', fontSize: mediumScreen ? FontSize.nine : FontSize.seven, textTransform: 'uppercase', letterSpacing: 0.6 }, ticketPrice: { fontFamily: 'PlusJakartaSansExtraBold', fontSize: mediumScreen ? FontSize.twelve : FontSize.ten },

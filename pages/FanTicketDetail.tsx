@@ -12,7 +12,7 @@ import { SafeAreaView, useSafeAreaInsets } from 'react-native-safe-area-context'
 import { LinearGradient } from 'expo-linear-gradient';
 import { MaterialIcons } from '@expo/vector-icons';
 import { useNavigation, useRoute } from '@react-navigation/native';
-import { useThemeMode } from '../theme';
+import { useThemeMode, PRIMARY_COLOR, primaryColorAlpha } from "../theme";
 import { FontSize } from '../fonts';
 import { mediumScreen } from '../types';
 
@@ -133,7 +133,7 @@ const FanTicketDetail: React.FC = () => {
                   <Text style={[styles.detailLabel, { color: mutedText }]}>Digital Ticket ID</Text>
                   <Text style={[styles.ticketCode, { color: theme.text }]}>PULS-EVT-882-XR9</Text>
                 </View>
-                <View style={[styles.nfcBadge, { backgroundColor: isDark ? 'rgba(205,43,238,0.12)' : theme.accentSoft, borderColor: isDark ? 'rgba(205,43,238,0.22)' : 'rgba(205,43,238,0.18)' }]}>
+                <View style={[styles.nfcBadge, { backgroundColor: isDark ? primaryColorAlpha(0.12) : theme.accentSoft, borderColor: isDark ? primaryColorAlpha(0.22) : primaryColorAlpha(0.18) }]}>
                   <MaterialIcons name="nfc" size={22} color={theme.accent} />
                 </View>
               </View>
@@ -259,7 +259,7 @@ const styles = StyleSheet.create({
     letterSpacing: 1.2,
   },
   verifiedPill: {
-    backgroundColor: '#cd2bee',
+    backgroundColor: PRIMARY_COLOR,
     paddingHorizontal: 12,
     paddingVertical: 6,
     borderRadius: 10,

@@ -1,5 +1,5 @@
 import React from 'react';
-import { useThemeMode } from '../theme';
+import { useThemeMode, PRIMARY_COLOR, primaryColorAlpha } from "../theme";
 import {
   Image,
   Pressable,
@@ -96,7 +96,7 @@ const ParticipantHistory: React.FC = () => {
 
             <View style={styles.timelineWrap}>
               <LinearGradient
-                colors={['rgba(205,43,238,0.3)', 'rgba(205,43,238,0.18)', 'transparent']}
+                colors={[primaryColorAlpha(0.3), primaryColorAlpha(0.18), 'transparent']}
                 style={[styles.timelineLine, isTablet ? styles.timelineLineTablet : null]}
               />
 
@@ -110,7 +110,7 @@ const ParticipantHistory: React.FC = () => {
                       <MaterialIcons
                         name={item.icon}
                         size={isTablet ? 26 : 22}
-                        color={isWinner ? '#cd2bee' : isTopTen ? '#cd2bee' : theme.textMuted}
+                        color={isWinner ? PRIMARY_COLOR : isTopTen ? PRIMARY_COLOR : theme.textMuted}
                       />
                     </View>
 
@@ -176,7 +176,7 @@ const ParticipantHistory: React.FC = () => {
                           <Image source={{ uri: item.image }} style={[styles.previewImage, { borderColor: theme.border }]} />
                           <Pressable style={styles.viewEntryButton}>
                             <Text style={styles.viewEntryText}>View Entry</Text>
-                            <MaterialIcons name="open-in-new" size={14} color="#cd2bee" />
+                            <MaterialIcons name="open-in-new" size={14} color={PRIMARY_COLOR} />
                           </Pressable>
                         </View>
                       </View>
@@ -266,7 +266,7 @@ const styles = StyleSheet.create({
     zIndex: 2,
   },
   timelineBadgeWinner: {
-    shadowColor: '#cd2bee',
+    shadowColor: PRIMARY_COLOR,
     shadowOffset: { width: 0, height: 0 },
     shadowOpacity: 0.35,
     shadowRadius: 16,
@@ -305,7 +305,7 @@ const styles = StyleSheet.create({
     letterSpacing: 1.1,
   },
   dateTextWinner: {
-    color: '#cd2bee',
+    color: PRIMARY_COLOR,
   },
   statusPill: {
     paddingHorizontal: 9,
@@ -313,10 +313,10 @@ const styles = StyleSheet.create({
     borderRadius: 999,
   },
   statusPillWinner: {
-    backgroundColor: 'rgba(205,43,238,0.18)',
+    backgroundColor: primaryColorAlpha(0.18),
   },
   statusPillTopTen: {
-    backgroundColor: 'rgba(205,43,238,0.18)',
+    backgroundColor: primaryColorAlpha(0.18),
   },
   statusPillNeutral: {
     backgroundColor: 'rgba(255,255,255,0.05)',
@@ -327,10 +327,10 @@ const styles = StyleSheet.create({
     textTransform: 'uppercase',
   },
   statusPillTextWinner: {
-    color: '#cd2bee',
+    color: PRIMARY_COLOR,
   },
   statusPillTextTopTen: {
-    color: '#cd2bee',
+    color: PRIMARY_COLOR,
   },
   statusPillTextNeutral: {
     color: '#94A3B8',
@@ -369,10 +369,10 @@ const styles = StyleSheet.create({
     fontSize: FontSize.fourteen,
   },
   rewardWinner: {
-    color: '#cd2bee',
+    color: PRIMARY_COLOR,
   },
   rewardTopTen: {
-    color: '#cd2bee',
+    color: PRIMARY_COLOR,
   },
   rewardNeutral: {
     color: '#64748B',
@@ -394,7 +394,7 @@ const styles = StyleSheet.create({
     gap: 6,
   },
   viewEntryText: {
-    color: '#cd2bee',
+    color: PRIMARY_COLOR,
     fontFamily: 'PlusJakartaSansBold',
     fontSize: FontSize.twelve,
     textTransform: 'uppercase',

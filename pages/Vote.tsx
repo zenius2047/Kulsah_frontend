@@ -13,6 +13,7 @@ import { MaterialIcons } from '@expo/vector-icons';
 import { LinearGradient } from 'expo-linear-gradient';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { FontSize } from '../fonts';
+import { PRIMARY_COLOR, primaryColorAlpha } from "../theme";
 
 type CoinPack = {
   id: string;
@@ -71,7 +72,7 @@ export const VoteModalContent: React.FC<VoteModalContentProps> = ({
             <Text style={styles.brand}>NEON PULSE</Text>
             <View style={styles.topBarRight}>
               <View style={styles.walletChip}>
-                <MaterialIcons name="account-balance-wallet" size={15} color="#cd2bee" />
+                <MaterialIcons name="account-balance-wallet" size={15} color={PRIMARY_COLOR} />
                 <Text style={styles.walletChipText}>120 Coins</Text>
               </View>
               <View style={styles.avatarRing}>
@@ -128,7 +129,7 @@ export const VoteModalContent: React.FC<VoteModalContentProps> = ({
                       <MaterialIcons
                         name={pack.icon}
                         size={20}
-                        color={selected ? '#ffffff' : '#cd2bee'}
+                        color={selected ? '#ffffff' : PRIMARY_COLOR}
                       />
                     </View>
 
@@ -292,7 +293,7 @@ const styles = StyleSheet.create({
     borderRadius: 20,
     padding: 2,
     borderWidth: 2,
-    borderColor: '#cd2bee',
+    borderColor: PRIMARY_COLOR,
   },
   avatarImage: {
     width: '100%',
@@ -320,9 +321,9 @@ const styles = StyleSheet.create({
     paddingHorizontal: 10,
     paddingVertical: 5,
     borderRadius: 999,
-    backgroundColor: 'rgba(205,43,238,0.18)',
+    backgroundColor: primaryColorAlpha(0.18),
     borderWidth: 1,
-    borderColor: 'rgba(205,43,238,0.35)',
+    borderColor: primaryColorAlpha(0.35),
   },
   hotBadgeText: {
     color: '#d68cef',
@@ -369,7 +370,7 @@ const styles = StyleSheet.create({
     borderRadius: 999,
     backgroundColor: 'rgba(106,0,177,0.35)',
     borderWidth: 1,
-    borderColor: 'rgba(205,43,238,0.3)',
+    borderColor: primaryColorAlpha(0.3),
   },
   balanceText: {
     color: '#ffffff',
@@ -403,8 +404,8 @@ const styles = StyleSheet.create({
     borderColor: 'rgba(255,255,255,0.1)',
   },
   packRowSelected: {
-    backgroundColor: 'rgba(205,43,238,0.12)',
-    borderColor: 'rgba(205,43,238,0.55)',
+    backgroundColor: primaryColorAlpha(0.12),
+    borderColor: primaryColorAlpha(0.55),
   },
   packMain: {
     flex: 1,
@@ -420,10 +421,10 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
   },
   packIconWrapDefault: {
-    backgroundColor: 'rgba(205,43,238,0.12)',
+    backgroundColor: primaryColorAlpha(0.12),
   },
   packIconWrapSelected: {
-    backgroundColor: '#cd2bee',
+    backgroundColor: PRIMARY_COLOR,
   },
   packCopy: {
     gap: 3,
@@ -454,7 +455,7 @@ const styles = StyleSheet.create({
     paddingHorizontal: 8,
     paddingVertical: 4,
     borderRadius: 999,
-    backgroundColor: 'rgba(205,43,238,0.16)',
+    backgroundColor: primaryColorAlpha(0.16),
   },
   bestValueText: {
     color: '#d68cef',
@@ -477,8 +478,8 @@ const styles = StyleSheet.create({
     borderColor: 'rgba(255,255,255,0.08)',
   },
   packActionButtonSelected: {
-    backgroundColor: '#cd2bee',
-    borderColor: '#cd2bee',
+    backgroundColor: PRIMARY_COLOR,
+    borderColor: PRIMARY_COLOR,
   },
   packActionText: {
     fontFamily: 'PlusJakartaSansExtraBold',
@@ -500,8 +501,8 @@ const styles = StyleSheet.create({
     marginTop: 22,
     paddingVertical: 16,
     borderRadius: 18,
-    backgroundColor: '#cd2bee',
-    shadowColor: '#cd2bee',
+    backgroundColor: PRIMARY_COLOR,
+    shadowColor: PRIMARY_COLOR,
     shadowOffset: { width: 0, height: 0 },
     shadowOpacity: 0.42,
     shadowRadius: 22,

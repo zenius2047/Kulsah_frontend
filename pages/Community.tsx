@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { useThemeMode } from '../theme';
+import { useThemeMode, PRIMARY_COLOR, primaryColorAlpha } from "../theme";
 import {
   ActivityIndicator,
   Image,
@@ -335,7 +335,7 @@ const Community: React.FC<{ embedded?: boolean }> = ({ embedded = false }) => {
   if (loading) {
     return (
       <View style={[styles.loader, { backgroundColor: theme.background }]}>
-        <ActivityIndicator size="large" color="#cd2bee" />
+        <ActivityIndicator size="large" color={PRIMARY_COLOR} />
       </View>
     );
   }
@@ -472,8 +472,8 @@ const Community: React.FC<{ embedded?: boolean }> = ({ embedded = false }) => {
                       >
                         <View style={[styles.pollFill, { width: `${percentage}%`, backgroundColor: isDark ? 'rgba(255,255,255,0.08)' : 'rgba(15,23,42,0.08)' }, option.isSelected && styles.pollFillSelected]} />
                         <View style={styles.pollContent}>
-                          <Text style={[styles.pollText, { color: option.isSelected ? '#cd2bee' : theme.textSecondary }]}>{option.text}</Text>
-                          <Text style={[styles.pollPercent, { color: option.isSelected ? '#cd2bee' : mutedText }]}>{percentage}%</Text>
+                          <Text style={[styles.pollText, { color: option.isSelected ? PRIMARY_COLOR : theme.textSecondary }]}>{option.text}</Text>
+                          <Text style={[styles.pollPercent, { color: option.isSelected ? PRIMARY_COLOR : mutedText }]}>{percentage}%</Text>
                         </View>
                       </Pressable>
                     );
@@ -487,8 +487,8 @@ const Community: React.FC<{ embedded?: boolean }> = ({ embedded = false }) => {
 
               <View style={[styles.actionBar, { borderTopColor: softBorder }]}>
                 <Pressable style={styles.actionItem} onPress={() => toggleLike(post.id)}>
-                  <MaterialIcons name={post.isLiked ? 'favorite' : 'favorite-border'} size={23} color={post.isLiked ? '#cd2bee' : dimIcon} />
-                  <Text style={[styles.actionText, { color: post.isLiked ? '#cd2bee' : mutedText }]}>{post.likes.toLocaleString()}</Text>
+                  <MaterialIcons name={post.isLiked ? 'favorite' : 'favorite-border'} size={23} color={post.isLiked ? PRIMARY_COLOR : dimIcon} />
+                  <Text style={[styles.actionText, { color: post.isLiked ? PRIMARY_COLOR : mutedText }]}>{post.likes.toLocaleString()}</Text>
                 </Pressable>
                 <Pressable style={styles.actionItem} onPress={() => openCommentModal(post.id)}>
                   <MaterialIcons name="chat-bubble-outline" size={22} color={dimIcon} />
@@ -505,7 +505,7 @@ const Community: React.FC<{ embedded?: boolean }> = ({ embedded = false }) => {
         })}
 
         <View style={styles.footerLoader}>
-          <ActivityIndicator color="#cd2bee" />
+          <ActivityIndicator color={PRIMARY_COLOR} />
           <Text style={[styles.footerText, { color: mutedText }]}>SYNCING MORE GALAXY UPDATES...</Text>
         </View>
       </ScrollView>
@@ -686,7 +686,7 @@ const styles = StyleSheet.create({
     width: 46,
     borderRadius: 23,
     borderWidth: 2,
-    borderColor: '#cd2bee',
+    borderColor: PRIMARY_COLOR,
     padding: 2,
   },
   avatar: { height: '100%', width: '100%', borderRadius: 20 },
@@ -717,7 +717,7 @@ const styles = StyleSheet.create({
     minHeight: 90,
     borderRadius: 16,
     borderWidth: 1,
-    borderColor: 'rgba(205,43,238,0.4)',
+    borderColor: primaryColorAlpha(0.4),
     backgroundColor: 'rgba(255,255,255,0.04)',
     color: '#fff',
     textAlignVertical: 'top',
@@ -734,7 +734,7 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     alignItems: 'center',
   },
-  editSave: { flex: 1, height: 42, borderRadius: 12, backgroundColor: '#cd2bee', justifyContent: 'center', alignItems: 'center' },
+  editSave: { flex: 1, height: 42, borderRadius: 12, backgroundColor: PRIMARY_COLOR, justifyContent: 'center', alignItems: 'center' },
   editCancelText: { color: '#fff', fontSize: mediumScreen?FontSize.fourteen:FontSize.ten, fontFamily: 'PlusJakartaSansExtraBold', letterSpacing: 1.4 },
   editSaveText: { color: '#fff', fontSize: mediumScreen?FontSize.fourteen:FontSize.ten, fontFamily: 'PlusJakartaSansExtraBold', letterSpacing: 1.4 },
   mediaWrap: {
@@ -815,12 +815,12 @@ const styles = StyleSheet.create({
     backgroundColor: 'rgba(255,255,255,0.03)',
     overflow: 'hidden',
   },
-  pollOptionSelected: { borderColor: 'rgba(205,43,238,0.55)' },
+  pollOptionSelected: { borderColor: primaryColorAlpha(0.55) },
   pollFill: { position: 'absolute', left: 0, top: 0, bottom: 0, backgroundColor: 'rgba(255,255,255,0.08)' },
-  pollFillSelected: { backgroundColor: 'rgba(205,43,238,0.3)' },
+  pollFillSelected: { backgroundColor: primaryColorAlpha(0.3) },
   pollContent: { flex: 1, flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', paddingHorizontal: 12 },
   pollText: { color: '#cbd5e1', fontSize: mediumScreen?FontSize.sixteen:FontSize.twelve, fontFamily: 'PlusJakartaSansBold' },
-  pollTextSelected: { color: '#cd2bee' },
+  pollTextSelected: { color: PRIMARY_COLOR },
   pollPercent: { color: '#94a3b8', fontSize: mediumScreen?FontSize.fifteen:FontSize.eleven, fontFamily: 'PlusJakartaSansExtraBold' },
   pollFoot: { color: '#94a3b8', textAlign: 'center', marginTop: 4, fontSize: mediumScreen?FontSize.fourteen:FontSize.ten, fontFamily: 'PlusJakartaSansBold', letterSpacing: 1 },
   actionBar: {
@@ -958,7 +958,7 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     alignItems: 'center',
   },
-  modalPost: { flex: 1, height: 50, borderRadius: 14, backgroundColor: '#cd2bee', justifyContent: 'center', alignItems: 'center' },
+  modalPost: { flex: 1, height: 50, borderRadius: 14, backgroundColor: PRIMARY_COLOR, justifyContent: 'center', alignItems: 'center' },
   modalPostDisabled: { opacity: 0.45 },
   modalCancelText: { color: '#fff', fontSize: mediumScreen?FontSize.fourteen:FontSize.ten, letterSpacing: 1.4, fontFamily: 'PlusJakartaSansExtraBold' },
   modalPostText: { color: '#fff', fontSize: mediumScreen?FontSize.fourteen:FontSize.ten, letterSpacing: 1.4, fontFamily: 'PlusJakartaSansExtraBold' },
@@ -969,10 +969,10 @@ const styles = StyleSheet.create({
     height: 60,
     width: 60,
     borderRadius: 30,
-    backgroundColor: '#cd2bee',
+    backgroundColor: PRIMARY_COLOR,
     justifyContent: 'center',
     alignItems: 'center',
-    shadowColor: '#cd2bee',
+    shadowColor: PRIMARY_COLOR,
     shadowOpacity: 0.5,
     shadowRadius: 12,
     elevation: 8,

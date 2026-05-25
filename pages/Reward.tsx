@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { useThemeMode } from '../theme';
+import { useThemeMode, PRIMARY_COLOR, primaryColorAlpha } from "../theme";
 import {
   Image,
   Pressable,
@@ -81,7 +81,7 @@ const Reward: React.FC = () => {
             <View style={styles.heroTint} />
             <View style={styles.heroContent}>
               <View style={styles.heroTagRow}>
-                <MaterialIcons name="stars" size={14} color="#cd2bee" />
+                <MaterialIcons name="stars" size={14} color={PRIMARY_COLOR} />
                 <Text style={styles.heroTag}>Exclusive Reward</Text>
               </View>
               <Text style={[styles.heroTitle, { color: '#ffffff' }]}>The Studio Session</Text>
@@ -91,7 +91,7 @@ const Reward: React.FC = () => {
           <View style={[styles.criteriaCard, { backgroundColor: cardBg, borderColor: cardBorder }]}>
             <View style={styles.criteriaLeft}>
               <View style={styles.criteriaIconWrap}>
-                <MaterialIcons name="favorite" size={24} color="#cd2bee" />
+                <MaterialIcons name="favorite" size={24} color={PRIMARY_COLOR} />
               </View>
               <View>
                 <Text style={[styles.criteriaLabel, { color: subtle }]}>Winning Criteria</Text>
@@ -114,7 +114,7 @@ const Reward: React.FC = () => {
               <Switch
                 value={enabled}
                 onValueChange={setEnabled}
-                trackColor={{ false: isDark ? 'rgba(255,255,255,0.16)' : 'rgba(15,23,42,0.2)', true: '#cd2bee' }}
+                trackColor={{ false: isDark ? 'rgba(255,255,255,0.16)' : 'rgba(15,23,42,0.2)', true: PRIMARY_COLOR }}
                 thumbColor="#ffffff"
               />
             </View>
@@ -153,7 +153,7 @@ const Reward: React.FC = () => {
 
                 <View style={styles.badgeWrap}>
                   <LinearGradient
-                    colors={['#cd2bee', '#cd2bee']}
+                    colors={[PRIMARY_COLOR, PRIMARY_COLOR]}
                     start={{ x: 0, y: 0 }}
                     end={{ x: 1, y: 1 }}
                     style={styles.badgeRing}
@@ -211,7 +211,7 @@ const styles = StyleSheet.create({
     width: 230,
     height: 230,
     borderRadius: 115,
-    backgroundColor: 'rgba(205,43,238,0.18)',
+    backgroundColor: primaryColorAlpha(0.18),
   },
   glowTwo: {
     position: 'absolute',
@@ -220,7 +220,7 @@ const styles = StyleSheet.create({
     width: 180,
     height: 180,
     borderRadius: 90,
-    backgroundColor: 'rgba(205,43,238,0.10)',
+    backgroundColor: primaryColorAlpha(0.10),
   },
   header: {
     flexDirection: 'row',
@@ -248,7 +248,7 @@ const styles = StyleSheet.create({
     textTransform: 'uppercase',
   },
   headerBrand: {
-    color: '#cd2bee',
+    color: PRIMARY_COLOR,
     fontFamily: 'PlusJakartaSansExtraBold',
     fontSize: FontSize.fourteen,
     letterSpacing: -0.4,
@@ -278,7 +278,7 @@ const styles = StyleSheet.create({
   },
   heroTint: {
     ...StyleSheet.absoluteFillObject,
-    backgroundColor: 'rgba(205,43,238,0.14)',
+    backgroundColor: primaryColorAlpha(0.14),
   },
   heroContent: {
     padding: 20,
@@ -290,7 +290,7 @@ const styles = StyleSheet.create({
     gap: 8,
   },
   heroTag: {
-    color: '#cd2bee',
+    color: PRIMARY_COLOR,
     fontFamily: 'PlusJakartaSansBold',
     fontSize: FontSize.eleven,
     textTransform: 'uppercase',
@@ -323,8 +323,8 @@ const styles = StyleSheet.create({
     borderRadius: 24,
     alignItems: 'center',
     justifyContent: 'center',
-    backgroundColor: 'rgba(205,43,238,0.18)',
-    shadowColor: '#cd2bee',
+    backgroundColor: primaryColorAlpha(0.18),
+    shadowColor: PRIMARY_COLOR,
     shadowOffset: { width: 0, height: 0 },
     shadowOpacity: 0.3,
     shadowRadius: 12,
@@ -431,7 +431,7 @@ const styles = StyleSheet.create({
     width: 120,
     height: 120,
     borderRadius: 60,
-    backgroundColor: 'rgba(205,43,238,0.12)',
+    backgroundColor: primaryColorAlpha(0.12),
   },
   previewGlowRight: {
     position: 'absolute',
@@ -440,7 +440,7 @@ const styles = StyleSheet.create({
     width: 120,
     height: 120,
     borderRadius: 60,
-    backgroundColor: 'rgba(205,43,238,0.12)',
+    backgroundColor: primaryColorAlpha(0.12),
   },
   badgeWrap: {
     alignItems: 'center',
@@ -453,7 +453,7 @@ const styles = StyleSheet.create({
     padding: 2,
     alignItems: 'center',
     justifyContent: 'center',
-    shadowColor: '#cd2bee',
+    shadowColor: PRIMARY_COLOR,
     shadowOffset: { width: 0, height: 0 },
     shadowOpacity: 0.34,
     shadowRadius: 18,
@@ -499,7 +499,7 @@ const styles = StyleSheet.create({
     fontSize: FontSize.nine,
   },
   previewLink: {
-    color: '#cd2bee',
+    color: PRIMARY_COLOR,
     fontFamily: 'PlusJakartaSansBold',
     fontSize: FontSize.ten,
     textTransform: 'uppercase',
@@ -510,8 +510,8 @@ const styles = StyleSheet.create({
     paddingVertical: 12,
     alignItems: 'center',
     justifyContent: 'center',
-    backgroundColor: '#cd2bee',
-    shadowColor: '#cd2bee',
+    backgroundColor: PRIMARY_COLOR,
+    shadowColor: PRIMARY_COLOR,
     shadowOffset: { width: 0, height: 0 },
     shadowOpacity: 0.42,
     shadowRadius: 16,

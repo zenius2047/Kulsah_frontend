@@ -1,5 +1,5 @@
 import React, { useEffect, useMemo, useState } from 'react';
-import { useThemeMode } from '../theme';
+import { useThemeMode, PRIMARY_COLOR, primaryColorAlpha, primaryColorAlphaHex } from "../theme";
 import { MaterialIcons } from '@expo/vector-icons';
 import { useNavigation } from '@react-navigation/native';
 import {
@@ -24,7 +24,7 @@ const RANGE_FACTORS: Record<RangeOption, number> = {
   All: 1.8,
 };
 
-const SOURCE_COLORS = ['#cd2bee', '#3b82f6', '#2ecc71', '#f59e0b'];
+const SOURCE_COLORS = [PRIMARY_COLOR, '#3b82f6', '#2ecc71', '#f59e0b'];
 const responsiveFont = (size: number) => (mediumScreen ? fontScale(size - 4) : fontScale(size));
 
 const CreatorAnalytics: React.FC = () => {
@@ -42,7 +42,7 @@ const CreatorAnalytics: React.FC = () => {
   ];
 
   const engagementData = [
-    { name: 'Likes', value: 45000, color: '#cd2bee' },
+    { name: 'Likes', value: 45000, color: PRIMARY_COLOR },
     { name: 'Comments', value: 12000, color: '#3b82f6' },
     { name: 'Shares', value: 8500, color: '#2ecc71' },
     { name: 'Saves', value: 3400, color: '#f59e0b' },
@@ -138,9 +138,9 @@ const CreatorAnalytics: React.FC = () => {
   const textSecondary = isDark ? '#d4d6e4' : theme.textSecondary;
   const textMuted = isDark ? '#8d91a8' : theme.textMuted;
   const accent = theme.accent;
-  const accentSoft = isDark ? '#cd2bee14' : theme.accentSoft;
-  const accentBorder = isDark ? '#cd2bee44' : 'rgba(205,43,238,0.2)';
-  const accentMuted = isDark ? '#cd2bee99' : 'rgba(205,43,238,0.68)';
+  const accentSoft = isDark ? primaryColorAlphaHex('14') : theme.accentSoft;
+  const accentBorder = isDark ? primaryColorAlphaHex('44') : primaryColorAlpha(0.2);
+  const accentMuted = isDark ? primaryColorAlphaHex('99') : primaryColorAlpha(0.68);
   const blueMuted = isDark ? '#60a5fa' : '#2563eb';
   const trackBackground = isDark ? '#ffffff0f' : 'rgba(15,23,42,0.08)';
 
@@ -265,7 +265,7 @@ const CreatorAnalytics: React.FC = () => {
                     <Text style={[s.regionPct, { color: accent }]}>{region.percent}%</Text>
                   </View>
                   <View style={[s.regionTrack, { backgroundColor: trackBackground }]}>
-                  <View style={[s.regionFill, { width: `${region.percent}%` as `${number}%`, backgroundColor: isDark ? '#cd2bee88' : accentMuted }]} />
+                  <View style={[s.regionFill, { width: `${region.percent}%` as `${number}%`, backgroundColor: isDark ? primaryColorAlphaHex('88') : accentMuted }]} />
                   </View>
                 </View>
               ))}
@@ -373,7 +373,7 @@ const s = StyleSheet.create({
     gap: 3,
   },
   rangePill: { paddingHorizontal: 10, paddingVertical: 6, borderRadius: 10 },
-  rangePillActive: { backgroundColor: '#cd2bee' },
+  rangePillActive: { backgroundColor: PRIMARY_COLOR },
   rangeText: { color: '#9093a7', fontSize: responsiveFont(10), fontFamily: 'PlusJakartaSansExtraBold', textTransform: 'uppercase' },
   rangeTextActive: { color: '#fff' },
   content: { paddingHorizontal: 16, paddingTop: 14, paddingBottom: 120, gap: 14 },
@@ -388,7 +388,7 @@ const s = StyleSheet.create({
     paddingHorizontal: 8,
     alignItems: 'center',
   },
-  metricCardPrimary: { borderColor: '#cd2bee44', backgroundColor: '#cd2bee14' },
+  metricCardPrimary: { borderColor: primaryColorAlphaHex('44'), backgroundColor: primaryColorAlphaHex('14') },
   metricValue: { color: '#fff', fontSize: responsiveFont(16), fontFamily: 'PlusJakartaSansExtraBold' },
   metricLabel: {
     color: '#8d91a8',
@@ -398,11 +398,11 @@ const s = StyleSheet.create({
     textTransform: 'uppercase',
     letterSpacing: 1.1,
   },
-  cardGlow: { borderRadius: 24, backgroundColor: '#cd2bee12', padding: 1 },
+  cardGlow: { borderRadius: 24, backgroundColor: primaryColorAlphaHex('12'), padding: 1 },
   auditCard: {
     borderRadius: 24,
     borderWidth: 1,
-    borderColor: '#cd2bee44',
+    borderColor: primaryColorAlphaHex('44'),
     backgroundColor: '#1f1022e6',
     padding: 14,
     gap: 10,
@@ -413,28 +413,28 @@ const s = StyleSheet.create({
     width: 34,
     height: 34,
     borderRadius: 17,
-    backgroundColor: '#cd2bee22',
+    backgroundColor: primaryColorAlphaHex('22'),
     borderWidth: 1,
-    borderColor: '#cd2bee44',
+    borderColor: primaryColorAlphaHex('44'),
     alignItems: 'center',
     justifyContent: 'center',
   },
-  auditTitle: { color: '#cd2bee', fontFamily: 'PlusJakartaSansExtraBold', fontSize: responsiveFont(9), letterSpacing: 1.6, textTransform: 'uppercase' },
-  auditSubtitle: { color: '#cd2bee99', fontSize: responsiveFont(7), fontFamily: 'PlusJakartaSansBold', textTransform: 'uppercase', marginTop: 2 },
+  auditTitle: { color: PRIMARY_COLOR, fontFamily: 'PlusJakartaSansExtraBold', fontSize: responsiveFont(9), letterSpacing: 1.6, textTransform: 'uppercase' },
+  auditSubtitle: { color: primaryColorAlphaHex('99'), fontSize: responsiveFont(7), fontFamily: 'PlusJakartaSansBold', textTransform: 'uppercase', marginTop: 2 },
   refreshBtn: {
     width: 34,
     height: 34,
     borderRadius: 10,
     alignItems: 'center',
     justifyContent: 'center',
-    backgroundColor: '#cd2bee22',
+    backgroundColor: primaryColorAlphaHex('22'),
   },
   auditText: {
     color: '#f8f8ff',
     fontSize: responsiveFont(13),
     lineHeight: 20,
     borderLeftWidth: 2,
-    borderLeftColor: '#cd2bee77',
+    borderLeftColor: primaryColorAlphaHex('77'),
     paddingLeft: 8,
     fontStyle: 'italic',
     fontFamily: 'PlusJakartaSansMedium',
@@ -462,7 +462,7 @@ const s = StyleSheet.create({
   fill: { position: 'absolute', left: 0, height: 14, borderRadius: 999, opacity: 0.25 },
   fillThin: { position: 'absolute', left: 0, height: 4, borderRadius: 999 },
   rowValues: { flexDirection: 'row', justifyContent: 'space-between' },
-  rowValue: { color: '#cd2bee', fontSize: responsiveFont(10), fontFamily: 'PlusJakartaSansBold' },
+  rowValue: { color: PRIMARY_COLOR, fontSize: responsiveFont(10), fontFamily: 'PlusJakartaSansBold' },
   rowValueMuted: { color: '#60a5fa', fontSize: responsiveFont(10), fontFamily: 'PlusJakartaSansBold' },
   sourceSection: { flexDirection: 'row', gap: 8, },
   sourceCol: { flex: 1, gap: 8 },
@@ -482,11 +482,11 @@ const s = StyleSheet.create({
   regionRow: { gap: 3 },
   regionHead: { flexDirection: 'row', justifyContent: 'space-between' },
   regionCountry: { color: '#d4d6e4', fontSize: responsiveFont(10), fontFamily: 'PlusJakartaSansBold' },
-  regionPct: { color: '#cd2bee', fontSize: responsiveFont(10), fontFamily: 'PlusJakartaSansExtraBold' },
+  regionPct: { color: PRIMARY_COLOR, fontSize: responsiveFont(10), fontFamily: 'PlusJakartaSansExtraBold' },
   regionTrack: { height: 6, borderRadius: 999, backgroundColor: '#ffffff10', overflow: 'hidden' },
-  regionFill: { height: '100%', borderRadius: 999, backgroundColor: '#cd2bee88' },
+  regionFill: { height: '100%', borderRadius: 999, backgroundColor: primaryColorAlphaHex('88') },
   sectionHeadRow: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center' },
-  totalText: { color: '#cd2bee', fontSize: responsiveFont(9), fontFamily: 'PlusJakartaSansExtraBold', textTransform: 'uppercase' },
+  totalText: { color: PRIMARY_COLOR, fontSize: responsiveFont(9), fontFamily: 'PlusJakartaSansExtraBold', textTransform: 'uppercase' },
   engagementRow: { flexDirection: 'row', alignItems: 'center', gap: 8 },
   engagementLabel: { color: '#d4d6e4', fontSize: responsiveFont(10), width: 66, fontFamily: 'PlusJakartaSansMedium' },
   engagementTrack: { flex: 1, height: 14, borderRadius: 999, backgroundColor: '#ffffff10', overflow: 'hidden' },

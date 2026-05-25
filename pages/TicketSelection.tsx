@@ -1,4 +1,4 @@
-import { useThemeMode } from '../theme';
+import { useThemeMode, PRIMARY_COLOR, primaryColorAlphaHex } from "../theme";
 ﻿import React, { useMemo, useState } from 'react';
 import { GoogleGenAI } from '@google/genai';
 import { useNavigation, useRoute } from '@react-navigation/native';
@@ -25,7 +25,7 @@ interface TicketTier {
 }
 
 const TIERS: TicketTier[] = [
-  { id: 'pit', name: 'Golden Circle Pit', price: 350, description: 'Directly in front of stage. High energy.', available: true, color: '#cd2bee' },
+  { id: 'pit', name: 'Golden Circle Pit', price: 350, description: 'Directly in front of stage. High energy.', available: true, color: PRIMARY_COLOR },
   { id: 'floor', name: 'Standing Floor', price: 125, description: 'Main standing area. Great visibility.', available: true, color: '#3b82f6' },
   { id: 'mezz', name: 'Premium Seated', price: 185, description: 'Elevated view with comfortable seating.', available: true, color: '#22c55e' },
   { id: 'rear', name: 'Seated - Tier 2', price: 95, description: 'Affordable views of the whole stage.', available: true, color: '#6b7280' },
@@ -88,7 +88,7 @@ const TicketSelection: React.FC = () => {
     return (
       <View style={s.successScreen}>
         <View style={s.successIcon}>
-          <MaterialIcons name="check-circle" size={72} color="#cd2bee" />
+          <MaterialIcons name="check-circle" size={72} color={PRIMARY_COLOR} />
         </View>
         <Text style={s.successTitle}>Payment Success!</Text>
         <Text style={s.successBody}>Your tickets were added to your Kulsah Wallet.</Text>
@@ -128,7 +128,7 @@ const TicketSelection: React.FC = () => {
           <Text style={s.aiBody}>{aiSuggestion || 'Let Gemini analyze crowd energy and viewing angles for this show.'}</Text>
           {!aiSuggestion && (
             <Pressable style={s.aiButton} onPress={getAiRecommendation} disabled={aiLoading}>
-              {aiLoading ? <ActivityIndicator color="#cd2bee" /> : <Text style={s.aiButtonText}>Get AI Recommendation</Text>}
+              {aiLoading ? <ActivityIndicator color={PRIMARY_COLOR} /> : <Text style={s.aiButtonText}>Get AI Recommendation</Text>}
             </Pressable>
           )}
         </View>
@@ -148,7 +148,7 @@ const TicketSelection: React.FC = () => {
               <View style={s.qtyWrap}>
                 <Pressable onPress={() => updateQuantity(tier.id, -1)}><MaterialIcons name="remove" size={20} color="#9ca3af" /></Pressable>
                 <Text style={s.qtyText}>{quantities[tier.id] || 0}</Text>
-                <Pressable onPress={() => updateQuantity(tier.id, 1)}><MaterialIcons name="add" size={20} color="#cd2bee" /></Pressable>
+                <Pressable onPress={() => updateQuantity(tier.id, 1)}><MaterialIcons name="add" size={20} color={PRIMARY_COLOR} /></Pressable>
               </View>
             </View>
           </View>
@@ -185,24 +185,24 @@ const s = StyleSheet.create({
   headerBtn: { width: 36, height: 36, borderRadius: 18, alignItems: 'center', justifyContent: 'center', backgroundColor: '#ffffff10' },
   headerTitle: { color: '#fff', fontSize: FontSize.sixteen, fontWeight: '900', textTransform: 'uppercase' },
   headerSub: { color: '#8f95af', fontSize: FontSize.ten, fontWeight: '800', textTransform: 'uppercase' },
-  stepLabel: { marginLeft: 'auto', color: '#cd2bee', fontSize: FontSize.ten, fontWeight: '900', textTransform: 'uppercase' },
+  stepLabel: { marginLeft: 'auto', color: PRIMARY_COLOR, fontSize: FontSize.ten, fontWeight: '900', textTransform: 'uppercase' },
   content: { padding: 16, paddingBottom: 180, gap: 12 },
   sectionTitle: { color: '#8f95af', fontSize: FontSize.nine, fontWeight: '900', textTransform: 'uppercase', letterSpacing: 1.6 },
   mapCard: { borderRadius: 20, borderWidth: 1, borderColor: '#ffffff14', backgroundColor: '#1f1022bf', padding: 12, gap: 8 },
   stage: { height: 38, borderRadius: 12, backgroundColor: '#ffffff14', alignItems: 'center', justifyContent: 'center' },
   stageText: { color: '#8f95af', fontWeight: '900', letterSpacing: 3, fontSize: FontSize.ten },
   zone: { height: 44, borderRadius: 14, borderWidth: 1, borderColor: '#ffffff22', alignItems: 'center', justifyContent: 'center', backgroundColor: '#ffffff08' },
-  zonePit: { borderColor: '#cd2bee77', backgroundColor: '#cd2bee2b' },
+  zonePit: { borderColor: primaryColorAlphaHex('77'), backgroundColor: primaryColorAlphaHex('2b') },
   zoneFloor: { borderColor: '#3b82f677', backgroundColor: '#3b82f62b' },
   zoneMezz: { borderColor: '#22c55e77', backgroundColor: '#22c55e2b' },
   zoneText: { color: '#fff', fontWeight: '900', fontSize: FontSize.eleven, letterSpacing: 1.2 },
-  aiCard: { borderRadius: 20, borderWidth: 1, borderColor: '#cd2bee30', backgroundColor: '#cd2bee14', padding: 12, gap: 8 },
-  aiTitle: { color: '#cd2bee', fontWeight: '900', fontSize: FontSize.nine, textTransform: 'uppercase', letterSpacing: 1.8 },
+  aiCard: { borderRadius: 20, borderWidth: 1, borderColor: primaryColorAlphaHex('30'), backgroundColor: primaryColorAlphaHex('14'), padding: 12, gap: 8 },
+  aiTitle: { color: PRIMARY_COLOR, fontWeight: '900', fontSize: FontSize.nine, textTransform: 'uppercase', letterSpacing: 1.8 },
   aiBody: { color: '#d9dce9', fontSize: FontSize.thirteen, fontStyle: 'italic' },
-  aiButton: { height: 40, borderRadius: 10, borderWidth: 1, borderColor: '#cd2bee4a', alignItems: 'center', justifyContent: 'center' },
-  aiButtonText: { color: '#cd2bee', fontSize: FontSize.ten, fontWeight: '900', textTransform: 'uppercase' },
+  aiButton: { height: 40, borderRadius: 10, borderWidth: 1, borderColor: primaryColorAlphaHex('4a'), alignItems: 'center', justifyContent: 'center' },
+  aiButtonText: { color: PRIMARY_COLOR, fontSize: FontSize.ten, fontWeight: '900', textTransform: 'uppercase' },
   tierCard: { borderRadius: 20, borderWidth: 1, borderColor: '#ffffff14', backgroundColor: '#1f1022bf', padding: 12, gap: 10 },
-  tierCardActive: { borderColor: '#cd2bee66' },
+  tierCardActive: { borderColor: primaryColorAlphaHex('66') },
   rowBetween: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', gap: 10 },
   tierName: { color: '#fff', fontWeight: '900', fontSize: FontSize.fourteen },
   tierDesc: { color: '#8f95af', fontSize: FontSize.eleven, marginTop: 2 },
@@ -213,13 +213,13 @@ const s = StyleSheet.create({
   footer: { position: 'absolute', left: 0, right: 0, bottom: 0, borderTopWidth: 1, borderTopColor: '#ffffff14', backgroundColor: '#11131bcc', padding: 16, gap: 10 },
   totalLabel: { color: '#8f95af', fontSize: FontSize.ten, textTransform: 'uppercase', fontWeight: '900' },
   totalPrice: { color: '#fff', fontSize: FontSize.thirty, fontWeight: '900' },
-  totalTickets: { color: '#cd2bee', fontSize: FontSize.eleven, fontWeight: '900', textTransform: 'uppercase' },
+  totalTickets: { color: PRIMARY_COLOR, fontSize: FontSize.eleven, fontWeight: '900', textTransform: 'uppercase' },
   fans: { flexDirection: 'row', marginLeft: 6 },
   fan: { width: 28, height: 28, borderRadius: 14, marginLeft: -8, borderWidth: 1, borderColor: '#11131b' },
-  primaryButton: { height: 50, borderRadius: 14, alignItems: 'center', justifyContent: 'center', backgroundColor: '#cd2bee' },
+  primaryButton: { height: 50, borderRadius: 14, alignItems: 'center', justifyContent: 'center', backgroundColor: PRIMARY_COLOR },
   primaryButtonText: { color: '#fff', fontSize: FontSize.fourteen, fontWeight: '900', textTransform: 'uppercase', letterSpacing: 1.2 },
   successScreen: { flex: 1, backgroundColor: '#060913', alignItems: 'center', justifyContent: 'center', padding: 20, gap: 12 },
-  successIcon: { width: 120, height: 120, borderRadius: 60, backgroundColor: '#cd2bee1f', alignItems: 'center', justifyContent: 'center', borderWidth: 1, borderColor: '#cd2bee55' },
+  successIcon: { width: 120, height: 120, borderRadius: 60, backgroundColor: primaryColorAlphaHex('1f'), alignItems: 'center', justifyContent: 'center', borderWidth: 1, borderColor: primaryColorAlphaHex('55') },
   successTitle: { color: '#fff', fontSize: FontSize.twentyFive, fontWeight: '900', textTransform: 'uppercase' },
   successBody: { color: '#a5abc0', textAlign: 'center', fontSize: FontSize.fourteen, maxWidth: 280 },
   hiddenText: { height: 0, width: 0, opacity: 0 },

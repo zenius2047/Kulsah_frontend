@@ -1,5 +1,5 @@
 import React from 'react';
-import { useThemeMode } from '../theme';
+import { useThemeMode, PRIMARY_COLOR, primaryColorAlpha } from "../theme";
 import {
   Image,
   Pressable,
@@ -32,18 +32,18 @@ const valueCards = [
     icon: 'workspace-premium' as const,
     title: 'Recognition Only',
     text: 'Focus on building clout and reputation without the noise of material payouts.',
-    tint: '#cd2bee',
-    bg: 'rgba(205,43,238,0.18)',
-    border: 'rgba(205,43,238,0.28)',
+    tint: PRIMARY_COLOR,
+    bg: primaryColorAlpha(0.18),
+    border: primaryColorAlpha(0.28),
   },
   {
     id: 'organic',
     icon: 'favorite' as const,
     title: 'Organic Hype',
     text: 'Engagement is driven by genuine appreciation for creator artistry.',
-    tint: '#cd2bee',
-    bg: 'rgba(205,43,238,0.18)',
-    border: 'rgba(205,43,238,0.28)',
+    tint: PRIMARY_COLOR,
+    bg: primaryColorAlpha(0.18),
+    border: primaryColorAlpha(0.28),
   },
 ];
 
@@ -100,7 +100,7 @@ const NoReward: React.FC = () => {
           <View style={styles.heroSection}>
             <View style={styles.heroIconWrap}>
               <LinearGradient
-                colors={['#cd2bee', '#cd2bee']}
+                colors={[PRIMARY_COLOR, PRIMARY_COLOR]}
                 start={{ x: 0, y: 0 }}
                 end={{ x: 1, y: 1 }}
                 style={styles.heroIconGradient}
@@ -156,7 +156,7 @@ const NoReward: React.FC = () => {
           <View style={styles.actions}>
             <Pressable style={styles.primaryButton}>
               <LinearGradient
-                colors={['#cd2bee', '#cd2bee']}
+                colors={[PRIMARY_COLOR, PRIMARY_COLOR]}
                 start={{ x: 0, y: 0 }}
                 end={{ x: 1, y: 0 }}
                 style={styles.primaryButtonGradient}
@@ -211,7 +211,7 @@ const styles = StyleSheet.create({
     width: 240,
     height: 240,
     borderRadius: 120,
-    backgroundColor: 'rgba(205,43,238,0.15)',
+    backgroundColor: primaryColorAlpha(0.15),
   },
   glowSecondary: {
     position: 'absolute',
@@ -220,7 +220,7 @@ const styles = StyleSheet.create({
     width: 280,
     height: 280,
     borderRadius: 140,
-    backgroundColor: 'rgba(205,43,238,0.10)',
+    backgroundColor: primaryColorAlpha(0.10),
   },
   header: {
     flexDirection: 'row',
@@ -248,7 +248,7 @@ const styles = StyleSheet.create({
     fontSize: mediumScreen ? FontSize.sixteen : FontSize.twelve,
   },
   headerBrand: {
-    color: '#cd2bee',
+    color: PRIMARY_COLOR,
     fontFamily: 'PlusJakartaSansExtraBold',
     fontSize: mediumScreen ? FontSize.twenty : FontSize.sixteen,
     letterSpacing: -0.4,
@@ -290,7 +290,7 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'center',
     transform: [{ rotate: '3deg' }],
-    shadowColor: '#cd2bee',
+    shadowColor: PRIMARY_COLOR,
     shadowOffset: { width: 0, height: 0 },
     shadowOpacity: 0.38,
     shadowRadius: 18,
@@ -300,11 +300,11 @@ const styles = StyleSheet.create({
     position: 'absolute',
     top: -8,
     right: -24,
-    backgroundColor: '#cd2bee',
+    backgroundColor: PRIMARY_COLOR,
     paddingHorizontal: 12,
     paddingVertical: 6,
     borderRadius: 999,
-    shadowColor: '#cd2bee',
+    shadowColor: PRIMARY_COLOR,
     shadowOffset: { width: 0, height: 0 },
     shadowOpacity: 0.35,
     shadowRadius: 12,
@@ -335,7 +335,7 @@ const styles = StyleSheet.create({
     textAlign: 'center',
   },
   heroAccent: {
-    color: '#cd2bee',
+    color: PRIMARY_COLOR,
     fontFamily: 'PlusJakartaSansBold',
   },
   valueGrid: {
@@ -395,7 +395,7 @@ const styles = StyleSheet.create({
   primaryButton: {
     borderRadius: 28,
     overflow: 'hidden',
-    shadowColor: '#cd2bee',
+    shadowColor: PRIMARY_COLOR,
     shadowOffset: { width: 0, height: 0 },
     shadowOpacity: 0.36,
     shadowRadius: 16,
@@ -443,7 +443,7 @@ const styles = StyleSheet.create({
     letterSpacing: 1.2,
   },
   reachValue: {
-    color: '#cd2bee',
+    color: PRIMARY_COLOR,
     fontFamily: 'PlusJakartaSansBold',
     fontSize: mediumScreen ? FontSize.fourteen : FontSize.ten,
     textTransform: 'uppercase',

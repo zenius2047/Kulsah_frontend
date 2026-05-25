@@ -1,5 +1,5 @@
 import React from 'react';
-import { useThemeMode } from '../theme';
+import { useThemeMode, PRIMARY_COLOR, primaryColorAlpha } from "../theme";
 import {
   Image,
   Pressable,
@@ -152,7 +152,7 @@ const FinalStep: React.FC = () => {
                 <View style={[styles.infoCard, { backgroundColor: cardBg, borderColor: cardBorder }]}>
                   <View style={styles.infoHeader}>
                     <View style={[styles.infoIconWrap, styles.infoIconPrimary]}>
-                      <MaterialIcons name="how-to-vote" size={20} color="#cd2bee" />
+                      <MaterialIcons name="how-to-vote" size={20} color={PRIMARY_COLOR} />
                     </View>
                     <Text style={[styles.infoLabel, { color: subtle }]}>Voting Model</Text>
                   </View>
@@ -167,7 +167,7 @@ const FinalStep: React.FC = () => {
                 {/* <View style={styles.infoCard}>
                   <View style={styles.infoHeader}>
                     <View style={[styles.infoIconWrap, styles.infoIconSecondary]}>
-                      <MaterialIcons name="payments" size={20} color="#cd2bee" />
+                      <MaterialIcons name="payments" size={20} color={PRIMARY_COLOR} />
                     </View>
                     <Text style={styles.infoLabel}>Reward Pool</Text>
                   </View>
@@ -185,14 +185,14 @@ const FinalStep: React.FC = () => {
                 <View style={styles.checklistGlow} pointerEvents="none" />
 
                 <View style={styles.checklistHeader}>
-                  <MaterialIcons name="assignment-turned-in" size={22} color="#cd2bee" />
+                  <MaterialIcons name="assignment-turned-in" size={22} color={PRIMARY_COLOR} />
                   <Text style={[styles.checklistTitle, { color: titleTone }]}>Final Checklist</Text>
                 </View>
 
                 <View style={styles.checklistList}>
                   {checklistItems.map((item) => (
                     <View key={item.title} style={styles.checklistItem}>
-                      <MaterialIcons name="check-circle" size={18} color="#cd2bee" style={{
+                      <MaterialIcons name="check-circle" size={18} color={PRIMARY_COLOR} style={{
                         marginTop: 7
                       }} />
                       <View style={styles.checklistTextWrap}>
@@ -260,7 +260,7 @@ const styles = StyleSheet.create({
     width: 240,
     height: 240,
     borderRadius: 120,
-    backgroundColor: 'rgba(205,43,238,0.16)',
+    backgroundColor: primaryColorAlpha(0.16),
   },
   glowTwo: {
     position: 'absolute',
@@ -269,7 +269,7 @@ const styles = StyleSheet.create({
     width: 180,
     height: 180,
     borderRadius: 90,
-    backgroundColor: 'rgba(205,43,238,0.10)',
+    backgroundColor: primaryColorAlpha(0.10),
   },
   header: {
     flexDirection: 'row',
@@ -313,12 +313,12 @@ const styles = StyleSheet.create({
     paddingHorizontal: 12,
     paddingVertical: 7,
     borderRadius: 999,
-    backgroundColor: 'rgba(205,43,238,0.18)',
+    backgroundColor: primaryColorAlpha(0.18),
     borderWidth: 1,
-    borderColor: 'rgba(205,43,238,0.28)',
+    borderColor: primaryColorAlpha(0.28),
   },
   stepBadgeText: {
-    color: '#cd2bee',
+    color: PRIMARY_COLOR,
     fontFamily: 'PlusJakartaSansBold',
     fontSize: mediumScreen? FontSize.twelve:FontSize.eight,
     textTransform: 'uppercase',
@@ -348,7 +348,7 @@ const styles = StyleSheet.create({
     gap: 12,
   },
   sectionEyebrow: {
-    color: '#cd2bee',
+    color: PRIMARY_COLOR,
     fontFamily: 'PlusJakartaSansBold',
     fontSize: mediumScreen? FontSize.fourteen:FontSize.ten,
     letterSpacing: 1.4,
@@ -382,8 +382,8 @@ const styles = StyleSheet.create({
     paddingHorizontal: 12,
     paddingVertical: 9,
     borderRadius: 999,
-    backgroundColor: '#cd2bee',
-    shadowColor: '#cd2bee',
+    backgroundColor: PRIMARY_COLOR,
+    shadowColor: PRIMARY_COLOR,
     shadowOffset: { width: 0, height: 0 },
     shadowOpacity: 0.4,
     shadowRadius: 12,
@@ -455,7 +455,7 @@ const styles = StyleSheet.create({
     fontSize: FontSize.ten,
   },
   joiningText: {
-    color: '#cd2bee',
+    color: PRIMARY_COLOR,
     fontFamily: 'PlusJakartaSansBold',
     fontSize: FontSize.twelve,
   },
@@ -481,10 +481,10 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
   },
   infoIconPrimary: {
-    backgroundColor: 'rgba(205,43,238,0.12)',
+    backgroundColor: primaryColorAlpha(0.12),
   },
   infoIconSecondary: {
-    backgroundColor: 'rgba(205,43,238,0.12)',
+    backgroundColor: primaryColorAlpha(0.12),
   },
   infoLabel: {
     fontFamily: 'PlusJakartaSansBold',
@@ -537,7 +537,7 @@ const styles = StyleSheet.create({
     width: 180,
     height: 180,
     borderRadius: 90,
-    backgroundColor: 'rgba(205,43,238,0.16)',
+    backgroundColor: primaryColorAlpha(0.16),
   },
   checklistHeader: {
     flexDirection: 'row',
@@ -601,7 +601,7 @@ const styles = StyleSheet.create({
     fontSize: mediumScreen? FontSize.sixteen:FontSize.twelve,
   },
   totalValue: {
-    color: '#cd2bee',
+    color: PRIMARY_COLOR,
     fontFamily: 'PlusJakartaSansExtraBold',
     fontSize: mediumScreen? FontSize.sixteen:FontSize.twelve,
   },
@@ -612,8 +612,8 @@ const styles = StyleSheet.create({
     gap: 10,
     borderRadius: 28,
     paddingVertical: 16,
-    backgroundColor: '#cd2bee',
-    shadowColor: '#cd2bee',
+    backgroundColor: PRIMARY_COLOR,
+    shadowColor: PRIMARY_COLOR,
     shadowOffset: { width: 0, height: 0 },
     shadowOpacity: 0.36,
     shadowRadius: 16,

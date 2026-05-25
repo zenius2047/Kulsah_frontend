@@ -13,11 +13,11 @@ import { LinearGradient } from 'expo-linear-gradient';
 import { MaterialIcons } from '@expo/vector-icons';
 import { BlurView } from 'expo-blur';
 import { useNavigation, useRoute } from '@react-navigation/native';
-import { useThemeMode } from './theme';
+import { useThemeMode, PRIMARY_COLOR, primaryColorAlpha } from "./theme";
 import { FontSize } from './fonts';
 import { mediumScreen } from './types';
 
-const BRAND_GRADIENT = ['#cd2bee', '#cd2bee'] as const;
+const BRAND_GRADIENT = [PRIMARY_COLOR, PRIMARY_COLOR] as const;
 const SHEEN_GRADIENT = ['rgba(255,255,255,0.1)', 'rgba(255,255,255,0)'] as const;
 const BG_TEXTURE =
   'https://lh3.googleusercontent.com/aida-public/AB6AXuCK2h3MxuDAaZYN13G081f-gGAFc3Gr7qMVku-Y6ajENgzwIRyvoQDqHcEnCQu_sDwkqkUcEAk_PSS305kzvelcygxH6NqWDlPjvAUte1bpTgLnrVxTLlsPUdhwiUur-HLLBrukrmOzbYnyLcPpnnzdBqdqOepB7TJTWMM17JUYBS4z_m92vzUYxu3UCUfdjNUtRP1AvUwCfR3QoRpDxs11C0Q1kHTWxhSxzi2TP2E740AeiwSefwybNZ9oySfxJ8DFXm-2jMHCk_LT';
@@ -36,11 +36,11 @@ const EmailVerification: React.FC = () => {
   const mutedText = isDark ? '#94a3b8' : theme.textSecondary;
   const divider = isDark ? 'rgba(255,255,255,0.06)' : 'rgba(15,23,42,0.08)';
   const tertiary = '#ffb781';
-  const glowTopColor = isDark ? 'rgba(205,43,238,0.2)' : 'rgba(205,43,238,0.12)';
-  const glowBottomColor = isDark ? 'rgba(205,43,238,0.12)' : 'rgba(205,43,238,0.08)';
+  const glowTopColor = isDark ? primaryColorAlpha(0.2) : primaryColorAlpha(0.12);
+  const glowBottomColor = isDark ? primaryColorAlpha(0.12) : primaryColorAlpha(0.08);
   const textureOpacity = isDark ? 0.18 : 0.08;
   const textureTint = isDark ? 'rgba(10,5,13,0.5)' : 'rgba(246,244,251,0.72)';
-  const radialWashColor = isDark ? 'rgba(205,43,238,0.05)' : 'rgba(205,43,238,0.035)';
+  const radialWashColor = isDark ? primaryColorAlpha(0.05) : primaryColorAlpha(0.035);
   const displayEmail = (() => {
     if (!routeEmail) return 'k****h@studio.com';
     const [name, domain] = routeEmail.split('@');
@@ -72,7 +72,7 @@ const EmailVerification: React.FC = () => {
               onPress={() => navigation.goBack()}
               style={[styles.backButton, { backgroundColor: glassTone, borderColor: borderTone }]}
             >
-              <MaterialIcons name="chevron-left" size={22} color="#cd2bee" />
+              <MaterialIcons name="chevron-left" size={22} color={PRIMARY_COLOR} />
             </Pressable>
             <Text style={[styles.brandText, { color: theme.text }]}>Kulsah</Text>
           </View>
@@ -89,7 +89,7 @@ const EmailVerification: React.FC = () => {
             style={[styles.iconCard, { backgroundColor: glassTone, borderColor: borderTone }]}
           >
             <LinearGradient colors={SHEEN_GRADIENT} style={StyleSheet.absoluteFillObject} />
-            <MaterialIcons name="mail" size={92} color="#cd2bee" style={styles.mailIcon} />
+            <MaterialIcons name="mail" size={92} color={PRIMARY_COLOR} style={styles.mailIcon} />
             <View style={styles.iconOrb} />
           </BlurView>
         </View>
@@ -116,7 +116,7 @@ const EmailVerification: React.FC = () => {
 
             <Pressable style={styles.resendButton}>
               <Text style={styles.resendText}>Resend Email</Text>
-              <MaterialIcons name="refresh" size={16} color="#cd2bee" />
+              <MaterialIcons name="refresh" size={16} color={PRIMARY_COLOR} />
             </Pressable>
           </View>
         </View>
@@ -177,7 +177,7 @@ const styles = StyleSheet.create({
     width: 420,
     height: 420,
     borderRadius: 210,
-    backgroundColor: 'rgba(205,43,238,0.05)',
+    backgroundColor: primaryColorAlpha(0.05),
   },
   header: {
     borderBottomWidth: 1,
@@ -228,7 +228,7 @@ const styles = StyleSheet.create({
     width: 220,
     height: 220,
     borderRadius: 110,
-    backgroundColor: 'rgba(205,43,238,0.18)',
+    backgroundColor: primaryColorAlpha(0.18),
     opacity: 0.55,
   },
   iconCard: {
@@ -241,7 +241,7 @@ const styles = StyleSheet.create({
     overflow: 'hidden',
   },
   mailIcon: {
-    textShadowColor: 'rgba(205,43,238,0.55)',
+    textShadowColor: primaryColorAlpha(0.55),
     textShadowRadius: 18,
   },
   iconOrb: {
@@ -251,7 +251,7 @@ const styles = StyleSheet.create({
     width: 88,
     height: 88,
     borderRadius: 44,
-    backgroundColor: 'rgba(205,43,238,0.18)',
+    backgroundColor: primaryColorAlpha(0.18),
   },
   copyBlock: {
     alignItems: 'center',
@@ -271,7 +271,7 @@ const styles = StyleSheet.create({
     marginBottom: 4,
   },
   emailText: {
-    color: '#cd2bee',
+    color: PRIMARY_COLOR,
     fontFamily: 'PlusJakartaSansBold',
     fontSize: mediumScreen ? FontSize.seventeen : FontSize.fourteen,
     textAlign: 'center',
@@ -282,7 +282,7 @@ const styles = StyleSheet.create({
   primaryButton: {
     borderRadius: 18,
     overflow: 'hidden',
-    shadowColor: '#cd2bee',
+    shadowColor: PRIMARY_COLOR,
     shadowOpacity: 0.35,
     shadowRadius: 18,
     shadowOffset: { width: 0, height: 8 },
@@ -327,7 +327,7 @@ const styles = StyleSheet.create({
     gap: 8,
   },
   resendText: {
-    color: '#cd2bee',
+    color: PRIMARY_COLOR,
     fontFamily: 'PlusJakartaSansExtraBold',
     fontSize: mediumScreen ? FontSize.fourteen : FontSize.twelve,
   },

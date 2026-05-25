@@ -1,5 +1,5 @@
 import React, { act, useEffect, useState } from 'react';
-import { useThemeMode } from '../theme';
+import { useThemeMode, PRIMARY_COLOR, primaryColorAlphaHex } from "../theme";
 import { View, Text, Image, StyleSheet, TouchableOpacity, ScrollView, Pressable, ActivityIndicator } from 'react-native';
 import BadgeIcon from '../assets/icons/badge-svg.svg';
 import { mediumScreen, setDark } from '../types';
@@ -163,7 +163,7 @@ const navigation = useNavigation<any>()
                 alignItems: 'center',
                 flexDirection: 'row'
             }}>
-                <BadgeIcon height={34} width={34} fill='#cd2bee'/>
+                <BadgeIcon height={34} width={34} fill={PRIMARY_COLOR}/>
             <Text style={{
                 fontFamily: "PlusJakartaSansBold",
                 fontSize: mediumScreen ? FontSize.twentyTwo: FontSize.sixteen,
@@ -210,7 +210,7 @@ const navigation = useNavigation<any>()
                  style={{
                     height: 3,
                     width: 30,
-                    backgroundColor: '#cd2bee',
+                    backgroundColor: PRIMARY_COLOR,
                  }}
                  />}
                 </Pressable>))}
@@ -245,7 +245,7 @@ const navigation = useNavigation<any>()
                 width: 60,
                 height: 60,
                 // backgroundColor: 'blue',
-                borderColor: '#cd2bee',
+                borderColor: PRIMARY_COLOR,
                 borderWidth: 2,
 
             }}>
@@ -278,19 +278,19 @@ const navigation = useNavigation<any>()
                 </Text>
             </View>
             {/* <View style={{
-                backgroundColor: '#cd2bee34',
+                backgroundColor: primaryColorAlphaHex('34'),
                 borderRadius: 18,
                 // paddingVertical: 3,
                 paddingHorizontal: 12,
                 height: '50%',
                 alignItems: 'center',
-                borderColor: '#cd2bee',
+                borderColor: PRIMARY_COLOR,
                 borderWidth: 1,
             }}>
                 <Text
                 numberOfLines={1}
                 style={{
-                    color: '#cd2bee',
+                    color: PRIMARY_COLOR,
                     fontFamily: 'PlusJakartaSansBold',
                     fontSize: mediumScreen ? FontSize.sixteen : FontSize.twelve,
                 }}>
@@ -334,7 +334,7 @@ const navigation = useNavigation<any>()
                 {item === 1 ? 'ENTRIES': item===2 ? 'VIEWS': 'TIME LEFT'}
             </Text>
             <Text style={{
-                color: isDark ? item===3 ? '#cd2bee':'white' : item===3 ? '#cd2bee':'black',
+                color: isDark ? item===3 ? PRIMARY_COLOR:'white' : item===3 ? PRIMARY_COLOR:'black',
                 fontFamily: 'PlusJakartaSansBold',
                 fontSize: mediumScreen ? FontSize.fourteen: FontSize.ten,
                 paddingHorizontal: 12,
@@ -406,7 +406,7 @@ const navigation = useNavigation<any>()
             navigation.navigate("SubmitEntry")
         }}
         style={{
-            backgroundColor: '#cd2bee',
+            backgroundColor: PRIMARY_COLOR,
             height: 60,
             marginTop: 20,
             borderRadius: 32,

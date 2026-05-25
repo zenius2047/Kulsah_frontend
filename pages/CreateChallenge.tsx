@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { useThemeMode } from '../theme';
+import { useThemeMode, PRIMARY_COLOR, primaryColorAlpha } from "../theme";
 import {
   Image,
   Pressable,
@@ -73,7 +73,7 @@ const CreateChallenge: React.FC = () => {
   const muted = isDark ? '#64748b' : theme.textMuted;
   const placeholder = isDark ? '#64748b' : theme.textMuted;
   const titleTone = isDark ? '#f8fafc' : theme.text;
-  const activeCriteriaBg = isDark ? 'rgba(205,43,238,0.1)' : theme.accentSoft;
+  const activeCriteriaBg = isDark ? primaryColorAlpha(0.1) : theme.accentSoft;
   const inactiveBorder = isDark ? 'rgba(255,255,255,0.18)' : theme.border;
 
   return (
@@ -178,7 +178,7 @@ const CreateChallenge: React.FC = () => {
 
           <View style={styles.section}>
             <View style={styles.sectionTitleRow}>
-              <MaterialIcons name="emoji-events" size={18} color="#cd2bee" />
+              <MaterialIcons name="emoji-events" size={18} color={PRIMARY_COLOR} />
               <Text style={[styles.sectionTitle, { color: titleTone }]}>Winning Criteria</Text>
             </View>
 
@@ -199,7 +199,7 @@ const CreateChallenge: React.FC = () => {
                     criteria === 'vote' && styles.criteriaIconWrapActive,
                   ]}
                 >
-                  <MaterialIcons name="how-to-vote" size={24} color="#cd2bee" />
+                  <MaterialIcons name="how-to-vote" size={24} color={PRIMARY_COLOR} />
                 </View>
                 <Text style={[styles.criteriaTitle, { color: titleTone }]}>Community Vote</Text>
                 <Text style={[styles.criteriaMeta, { color: subtle }]}>Judge by 1v1 battles</Text>
@@ -224,7 +224,7 @@ const CreateChallenge: React.FC = () => {
                   <MaterialIcons
                     name="favorite"
                     size={24}
-                    color={criteria === 'likes' ? '#cd2bee' : '#94a3b8'}
+                    color={criteria === 'likes' ? PRIMARY_COLOR : '#94a3b8'}
                   />
                 </View>
                 <Text style={[styles.criteriaTitle, { color: titleTone }]}>Pure Likes</Text>
@@ -326,7 +326,7 @@ const styles = StyleSheet.create({
     width: 220,
     height: 220,
     borderRadius: 110,
-    backgroundColor: 'rgba(205,43,238,0.22)',
+    backgroundColor: primaryColorAlpha(0.22),
   },
   topGlowSecondary: {
     position: 'absolute',
@@ -335,7 +335,7 @@ const styles = StyleSheet.create({
     width: 180,
     height: 180,
     borderRadius: 90,
-    backgroundColor: 'rgba(205,43,238,0.12)',
+    backgroundColor: primaryColorAlpha(0.12),
   },
   header: {
     flexDirection: 'row',
@@ -499,7 +499,7 @@ const styles = StyleSheet.create({
     paddingVertical: 20,
   },
   criteriaCardActive: {
-    borderColor: '#cd2bee',
+    borderColor: PRIMARY_COLOR,
   },
   criteriaIconWrap: {
     width: 50,
@@ -510,8 +510,8 @@ const styles = StyleSheet.create({
     marginBottom: 14,
   },
   criteriaIconWrapActive: {
-    backgroundColor: 'rgba(205,43,238,0.2)',
-    shadowColor: '#cd2bee',
+    backgroundColor: primaryColorAlpha(0.2),
+    shadowColor: PRIMARY_COLOR,
     shadowOffset: { width: 0, height: 8 },
     shadowOpacity: 0.24,
     shadowRadius: 18,
@@ -577,7 +577,7 @@ const styles = StyleSheet.create({
     height: 70,
     borderRadius: 35,
     borderWidth: 2,
-    borderColor: '#cd2bee',
+    borderColor: PRIMARY_COLOR,
   },
   creatorRemoveButton: {
     position: 'absolute',
@@ -588,7 +588,7 @@ const styles = StyleSheet.create({
     borderRadius: 11,
     alignItems: 'center',
     justifyContent: 'center',
-    backgroundColor: '#cd2bee',
+    backgroundColor: PRIMARY_COLOR,
   },
   creatorHandle: {
     fontFamily: 'PlusJakartaSansBold',
@@ -615,7 +615,7 @@ const styles = StyleSheet.create({
   launchButton: {
     borderRadius: 38,
     overflow: 'hidden',
-    shadowColor: '#cd2bee',
+    shadowColor: PRIMARY_COLOR,
     shadowOffset: { width: 0, height: 14 },
     shadowOpacity: 0.32,
     shadowRadius: 24,

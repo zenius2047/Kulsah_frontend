@@ -1,5 +1,5 @@
 import React from 'react';
-import { useThemeMode } from '../theme';
+import { useThemeMode, PRIMARY_COLOR } from "../theme";
 import {
   Image,
   Platform,
@@ -142,7 +142,7 @@ const UseSound: React.FC = () => {
           <View style={styles.heroSection}>
             <View style={styles.coverWrap}>
               <LinearGradient
-                colors={['#cd2bee', '#cd2bee']}
+                colors={[PRIMARY_COLOR, PRIMARY_COLOR]}
                 start={{ x: 0, y: 0 }}
                 end={{ x: 1, y: 1 }}
                 style={styles.coverGlow}
@@ -270,7 +270,7 @@ const styles = StyleSheet.create({
     width: 38,
     height: 38,
     borderRadius: 19,
-    backgroundColor: '#cd2bee',
+    backgroundColor: PRIMARY_COLOR,
     borderWidth: 2,
     borderColor: '#1b1022',
     alignItems: 'center',
@@ -319,8 +319,8 @@ const styles = StyleSheet.create({
     gap: 8,
   },
   primaryButton: {
-    backgroundColor: '#cd2bee',
-    shadowColor: '#cd2bee',
+    backgroundColor: PRIMARY_COLOR,
+    shadowColor: PRIMARY_COLOR,
     shadowOffset: { width: 0, height: 10 },
     shadowOpacity: 0.28,
     shadowRadius: 18,

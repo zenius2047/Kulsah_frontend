@@ -9,7 +9,7 @@ import {
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { MaterialIcons } from '@expo/vector-icons';
-import { useThemeMode } from '../theme';
+import { useThemeMode, PRIMARY_COLOR, primaryColorAlpha } from "../theme";
 import { FontSize, fontScale } from '../fonts';
 import { mediumScreen } from '../types';
 
@@ -86,7 +86,7 @@ const Notifications: React.FC = () => {
               ]}
             >
               <View style={styles.walletIcon}>
-                <MaterialIcons name="account-balance-wallet" size={20} color="#cd2bee" />
+                <MaterialIcons name="account-balance-wallet" size={20} color={PRIMARY_COLOR} />
               </View>
               <View style={styles.flexOne}>
                 <Text style={[styles.titleSmall, { color: textPrimary }]}>Payout processed</Text>
@@ -144,7 +144,7 @@ const Notifications: React.FC = () => {
                     <Text style={[styles.timeText, { color: sectionLabel }]}>10h ago</Text>
                   </View>
                 </View>
-                <Pressable style={[styles.followButton, { borderColor: '#cd2bee' }]}>
+                <Pressable style={[styles.followButton, { borderColor: PRIMARY_COLOR }]}>
                   <Text style={styles.followButtonText}>Follow Back</Text>
                 </Pressable>
               </View>
@@ -178,8 +178,8 @@ const styles = StyleSheet.create({
   flexOne: { flex: 1 },
   hotBadgeWrap: { position: 'absolute', top: 10, right: 10, zIndex: 2 },
   hotBadge: {
-    backgroundColor: 'rgba(205,43,238,0.2)',
-    color: '#cd2bee',
+    backgroundColor: primaryColorAlpha(0.2),
+    color: PRIMARY_COLOR,
     fontFamily: 'PlusJakartaSansExtraBold',
     fontSize: FontSize.six,
     paddingHorizontal: 8,
@@ -191,7 +191,7 @@ const styles = StyleSheet.create({
     width: 48,
     height: 48,
     borderRadius: 14,
-    backgroundColor: '#cd2bee',
+    backgroundColor: PRIMARY_COLOR,
     alignItems: 'center',
     justifyContent: 'center',
     marginTop: 2,
@@ -207,7 +207,7 @@ const styles = StyleSheet.create({
     fontSize: FontSize.ten,
     marginBottom: 4,
   },
-  accentText: { color: '#cd2bee' },
+  accentText: { color: PRIMARY_COLOR },
   bodyText: {
     fontFamily: 'PlusJakartaSansMedium',
     fontSize: FontSize.nine,
@@ -227,11 +227,11 @@ const styles = StyleSheet.create({
   },
   joinButton: {
     alignSelf: 'flex-start',
-    backgroundColor: '#cd2bee',
+    backgroundColor: PRIMARY_COLOR,
     borderRadius: 999,
     paddingHorizontal: 16,
     paddingVertical: 9,
-    shadowColor: '#cd2bee',
+    shadowColor: PRIMARY_COLOR,
     shadowOffset: { width: 0, height: 0 },
     shadowOpacity: 0.35,
     shadowRadius: 10,
@@ -256,12 +256,12 @@ const styles = StyleSheet.create({
     borderRadius: 8,
     borderWidth: 1,
   },
-  walletCard: { borderLeftWidth: 4, borderLeftColor: '#cd2bee' },
+  walletCard: { borderLeftWidth: 4, borderLeftColor: PRIMARY_COLOR },
   walletIcon: {
     width: 44,
     height: 44,
     borderRadius: 22,
-    backgroundColor: 'rgba(205,43,238,0.12)',
+    backgroundColor: primaryColorAlpha(0.12),
     alignItems: 'center',
     justifyContent: 'center',
     marginRight: 12,
@@ -281,7 +281,7 @@ const styles = StyleSheet.create({
   },
   replyText: {
     marginTop: 8,
-    color: '#cd2bee',
+    color: PRIMARY_COLOR,
     fontFamily: 'PlusJakartaSansBold',
     fontSize: FontSize.seven,
     textTransform: 'uppercase',
@@ -294,7 +294,7 @@ const styles = StyleSheet.create({
     paddingVertical: 8,
   },
   followButtonText: {
-    color: '#cd2bee',
+    color: PRIMARY_COLOR,
     fontFamily: 'PlusJakartaSansBold',
     fontSize: mediumScreen ? FontSize.sixHalf:FontSize.fourHalf,
     textTransform: 'uppercase',

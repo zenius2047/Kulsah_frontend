@@ -14,6 +14,7 @@ import {
 import { useNavigation } from '@react-navigation/native';
 import type { UserRole } from '../types';
 import { FontSize } from '../fonts';
+import { PRIMARY_COLOR, primaryColorAlpha } from "../theme";
 
 interface LoginProps {
   onLogin: (role: UserRole) => void;
@@ -50,7 +51,7 @@ const Login: React.FC<LoginProps> = ({ onLogin }) => {
 
         <ScrollView contentContainerStyle={styles.content} showsVerticalScrollIndicator={false}>
           <View style={styles.brandWrap}>
-            <LinearGradient colors={['#cd2bee', '#cd2bee']} style={styles.brandIcon}>
+            <LinearGradient colors={[PRIMARY_COLOR, PRIMARY_COLOR]} style={styles.brandIcon}>
               <MaterialIcons name="bolt" size={34} color="#ffffff" />
             </LinearGradient>
             <Text style={styles.brandTitle}>KULSAH</Text>
@@ -90,7 +91,7 @@ const Login: React.FC<LoginProps> = ({ onLogin }) => {
           <Pressable style={styles.creatorLink} onPress={() => navigation.navigate('Signup')}>
             <Text style={styles.creatorPrompt}>New to the stage?</Text>
             <Text style={styles.creatorAction}>Join as Creator</Text>
-            <MaterialIcons name="arrow-forward" size={16} color="#cd2bee" />
+            <MaterialIcons name="arrow-forward" size={16} color={PRIMARY_COLOR} />
           </Pressable>
 
           <View style={styles.previewGrid}>
@@ -142,7 +143,7 @@ const styles = StyleSheet.create({
     width: 360,
     height: 360,
     borderRadius: 180,
-    backgroundColor: 'rgba(205,43,238,0.12)',
+    backgroundColor: primaryColorAlpha(0.12),
   },
   orbBottom: {
     position: 'absolute',
@@ -151,7 +152,7 @@ const styles = StyleSheet.create({
     width: 280,
     height: 280,
     borderRadius: 140,
-    backgroundColor: 'rgba(205,43,238,0.1)',
+    backgroundColor: primaryColorAlpha(0.1),
   },
   brandWrap: {
     alignItems: 'center',
@@ -164,7 +165,7 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'center',
     marginBottom: 22,
-    shadowColor: '#cd2bee',
+    shadowColor: PRIMARY_COLOR,
     shadowOpacity: 0.45,
     shadowRadius: 20,
     shadowOffset: { width: 0, height: 0 },
@@ -203,7 +204,7 @@ const styles = StyleSheet.create({
     width: 180,
     height: 180,
     borderRadius: 90,
-    backgroundColor: 'rgba(205,43,238,0.18)',
+    backgroundColor: primaryColorAlpha(0.18),
   },
   cardTitle: {
     color: '#f7f5f8',
@@ -258,8 +259,8 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     gap: 12,
     paddingHorizontal: 18,
-    backgroundColor: '#cd2bee',
-    shadowColor: '#cd2bee',
+    backgroundColor: PRIMARY_COLOR,
+    shadowColor: PRIMARY_COLOR,
     shadowOpacity: 0.35,
     shadowRadius: 18,
     shadowOffset: { width: 0, height: 10 },
@@ -295,7 +296,7 @@ const styles = StyleSheet.create({
     fontFamily: 'PlusJakartaSansMedium',
   },
   creatorAction: {
-    color: '#cd2bee',
+    color: PRIMARY_COLOR,
     fontSize: FontSize.fourteen,
     fontFamily: 'PlusJakartaSansExtraBold',
   },

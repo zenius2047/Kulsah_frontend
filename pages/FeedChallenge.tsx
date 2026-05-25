@@ -21,7 +21,7 @@ import {
 } from 'react-native';
 import { SafeAreaView, useSafeAreaInsets } from 'react-native-safe-area-context';
 import { FontSize } from '../fonts';
-import { useThemeMode } from '../theme';
+import { useThemeMode, PRIMARY_COLOR, primaryColorAlpha } from "../theme";
 import KulcoinTopUpDrawer from '../components/KulcoinTopUpDrawer';
 
 type ChallengeEntry = {
@@ -350,7 +350,7 @@ const ChallengeVideoItem: React.FC<ChallengeVideoItemProps> = ({
             <MaterialIcons
               name="favorite"
               size={36}
-              color={isLiked ? '#cd2bee' : '#ffffff'}
+              color={isLiked ? PRIMARY_COLOR : '#ffffff'}
             />
           </Pressable>
           <Text style={styles.railCount}>{formatCount(likesCount)}</Text>
@@ -420,7 +420,7 @@ const ChallengeVideoItem: React.FC<ChallengeVideoItemProps> = ({
             <MaterialIcons
               name={entry.isSeed ? 'rocket-launch' : 'emoji-events'}
               size={14}
-              color="#cd2bee"
+              color={PRIMARY_COLOR}
             />
             <Text style={styles.entryBadgeText}>
               {entry.isSeed ? 'Official Seed' : 'Challenge Entry'}
@@ -585,7 +585,7 @@ const FeedChallenge: React.FC = () => {
 
           <View style={styles.balancePill}>
             <View style={styles.balanceLeft}>
-              <MaterialIcons name="monetization-on" size={16} color="#cd2bee" />
+              <MaterialIcons name="monetization-on" size={16} color={PRIMARY_COLOR} />
               <Text style={styles.balancePillText}>{kulcoins} KC</Text>
               <Pressable onPress={() => setIsTopUpOpen(true)} style={styles.addCoinButton}>
                 <MaterialIcons name="add" size={14} color="#ffffff" />
@@ -689,8 +689,8 @@ const styles = StyleSheet.create({
   },
   progressFill: {
     height: '100%',
-    backgroundColor: '#cd2bee',
-    shadowColor: '#cd2bee',
+    backgroundColor: PRIMARY_COLOR,
+    shadowColor: PRIMARY_COLOR,
     shadowOpacity: 0.45,
     shadowRadius: 12,
   },
@@ -726,7 +726,7 @@ const styles = StyleSheet.create({
     borderRadius: 10,
     alignItems: 'center',
     justifyContent: 'center',
-    backgroundColor: '#cd2bee',
+    backgroundColor: PRIMARY_COLOR,
     borderWidth: 2,
     borderColor: '#ffffff',
   },
@@ -768,12 +768,12 @@ const styles = StyleSheet.create({
     paddingHorizontal: 7,
     paddingVertical: 3,
     borderRadius: 999,
-    backgroundColor: 'rgba(205,43,238,0.2)',
+    backgroundColor: primaryColorAlpha(0.2),
     borderWidth: 1,
-    borderColor: 'rgba(205,43,238,0.34)',
+    borderColor: primaryColorAlpha(0.34),
   },
   voteCostText: {
-    color: '#cd2bee',
+    color: PRIMARY_COLOR,
     fontFamily: 'PlusJakartaSansExtraBold',
     fontSize: FontSize.sixHalf,
   },
@@ -850,12 +850,12 @@ const styles = StyleSheet.create({
     paddingHorizontal: 12,
     paddingVertical: 8,
     borderRadius: 999,
-    backgroundColor: 'rgba(205,43,238,0.18)',
+    backgroundColor: primaryColorAlpha(0.18),
     borderWidth: 1,
-    borderColor: 'rgba(205,43,238,0.32)',
+    borderColor: primaryColorAlpha(0.32),
   },
   entryBadgeText: {
-    color: '#cd2bee',
+    color: PRIMARY_COLOR,
     fontFamily: 'PlusJakartaSansExtraBold',
     fontSize: FontSize.seven,
     textTransform: 'uppercase',
@@ -948,7 +948,7 @@ const styles = StyleSheet.create({
     borderRadius: 10,
     alignItems: 'center',
     justifyContent: 'center',
-    backgroundColor: '#cd2bee',
+    backgroundColor: PRIMARY_COLOR,
   },
   feedLiveWrap: {
     flexDirection: 'row',
@@ -959,7 +959,7 @@ const styles = StyleSheet.create({
     width: 6,
     height: 6,
     borderRadius: 3,
-    backgroundColor: '#cd2bee',
+    backgroundColor: PRIMARY_COLOR,
   },
   feedLabel: {
     color: '#ffffff',

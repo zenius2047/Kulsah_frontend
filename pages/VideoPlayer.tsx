@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useMemo, useRef, useCallback } from 'react';
-import { useThemeMode } from '../theme';
+import { useThemeMode, PRIMARY_COLOR } from "../theme";
 import { View, Text, Pressable, Image, TextInput } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
 
@@ -248,8 +248,8 @@ const VideoPlayer: React.FC = () => {
           height: 16px;
           width: 16px;
           border-radius: 50%;
-          background: #cd2bee;
-          box-shadow: 0 0 10px #cd2bee;
+          background: ${PRIMARY_COLOR};
+          box-shadow: 0 0 10px ${PRIMARY_COLOR};
           cursor: pointer;
           border: 2px solid white;
           margin-top: -6px;
@@ -268,7 +268,7 @@ const VideoPlayer: React.FC = () => {
           height: 12px;
           width: 12px;
           border-radius: 50%;
-          background: #cd2bee;
+          background: ${PRIMARY_COLOR};
           cursor: pointer;
           margin-top: -4px;
         }

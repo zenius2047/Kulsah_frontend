@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { useThemeMode } from '../theme';
+import { useThemeMode, PRIMARY_COLOR, primaryColorAlpha } from "../theme";
 import {
   Pressable,
   ScrollView,
@@ -26,7 +26,7 @@ type StreakRewardItem = {
 const STREAK_REWARDS: StreakRewardItem[] = [
   { name: 'Spark Badge', days: 3, icon: 'bolt', color: '#f59e0b' },
   { name: 'Comet Pass', days: 7, icon: 'rocket-launch', color: '#a855f7' },
-  { name: 'Nebula Crown', days: 14, icon: 'auto-awesome', color: '#cd2bee' },
+  { name: 'Nebula Crown', days: 14, icon: 'auto-awesome', color: PRIMARY_COLOR },
   { name: 'Galaxy Legend', days: 30, icon: 'stars', color: '#22c55e' },
 ];
 
@@ -91,8 +91,8 @@ const StreakReward: React.FC = () => {
                     style={[
                       styles.rewardCard,
                       {
-                        backgroundColor: isUnlocked ? 'rgba(205,43,238,0.08)' : card,
-                        borderColor: isUnlocked ? 'rgba(205,43,238,0.3)' : border,
+                        backgroundColor: isUnlocked ? primaryColorAlpha(0.08) : card,
+                        borderColor: isUnlocked ? primaryColorAlpha(0.3) : border,
                         opacity: isUnlocked ? 1 : 0.8,
                       },
                     ]}
@@ -156,7 +156,7 @@ const StreakReward: React.FC = () => {
           </View>
 
           <View style={[styles.infoCard, { backgroundColor: softBg, borderColor: border }]}>
-            <MaterialIcons name="info" size={26} color="#cd2bee" />
+            <MaterialIcons name="info" size={26} color={PRIMARY_COLOR} />
             <Text style={[styles.infoTitle, { color: textPrimary }]}>HOW IT WORKS</Text>
             <Text style={[styles.infoBody, { color: textMuted }]}>
               Streaks are based on your daily transmissions. Miss a day and the streak resets.
@@ -306,7 +306,7 @@ const styles = StyleSheet.create({
   progressFill: {
     height: '100%',
     borderRadius: 999,
-    backgroundColor: '#cd2bee',
+    backgroundColor: PRIMARY_COLOR,
   },
   infoCard: {
     borderWidth: 1,

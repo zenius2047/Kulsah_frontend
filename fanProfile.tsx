@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { useThemeMode } from './theme';
+import { useThemeMode, PRIMARY_COLOR, primaryColorAlpha } from "./theme";
 import { MaterialIcons } from '@expo/vector-icons';
 import { useNavigation } from '@react-navigation/native';
 import {
@@ -263,7 +263,7 @@ const FanProfile: React.FC<FanProfileProps> = ({ onToggleRole }) => {
           <View style={s.actionSection}>
             <Pressable onPress={handleSwitchRole} style={s.switchRoleCard}>
               <LinearGradient
-                colors={['#4f46e5', '#cd2bee']}
+                colors={['#4f46e5', PRIMARY_COLOR]}
                 start={{ x: 0, y: 0 }}
                 end={{ x: 1, y: 0 }}
                 style={s.switchRoleGradient}
@@ -287,14 +287,14 @@ const FanProfile: React.FC<FanProfileProps> = ({ onToggleRole }) => {
               {tabs.map((tab) => (
                 <Pressable key={tab.id} onPress={() => setActiveTab(tab.id)} style={s.tabButton}>
                   {
-            tab.id === 'Video' ? <MovieIcon height={22} width={22} fill={activeTab === tab.id ? '#cd2bee' : '#69738d'}/>:
-            tab.id === 'Premium'? <PremiumIcon height={22} width={22} fill={activeTab === tab.id ? '#cd2bee' : '#69738d'}/>:
-            tab.id === 'Tickets'? <LocalIcon height={22} width={22} fill={activeTab === tab.id ? '#cd2bee' : '#69738d'}/>:
-            tab.id === 'Events'? <CalenderIcon height={22} width={22} fill={activeTab === tab.id ? '#cd2bee' : '#69738d'}/>:
-            tab.id === 'Saved'?   <BookMarkIcon height={22} width={22} fill={activeTab === tab.id ? '#cd2bee' : '#69738d'}/>:
-            tab.id === 'Favorite'? <MaterialIcons name="favorite-border" size={22} color={activeTab === tab.id ? '#cd2bee' : '#69738d'}/>:null
+            tab.id === 'Video' ? <MovieIcon height={22} width={22} fill={activeTab === tab.id ? PRIMARY_COLOR : '#69738d'}/>:
+            tab.id === 'Premium'? <PremiumIcon height={22} width={22} fill={activeTab === tab.id ? PRIMARY_COLOR : '#69738d'}/>:
+            tab.id === 'Tickets'? <LocalIcon height={22} width={22} fill={activeTab === tab.id ? PRIMARY_COLOR : '#69738d'}/>:
+            tab.id === 'Events'? <CalenderIcon height={22} width={22} fill={activeTab === tab.id ? PRIMARY_COLOR : '#69738d'}/>:
+            tab.id === 'Saved'?   <BookMarkIcon height={22} width={22} fill={activeTab === tab.id ? PRIMARY_COLOR : '#69738d'}/>:
+            tab.id === 'Favorite'? <MaterialIcons name="favorite-border" size={22} color={activeTab === tab.id ? PRIMARY_COLOR : '#69738d'}/>:null
           }
-                  <Text style={[s.tabText, { color: activeTab === tab.id ? '#cd2bee' : theme.textSecondary }, activeTab === tab.id && s.tabTextActive]}>{tab.id}</Text>
+                  <Text style={[s.tabText, { color: activeTab === tab.id ? PRIMARY_COLOR : theme.textSecondary }, activeTab === tab.id && s.tabTextActive]}>{tab.id}</Text>
                   {activeTab === tab.id ? <View style={s.tabIndicator} /> : null}
                 </Pressable>
               ))}
@@ -337,7 +337,7 @@ const FanProfile: React.FC<FanProfileProps> = ({ onToggleRole }) => {
                     <View style={s.sectionGroup}>
                       <View style={s.vaultHeader}>
                         <Pressable onPress={() => setSelectedCreator(null)} style={s.backRow}>
-                          <MaterialIcons name="chevron-left" size={14} color="#cd2bee" />
+                          <MaterialIcons name="chevron-left" size={14} color={PRIMARY_COLOR} />
                           <Text style={s.backText}>Back to Creators</Text>
                         </Pressable>
                         <Text style={s.sectionEyebrow}>
@@ -400,7 +400,7 @@ const FanProfile: React.FC<FanProfileProps> = ({ onToggleRole }) => {
                     <Pressable key={item} onPress={() => navigation.navigate('FanTicket')} style={s.ticketCard}>
                       <View style={s.ticketLeft}>
                         <View style={s.ticketIconWrap}>
-                          <MaterialIcons name="local-activity" size={24} color="#cd2bee" />
+                          <MaterialIcons name="local-activity" size={24} color={PRIMARY_COLOR} />
                         </View>
                         <View>
                           <Text style={[s.ticketTitle, { color: theme.text }]}>Summer Festival 2024</Text>
@@ -450,7 +450,7 @@ const FanProfile: React.FC<FanProfileProps> = ({ onToggleRole }) => {
                                           }}
                                         >
                                           <Text style={{
-                                        color: '#cd2bee',
+                                        color: PRIMARY_COLOR,
                                         fontFamily: 'PlusJakartaSansBold',
                                         fontSize: FontSize.twelve,
                                         lineHeight: 15,
@@ -563,7 +563,7 @@ const FanProfile: React.FC<FanProfileProps> = ({ onToggleRole }) => {
                       <View style={s.squareThumbWrap}>
                         <Image source={{ uri: `https://picsum.photos/seed/saved${item}/400/400` }} style={s.thumbImage} />
                         <View style={s.savedBadge}>
-                          <MaterialIcons name="bookmark" size={14} color="#cd2bee" />
+                          <MaterialIcons name="bookmark" size={14} color={PRIMARY_COLOR} />
                         </View>
                       </View>
                       <Text style={[s.gridTitle, { color: theme.text }]}>Saved Collection Item</Text>
@@ -659,7 +659,7 @@ const s = StyleSheet.create({
     fontFamily: 'PlusJakartaSansExtraBold',
   },
   member: {
-    color: '#cd2bee',
+    color: PRIMARY_COLOR,
     fontSize: FontSize.ten,
     fontFamily: 'PlusJakartaSansExtraBold',
     textTransform: 'uppercase',
@@ -680,12 +680,12 @@ const s = StyleSheet.create({
     paddingHorizontal: 14,
     paddingVertical: 7,
     borderRadius: 999,
-    backgroundColor: 'rgba(205,43,238,0.1)',
+    backgroundColor: primaryColorAlpha(0.1),
     borderWidth: 1,
-    borderColor: 'rgba(205,43,238,0.24)',
+    borderColor: primaryColorAlpha(0.24),
   },
   vibeText: {
-    color: '#cd2bee',
+    color: PRIMARY_COLOR,
     fontSize: FontSize.nine,
     fontFamily: 'PlusJakartaSansExtraBold',
     textTransform: 'uppercase',
@@ -799,7 +799,7 @@ const s = StyleSheet.create({
     marginTop: 4,
   },
   tabTextActive: {
-    color: '#cd2bee',
+    color: PRIMARY_COLOR,
   },
   tabIndicator: {
     position: 'absolute',
@@ -808,7 +808,7 @@ const s = StyleSheet.create({
     bottom: -1,
     height: 2,
     borderRadius: 999,
-    backgroundColor: '#cd2bee',
+    backgroundColor: PRIMARY_COLOR,
   },
   tabContent: {
     gap: 18,
@@ -880,7 +880,7 @@ const s = StyleSheet.create({
     gap: 4,
   },
   creatorDropMeta: {
-    color: '#cd2bee',
+    color: PRIMARY_COLOR,
     fontSize: FontSize.ten,
     fontFamily: 'PlusJakartaSansExtraBold',
     textTransform: 'uppercase',
@@ -995,7 +995,7 @@ const s = StyleSheet.create({
     paddingHorizontal: 9,
     paddingVertical: 4,
     borderRadius: 999,
-    backgroundColor: '#cd2bee',
+    backgroundColor: PRIMARY_COLOR,
   },
   premiumTagText: {
     color: '#fff',
@@ -1073,7 +1073,7 @@ const s = StyleSheet.create({
     gap: 6,
   },
   backText: {
-    color: '#cd2bee',
+    color: PRIMARY_COLOR,
     fontSize: FontSize.ten,
     fontFamily: 'PlusJakartaSansExtraBold',
     textTransform: 'uppercase',
@@ -1098,9 +1098,9 @@ const s = StyleSheet.create({
     width: 56,
     height: 56,
     borderRadius: 18,
-    backgroundColor: 'rgba(205,43,238,0.1)',
+    backgroundColor: primaryColorAlpha(0.1),
     borderWidth: 1,
-    borderColor: 'rgba(205,43,238,0.24)',
+    borderColor: primaryColorAlpha(0.24),
     alignItems: 'center',
     justifyContent: 'center',
   },

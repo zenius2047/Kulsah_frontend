@@ -16,7 +16,7 @@ import {
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { GoogleGenAI } from '@google/genai';
-import { useThemeMode } from '../theme';
+import { useThemeMode, PRIMARY_COLOR, primaryColorAlphaHex } from "../theme";
 import { FontSize } from '../fonts';
 import { mediumScreen } from '../types';
 
@@ -33,7 +33,7 @@ const INITIAL_SUBSCRIPTION: SubscriptionTier = {
   price: '9.99',
   perks: ['Exclusive feed access', 'Direct messaging', 'Badge of honor'],
   currentMembers: 1248,
-  color: '#cd2bee',
+  color: PRIMARY_COLOR,
 };
 
 const MembershipTiers: React.FC = () => {
@@ -123,7 +123,7 @@ const MembershipTiers: React.FC = () => {
         {/* <Pressable
           onPress={getAiPricingAdvice}
           disabled={isAiLoading}
-          style={[s.aiButton, { backgroundColor: isDark ? '#cd2bee24' : theme.accentSoft, borderColor: isDark ? '#cd2bee4a' : '#cd2bee2b' }]}
+          style={[s.aiButton, { backgroundColor: isDark ? primaryColorAlphaHex('24') : theme.accentSoft, borderColor: isDark ? primaryColorAlphaHex('4a') : primaryColorAlphaHex('2b') }]}
         >
           {isAiLoading ? (
             <ActivityIndicator size="small" color={theme.accent} />
@@ -516,7 +516,7 @@ const s = StyleSheet.create({
   publishButton: {
     height: 58,
     borderRadius: 30,
-    backgroundColor: '#cd2bee',
+    backgroundColor: PRIMARY_COLOR,
     alignItems: 'center',
     justifyContent: 'center',
     flexDirection: 'row',
@@ -636,14 +636,14 @@ const s = StyleSheet.create({
     borderRadius: 18,
     alignItems: 'center',
     justifyContent: 'center',
-    backgroundColor: '#cd2bee',
+    backgroundColor: PRIMARY_COLOR,
   },
   syncButton: {
     height: 56,
     borderRadius: 28,
     alignItems: 'center',
     justifyContent: 'center',
-    backgroundColor: '#cd2bee',
+    backgroundColor: PRIMARY_COLOR,
     marginTop: 6,
   },
   syncButtonText: {

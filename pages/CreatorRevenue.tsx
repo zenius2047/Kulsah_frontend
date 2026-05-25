@@ -15,7 +15,7 @@ import {
 } from 'react-native';
 import { SafeAreaView, useSafeAreaInsets } from 'react-native-safe-area-context';
 import { FontSize } from '../fonts';
-import { useThemeMode } from '../theme';
+import { useThemeMode, PRIMARY_COLOR, primaryColorAlpha } from "../theme";
 import { mediumScreen } from '../types';
 
 interface Transaction {
@@ -40,7 +40,7 @@ const revenueData = [
 ];
 
 const distributionData = [
-  { name: 'Subscriptions', value: 60, color: '#cd2bee' },
+  { name: 'Subscriptions', value: 60, color: PRIMARY_COLOR },
   { name: 'Tickets', value: 30, color: '#3b82f6' },
   { name: 'Tips', value: 10, color: '#22c55e' },
 ];
@@ -64,7 +64,7 @@ const payoutMethods: Array<{
 }> = [
   { id: 'momo', label: 'Mobile Money', sub: 'MoMo / Airtel', icon: 'smartphone', tint: '#eab308', bg: 'rgba(234,179,8,0.12)', border: 'rgba(234,179,8,0.22)' },
   { id: 'bank', label: 'Bank Transfer', sub: 'Chase ...4292', icon: 'account-balance', tint: '#3b82f6', bg: 'rgba(59,130,246,0.12)', border: 'rgba(59,130,246,0.22)' },
-  { id: 'paypal', label: 'PayPal', sub: 'Instant Transfer', icon: 'payments', tint: '#cd2bee', bg: 'rgba(205,43,238,0.12)', border: 'rgba(205,43,238,0.22)' },
+  { id: 'paypal', label: 'PayPal', sub: 'Instant Transfer', icon: 'payments', tint: PRIMARY_COLOR, bg: primaryColorAlpha(0.12), border: primaryColorAlpha(0.22) },
   { id: 'crypto', label: 'Crypto Wallet', sub: 'USDT / USDC', icon: 'currency-bitcoin', tint: '#22c55e', bg: 'rgba(34,197,94,0.12)', border: 'rgba(34,197,94,0.22)' },
 ];
 
@@ -93,7 +93,7 @@ const CreatorRevenue: React.FC = () => {
   const titleColor = isDark ? '#fff' : theme.text;
   const subtle = isDark ? '#94a3b8' : theme.textSecondary;
   const muted = isDark ? '#6b7280' : theme.textMuted;
-  const accent = '#cd2bee';
+  const accent ={PRIMARY_COLOR};
 
   useEffect(() => {
     if (route.params?.openWithdraw) {
@@ -245,7 +245,7 @@ const CreatorRevenue: React.FC = () => {
           </View>
         </View>
 
-        {/* <View style={[s.aiCard, { backgroundColor: isDark ? 'rgba(205,43,238,0.08)' : theme.accentSoft, borderColor: 'rgba(205,43,238,0.24)' }]}>
+        {/* <View style={[s.aiCard, { backgroundColor: isDark ? primaryColorAlpha(0.08) : theme.accentSoft, borderColor: primaryColorAlpha(0.24) }]}>
           <View style={s.aiHeader}>
             <View style={s.aiHeaderLeft}>
               <View style={s.aiIconWrap}>
@@ -585,7 +585,7 @@ const s = StyleSheet.create({
   },
   barFill: {
     width: '100%',
-    backgroundColor: '#cd2bee',
+    backgroundColor: PRIMARY_COLOR,
     borderRadius: 16,
     minHeight: 14,
   },
@@ -604,7 +604,7 @@ const s = StyleSheet.create({
     height: 160,
     borderRadius: 80,
     borderWidth: 18,
-    borderTopColor: '#cd2bee',
+    borderTopColor: PRIMARY_COLOR,
     borderRightColor: '#3b82f6',
     borderBottomColor: '#22c55e',
     borderLeftColor: 'rgba(148,163,184,0.25)',
@@ -670,12 +670,12 @@ const s = StyleSheet.create({
     width: 48,
     height: 48,
     borderRadius: 18,
-    backgroundColor: 'rgba(205,43,238,0.16)',
+    backgroundColor: primaryColorAlpha(0.16),
     alignItems: 'center',
     justifyContent: 'center',
   },
   aiTitle: {
-    color: '#cd2bee',
+    color: PRIMARY_COLOR,
     fontFamily: 'PlusJakartaSansExtraBold',
     fontSize: mediumScreen ? FontSize.twelve : FontSize.ten,
     textTransform: 'uppercase',
@@ -683,7 +683,7 @@ const s = StyleSheet.create({
   },
   aiMeta: {
     marginTop: 3,
-    color: 'rgba(205,43,238,0.7)',
+    color: primaryColorAlpha(0.7),
     fontFamily: 'PlusJakartaSansExtraBold',
     fontSize: mediumScreen ? FontSize.eight : FontSize.seven,
     textTransform: 'uppercase',
@@ -695,7 +695,7 @@ const s = StyleSheet.create({
     borderRadius: 16,
     alignItems: 'center',
     justifyContent: 'center',
-    backgroundColor: 'rgba(205,43,238,0.12)',
+    backgroundColor: primaryColorAlpha(0.12),
   },
   aiRefreshLoading: {
     opacity: 0.8,
@@ -724,7 +724,7 @@ const s = StyleSheet.create({
   },
   aiMetaValue: {
     marginTop: 5,
-    color: '#cd2bee',
+    color: PRIMARY_COLOR,
     fontFamily: 'PlusJakartaSansExtraBold',
     fontSize: mediumScreen ? FontSize.twelve : FontSize.ten,
   },
@@ -738,7 +738,7 @@ const s = StyleSheet.create({
     justifyContent: 'space-between',
   },
   filterText: {
-    color: '#cd2bee',
+    color: PRIMARY_COLOR,
     fontFamily: 'PlusJakartaSansExtraBold',
     fontSize: mediumScreen ? FontSize.ten : FontSize.eight,
     textTransform: 'uppercase',
@@ -877,7 +877,7 @@ const s = StyleSheet.create({
     fontSize: mediumScreen ? FontSize.ten : FontSize.eight,
   },
   useMaxText: {
-    color: '#cd2bee',
+    color: PRIMARY_COLOR,
     fontFamily: 'PlusJakartaSansExtraBold',
     fontSize: mediumScreen ? FontSize.ten : FontSize.eight,
     textTransform: 'uppercase',
@@ -947,7 +947,7 @@ const s = StyleSheet.create({
     alignItems: 'center',
   },
   progressLabel: {
-    color: '#cd2bee',
+    color: PRIMARY_COLOR,
     fontFamily: 'PlusJakartaSansExtraBold',
     fontSize: mediumScreen ? FontSize.ten : FontSize.eight,
     textTransform: 'uppercase',
@@ -965,7 +965,7 @@ const s = StyleSheet.create({
   },
   progressFill: {
     height: '100%',
-    backgroundColor: '#cd2bee',
+    backgroundColor: PRIMARY_COLOR,
     borderRadius: 999,
   },
   modalActions: {
@@ -991,7 +991,7 @@ const s = StyleSheet.create({
     flex: 2,
     height: 54,
     borderRadius: 18,
-    backgroundColor: '#cd2bee',
+    backgroundColor: PRIMARY_COLOR,
     alignItems: 'center',
     justifyContent: 'center',
   },

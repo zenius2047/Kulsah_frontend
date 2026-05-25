@@ -14,7 +14,7 @@ import {
 } from 'react-native';
 import { SafeAreaView, useSafeAreaInsets } from 'react-native-safe-area-context';
 import { FontSize } from '../fonts';
-import { useThemeMode } from '../theme';
+import { useThemeMode, PRIMARY_COLOR, primaryColorAlpha } from "../theme";
 import KulsahInputBar from '../components/KulsahInputBar';
 
 type SearchTab = 'Top' | 'Users' | 'Videos' | 'Sounds' | 'LIVE' | 'Hashtags';
@@ -401,12 +401,12 @@ const styles = StyleSheet.create({
   },
   clearButton: { width: 30, height: 30, alignItems: 'center', justifyContent: 'center' },
   micIcon: { marginRight: 14 },
-  searchAction: { color: '#cd2bee', fontSize: FontSize.thirteen, fontFamily: 'PlusJakartaSansExtraBold' },
+  searchAction: { color: PRIMARY_COLOR, fontSize: FontSize.thirteen, fontFamily: 'PlusJakartaSansExtraBold' },
   tabsContent: { paddingHorizontal: 10 },
   tabButton: { minWidth: 70, alignItems: 'center', paddingHorizontal: 10, paddingTop: 12, paddingBottom: 13 },
   tabText: { color: 'rgba(255,255,255,0.42)', fontSize: FontSize.twelve, fontFamily: 'PlusJakartaSansExtraBold' },
   tabTextActive: { color: '#fff' },
-  tabIndicator: { position: 'absolute', bottom: 0, left: 16, right: 16, height: 3, borderRadius: 999, backgroundColor: '#cd2bee' },
+  tabIndicator: { position: 'absolute', bottom: 0, left: 16, right: 16, height: 3, borderRadius: 999, backgroundColor: PRIMARY_COLOR },
   content: { paddingHorizontal: 16, paddingTop: 24, gap: 38 },
   sectionTitleRow: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', marginBottom: 16 },
   sectionTitle: { color: 'rgba(255,255,255,0.62)', fontSize: FontSize.fifteen, fontFamily: 'PlusJakartaSansExtraBold', marginBottom: 18 },
@@ -420,7 +420,7 @@ const styles = StyleSheet.create({
   trendingRow: { minHeight: 44, flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', borderRadius: 14 },
   inlineCenter: { flexDirection: 'row', alignItems: 'center', gap: 6 },
   rank: { width: 22, color: 'rgba(255,255,255,0.24)', fontSize: FontSize.fourteen, fontFamily: 'PlusJakartaSansExtraBold' },
-  rankHot: { color: '#cd2bee' },
+  rankHot: { color: PRIMARY_COLOR },
   trendTag: { color: '#fff', fontSize: FontSize.thirteen, fontFamily: 'PlusJakartaSansExtraBold', textTransform: 'uppercase' },
   trendMeta: { color: 'rgba(255,255,255,0.25)', fontSize: FontSize.nine, fontFamily: 'PlusJakartaSansExtraBold' },
   gridRow: { flexDirection: 'row', flexWrap: 'wrap', gap: 14 },
@@ -433,7 +433,7 @@ const styles = StyleSheet.create({
   resultsStack: { gap: 28 },
   stackSmall: { gap: 12 },
   kicker: { color: 'rgba(255,255,255,0.42)', fontSize: FontSize.ten, fontFamily: 'PlusJakartaSansExtraBold', textTransform: 'uppercase', letterSpacing: 1.4 },
-  inlineAction: { color: '#cd2bee', fontSize: FontSize.nine, fontFamily: 'PlusJakartaSansExtraBold', textTransform: 'uppercase', letterSpacing: 1.2 },
+  inlineAction: { color: PRIMARY_COLOR, fontSize: FontSize.nine, fontFamily: 'PlusJakartaSansExtraBold', textTransform: 'uppercase', letterSpacing: 1.2 },
   userRow: { minHeight: 72, flexDirection: 'row', alignItems: 'center', gap: 12, paddingVertical: 8, paddingHorizontal: 2, borderRadius: 16 },
   userRowCompact: { minHeight: 56 },
   pressedSurface: { backgroundColor: 'rgba(255,255,255,0.05)' },
@@ -444,14 +444,14 @@ const styles = StyleSheet.create({
   userMeta: { marginTop: 2, color: 'rgba(255,255,255,0.42)', fontSize: FontSize.eleven, fontFamily: 'PlusJakartaSans' },
   userFollowers: { marginTop: 5, color: 'rgba(255,255,255,0.24)', fontSize: FontSize.nine, fontFamily: 'PlusJakartaSansExtraBold', textTransform: 'uppercase', letterSpacing: 1.1 },
   followButton: { height: 35, paddingHorizontal: 18, borderRadius: 999, backgroundColor: '#fff', alignItems: 'center', justifyContent: 'center' },
-  buttonPressed: { transform: [{ scale: 0.96 }], backgroundColor: '#cd2bee' },
+  buttonPressed: { transform: [{ scale: 0.96 }], backgroundColor: PRIMARY_COLOR },
   followText: { color: '#0f172a', fontSize: FontSize.nine, fontFamily: 'PlusJakartaSansExtraBold', textTransform: 'uppercase', letterSpacing: 1 },
   videoThumb: { width: '100%', aspectRatio: 4 / 5, borderRadius: 18, overflow: 'hidden', backgroundColor: '#1a1a1e' },
   viewsBadge: { position: 'absolute', left: 8, bottom: 8, flexDirection: 'row', alignItems: 'center', gap: 2, paddingHorizontal: 7, paddingVertical: 3, borderRadius: 7, backgroundColor: 'rgba(0,0,0,0.45)' },
   viewsText: { color: '#fff', fontSize: FontSize.nine, fontFamily: 'PlusJakartaSansBold' },
   videoTitle: { marginTop: 8, color: 'rgba(255,255,255,0.92)', fontSize: FontSize.eleven, fontFamily: 'PlusJakartaSansExtraBold' },
   authorRow: { marginTop: 7, flexDirection: 'row', alignItems: 'center', gap: 6 },
-  authorDot: { width: 16, height: 16, borderRadius: 8, backgroundColor: 'rgba(205,43,238,0.24)' },
+  authorDot: { width: 16, height: 16, borderRadius: 8, backgroundColor: primaryColorAlpha(0.24) },
   authorText: { color: 'rgba(255,255,255,0.42)', fontSize: FontSize.nine, fontFamily: 'PlusJakartaSansBold' },
   keywordBlock: { paddingTop: 20, borderTopWidth: StyleSheet.hairlineWidth, borderTopColor: 'rgba(255,255,255,0.08)' },
   keywordRow: { minHeight: 54, flexDirection: 'row', alignItems: 'center', gap: 13, paddingHorizontal: 4, borderRadius: 14 },
@@ -470,7 +470,7 @@ const styles = StyleSheet.create({
   viewerText: { color: '#fff', fontSize: FontSize.seven, fontFamily: 'PlusJakartaSansExtraBold' },
   liveBottom: { position: 'absolute', left: 14, right: 14, bottom: 16 },
   liveTitle: { color: '#fff', fontSize: FontSize.twelve, fontFamily: 'PlusJakartaSansExtraBold', marginBottom: 7 },
-  liveAvatar: { width: 20, height: 20, borderRadius: 10, borderWidth: 1, borderColor: 'rgba(255,255,255,0.24)', backgroundColor: 'rgba(205,43,238,0.26)' },
+  liveAvatar: { width: 20, height: 20, borderRadius: 10, borderWidth: 1, borderColor: 'rgba(255,255,255,0.24)', backgroundColor: primaryColorAlpha(0.26) },
   liveUser: { color: 'rgba(255,255,255,0.65)', fontSize: FontSize.nine, fontFamily: 'PlusJakartaSansExtraBold' },
   emptyState: { alignItems: 'center', justifyContent: 'center', paddingVertical: 80 },
   emptyText: { marginTop: 12, color: 'rgba(255,255,255,0.28)', fontSize: FontSize.twelve, fontFamily: 'PlusJakartaSansExtraBold', textTransform: 'uppercase', letterSpacing: 1.2 },

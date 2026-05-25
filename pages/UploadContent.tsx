@@ -1,5 +1,5 @@
 import React, { useEffect, useRef, useState } from 'react';
-import { useThemeMode } from '../theme';
+import { useThemeMode, PRIMARY_COLOR } from "../theme";
 import {
   ActivityIndicator,
   Alert,
@@ -109,7 +109,7 @@ const UploadContent: React.FC = () => {
     return (
       <SafeAreaView style={s.root}>
         <View style={s.center}>
-          <MaterialIcons name="verified" size={64} color="#cd2bee" />
+          <MaterialIcons name="verified" size={64} color={PRIMARY_COLOR} />
           <Text style={s.title}>Transmission Established</Text>
           <Text style={s.muted}>Your visual broadcast is now live.</Text>
           <Pressable style={s.primary} onPress={() => navigation.navigate('MainTabs')}>
@@ -190,7 +190,7 @@ const UploadContent: React.FC = () => {
                 height: 70,
                 width: 70,
                 borderRadius: 999,
-                backgroundColor: '#cd2bee',
+                backgroundColor: PRIMARY_COLOR,
                 justifyContent: 'center',
                 alignItems: 'center'
               }}>
@@ -204,7 +204,7 @@ const UploadContent: React.FC = () => {
                 // height: 70,
                 // width: 70,
                 // borderRadius: 999,
-                // backgroundColor: '#cd2bee',
+                // backgroundColor: PRIMARY_COLOR,
                 justifyContent: 'center',
                 alignItems: 'center'
               }}>
@@ -335,7 +335,7 @@ const UploadContent: React.FC = () => {
         </View>
         <View>
           <Text style={{
-            color: '#CD2BEE',
+            color: PRIMARY_COLOR,
             fontWeight: '900',
             fontSize: FontSize.ten,
             letterSpacing: 3
@@ -424,7 +424,7 @@ const UploadContent: React.FC = () => {
               >
               <View
               style={{
-                backgroundColor: '#cd2bee',
+                backgroundColor: PRIMARY_COLOR,
                 height: 10,
                 width: '10%',
                 position: 'absolute',
@@ -547,7 +547,7 @@ const UploadContent: React.FC = () => {
               {(['public', 'subscribers'] as Visibility[]).map((v) => (
                 <Pressable key={v} style={s.spaceBetween} onPress={() => setVisibility(v)}>
                   <Text style={s.text}>{v}</Text>
-                  <MaterialIcons name={visibility === v ? 'radio-button-checked' : 'radio-button-unchecked'} size={18} color={visibility === v ? '#cd2bee' : '#999'} />
+                  <MaterialIcons name={visibility === v ? 'radio-button-checked' : 'radio-button-unchecked'} size={18} color={visibility === v ? PRIMARY_COLOR : '#999'} />
                 </Pressable>
               ))}
             </View>
@@ -585,7 +585,7 @@ const s = StyleSheet.create({
   preview: { width: '100%', height: 260, borderRadius: 32, backgroundColor: '#171717', overflow: 'hidden', justifyContent: 'center', alignItems: 'center'},
   grid: { flexDirection: 'row', flexWrap: 'wrap', gap: 8 },
   tile: { width: '31%', aspectRatio: 1, borderRadius: 10, overflow: 'hidden', borderWidth: 2, borderColor: 'transparent' },
-  tileActive: { borderColor: '#cd2bee' },
+  tileActive: { borderColor: PRIMARY_COLOR },
   tileImg: { width: '100%', height: '100%' },
   row: { flexDirection: 'row', gap: 8, alignItems: 'center' },
   rowWrap: { flexDirection: 'row', flexWrap: 'wrap', gap: 8 },
@@ -599,15 +599,15 @@ const s = StyleSheet.create({
     alignItems: 'center',
     backgroundColor: '#00000066'
   },
-  chipActive: { backgroundColor: '#cd2bee', borderColor: '#cd2bee' },
+  chipActive: { backgroundColor: PRIMARY_COLOR, borderColor: PRIMARY_COLOR },
   chipText: { color: '#ffffffb3', fontSize: FontSize.eight, fontWeight: '900' },
-  chipTextActive: { color: '#cd2bee' },
+  chipTextActive: { color: PRIMARY_COLOR },
   panel: { backgroundColor: '#15151A', borderRadius: 12, padding: 12, gap: 10 },
-  panelTitle: { color: '#cd2bee', fontWeight: '800' },
+  panelTitle: { color: PRIMARY_COLOR, fontWeight: '800' },
   text: { color: '#eee', fontSize: FontSize.twelve },
   muted: { color: '#8A8A8F', fontSize: FontSize.eleven },
   input: { backgroundColor: '#15151A', borderRadius: 12, color: '#fff', padding: 12, borderWidth: 1, borderColor: '#333' },
-  primary: { flex: 1, height: 64, backgroundColor: '#cd2bee', borderRadius: 32, alignItems: 'center', justifyContent: 'center', flexDirection: 'row' },
+  primary: { flex: 1, height: 64, backgroundColor: PRIMARY_COLOR, borderRadius: 32, alignItems: 'center', justifyContent: 'center', flexDirection: 'row' },
   primaryText: { color: '#fff', fontWeight: '800' },
   secondary: { flex: 1, minHeight: 44, borderRadius: 12, borderWidth: 1, borderColor: '#333', alignItems: 'center', justifyContent: 'center', paddingHorizontal: 12 },
   secondaryText: { color: '#ddd', fontWeight: '700' },

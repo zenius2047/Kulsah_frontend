@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { useThemeMode } from '../theme';
+import { useThemeMode, PRIMARY_COLOR, primaryColorAlpha } from "../theme";
 import {
   Image,
   Pressable,
@@ -128,7 +128,7 @@ const SubmitEntry: React.FC = () => {
                 <View key={tag} style={styles.activeTag}>
                   <Text style={styles.activeTagText}>{tag}</Text>
                   <Pressable onPress={() => removeHashtag(tag)}>
-                    <MaterialIcons name="close" size={16} color="#cd2bee" />
+                    <MaterialIcons name="close" size={16} color={PRIMARY_COLOR} />
                   </Pressable>
                 </View>
               ))}
@@ -161,7 +161,7 @@ const SubmitEntry: React.FC = () => {
               icon="stars"
               title="Subscribers Only"
               subtitle="Only paid members can view this content"
-              accent="#cd2bee"
+              accent={PRIMARY_COLOR}
               enabled={subscribersOnly}
               onToggle={setSubscribersOnly}
               isDark={isDark}
@@ -171,7 +171,7 @@ const SubmitEntry: React.FC = () => {
               icon="layers"
               title="Allow Duets"
               subtitle="Let others collaborate with your video"
-              accent="#cd2bee"
+              accent={PRIMARY_COLOR}
               enabled={allowDuets}
               onToggle={setAllowDuets}
               isDark={isDark}
@@ -260,7 +260,7 @@ const PermissionRow: React.FC<PermissionRowProps> = ({
     <Switch
       value={enabled}
       onValueChange={onToggle}
-      trackColor={{ false: isDark ? 'rgba(255,255,255,0.12)' : '#cbd5e1', true: '#cd2bee' }}
+      trackColor={{ false: isDark ? 'rgba(255,255,255,0.12)' : '#cbd5e1', true: PRIMARY_COLOR }}
       thumbColor="#fff"
     />
   </View>
@@ -299,7 +299,7 @@ const styles = StyleSheet.create({
     borderRadius: 999,
   },
   headerPostText: {
-    color: '#cd2bee',
+    color: PRIMARY_COLOR,
     fontFamily: 'PlusJakartaSansBold',
     fontSize: FontSize.twelve,
   },
@@ -387,7 +387,7 @@ const styles = StyleSheet.create({
     fontSize: FontSize.fifteen,
   },
   sectionHint: {
-    color: '#cd2bee',
+    color: PRIMARY_COLOR,
     fontFamily: 'PlusJakartaSansBold',
     fontSize: FontSize.ten,
     textTransform: 'uppercase',
@@ -411,12 +411,12 @@ const styles = StyleSheet.create({
     paddingHorizontal: 12,
     paddingVertical: 8,
     borderRadius: 999,
-    backgroundColor: 'rgba(205,43,238,0.2)',
+    backgroundColor: primaryColorAlpha(0.2),
     borderWidth: 1,
-    borderColor: 'rgba(205,43,238,0.3)',
+    borderColor: primaryColorAlpha(0.3),
   },
   activeTagText: {
-    color: '#cd2bee',
+    color: PRIMARY_COLOR,
     fontFamily: 'PlusJakartaSansBold',
     fontSize: FontSize.thirteen,
   },
@@ -504,12 +504,12 @@ const styles = StyleSheet.create({
   postVideoButton: {
     minHeight: 56,
     borderRadius: 16,
-    backgroundColor: '#cd2bee',
+    backgroundColor: PRIMARY_COLOR,
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'center',
     gap: 10,
-    shadowColor: '#cd2bee',
+    shadowColor: PRIMARY_COLOR,
     shadowOffset: { width: 0, height: 0 },
     shadowOpacity: 0.45,
     shadowRadius: 22,

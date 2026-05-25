@@ -13,7 +13,7 @@ import {
 import { SafeAreaView, useSafeAreaInsets } from 'react-native-safe-area-context';
 import { MaterialIcons } from '@expo/vector-icons';
 import { LinearGradient } from 'expo-linear-gradient';
-import { useThemeMode } from '../theme';
+import { useThemeMode, PRIMARY_COLOR, primaryColorAlpha } from "../theme";
 import { FontSize, fontScale } from '../fonts';
 import { mediumScreen } from '../types';
 
@@ -200,7 +200,7 @@ const Store: React.FC = () => {
                 <Text style={[styles.heroSubtitle, { color: body }]}>Unlock the limited edition premium gift now.</Text>
                 <Pressable style={styles.heroButton}>
                   <LinearGradient
-                    colors={['#cd2bee', '#cd2bee']}
+                    colors={[PRIMARY_COLOR, PRIMARY_COLOR]}
                     start={{ x: 0, y: 0 }}
                     end={{ x: 1, y: 0 }}
                     style={styles.heroButtonGradient}
@@ -224,8 +224,8 @@ const Store: React.FC = () => {
                 style={[
                   styles.packCard,
                   {
-                    backgroundColor: pack.featured ? (isDark ? 'rgba(205,43,238,0.16)' : glass) : glass,
-                    borderColor: pack.featured ? (isDark ? 'rgba(255,255,255,0.18)' : 'rgba(205,43,238,0.18)') : border,
+                    backgroundColor: pack.featured ? (isDark ? primaryColorAlpha(0.16) : glass) : glass,
+                    borderColor: pack.featured ? (isDark ? 'rgba(255,255,255,0.18)' : primaryColorAlpha(0.18)) : border,
                     shadowColor,
                   },
                 ]}
@@ -254,7 +254,7 @@ const Store: React.FC = () => {
                 <Pressable style={pack.featured ? styles.featuredPriceButton : [styles.priceButton, { borderColor: border }]}>
                   {pack.featured ? (
                     <LinearGradient
-                      colors={['#cd2bee', '#6a00b1']}
+                      colors={[PRIMARY_COLOR, '#6a00b1']}
                       start={{ x: 0, y: 0 }}
                       end={{ x: 1, y: 1 }}
                       style={styles.featuredPriceGradient}
@@ -286,7 +286,7 @@ const Store: React.FC = () => {
                     styles.giftCard,
                     {
                       backgroundColor: glass,
-                      borderColor: gift.hot ? 'rgba(205,43,238,0.28)' : border,
+                      borderColor: gift.hot ? primaryColorAlpha(0.28) : border,
                       shadowColor,
                     },
                   ]}
@@ -311,7 +311,7 @@ const Store: React.FC = () => {
                   <Pressable style={gift.ctaPrimary ? styles.giftButtonPrimary : [styles.giftButton, { backgroundColor: glassStrong }]}>
                     {gift.ctaPrimary ? (
                       <LinearGradient
-                        colors={['#cd2bee', '#cd2bee']}
+                        colors={[PRIMARY_COLOR, PRIMARY_COLOR]}
                         start={{ x: 0, y: 0 }}
                         end={{ x: 1, y: 0 }}
                         style={styles.giftButtonGradient}
@@ -403,7 +403,7 @@ const styles = StyleSheet.create({
   },
   flashPill: {
     alignSelf: 'flex-start',
-    backgroundColor: 'rgba(205,43,238,0.18)',
+    backgroundColor: primaryColorAlpha(0.18),
     borderRadius: 999,
     paddingHorizontal: 10,
     paddingVertical: 4,
@@ -539,7 +539,7 @@ const styles = StyleSheet.create({
     position: 'absolute',
     top: 0,
     right: 0,
-    backgroundColor: '#cd2bee',
+    backgroundColor: PRIMARY_COLOR,
     borderBottomLeftRadius: 16,
     paddingHorizontal: 8,
     paddingVertical: 4,
@@ -595,7 +595,7 @@ const styles = StyleSheet.create({
     position: 'absolute',
     top: -6,
     right: -6,
-    backgroundColor: '#cd2bee',
+    backgroundColor: PRIMARY_COLOR,
     borderRadius: 999,
     paddingHorizontal: 6,
     paddingVertical: 3,

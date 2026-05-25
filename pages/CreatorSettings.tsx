@@ -2,7 +2,7 @@ import AsyncStorage from '@react-native-async-storage/async-storage';
 import { MaterialIcons } from '@expo/vector-icons';
 import { useNavigation } from '@react-navigation/native';
 import React, { useEffect, useMemo, useState } from 'react';
-import { useThemeMode } from '../theme';
+import { useThemeMode, PRIMARY_COLOR, primaryColorAlphaHex } from "../theme";
 import { SafeAreaView } from 'react-native-safe-area-context';
 import {
   Alert,
@@ -246,7 +246,7 @@ const CreatorSettings: React.FC<CreatorSettingsProps> = ({ onLogout, isDarkMode,
         <Text style={[s.headerTitle, { color: theme.text }]}>{title}</Text>
       </View>
       {activeSubView === 'main' ? (
-        <Pressable onPress={() => navigation.navigate('/dashboard')} style={[s.donePill, { borderColor: theme.border, backgroundColor: isDark ? '#cd2bee1f' : theme.accentSoft }]}>
+        <Pressable onPress={() => navigation.navigate('/dashboard')} style={[s.donePill, { borderColor: theme.border, backgroundColor: isDark ? primaryColorAlphaHex('1f') : theme.accentSoft }]}>
           <Text style={s.donePillText}>Done</Text>
         </Pressable>
       ) : (
@@ -304,7 +304,7 @@ const CreatorSettings: React.FC<CreatorSettingsProps> = ({ onLogout, isDarkMode,
           />
         </View>
 
-        <View style={[s.noteCard, { borderColor: isDark ? '#cd2bee32' : theme.border, backgroundColor: isDark ? '#cd2bee14' : theme.accentSoft }]}>
+        <View style={[s.noteCard, { borderColor: isDark ? primaryColorAlphaHex('32') : theme.border, backgroundColor: isDark ? primaryColorAlphaHex('14') : theme.accentSoft }]}>
           <Text style={[s.noteText, { color: theme.textSecondary }]}>
             Your handle is your unique planetary coordinate. Changing it may disrupt existing external links to your hub.
           </Text>
@@ -364,8 +364,8 @@ const CreatorSettings: React.FC<CreatorSettingsProps> = ({ onLogout, isDarkMode,
           <View style={s.profileNameBlock}>
             <View style={s.nameRow}>
               <Text style={[s.profileName, { color: theme.text }]}>{name}</Text>
-              {/* <MaterialIcons name="verified" size={18} color="#cd2bee" /> */}
-              <VerifiedIcon width={18} height={18} fill = "#cd2bee"/>
+              {/* <MaterialIcons name="verified" size={18} color={PRIMARY_COLOR} /> */}
+              <VerifiedIcon width={18} height={18} fill ={PRIMARY_COLOR}/>
             </View>
             <Text style={s.profileHandle}>{handle}</Text>
           </View>
@@ -386,7 +386,7 @@ const CreatorSettings: React.FC<CreatorSettingsProps> = ({ onLogout, isDarkMode,
                   }}
                 >
                   <View style={s.itemLeft}>
-                    <View style={[s.itemIconWrap, { borderColor: theme.border, backgroundColor: isDark ? '#cd2bee20' : theme.accentSoft }]}>
+                    <View style={[s.itemIconWrap, { borderColor: theme.border, backgroundColor: isDark ? primaryColorAlphaHex('20') : theme.accentSoft }]}>
                       {typeof item.icon === 'string' ? (
                             <MaterialIcons name={item.icon as any} size={18} color={isDark ? 'white' : theme.accent} />
                           ) : (
@@ -401,7 +401,7 @@ const CreatorSettings: React.FC<CreatorSettingsProps> = ({ onLogout, isDarkMode,
 
                   {item.isToggle ? (
                     <Switch
-                      trackColor={{ false: isDark ? '#30384a' : '#cbd5e1', true: '#cd2bee' }}
+                      trackColor={{ false: isDark ? '#30384a' : '#cbd5e1', true: PRIMARY_COLOR }}
                       thumbColor="#fff"
                       value={!!item.enabled}
                       onValueChange={() => item.onToggle?.()}
@@ -465,16 +465,16 @@ const s = StyleSheet.create({
     borderRadius: 10,
     borderWidth: 1,
     borderColor: '#ffffff4f',
-    backgroundColor: '#cd2bee1f',
+    backgroundColor: primaryColorAlphaHex('1f'),
   },
   donePillText: {
-    color: '#cd2bee',
+    color: PRIMARY_COLOR,
     fontSize: FontSize.ten,
     fontFamily: 'PlusJakartaSansBold',
     textTransform: 'uppercase',
     letterSpacing: 1,
   },
-  saveText: { color: '#cd2bee', fontSize: FontSize.eleven, fontWeight: '900', textTransform: 'uppercase' },
+  saveText: { color: PRIMARY_COLOR, fontSize: FontSize.eleven, fontWeight: '900', textTransform: 'uppercase' },
   banner: { height: 180, marginHorizontal: 16, marginTop: 12, borderRadius: 22, overflow: 'hidden' },
   bannerImage: { borderRadius: 22 },
   bannerShade: { ...StyleSheet.absoluteFillObject, backgroundColor: '#0000004f' },
@@ -492,7 +492,7 @@ const s = StyleSheet.create({
   avatarWrap: {
     position: 'relative',
     borderWidth: 3,
-    borderColor: '#cd2bee',
+    borderColor: PRIMARY_COLOR,
     padding: 5,
     backgroundColor: 'black',
     width: 96,
@@ -513,13 +513,13 @@ const s = StyleSheet.create({
     justifyContent: 'center',
     borderWidth: 2,
     borderColor: '#060913',
-    backgroundColor: '#cd2bee',
+    backgroundColor: PRIMARY_COLOR,
   },
   profileNameBlock: { paddingBottom: 10 },
   nameRow: { flexDirection: 'row', alignItems: 'center', gap: 6, justifyContent: 'center',},
   profileName: { color: '#fff', fontSize: FontSize.sixteen, fontFamily: 'PlusJakartaSansExtraBold' },
   profileHandle: {
-    color: '#cd2bee',
+    color: PRIMARY_COLOR,
     fontSize: FontSize.ten,
     fontFamily: 'PlusJakartaSansBold',
     textTransform: 'uppercase',
@@ -554,7 +554,7 @@ const s = StyleSheet.create({
     borderRadius: 11,
     alignItems: 'center',
     justifyContent: 'center',
-    backgroundColor: '#cd2bee20',
+    backgroundColor: primaryColorAlphaHex('20'),
     borderWidth: 1,
     borderColor: 'rgba(0 0 0 / 0.05)',
   },
@@ -616,7 +616,7 @@ const s = StyleSheet.create({
     paddingHorizontal: 12,
   },
   inputPrefix: {
-    color: '#cd2bee',
+    color: PRIMARY_COLOR,
     fontWeight: '900',
     textTransform: 'uppercase',
     fontSize: FontSize.twelve,
@@ -661,8 +661,8 @@ const s = StyleSheet.create({
   noteCard: {
     borderRadius: 20,
     borderWidth: 1,
-    borderColor: '#cd2bee32',
-    backgroundColor: '#cd2bee14',
+    borderColor: primaryColorAlphaHex('32'),
+    backgroundColor: primaryColorAlphaHex('14'),
     padding: 14,
   },
   noteText: { color: '#c5c9de', fontSize: mediumScreen ? FontSize.fourteen:FontSize.ten, fontStyle: 'italic', lineHeight: 18 },
@@ -692,7 +692,7 @@ const s = StyleSheet.create({
     borderColor: '#ffffff20',
     backgroundColor: '#ffffff10',
   },
-  tagChipOn: { backgroundColor: '#cd2bee', borderColor: '#cd2bee' },
+  tagChipOn: { backgroundColor: PRIMARY_COLOR, borderColor: PRIMARY_COLOR },
   tagText: {
     color: '#a8adc4',
     fontSize: FontSize.ten,

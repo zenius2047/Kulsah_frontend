@@ -14,7 +14,7 @@ import { SafeAreaView, useSafeAreaInsets } from 'react-native-safe-area-context'
 import { LinearGradient } from 'expo-linear-gradient';
 import { MaterialIcons } from '@expo/vector-icons';
 import { useNavigation } from '@react-navigation/native';
-import { useThemeMode } from '../theme';
+import { useThemeMode, PRIMARY_COLOR, primaryColorAlpha } from "../theme";
 import { FontSize, fontScale } from '../fonts';
 import { mediumScreen } from '../types';
 import GoogleIcon from '../assets/icons/google-svg.svg';
@@ -48,16 +48,16 @@ const EmailPhone: React.FC = () => {
   const lightLeakOne = useMemo(
     () =>
       isDark
-        ? 'rgba(205,43,238,0.15)'
-        : 'rgba(205,43,238,0.08)',
+        ? primaryColorAlpha(0.15)
+        : primaryColorAlpha(0.08),
     [isDark]
   );
 
   const lightLeakTwo = useMemo(
     () =>
       isDark
-        ? 'rgba(205,43,238,0.12)'
-        : 'rgba(205,43,238,0.07)',
+        ? primaryColorAlpha(0.12)
+        : primaryColorAlpha(0.07),
     [isDark]
   );
 
@@ -127,7 +127,7 @@ const EmailPhone: React.FC = () => {
             <View style={styles.branding}>
               {isDark ? <KulsahWhite width={'80%'} height={80}/>: <KulsahBlack width={'80%'} height={60}/>}
               {/* <LinearGradient
-                colors={['#cd2bee', '#cd2bee']}
+                colors={[PRIMARY_COLOR, PRIMARY_COLOR]}
                 start={{ x: 0, y: 0 }}
                 end={{ x: 1, y: 1 }}
                 style={styles.brandBadge}
@@ -147,7 +147,7 @@ const EmailPhone: React.FC = () => {
                   styles.inputWrap,
                   {
                     backgroundColor: fieldBg,
-                    borderColor: focused ? 'rgba(205,43,238,0.45)' : borderColor,
+                    borderColor: focused ? primaryColorAlpha(0.45) : borderColor,
                   },
                 ]}
               >
@@ -155,7 +155,7 @@ const EmailPhone: React.FC = () => {
                   style={[
                     styles.inputLabel,
                     {
-                      color: labelRaised ? '#cd2bee' : bodyColor,
+                      color: labelRaised ? PRIMARY_COLOR : bodyColor,
                       top: labelRaised ? 12 : '65%',
                       fontSize: labelRaised
                         ? mediumScreen
@@ -179,7 +179,7 @@ const EmailPhone: React.FC = () => {
                   placeholder=""
                   keyboardType="email-address"
                   autoCapitalize="none"
-                  selectionColor="#cd2bee"
+                  selectionColor={PRIMARY_COLOR}
                   style={[styles.input, { color: titleColor }]}
                 />
               </View>
@@ -190,7 +190,7 @@ const EmailPhone: React.FC = () => {
                 disabled={!canContinue}
               >
                 <LinearGradient
-                  colors={['#cd2bee', '#cd2bee']}
+                  colors={[PRIMARY_COLOR, PRIMARY_COLOR]}
                   start={{ x: 0, y: 0 }}
                   end={{ x: 1, y: 0 }}
                   style={styles.primaryGradient}
@@ -325,7 +325,7 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'center',
     marginBottom: 22,
-    shadowColor: '#cd2bee',
+    shadowColor: PRIMARY_COLOR,
     shadowOpacity: 0.4,
     shadowRadius: 20,
     shadowOffset: { width: 0, height: 0 },
@@ -368,7 +368,7 @@ const styles = StyleSheet.create({
   primaryButton: {
     borderRadius: 999,
     overflow: 'hidden',
-    shadowColor: '#cd2bee',
+    shadowColor: PRIMARY_COLOR,
     shadowOpacity: 0.36,
     shadowRadius: 20,
     shadowOffset: { width: 0, height: 0 },
@@ -444,7 +444,7 @@ const styles = StyleSheet.create({
     letterSpacing: 1.2,
   },
   footerAction: {
-    color: '#cd2bee',
+    color: PRIMARY_COLOR,
     fontFamily: 'PlusJakartaSansExtraBold',
     fontSize: mediumScreen ? FontSize.twelve : FontSize.eight,
   },

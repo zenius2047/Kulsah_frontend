@@ -1,5 +1,5 @@
 import React, { useMemo, useState } from 'react';
-import { useThemeMode } from '../theme';
+import { useThemeMode, PRIMARY_COLOR, primaryColorAlpha } from "../theme";
 import { Image, Pressable, ScrollView, Text, View, KeyboardAvoidingView, Platform } from 'react-native';
 import { useNavigation, useRoute } from '@react-navigation/native';
 import type { User, UserRole } from '../types';
@@ -68,7 +68,7 @@ export const SignupVibesStep: React.FC<SignupVibesStepProps> = ({
               borderRadius: 16,
               overflow: 'hidden',
               borderWidth: 2,
-              borderColor: isSelected ? '#cd2bee' : 'rgba(255,255,255,0.1)',
+              borderColor: isSelected ? PRIMARY_COLOR : 'rgba(255,255,255,0.1)',
             }}
           >
             <Image source={{ uri: tag.img }} style={{ width: '100%', height: 140 }} />
@@ -92,7 +92,7 @@ export const SignupVibesStep: React.FC<SignupVibesStepProps> = ({
       disabled={selectedVibes.size === 0}
       onPress={onContinue}
       style={{
-        backgroundColor: selectedVibes.size > 0 ? '#cd2bee' : 'rgba(255,255,255,0.25)',
+        backgroundColor: selectedVibes.size > 0 ? PRIMARY_COLOR : 'rgba(255,255,255,0.25)',
         borderRadius: 20,
         height: 56,
         alignItems: 'center',
@@ -172,7 +172,7 @@ const Signup: React.FC<SignupProps> = ({ onLogin }) => {
     <KeyboardAvoidingView style={{ flex: 1 }} behavior={Platform.OS === 'ios' ? 'padding' : undefined} keyboardVerticalOffset={0}>
     <View style={{ flex: 1, backgroundColor: '#000', paddingTop: 50}}>
       <View style={{ height: 4, backgroundColor: 'rgba(255,255,255,0.1)' }}>
-        <View style={{ height: '100%', width: `${progress}%`, backgroundColor: '#cd2bee' }} />
+        <View style={{ height: '100%', width: `${progress}%`, backgroundColor: PRIMARY_COLOR }} />
       </View>
 
       <View
@@ -226,14 +226,14 @@ const Signup: React.FC<SignupProps> = ({ onLogin }) => {
                   borderRadius: 14,
                   borderColor: '#e5e7eb',
                   borderWidth: 1,
-                  // backgroundColor: 'rgba(205,43,238,0.16)',
+                  // backgroundColor: primaryColorAlpha(0.16),
                   alignItems: 'center',
                   justifyContent: 'center'
                    }}>
                   {
-                    item === 'Cinematic Transmissions' ? <MovieIcon height = {24} width= {24} fill= '#cd2bee'></MovieIcon>:
-                    item === 'Unlock Premium Vaults' ? <StarsIcon height = {24} width= {24} fill= '#cd2bee'></StarsIcon>:
-                    <TicketIcon height = {24} width= {24} fill= '#cd2bee'></TicketIcon>
+                    item === 'Cinematic Transmissions' ? <MovieIcon height = {24} width= {24} fill={PRIMARY_COLOR}></MovieIcon>:
+                    item === 'Unlock Premium Vaults' ? <StarsIcon height = {24} width= {24} fill={PRIMARY_COLOR}></StarsIcon>:
+                    <TicketIcon height = {24} width= {24} fill={PRIMARY_COLOR}></TicketIcon>
                   }
                 </View>
                 <Text style={{ color: '#ffffffcc', fontFamily: 'PlusJakartaSansMedium' }}>{item}</Text>
@@ -241,7 +241,7 @@ const Signup: React.FC<SignupProps> = ({ onLogin }) => {
             ))}
             <Pressable
               onPress={handleNext}
-              style={{ backgroundColor: '#cd2bee', borderRadius: 20, height: 56, alignItems: 'center', justifyContent: 'center', marginTop: 6 }}
+              style={{ backgroundColor: PRIMARY_COLOR, borderRadius: 20, height: 56, alignItems: 'center', justifyContent: 'center', marginTop: 6 }}
             >
               <Text style={{ color: 'white', fontFamily: "PlusJakartaSansBold"}}>Get Started</Text>
             </Pressable>
@@ -317,7 +317,7 @@ const Signup: React.FC<SignupProps> = ({ onLogin }) => {
                   height: 60,
                   borderRadius: 999,
                   borderWidth: 3,
-                  borderColor: '#cd2bee',
+                  borderColor: PRIMARY_COLOR,
                   // justifyContent: 'center',
                   paddingVertical:4,
                   alignItems: 'center'
@@ -325,7 +325,7 @@ const Signup: React.FC<SignupProps> = ({ onLogin }) => {
                   <Text
                   style = {{
                     fontFamily: 'PlusJakartaSansBold',
-                    color: '#cd2bee',
+                    color: PRIMARY_COLOR,
                     fontSize: FontSize.twenty,
                     textAlign: 'center'
                   }}
@@ -363,7 +363,7 @@ const Signup: React.FC<SignupProps> = ({ onLogin }) => {
               disabled={formData.name.length < 2}
               onPress={handleNext}
               style={{
-                backgroundColor: formData.name.length >= 2 ? '#cd2bee' : 'rgba(255,255,255,0.25)',
+                backgroundColor: formData.name.length >= 2 ? PRIMARY_COLOR : 'rgba(255,255,255,0.25)',
                 borderRadius: 20,
                 height: 56,
                 alignItems: 'center',
@@ -419,7 +419,7 @@ const Signup: React.FC<SignupProps> = ({ onLogin }) => {
               style={{
                 backgroundColor:
                   formData.password.length >= 8 && !!formData.email && !isProcessing
-                    ? '#cd2bee'
+                    ? PRIMARY_COLOR
                     : 'rgba(255,255,255,0.25)',
                 borderRadius: 20,
                 height: 56,
@@ -439,7 +439,7 @@ const Signup: React.FC<SignupProps> = ({ onLogin }) => {
                 padding: 5,
                 borderWidth: 5,
                 backgroundColor:'black',
-                borderColor: '#cd2bee',
+                borderColor: PRIMARY_COLOR,
                 borderRadius: 38
               }}
             >
@@ -448,7 +448,7 @@ const Signup: React.FC<SignupProps> = ({ onLogin }) => {
                 width: 110,
                 height: 110,
                 borderRadius: 26,
-                backgroundColor: '#cd2bee',
+                backgroundColor: PRIMARY_COLOR,
                 alignItems: 'center',
                 justifyContent: 'center',
               }}
@@ -458,12 +458,12 @@ const Signup: React.FC<SignupProps> = ({ onLogin }) => {
             </View>
             <Text style={{ color: 'white', fontSize: FontSize.thirtyFour, textAlign: 'center', fontFamily: 'PlusJakartaSansExtraBold' }}>{'IDENTITY\nSECURED'}</Text>
             <Text style={{ color: '#cbd5e1', textAlign: 'center' }}>
-              Welcome home,{'\n'}<Text style={{ color: '#cd2bee', fontFamily: "PlusJakartaSansBold" }}>{formData.name || 'Fan'}</Text>.
+              Welcome home,{'\n'}<Text style={{ color: PRIMARY_COLOR, fontFamily: "PlusJakartaSansBold" }}>{formData.name || 'Fan'}</Text>.
             </Text>
             <Pressable
               onPress={completeOnboarding}
               style={{
-                backgroundColor: '#cd2bee',
+                backgroundColor: PRIMARY_COLOR,
                 borderRadius: 20, height: 56, alignItems: 'center', justifyContent: 'center', width: '80%' }}
             >
               <Text style={{

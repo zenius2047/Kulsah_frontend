@@ -11,7 +11,7 @@ import {
 } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { FontSize } from '../fonts';
-import { useThemeMode } from '../theme';
+import { useThemeMode, PRIMARY_COLOR } from "../theme";
 
 type ShareFriend = {
   id: string;
@@ -274,7 +274,7 @@ const styles = StyleSheet.create({
     height: 66,
     borderRadius: 33,
     padding: 2,
-    // backgroundColor: '#cd2bee',
+    // backgroundColor: PRIMARY_COLOR,
   },
   friendAvatar: {
     width: '100%',

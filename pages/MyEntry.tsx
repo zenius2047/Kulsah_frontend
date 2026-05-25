@@ -1,5 +1,5 @@
 import React from 'react';
-import { useThemeMode } from '../theme';
+import { useThemeMode, PRIMARY_COLOR, primaryColorAlpha } from "../theme";
 import {
   Image,
   Pressable,
@@ -141,7 +141,7 @@ const MyEntry: React.FC = () => {
                 <View style={styles.insightsGrid}>
                   <View style={[styles.insightCard, { backgroundColor: isDark ? 'rgba(255,255,255,0.04)' : theme.card, borderColor: theme.border }]}>
                     <View style={styles.insightHeader}>
-                      <MaterialIcons name="trending-up" size={20} color="#cd2bee" />
+                      <MaterialIcons name="trending-up" size={20} color={PRIMARY_COLOR} />
                       <Text style={[styles.insightTitle, { color: theme.text }]}>Performance Trend</Text>
                     </View>
 
@@ -170,7 +170,7 @@ const MyEntry: React.FC = () => {
 
                   <View style={[styles.insightCard, { backgroundColor: isDark ? 'rgba(255,255,255,0.04)' : theme.card, borderColor: theme.border }]}>
                     <View style={styles.insightHeader}>
-                      <MaterialIcons name="emoji-events" size={20} color="#cd2bee" />
+                      <MaterialIcons name="emoji-events" size={20} color={PRIMARY_COLOR} />
                       <Text style={[styles.insightTitle, { color: theme.text }]}>Projected Rewards</Text>
                     </View>
                     <Text style={[styles.insightSubtitle, { color: theme.textSecondary }]}>Based on current #12 rank</Text>
@@ -245,7 +245,7 @@ const MyEntry: React.FC = () => {
                     'Appropriate visual content',
                   ].map((item) => (
                     <View key={item} style={styles.guideRow}>
-                      <MaterialIcons name="check-circle" size={16} color="#cd2bee" />
+                      <MaterialIcons name="check-circle" size={16} color={PRIMARY_COLOR} />
                       <Text style={[styles.guideText, { color: theme.textSecondary }]}>{item}</Text>
                     </View>
                   ))}
@@ -284,7 +284,7 @@ const styles = StyleSheet.create({
     marginBottom: 28,
   },
   liveLabel: {
-    color: '#cd2bee',
+    color: PRIMARY_COLOR,
     fontFamily: 'PlusJakartaSansExtraBold',
     fontSize: FontSize.ten,
     textTransform: 'uppercase',
@@ -314,13 +314,13 @@ const styles = StyleSheet.create({
     borderRadius: 10,
     alignItems: 'center',
     justifyContent: 'center',
-    backgroundColor: 'rgba(205,43,238,0.22)',
+    backgroundColor: primaryColorAlpha(0.22),
   },
   liveDotInner: {
     width: 6,
     height: 6,
     borderRadius: 6,
-    backgroundColor: '#cd2bee',
+    backgroundColor: PRIMARY_COLOR,
   },
   timerText: {
     color: '#94A3B8',
@@ -375,8 +375,8 @@ const styles = StyleSheet.create({
     borderRadius: 32,
     alignItems: 'center',
     justifyContent: 'center',
-    backgroundColor: '#cd2bee',
-    shadowColor: '#cd2bee',
+    backgroundColor: PRIMARY_COLOR,
+    shadowColor: PRIMARY_COLOR,
     shadowOffset: { width: 0, height: 0 },
     shadowOpacity: 0.5,
     shadowRadius: 20,
@@ -458,7 +458,7 @@ const styles = StyleSheet.create({
     paddingHorizontal: 24,
     paddingVertical: 14,
     borderRadius: 14,
-    backgroundColor: '#cd2bee',
+    backgroundColor: PRIMARY_COLOR,
   },
   primaryButtonText: {
     color: '#fff',
@@ -503,7 +503,7 @@ const styles = StyleSheet.create({
     backgroundColor: 'rgba(255,255,255,0.18)',
   },
   chartBarActive: {
-    backgroundColor: '#cd2bee',
+    backgroundColor: PRIMARY_COLOR,
   },
   chartLabels: {
     flexDirection: 'row',
@@ -538,7 +538,7 @@ const styles = StyleSheet.create({
   rewardFill: {
     width: '66%',
     height: '100%',
-    backgroundColor: '#cd2bee',
+    backgroundColor: PRIMARY_COLOR,
   },
   rewardHint: {
     color: '#64748B',
@@ -669,7 +669,7 @@ const styles = StyleSheet.create({
     borderColor: 'rgba(255,255,255,0.06)',
   },
   guideTitle: {
-    color: '#cd2bee',
+    color: PRIMARY_COLOR,
     fontFamily: 'PlusJakartaSansExtraBold',
     fontSize: FontSize.ten,
     textTransform: 'uppercase',

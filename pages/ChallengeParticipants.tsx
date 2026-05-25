@@ -1,5 +1,5 @@
 import React, { useMemo, useState } from 'react';
-import { useThemeMode } from '../theme';
+import { useThemeMode, PRIMARY_COLOR } from "../theme";
 import {
   Image,
   Pressable,
@@ -242,7 +242,7 @@ const ChallengeParticipants: React.FC = () => {
 
           {filteredParticipants.length === 0 ? (
             <View style={styles.emptyState}>
-              <MaterialIcons name="person-search" size={34} color="#cd2bee" />
+              <MaterialIcons name="person-search" size={34} color={PRIMARY_COLOR} />
               <Text style={styles.emptyTitle}>No participants found</Text>
               <Text style={styles.emptyText}>Try another search or switch filters.</Text>
             </View>
@@ -323,7 +323,7 @@ const styles = StyleSheet.create({
     borderRadius: 999,
   },
   filterChipActive: {
-    backgroundColor: '#cd2bee',
+    backgroundColor: PRIMARY_COLOR,
   },
   filterChipIdle: {
     backgroundColor: '#121212',
@@ -376,7 +376,7 @@ const styles = StyleSheet.create({
     borderRadius: 8,
   },
   voteBadgeFeatured: {
-    backgroundColor: '#cd2bee',
+    backgroundColor: PRIMARY_COLOR,
   },
   voteBadgeDefault: {
     backgroundColor: 'rgba(0,0,0,0.48)',

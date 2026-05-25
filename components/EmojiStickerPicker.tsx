@@ -13,7 +13,7 @@ import {
 } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { FontSize } from '../fonts';
-import { useThemeMode } from '../theme';
+import { useThemeMode, PRIMARY_COLOR } from "../theme";
 import { mediumScreen } from '../types';
 import KulsahInputBar from './KulsahInputBar';
 
@@ -156,7 +156,7 @@ const EmojiStickerPicker: React.FC<EmojiStickerPickerProps> = ({
                 setShowSearch((prev) => !prev);
                 setSearchQuery('');
               }}
-              style={[styles.closeButton, { backgroundColor: theme.surface, borderColor: showSearch ? "#cd2bee": theme.border }]}
+              style={[styles.closeButton, { backgroundColor: theme.surface, borderColor: showSearch ? PRIMARY_COLOR: theme.border }]}
             >
               <MaterialIcons name="search" size={18} color={theme.textSecondary} />
             </Pressable>

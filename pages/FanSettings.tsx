@@ -1,5 +1,5 @@
 import React, { useMemo, useRef, useState, useEffect } from 'react';
-import { useThemeMode } from '../theme';
+import { useThemeMode, PRIMARY_COLOR, primaryColorAlpha, primaryColorAlphaHex } from "../theme";
 import {
   Image,
   KeyboardAvoidingView,
@@ -171,7 +171,7 @@ const FanSettings: React.FC<FanSettingsProps> = ({ onLogout, isDarkMode, onToggl
   const secondaryText = isDark ? '#94a3b8' : theme.textSecondary;
   const mutedText = isDark ? '#6b7280' : theme.textMuted;
   const inputBackground = isDark ? '#0f172a' : '#ffffff';
-  const chipSurface = isDark ? 'rgba(205,43,238,0.12)' : '#f5f3ff';
+  const chipSurface = isDark ? primaryColorAlpha(0.12) : '#f5f3ff';
   const softSurface = isDark ? 'rgba(255,255,255,0.05)' : '#f1f5f9';
 
   const renderHeader = (title: string, backToMain = true) => (
@@ -284,7 +284,7 @@ const FanSettings: React.FC<FanSettingsProps> = ({ onLogout, isDarkMode, onToggl
                         style={s.qrImage}
                       />
                     </View>
-                    <View style={[s.tokenPill, { borderColor: isDark ? 'rgba(205,43,238,0.3)' : '#cd2bee44', backgroundColor: chipSurface }]}>
+                    <View style={[s.tokenPill, { borderColor: isDark ? primaryColorAlpha(0.3) : primaryColorAlphaHex('44'), backgroundColor: chipSurface }]}>
                       <View style={s.tokenDot} />
                       <Text style={[s.tokenText, { color: isDark ? '#c084fc' : '#7c3aed' }]}>Refreshes in {tokenTime}s</Text>
                     </View>
@@ -491,8 +491,8 @@ const FanSettings: React.FC<FanSettingsProps> = ({ onLogout, isDarkMode, onToggl
           style={[
             s.walletCard,
             {
-              backgroundColor: isDark ? 'rgba(205,43,238,0.08)' : '#faf5ff',
-              borderColor: isDark ? 'rgba(205,43,238,0.22)' : '#e9d5ff',
+              backgroundColor: isDark ? primaryColorAlpha(0.08) : '#faf5ff',
+              borderColor: isDark ? primaryColorAlpha(0.22) : '#e9d5ff',
             },
           ]}
         >
@@ -514,7 +514,7 @@ const FanSettings: React.FC<FanSettingsProps> = ({ onLogout, isDarkMode, onToggl
                   s.walletIconButton,
                   {
                     backgroundColor: isDark ? 'rgba(255,255,255,0.04)' : '#ffffff',
-                    borderColor: isDark ? 'rgba(205,43,238,0.22)' : '#e9d5ff',
+                    borderColor: isDark ? primaryColorAlpha(0.22) : '#e9d5ff',
                   },
                 ]}
               >
@@ -664,7 +664,7 @@ const FanSettings: React.FC<FanSettingsProps> = ({ onLogout, isDarkMode, onToggl
                 }}
               >
                 <View style={s.itemLeft}>
-                  <View style={[s.itemIcon, { borderColor: theme.border, backgroundColor: isDark ? '#cd2bee20' : theme.accentSoft }]}>
+                  <View style={[s.itemIcon, { borderColor: theme.border, backgroundColor: isDark ? primaryColorAlphaHex('20') : theme.accentSoft }]}>
                     {typeof item.icon === 'string' ? (
                       <MaterialIcons name={item.icon as any} size={18} color={isDark ? '#fff' : theme.accent} />
                     ) : (
@@ -730,7 +730,7 @@ const s = StyleSheet.create({
     height: 112,
     borderRadius: 56,
     borderWidth: 4,
-    borderColor: '#cd2bee',
+    borderColor: PRIMARY_COLOR,
     padding: 4,
     overflow: 'hidden',
   },
@@ -748,7 +748,7 @@ const s = StyleSheet.create({
     width: 32,
     height: 32,
     borderRadius: 16,
-    backgroundColor: '#cd2bee',
+    backgroundColor: PRIMARY_COLOR,
     alignItems: 'center',
     justifyContent: 'center',
   },
@@ -766,7 +766,7 @@ const s = StyleSheet.create({
     fontFamily: 'PlusJakartaSansBold',
   },
   handleWrap: { position: 'relative', justifyContent: 'center' },
-  handlePrefix: { position: 'absolute', left: 16, color: '#cd2bee', fontFamily: 'PlusJakartaSansExtraBold' },
+  handlePrefix: { position: 'absolute', left: 16, color: PRIMARY_COLOR, fontFamily: 'PlusJakartaSansExtraBold' },
   handleInput: { paddingLeft: 34 },
   rowBetween: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between' },
   counter: { fontSize: mediumScreen ? FontSize.fourteen:FontSize.ten, fontFamily: 'PlusJakartaSansBold', color: '#94a3b8' },
@@ -786,7 +786,7 @@ const s = StyleSheet.create({
     marginTop: 6,
     height: 56,
     borderRadius: 20,
-    backgroundColor: '#cd2bee',
+    backgroundColor: PRIMARY_COLOR,
     alignItems: 'center',
     justifyContent: 'center',
   },
@@ -808,11 +808,11 @@ const s = StyleSheet.create({
   cardFront: { gap: 16 },
   cardBack: { gap: 14, alignItems: 'center' },
   cardRowBetween: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center' },
-  cardTag: { fontSize: FontSize.ten, fontFamily: 'PlusJakartaSansExtraBold', textTransform: 'uppercase', letterSpacing: 3, color: '#cd2bee' },
+  cardTag: { fontSize: FontSize.ten, fontFamily: 'PlusJakartaSansExtraBold', textTransform: 'uppercase', letterSpacing: 3, color: PRIMARY_COLOR },
   cardName: { fontSize: FontSize.twentyThree, fontFamily: 'PlusJakartaSansExtraBold', color: '#0f172a', textTransform: 'uppercase' },
   cardSub: { fontSize: FontSize.eleven, fontFamily: 'PlusJakartaSansBold', color: '#94a3b8', textTransform: 'uppercase' },
   cardTitle: { fontSize: FontSize.eighteen, fontFamily: 'PlusJakartaSansExtraBold', color: '#0f172a', textTransform: 'uppercase' },
-  cardLabel: { fontSize: FontSize.ten, fontFamily: 'PlusJakartaSansExtraBold', letterSpacing: 3, color: '#cd2bee', textTransform: 'uppercase' },
+  cardLabel: { fontSize: FontSize.ten, fontFamily: 'PlusJakartaSansExtraBold', letterSpacing: 3, color: PRIMARY_COLOR, textTransform: 'uppercase' },
   cardIconBadge: {
     width: 40,
     height: 40,
@@ -866,7 +866,7 @@ const s = StyleSheet.create({
     alignItems: 'center',
     gap: 8,
     borderWidth: 1,
-    borderColor: '#cd2bee44',
+    borderColor: primaryColorAlphaHex('44'),
     paddingHorizontal: 12,
     paddingVertical: 6,
     borderRadius: 999,
@@ -883,19 +883,19 @@ const s = StyleSheet.create({
     borderRadius: 999,
     backgroundColor: '#f0fdf4',
   },
-  tokenDot: { width: 8, height: 8, borderRadius: 4, backgroundColor: '#cd2bee' },
+  tokenDot: { width: 8, height: 8, borderRadius: 4, backgroundColor: PRIMARY_COLOR },
   tokenText: { fontSize: FontSize.ten, fontFamily: 'PlusJakartaSansExtraBold', color: '#7c3aed' },
   tokenTextAlt: { fontSize: FontSize.ten, fontFamily: 'PlusJakartaSansExtraBold', color: '#16a34a' },
   tokenHint: { fontSize: FontSize.ten, fontFamily: 'PlusJakartaSansBold', color: '#94a3b8', textAlign: 'center' },
   progressBarWrap: { gap: 8 },
   progressTrack: { height: 6, borderRadius: 999, backgroundColor: '#e2e8f0' },
-  progressFill: { height: '100%', borderRadius: 999, backgroundColor: '#cd2bee' },
+  progressFill: { height: '100%', borderRadius: 999, backgroundColor: PRIMARY_COLOR },
   progressLabels: { flexDirection: 'row', justifyContent: 'space-between' },
   progressText: { fontSize: FontSize.ten, fontFamily: 'PlusJakartaSansBold', textTransform: 'uppercase', color: '#94a3b8' },
-  progressTextActive: { color: '#cd2bee' },
+  progressTextActive: { color: PRIMARY_COLOR },
   sectionBlock: { gap: 10 },
   sectionTitle: { fontSize: FontSize.nine, fontFamily: 'PlusJakartaSansExtraBold', textTransform: 'uppercase', letterSpacing: 2, color: '#94a3b8' },
-  sectionBadge: { fontSize: FontSize.ten, fontFamily: 'PlusJakartaSansBold', textTransform: 'uppercase', color: '#cd2bee' },
+  sectionBadge: { fontSize: FontSize.ten, fontFamily: 'PlusJakartaSansBold', textTransform: 'uppercase', color: PRIMARY_COLOR },
   rail: { marginTop: 6 },
   railCard: {
     width: 170,
@@ -942,7 +942,7 @@ const s = StyleSheet.create({
     fontSize: FontSize.nine,
     fontFamily: 'PlusJakartaSansExtraBold',
     textTransform: 'uppercase',
-    color: '#cd2bee',
+    color: PRIMARY_COLOR,
     backgroundColor: '#f5f3ff',
     paddingHorizontal: 10,
     paddingVertical: 4,
@@ -970,7 +970,7 @@ const s = StyleSheet.create({
   walletUnit: {
     fontSize: mediumScreen ? FontSize.eighteen : FontSize.fourteen,
     fontFamily: 'PlusJakartaSansExtraBold',
-    color: '#cd2bee',
+    color: PRIMARY_COLOR,
   },
   walletActions: {
     flexDirection: 'row',
@@ -983,7 +983,7 @@ const s = StyleSheet.create({
     borderRadius: 999,
     alignItems: 'center',
     justifyContent: 'center',
-    backgroundColor: '#cd2bee',
+    backgroundColor: PRIMARY_COLOR,
   },
   walletPrimaryButtonText: {
     color: '#fff',
@@ -1111,7 +1111,7 @@ const s = StyleSheet.create({
     fontSize: FontSize.nine,
     fontFamily: 'PlusJakartaSansExtraBold',
     textTransform: 'uppercase',
-    color: '#cd2bee',
+    color: PRIMARY_COLOR,
     backgroundColor: '#f5f3ff',
     paddingHorizontal: 8,
     paddingVertical: 4,
@@ -1132,7 +1132,7 @@ const s = StyleSheet.create({
   profileTextWrap: { alignItems: 'center' },
   profileNameRow: { flexDirection: 'row', alignItems: 'center', gap: 6 },
   profileName: { fontSize: FontSize.sixteen, fontFamily: 'PlusJakartaSansExtraBold', color: '#0f172a' },
-  profileHandle: { fontSize: FontSize.ten, fontFamily: 'PlusJakartaSansBold', letterSpacing: 0.5, color: '#cd2bee', textTransform: 'uppercase' },
+  profileHandle: { fontSize: FontSize.ten, fontFamily: 'PlusJakartaSansBold', letterSpacing: 0.5, color: PRIMARY_COLOR, textTransform: 'uppercase' },
   itemRow: {
     marginTop: 8,
     padding: 14,
@@ -1165,7 +1165,7 @@ const s = StyleSheet.create({
     justifyContent: 'center',
     paddingHorizontal: 4,
   },
-  toggleEnabled: { backgroundColor: '#cd2bee' },
+  toggleEnabled: { backgroundColor: PRIMARY_COLOR },
   toggleDot: {
     width: 16,
     height: 16,

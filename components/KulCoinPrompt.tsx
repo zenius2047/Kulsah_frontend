@@ -2,7 +2,7 @@ import React from 'react';
 import { MaterialIcons } from '@expo/vector-icons';
 import { Modal, Pressable, Text, View } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
-import { useThemeMode } from '../theme';
+import { useThemeMode, PRIMARY_COLOR } from "../theme";
 import { FontSize } from '../fonts';
 import { mediumScreen } from '../types';
 
@@ -96,7 +96,7 @@ const KulCoinPrompt: React.FC<KulCoinPromptProps> = ({
                 marginBottom: 24,
               }}
             >
-              You need <Text style={{ color: '#cd2bee', fontFamily: 'PlusJakartaSansExtraBold' }}>{requiredCoins} KulCoins</Text> to complete this subscription. Your current balance is <Text style={{ color: theme.text, fontFamily: 'PlusJakartaSansExtraBold' }}>{currentCoins}</Text>.
+              You need <Text style={{ color: PRIMARY_COLOR, fontFamily: 'PlusJakartaSansExtraBold' }}>{requiredCoins} KulCoins</Text> to complete this subscription. Your current balance is <Text style={{ color: theme.text, fontFamily: 'PlusJakartaSansExtraBold' }}>{currentCoins}</Text>.
             </Text>
 
             <View style={{ width: '100%', rowGap: 12 }}>
@@ -113,7 +113,7 @@ const KulCoinPrompt: React.FC<KulCoinPromptProps> = ({
                   width: '100%',
                   minHeight: 64,
                   borderRadius: 18,
-                  backgroundColor: '#cd2bee',
+                  backgroundColor: PRIMARY_COLOR,
                   alignItems: 'center',
                   justifyContent: 'center',
                   flexDirection: 'row',

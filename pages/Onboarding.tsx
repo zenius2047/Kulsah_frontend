@@ -1,5 +1,5 @@
 import React from 'react';
-import { useThemeMode } from '../theme';
+import { useThemeMode, PRIMARY_COLOR } from "../theme";
 import { Image, ImageBackground, Pressable, StatusBar, Text, View } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
 import { MaterialIcons } from '@expo/vector-icons';
@@ -50,7 +50,7 @@ const Onboarding: React.FC<OnboardingProps> = ({ onLogin }) => {
               width: 128,
               height: 128,
               borderRadius: 36,
-              backgroundColor: '#cd2bee',
+              backgroundColor: PRIMARY_COLOR,
               alignItems: 'center',
               justifyContent: 'center',
               borderWidth: 3,
@@ -70,7 +70,7 @@ const Onboarding: React.FC<OnboardingProps> = ({ onLogin }) => {
             }}>KULSAH</Text>
           <Text
             style={{
-              color: '#cd2bee',
+              color: PRIMARY_COLOR,
               marginTop: 8,
               fontSize: FontSize.ten,
               fontWeight: '800',
@@ -118,7 +118,7 @@ const Onboarding: React.FC<OnboardingProps> = ({ onLogin }) => {
             style={{
               height: 62,
               borderRadius: 26,
-              backgroundColor: '#cd2bee',
+              backgroundColor: PRIMARY_COLOR,
               alignItems: 'center',
               justifyContent: 'center',
               marginBottom: 12,

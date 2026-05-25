@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { useThemeMode } from '../theme';
+import { useThemeMode, PRIMARY_COLOR, primaryColorAlpha } from "../theme";
 import { Image, Pressable, ScrollView, Text, TextInput, View } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
 import { MaterialIcons } from '@expo/vector-icons';
@@ -215,7 +215,7 @@ const Discover: React.FC<{ embedded?: boolean }> = ({ embedded = false }) => {
                   paddingHorizontal: 16,
                   paddingVertical: 9,
                   borderRadius: 999,
-                  backgroundColor: activeCategory === cat ? '#cd2bee' : glassSurface,
+                  backgroundColor: activeCategory === cat ? PRIMARY_COLOR : glassSurface,
                   borderWidth: activeCategory === cat ? 0 : 1,
                   borderColor: softBorder,
                 }}
@@ -235,7 +235,7 @@ const Discover: React.FC<{ embedded?: boolean }> = ({ embedded = false }) => {
             <View style={{ paddingHorizontal: 16, flexDirection: 'row', justifyContent: 'space-between', marginVertical: 20, alignItems: 'center' }}>
               <Text style={{ color: theme.text, fontSize: mediumScreen ? FontSize.sixteen : FontSize.twelve, fontWeight: 'bold', fontFamily: 'PlusJakartaSansExtraBold' }}>TOP CREATORS</Text>
               <Pressable>
-                <Text style={{ color: '#cd2bee', fontSize: mediumScreen ? FontSize.fourteen : FontSize.ten, fontWeight: 'bold', fontFamily: 'PlusJakartaSansBold' }}>VIEW ALL</Text>
+                <Text style={{ color: PRIMARY_COLOR, fontSize: mediumScreen ? FontSize.fourteen : FontSize.ten, fontWeight: 'bold', fontFamily: 'PlusJakartaSansBold' }}>VIEW ALL</Text>
               </Pressable>
             </View>
             <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={{ gap: 20, paddingVertical: 4 }}>
@@ -246,7 +246,7 @@ const Discover: React.FC<{ embedded?: boolean }> = ({ embedded = false }) => {
                       width: 86,
                       height: 86,
                       borderRadius: 43,
-                      borderColor: 'rgba(205,43,238,0.35)',
+                      borderColor: primaryColorAlpha(0.35),
                       borderWidth: 2,
                       padding: 4,
                     }}
@@ -267,7 +267,7 @@ const Discover: React.FC<{ embedded?: boolean }> = ({ embedded = false }) => {
                         width: 22,
                         height: 22,
                         borderRadius: 11,
-                        backgroundColor: '#cd2bee',
+                        backgroundColor: PRIMARY_COLOR,
                         borderWidth: 2,
                         borderColor: theme.background,
                         alignItems: 'center',
@@ -296,7 +296,7 @@ const Discover: React.FC<{ embedded?: boolean }> = ({ embedded = false }) => {
               <Pressable onPress={()=>{
                 navigation.navigate('Events')
               }}>
-                <Text style={{ color: '#cd2bee', fontSize: mediumScreen ? FontSize.fourteen : FontSize.ten, fontWeight: 'bold', fontFamily: 'PlusJakartaSansBold' }}>FULL CALENDAR</Text>
+                <Text style={{ color: PRIMARY_COLOR, fontSize: mediumScreen ? FontSize.fourteen : FontSize.ten, fontWeight: 'bold', fontFamily: 'PlusJakartaSansBold' }}>FULL CALENDAR</Text>
               </Pressable>
             </View>
             <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={{ gap: 14, paddingHorizontal: 16 }}>
@@ -322,7 +322,7 @@ const Discover: React.FC<{ embedded?: boolean }> = ({ embedded = false }) => {
                         <Text
                           numberOfLines={2}
                           style={{
-                            color: '#cd2bee',
+                            color: PRIMARY_COLOR,
                             marginTop: 4,
                             fontSize: mediumScreen ? FontSize.fourteen : FontSize.ten,
                             width: '72%',
@@ -365,12 +365,12 @@ const Discover: React.FC<{ embedded?: boolean }> = ({ embedded = false }) => {
                         alignItems: 'center',
                         justifyContent: 'center',
                         flexDirection: 'row',
-                        backgroundColor: 'rgba(205,43,238,0.12)',
-                        borderColor: 'rgba(205,43,238,0.35)',
+                        backgroundColor: primaryColorAlpha(0.12),
+                        borderColor: primaryColorAlpha(0.35),
                         borderWidth: 1,
                       }}
                     >
-                      <View style={{ backgroundColor: '#cd2bee', width: 8, height: 8, borderRadius: 4 }} />
+                      <View style={{ backgroundColor: PRIMARY_COLOR, width: 8, height: 8, borderRadius: 4 }} />
                       <Text style={{ color: 'white', fontSize: mediumScreen ? FontSize.eleven : FontSize.nine, fontWeight: '700', marginLeft: 8, fontFamily: 'PlusJakartaSansBold' }}>
                         {event.tag.toUpperCase()}
                       </Text>
@@ -388,7 +388,7 @@ const Discover: React.FC<{ embedded?: boolean }> = ({ embedded = false }) => {
             <View style={{ paddingHorizontal: 16, flexDirection: 'row', justifyContent: 'space-between', marginVertical: 20 }}>
               <Text style={{ color: theme.text, fontSize: mediumScreen ? FontSize.eighteen : FontSize.fourteen, fontWeight: 'bold', fontFamily: 'PlusJakartaSansExtraBold' }}>TRENDING CHALLENGE</Text>
               <Pressable>
-                <Text style={{ color: '#cd2bee', fontSize: mediumScreen ? FontSize.fourteen : FontSize.ten, fontWeight: 'bold', fontFamily: 'PlusJakartaSansBold' }}>VIEW ORBIT</Text>
+                <Text style={{ color: PRIMARY_COLOR, fontSize: mediumScreen ? FontSize.fourteen : FontSize.ten, fontWeight: 'bold', fontFamily: 'PlusJakartaSansBold' }}>VIEW ORBIT</Text>
               </Pressable>
             </View>
             <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={{ gap: 14, paddingHorizontal: 16 }}>
@@ -416,7 +416,7 @@ const Discover: React.FC<{ embedded?: boolean }> = ({ embedded = false }) => {
                         <Text
                           numberOfLines={1}
                           style={{
-                            color: '#cd2bee',
+                            color: PRIMARY_COLOR,
                             fontSize: mediumScreen ? FontSize.fourteen : FontSize.ten,
                             width: '90%',
                             fontFamily: 'PlusJakartaSansBold',
@@ -487,7 +487,7 @@ const Discover: React.FC<{ embedded?: boolean }> = ({ embedded = false }) => {
               <Pressable onPress={()=>{
                 navigation.navigate("TrendingVideos")
               }}>
-                <Text style={{ color: '#cd2bee', fontSize: mediumScreen ? FontSize.fifteen : FontSize.eleven, fontWeight: 'bold', fontFamily: 'PlusJakartaSansBold' }}>SEE ALL</Text>
+                <Text style={{ color: PRIMARY_COLOR, fontSize: mediumScreen ? FontSize.fifteen : FontSize.eleven, fontWeight: 'bold', fontFamily: 'PlusJakartaSansBold' }}>SEE ALL</Text>
               </Pressable>
             </View>
             <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={{ gap: 14, paddingHorizontal: 16 }}>
@@ -519,7 +519,7 @@ const Discover: React.FC<{ embedded?: boolean }> = ({ embedded = false }) => {
                       <Text style={{
                           fontFamily: "PlusJakartaSansBold",
                           fontSize: mediumScreen? FontSize.fourteen: FontSize.ten,
-                          color: '#cd2bee'
+                          color: PRIMARY_COLOR
 
                         }}>
                          { `@ ${vid.artist}`}
@@ -548,7 +548,7 @@ const Discover: React.FC<{ embedded?: boolean }> = ({ embedded = false }) => {
                               borderColor: overlayMusicBorder,
                             }}
                           >
-                            <MaterialIcons name="music-note" size={12} color="#cd2bee" />
+                            <MaterialIcons name="music-note" size={12} color={PRIMARY_COLOR} />
                             {/* <Text style={{ color: isDark ? 'white' : theme.text, fontSize: FontSize.nine, fontFamily: 'PlusJakartaSansBold' }} numberOfLines={1}>
                               {vid.sound.title.toUpperCase()}
                             </Text> */}
@@ -570,7 +570,7 @@ const Discover: React.FC<{ embedded?: boolean }> = ({ embedded = false }) => {
               <Pressable onPress={() => {
                 navigation.navigate('MarketPlace')
               }}>
-                <Text style={{ color: '#cd2bee', fontSize: mediumScreen ? FontSize.fifteen : FontSize.eleven, fontWeight: 'bold', fontFamily: 'PlusJakartaSansBold' }}>BROWSE ALL</Text>
+                <Text style={{ color: PRIMARY_COLOR, fontSize: mediumScreen ? FontSize.fifteen : FontSize.eleven, fontWeight: 'bold', fontFamily: 'PlusJakartaSansBold' }}>BROWSE ALL</Text>
               </Pressable>
             </View>
             <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={{ gap: 12, paddingHorizontal: 16 }}>
@@ -578,7 +578,7 @@ const Discover: React.FC<{ embedded?: boolean }> = ({ embedded = false }) => {
                 <Pressable key={item.id} style={{ width: 180 }} onPress={() => navigation.navigate('MarketPlace')}>
                   <View style={{ borderRadius: 24, overflow: 'hidden', backgroundColor: cardBackground, borderWidth: 1, borderColor: theme.border }}>
                     <Image source={{ uri: item.img }} style={{ width: '100%', aspectRatio: 1 }} />
-                    <View style={{ position: 'absolute', top: 10, right: 10, backgroundColor: '#cd2bee', borderRadius: 999, paddingHorizontal: 10, paddingVertical: 6 }}>
+                    <View style={{ position: 'absolute', top: 10, right: 10, backgroundColor: PRIMARY_COLOR, borderRadius: 999, paddingHorizontal: 10, paddingVertical: 6 }}>
                       <Text style={{ color: 'white', fontSize: mediumScreen ? FontSize.twelve : FontSize.ten, fontWeight: '700', fontFamily: 'PlusJakartaSansBold' }}>{item.price}</Text>
                     </View>
                     <View

@@ -1,5 +1,5 @@
 import React, { useMemo, useState } from 'react';
-import { useThemeMode } from '../theme';
+import { useThemeMode, PRIMARY_COLOR, primaryColorAlpha } from "../theme";
 import { Image, Pressable, ScrollView, StyleSheet, Text, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { MaterialIcons } from '@expo/vector-icons';
@@ -164,10 +164,10 @@ const CreatorChallenges: React.FC = () => {
         onPress={() => setActiveTab(id)}
         style={[styles.tabButton, { backgroundColor: active ? (isDark ? 'rgba(255,255,255,0.08)' : '#fff') : 'transparent' }]}
       >
-        {id === 'challenges' && <TrophyIcon fill={isDark? activeTab === id ? '#cd2bee':'white': activeTab === id ? '#cd2bee' :'black'} height={24} width={24}/>}
-        {id === 'submissions' && <SubmissionIcon fill={isDark? activeTab === id ? '#cd2bee':'white':activeTab === id ? '#cd2bee': 'black'} height={24} width={24}/>}
-        {id === 'drafts' && <DraftIcon fill={isDark? activeTab === id ? '#cd2bee':'white': activeTab === id ? '#cd2bee':'black'} height={24} width={24}/>}
-        {id === 'invites' && <InviteIcon fill={isDark? activeTab === id ? '#cd2bee':'white': activeTab === id ? '#cd2bee': 'black'} height={24} width={24}/>}
+        {id === 'challenges' && <TrophyIcon fill={isDark? activeTab === id ? PRIMARY_COLOR:'white': activeTab === id ? PRIMARY_COLOR :'black'} height={24} width={24}/>}
+        {id === 'submissions' && <SubmissionIcon fill={isDark? activeTab === id ? PRIMARY_COLOR:'white':activeTab === id ? PRIMARY_COLOR: 'black'} height={24} width={24}/>}
+        {id === 'drafts' && <DraftIcon fill={isDark? activeTab === id ? PRIMARY_COLOR:'white': activeTab === id ? PRIMARY_COLOR:'black'} height={24} width={24}/>}
+        {id === 'invites' && <InviteIcon fill={isDark? activeTab === id ? PRIMARY_COLOR:'white': activeTab === id ? PRIMARY_COLOR: 'black'} height={24} width={24}/>}
         <Text style={[styles.tabText, { color: active ? theme.accent : subtle }]}>{label}</Text>
         {dot ? <View style={styles.dot} /> : null}
       </Pressable>
@@ -197,7 +197,7 @@ const CreatorChallenges: React.FC = () => {
           right: 20,
           height: 60,
           width: 60,
-          backgroundColor: '#cd2bee',
+          backgroundColor: PRIMARY_COLOR,
           zIndex: 1,
           borderRadius: 32,
           justifyContent: 'center',
@@ -209,8 +209,8 @@ const CreatorChallenges: React.FC = () => {
 
         <ScrollView contentContainerStyle={styles.content} showsVerticalScrollIndicator={false}>
           <LinearGradient
-            colors={isDark ? ['rgba(205,43,238,0.18)', 'rgba(124,58,237,0.08)'] : ['rgba(205,43,238,0.08)', 'rgba(124,58,237,0.04)']}
-            style={[styles.hero, { borderColor: 'rgba(205,43,238,0.22)' }]}
+            colors={isDark ? [primaryColorAlpha(0.18), 'rgba(124,58,237,0.08)'] : [primaryColorAlpha(0.08), 'rgba(124,58,237,0.04)']}
+            style={[styles.hero, { borderColor: primaryColorAlpha(0.22) }]}
           >
             <View style={styles.heroRow}>
               <View style={styles.heroIcon}>
@@ -336,13 +336,13 @@ const CreatorChallenges: React.FC = () => {
                     <Pressable onPress={() => go('FanProfile', { userId: submission.userId })} style={[styles.sideBtn, { backgroundColor: surface, borderColor: border }]}>
                       <MaterialIcons name="person" size={20} color={titleTone} />
                     </Pressable>
-                    <Pressable onPress={() => go('ChallengeFeed')} style={[styles.sideBtn, { backgroundColor: isDark ? 'rgba(205,43,238,0.12)' : theme.accentSoft, borderColor: 'transparent' }]}>
+                    <Pressable onPress={() => go('ChallengeFeed')} style={[styles.sideBtn, { backgroundColor: isDark ? primaryColorAlpha(0.12) : theme.accentSoft, borderColor: 'transparent' }]}>
                       <MaterialIcons name="visibility" size={20} color={theme.accent} />
                     </Pressable>
                   </View> */}
                 </View>
               ))}
-              <Pressable onPress={() => go('ChallengeFeed')} style={[styles.dashedBtn, { borderColor: 'rgba(205,43,238,0.3)' }]}>
+              <Pressable onPress={() => go('ChallengeFeed')} style={[styles.dashedBtn, { borderColor: primaryColorAlpha(0.3) }]}>
                 <Text style={styles.dashedBtnText}>View All Submissions</Text>
               </Pressable>
             </View>
@@ -370,7 +370,7 @@ const CreatorChallenges: React.FC = () => {
                   </Pressable>
                 </View>
               ))}
-              <Pressable onPress={() => go('CreateChallenge')} style={[styles.dashedBtn, { borderColor: 'rgba(205,43,238,0.3)' }]}>
+              <Pressable onPress={() => go('CreateChallenge')} style={[styles.dashedBtn, { borderColor: primaryColorAlpha(0.3) }]}>
                 <Text style={styles.dashedBtnText}>View All Drafts</Text>
               </Pressable>
             </View>
@@ -424,7 +424,7 @@ const CreatorChallenges: React.FC = () => {
                   </View>
                 </View>
               ))}
-              <View style={[styles.tipCard, { backgroundColor: isDark ? 'rgba(205,43,238,0.08)' : theme.accentSoft, borderColor: 'rgba(205,43,238,0.24)' }]}>
+              <View style={[styles.tipCard, { backgroundColor: isDark ? primaryColorAlpha(0.08) : theme.accentSoft, borderColor: primaryColorAlpha(0.24) }]}>
                 <Text style={styles.tipTitle}>Collaboration Tip</Text>
                 <Text style={[styles.tipBody, { color: subtle }]}>Collaborating on creator challenges can increase your reach by up to 40%. Use invites when creating a challenge to partner up.</Text>
               </View>
@@ -463,7 +463,7 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'center',
   },
-  headerBtnPrimary: { backgroundColor: '#cd2bee', borderColor: '#cd2bee' },
+  headerBtnPrimary: { backgroundColor: PRIMARY_COLOR, borderColor: PRIMARY_COLOR },
   headerTitle: {
     flex: 1,
     textAlign: 'center',
@@ -478,7 +478,7 @@ const styles = StyleSheet.create({
   heroRow: { flexDirection: 'row', alignItems: 'center', gap: 16 },
   heroIcon: {
     width: 64, height: 64, borderRadius: 20, alignItems: 'center', justifyContent: 'center',
-    backgroundColor: 'rgba(205,43,238,0.14)', borderWidth: 1, borderColor: 'rgba(205,43,238,0.3)',
+    backgroundColor: primaryColorAlpha(0.14), borderWidth: 1, borderColor: primaryColorAlpha(0.3),
   },
   heroTitle: { fontFamily: 'PlusJakartaSansExtraBold', fontSize: mediumScreen ? FontSize.twenty : FontSize.sixteen, textTransform: 'uppercase' },
   heroMeta: { marginTop: 4, fontFamily: 'PlusJakartaSansExtraBold', fontSize: FontSize.eight, textTransform: 'uppercase', letterSpacing: 2 },
@@ -489,28 +489,28 @@ const styles = StyleSheet.create({
   tabBar: { flexDirection: 'row', borderRadius: 0, borderWidth: 0, padding: 0, justifyContent: 'space-around' },
   tabButton: { flex: 0, minHeight: 48, borderRadius: 14, alignItems: 'center', justifyContent: 'center', position: 'relative' },
   tabText: { fontFamily: 'PlusJakartaSansExtraBold', fontSize: mediumScreen ? FontSize.ten: FontSize.six, textTransform: 'uppercase', letterSpacing: 1.4 },
-  dot: { position: 'absolute', top: 10, right: 12, width: 6, height: 6, borderRadius: 3, backgroundColor: '#cd2bee' },
+  dot: { position: 'absolute', top: 10, right: 12, width: 6, height: 6, borderRadius: 3, backgroundColor: PRIMARY_COLOR },
   section: { gap: 16 },
   sectionRow: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', paddingHorizontal: 4 },
   sectionTitle: { fontFamily: 'PlusJakartaSansBold', fontSize: FontSize.eight, textTransform: 'uppercase', letterSpacing: 2.4 },
-  sectionAccent: { color: '#cd2bee', fontFamily: 'PlusJakartaSansExtraBold', fontSize: FontSize.eight, textTransform: 'uppercase', letterSpacing: 1.8 },
+  sectionAccent: { color: PRIMARY_COLOR, fontFamily: 'PlusJakartaSansExtraBold', fontSize: FontSize.eight, textTransform: 'uppercase', letterSpacing: 1.8 },
   featureCard: { height: 320, borderRadius: 48, overflow: 'hidden', borderWidth: 1, backgroundColor: '#111827' },
   fillImage: { ...StyleSheet.absoluteFillObject, width: undefined, height: undefined },
   trending: {
     position: 'absolute', top: 24, left: 24, flexDirection: 'row', alignItems: 'center', gap: 6,
-    paddingHorizontal: 14, paddingVertical: 8, borderRadius: 999, backgroundColor: 'rgba(205,43,238,0.15)',
-    borderWidth: 1, borderColor: 'rgba(205,43,238,0.3)',
+    paddingHorizontal: 14, paddingVertical: 8, borderRadius: 999, backgroundColor: primaryColorAlpha(0.15),
+    borderWidth: 1, borderColor: primaryColorAlpha(0.3),
   },
-  trendingText: { color: '#cd2bee', fontFamily: 'PlusJakartaSansExtraBold', fontSize: FontSize.eight, textTransform: 'uppercase', letterSpacing: 1.4 },
+  trendingText: { color: PRIMARY_COLOR, fontFamily: 'PlusJakartaSansExtraBold', fontSize: FontSize.eight, textTransform: 'uppercase', letterSpacing: 1.4 },
   featureBottom: { position: 'absolute', left: 24, right: 24, bottom: 24, gap: 14 },
   featureTitle: { color: '#fff', fontFamily: 'PlusJakartaSansExtraBold', fontSize: mediumScreen ? FontSize.eighteen : FontSize.fourteen, textTransform: 'uppercase' },
   featureDesc: { color: 'rgba(255,255,255,0.65)', fontFamily: 'PlusJakartaSansMedium', fontSize: FontSize.ten, lineHeight: 18 },
   featureStats: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'flex-end', borderTopWidth: 1, borderTopColor: 'rgba(255,255,255,0.1)', paddingTop: 12, gap: 10 },
   featureLabel: { color: 'rgba(255,255,255,0.4)', fontFamily: 'PlusJakartaSansExtraBold', fontSize: FontSize.seven, textTransform: 'uppercase', letterSpacing: 0.8 },
   featureValue: { color: '#fff', marginTop: 4, fontFamily: 'PlusJakartaSansExtraBold', fontSize: FontSize.nine, textTransform: 'uppercase' },
-  reward: { color: '#cd2bee', fontFamily: 'PlusJakartaSansExtraBold', fontSize: FontSize.seven, textTransform: 'uppercase', letterSpacing: 1.4, flexShrink: 1, textAlign: 'left',  },
+  reward: { color: PRIMARY_COLOR, fontFamily: 'PlusJakartaSansExtraBold', fontSize: FontSize.seven, textTransform: 'uppercase', letterSpacing: 1.4, flexShrink: 1, textAlign: 'left',  },
   actionRow: { flexDirection: 'row', gap: 10 },
-  primaryAction: { flex: 1, minHeight: 48, borderRadius: 24, backgroundColor: '#cd2bee', alignItems: 'center', justifyContent: 'center', flexDirection: 'row', gap: 8, paddingHorizontal: 16 },
+  primaryAction: { flex: 1, minHeight: 48, borderRadius: 24, backgroundColor: PRIMARY_COLOR, alignItems: 'center', justifyContent: 'center', flexDirection: 'row', gap: 8, paddingHorizontal: 16 },
   primaryActionAlt: { backgroundColor: '#b012d4' },
   primaryActionText: { color: '#fff', fontFamily: 'PlusJakartaSansExtraBold', fontSize: FontSize.eight, textTransform: 'uppercase', letterSpacing: 1.6 },
   iconAction: { width: 48, height: 48, borderRadius: 18, backgroundColor: 'rgba(255,255,255,0.12)', borderWidth: 1, borderColor: 'rgba(255,255,255,0.1)', alignItems: 'center', justifyContent: 'center' },
@@ -529,17 +529,17 @@ const styles = StyleSheet.create({
   sideActions: { gap: 10 },
   sideBtn: { width: 40, height: 40, borderRadius: 12, borderWidth: 1, alignItems: 'center', justifyContent: 'center' },
   dashedBtn: { minHeight: 54, borderRadius: 18, borderWidth: 1, borderStyle: 'dashed', alignItems: 'center', justifyContent: 'center', paddingHorizontal: 16 },
-  dashedBtnText: { color: '#cd2bee', fontFamily: 'PlusJakartaSansExtraBold', fontSize: FontSize.eight, textTransform: 'uppercase', letterSpacing: 1.8 },
+  dashedBtnText: { color: PRIMARY_COLOR, fontFamily: 'PlusJakartaSansExtraBold', fontSize: FontSize.eight, textTransform: 'uppercase', letterSpacing: 1.8 },
   draftImage: { width: 80, height: 80, borderRadius: 18, opacity: 0.65 },
   draftMeta: { flexDirection: 'row', gap: 10, marginTop: 8, flexWrap: 'wrap' },
-  rewardMini: { color: '#cd2bee', fontFamily: 'PlusJakartaSansExtraBold', fontSize: FontSize.seven, textTransform: 'uppercase', letterSpacing: 1.4 },
+  rewardMini: { color: PRIMARY_COLOR, fontFamily: 'PlusJakartaSansExtraBold', fontSize: FontSize.seven, textTransform: 'uppercase', letterSpacing: 1.4 },
   smallText: { fontFamily: 'PlusJakartaSansBold', fontSize: FontSize.seven, textTransform: 'uppercase', letterSpacing: 1.2 },
   resumeBtn: { minHeight: 40, paddingHorizontal: 16, borderRadius: 12, borderWidth: 1, alignItems: 'center', justifyContent: 'center' },
   resumeBtnText: { fontFamily: 'PlusJakartaSansExtraBold', fontSize: FontSize.seven, textTransform: 'uppercase', letterSpacing: 1.6 },
   inviteCard: { minHeight: 298, borderRadius: 48, overflow: 'hidden', borderWidth: 1, backgroundColor: '#111827' },
   inviteTop: { position: 'absolute', top: 24, left: 24, right: 24, flexDirection: 'row', justifyContent: 'space-between', alignItems: 'flex-start' },
   inviterPill: { flexDirection: 'row', alignItems: 'center', gap: 10, backgroundColor: 'rgba(0,0,0,0.4)', borderWidth: 1, borderColor: 'rgba(255,255,255,0.1)', padding: 8, paddingRight: 14, borderRadius: 999 },
-  inviterAvatar: { width: 32, height: 32, borderRadius: 16, borderWidth: 1, borderColor: 'rgba(205,43,238,0.4)' },
+  inviterAvatar: { width: 32, height: 32, borderRadius: 16, borderWidth: 1, borderColor: primaryColorAlpha(0.4) },
   inviteTag: { color: 'rgba(255,255,255,0.45)', fontFamily: 'PlusJakartaSansExtraBold', fontSize: FontSize.sixHalf, textTransform: 'uppercase', letterSpacing: 1.4 },
   inviterName: { color: '#fff', fontFamily: 'PlusJakartaSansExtraBold', fontSize: FontSize.eight, textTransform: 'uppercase', marginTop: 2 },
   statusPill: { paddingHorizontal: 12, paddingVertical: 6, borderRadius: 999, borderWidth: 1 },
@@ -548,13 +548,13 @@ const styles = StyleSheet.create({
   statusText: { fontFamily: 'PlusJakartaSansExtraBold', fontSize: FontSize.seven, color: '#fff', textTransform: 'uppercase', letterSpacing: 1.4 },
   inviteFooter: { justifyContent: 'space-between', alignItems: 'flex-start', gap: 12 },
   inviteActions: { flexDirection: 'row', gap: 8, flexWrap: 'wrap', justifyContent: 'flex-end' },
-  acceptBtn: { minHeight: 40, paddingHorizontal: 20, borderRadius: 12, backgroundColor: '#cd2bee', alignItems: 'center', justifyContent: 'center' },
+  acceptBtn: { minHeight: 40, paddingHorizontal: 20, borderRadius: 12, backgroundColor: PRIMARY_COLOR, alignItems: 'center', justifyContent: 'center' },
   declineBtn: { minHeight: 40, paddingHorizontal: 16, borderRadius: 12, backgroundColor: 'rgba(255,255,255,0.08)', borderWidth: 1, borderColor: 'rgba(255,255,255,0.1)', alignItems: 'center', justifyContent: 'center' },
   collabBtn: { minHeight: 40, paddingHorizontal: 18, borderRadius: 12, backgroundColor: '#10b981', alignItems: 'center', justifyContent: 'center', flexDirection: 'row', gap: 6 },
   acceptBtnText: { color: '#fff', fontFamily: 'PlusJakartaSansExtraBold', fontSize: FontSize.eight, textTransform: 'uppercase', letterSpacing: 1.4 },
   declineBtnText: { color: 'rgba(255,255,255,0.7)', fontFamily: 'PlusJakartaSansExtraBold', fontSize: FontSize.eight, textTransform: 'uppercase', letterSpacing: 1.4 },
   tipCard: { borderRadius: 32, borderWidth: 1, padding: 20, alignItems: 'center', gap: 8 },
-  tipTitle: { color: '#cd2bee', fontFamily: 'PlusJakartaSansExtraBold', fontSize: FontSize.eight, textTransform: 'uppercase', letterSpacing: 1.8 },
+  tipTitle: { color: PRIMARY_COLOR, fontFamily: 'PlusJakartaSansExtraBold', fontSize: FontSize.eight, textTransform: 'uppercase', letterSpacing: 1.8 },
   tipBody: { textAlign: 'center', fontFamily: 'PlusJakartaSansMedium', fontSize: FontSize.nine, lineHeight: 18 },
 });
 

@@ -1,5 +1,5 @@
 import React, { useEffect, useMemo, useState } from 'react';
-import { useThemeMode } from '../theme';
+import { useThemeMode, PRIMARY_COLOR } from "../theme";
 import {
   ActivityIndicator,
   FlatList,
@@ -203,7 +203,7 @@ const VideoFeedItem: React.FC<{
 
       {isLocked && (
         <View style={styles.lockOverlay}>
-          <MaterialIcons name="lock" size={40} color="#cd2bee" />
+          <MaterialIcons name="lock" size={40} color={PRIMARY_COLOR} />
           <Text style={styles.lockTitle}>Subscriber Exclusive</Text>
           <Pressable style={styles.unlockBtn} onPress={() => onSubscribe(item.id)}>
             <Text style={styles.unlockText}>UNLOCK NOW</Text>
@@ -214,7 +214,7 @@ const VideoFeedItem: React.FC<{
       <View style={styles.rightRail}>
         <Image source={{ uri: item.avatar }} style={styles.avatar} />
         <Pressable style={styles.railBtn} onPress={toggleLike}>
-          <MaterialIcons name={isLiked ? 'favorite' : 'favorite-border'} size={28} color={isLiked ? '#cd2bee' : '#fff'} />
+          <MaterialIcons name={isLiked ? 'favorite' : 'favorite-border'} size={28} color={isLiked ? PRIMARY_COLOR : '#fff'} />
           <Text style={styles.railLabel}>{formatCount(likesCount)}</Text>
         </Pressable>
         <Pressable style={styles.railBtn} onPress={() => requireAuthOr(() => setShowComments(true))}>
@@ -222,7 +222,7 @@ const VideoFeedItem: React.FC<{
           <Text style={styles.railLabel}>{item.comments}</Text>
         </Pressable>
         <Pressable style={styles.railBtn} onPress={() => void toggleBookmark()}>
-          <MaterialIcons name={isBookmarked ? 'bookmark' : 'bookmark-outline'} size={26} color={isBookmarked ? '#cd2bee' : '#fff'} />
+          <MaterialIcons name={isBookmarked ? 'bookmark' : 'bookmark-outline'} size={26} color={isBookmarked ? PRIMARY_COLOR : '#fff'} />
           <Text style={styles.railLabel}>Save</Text>
         </Pressable>
       </View>
@@ -264,7 +264,7 @@ const VideoFeedItem: React.FC<{
 
             <View style={styles.inputRow}>
               <Pressable onPress={() => setShowEmojiTray((v) => !v)}>
-                <MaterialIcons name="mood" size={20} color={showEmojiTray ? '#cd2bee' : '#71717a'} />
+                <MaterialIcons name="mood" size={20} color={showEmojiTray ? PRIMARY_COLOR : '#71717a'} />
               </Pressable>
               <TextInput
                 style={styles.input}
@@ -423,7 +423,7 @@ const FeedCopy: React.FC = () => {
         viewabilityConfig={viewConfigRef.current}
         ListFooterComponent={
           <View style={styles.footer}>
-            <ActivityIndicator color="#cd2bee" />
+            <ActivityIndicator color={PRIMARY_COLOR} />
             <Text style={styles.footerText}>Syncing more galaxy feed...</Text>
           </View>
         }
@@ -472,7 +472,7 @@ const styles = StyleSheet.create({
   ticket: { color: '#22c55e', marginTop: 6, fontFamily: 'PlusJakartaSansBold' },
   lockOverlay: { ...StyleSheet.absoluteFillObject, backgroundColor: 'rgba(0,0,0,0.55)', justifyContent: 'center', alignItems: 'center', gap: 8 },
   lockTitle: { color: '#fff', fontSize: FontSize.twenty, fontFamily: 'PlusJakartaSansExtraBold' },
-  unlockBtn: { marginTop: 10, backgroundColor: '#cd2bee', borderRadius: 14, paddingHorizontal: 20, height: 48, justifyContent: 'center' },
+  unlockBtn: { marginTop: 10, backgroundColor: PRIMARY_COLOR, borderRadius: 14, paddingHorizontal: 20, height: 48, justifyContent: 'center' },
   unlockText: { color: '#fff', fontFamily: 'PlusJakartaSansExtraBold', letterSpacing: 1 },
   modalRoot: { flex: 1, backgroundColor: 'rgba(0,0,0,0.6)', justifyContent: 'flex-end' },
   sheet: { backgroundColor: '#111218', borderTopLeftRadius: 28, borderTopRightRadius: 28, padding: 16, maxHeight: '78%' },
@@ -485,7 +485,7 @@ const styles = StyleSheet.create({
   emojiBtn: { width: 34, height: 34, borderRadius: 10, borderWidth: 1, borderColor: 'rgba(255,255,255,0.1)', justifyContent: 'center', alignItems: 'center' },
   inputRow: { marginTop: 10, borderWidth: 1, borderColor: 'rgba(255,255,255,0.1)', borderRadius: 14, paddingHorizontal: 10, flexDirection: 'row', alignItems: 'center', gap: 8 },
   input: { flex: 1, color: '#fff', minHeight: 44 },
-  postBtn: { color: '#cd2bee', fontFamily: 'PlusJakartaSansExtraBold', fontSize: FontSize.eleven },
+  postBtn: { color: PRIMARY_COLOR, fontFamily: 'PlusJakartaSansExtraBold', fontSize: FontSize.eleven },
   footer: { height: 110, justifyContent: 'center', alignItems: 'center', gap: 8 },
   footerText: { color: '#94a3b8', fontSize: FontSize.eleven },
   promptRoot: { flex: 1, justifyContent: 'center', alignItems: 'center', paddingHorizontal: 20 },
@@ -493,7 +493,7 @@ const styles = StyleSheet.create({
   promptCard: { width: '100%', maxWidth: 360, borderRadius: 24, backgroundColor: '#111218', padding: 20, borderWidth: 1, borderColor: 'rgba(255,255,255,0.12)' },
   promptTitle: { color: '#fff', fontSize: FontSize.twentyOne, fontFamily: 'PlusJakartaSansExtraBold', textAlign: 'center' },
   promptText: { color: '#a1a1aa', marginTop: 8, textAlign: 'center' },
-  promptPrimary: { marginTop: 14, height: 48, borderRadius: 12, backgroundColor: '#cd2bee', justifyContent: 'center', alignItems: 'center' },
+  promptPrimary: { marginTop: 14, height: 48, borderRadius: 12, backgroundColor: PRIMARY_COLOR, justifyContent: 'center', alignItems: 'center' },
   promptPrimaryText: { color: '#fff', fontFamily: 'PlusJakartaSansExtraBold', letterSpacing: 1 },
   promptSecondary: { color: '#71717a', textAlign: 'center', marginTop: 10, fontFamily: 'PlusJakartaSansBold' },
 });

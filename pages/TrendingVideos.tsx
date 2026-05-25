@@ -12,7 +12,7 @@ import {
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { FontSize } from '../fonts';
-import { useThemeMode } from '../theme';
+import { useThemeMode, PRIMARY_COLOR, primaryColorAlpha } from "../theme";
 import { mediumScreen } from '../types';
 
 type TrendingRange = 'day' | 'week' | 'month';
@@ -175,7 +175,7 @@ const TrendingVideos: React.FC = () => {
                       onPress={() => setActiveTab(item.id as TrendingRange)}
                       style={[
                         styles.filterChip,
-                        { backgroundColor: active ? '#cd2bee' : chipIdleBg },
+                        { backgroundColor: active ? PRIMARY_COLOR : chipIdleBg },
                       ]}
                     >
                       <Text style={[styles.filterChipText, { color: active ? '#ffffff' : secondaryText }]}>
@@ -231,7 +231,7 @@ const TrendingVideos: React.FC = () => {
                     <Text
                       style={[
                         styles.rankValue,
-                        { color: idx < 3 ? '#cd2bee' : '#0f172a' },
+                        { color: idx < 3 ? PRIMARY_COLOR : '#0f172a' },
                       ]}
                     >
                       #{video.rank}
@@ -343,7 +343,7 @@ const styles = StyleSheet.create({
     letterSpacing: 2,
   },
   headerSubtitle: {
-    color: '#cd2bee',
+    color: PRIMARY_COLOR,
     marginTop: 4,
     fontFamily: 'PlusJakartaSansExtraBold',
     fontSize: FontSize.seven,
@@ -447,9 +447,9 @@ const styles = StyleSheet.create({
     width: 66,
     height: 66,
     borderRadius: 33,
-    backgroundColor: 'rgba(205,43,238,0.24)',
+    backgroundColor: primaryColorAlpha(0.24),
     borderWidth: 1,
-    borderColor: 'rgba(205,43,238,0.5)',
+    borderColor: primaryColorAlpha(0.5),
     alignItems: 'center',
     justifyContent: 'center',
   },
@@ -509,7 +509,7 @@ const styles = StyleSheet.create({
     height: 48,
     borderRadius: 24,
     borderWidth: 2,
-    borderColor: 'rgba(205,43,238,0.2)',
+    borderColor: primaryColorAlpha(0.2),
   },
   creatorVerify: {
     position: 'absolute',
@@ -518,7 +518,7 @@ const styles = StyleSheet.create({
     width: 18,
     height: 18,
     borderRadius: 9,
-    backgroundColor: '#cd2bee',
+    backgroundColor: PRIMARY_COLOR,
     borderWidth: 2,
     borderColor: '#ffffff',
     alignItems: 'center',
@@ -540,7 +540,7 @@ const styles = StyleSheet.create({
     alignItems: 'flex-end',
   },
   impactValue: {
-    color: '#cd2bee',
+    color: PRIMARY_COLOR,
     fontFamily: 'PlusJakartaSansExtraBold',
     fontSize: FontSize.twelve,
     textTransform: 'uppercase',
@@ -569,7 +569,7 @@ const styles = StyleSheet.create({
     textAlign: 'center',
   },
   resetText: {
-    color: '#cd2bee',
+    color: PRIMARY_COLOR,
     fontFamily: 'PlusJakartaSansExtraBold',
     fontSize: FontSize.eight,
     textTransform: 'uppercase',

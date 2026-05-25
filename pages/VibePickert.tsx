@@ -14,6 +14,7 @@ import {
 import { SafeAreaView, useSafeAreaInsets } from 'react-native-safe-area-context';
 import { FontSize } from '../fonts';
 import { mediumScreen } from '../types';
+import { PRIMARY_COLOR, primaryColorAlpha } from "../theme";
 
 interface Vibe {
   id: string;
@@ -65,7 +66,7 @@ const VibePickert: React.FC = () => {
     <SafeAreaView style={styles.safeArea} edges={['left', 'right']}>
       <View style={styles.screen}>
         <LinearGradient
-          colors={['rgba(205,43,238,0.14)', 'rgba(205,43,238,0)']}
+          colors={[primaryColorAlpha(0.14), primaryColorAlpha(0)]}
           style={styles.backgroundGradient}
         />
 
@@ -95,8 +96,8 @@ const VibePickert: React.FC = () => {
                     {
                       width: cardWidth,
                       marginRight: isRightColumn ? 0 : cardGap,
-                      borderColor: isSelected ? '#cd2bee' : 'rgba(255,255,255,0.06)',
-                      shadowColor: isSelected ? '#cd2bee' : '#000',
+                      borderColor: isSelected ? PRIMARY_COLOR : 'rgba(255,255,255,0.06)',
+                      shadowColor: isSelected ? PRIMARY_COLOR : '#000',
                       transform: [{ scale: pressed ? 0.95 : 1 }],
                     },
                     isSelected && styles.cardSelected,
@@ -229,7 +230,7 @@ const styles = StyleSheet.create({
     width: 32,
     height: 32,
     borderRadius: 16,
-    backgroundColor: '#cd2bee',
+    backgroundColor: PRIMARY_COLOR,
     borderWidth: 2,
     borderColor: '#fff',
     alignItems: 'center',
@@ -282,8 +283,8 @@ const styles = StyleSheet.create({
     elevation: 10,
   },
   continueButtonActive: {
-    backgroundColor: '#cd2bee',
-    shadowColor: '#cd2bee',
+    backgroundColor: PRIMARY_COLOR,
+    shadowColor: PRIMARY_COLOR,
   },
   continueButtonDisabled: {
     backgroundColor: 'rgba(255,255,255,0.05)',

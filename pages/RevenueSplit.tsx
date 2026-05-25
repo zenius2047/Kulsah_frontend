@@ -1,5 +1,5 @@
 import React, { useMemo, useState } from 'react';
-import { useThemeMode } from '../theme';
+import { useThemeMode, PRIMARY_COLOR, primaryColorAlpha } from "../theme";
 import { Pressable, ScrollView, StyleSheet, Text, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useNavigation } from '@react-navigation/native';
@@ -82,7 +82,7 @@ const RevenueSplit: React.FC = () => {
                   cy="50"
                   r={RADIUS}
                   fill="transparent"
-                  stroke="#cd2bee"
+                  stroke={PRIMARY_COLOR}
                   strokeWidth="12"
                   strokeDasharray={`${CIRCUMFERENCE * PLATFORM_RATIO} ${CIRCUMFERENCE}`}
                   strokeDashoffset="0"
@@ -94,7 +94,7 @@ const RevenueSplit: React.FC = () => {
                   cy="50"
                   r={RADIUS}
                   fill="transparent"
-                  stroke="#cd2bee"
+                  stroke={PRIMARY_COLOR}
                   strokeWidth="12"
                   strokeDasharray={`${CIRCUMFERENCE * WINNER_RATIO} ${CIRCUMFERENCE}`}
                   strokeDashoffset={-CIRCUMFERENCE * PLATFORM_RATIO}
@@ -203,7 +203,7 @@ const RevenueSplit: React.FC = () => {
 
             <View style={[styles.breakdownCard, { backgroundColor: cardBg, borderColor: cardBorder }]}>
               <View style={[styles.breakdownIconWrap, styles.winnerWrap]}>
-                <MaterialIcons name="emoji-events" size={22} color="#cd2bee" />
+                <MaterialIcons name="emoji-events" size={22} color={PRIMARY_COLOR} />
               </View>
               <View style={styles.breakdownBody}>
                 <View style={styles.breakdownRow}>
@@ -219,7 +219,7 @@ const RevenueSplit: React.FC = () => {
 
             <View style={[styles.breakdownCard, { backgroundColor: cardBg, borderColor: cardBorder }]}>
               <View style={[styles.breakdownIconWrap, styles.platformWrap]}>
-                <MaterialIcons name="hub" size={22} color="#cd2bee" />
+                <MaterialIcons name="hub" size={22} color={PRIMARY_COLOR} />
               </View>
               <View style={styles.breakdownBody}>
                 <View style={styles.breakdownRow}>
@@ -270,7 +270,7 @@ const styles = StyleSheet.create({
     width: 220,
     height: 220,
     borderRadius: 110,
-    backgroundColor: 'rgba(205,43,238,0.18)',
+    backgroundColor: primaryColorAlpha(0.18),
   },
   glowSecondary: {
     position: 'absolute',
@@ -279,7 +279,7 @@ const styles = StyleSheet.create({
     width: 180,
     height: 180,
     borderRadius: 90,
-    backgroundColor: 'rgba(205,43,238,0.10)',
+    backgroundColor: primaryColorAlpha(0.10),
   },
   header: {
     flexDirection: 'row',
@@ -353,10 +353,10 @@ const styles = StyleSheet.create({
     backgroundColor: '#d0c1d8',
   },
   winnerDot: {
-    backgroundColor: '#cd2bee',
+    backgroundColor: PRIMARY_COLOR,
   },
   platformDot: {
-    backgroundColor: '#cd2bee',
+    backgroundColor: PRIMARY_COLOR,
   },
   legendLabel: {
     fontFamily: 'PlusJakartaSansBold',
@@ -382,7 +382,7 @@ const styles = StyleSheet.create({
     marginBottom: 20,
   },
   estimateLabel: {
-    color: '#cd2bee',
+    color: PRIMARY_COLOR,
     fontFamily: 'PlusJakartaSansBold',
     fontSize: FontSize.ten,
     textTransform: 'uppercase',
@@ -433,7 +433,7 @@ const styles = StyleSheet.create({
     top: 0,
     bottom: 0,
     borderRadius: 999,
-    backgroundColor: '#cd2bee',
+    backgroundColor: PRIMARY_COLOR,
   },
   rangeThumb: {
     position: 'absolute',
@@ -441,7 +441,7 @@ const styles = StyleSheet.create({
     width: 16,
     height: 16,
     borderRadius: 8,
-    backgroundColor: '#cd2bee',
+    backgroundColor: PRIMARY_COLOR,
     borderWidth: 2,
     borderColor: '#ffffff',
   },
@@ -486,10 +486,10 @@ const styles = StyleSheet.create({
     backgroundColor: 'rgba(208,193,216,0.12)',
   },
   winnerWrap: {
-    backgroundColor: 'rgba(205,43,238,0.12)',
+    backgroundColor: primaryColorAlpha(0.12),
   },
   platformWrap: {
-    backgroundColor: 'rgba(205,43,238,0.12)',
+    backgroundColor: primaryColorAlpha(0.12),
   },
   breakdownBody: {
     flex: 1,
@@ -530,8 +530,8 @@ const styles = StyleSheet.create({
     paddingVertical: 16,
     alignItems: 'center',
     justifyContent: 'center',
-    backgroundColor: '#cd2bee',
-    shadowColor: '#cd2bee',
+    backgroundColor: PRIMARY_COLOR,
+    shadowColor: PRIMARY_COLOR,
     shadowOffset: { width: 0, height: 0 },
     shadowOpacity: 0.34,
     shadowRadius: 16,

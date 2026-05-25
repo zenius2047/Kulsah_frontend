@@ -1,5 +1,5 @@
 import React from 'react';
-import { useThemeMode } from '../theme';
+import { useThemeMode, PRIMARY_COLOR, primaryColorAlpha } from "../theme";
 import {
   Image,
   Pressable,
@@ -198,8 +198,8 @@ const styles = StyleSheet.create({
     paddingHorizontal: 20,
     paddingVertical: 10,
     borderRadius: 999,
-    backgroundColor: '#cd2bee',
-    shadowColor: '#cd2bee',
+    backgroundColor: PRIMARY_COLOR,
+    shadowColor: PRIMARY_COLOR,
     shadowOffset: { width: 0, height: 0 },
     shadowOpacity: 0.4,
     shadowRadius: 18,
@@ -235,15 +235,15 @@ const styles = StyleSheet.create({
     width: 8,
     height: 8,
     borderRadius: 4,
-    backgroundColor: '#cd2bee',
-    shadowColor: '#cd2bee',
+    backgroundColor: PRIMARY_COLOR,
+    shadowColor: PRIMARY_COLOR,
     shadowOffset: { width: 0, height: 0 },
     shadowOpacity: 0.9,
     shadowRadius: 8,
     elevation: 6,
   },
   badgeMeta: {
-    color: '#cd2bee',
+    color: PRIMARY_COLOR,
     fontFamily: 'PlusJakartaSansBold',
     fontSize: FontSize.eight,
     textTransform: 'uppercase',
@@ -329,8 +329,8 @@ const styles = StyleSheet.create({
     right: '30%',
     borderLeftWidth: 4,
     borderRightWidth: 4,
-    borderColor: '#cd2bee',
-    backgroundColor: 'rgba(205,43,238,0.2)',
+    borderColor: PRIMARY_COLOR,
+    backgroundColor: primaryColorAlpha(0.2),
   },
   trimHandleLeft: {
     position: 'absolute',

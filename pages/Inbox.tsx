@@ -1,5 +1,5 @@
 import React from 'react';
-import { useThemeMode } from '../theme';
+import { useThemeMode, PRIMARY_COLOR } from "../theme";
 import {
   Image,
   Pressable,
@@ -12,7 +12,7 @@ import {
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { MaterialIcons } from '@expo/vector-icons';
 import { FontSize } from '../fonts';
-import { mediumScreen } from '../types';
+import { mediumScreen, user } from '../types';
 import { useNavigation } from '@react-navigation/native';
 
 type Collaborator = {
@@ -119,11 +119,11 @@ const Inbox: React.FC = () => {
         <ScrollView contentContainerStyle={styles.content} showsVerticalScrollIndicator={false} keyboardShouldPersistTaps="handled">
           <View style={styles.topUtilityRow}>
             <View style={styles.headerLeft}>
-                          <View style={[styles.avatarWrap, { borderColor: '#D946EF' }]}>
+                          <View style={[styles.avatarWrap, { borderColor: theme.accent }]}>
                             <Image source={{ uri: 'https://picsum.photos/seed/mila/100' }} style={styles.avatar} />
                           </View>
                           <View>
-                            <Text style={[styles.title, { color: theme.text }]}>INBOX</Text>
+                            <Text style={[styles.title, { color: theme.accent }]}>INBOX</Text>
                             <Text style={styles.subtitle}>CREATOR PROTOCOL</Text>
                           </View>
                         </View>
@@ -140,6 +140,7 @@ const Inbox: React.FC = () => {
             </Pressable>
           </View>
 
+          {user?.role === "creator" && <>
           <View style={styles.sectionHeaderRow}>
             <Text style={[styles.sectionTitle, { color: subtle }]}>COLLABORATORS</Text>
             <Pressable>
@@ -158,6 +159,9 @@ const Inbox: React.FC = () => {
               </View>
             ))}
           </ScrollView>
+          </>}
+
+          
 
           <View style={[styles.searchRow, { backgroundColor: card, borderColor: border }]}>
             <MaterialIcons name="search" size={20} color={subtle} />
@@ -187,7 +191,7 @@ const Inbox: React.FC = () => {
                       <Text style={[styles.chatName, { color: chat.muted ? textSecondary : theme.text }]}>{chat.name}</Text>
                       {chat.unread ? <View style={styles.unreadDot} /> : null}
                     </View>
-                    <Text style={[styles.chatTime, { color: chat.unread ? '#cd2bee' : subtle }]}>{chat.time}</Text>
+                    <Text style={[styles.chatTime, { color: chat.unread ? PRIMARY_COLOR : subtle }]}>{chat.time}</Text>
                   </View>
                   <Text numberOfLines={1} style={[styles.chatMessage, { color: chat.unread ? theme.text : textSecondary }]}>
                     {chat.message}
@@ -205,8 +209,8 @@ const Inbox: React.FC = () => {
         <View style={[styles.bottomNav, { backgroundColor: isDark ? 'rgba(0,0,0,0.9)' : theme.card, borderColor: border }]}>
           <MaterialIcons name="home" size={24} color={subtle} />
           <MaterialIcons name="explore" size={24} color={subtle} />
-          <MaterialIcons name="add-circle" size={38} color="#cd2bee" />
-          <MaterialIcons name="mail" size={24} color="#cd2bee" />
+          <MaterialIcons name="add-circle" size={38} color={PRIMARY_COLOR} />
+          <MaterialIcons name="mail" size={24} color={PRIMARY_COLOR} />
           <MaterialIcons name="person" size={24} color={subtle} />
         </View>
       </View>
@@ -234,15 +238,15 @@ const styles = StyleSheet.create({
     width: 8,
     height: 8,
     borderRadius: 4,
-    backgroundColor: '#cd2bee',
+    backgroundColor: PRIMARY_COLOR,
   },
   sectionHeaderRow: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', marginTop: 8, marginBottom: 12 },
   sectionTitle: { fontFamily: 'PlusJakartaSansExtraBold', fontSize: FontSize.eight, letterSpacing: 2 },
-  seeAll: { color: '#cd2bee', fontFamily: 'PlusJakartaSansBold', fontSize: FontSize.eight, textTransform: 'uppercase' },
+  seeAll: { color: PRIMARY_COLOR, fontFamily: 'PlusJakartaSansBold', fontSize: FontSize.eight, textTransform: 'uppercase' },
   collabRow: { gap: 14, paddingBottom: 6 },
   collabItem: { alignItems: 'center', width: 74, gap: 6,},
   collabAvatarWrap: { width: 64, height: 64, borderRadius: 32, borderWidth: 2, padding: 2, },
-  collabAvatarWrapGradient: { borderColor: '#cd2bee' },
+  collabAvatarWrapGradient: { borderColor: PRIMARY_COLOR },
   collabAvatar: { width: '100%', height: '100%', borderRadius: 30 },
   liveDot: { position: 'absolute', right: 2, bottom: 2, width: 12, height: 12, borderRadius: 6, backgroundColor: '#10b981', borderWidth: 2, borderColor: '#0a050d' },
   collabName: { fontFamily: 'PlusJakartaSansBold', fontSize: FontSize.seven, textTransform: 'uppercase' },
@@ -252,14 +256,14 @@ const styles = StyleSheet.create({
   chatCard: { borderWidth: 1, borderRadius: 18, padding: 12, flexDirection: 'row', alignItems: 'center', gap: 12 },
   chatAvatarWrap: { width: 56, height: 56, position: 'relative' },
   chatAvatar: { width: '100%', height: '100%', borderRadius: 28, borderWidth: 1, borderColor: 'rgba(255,255,255,0.1)' },
-  chatAvatarUnread: { borderColor: '#cd2bee', borderWidth: 2 },
-  vipBadge: { position: 'absolute', bottom: -2, right: -2, borderRadius: 8, backgroundColor: '#cd2bee', paddingHorizontal: 4, paddingVertical: 1 },
+  chatAvatarUnread: { borderColor: PRIMARY_COLOR, borderWidth: 2 },
+  vipBadge: { position: 'absolute', bottom: -2, right: -2, borderRadius: 8, backgroundColor: PRIMARY_COLOR, paddingHorizontal: 4, paddingVertical: 1 },
   vipText: { color: '#fff', fontFamily: 'PlusJakartaSansExtraBold', fontSize: FontSize.six },
   chatBody: { flex: 1 },
   chatTopRow: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', marginBottom: 4 },
   chatNameRow: { flexDirection: 'row', alignItems: 'center', gap: 6, flex: 1 },
   chatName: { fontFamily: 'PlusJakartaSansBold', fontSize: FontSize.ten },
-  unreadDot: { width: 8, height: 8, borderRadius: 4, backgroundColor: '#cd2bee' },
+  unreadDot: { width: 8, height: 8, borderRadius: 4, backgroundColor: PRIMARY_COLOR },
   chatTime: { fontFamily: 'PlusJakartaSansBold', fontSize: FontSize.seven, textTransform: 'uppercase' },
   chatMessage: { fontFamily: 'PlusJakartaSansMedium', fontSize: FontSize.nine },
   headerLeft: {
@@ -301,8 +305,8 @@ const styles = StyleSheet.create({
     borderRadius: 28,
     alignItems: 'center',
     justifyContent: 'center',
-    backgroundColor: '#cd2bee',
-    shadowColor: '#cd2bee',
+    backgroundColor: PRIMARY_COLOR,
+    shadowColor: PRIMARY_COLOR,
     shadowOffset: { width: 0, height: 0 },
     shadowOpacity: 0.45,
     shadowRadius: 14,

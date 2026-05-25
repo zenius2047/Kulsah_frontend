@@ -1,5 +1,5 @@
 import React, { useMemo, useState } from 'react';
-import { useThemeMode } from '../theme';
+import { useThemeMode, PRIMARY_COLOR, primaryColorAlphaHex } from "../theme";
 import { MaterialIcons } from '@expo/vector-icons';
 import { useNavigation } from '@react-navigation/native';
 import { GoogleGenAI } from '@google/genai';
@@ -64,7 +64,7 @@ const ArtistDashboard: React.FC<ArtistDashboardProps> = ({ onToggleRole }) => {
 
   const metrics: MetricItem[] = [
     { label: 'Live Viewers', value: '412', growth: '+12%', icon: 'sensors', color: '#22c55e', path: 'Analytics' },
-    { label: 'Subscribers', value: '2,842', growth: '+5.2%', icon: 'stars', color: '#cd2bee', path: '/subscribers' },
+    { label: 'Subscribers', value: '2,842', growth: '+5.2%', icon: 'stars', color: PRIMARY_COLOR, path: '/subscribers' },
     { label: 'Video Revenue', value: '$8,240', growth: '+21%', icon: 'play-circle-filled', color: '#3b82f6', path: '/creator/revenue' },
     { label: 'Engagement Rate', value: '12', growth: 'New', icon: 'favorite-border', color: '#f43f5e', path: 'Analytics' },
     // { label: 'Network Match', value: '94%', growth: 'High', icon: 'handshake', color: '#6366f1', path: '/creator/collaborations' },
@@ -184,7 +184,7 @@ const ArtistDashboard: React.FC<ArtistDashboardProps> = ({ onToggleRole }) => {
           <View style={s.dualRow}>
             <Pressable onPress={() => navigation.navigate('Community')} style={s.compactCard}>
               <View style={s.compactIcon}>
-                <ForumIcon height={20} width={20} fill="#cd2bee" />
+                <ForumIcon height={20} width={20} fill={PRIMARY_COLOR} />
               </View>
               <Text style={s.compactTitle}>{'Community\nUpdate'}</Text>
               <Text style={s.compactMeta}>Engage 14k Fans</Text>
@@ -203,10 +203,10 @@ const ArtistDashboard: React.FC<ArtistDashboardProps> = ({ onToggleRole }) => {
         {/* <View style={s.aiCard}>
           <View style={s.aiHeader}>
             <View style={s.aiTitleRow}>
-              <MaterialIcons name="auto-awesome" size={18} color="#cd2bee" />
+              <MaterialIcons name="auto-awesome" size={18} color={PRIMARY_COLOR} />
               <Text style={s.aiTitle}>Gemini Power Move</Text>
             </View>
-            {loading && <ActivityIndicator size="small" color="#cd2bee" />}
+            {loading && <ActivityIndicator size="small" color={PRIMARY_COLOR} />}
           </View>
           <View style ={{
             borderLeftColor: '#ffffffe6',
@@ -268,7 +268,7 @@ const ArtistDashboard: React.FC<ArtistDashboardProps> = ({ onToggleRole }) => {
         <Text style={{
           letterSpacing: 2,
           fontSize: FontSize.eight,
-          color: '#cd2bee',
+          color: PRIMARY_COLOR,
           fontFamily: 'PlusJakartaSansBold'
         }}>
           VIEW ALL
@@ -354,7 +354,7 @@ const ArtistDashboard: React.FC<ArtistDashboardProps> = ({ onToggleRole }) => {
               gap: 15,
             }}>
               <Text style={{
-                color: '#cd2bee',
+                color: PRIMARY_COLOR,
                 fontFamily: 'PlusJakartaSansBold',
                 textTransform: 'uppercase',
                 fontSize: FontSize.ten
@@ -467,7 +467,7 @@ const s = StyleSheet.create({
   section: { gap: 10 },
   liveCard: {
     borderRadius: 24,
-    backgroundColor: '#cd2bee',
+    backgroundColor: PRIMARY_COLOR,
     overflow: 'hidden',
     padding: 14,
   },
@@ -514,9 +514,9 @@ const s = StyleSheet.create({
     borderRadius: 16,
     alignItems: 'center',
     justifyContent: 'center',
-    backgroundColor: '#cd2bee1d',
+    backgroundColor: primaryColorAlphaHex('1d'),
     borderWidth: 1,
-    borderColor: '#cd2bee3a',
+    borderColor: primaryColorAlphaHex('3a'),
   },
   actionIconRed: { backgroundColor: '#ef44441a', borderColor: '#ef444433' },
   actionIconBlue: { backgroundColor: '#3b82f61a', borderColor: '#3b82f64a' },
@@ -560,7 +560,7 @@ const s = StyleSheet.create({
     width: 48,
     height: 48,
     borderRadius: 16,
-    // backgroundColor: '#cd2bee',
+    // backgroundColor: PRIMARY_COLOR,
     alignItems: 'center',
     justifyContent: 'center',
     borderColor: '#e5e7eb',
@@ -610,7 +610,7 @@ const s = StyleSheet.create({
   aiTitleRow: { flexDirection: 'row', alignItems: 'center', gap: 8 },
   aiTitle: {
     fontSize: FontSize.ten,
-    color: '#cd2bee',
+    color: PRIMARY_COLOR,
     textTransform: 'uppercase',
     fontFamily: 'PlusJakartaSansBold',
     letterSpacing: 2
@@ -629,8 +629,8 @@ const s = StyleSheet.create({
     alignItems: 'center',
     borderRadius: 16,
     borderWidth: 1,
-    // borderColor: '#cd2bee55',
-    backgroundColor: '#cd2bee',
+    // borderColor: primaryColorAlphaHex('55'),
+    backgroundColor: PRIMARY_COLOR,
     // paddingHorizontal: 14,
     // paddingVertical: 9,
     width: '100%',

@@ -1,5 +1,5 @@
 import React, { useEffect, useMemo, useRef, useState } from 'react';
-import { useThemeMode } from '../theme';
+import { useThemeMode, PRIMARY_COLOR, primaryColorAlpha } from "../theme";
 import {
   ActivityIndicator,
   Image,
@@ -34,7 +34,7 @@ interface ChatMessage {
 
 const statsConfig = [
   { label: 'Viewers', icon: 'visibility' as const, color: '#60a5fa' },
-  { label: 'Likes', icon: 'favorite' as const, color: '#cd2bee' },
+  { label: 'Likes', icon: 'favorite' as const, color: PRIMARY_COLOR },
   { label: 'Gifts', icon: 'redeem' as const, color: '#4ade80' },
   { label: 'Uplink', icon: 'signal-cellular-alt' as const, color: '#34d399' },
 ];
@@ -263,7 +263,7 @@ const CreatorLiveStream: React.FC = () => {
                 </Pressable>
 
                 <View style={styles.aiHeader}>
-                  <MaterialIcons name="psychology" size={18} color="#cd2bee" />
+                  <MaterialIcons name="psychology" size={18} color={PRIMARY_COLOR} />
                   <Text style={styles.aiKicker}>Astro-Brain Intelligence</Text>
                 </View>
 
@@ -314,7 +314,7 @@ const CreatorLiveStream: React.FC = () => {
                       <MaterialIcons name="verified" size={16} color="#4ade80" />
                     ) : null}
                     {message.isSystem ? (
-                      <MaterialIcons name="campaign" size={16} color="#cd2bee" />
+                      <MaterialIcons name="campaign" size={16} color={PRIMARY_COLOR} />
                     ) : null}
                   </View>
                 ))}
@@ -338,7 +338,7 @@ const CreatorLiveStream: React.FC = () => {
                   <MaterialIcons
                     name="flip-camera-ios"
                     size={28}
-                    color={cameraFacing === 'back' ? '#cd2bee' : '#fff'}
+                    color={cameraFacing === 'back' ? PRIMARY_COLOR : '#fff'}
                   />
                 </Pressable>
 
@@ -391,7 +391,7 @@ const CreatorLiveStream: React.FC = () => {
                   <MaterialIcons
                     name="campaign"
                     size={22}
-                    color={broadcastText.trim() ? '#cd2bee' : 'rgba(255,255,255,0.25)'}
+                    color={broadcastText.trim() ? PRIMARY_COLOR : 'rgba(255,255,255,0.25)'}
                   />
                 </Pressable>
               </BlurView>
@@ -498,7 +498,7 @@ const styles = StyleSheet.create({
     paddingHorizontal: 18,
     paddingVertical: 12,
     borderRadius: 999,
-    backgroundColor: '#cd2bee',
+    backgroundColor: PRIMARY_COLOR,
     width: "80%"
   },
   permissionButtonText: {
@@ -555,8 +555,8 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
   },
   circleHudButtonActive: {
-    backgroundColor: 'rgba(205,43,238,0.22)',
-    borderColor: 'rgba(205,43,238,0.45)',
+    backgroundColor: primaryColorAlpha(0.22),
+    borderColor: primaryColorAlpha(0.45),
   },
   endSessionButton: {
     height: 44,
@@ -608,7 +608,7 @@ const styles = StyleSheet.create({
     borderRadius: 28,
     overflow: 'hidden',
     borderWidth: 1,
-    borderColor: 'rgba(205,43,238,0.35)',
+    borderColor: primaryColorAlpha(0.35),
     padding: 18,
   },
   aiCloseBtn: {
@@ -629,7 +629,7 @@ const styles = StyleSheet.create({
     marginBottom: 8,
   },
   aiKicker: {
-    color: '#cd2bee',
+    color: PRIMARY_COLOR,
     fontFamily: 'PlusJakartaSansExtraBold',
     fontSize: FontSize.ten,
     letterSpacing: 2.4,
@@ -676,8 +676,8 @@ const styles = StyleSheet.create({
     borderColor: 'rgba(34,197,94,0.28)',
   },
   chatSystemCard: {
-    backgroundColor: 'rgba(205,43,238,0.14)',
-    borderColor: 'rgba(205,43,238,0.24)',
+    backgroundColor: primaryColorAlpha(0.14),
+    borderColor: primaryColorAlpha(0.24),
   },
   chatAvatar: {
     width: 32,
@@ -688,7 +688,7 @@ const styles = StyleSheet.create({
     flex: 1,
   },
   chatUser: {
-    color: 'rgba(205,43,238,0.76)',
+    color: primaryColorAlpha(0.76),
     fontFamily: 'PlusJakartaSansExtraBold',
     fontSize: mediumScreen ? FontSize.twelve:FontSize.eight,
     letterSpacing: 1.4,
@@ -698,7 +698,7 @@ const styles = StyleSheet.create({
     color: '#4ade80',
   },
   chatUserSystem: {
-    color: '#cd2bee',
+    color: PRIMARY_COLOR,
   },
   chatText: {
     color: '#fff',
@@ -722,12 +722,12 @@ const styles = StyleSheet.create({
     borderColor: 'rgba(255,255,255,0.12)',
   },
   sideHudPrimary: {
-    backgroundColor: '#cd2bee',
+    backgroundColor: PRIMARY_COLOR,
     borderColor: 'rgba(255,255,255,0.18)',
   },
   sideHudButtonActive: {
-    borderColor: 'rgba(205,43,238,0.45)',
-    backgroundColor: 'rgba(205,43,238,0.1)',
+    borderColor: primaryColorAlpha(0.45),
+    backgroundColor: primaryColorAlpha(0.1),
   },
   sideHudButtonDanger: {
     borderColor: 'rgba(239,68,68,0.45)',
@@ -752,7 +752,7 @@ const styles = StyleSheet.create({
   audioBar: {
     width: 4,
     borderRadius: 999,
-    backgroundColor: '#cd2bee',
+    backgroundColor: PRIMARY_COLOR,
   },
   broadcastRow: {
     flexDirection: 'row',
@@ -879,8 +879,8 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
   },
   amountButtonActive: {
-    backgroundColor: '#cd2bee',
-    borderColor: '#cd2bee',
+    backgroundColor: PRIMARY_COLOR,
+    borderColor: PRIMARY_COLOR,
   },
   amountButtonText: {
     color: 'rgba(255,255,255,0.7)',
@@ -906,12 +906,12 @@ const styles = StyleSheet.create({
     marginTop: 18,
     padding: 18,
     borderRadius: 24,
-    backgroundColor: 'rgba(205,43,238,0.08)',
+    backgroundColor: primaryColorAlpha(0.08),
     borderWidth: 1,
-    borderColor: 'rgba(205,43,238,0.18)',
+    borderColor: primaryColorAlpha(0.18),
   },
   simInfoKicker: {
-    color: '#cd2bee',
+    color: PRIMARY_COLOR,
     fontFamily: 'PlusJakartaSansExtraBold',
     fontSize: mediumScreen ? FontSize.fourteen: FontSize.ten,
     letterSpacing: 1.8,
@@ -928,7 +928,7 @@ const styles = StyleSheet.create({
     marginTop: 18,
     height: 58,
     borderRadius: 24,
-    backgroundColor: '#cd2bee',
+    backgroundColor: PRIMARY_COLOR,
     alignItems: 'center',
     justifyContent: 'center',
     flexDirection: 'row',

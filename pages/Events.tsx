@@ -13,7 +13,7 @@ import {
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { FontSize } from '../fonts';
-import { useThemeMode } from '../theme';
+import { useThemeMode, PRIMARY_COLOR, primaryColorAlpha } from "../theme";
 import { mediumScreen } from '../types';
 
 type FilterMode = 'day' | 'week' | 'month' | 'all';
@@ -235,7 +235,7 @@ const Events: React.FC = () => {
                       onPress={() => setActiveFilter(item.id as FilterMode)}
                       style={[
                         styles.filterChip,
-                        { backgroundColor: active ? '#cd2bee' : chipIdleBg },
+                        { backgroundColor: active ? PRIMARY_COLOR : chipIdleBg },
                       ]}
                     >
                       <Text style={[styles.filterChipText, { color: active ? '#ffffff' : secondaryText }]}>
@@ -512,7 +512,7 @@ const styles = StyleSheet.create({
     letterSpacing: 2,
   },
   headerSubtitle: {
-    color: '#cd2bee',
+    color: PRIMARY_COLOR,
     marginTop: 4,
     fontFamily: 'PlusJakartaSansExtraBold',
     fontSize: FontSize.seven,
@@ -576,7 +576,7 @@ const styles = StyleSheet.create({
   },
   monthYear: {
     marginTop: 4,
-    color: '#cd2bee',
+    color: PRIMARY_COLOR,
     fontFamily: 'PlusJakartaSansExtraBold',
     fontSize: FontSize.eight,
     textTransform: 'uppercase',
@@ -636,7 +636,7 @@ const styles = StyleSheet.create({
     letterSpacing: 1.2,
   },
   dateBadgeDay: {
-    color: '#cd2bee',
+    color: PRIMARY_COLOR,
     fontFamily: 'PlusJakartaSansExtraBold',
     fontSize: FontSize.eighteen,
   },
@@ -705,7 +705,7 @@ const styles = StyleSheet.create({
     height: 48,
     borderRadius: 24,
     borderWidth: 2,
-    borderColor: 'rgba(205,43,238,0.2)',
+    borderColor: primaryColorAlpha(0.2),
   },
   creatorVerify: {
     position: 'absolute',
@@ -714,7 +714,7 @@ const styles = StyleSheet.create({
     width: 18,
     height: 18,
     borderRadius: 9,
-    backgroundColor: '#cd2bee',
+    backgroundColor: PRIMARY_COLOR,
     borderWidth: 2,
     borderColor: '#ffffff',
     alignItems: 'center',
@@ -736,7 +736,7 @@ const styles = StyleSheet.create({
     alignItems: 'flex-end',
   },
   ticketPrice: {
-    color: '#cd2bee',
+    color: PRIMARY_COLOR,
     fontFamily: 'PlusJakartaSansExtraBold',
     fontSize: FontSize.fourteen,
     textTransform: 'uppercase',
@@ -833,7 +833,7 @@ const styles = StyleSheet.create({
     textTransform: 'uppercase',
   },
   modalPrice: {
-    color: '#cd2bee',
+    color: PRIMARY_COLOR,
     fontFamily: 'PlusJakartaSansExtraBold',
     fontSize: FontSize.ten,
     textTransform: 'uppercase',
@@ -854,7 +854,7 @@ const styles = StyleSheet.create({
     flex: 1,
     minHeight: 52,
     borderRadius: 18,
-    backgroundColor: '#cd2bee',
+    backgroundColor: PRIMARY_COLOR,
     alignItems: 'center',
     justifyContent: 'center',
   },

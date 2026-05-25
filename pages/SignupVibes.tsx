@@ -6,6 +6,7 @@ import { Pressable, ScrollView, Text, View } from 'react-native';
 import { FontSize } from '../fonts';
 import { setUser, User } from '../types';
 import { SignupVibesStep } from './Signup';
+import { PRIMARY_COLOR } from "../theme";
 
 const SignupVibes: React.FC = () => {
   const navigation = useNavigation<any>();
@@ -36,7 +37,7 @@ const SignupVibes: React.FC = () => {
   return (
     <View style={{ flex: 1, backgroundColor: '#000', paddingTop: 50 }}>
       <View style={{ height: 4, backgroundColor: 'rgba(255,255,255,0.1)' }}>
-        <View style={{ height: '100%', width: '50%', backgroundColor: '#cd2bee' }} />
+        <View style={{ height: '100%', width: '50%', backgroundColor: PRIMARY_COLOR }} />
       </View>
 
       <View

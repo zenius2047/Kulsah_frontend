@@ -1,5 +1,5 @@
 import React, { useEffect, useMemo, useRef, useState } from 'react';
-import { useThemeMode } from '../theme';
+import { useThemeMode, PRIMARY_COLOR, primaryColorAlpha } from "../theme";
 import {
   KeyboardAvoidingView,
   Modal,
@@ -213,8 +213,8 @@ const ChatView: React.FC = () => {
   const primaryText = theme.text;
   const panelBg = isDark ? '#12131a' : theme.card;
   const softSurface = isDark ? 'rgba(255,255,255,0.05)' : theme.surface;
-  const chipBg = isDark ? 'rgba(205,43,238,0.15)' : theme.accentSoft;
-  const chipBorder = isDark ? 'rgba(205,43,238,0.35)' : 'rgba(205,43,238,0.25)';
+  const chipBg = isDark ? primaryColorAlpha(0.15) : theme.accentSoft;
+  const chipBorder = isDark ? primaryColorAlpha(0.35) : primaryColorAlpha(0.25);
   const bubbleOther = isDark ? 'rgba(255,255,255,0.08)' : theme.surface;
   const callOverlayBg = isDark ? '#000' : 'rgba(15,23,42,0.94)';
   const iconBtnBg = isDark ? 'rgba(255,255,255,0.06)' : 'rgba(15,23,42,0.06)';
@@ -290,7 +290,7 @@ const ChatView: React.FC = () => {
               <View style={[styles.metaDivider, { backgroundColor: border }]} />
               <View>
                 <Text style={[styles.metaLabel, { color: mutedText }]}>Engage Score</Text>
-                <Text style={[styles.metaValue, { color: '#cd2bee' }]}>{(meta as any).score}%</Text>
+                <Text style={[styles.metaValue, { color: PRIMARY_COLOR }]}>{(meta as any).score}%</Text>
               </View>
             </>
           )}
@@ -309,7 +309,7 @@ const ChatView: React.FC = () => {
             {m.type === 'drop' ? (
               <View style={styles.dropBubble}>
                 <View style={styles.dropThumb}>
-                  <MaterialIcons name="play-circle" size={42} color="#cd2bee" />
+                  <MaterialIcons name="play-circle" size={42} color={PRIMARY_COLOR} />
                 </View>
                 <Text style={styles.dropTitle}>Private Drop Established</Text>
                 <Text style={[styles.dropName, { color: primaryText }]}>Nebula Acoustic Cut.mov</Text>
@@ -345,7 +345,7 @@ const ChatView: React.FC = () => {
           {isCreator ? (
             <>
               <Pressable style={[styles.toolItem, { backgroundColor: softSurface }]} onPress={() => handleSend('Nebula Acoustic Cut', 'drop')}>
-                <MaterialIcons name="movie-edit" size={22} color="#cd2bee" />
+                <MaterialIcons name="movie-edit" size={22} color={PRIMARY_COLOR} />
                 <View>
                   <Text style={[styles.toolTitle, { color: primaryText }]}>Send Private Drop</Text>
                   <Text style={[styles.toolSub, { color: subtleText }]}>Attach locked clip from library</Text>
@@ -362,7 +362,7 @@ const ChatView: React.FC = () => {
           ) : (
             <>
               <Pressable style={[styles.toolItem, { backgroundColor: softSurface }]} onPress={() => navigation.navigate('Wallet')}>
-                <MaterialIcons name="account-balance-wallet" size={22} color="#cd2bee" />
+                <MaterialIcons name="account-balance-wallet" size={22} color={PRIMARY_COLOR} />
                 <View>
                   <Text style={[styles.toolTitle, { color: primaryText }]}>Top Up Coins</Text>
                   <Text style={[styles.toolSub, { color: subtleText }]}>Add Kulsah coins to wallet</Text>
@@ -412,7 +412,7 @@ const ChatView: React.FC = () => {
 
         <View style={styles.inputRow}>
           <Pressable onPress={() => setIsToolsOpen((v) => !v)} style={[styles.addBtn, { backgroundColor: softSurface, borderColor: border }, isToolsOpen && styles.addBtnActive]}>
-            <MaterialIcons name="add" size={28} color={isToolsOpen ? '#fff' : '#cd2bee'} />
+            <MaterialIcons name="add" size={28} color={isToolsOpen ? '#fff' : PRIMARY_COLOR} />
           </Pressable>
 
           <KulsahInputBar
@@ -425,7 +425,7 @@ const ChatView: React.FC = () => {
               onSubmitEditing={() => handleSend()}
               rightAccessory={(
                 <Pressable onPress={() => setShowEmojiPicker((v) => !v)}>
-                  <MaterialIcons name="mood" size={22} color={showEmojiPicker ? '#cd2bee' : mutedText} />
+                  <MaterialIcons name="mood" size={22} color={showEmojiPicker ? PRIMARY_COLOR : mutedText} />
                 </Pressable>
               )}
             />
@@ -451,9 +451,9 @@ const styles = StyleSheet.create({
     paddingHorizontal: 24,
   },
   callTop: { alignItems: 'center', gap: 10 },
-  callAvatar: { width: 132, height: 132, borderRadius: 36, borderWidth: 3, borderColor: 'rgba(205,43,238,0.35)' },
+  callAvatar: { width: 132, height: 132, borderRadius: 36, borderWidth: 3, borderColor: primaryColorAlpha(0.35) },
   callName: { fontSize: FontSize.twentySeven, fontFamily: 'PlusJakartaSansExtraBold' },
-  callStatus: { color: '#cd2bee', fontSize: FontSize.eleven, letterSpacing: 2, fontFamily: 'PlusJakartaSansExtraBold' },
+  callStatus: { color: PRIMARY_COLOR, fontSize: FontSize.eleven, letterSpacing: 2, fontFamily: 'PlusJakartaSansExtraBold' },
   callActions: { flexDirection: 'row', alignItems: 'center', gap: 24 },
   callBtn: {
     width: 58,
@@ -483,7 +483,7 @@ const styles = StyleSheet.create({
     alignItems: 'center',
   },
   profileWrap: { position: 'relative' },
-  profileAvatar: { width: 42, height: 42, borderRadius: 21, borderWidth: 2, borderColor: 'rgba(205,43,238,0.5)' },
+  profileAvatar: { width: 42, height: 42, borderRadius: 21, borderWidth: 2, borderColor: primaryColorAlpha(0.5) },
   onlineDot: { position: 'absolute', right: -1, bottom: -1, width: 10, height: 10, borderRadius: 5, backgroundColor: '#22c55e' },
   userName: { fontSize: FontSize.twelve, fontFamily: 'PlusJakartaSansExtraBold' },
   userSub: { fontSize: FontSize.ten, fontFamily: 'PlusJakartaSansBold' },
@@ -504,21 +504,21 @@ const styles = StyleSheet.create({
   messages: { flex: 1, paddingHorizontal: 14, paddingTop: 10 },
   msgRow: { marginBottom: 14 },
   msgBubble: { maxWidth: '86%', borderRadius: 20, paddingHorizontal: 14, paddingVertical: 11 },
-  msgMine: { backgroundColor: '#cd2bee' },
+  msgMine: { backgroundColor: PRIMARY_COLOR },
   msgOther: { backgroundColor: 'rgba(255,255,255,0.08)', borderWidth: 1, borderColor: 'rgba(255,255,255,0.06)' },
   msgText: { fontSize: mediumScreen? FontSize.sixteen :FontSize.twelve, lineHeight: 19, fontFamily: 'PlusJakartaSansMedium' },
   msgMeta: { marginTop: 5, fontSize: mediumScreen ? FontSize.twelve:FontSize.eight, fontFamily: 'PlusJakartaSansBold' },
   dropBubble: {
     maxWidth: '86%',
     borderRadius: 24,
-    backgroundColor: 'rgba(205,43,238,0.12)',
+    backgroundColor: primaryColorAlpha(0.12),
     borderWidth: 1,
-    borderColor: 'rgba(205,43,238,0.35)',
+    borderColor: primaryColorAlpha(0.35),
     padding: 12,
     gap: 6,
   },
   dropThumb: { borderRadius: 14, backgroundColor: '#000', height: 120, justifyContent: 'center', alignItems: 'center' },
-  dropTitle: { color: '#cd2bee', fontSize: FontSize.nine, fontFamily: 'PlusJakartaSansExtraBold' },
+  dropTitle: { color: PRIMARY_COLOR, fontSize: FontSize.nine, fontFamily: 'PlusJakartaSansExtraBold' },
   dropName: { fontSize: FontSize.twelve, fontFamily: 'PlusJakartaSansBold' },
   tipBubble: {
     maxWidth: '86%',
@@ -564,7 +564,7 @@ const styles = StyleSheet.create({
   },
   repliesRow: { gap: 8, paddingVertical: 6 },
   replyChip: { borderRadius: 999, borderWidth: 1, paddingHorizontal: 12, paddingVertical: 8 },
-  replyText: { color: '#cd2bee', fontSize: FontSize.ten, fontFamily: 'PlusJakartaSansExtraBold' },
+  replyText: { color: PRIMARY_COLOR, fontSize: FontSize.ten, fontFamily: 'PlusJakartaSansExtraBold' },
   emojiPanel: {
     borderRadius: 16,
     borderWidth: 1,
@@ -592,7 +592,7 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     alignItems: 'center',
   },
-  addBtnActive: { backgroundColor: '#cd2bee', borderColor: '#cd2bee' },
+  addBtnActive: { backgroundColor: PRIMARY_COLOR, borderColor: PRIMARY_COLOR },
   inputWrap: {
     flex: 1,
     height: 48,
@@ -605,7 +605,7 @@ const styles = StyleSheet.create({
     gap: 8,
   },
   input: { flex: 1, fontSize: mediumScreen? FontSize.twelve: FontSize.eight, fontFamily: 'PlusJakartaSansBold' },
-  sendBtn: { width: 48, height: 48, borderRadius: 24, backgroundColor: '#cd2bee', justifyContent: 'center', alignItems: 'center' },
+  sendBtn: { width: 48, height: 48, borderRadius: 24, backgroundColor: PRIMARY_COLOR, justifyContent: 'center', alignItems: 'center' },
   sendBtnDisabled: { backgroundColor: 'rgba(255,255,255,0.12)' },
 });
 

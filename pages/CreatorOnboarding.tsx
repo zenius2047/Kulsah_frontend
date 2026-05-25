@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useMemo, useRef, useCallback } from 'react';
-import { useThemeMode } from '../theme';
+import { useThemeMode, primaryColorAlpha } from "../theme";
 import { View, Text, Pressable, Image, TextInput } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
 
@@ -792,7 +792,7 @@ const CreatorOnboarding: React.FC<CreatorOnboardingProps> = ({ onComplete }) => 
           100% { background-position: 200% 200%; }
         }
         .shadow-glow {
-          box-shadow: 0 0 40px rgba(205, 43, 238, 0.4);
+          box-shadow: 0 0 40px ${primaryColorAlpha(0.4)};
         }
         .animate-in {
           animation-fill-mode: forwards;

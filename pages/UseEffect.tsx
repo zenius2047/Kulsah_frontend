@@ -1,5 +1,5 @@
 import React from 'react';
-import { useThemeMode } from '../theme';
+import { useThemeMode, PRIMARY_COLOR, primaryColorAlpha } from "../theme";
 import {
   Image,
   Platform,
@@ -82,7 +82,7 @@ const UseEffect: React.FC = () => {
   const headerButtonBackground = isDark ? 'rgba(255,255,255,0.04)' : theme.surface;
   const sectionBackground = isDark ? theme.screen : theme.background;
   const coverBorder = isDark ? 'rgba(255,255,255,0.12)' : theme.border;
-  const pillBackground = isDark ? 'rgba(205,43,238,0.1)' : 'rgba(205,43,238,0.08)';
+  const pillBackground = isDark ? primaryColorAlpha(0.1) : primaryColorAlpha(0.08);
   const metaText = isDark ? '#CBD5E1' : theme.textSecondary;
   const viewAllColor = isDark ? '#c084fc' : theme.accent;
   const cardBackground = isDark ? '#1e293b' : theme.surface;
@@ -107,7 +107,7 @@ const UseEffect: React.FC = () => {
           style={StyleSheet.absoluteFill}
         />
 
-        <View style={[styles.header, { borderBottomColor: isDark ? 'rgba(205,43,238,0.12)' : theme.border, backgroundColor: headerBackground }]}>
+        <View style={[styles.header, { borderBottomColor: isDark ? primaryColorAlpha(0.12) : theme.border, backgroundColor: headerBackground }]}>
           <View style={styles.headerLeft}>
             <Pressable style={[styles.headerButton, { backgroundColor: headerButtonBackground }]} onPress={() => navigation.goBack()}>
               <MaterialIcons name="chevron-left" size={22} color={theme.text} />
@@ -116,10 +116,10 @@ const UseEffect: React.FC = () => {
           </View>
           <View style={styles.headerRight}>
             <Pressable style={[styles.headerButton, { backgroundColor: headerButtonBackground }]}>
-              <MaterialIcons name="favorite" size={20} color="#cd2bee" />
+              <MaterialIcons name="favorite" size={20} color={PRIMARY_COLOR} />
             </Pressable>
             <Pressable style={[styles.headerButton, { backgroundColor: headerButtonBackground }]}>
-              <MaterialIcons name="share" size={20} color="#cd2bee" />
+              <MaterialIcons name="share" size={20} color={PRIMARY_COLOR} />
             </Pressable>
           </View>
         </View>
@@ -128,7 +128,7 @@ const UseEffect: React.FC = () => {
           <View style={styles.heroSection}>
             <View style={styles.coverWrap}>
               <LinearGradient
-                colors={['#cd2bee', '#cd2bee']}
+                colors={[PRIMARY_COLOR, PRIMARY_COLOR]}
                 start={{ x: 0, y: 0 }}
                 end={{ x: 1, y: 1 }}
                 style={styles.coverGlow}
@@ -316,8 +316,8 @@ const styles = StyleSheet.create({
     gap: 8,
   },
   primaryButton: {
-    backgroundColor: '#cd2bee',
-    shadowColor: '#cd2bee',
+    backgroundColor: PRIMARY_COLOR,
+    shadowColor: PRIMARY_COLOR,
     shadowOffset: { width: 0, height: 10 },
     shadowOpacity: 0.28,
     shadowRadius: 18,

@@ -11,7 +11,7 @@ import {
 } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { FontSize } from '../fonts';
-import { useThemeMode } from '../theme';
+import { useThemeMode, PRIMARY_COLOR, primaryColorAlpha } from "../theme";
 import { mediumScreen } from '../types';
 import KulcoinTopUpDrawer from './KulcoinTopUpDrawer';
 import KulsahInputBar from './KulsahInputBar';
@@ -173,14 +173,14 @@ const GiftDialog: React.FC<GiftDialogProps> = ({
               <View style={[styles.toolbarDivider, { backgroundColor: theme.border }]} />
 
               <View style={styles.redeemBadge}>
-                <MaterialIcons name="redeem" size={22} color="#cd2bee" />
+                <MaterialIcons name="redeem" size={22} color={PRIMARY_COLOR} />
                 <View style={styles.redeemDot} />
               </View>
 
               <View style={styles.toolbarSpacer} />
 
               <Pressable style={[styles.upgradeButton, { backgroundColor: isDark ? 'rgba(255,255,255,0.05)' : '#f1f5f9' }]}>
-                <MaterialIcons name="upgrade" size={20} color="#cd2bee" />
+                <MaterialIcons name="upgrade" size={20} color={PRIMARY_COLOR} />
               </Pressable>
             </View> */}
 
@@ -248,7 +248,7 @@ const GiftDialog: React.FC<GiftDialogProps> = ({
                         {item.name}
                       </Text>
                       <View style={styles.giftPriceRow}>
-                        <MaterialIcons name="bolt" size={12} color="#cd2bee" />
+                        <MaterialIcons name="bolt" size={12} color={PRIMARY_COLOR} />
                         <Text style={[styles.giftPrice, { color: theme.textMuted }]}>{item.price}</Text>
                       </View>
                     </View>
@@ -379,7 +379,7 @@ const styles = StyleSheet.create({
     width: 4,
     height: 4,
     borderRadius: 2,
-    backgroundColor: '#cd2bee',
+    backgroundColor: PRIMARY_COLOR,
   },
   toolbarSpacer: {
     flex: 1,
@@ -401,7 +401,7 @@ const styles = StyleSheet.create({
     borderRadius: 999,
   },
   categoryChipActive: {
-    backgroundColor: '#cd2bee',
+    backgroundColor: PRIMARY_COLOR,
   },
   categoryChipText: {
     fontFamily: 'PlusJakartaSansExtraBold',
@@ -426,7 +426,7 @@ const styles = StyleSheet.create({
   giftCardSelected: {
     backgroundColor: 'rgba(255,255,255,0.08)',
     borderWidth: 2,
-    borderColor: 'rgba(205,43,238,0.5)',
+    borderColor: primaryColorAlpha(0.5),
   },
   giftMediaWrap: {
     width: 62,

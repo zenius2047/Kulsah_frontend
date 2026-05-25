@@ -3,7 +3,7 @@ import { GoogleGenAI } from '@google/genai';
 import { useNavigation, useRoute } from '@react-navigation/native';
 import { MaterialIcons } from '@expo/vector-icons';
 import { FontSize } from '../fonts';
-import { useThemeMode } from '../theme';
+import { useThemeMode, PRIMARY_COLOR, primaryColorAlpha, primaryColorAlphaHex } from "../theme";
 import {
   ActivityIndicator,
   Image,
@@ -27,7 +27,7 @@ interface TicketTier {
 }
 
 const TIERS: TicketTier[] = [
-  { id: 'pit', name: 'Golden Circle Pit', price: 350, description: 'Directly in front of the stage. High energy.', available: true, color: '#cd2bee' },
+  { id: 'pit', name: 'Golden Circle Pit', price: 350, description: 'Directly in front of the stage. High energy.', available: true, color: PRIMARY_COLOR },
   { id: 'floor', name: 'Standing Floor', price: 125, description: 'Main standing area. Great visibility.', available: true, color: '#3b82f6' },
   { id: 'mezz', name: 'Premium Seated', price: 185, description: 'Elevated view with comfortable seating.', available: true, color: '#22c55e' },
   { id: 'rear', name: 'Seated - Tier 2', price: 95, description: 'Affordable views of the whole stage.', available: true, color: '#6b7280' },
@@ -47,7 +47,7 @@ const SelectTickets: React.FC = () => {
   const [aiLoading, setAiLoading] = useState(false);
   const [aiSuggestion, setAiSuggestion] = useState<string | null>(null);
 
-  const accent = isDark ? '#cd2bee' : theme.accent;
+  const accent = isDark ? PRIMARY_COLOR : theme.accent;
   const screenBg = isDark ? '#060913' : '#f8fafc';
   const headerBg = isDark ? '#11131bcc' : 'rgba(255,255,255,0.96)';
   const border = isDark ? 'rgba(255,255,255,0.08)' : theme.border;
@@ -60,8 +60,8 @@ const SelectTickets: React.FC = () => {
   const subtle = isDark ? '#8f95af' : theme.textSecondary;
   const muted = isDark ? '#6b7280' : theme.textMuted;
   const footerBg = isDark ? '#0b0f18f2' : 'rgba(255,255,255,0.98)';
-  const successIconBg = isDark ? '#cd2bee20' : 'rgba(205,43,238,0.12)';
-  const successIconBorder = isDark ? '#cd2bee55' : 'rgba(205,43,238,0.28)';
+  const successIconBg = isDark ? primaryColorAlphaHex('20') : primaryColorAlpha(0.12);
+  const successIconBorder = isDark ? primaryColorAlphaHex('55') : primaryColorAlpha(0.28);
 
   const updateQuantity = (tierId: string, delta: number) => {
     setQuantities((prev) => ({
@@ -450,7 +450,7 @@ const styles = StyleSheet.create({
     height: 74,
     borderRadius: 22,
     borderWidth: 1,
-    borderColor: '#cd2bee24',
+    borderColor: primaryColorAlphaHex('24'),
     alignItems: 'center',
     justifyContent: 'center',
   },
@@ -465,7 +465,7 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
   },
   mapBottomRow: { flexDirection: 'row', gap: 12 },
-  zonePitActive: { backgroundColor: '#cd2bee22', borderColor: '#cd2bee88' },
+  zonePitActive: { backgroundColor: primaryColorAlphaHex('22'), borderColor: primaryColorAlphaHex('88') },
   zoneFloorActive: { backgroundColor: '#3b82f622', borderColor: '#3b82f688' },
   zoneMezz: { borderColor: '#22c55e24' },
   zoneMezzActive: { backgroundColor: '#22c55e22', borderColor: '#22c55e88' },

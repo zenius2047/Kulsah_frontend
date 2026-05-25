@@ -14,7 +14,7 @@ import {
 } from 'react-native';
 import { SafeAreaView, useSafeAreaInsets } from 'react-native-safe-area-context';
 import { FontSize } from '../fonts';
-import { useThemeMode } from '../theme';
+import { useThemeMode, PRIMARY_COLOR } from "../theme";
 import { mediumScreen } from '../types';
 
 interface Vibe {
@@ -234,7 +234,7 @@ const styles = StyleSheet.create({
     width: 32,
     height: 32,
     borderRadius: 16,
-    backgroundColor: '#cd2bee',
+    backgroundColor: PRIMARY_COLOR,
     borderWidth: 2,
     borderColor: '#fff',
     alignItems: 'center',
@@ -287,8 +287,8 @@ const styles = StyleSheet.create({
     elevation: 10,
   },
   continueButtonActive: {
-    backgroundColor: '#cd2bee',
-    shadowColor: '#cd2bee',
+    backgroundColor: PRIMARY_COLOR,
+    shadowColor: PRIMARY_COLOR,
   },
   continueButtonDisabled: {
     backgroundColor: 'rgba(255,255,255,0.05)',

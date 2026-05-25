@@ -1,5 +1,5 @@
 import React, { useMemo, useState } from 'react';
-import { useThemeMode } from '../theme';
+import { useThemeMode, PRIMARY_COLOR, primaryColorAlpha } from "../theme";
 import {
   ActivityIndicator,
   Alert,
@@ -242,9 +242,9 @@ const CreatorEvents: React.FC = () => {
             <Text style={[styles.statValue, { color: textPrimary }]}>{totalBookings}</Text>
             <Text style={styles.statSub}>+2 Upcoming</Text>
           </View>
-          <View style={[styles.statCard, styles.statPrimary, { backgroundColor: isDark ? 'rgba(205,43,238,0.12)' : 'rgba(205,43,238,0.08)' }]}>
-            <Text style={[styles.statLabel, { color: '#cd2bee' }]}>TOTAL REVENUE</Text>
-            <Text style={[styles.statValue, { color: '#cd2bee' }]}>$2.8M</Text>
+          <View style={[styles.statCard, styles.statPrimary, { backgroundColor: isDark ? primaryColorAlpha(0.12) : primaryColorAlpha(0.08) }]}>
+            <Text style={[styles.statLabel, { color: PRIMARY_COLOR }]}>TOTAL REVENUE</Text>
+            <Text style={[styles.statValue, { color: PRIMARY_COLOR }]}>$2.8M</Text>
             <Text style={[styles.statSub, { color: textSecondary }]}>Ticket sales only</Text>
           </View>
         </View>
@@ -285,13 +285,13 @@ const CreatorEvents: React.FC = () => {
 
                 <View style={[styles.eventBottom, { borderTopColor: border }]}>
                   <View style={styles.revenueWrap}>
-                    <MaterialIcons name="payments" size={16} color="#cd2bee" />
+                    <MaterialIcons name="payments" size={16} color={PRIMARY_COLOR} />
                     <Text style={[styles.revenueText, { color: textPrimary }]}>{event.revenue}</Text>
                   </View>
                   <View style={styles.eventActions}>
                     {/* {event.status === 'published' && (
                       <Pressable style={styles.scanBtn} onPress={() => navigation.navigate('MainTabs')}>
-                        <MaterialIcons name="qr-code-scanner" size={14} color="#cd2bee" />
+                        <MaterialIcons name="qr-code-scanner" size={14} color={PRIMARY_COLOR} />
                         <Text style={styles.scanText}>SCAN</Text>
                       </Pressable>
                     )} */}
@@ -396,13 +396,13 @@ const CreatorEvents: React.FC = () => {
                   style={[styles.input, { flex: 1, borderColor: softBorder, backgroundColor: inputBg, color: textPrimary }]}
                 />
                 <Pressable onPress={verifyVenue} disabled={verifyingVenue || !eventLocation.trim()} style={[styles.mapBtn, { borderColor: softBorder, backgroundColor: inputBg }]}>
-                  {verifyingVenue ? <ActivityIndicator color="#cd2bee" /> : <MaterialIcons name="map" size={20} color="#cd2bee" />}
+                  {verifyingVenue ? <ActivityIndicator color={PRIMARY_COLOR} /> : <MaterialIcons name="map" size={20} color={PRIMARY_COLOR} />}
                 </Pressable>
               </View>
 
               {!!venueMapUri && (
                 <Pressable onPress={() => void Linking.openURL(venueMapUri)} style={styles.mapsLink}>
-                  <MaterialIcons name="open-in-new" size={14} color="#cd2bee" />
+                  <MaterialIcons name="open-in-new" size={14} color={PRIMARY_COLOR} />
                   <Text style={styles.mapsLinkText}>Verify location on maps</Text>
                 </Pressable>
               )}
@@ -481,7 +481,7 @@ const styles = StyleSheet.create({
     width: 36,
     height: 36,
     borderRadius: 18,
-    backgroundColor: '#cd2bee',
+    backgroundColor: PRIMARY_COLOR,
     justifyContent: 'center',
     alignItems: 'center',
   },
@@ -493,7 +493,7 @@ const styles = StyleSheet.create({
     borderWidth: 1,
     padding: 14,
   },
-  statPrimary: { borderColor: 'rgba(205,43,238,0.35)', backgroundColor: 'rgba(205,43,238,0.12)' },
+  statPrimary: { borderColor: primaryColorAlpha(0.35), backgroundColor: primaryColorAlpha(0.12) },
   statLabel: { fontSize: mediumScreen ?  FontSize.thirteen:FontSize.nine, letterSpacing: 1.1, fontFamily: 'PlusJakartaSansExtraBold' },
   statValue: { fontSize: mediumScreen ? FontSize.twentyFour: FontSize.twenty, fontFamily: 'PlusJakartaSansExtraBold', marginTop: 2 },
   statSub: { color: '#22c55e', fontSize: mediumScreen ? FontSize.fourteen:FontSize.ten, marginTop: 2, fontFamily: 'PlusJakartaSansBold' },
@@ -511,13 +511,13 @@ const styles = StyleSheet.create({
   statusLive: { borderColor: 'rgba(34,197,94,0.35)', backgroundColor: 'rgba(34,197,94,0.12)' },
   statusDraft: { borderColor: 'rgba(255,255,255,0.15)', backgroundColor: 'rgba(255,255,255,0.06)' },
   statusText: { fontSize: mediumScreen ? FontSize.twelve: FontSize.eight, letterSpacing: 1, fontFamily: 'PlusJakartaSansExtraBold' },
-  typePill: { alignSelf: 'flex-start', borderRadius: 8, paddingHorizontal: 8, paddingVertical: 4, backgroundColor: 'rgba(205,43,238,0.15)' },
-  typeText: { color: '#cd2bee', fontSize: mediumScreen ? FontSize.twelve: FontSize.eight, letterSpacing: 1, fontFamily: 'PlusJakartaSansExtraBold' },
+  typePill: { alignSelf: 'flex-start', borderRadius: 8, paddingHorizontal: 8, paddingVertical: 4, backgroundColor: primaryColorAlpha(0.15) },
+  typeText: { color: PRIMARY_COLOR, fontSize: mediumScreen ? FontSize.twelve: FontSize.eight, letterSpacing: 1, fontFamily: 'PlusJakartaSansExtraBold' },
   occupancyRow: { flexDirection: 'row', justifyContent: 'space-between', marginBottom: 6 },
   occupancyText: { fontSize: mediumScreen ? FontSize.thirteen: FontSize.nine, fontFamily: 'PlusJakartaSansExtraBold' },
-  occupancyValue: { color: '#cd2bee', fontSize: mediumScreen ? FontSize.fourteen: FontSize.ten, fontFamily: 'PlusJakartaSansExtraBold' },
+  occupancyValue: { color: PRIMARY_COLOR, fontSize: mediumScreen ? FontSize.fourteen: FontSize.ten, fontFamily: 'PlusJakartaSansExtraBold' },
   progressTrack: { height: 7, borderRadius: 5, overflow: 'hidden' },
-  progressFill: { height: '100%', backgroundColor: '#cd2bee' },
+  progressFill: { height: '100%', backgroundColor: PRIMARY_COLOR },
   eventBottom: {
     marginTop: 4,
     paddingTop: 8,
@@ -534,13 +534,13 @@ const styles = StyleSheet.create({
     borderRadius: 999,
     paddingHorizontal: 10,
     borderWidth: 1,
-    borderColor: 'rgba(205,43,238,0.35)',
-    backgroundColor: 'rgba(205,43,238,0.12)',
+    borderColor: primaryColorAlpha(0.35),
+    backgroundColor: primaryColorAlpha(0.12),
     flexDirection: 'row',
     alignItems: 'center',
     gap: 4,
   },
-  scanText: { color: '#cd2bee', fontSize: FontSize.nine, fontFamily: 'PlusJakartaSansExtraBold' },
+  scanText: { color: PRIMARY_COLOR, fontSize: FontSize.nine, fontFamily: 'PlusJakartaSansExtraBold' },
   menuBtn: { width: 28, height: 28, borderRadius: 14, justifyContent: 'center', alignItems: 'center' },
   archiveCard: {
     borderRadius: 16,
@@ -580,7 +580,7 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     alignItems: 'center',
   },
-  typeBtnActive: { backgroundColor: '#cd2bee', borderColor: '#cd2bee' },
+  typeBtnActive: { backgroundColor: PRIMARY_COLOR, borderColor: PRIMARY_COLOR },
   typeBtnText: { fontSize: mediumScreen ? FontSize.twelve:FontSize.eight, fontFamily: 'PlusJakartaSansExtraBold' },
   typeBtnTextActive: { color: '#fff' },
   input: {
@@ -606,8 +606,8 @@ const styles = StyleSheet.create({
   mapsLink: {
     borderRadius: 10,
     borderWidth: 1,
-    borderColor: 'rgba(205,43,238,0.35)',
-    backgroundColor: 'rgba(205,43,238,0.12)',
+    borderColor: primaryColorAlpha(0.35),
+    backgroundColor: primaryColorAlpha(0.12),
     paddingHorizontal: 10,
     paddingVertical: 8,
     flexDirection: 'row',
@@ -615,10 +615,10 @@ const styles = StyleSheet.create({
     gap: 6,
     alignSelf: 'flex-start',
   },
-  mapsLinkText: { color: '#cd2bee', fontSize: FontSize.ten, fontFamily: 'PlusJakartaSansBold' },
+  mapsLinkText: { color: PRIMARY_COLOR, fontSize: FontSize.ten, fontFamily: 'PlusJakartaSansBold' },
   descInput: { minHeight: 100, textAlignVertical: 'top', paddingTop: 12 },
   tierHeader: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center' },
-  addTierText: { color: '#cd2bee', fontSize: FontSize.ten, fontFamily: 'PlusJakartaSansExtraBold' },
+  addTierText: { color: PRIMARY_COLOR, fontSize: FontSize.ten, fontFamily: 'PlusJakartaSansExtraBold' },
   tierCard: {
     borderRadius: 18,
     borderWidth: 1,
@@ -655,7 +655,7 @@ const styles = StyleSheet.create({
     alignItems: 'center',
   },
   draftText: { fontSize: mediumScreen ? FontSize.twelve: FontSize.eight, letterSpacing: 1, fontFamily: 'PlusJakartaSansExtraBold' },
-  launchBtn: { flex: 2, height: 50, borderRadius: 14, backgroundColor: '#cd2bee', justifyContent: 'center', alignItems: 'center' },
+  launchBtn: { flex: 2, height: 50, borderRadius: 14, backgroundColor: PRIMARY_COLOR, justifyContent: 'center', alignItems: 'center' },
   launchText: { color: '#fff', fontSize: mediumScreen ? FontSize.twelve: FontSize.eight, letterSpacing: 1.1, fontFamily: 'PlusJakartaSansExtraBold' },
 });
 

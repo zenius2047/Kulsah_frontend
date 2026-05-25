@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { useThemeMode } from '../theme';
+import { useThemeMode, PRIMARY_COLOR, primaryColorAlpha } from "../theme";
 import {
   Image,
   Pressable,
@@ -144,7 +144,7 @@ const GoLiveSetup: React.FC = () => {
                 />
                 <View style={styles.previewOverlay}>
                   <View style={styles.previewIconWrap}>
-                    <MaterialIcons name="videocam" size={38} color="#cd2bee" />
+                    <MaterialIcons name="videocam" size={38} color={PRIMARY_COLOR} />
                   </View>
                 </View>
               </View>
@@ -213,7 +213,7 @@ const GoLiveSetup: React.FC = () => {
                 >
                   <View style={styles.protocolTop}>
                     <View style={[styles.protocolIconWrap, { backgroundColor: protocolIconBg }]}>
-                      <MaterialIcons name="public" size={22} color={access === 'public' ? '#cd2bee' : muted} />
+                      <MaterialIcons name="public" size={22} color={access === 'public' ? PRIMARY_COLOR : muted} />
                     </View>
                     <View style={[styles.radioOuter, access === 'public' && styles.radioOuterPublic]}>
                       <View style={[styles.radioInner, access === 'public' ? { opacity: 1 } : { opacity: 0 }]} />
@@ -277,7 +277,7 @@ const GoLiveSetup: React.FC = () => {
         ) : (
           <Pressable
             onPress={() => navigation.navigate('CreatorLiveStream')}
-            style={[styles.primaryBtn, { backgroundColor: '#cd2bee' }]}
+            style={[styles.primaryBtn, { backgroundColor: PRIMARY_COLOR }]}
           >
             <Text style={styles.primaryBtnText}>GO LIVE NOW</Text>
             <MaterialIcons name="sensors" size={20} color="#fff" />
@@ -315,10 +315,10 @@ const styles = StyleSheet.create({
     paddingHorizontal: 10,
     paddingVertical: 5,
     borderWidth: 1,
-    borderColor: 'rgba(205,43,238,0.4)',
-    backgroundColor: 'rgba(205,43,238,0.15)',
+    borderColor: primaryColorAlpha(0.4),
+    backgroundColor: primaryColorAlpha(0.15),
   },
-  readyText: { color: '#cd2bee', fontSize: FontSize.nine, letterSpacing: 1.2, fontFamily: 'PlusJakartaSansExtraBold' },
+  readyText: { color: PRIMARY_COLOR, fontSize: FontSize.nine, letterSpacing: 1.2, fontFamily: 'PlusJakartaSansExtraBold' },
   stepperRow: { marginTop: 14, flexDirection: 'row', justifyContent: 'space-between', position: 'relative' },
   stepTrack: {
     position: 'absolute',
@@ -328,7 +328,7 @@ const styles = StyleSheet.create({
     height: 2,
     backgroundColor: 'rgba(255,255,255,0.1)',
   },
-  stepFill: { height: '100%', backgroundColor: '#cd2bee' },
+  stepFill: { height: '100%', backgroundColor: PRIMARY_COLOR },
   stepItem: { alignItems: 'center', gap: 6, zIndex: 2 },
   stepIcon: {
     width: 30,
@@ -340,10 +340,10 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     alignItems: 'center',
   },
-  stepIconActive: { backgroundColor: '#cd2bee', borderColor: '#cd2bee' },
-  stepIconCompleted: { backgroundColor: '#cd2bee', borderColor: '#cd2bee' },
+  stepIconActive: { backgroundColor: PRIMARY_COLOR, borderColor: PRIMARY_COLOR },
+  stepIconCompleted: { backgroundColor: PRIMARY_COLOR, borderColor: PRIMARY_COLOR },
   stepLabel: { fontSize: mediumScreen ? FontSize.twelve:FontSize.eight, letterSpacing: 1, fontFamily: 'PlusJakartaSansExtraBold' },
-  stepLabelActive: { color: '#cd2bee' },
+  stepLabelActive: { color: PRIMARY_COLOR },
   body: { flex: 1 },
   bodyContent: { paddingHorizontal: 16, paddingTop: 16, paddingBottom: 220, gap: 18 },
   sectionWrap: { gap: 22 },
@@ -354,7 +354,7 @@ const styles = StyleSheet.create({
     borderRadius: 28,
     overflow: 'hidden',
     borderWidth: 2,
-    borderColor: 'rgba(205,43,238,0.45)',
+    borderColor: primaryColorAlpha(0.45),
   },
   previewImg: { width: '100%', height: '100%', opacity: 0.65 },
   previewOverlay: { ...StyleSheet.absoluteFillObject, justifyContent: 'center', alignItems: 'center' },
@@ -363,8 +363,8 @@ const styles = StyleSheet.create({
     height: 80,
     borderRadius: 26,
     borderWidth: 1,
-    borderColor: 'rgba(205,43,238,0.35)',
-    backgroundColor: 'rgba(205,43,238,0.2)',
+    borderColor: primaryColorAlpha(0.35),
+    backgroundColor: primaryColorAlpha(0.2),
     justifyContent: 'center',
     alignItems: 'center',
   },
@@ -379,7 +379,7 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     gap: 4,
   },
-  qualityItemActive: { backgroundColor: '#cd2bee', borderColor: '#cd2bee' },
+  qualityItemActive: { backgroundColor: PRIMARY_COLOR, borderColor: PRIMARY_COLOR },
   qualityLabel: { fontSize: mediumScreen ? FontSize.sixteen: FontSize.twelve, fontFamily: 'PlusJakartaSansExtraBold' },
   qualityBitrate: { fontSize: mediumScreen? FontSize.twelve:FontSize.eight, fontFamily: 'PlusJakartaSansBold' },
   qualityTextActive: { color: '#fff' },
@@ -404,7 +404,7 @@ const styles = StyleSheet.create({
     paddingHorizontal: 12,
     paddingVertical: 10,
   },
-  vibeChipActive: { backgroundColor: '#cd2bee', borderColor: '#cd2bee' },
+  vibeChipActive: { backgroundColor: PRIMARY_COLOR, borderColor: PRIMARY_COLOR },
   vibeText: { fontSize: mediumScreen? FontSize.twelve:FontSize.eight, letterSpacing: 0.8, fontFamily: 'PlusJakartaSansExtraBold' },
   vibeTextActive: { color: '#fff' },
   protocolRow: { flexDirection: 'row', gap: 10 },
@@ -417,7 +417,7 @@ const styles = StyleSheet.create({
     padding: 12,
     gap: 8,
   },
-  protocolCardPublic: { borderColor: '#cd2bee', backgroundColor: 'rgba(205,43,238,0.12)' },
+  protocolCardPublic: { borderColor: PRIMARY_COLOR, backgroundColor: primaryColorAlpha(0.12) },
   protocolCardPremium: { borderColor: '#eab308', backgroundColor: 'rgba(234,179,8,0.12)' },
   protocolTop: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center' },
   protocolIconWrap: {
@@ -437,9 +437,9 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     alignItems: 'center',
   },
-  radioOuterPublic: { borderColor: '#cd2bee' },
+  radioOuterPublic: { borderColor: PRIMARY_COLOR },
   radioOuterPremium: { borderColor: '#eab308' },
-  radioInner: { width: 8, height: 8, borderRadius: 4, backgroundColor: '#cd2bee' },
+  radioInner: { width: 8, height: 8, borderRadius: 4, backgroundColor: PRIMARY_COLOR },
   radioInnerPremium: { width: 8, height: 8, borderRadius: 4, backgroundColor: '#eab308' },
   protocolTitle: { fontSize: mediumScreen ? FontSize.sixteen:FontSize.twelve, fontFamily: 'PlusJakartaSansExtraBold' },
   protocolSub: { fontSize: FontSize.ten, fontFamily: 'PlusJakartaSansBold' },
@@ -469,7 +469,7 @@ const styles = StyleSheet.create({
   },
   progressMeta: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', marginBottom: 8 },
   progressText: { fontSize: FontSize.ten, fontFamily: 'PlusJakartaSansBold' },
-  progressValue: { color: '#cd2bee', fontSize: FontSize.ten, fontFamily: 'PlusJakartaSansExtraBold' },
+  progressValue: { color: PRIMARY_COLOR, fontSize: FontSize.ten, fontFamily: 'PlusJakartaSansExtraBold' },
   progressTrack: {
     height: 8,
     borderRadius: 5,
@@ -479,11 +479,11 @@ const styles = StyleSheet.create({
     backgroundColor: 'rgba(255,255,255,0.08)',
     marginBottom: 12,
   },
-  progressFill: { height: '100%', backgroundColor: '#cd2bee' },
+  progressFill: { height: '100%', backgroundColor: PRIMARY_COLOR },
   primaryBtn: {
     height: 54,
     borderRadius: 28,
-    backgroundColor: '#cd2bee',
+    backgroundColor: PRIMARY_COLOR,
     flexDirection: 'row',
     justifyContent: 'center',
     alignItems: 'center',

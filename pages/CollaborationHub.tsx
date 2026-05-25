@@ -1,5 +1,5 @@
 import React, { useEffect, useMemo, useState } from 'react';
-import { useThemeMode } from '../theme';
+import { useThemeMode, PRIMARY_COLOR, primaryColorAlpha } from "../theme";
 import {
   ActivityIndicator,
   Image,
@@ -57,7 +57,7 @@ interface CollabRequest {
 const TABS: CollabTab[] = ['discover', 'incoming', 'outgoing', 'active'];
 const FILTERS: ProjectType[] = ['All', 'Public Feed Track', 'Premium Locked Release', 'Event', 'Live Session'];
 const DISCOVER_TYPES: Exclude<ProjectType, 'All'>[] = ['Public Feed Track', 'Premium Locked Release'];
-const BRAND = '#cd2bee';
+const BRAND ={PRIMARY_COLOR};
 const scaledFont = (size: number) => (mediumScreen ? fontScale(size + 4) : fontScale(size));
 
 const CollaborationHub: React.FC = () => {
@@ -257,7 +257,7 @@ const CollaborationHub: React.FC = () => {
             </Pressable>
             <Text style={[styles.title, { color: theme.text }]}>Collaboration Hub</Text>
           </View>
-          {/* <View style={[styles.neuralPill, { backgroundColor: isDark ? 'rgba(205,43,238,0.1)' : 'rgba(205,43,238,0.08)', borderColor: 'rgba(205,43,238,0.25)' }]}>
+          {/* <View style={[styles.neuralPill, { backgroundColor: isDark ? primaryColorAlpha(0.1) : primaryColorAlpha(0.08), borderColor: primaryColorAlpha(0.25) }]}>
             <Text style={styles.neuralText}>Neural Active</Text>
           </View> */}
         </View>
@@ -374,7 +374,7 @@ const CollaborationHub: React.FC = () => {
 
                 <View style={[styles.innerPanel, { backgroundColor: subtleBg }]}>
                   <View style={styles.rowBetween}>
-                    <Text style={[styles.typeTag, { color: r.type.includes('Premium') ? BRAND : '#60a5fa', borderColor: r.type.includes('Premium') ? 'rgba(205,43,238,0.3)' : 'rgba(96,165,250,0.3)' }]}>{r.type}</Text>
+                    <Text style={[styles.typeTag, { color: r.type.includes('Premium') ? BRAND : '#60a5fa', borderColor: r.type.includes('Premium') ? primaryColorAlpha(0.3) : 'rgba(96,165,250,0.3)' }]}>{r.type}</Text>
                     <Text style={[styles.smallMeta, { color: muted }]}>{r.date}</Text>
                   </View>
                   <Text style={[styles.cardTitle, { color: theme.text }]}>{r.title}</Text>
@@ -383,7 +383,7 @@ const CollaborationHub: React.FC = () => {
 
                 <View style={styles.rowBetween}>
                   <View style={styles.splitInfo}>
-                    <View style={[styles.iconBadge, { backgroundColor: isDark ? 'rgba(205,43,238,0.15)' : 'rgba(205,43,238,0.08)' }]}>
+                    <View style={[styles.iconBadge, { backgroundColor: isDark ? primaryColorAlpha(0.15) : primaryColorAlpha(0.08) }]}>
                       <MaterialIcons name="payments" size={18} color={BRAND} />
                     </View>
                     <View>
@@ -392,7 +392,7 @@ const CollaborationHub: React.FC = () => {
                     </View>
                   </View>
                   {r.status === 'pending' ? (
-                    <Pressable onPress={() => handleStartNegotiate(r)} style={[styles.secondaryMiniBtn, { borderColor: 'rgba(205,43,238,0.25)' }]}>
+                    <Pressable onPress={() => handleStartNegotiate(r)} style={[styles.secondaryMiniBtn, { borderColor: primaryColorAlpha(0.25) }]}>
                       <Text style={styles.secondaryMiniBtnText}>Negotiate</Text>
                     </Pressable>
                   ) : null}
@@ -424,13 +424,13 @@ const CollaborationHub: React.FC = () => {
                           r.status === 'accepted'
                             ? 'rgba(34,197,94,0.08)'
                             : r.status === 'negotiating'
-                              ? 'rgba(205,43,238,0.08)'
+                              ? primaryColorAlpha(0.08)
                               : 'rgba(239,68,68,0.08)',
                         borderColor:
                           r.status === 'accepted'
                             ? 'rgba(34,197,94,0.2)'
                             : r.status === 'negotiating'
-                              ? 'rgba(205,43,238,0.2)'
+                              ? primaryColorAlpha(0.2)
                               : 'rgba(239,68,68,0.2)',
                       },
                     ]}
@@ -489,7 +489,7 @@ const CollaborationHub: React.FC = () => {
 
                 <View style={[styles.innerPanel, { backgroundColor: subtleBg }]}>
                   <View style={styles.rowBetween}>
-                    <Text style={[styles.typeTag, { color: r.type.includes('Premium') ? BRAND : '#60a5fa', borderColor: r.type.includes('Premium') ? 'rgba(205,43,238,0.3)' : 'rgba(96,165,250,0.3)' }]}>{r.type}</Text>
+                    <Text style={[styles.typeTag, { color: r.type.includes('Premium') ? BRAND : '#60a5fa', borderColor: r.type.includes('Premium') ? primaryColorAlpha(0.3) : 'rgba(96,165,250,0.3)' }]}>{r.type}</Text>
                     <Text style={[styles.splitText, { color: theme.text }]}>{r.split} Split</Text>
                   </View>
                   <Text style={[styles.cardTitle, { color: theme.text }]}>{r.title}</Text>
@@ -548,7 +548,7 @@ const CollaborationHub: React.FC = () => {
 
         {activeTab === 'active' ? (
           <View style={styles.activeEmpty}>
-            <View style={[styles.activeBadge, { backgroundColor: isDark ? 'rgba(205,43,238,0.12)' : 'rgba(205,43,238,0.08)', borderColor: 'rgba(205,43,238,0.18)' }]}>
+            <View style={[styles.activeBadge, { backgroundColor: isDark ? primaryColorAlpha(0.12) : primaryColorAlpha(0.08), borderColor: primaryColorAlpha(0.18) }]}>
               <MaterialIcons name="handshake" size={34} color={BRAND} />
             </View>
             <Text style={[styles.sectionKicker, { color: muted }]}>Active Partnerships</Text>
@@ -663,7 +663,7 @@ const CollaborationHub: React.FC = () => {
                       </Pressable>
                     </View>
 
-                    <View style={[styles.innerPanel, { backgroundColor: isDark ? 'rgba(205,43,238,0.08)' : 'rgba(205,43,238,0.06)' }]}>
+                    <View style={[styles.innerPanel, { backgroundColor: isDark ? primaryColorAlpha(0.08) : primaryColorAlpha(0.06) }]}>
                       <Text style={styles.modalAccent}>AI synergy breakdown</Text>
                       <Text style={[styles.cardBody, { color: theme.text }]}>
                         {selectedPartner.synergy || `A collaboration here leverages your synth background with ${selectedPartner.name}'s genre expertise. Predicted subscriber conversion: +12%.`}

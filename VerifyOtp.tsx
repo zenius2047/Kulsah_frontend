@@ -13,12 +13,12 @@ import { LinearGradient } from 'expo-linear-gradient';
 import { MaterialIcons } from '@expo/vector-icons';
 import { useNavigation, useRoute } from '@react-navigation/native';
 import { BlurView } from 'expo-blur';
-import { useThemeMode } from './theme';
+import { useThemeMode, PRIMARY_COLOR, primaryColorAlpha } from "./theme";
 import { FontSize } from './fonts';
 import { mediumScreen } from './types';
 
 const OTP_LENGTH = 4;
-const BRAND_GRADIENT = ['#cd2bee', '#cd2bee'] as const;
+const BRAND_GRADIENT = [PRIMARY_COLOR, PRIMARY_COLOR] as const;
 const AVATAR_URI =
   'https://lh3.googleusercontent.com/aida-public/AB6AXuBcVzQUWysJKvjL2bxQdmy1AEhRJvlEcdW-0otb0yN7oc7giBhZzzR9mHJQzo62tIKcz6fGwU3aV75TIpGWJpJ6hvFlXPhWFi0QqZbnUsQx3tmpQlYOYA-KdNmrmhSnysxIDJrwkavXNNm8YvK0fM2Q1b6iZnSdO4L13Z3EXWA-AE7erRrMCjWmJRsOBmmM95oh1q3aUgO5Xit31f_4wpBuITxMJqX7e6k1DLq05lfUkjVR4rdfpyg5mqPvJyDEbfdMKTPeKTlp91gD';
 
@@ -122,8 +122,8 @@ const VerifyOtp: React.FC = () => {
   const ghostText = isDark ? '#475569' : '#a1a1aa';
   const surface = isDark ? '#0a050d' : '#f6f4fb';
   const headerBg = isDark ? 'rgba(10,5,13,0.82)' : 'rgba(246,244,251,0.92)';
-  const glowTopColor = isDark ? 'rgba(205,43,238,0.22)' : 'rgba(205,43,238,0.12)';
-  const glowBottomColor = isDark ? 'rgba(205,43,238,0.16)' : 'rgba(205,43,238,0.08)';
+  const glowTopColor = isDark ? primaryColorAlpha(0.22) : primaryColorAlpha(0.12);
+  const glowBottomColor = isDark ? primaryColorAlpha(0.16) : primaryColorAlpha(0.08);
   const keypadBorder = isDark ? borderTone : 'rgba(15,23,42,0.06)';
 
   return (
@@ -181,7 +181,7 @@ const VerifyOtp: React.FC = () => {
                   styles.otpBox,
                   {
                     backgroundColor: glassTone,
-                    borderColor: isActive ? 'rgba(205,43,238,0.45)' : borderTone,
+                    borderColor: isActive ? primaryColorAlpha(0.45) : borderTone,
                     shadowOpacity: isActive ? 0.35 : 0,
                   },
                 ]}
@@ -333,7 +333,7 @@ const styles = StyleSheet.create({
     paddingHorizontal: 8,
   },
   highlightText: {
-    color: '#cd2bee',
+    color: PRIMARY_COLOR,
     fontFamily: 'PlusJakartaSansBold',
   },
   otpRow: {
@@ -350,7 +350,7 @@ const styles = StyleSheet.create({
     borderWidth: 1,
     alignItems: 'center',
     justifyContent: 'center',
-    shadowColor: '#cd2bee',
+    shadowColor: PRIMARY_COLOR,
     shadowRadius: 18,
     shadowOffset: { width: 0, height: 0 },
     overflow: 'hidden',
@@ -367,7 +367,7 @@ const styles = StyleSheet.create({
     width: 2,
     height: 28,
     borderRadius: 999,
-    backgroundColor: '#cd2bee',
+    backgroundColor: PRIMARY_COLOR,
   },
   resendButton: {
     flexDirection: 'row',
@@ -382,7 +382,7 @@ const styles = StyleSheet.create({
     fontSize: mediumScreen ? FontSize.thirteen : FontSize.eleven,
   },
   resendAction: {
-    color: '#cd2bee',
+    color: PRIMARY_COLOR,
     fontFamily: 'PlusJakartaSansExtraBold',
     fontSize: mediumScreen ? FontSize.thirteen : FontSize.eleven,
   },
@@ -391,7 +391,7 @@ const styles = StyleSheet.create({
     maxWidth: 320,
     borderRadius: 18,
     overflow: 'hidden',
-    shadowColor: '#cd2bee',
+    shadowColor: PRIMARY_COLOR,
     shadowOpacity: 0.4,
     shadowRadius: 18,
     shadowOffset: { width: 0, height: 8 },

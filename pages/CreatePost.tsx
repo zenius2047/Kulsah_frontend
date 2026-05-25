@@ -1,5 +1,5 @@
 import React from 'react';
-import { useThemeMode } from '../theme';
+import { useThemeMode, PRIMARY_COLOR, primaryColorAlpha } from "../theme";
 import {
   Pressable,
   ScrollView,
@@ -68,7 +68,7 @@ const CreatePost: React.FC = () => {
 
           <View style={styles.uploadCard}>
             <View style={styles.uploadIconWrap}>
-              <MaterialIcons name="cloud-upload" size={38} color="#cd2bee" />
+              <MaterialIcons name="cloud-upload" size={38} color={PRIMARY_COLOR} />
             </View>
 
             <Text style={styles.uploadTitle}>Upload Media</Text>
@@ -84,16 +84,16 @@ const CreatePost: React.FC = () => {
           <View style={styles.bottomActions}>
             <View style={styles.toolRow}>
               <Pressable style={styles.toolButton}>
-                <MaterialIcons name="image" size={24} color="#cd2bee" />
+                <MaterialIcons name="image" size={24} color={PRIMARY_COLOR} />
               </Pressable>
               <Pressable style={styles.toolButton}>
-                <MaterialIcons name="videocam" size={24} color="#cd2bee" />
+                <MaterialIcons name="videocam" size={24} color={PRIMARY_COLOR} />
               </Pressable>
               <Pressable style={styles.toolButton}>
-                <MaterialIcons name="format-list-bulleted" size={24} color="#cd2bee" />
+                <MaterialIcons name="format-list-bulleted" size={24} color={PRIMARY_COLOR} />
               </Pressable>
               <Pressable style={[styles.toolButton, styles.toolButtonRight]}>
-                <MaterialIcons name="sentiment-satisfied" size={24} color="#cd2bee" />
+                <MaterialIcons name="sentiment-satisfied" size={24} color={PRIMARY_COLOR} />
               </Pressable>
             </View>
 
@@ -123,7 +123,7 @@ const styles = StyleSheet.create({
     paddingHorizontal: 16,
     paddingVertical: 14,
     borderBottomWidth: 1,
-    borderBottomColor: 'rgba(205,43,238,0.12)',
+    borderBottomColor: primaryColorAlpha(0.12),
     backgroundColor: 'rgba(15,8,20,0.82)',
   },
   headerIcon: {
@@ -145,10 +145,10 @@ const styles = StyleSheet.create({
     paddingHorizontal: 16,
     paddingVertical: 8,
     borderRadius: 999,
-    backgroundColor: 'rgba(205,43,238,0.08)',
+    backgroundColor: primaryColorAlpha(0.08),
   },
   postChipText: {
-    color: '#cd2bee',
+    color: PRIMARY_COLOR,
     fontFamily: 'PlusJakartaSansBold',
     fontSize: FontSize.sixteen,
   },
@@ -171,7 +171,7 @@ const styles = StyleSheet.create({
     height: 48,
     borderRadius: 24,
     borderWidth: 2,
-    borderColor: 'rgba(205,43,238,0.2)',
+    borderColor: primaryColorAlpha(0.2),
   },
   name: {
     color: '#F8FAFC',
@@ -179,7 +179,7 @@ const styles = StyleSheet.create({
     fontSize: FontSize.fifteen,
   },
   subtitle: {
-    color: 'rgba(205,43,238,0.75)',
+    color: primaryColorAlpha(0.75),
     fontFamily: 'PlusJakartaSansMedium',
     fontSize: FontSize.eleven,
     marginTop: 4,
@@ -193,15 +193,15 @@ const styles = StyleSheet.create({
     fontFamily: 'PlusJakartaSans',
     fontSize: FontSize.eighteen,
     lineHeight: 28,
-    backgroundColor: 'rgba(205,43,238,0.1)',
+    backgroundColor: primaryColorAlpha(0.1),
   },
   uploadCard: {
     alignItems: 'center',
     borderRadius: 22,
     borderWidth: 2,
     borderStyle: 'dashed',
-    borderColor: 'rgba(205,43,238,0.3)',
-    backgroundColor: 'rgba(205,43,238,0.06)',
+    borderColor: primaryColorAlpha(0.3),
+    backgroundColor: primaryColorAlpha(0.06),
     paddingHorizontal: 24,
     paddingVertical: 36,
     marginBottom: 28,
@@ -212,7 +212,7 @@ const styles = StyleSheet.create({
     borderRadius: 32,
     alignItems: 'center',
     justifyContent: 'center',
-    backgroundColor: 'rgba(205,43,238,0.12)',
+    backgroundColor: primaryColorAlpha(0.12),
     marginBottom: 16,
   },
   uploadTitle: {
@@ -235,8 +235,8 @@ const styles = StyleSheet.create({
     paddingHorizontal: 20,
     paddingVertical: 12,
     borderRadius: 999,
-    backgroundColor: '#cd2bee',
-    shadowColor: '#cd2bee',
+    backgroundColor: PRIMARY_COLOR,
+    shadowColor: PRIMARY_COLOR,
     shadowOffset: { width: 0, height: 8 },
     shadowOpacity: 0.2,
     shadowRadius: 18,
@@ -271,8 +271,8 @@ const styles = StyleSheet.create({
     borderRadius: 16,
     alignItems: 'center',
     justifyContent: 'center',
-    backgroundColor: '#cd2bee',
-    shadowColor: '#cd2bee',
+    backgroundColor: PRIMARY_COLOR,
+    shadowColor: PRIMARY_COLOR,
     shadowOffset: { width: 0, height: 10 },
     shadowOpacity: 0.28,
     shadowRadius: 20,
