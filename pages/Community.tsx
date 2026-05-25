@@ -369,7 +369,7 @@ const Community: React.FC<{ embedded?: boolean }> = ({ embedded = false }) => {
                   </View>
                   <View>
                     <View style={styles.handleMetaRow}>
-                      <Text style={[styles.handleText, { color: theme.text }]}>@{post.handle}</Text>
+                      <Text style={[styles.handleText, { color: theme.text }]}>@ {post.handle}</Text>
                       {!post.isVerified ? (
                           <MaterialIcons name="verified" size={16} color='#33aae4'/>
                         ) : null}
@@ -980,4 +980,3 @@ const styles = StyleSheet.create({
 });
 
 export default Community;
-

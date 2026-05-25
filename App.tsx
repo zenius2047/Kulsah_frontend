@@ -6,7 +6,6 @@ import { createNativeStackNavigator } from '@react-navigation/native-stack';
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { MaterialIcons,} from '@expo/vector-icons';
-import * as Font from 'expo-font';
 import { useFonts } from 'expo-font';
 import ExploreIcon from './assets/icons/explore-svg.svg';
 // import LocalLibraryIcon from './assets/icons/local_library-svg.svg';
@@ -387,7 +386,7 @@ const App: React.FC = () => {
   }
 
 
-  const [fontsLoaded, fontError] = useFonts({
+  const [fontsLoaded] = useFonts({
       ...MaterialIcons.font,
       PlusJakartaSans:require('./assets/fonts/PlusJakartaSans-Regular.ttf'),
       PlusJakartaSansBold:require('./assets/fonts/PlusJakartaSans-Bold.ttf'),
@@ -396,22 +395,6 @@ const App: React.FC = () => {
       GudlaRegular:require('./assets/fonts/GCGudlakDemo-Regular.ttf'),
       GudlaExtraBold:require('./assets/fonts/GCGudlakDemo-ExtraBold.ttf'),
     });
-
-  useEffect(() => {
-    if (!fontsLoaded && !fontError) {
-      return;
-    }
-
-    console.log('Font debug', {
-      fontsLoaded,
-      fontError: fontError?.message,
-      plusJakartaSans: Font.isLoaded('PlusJakartaSans'),
-      plusJakartaSansMedium: Font.isLoaded('PlusJakartaSansMedium'),
-      plusJakartaSansBold: Font.isLoaded('PlusJakartaSansBold'),
-      plusJakartaSansExtraBold: Font.isLoaded('PlusJakartaSansExtraBold'),
-      loadedFonts: Font.getLoadedFonts().filter((name) => name.includes('PlusJakartaSans')),
-    });
-  }, [fontsLoaded, fontError]);
 
   useEffect(() => {
     setHeight(vh);
@@ -471,7 +454,7 @@ const App: React.FC = () => {
     await AsyncStorage.setItem('pulsar_user', JSON.stringify(mockUser));
   };
 
-  if(!fontsLoaded && !fontError){
+  if(!fontsLoaded){
     return null;
   }
 

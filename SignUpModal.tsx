@@ -122,7 +122,7 @@ const AuthButton: React.FC<AuthButtonProps> = ({ provider, label, isDark }) => (
     //   role,
     // };
     console.log('Executing');
-    setUser({ id: '5', name: "Mila Ray", role: "creator" });
+    setUser({ id: '5', name: "Mila Ray", role: "fan" });
     // setCurrentUser(user);
     await AsyncStorage.setItem('pulsar_user', JSON.stringify(user));
     navigation.navigate('MainTabs');

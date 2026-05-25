@@ -1117,7 +1117,7 @@ useEffect(() => {
               style={{
                 color: 'white',
                 fontFamily: 'PlusJakartaSansBold',
-                fontSize: mediumScreen ? FontSize.eighteen: FontSize.fourteen,
+                fontSize: mediumScreen ? FontSize.sixteen: FontSize.twelve,
                 }}>@{item.handle}</Text>
               </View>
               <View style={{
@@ -1130,7 +1130,7 @@ useEffect(() => {
           </Pressable>
           {item.isPremium && (
             <View style={{ borderRadius: 6,  borderWidth: 1, paddingHorizontal: 6, justifyContent: 'center', alignItems: 'center', paddingVertical: 3, borderColor: 'white' }}>
-              <Text style={{ color: '#fff', fontWeight: 'bold', fontSize: mediumScreen ? FontSize.twelve: FontSize.eight }}>Premium</Text>
+              <Text style={{ color: '#fff', fontWeight: 'bold', fontSize: mediumScreen ? FontSize.ten: FontSize.eight }}>Premium</Text>
             </View>
           )}
           <Pressable
@@ -1150,7 +1150,7 @@ useEffect(() => {
               paddingVertical: 3,
             }}
           >
-            <Text style={{ color: '#fff', fontWeight: 'bold', fontSize: mediumScreen ? FontSize.twelve: FontSize.eight }}>
+            <Text style={{ color: '#fff', fontWeight: 'bold', fontSize: mediumScreen ? FontSize.ten: FontSize.eight }}>
               {item.isSubscribed ? 'Subscribed' : 'Subscribe'}
             </Text>
           </Pressable>
@@ -1388,7 +1388,7 @@ const Feed: React.FC = () => {
       avatar: 'https://picsum.photos/seed/elena/150/150',
       caption: "PRIVATE DROP: Working on 'Nebula' vocal layers. This is the raw studio session for my supporters only. #BTS #KulsahExclusive",
       background: 'https://images.unsplash.com/photo-1598488035139-bdbb2231ce04?auto=format&fit=crop&q=80&w=800',
-      video: 'https://res.cloudinary.com/dir15sl86/video/upload/v1776164002/kuls_video_001080p_ujhorb.mp4',
+      video: 'https://dozi-chat-s3.s3.us-east-1.amazonaws.com/kul/WhatsApp+Video+2026-03-18+at+1.05.26+PM.mp4',
       likes: '2.4M',
       comments: '88.1K',
       isLiked: false,
@@ -1454,7 +1454,7 @@ const Feed: React.FC = () => {
       avatar: 'https://picsum.photos/seed/elena/150/150',
       caption: "PRIVATE DROP: Working on 'Nebula' vocal layers. This is the raw studio session for my supporters only. #BTS #KulsahExclusive",
       background: 'https://images.unsplash.com/photo-1598488035139-bdbb2231ce04?auto=format&fit=crop&q=80&w=800',
-      video: 'https://res.cloudinary.com/dir15sl86/video/upload/v1776268951/IMG_2312_kieklh.mp4',
+      video: 'https://dozi-chat-s3.s3.us-east-1.amazonaws.com/kul/Kulsah+videos/0410.mp4',
       likes: '2.4M',
       comments: '88.1K',
       isLiked: false,
@@ -1476,7 +1476,7 @@ const Feed: React.FC = () => {
       avatar: 'https://picsum.photos/seed/elena/150/150',
       caption: "PRIVATE DROP: Working on 'Nebula' vocal layers. This is the raw studio session for my supporters only. #BTS #KulsahExclusive",
       background: 'https://images.unsplash.com/photo-1598488035139-bdbb2231ce04?auto=format&fit=crop&q=80&w=800',
-      video: 'https://res.cloudinary.com/dir15sl86/video/upload/v1776268947/IMG_2310_vsdwlh.mp4',
+      video: 'https://dozi-chat-s3.s3.us-east-1.amazonaws.com/kul/Kulsah+videos/0410+(1).mp4',
       likes: '2.4M',
       comments: '88.1K',
       isLiked: false,
@@ -1498,7 +1498,7 @@ const Feed: React.FC = () => {
       avatar: 'https://picsum.photos/seed/elena/150/150',
       caption: "PRIVATE DROP: Working on 'Nebula' vocal layers. This is the raw studio session for my supporters only. #BTS #KulsahExclusive",
       background: 'https://images.unsplash.com/photo-1598488035139-bdbb2231ce04?auto=format&fit=crop&q=80&w=800',
-      video: 'https://res.cloudinary.com/dir15sl86/video/upload/v1776165168/landscape3500_ish5po.mp4',
+      video: 'https://dozi-chat-s3.s3.us-east-1.amazonaws.com/kul/Kulsah+videos/kul+kid+n4.mp4',
       likes: '2.4M',
       comments: '88.1K',
       isLiked: false,
@@ -1520,7 +1520,7 @@ const Feed: React.FC = () => {
       avatar: 'https://picsum.photos/seed/elena/150/150',
       caption: "PRIVATE DROP: Working on 'Nebula' vocal layers. This is the raw studio session for my supporters only. #BTS #KulsahExclusive",
       background: 'https://images.unsplash.com/photo-1598488035139-bdbb2231ce04?auto=format&fit=crop&q=80&w=800',
-      video: 'https://res.cloudinary.com/dir15sl86/video/upload/v1776165168/landscape3500_ish5po.mp4',
+      video: 'https://dozi-chat-s3.s3.us-east-1.amazonaws.com/kul/Kulsah+videos/friends+300.mp4',
       likes: '2.4M',
       comments: '88.1K',
       isLiked: false,
@@ -1743,7 +1743,7 @@ const Feed: React.FC = () => {
       avatar: 'https://picsum.photos/seed/amara/150/150',
       caption: 'EXCLUSIVE: Late night neon dance rehearsal. The tour visuals are finally ready for my subscribers.',
       background: 'https://images.unsplash.com/photo-1516450360452-9312f5e86fc7?auto=format&fit=crop&q=80&w=800',
-      video: 'https://res.cloudinary.com/dir15sl86/video/upload/v1776098026/kul_kid_n4_exwwrc.mp4',
+      video: 'https://dozi-chat-s3.s3.us-east-1.amazonaws.com/kul/Kulsah+videos/kul+poll200.mp4',
       likes: '890K',
       comments: '12.4K',
       isLiked: false,
@@ -1781,7 +1781,7 @@ const Feed: React.FC = () => {
       avatar: 'https://picsum.photos/seed/amara/150/150',
       caption: 'EXCLUSIVE: Late night neon dance rehearsal. The tour visuals are finally ready for my subscribers.',
       background: 'https://images.unsplash.com/photo-1516450360452-9312f5e86fc7?auto=format&fit=crop&q=80&w=800',
-      video: 'https://res.cloudinary.com/dir15sl86/video/upload/v1776098327/kul_poll200_wmjchl.mp4',
+      video: 'https://us-east-1.console.aws.amazon.com/s3/object/dozi-chat-s3?region=us-east-1&prefix=kul/WhatsApp+Video+2026-03-18+at+11.10.25+AM.mp4',
       likes: '890K',
       comments: '12.4K',
       isLiked: false,
@@ -1800,7 +1800,7 @@ const Feed: React.FC = () => {
       avatar: 'https://picsum.photos/seed/amara/150/150',
       caption: 'EXCLUSIVE: Late night neon dance rehearsal. The tour visuals are finally ready for my subscribers.',
       background: 'https://images.unsplash.com/photo-1516450360452-9312f5e86fc7?auto=format&fit=crop&q=80&w=800',
-      video: 'https://res.cloudinary.com/dir15sl86/video/upload/v1776099706/IMG_2303_k3wrts.mp4',
+      video: 'https://us-east-1.console.aws.amazon.com/s3/object/dozi-chat-s3?region=us-east-1&prefix=kul/WhatsApp+Video+2026-03-18+at+11.58.23+AM.mp4',
       likes: '890K',
       comments: '12.4K',
       isLiked: false,
@@ -1819,7 +1819,7 @@ const Feed: React.FC = () => {
       avatar: 'https://picsum.photos/seed/amara/150/150',
       caption: 'EXCLUSIVE: Late night neon dance rehearsal. The tour visuals are finally ready for my subscribers.',
       background: 'https://images.unsplash.com/photo-1516450360452-9312f5e86fc7?auto=format&fit=crop&q=80&w=800',
-      video: 'https://res.cloudinary.com/dmznckja5/video/upload/v1775754097/IMG_2151_hpsvxl.mp4',
+      video: 'https://us-east-1.console.aws.amazon.com/s3/object/dozi-chat-s3?region=us-east-1&prefix=kul/WhatsApp+Video+2026-03-18+at+12.55.09+PM.mp4',
       likes: '890K',
       comments: '12.4K',
       isLiked: false,
@@ -1838,7 +1838,7 @@ const Feed: React.FC = () => {
       avatar: 'https://picsum.photos/seed/amara/150/150',
       caption: 'EXCLUSIVE: Late night neon dance rehearsal. The tour visuals are finally ready for my subscribers.',
       background: 'https://images.unsplash.com/photo-1516450360452-9312f5e86fc7?auto=format&fit=crop&q=80&w=800',
-      video: 'https://res.cloudinary.com/dir15sl86/video/upload/v1776099344/IMG_2301_jeohbv.mp4',
+      video: 'https://us-east-1.console.aws.amazon.com/s3/object/dozi-chat-s3?region=us-east-1&prefix=kul/WhatsApp+Video+2026-03-18+at+12.55.44+PM.mp4',
       likes: '890K',
       comments: '12.4K',
       isLiked: false,
@@ -1873,7 +1873,7 @@ const Feed: React.FC = () => {
       avatar: 'https://picsum.photos/seed/elena/150/150',
       caption: "PRIVATE DROP: Working on 'Nebula' vocal layers. This is the raw studio session for my supporters only. #BTS #KulsahExclusive",
       background: 'https://images.unsplash.com/photo-1598488035139-bdbb2231ce04?auto=format&fit=crop&q=80&w=800',
-      video: 'https://res.cloudinary.com/dmznckja5/video/upload/v1775754035/IMG_2150_wgvjbv.mp4',
+      video: 'https://us-east-1.console.aws.amazon.com/s3/object/dozi-chat-s3?region=us-east-1&prefix=kul/WhatsApp+Video+2026-03-18+at+12.56.01+PM.mp4',
       likes: '2.4M',
       comments: '88.1K',
       isLiked: false,
@@ -1895,7 +1895,7 @@ const Feed: React.FC = () => {
       avatar: 'https://picsum.photos/seed/elena/150/150',
       caption: "PRIVATE DROP: Working on 'Nebula' vocal layers. This is the raw studio session for my supporters only. #BTS #KulsahExclusive",
       background: 'https://images.unsplash.com/photo-1598488035139-bdbb2231ce04?auto=format&fit=crop&q=80&w=800',
-      video: 'https://res.cloudinary.com/dmznckja5/video/upload/v1775812695/IMG_2173_kpbp48.mov',
+      video: 'http://us-east-1.console.aws.amazon.com/s3/object/dozi-chat-s3?region=us-east-1&prefix=kul/WhatsApp+Video+2026-03-18+at+12.56.16+PM.mp4',
       likes: '2.4M',
       comments: '88.1K',
       isLiked: false,
@@ -2340,7 +2340,7 @@ const Feed: React.FC = () => {
               </Pressable>
                   <Pressable onPress={() => setActiveTab("foryou")} style={{ justifyContent: 'center', alignItems: 'center',  }}>
                     <View style={{justifyContent: 'center', alignItems: 'center'}}>
-                      <Text style={[{ color: "#94a3b8", fontSize: smallWidth ? FontSize.tenHalf : mediumScreen ? FontSize.thirteenHalf:FontSize.eightHalf, fontFamily: "PlusJakartaSansBold", letterSpacing: -0.2, marginBottom: 5 }, activeTab === "foryou" && {color: 'white', letterSpacing: 1, fontFamily: 'PlusJakartaSansExtraBold'}]}>
+                      <Text style={[{ color: "#94a3b8", fontSize: smallWidth ? FontSize.eightHalf : mediumScreen ? FontSize.twelve:FontSize.eight, fontFamily: "PlusJakartaSansBold", letterSpacing: -0.2, marginBottom: 5 }, activeTab === "foryou" && {color: 'white', letterSpacing: 1, fontFamily: 'PlusJakartaSansExtraBold'}]}>
                         FOR YOU
                       </Text>
                       {activeTab === "foryou" && <View style={{
@@ -2353,7 +2353,7 @@ const Feed: React.FC = () => {
                   </Pressable>
                   <Pressable onPress={() => setActiveTab("following")} style={{ justifyContent: 'center', alignItems: 'center',}}>
                     <View style={{alignItems: 'center', justifyContent: 'center'}}>
-                      <Text style={[{ color: "#94a3b8", fontSize: smallWidth ? FontSize.tenHalf : mediumScreen ? FontSize.thirteenHalf:FontSize.eightHalf, fontFamily: "PlusJakartaSansBold", marginBottom: 5 }, activeTab === "following" && {color: 'white', letterSpacing: 1, fontFamily: 'PlusJakartaSansExtraBold'}]}>
+                      <Text style={[{ color: "#94a3b8", fontSize: smallWidth ? FontSize.eightHalf : mediumScreen ? FontSize.twelve:FontSize.eight, fontFamily: "PlusJakartaSansBold", marginBottom: 5 }, activeTab === "following" && {color: 'white', letterSpacing: 1, fontFamily: 'PlusJakartaSansExtraBold'}]}>
                         FOLLOWING
                       </Text>
                       {activeTab === "following" && <View style={{
@@ -2379,7 +2379,7 @@ const Feed: React.FC = () => {
                   </Pressable> */}
                   <Pressable onPress={() => setActiveTab("premium")} style={{ justifyContent: 'center', alignItems: 'center',}}>
                     <View style={{ justifyContent: 'center', alignItems: 'center',}}>
-                      <Text style={[{ color: "#94a3b8", fontSize: smallWidth ? FontSize.tenHalf : mediumScreen ? FontSize.thirteenHalf:FontSize.eightHalf, fontFamily: "PlusJakartaSansBold", marginBottom: 5 }, activeTab === "premium" && {color: 'white', letterSpacing: 1, fontFamily: 'PlusJakartaSansExtraBold', marginBottom: 5}]}>
+                      <Text style={[{ color: "#94a3b8", fontSize: smallWidth ? FontSize.eightHalf : mediumScreen ? FontSize.twelve:FontSize.eight, fontFamily: "PlusJakartaSansBold", marginBottom: 5 }, activeTab === "premium" && {color: 'white', letterSpacing: 1, fontFamily: 'PlusJakartaSansExtraBold', marginBottom: 5}]}>
                         PREMIUM
                       </Text>
                       {activeTab === "premium" && <View style={{

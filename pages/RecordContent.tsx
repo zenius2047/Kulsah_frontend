@@ -126,9 +126,12 @@ const RecordContent: React.FC = ({route}:any) => {
                 <ActivityIndicator size="large" color="#ffffff" />
                 <Text style={styles.permissionText}>Loading camera...</Text>
               </>
-            ) : (
+            ) :
+             (
               <>
-                <MaterialIcons name="photo-camera" size={40} color="#ffffff" />
+                <MaterialIcons name="photo-camera" size={40} color="#ffffff" style={{
+                  marginTop: Platform.OS === "ios" ? 54 : insets.top,
+                }} />
                 <Text style={styles.permissionTitle}>Camera access needed</Text>
                 <Text style={styles.permissionText}>
                   Turn on camera permission to use live recording background.
@@ -137,7 +140,8 @@ const RecordContent: React.FC = ({route}:any) => {
                   <Text style={styles.permissionButtonText}>Enable Camera</Text>
                 </Pressable>
               </>
-            )}
+            )
+            }
       </View> :  <View style={[styles.screen, { backgroundColor: theme.screen }]}>
         {/* <LinearGradient
           colors={['rgba(0,0,0,0.35)', 'rgba(0,0,0,0.08)', 'rgba(0,0,0,0.55)']}
@@ -315,14 +319,14 @@ const styles = StyleSheet.create({
   permissionTitle: {
     color: '#fff',
     fontFamily: 'PlusJakartaSansBold',
-    fontSize: FontSize.twenty,
+    fontSize: mediumScreen ? FontSize.eighteen :FontSize.fourteen,
     marginTop: 18,
     marginBottom: 8,
   },
   permissionText: {
     color: 'rgba(255,255,255,0.75)',
     fontFamily: 'PlusJakartaSansMedium',
-    fontSize: FontSize.fourteen,
+    fontSize: mediumScreen ? FontSize.fourteen : FontSize.ten,
     lineHeight: 20,
     textAlign: 'center',
     marginTop: 10,
@@ -333,11 +337,13 @@ const styles = StyleSheet.create({
     paddingVertical: 12,
     borderRadius: 999,
     backgroundColor: '#cd2bee',
+    alignItems: 'center',
+    justifyContent: 'center'
   },
   permissionButtonText: {
     color: '#fff',
     fontFamily: 'PlusJakartaSansBold',
-    fontSize: FontSize.fourteen,
+    fontSize: mediumScreen ? FontSize.fourteen: FontSize.ten,
   },
   topArea: {
     paddingHorizontal: 16,

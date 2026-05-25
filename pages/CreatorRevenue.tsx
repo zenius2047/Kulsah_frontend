@@ -176,7 +176,7 @@ const CreatorRevenue: React.FC = () => {
       </View>
 
       <ScrollView contentContainerStyle={[s.content, { paddingBottom: 32 + insets.bottom }]} showsVerticalScrollIndicator={false}>
-        <View style={s.heroGlow} />
+        {/* <View style={s.heroGlow} /> */}
         <View style={[s.balanceCard, { backgroundColor: cardBg, borderColor: border }]}>
           <View style={s.balanceTop}>
             <View style={{ flex: 1 }}>

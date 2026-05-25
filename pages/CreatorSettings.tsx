@@ -245,7 +245,7 @@ const CreatorSettings: React.FC<CreatorSettingsProps> = ({ onLogout, isDarkMode,
         </Pressable>
         <Text style={[s.headerTitle, { color: theme.text }]}>{title}</Text>
       </View>
-      {/* {activeSubView === 'main' ? (
+      {activeSubView === 'main' ? (
         <Pressable onPress={() => navigation.navigate('/dashboard')} style={[s.donePill, { borderColor: theme.border, backgroundColor: isDark ? '#cd2bee1f' : theme.accentSoft }]}>
           <Text style={s.donePillText}>Done</Text>
         </Pressable>
@@ -253,7 +253,7 @@ const CreatorSettings: React.FC<CreatorSettingsProps> = ({ onLogout, isDarkMode,
         <Pressable onPress={() => setActiveSubView('main')}>
           <Text style={s.saveText}>Save</Text>
         </Pressable>
-      )} */}
+      )}
     </View>
   );
 
