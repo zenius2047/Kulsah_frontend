@@ -14,7 +14,7 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 import { LinearGradient } from 'expo-linear-gradient';
 import { MaterialIcons } from '@expo/vector-icons';
 import { useNavigation } from '@react-navigation/native';
-import { FontSize } from '../fonts';
+import { FontFamily, FontSize } from '../fonts';
 import { mediumScreen } from '../types';
 
 const HERO_IMAGE =
@@ -243,13 +243,13 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
   },
   headerTitle: {
-    fontFamily: 'PlusJakartaSansBold',
+    fontFamily: FontFamily.bold,
     fontSize: FontSize.eleven,
     textTransform: 'uppercase',
   },
   headerBrand: {
     color: PRIMARY_COLOR,
-    fontFamily: 'PlusJakartaSansExtraBold',
+    fontFamily: FontFamily.extraBold,
     fontSize: FontSize.fourteen,
     letterSpacing: -0.4,
   },
@@ -291,14 +291,14 @@ const styles = StyleSheet.create({
   },
   heroTag: {
     color: PRIMARY_COLOR,
-    fontFamily: 'PlusJakartaSansBold',
+    fontFamily: FontFamily.bold,
     fontSize: FontSize.eleven,
     textTransform: 'uppercase',
     letterSpacing: 1.1,
   },
   heroTitle: {
     color: '#ffffff',
-    fontFamily: 'PlusJakartaSansExtraBold',
+    fontFamily: FontFamily.extraBold,
     fontSize: FontSize.sixteen,
     lineHeight: 20,
     textTransform: 'uppercase',
@@ -331,13 +331,13 @@ const styles = StyleSheet.create({
     elevation: 4,
   },
   criteriaLabel: {
-    fontFamily: 'PlusJakartaSansBold',
+    fontFamily: FontFamily.bold,
     fontSize: FontSize.ten,
     letterSpacing: 1.1,
     textTransform: 'uppercase',
   },
   criteriaTitle: {
-    fontFamily: 'PlusJakartaSansBold',
+    fontFamily: FontFamily.bold,
     fontSize: FontSize.eleven,
     marginTop: 4,
   },
@@ -348,7 +348,7 @@ const styles = StyleSheet.create({
     borderWidth: 1,
   },
   criteriaPillText: {
-    fontFamily: 'PlusJakartaSansBold',
+    fontFamily: FontFamily.bold,
     fontSize: FontSize.six,
   },
   formSection: {
@@ -367,11 +367,11 @@ const styles = StyleSheet.create({
     paddingRight: 16,
   },
   cardTitle: {
-    fontFamily: 'PlusJakartaSansBold',
+    fontFamily: FontFamily.bold,
     fontSize: FontSize.thirteen,
   },
   cardMeta: {
-    fontFamily: 'PlusJakartaSansMedium',
+    fontFamily: FontFamily.medium,
     fontSize: FontSize.twelve,
     marginTop: 4,
   },
@@ -385,7 +385,7 @@ const styles = StyleSheet.create({
     gap: 8,
   },
   fieldLabel: {
-    fontFamily: 'PlusJakartaSansBold',
+    fontFamily: FontFamily.bold,
     fontSize: FontSize.ten,
     letterSpacing: 1.2,
     textTransform: 'uppercase',
@@ -395,7 +395,7 @@ const styles = StyleSheet.create({
     paddingHorizontal: 16,
     paddingVertical: 14,
     borderWidth: 1,
-    fontFamily: 'PlusJakartaSansMedium',
+    fontFamily: FontFamily.medium,
     fontSize: FontSize.twelve,
   },
   textarea: {
@@ -404,7 +404,7 @@ const styles = StyleSheet.create({
     paddingHorizontal: 16,
     paddingVertical: 14,
     borderWidth: 1,
-    fontFamily: 'PlusJakartaSansMedium',
+    fontFamily: FontFamily.medium,
     fontSize: FontSize.twelve,
     lineHeight: 22,
   },
@@ -412,7 +412,7 @@ const styles = StyleSheet.create({
     gap: 14,
   },
   previewHeading: {
-    fontFamily: 'PlusJakartaSansBold',
+    fontFamily: FontFamily.bold,
     fontSize: FontSize.thirteen,
     paddingHorizontal: 4,
   },
@@ -480,7 +480,7 @@ const styles = StyleSheet.create({
   },
   rankPillText: {
     color: '#0a050d',
-    fontFamily: 'PlusJakartaSansExtraBold',
+    fontFamily: FontFamily.extraBold,
     fontSize: FontSize.ten,
     letterSpacing: 0.8,
   },
@@ -490,17 +490,17 @@ const styles = StyleSheet.create({
     marginBottom: 18,
   },
   previewTitle: {
-    fontFamily: 'PlusJakartaSansExtraBold',
+    fontFamily: FontFamily.extraBold,
     fontSize: FontSize.fifteen,
     letterSpacing: 0.2,
   },
   previewSubtitle: {
-    fontFamily: 'PlusJakartaSansMedium',
+    fontFamily: FontFamily.medium,
     fontSize: FontSize.nine,
   },
   previewLink: {
     color: PRIMARY_COLOR,
-    fontFamily: 'PlusJakartaSansBold',
+    fontFamily: FontFamily.bold,
     fontSize: FontSize.ten,
     textTransform: 'uppercase',
     letterSpacing: 1.2,
@@ -519,7 +519,7 @@ const styles = StyleSheet.create({
   },
   saveButtonText: {
     color: '#ffffff',
-    fontFamily: 'PlusJakartaSansBold',
+    fontFamily: FontFamily.bold,
     fontSize: mediumScreen ? FontSize.fourteen: FontSize.ten,
     textTransform: 'uppercase',
     letterSpacing: 0.2,

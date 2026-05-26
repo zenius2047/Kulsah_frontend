@@ -12,7 +12,7 @@ import {
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { LinearGradient } from 'expo-linear-gradient';
 import { MaterialIcons } from '@expo/vector-icons';
-import { FontSize } from '../fonts';
+import { FontFamily, FontSize } from '../fonts';
 
 type HistoryStatus = 'Winner' | 'Top 10%' | 'Participated';
 
@@ -220,13 +220,13 @@ const styles = StyleSheet.create({
   },
   pageTitle: {
     color: '#F8FAFC',
-    fontFamily: 'PlusJakartaSansExtraBold',
+    fontFamily: FontFamily.extraBold,
     fontSize: FontSize.eighteen,
     marginBottom: 8,
   },
   pageSubtitle: {
     color: '#94A3B8',
-    fontFamily: 'PlusJakartaSans',
+    fontFamily: FontFamily.regular,
     fontSize: FontSize.twelve,
   },
   timelineWrap: {
@@ -299,7 +299,7 @@ const styles = StyleSheet.create({
   },
   dateText: {
     color: '#64748B',
-    fontFamily: 'PlusJakartaSansBold',
+    fontFamily: FontFamily.bold,
     fontSize: FontSize.eight,
     textTransform: 'uppercase',
     letterSpacing: 1.1,
@@ -322,7 +322,7 @@ const styles = StyleSheet.create({
     backgroundColor: 'rgba(255,255,255,0.05)',
   },
   statusPillText: {
-    fontFamily: 'PlusJakartaSansExtraBold',
+    fontFamily: FontFamily.extraBold,
     fontSize: FontSize.eight,
     textTransform: 'uppercase',
   },
@@ -337,13 +337,13 @@ const styles = StyleSheet.create({
   },
   cardTitle: {
     color: '#F8FAFC',
-    fontFamily: 'PlusJakartaSansBold',
+    fontFamily: FontFamily.bold,
     fontSize: FontSize.sixteen,
     marginBottom: 8,
   },
   cardDescription: {
     color: '#94A3B8',
-    fontFamily: 'PlusJakartaSans',
+    fontFamily: FontFamily.regular,
     fontSize: FontSize.twelve,
     marginBottom: 18,
   },
@@ -357,7 +357,7 @@ const styles = StyleSheet.create({
   },
   statLabel: {
     color: '#64748B',
-    fontFamily: 'PlusJakartaSansBold',
+    fontFamily: FontFamily.bold,
     fontSize: FontSize.eight,
     textTransform: 'uppercase',
     letterSpacing: 1,
@@ -365,7 +365,7 @@ const styles = StyleSheet.create({
   },
   statValue: {
     color: '#F8FAFC',
-    fontFamily: 'PlusJakartaSansExtraBold',
+    fontFamily: FontFamily.extraBold,
     fontSize: FontSize.fourteen,
   },
   rewardWinner: {
@@ -395,7 +395,7 @@ const styles = StyleSheet.create({
   },
   viewEntryText: {
     color: PRIMARY_COLOR,
-    fontFamily: 'PlusJakartaSansBold',
+    fontFamily: FontFamily.bold,
     fontSize: FontSize.twelve,
     textTransform: 'uppercase',
     letterSpacing: 0.8,

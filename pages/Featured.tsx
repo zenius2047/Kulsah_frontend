@@ -13,7 +13,7 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 import { LinearGradient } from 'expo-linear-gradient';
 import { MaterialIcons } from '@expo/vector-icons';
 import { mediumScreen } from '../types';
-import { FontSize } from '../fonts';
+import { FontFamily, FontSize } from '../fonts';
 
 type CreatorCard = {
   id: string;
@@ -349,7 +349,7 @@ const styles = StyleSheet.create({
   },
   brandName: {
     color: '#fff',
-    fontFamily: 'PlusJakartaSansExtraBold',
+    fontFamily: FontFamily.extraBold,
     fontSize: FontSize.eighteen,
     textTransform: 'uppercase',
     letterSpacing: -0.6,
@@ -378,7 +378,7 @@ const styles = StyleSheet.create({
   },
   sidebarTitle: {
     color: PRIMARY_COLOR,
-    fontFamily: 'PlusJakartaSansExtraBold',
+    fontFamily: FontFamily.extraBold,
     fontSize: FontSize.twenty,
     marginBottom: 24,
     paddingHorizontal: 12,
@@ -399,12 +399,12 @@ const styles = StyleSheet.create({
   },
   sidebarText: {
     color: '#94A3B8',
-    fontFamily: 'PlusJakartaSansMedium',
+    fontFamily: FontFamily.medium,
     fontSize: FontSize.fifteen,
   },
   sidebarTextActive: {
     color: '#fff',
-    fontFamily: 'PlusJakartaSansBold',
+    fontFamily: FontFamily.bold,
   },
   mainScroll: {
     flex: 1,
@@ -430,7 +430,7 @@ const styles = StyleSheet.create({
   },
   mobileTabText: {
     color: '#94A3B8',
-    fontFamily: 'PlusJakartaSansBold',
+    fontFamily: FontFamily.bold,
     fontSize: FontSize.twelve,
     textTransform: 'uppercase',
     letterSpacing: 0.7,
@@ -489,7 +489,7 @@ const styles = StyleSheet.create({
   },
   hotBadgeText: {
     color: PRIMARY_COLOR,
-    fontFamily: 'PlusJakartaSansExtraBold',
+    fontFamily: FontFamily.extraBold,
     fontSize: mediumScreen ? FontSize.fourteen:FontSize.ten,
     letterSpacing: 1.2,
   },
@@ -500,19 +500,19 @@ const styles = StyleSheet.create({
   },
   verifiedText: {
     color: 'rgba(248,250,252,0.82)',
-    fontFamily: 'PlusJakartaSansBold',
+    fontFamily: FontFamily.bold,
     fontSize: mediumScreen ? FontSize.sixteen:FontSize.twelve,
   },
   heroTitle: {
     color: '#fff',
-    fontFamily: 'PlusJakartaSansExtraBold',
+    fontFamily: FontFamily.extraBold,
     fontSize: mediumScreen ? FontSize.sixteen: FontSize.thirteen,
     // lineHeight: 34,
     marginBottom: 12,
   },
   heroDescription: {
     color: '#CBD5E1',
-    fontFamily: 'PlusJakartaSansMedium',
+    fontFamily: FontFamily.medium,
     fontSize: mediumScreen? FontSize.fourteen: FontSize.twelve,
     // lineHeight: 22,
     // maxWidth: '95%',
@@ -527,7 +527,7 @@ const styles = StyleSheet.create({
   },
   prizeLabel: {
     color: '#94A3B8',
-    fontFamily: 'PlusJakartaSansExtraBold',
+    fontFamily: FontFamily.extraBold,
     fontSize: mediumScreen ? FontSize.fourteen:FontSize.ten,
     textTransform: 'uppercase',
     letterSpacing: 1.2,
@@ -535,14 +535,14 @@ const styles = StyleSheet.create({
   },
   prizeValue: {
     color: '#fff',
-    fontFamily: 'PlusJakartaSansExtraBold',
+    fontFamily: FontFamily.extraBold,
     fontSize: mediumScreen ? FontSize.twentySix:FontSize.twentyTwo,
     marginBottom: 6,
     letterSpacing: -1
   },
   prizeTime: {
     color: PRIMARY_COLOR,
-    fontFamily: 'PlusJakartaSansBold',
+    fontFamily: FontFamily.bold,
     fontSize: FontSize.twelve,
     textTransform: 'uppercase',
     marginBottom: 16,
@@ -561,7 +561,7 @@ const styles = StyleSheet.create({
   },
   joinButtonText: {
     color: '#fff',
-    fontFamily: 'PlusJakartaSansBold',
+    fontFamily: FontFamily.bold,
     fontSize: FontSize.thirteen,
     letterSpacing: 0.6,
   },
@@ -573,12 +573,12 @@ const styles = StyleSheet.create({
   },
   sectionTitle: {
     color: '#fff',
-    fontFamily: 'PlusJakartaSansExtraBold',
+    fontFamily: FontFamily.extraBold,
     fontSize: mediumScreen ? FontSize.twentyOne: FontSize.eighteen,
   },
   sectionLink: {
     color: PRIMARY_COLOR,
-    fontFamily: 'PlusJakartaSansExtraBold',
+    fontFamily: FontFamily.extraBold,
     fontSize: mediumScreen ?FontSize.fourteen: FontSize.ten,
     textTransform: 'uppercase',
     letterSpacing: 1.4,
@@ -616,7 +616,7 @@ const styles = StyleSheet.create({
   },
   exclusiveLabel: {
     color: PRIMARY_COLOR,
-    fontFamily: 'PlusJakartaSansExtraBold',
+    fontFamily: FontFamily.extraBold,
     fontSize: mediumScreen ? FontSize.fifteen:FontSize.eleven,
     textTransform: 'uppercase',
     letterSpacing: 1.6,
@@ -624,13 +624,13 @@ const styles = StyleSheet.create({
   },
   largeCardTitle: {
     color: '#fff',
-    fontFamily: 'PlusJakartaSansExtraBold',
+    fontFamily: FontFamily.extraBold,
     fontSize: mediumScreen? FontSize.twentyOne:FontSize.eighteen,
     marginBottom: 8,
   },
   largeCardDescription: {
     color: '#CBD5E1',
-    fontFamily: 'PlusJakartaSansMedium',
+    fontFamily: FontFamily.medium,
     fontSize: mediumScreen ? FontSize.sixteen:FontSize.twelve,
     lineHeight: 18,
     maxWidth: 360,
@@ -661,12 +661,12 @@ const styles = StyleSheet.create({
   },
   stackAvatarCountText: {
     color: '#fff',
-    fontFamily: 'PlusJakartaSansExtraBold',
+    fontFamily: FontFamily.extraBold,
     fontSize: FontSize.six,
   },
   activeCreatorsText: {
     color: '#94A3B8',
-    fontFamily: 'PlusJakartaSansExtraBold',
+    fontFamily: FontFamily.extraBold,
     fontSize: mediumScreen ? FontSize.fourteen:FontSize.ten,
     textTransform: 'uppercase',
     letterSpacing: 1.4,
@@ -697,14 +697,14 @@ const styles = StyleSheet.create({
   },
   progressCardTitle: {
     color: '#fff',
-    fontFamily: 'PlusJakartaSansBold',
+    fontFamily: FontFamily.bold,
     fontSize: mediumScreen ? FontSize.twentyOne: FontSize.eighteen,
     lineHeight: 28,
     marginBottom: 10,
   },
   progressCardDescription: {
     color: '#94A3B8',
-    fontFamily: 'PlusJakartaSans',
+    fontFamily: FontFamily.regular,
     fontSize: FontSize.fourteen,
     lineHeight: 21,
     marginBottom: 24,
@@ -730,14 +730,14 @@ const styles = StyleSheet.create({
   },
   progressLabel: {
     color: '#64748B',
-    fontFamily: 'PlusJakartaSansExtraBold',
+    fontFamily: FontFamily.extraBold,
     fontSize: FontSize.ten,
     textTransform: 'uppercase',
     letterSpacing: 1.2,
   },
   progressValue: {
     color: '#fff',
-    fontFamily: 'PlusJakartaSansExtraBold',
+    fontFamily: FontFamily.extraBold,
     fontSize: FontSize.twelve,
   },
   creatorRail: {
@@ -767,7 +767,7 @@ const styles = StyleSheet.create({
   },
   creatorTitle: {
     color: '#fff',
-    fontFamily: 'PlusJakartaSansExtraBold',
+    fontFamily: FontFamily.extraBold,
     fontSize: FontSize.ten,
     textTransform: 'uppercase',
     letterSpacing: 0.6,
@@ -775,7 +775,7 @@ const styles = StyleSheet.create({
   },
   creatorHandle: {
     color: '#CBD5E1',
-    fontFamily: 'PlusJakartaSansBold',
+    fontFamily: FontFamily.bold,
     fontSize: FontSize.twelve,
   },
   submitCard: {
@@ -791,7 +791,7 @@ const styles = StyleSheet.create({
   submitCardText: {
     marginTop: 10,
     color: '#64748B',
-    fontFamily: 'PlusJakartaSansExtraBold',
+    fontFamily: FontFamily.extraBold,
     fontSize: FontSize.eleven,
     textTransform: 'uppercase',
     letterSpacing: 1.2,

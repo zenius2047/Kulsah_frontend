@@ -2,7 +2,7 @@ import { MaterialIcons } from '@expo/vector-icons';
 import React, { useEffect, useMemo, useState } from 'react';
 import { Modal, Pressable, StyleSheet, Text, View } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
-import { FontSize } from '../fonts';
+import { FontFamily, FontSize } from '../fonts';
 import { useThemeMode, PRIMARY_COLOR, primaryColorAlpha } from "../theme";
 import { mediumScreen } from '../types';
 import KulsahInputBar from './KulsahInputBar';
@@ -273,20 +273,20 @@ const styles = StyleSheet.create({
   },
   warningText: {
     color: PRIMARY_COLOR,
-    fontFamily: 'PlusJakartaSansExtraBold',
+    fontFamily: FontFamily.extraBold,
     fontSize: FontSize.seven,
     textTransform: 'uppercase',
     letterSpacing: 1.2,
   },
   drawerTitle: {
     color: '#ffffff',
-    fontFamily: 'PlusJakartaSansExtraBold',
+    fontFamily: FontFamily.extraBold,
     fontSize: mediumScreen ? FontSize.eighteen: FontSize.fourteen,
     textTransform: 'uppercase',
   },
   drawerBalance: {
     color: 'rgba(255,255,255,0.45)',
-    fontFamily: 'PlusJakartaSansExtraBold',
+    fontFamily: FontFamily.extraBold,
     fontSize: FontSize.eight,
     textTransform: 'uppercase',
     letterSpacing: 2,
@@ -333,13 +333,13 @@ const styles = StyleSheet.create({
   },
   customTitle: {
     color: '#ffffff',
-    fontFamily: 'PlusJakartaSansExtraBold',
+    fontFamily: FontFamily.extraBold,
     fontSize: FontSize.twelve,
     textTransform: 'uppercase',
   },
   customSubtitle: {
     color: 'rgba(255,255,255,0.48)',
-    fontFamily: 'PlusJakartaSansBold',
+    fontFamily: FontFamily.bold,
     fontSize: FontSize.eight,
   },
   customInputWrap: {
@@ -355,20 +355,20 @@ const styles = StyleSheet.create({
   },
   customCurrency: {
     color: PRIMARY_COLOR,
-    fontFamily: 'PlusJakartaSansExtraBold',
+    fontFamily: FontFamily.extraBold,
     fontSize: FontSize.ten,
     textTransform: 'uppercase',
   },
   customInput: {
     flex: 1,
     color: '#ffffff',
-    fontFamily: 'PlusJakartaSansExtraBold',
+    fontFamily: FontFamily.extraBold,
     fontSize: FontSize.twelve,
     paddingVertical: 0,
   },
   customEstimate: {
     color: 'rgba(255,255,255,0.56)',
-    fontFamily: 'PlusJakartaSansBold',
+    fontFamily: FontFamily.bold,
     fontSize: FontSize.eight,
   },
   bestValueChip: {
@@ -382,7 +382,7 @@ const styles = StyleSheet.create({
   },
   bestValueText: {
     color: '#ffffff',
-    fontFamily: 'PlusJakartaSansExtraBold',
+    fontFamily: FontFamily.extraBold,
     fontSize: FontSize.six,
     textTransform: 'uppercase',
     letterSpacing: 1,
@@ -397,12 +397,12 @@ const styles = StyleSheet.create({
   },
   packageCoins: {
     color: '#ffffff',
-    fontFamily: 'PlusJakartaSansExtraBold',
+    fontFamily: FontFamily.extraBold,
     fontSize: mediumScreen ? FontSize.eighteen: FontSize.fourteen,
   },
   packageLabel: {
     color: 'rgba(255,255,255,0.42)',
-    fontFamily: 'PlusJakartaSansExtraBold',
+    fontFamily: FontFamily.extraBold,
     fontSize: FontSize.eight,
     textTransform: 'uppercase',
     letterSpacing: 1.4,
@@ -425,7 +425,7 @@ const styles = StyleSheet.create({
   },
   purchaseButtonText: {
     color: '#ffffff',
-    fontFamily: 'PlusJakartaSansExtraBold',
+    fontFamily: FontFamily.extraBold,
     fontSize: FontSize.eleven,
   },
   cancelTransactionButton: {
@@ -435,7 +435,7 @@ const styles = StyleSheet.create({
   },
   cancelTransactionText: {
     color: 'rgba(255,255,255,0.26)',
-    fontFamily: 'PlusJakartaSansExtraBold',
+    fontFamily: FontFamily.extraBold,
     fontSize: FontSize.eight,
     textTransform: 'uppercase',
     letterSpacing: 2,
@@ -452,7 +452,7 @@ const styles = StyleSheet.create({
   paymentTitle: {
     color: '#ffffff',
     textAlign: 'center',
-    fontFamily: 'PlusJakartaSansExtraBold',
+    fontFamily: FontFamily.extraBold,
     fontSize: FontSize.eighteen,
     textTransform: 'uppercase',
     marginBottom: 18,
@@ -473,17 +473,17 @@ const styles = StyleSheet.create({
   },
   paymentLabel: {
     color: 'rgba(255,255,255,0.5)',
-    fontFamily: 'PlusJakartaSansBold',
+    fontFamily: FontFamily.bold,
     fontSize: FontSize.ten,
   },
   paymentValue: {
     color: '#ffffff',
-    fontFamily: 'PlusJakartaSansExtraBold',
+    fontFamily: FontFamily.extraBold,
     fontSize: FontSize.ten,
   },
   paymentAccent: {
     color: PRIMARY_COLOR,
-    fontFamily: 'PlusJakartaSansExtraBold',
+    fontFamily: FontFamily.extraBold,
     fontSize: FontSize.ten,
   },
   cancelPaymentButton: {
@@ -496,7 +496,7 @@ const styles = StyleSheet.create({
   },
   cancelPaymentText: {
     color: 'rgba(255,255,255,0.5)',
-    fontFamily: 'PlusJakartaSansExtraBold',
+    fontFamily: FontFamily.extraBold,
     fontSize: FontSize.nine,
     textTransform: 'uppercase',
     letterSpacing: 1.4,

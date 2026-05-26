@@ -15,7 +15,7 @@ import { useNavigation, useRoute } from '@react-navigation/native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { MaterialIcons } from '@expo/vector-icons';
 import { GoogleGenAI } from '@google/genai';
-import { FontSize } from '../fonts';
+import { FontFamily, FontSize } from '../fonts';
 import { mediumScreen } from '../types';
 import KulsahInputBar from '../components/KulsahInputBar';
 
@@ -452,8 +452,8 @@ const styles = StyleSheet.create({
   },
   callTop: { alignItems: 'center', gap: 10 },
   callAvatar: { width: 132, height: 132, borderRadius: 36, borderWidth: 3, borderColor: primaryColorAlpha(0.35) },
-  callName: { fontSize: FontSize.twentySeven, fontFamily: 'PlusJakartaSansExtraBold' },
-  callStatus: { color: PRIMARY_COLOR, fontSize: FontSize.eleven, letterSpacing: 2, fontFamily: 'PlusJakartaSansExtraBold' },
+  callName: { fontSize: FontSize.twentySeven, fontFamily: FontFamily.extraBold },
+  callStatus: { color: PRIMARY_COLOR, fontSize: FontSize.eleven, letterSpacing: 2, fontFamily: FontFamily.extraBold },
   callActions: { flexDirection: 'row', alignItems: 'center', gap: 24 },
   callBtn: {
     width: 58,
@@ -485,8 +485,8 @@ const styles = StyleSheet.create({
   profileWrap: { position: 'relative' },
   profileAvatar: { width: 42, height: 42, borderRadius: 21, borderWidth: 2, borderColor: primaryColorAlpha(0.5) },
   onlineDot: { position: 'absolute', right: -1, bottom: -1, width: 10, height: 10, borderRadius: 5, backgroundColor: '#22c55e' },
-  userName: { fontSize: FontSize.twelve, fontFamily: 'PlusJakartaSansExtraBold' },
-  userSub: { fontSize: FontSize.ten, fontFamily: 'PlusJakartaSansBold' },
+  userName: { fontSize: FontSize.twelve, fontFamily: FontFamily.extraBold },
+  userSub: { fontSize: FontSize.ten, fontFamily: FontFamily.bold },
   metaCard: {
     marginTop: 10,
     borderRadius: 16,
@@ -498,16 +498,16 @@ const styles = StyleSheet.create({
     justifyContent: 'space-between',
     gap: 8,
   },
-  metaLabel: { fontSize: FontSize.eight, fontFamily: 'PlusJakartaSansExtraBold', letterSpacing: 1 },
-  metaValue: { fontSize: FontSize.eleven, fontFamily: 'PlusJakartaSansExtraBold' },
+  metaLabel: { fontSize: FontSize.eight, fontFamily: FontFamily.extraBold, letterSpacing: 1 },
+  metaValue: { fontSize: FontSize.eleven, fontFamily: FontFamily.extraBold },
   metaDivider: { width: 1, height: 20 },
   messages: { flex: 1, paddingHorizontal: 14, paddingTop: 10 },
   msgRow: { marginBottom: 14 },
   msgBubble: { maxWidth: '86%', borderRadius: 20, paddingHorizontal: 14, paddingVertical: 11 },
   msgMine: { backgroundColor: PRIMARY_COLOR },
   msgOther: { backgroundColor: 'rgba(255,255,255,0.08)', borderWidth: 1, borderColor: 'rgba(255,255,255,0.06)' },
-  msgText: { fontSize: mediumScreen? FontSize.sixteen :FontSize.twelve, lineHeight: 19, fontFamily: 'PlusJakartaSansMedium' },
-  msgMeta: { marginTop: 5, fontSize: mediumScreen ? FontSize.twelve:FontSize.eight, fontFamily: 'PlusJakartaSansBold' },
+  msgText: { fontSize: mediumScreen? FontSize.sixteen :FontSize.twelve, lineHeight: 19, fontFamily: FontFamily.medium },
+  msgMeta: { marginTop: 5, fontSize: mediumScreen ? FontSize.twelve:FontSize.eight, fontFamily: FontFamily.bold },
   dropBubble: {
     maxWidth: '86%',
     borderRadius: 24,
@@ -518,8 +518,8 @@ const styles = StyleSheet.create({
     gap: 6,
   },
   dropThumb: { borderRadius: 14, backgroundColor: '#000', height: 120, justifyContent: 'center', alignItems: 'center' },
-  dropTitle: { color: PRIMARY_COLOR, fontSize: FontSize.nine, fontFamily: 'PlusJakartaSansExtraBold' },
-  dropName: { fontSize: FontSize.twelve, fontFamily: 'PlusJakartaSansBold' },
+  dropTitle: { color: PRIMARY_COLOR, fontSize: FontSize.nine, fontFamily: FontFamily.extraBold },
+  dropName: { fontSize: FontSize.twelve, fontFamily: FontFamily.bold },
   tipBubble: {
     maxWidth: '86%',
     borderRadius: 24,
@@ -531,8 +531,8 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
   },
-  tipLabel: { color: '#22c55e', fontSize: FontSize.ten, fontFamily: 'PlusJakartaSansExtraBold' },
-  tipAmount: { fontSize: FontSize.thirteen, fontFamily: 'PlusJakartaSansBold' },
+  tipLabel: { color: '#22c55e', fontSize: FontSize.ten, fontFamily: FontFamily.extraBold },
+  tipAmount: { fontSize: FontSize.thirteen, fontFamily: FontFamily.bold },
   stickerBubble: {
     borderRadius: 14,
     overflow: 'hidden',
@@ -554,8 +554,8 @@ const styles = StyleSheet.create({
     gap: 4,
   },
   toolItem: { flexDirection: 'row', alignItems: 'center', gap: 10, padding: 10, borderRadius: 14 },
-  toolTitle: { fontSize: FontSize.eleven, fontFamily: 'PlusJakartaSansExtraBold' },
-  toolSub: { fontSize: FontSize.nine, fontFamily: 'PlusJakartaSansBold' },
+  toolTitle: { fontSize: FontSize.eleven, fontFamily: FontFamily.extraBold },
+  toolSub: { fontSize: FontSize.nine, fontFamily: FontFamily.bold },
   footer: {
     paddingTop: 6,
     paddingHorizontal: 12,
@@ -564,7 +564,7 @@ const styles = StyleSheet.create({
   },
   repliesRow: { gap: 8, paddingVertical: 6 },
   replyChip: { borderRadius: 999, borderWidth: 1, paddingHorizontal: 12, paddingVertical: 8 },
-  replyText: { color: PRIMARY_COLOR, fontSize: FontSize.ten, fontFamily: 'PlusJakartaSansExtraBold' },
+  replyText: { color: PRIMARY_COLOR, fontSize: FontSize.ten, fontFamily: FontFamily.extraBold },
   emojiPanel: {
     borderRadius: 16,
     borderWidth: 1,
@@ -604,7 +604,7 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     gap: 8,
   },
-  input: { flex: 1, fontSize: mediumScreen? FontSize.twelve: FontSize.eight, fontFamily: 'PlusJakartaSansBold' },
+  input: { flex: 1, fontSize: mediumScreen? FontSize.twelve: FontSize.eight, fontFamily: FontFamily.bold },
   sendBtn: { width: 48, height: 48, borderRadius: 24, backgroundColor: PRIMARY_COLOR, justifyContent: 'center', alignItems: 'center' },
   sendBtnDisabled: { backgroundColor: 'rgba(255,255,255,0.12)' },
 });

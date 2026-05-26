@@ -10,7 +10,7 @@ import {
   View,
 } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
-import { FontSize } from '../fonts';
+import { FontFamily, FontSize } from '../fonts';
 import { useThemeMode, PRIMARY_COLOR, primaryColorAlpha } from "../theme";
 import { mediumScreen } from '../types';
 import KulcoinTopUpDrawer from './KulcoinTopUpDrawer';
@@ -341,7 +341,7 @@ const styles = StyleSheet.create({
     paddingHorizontal: 16,
   },
   fakeInputText: {
-    fontFamily: 'PlusJakartaSansMedium',
+    fontFamily: FontFamily.medium,
     fontSize: FontSize.ten,
   },
   toolbar: {
@@ -404,7 +404,7 @@ const styles = StyleSheet.create({
     backgroundColor: PRIMARY_COLOR,
   },
   categoryChipText: {
-    fontFamily: 'PlusJakartaSansExtraBold',
+    fontFamily: FontFamily.extraBold,
     fontSize: FontSize.seven,
     textTransform: 'uppercase',
     letterSpacing: 1.4,
@@ -448,7 +448,7 @@ const styles = StyleSheet.create({
     gap: 2,
   },
   giftName: {
-    fontFamily: 'PlusJakartaSansBold',
+    fontFamily: FontFamily.bold,
     fontSize: FontSize.seven,
     textAlign: 'center',
   },
@@ -458,7 +458,7 @@ const styles = StyleSheet.create({
     gap: 2,
   },
   giftPrice: {
-    fontFamily: 'PlusJakartaSansExtraBold',
+    fontFamily: FontFamily.extraBold,
     fontSize: FontSize.sixHalf,
     textTransform: 'uppercase',
   },
@@ -471,7 +471,7 @@ const styles = StyleSheet.create({
   },
   rechargeLabel: {
     color: '#f43f5e',
-    fontFamily: 'PlusJakartaSansBold',
+    fontFamily: FontFamily.bold,
     fontSize: mediumScreen ? FontSize.fourteen: FontSize.ten,
     textTransform: 'uppercase',
     letterSpacing: 1.3,
@@ -497,11 +497,11 @@ const styles = StyleSheet.create({
   },
   balanceCoinText: {
     color: '#78350f',
-    fontFamily: 'PlusJakartaSansExtraBold',
+    fontFamily: FontFamily.extraBold,
     fontSize: FontSize.seven,
   },
   balanceValue: {
-    fontFamily: 'PlusJakartaSansExtraBold',
+    fontFamily: FontFamily.extraBold,
     fontSize: mediumScreen ? FontSize.fourteen:FontSize.ten,
     lineHeight: 14
   },
@@ -520,7 +520,7 @@ const styles = StyleSheet.create({
     backgroundColor: 'rgba(148,163,184,0.18)',
   },
   sendButtonText: {
-    fontFamily: 'PlusJakartaSansExtraBold',
+    fontFamily: FontFamily.extraBold,
     fontSize: FontSize.nine,
     textTransform: 'uppercase',
     letterSpacing: 1.5,

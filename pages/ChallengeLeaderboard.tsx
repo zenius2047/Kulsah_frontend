@@ -11,7 +11,7 @@ import {
   View,
 } from 'react-native';
 import { SafeAreaView, useSafeAreaInsets } from 'react-native-safe-area-context';
-import { FontSize } from '../fonts';
+import { FontFamily, FontSize } from '../fonts';
 import { useThemeMode, PRIMARY_COLOR, primaryColorAlpha } from "../theme";
 
 type LeaderboardTab = 'rankings' | 'rules' | 'prizes';
@@ -404,7 +404,7 @@ const styles = StyleSheet.create({
     borderWidth: 1,
   },
   headerTitle: {
-    fontFamily: 'PlusJakartaSansExtraBold',
+    fontFamily: FontFamily.extraBold,
     fontSize: FontSize.fourteen,
     textTransform: 'uppercase',
   },
@@ -422,7 +422,7 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
   },
   tabText: {
-    fontFamily: 'PlusJakartaSansExtraBold',
+    fontFamily: FontFamily.extraBold,
     fontSize: FontSize.eight,
     textTransform: 'uppercase',
     letterSpacing: 1.4,
@@ -488,7 +488,7 @@ const styles = StyleSheet.create({
     borderRadius: 8,
   },
   placeBadgeText: {
-    fontFamily: 'PlusJakartaSansExtraBold',
+    fontFamily: FontFamily.extraBold,
     fontSize: FontSize.seven,
   },
   winnerBadge: {
@@ -496,7 +496,7 @@ const styles = StyleSheet.create({
   },
   winnerBadgeText: {
     color: '#ffffff',
-    fontFamily: 'PlusJakartaSansExtraBold',
+    fontFamily: FontFamily.extraBold,
     fontSize: FontSize.seven,
   },
   centerAlign: {
@@ -504,26 +504,26 @@ const styles = StyleSheet.create({
     gap: 3,
   },
   sidePodiumName: {
-    fontFamily: 'PlusJakartaSansExtraBold',
+    fontFamily: FontFamily.extraBold,
     fontSize: FontSize.ten,
     textAlign: 'center',
   },
   voteAccent: {
     color: PRIMARY_COLOR,
-    fontFamily: 'PlusJakartaSansBold',
+    fontFamily: FontFamily.bold,
     fontSize: FontSize.seven,
     textTransform: 'uppercase',
     letterSpacing: 1.2,
     textAlign: 'center',
   },
   winnerName: {
-    fontFamily: 'PlusJakartaSansExtraBold',
+    fontFamily: FontFamily.extraBold,
     fontSize: FontSize.thirteen,
     textAlign: 'center',
   },
   winnerVotes: {
     color: PRIMARY_COLOR,
-    fontFamily: 'PlusJakartaSansExtraBold',
+    fontFamily: FontFamily.extraBold,
     fontSize: FontSize.eight,
     textTransform: 'uppercase',
     letterSpacing: 1.5,
@@ -531,7 +531,7 @@ const styles = StyleSheet.create({
   },
   sectionTitle: {
     marginLeft: 6,
-    fontFamily: 'PlusJakartaSansExtraBold',
+    fontFamily: FontFamily.extraBold,
     fontSize: FontSize.fourteen,
     textTransform: 'uppercase',
   },
@@ -546,7 +546,7 @@ const styles = StyleSheet.create({
   rankNumber: {
     width: 24,
     textAlign: 'center',
-    fontFamily: 'PlusJakartaSansExtraBold',
+    fontFamily: FontFamily.extraBold,
     fontSize: FontSize.fourteen,
   },
   rankAvatar: {
@@ -560,11 +560,11 @@ const styles = StyleSheet.create({
     gap: 3,
   },
   rankName: {
-    fontFamily: 'PlusJakartaSansExtraBold',
+    fontFamily: FontFamily.extraBold,
     fontSize: FontSize.ten,
   },
   rankVotes: {
-    fontFamily: 'PlusJakartaSansBold',
+    fontFamily: FontFamily.bold,
     fontSize: FontSize.seven,
     textTransform: 'uppercase',
     letterSpacing: 1.2,
@@ -610,7 +610,7 @@ const styles = StyleSheet.create({
   },
   userRankNumber: {
     color: 'rgba(255,255,255,0.45)',
-    fontFamily: 'PlusJakartaSansExtraBold',
+    fontFamily: FontFamily.extraBold,
     fontSize: FontSize.twentyEight,
   },
   userAvatar: {
@@ -626,12 +626,12 @@ const styles = StyleSheet.create({
   },
   userName: {
     color: '#ffffff',
-    fontFamily: 'PlusJakartaSansExtraBold',
+    fontFamily: FontFamily.extraBold,
     fontSize: FontSize.twelve,
   },
   userStats: {
     color: 'rgba(255,255,255,0.64)',
-    fontFamily: 'PlusJakartaSansBold',
+    fontFamily: FontFamily.bold,
     fontSize: FontSize.eight,
     textTransform: 'uppercase',
     letterSpacing: 1.1,
@@ -646,7 +646,7 @@ const styles = StyleSheet.create({
   },
   boostButtonText: {
     color: PRIMARY_COLOR,
-    fontFamily: 'PlusJakartaSansExtraBold',
+    fontFamily: FontFamily.extraBold,
     fontSize: FontSize.eight,
     textTransform: 'uppercase',
     letterSpacing: 1.3,
@@ -663,7 +663,7 @@ const styles = StyleSheet.create({
     gap: 10,
   },
   rulesTitle: {
-    fontFamily: 'PlusJakartaSansExtraBold',
+    fontFamily: FontFamily.extraBold,
     fontSize: FontSize.sixteen,
     textTransform: 'uppercase',
   },
@@ -681,7 +681,7 @@ const styles = StyleSheet.create({
   },
   ruleIndexText: {
     color: PRIMARY_COLOR,
-    fontFamily: 'PlusJakartaSansExtraBold',
+    fontFamily: FontFamily.extraBold,
     fontSize: FontSize.nine,
   },
   ruleCopy: {
@@ -689,12 +689,12 @@ const styles = StyleSheet.create({
     gap: 4,
   },
   ruleTitle: {
-    fontFamily: 'PlusJakartaSansExtraBold',
+    fontFamily: FontFamily.extraBold,
     fontSize: FontSize.ten,
     textTransform: 'uppercase',
   },
   ruleDesc: {
-    fontFamily: 'PlusJakartaSansMedium',
+    fontFamily: FontFamily.medium,
     fontSize: FontSize.nine,
     lineHeight: 18,
   },
@@ -711,7 +711,7 @@ const styles = StyleSheet.create({
   noticeText: {
     flex: 1,
     color: '#34d399',
-    fontFamily: 'PlusJakartaSansBold',
+    fontFamily: FontFamily.bold,
     fontSize: FontSize.eightHalf,
     textTransform: 'uppercase',
     letterSpacing: 0.8,
@@ -738,17 +738,17 @@ const styles = StyleSheet.create({
   },
   prizeRank: {
     color: PRIMARY_COLOR,
-    fontFamily: 'PlusJakartaSansExtraBold',
+    fontFamily: FontFamily.extraBold,
     fontSize: FontSize.seven,
     textTransform: 'uppercase',
     letterSpacing: 1.8,
   },
   prizeTitle: {
-    fontFamily: 'PlusJakartaSansExtraBold',
+    fontFamily: FontFamily.extraBold,
     fontSize: FontSize.thirteen,
   },
   prizeDesc: {
-    fontFamily: 'PlusJakartaSansMedium',
+    fontFamily: FontFamily.medium,
     fontSize: FontSize.nine,
     lineHeight: 18,
   },
@@ -769,7 +769,7 @@ const styles = StyleSheet.create({
     gap: 4,
   },
   navText: {
-    fontFamily: 'PlusJakartaSansBold',
+    fontFamily: FontFamily.bold,
     fontSize: FontSize.seven,
   },
   profileThumb: {

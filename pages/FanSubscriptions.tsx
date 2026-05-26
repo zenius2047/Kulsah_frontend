@@ -12,7 +12,7 @@ import {
   View,
 } from 'react-native';
 import { SafeAreaView, useSafeAreaInsets } from 'react-native-safe-area-context';
-import { FontSize } from '../fonts';
+import { FontFamily, FontSize } from '../fonts';
 import { useThemeMode, PRIMARY_COLOR, primaryColorAlpha } from "../theme";
 import { mediumScreen } from '../types';
 
@@ -268,7 +268,7 @@ const s = StyleSheet.create({
     justifyContent: 'center',
   },
   headerTitle: {
-    fontFamily: 'PlusJakartaSansExtraBold',
+    fontFamily: FontFamily.extraBold,
     fontSize: mediumScreen ? FontSize.eighteen : FontSize.fourteen,
     textTransform: 'uppercase',
   },
@@ -282,7 +282,7 @@ const s = StyleSheet.create({
   },
   headerBadgeText: {
     color: PRIMARY_COLOR,
-    fontFamily: 'PlusJakartaSansExtraBold',
+    fontFamily: FontFamily.extraBold,
     fontSize: mediumScreen ? FontSize.ten : FontSize.eight,
     textTransform: 'uppercase',
     letterSpacing: 1.2,
@@ -332,7 +332,7 @@ const s = StyleSheet.create({
     gap: 6,
   },
   name: {
-    fontFamily: 'PlusJakartaSansExtraBold',
+    fontFamily: FontFamily.extraBold,
     fontSize: mediumScreen ? FontSize.twenty : FontSize.sixteen,
   },
   planChip: {
@@ -343,7 +343,7 @@ const s = StyleSheet.create({
     borderRadius: 999,
   },
   planChipText: {
-    fontFamily: 'PlusJakartaSansExtraBold',
+    fontFamily: FontFamily.extraBold,
     fontSize: mediumScreen ? FontSize.nine : FontSize.seven,
     textTransform: 'uppercase',
     letterSpacing: 1.2,
@@ -352,7 +352,7 @@ const s = StyleSheet.create({
     gap: 10,
   },
   microLabel: {
-    fontFamily: 'PlusJakartaSansExtraBold',
+    fontFamily: FontFamily.extraBold,
     fontSize: mediumScreen ? FontSize.nine : FontSize.eight,
     textTransform: 'uppercase',
     letterSpacing: 1.8,
@@ -369,7 +369,7 @@ const s = StyleSheet.create({
     borderWidth: 1,
   },
   perkText: {
-    fontFamily: 'PlusJakartaSansBold',
+    fontFamily: FontFamily.bold,
     fontSize: mediumScreen ? FontSize.ten : FontSize.eight,
   },
   billingGrid: {
@@ -381,13 +381,13 @@ const s = StyleSheet.create({
   },
   billingValue: {
     marginTop: 4,
-    fontFamily: 'PlusJakartaSansBold',
+    fontFamily: FontFamily.bold,
     fontSize: mediumScreen ? FontSize.twelve : FontSize.ten,
   },
   priceValue: {
     marginTop: 4,
     color: PRIMARY_COLOR,
-    fontFamily: 'PlusJakartaSansExtraBold',
+    fontFamily: FontFamily.extraBold,
     fontSize: mediumScreen ? FontSize.fourteen : FontSize.twelve,
   },
   actionsRow: {
@@ -404,7 +404,7 @@ const s = StyleSheet.create({
   },
   visitButtonText: {
     color: '#fff',
-    fontFamily: 'PlusJakartaSansExtraBold',
+    fontFamily: FontFamily.extraBold,
     fontSize: mediumScreen ? FontSize.ten : FontSize.eight,
     textTransform: 'uppercase',
     letterSpacing: 1.2,
@@ -418,7 +418,7 @@ const s = StyleSheet.create({
     justifyContent: 'center',
   },
   manageButtonText: {
-    fontFamily: 'PlusJakartaSansExtraBold',
+    fontFamily: FontFamily.extraBold,
     fontSize: mediumScreen ? FontSize.ten : FontSize.eight,
     textTransform: 'uppercase',
     letterSpacing: 1.2,
@@ -438,7 +438,7 @@ const s = StyleSheet.create({
   },
   discoverText: {
     color: PRIMARY_COLOR,
-    fontFamily: 'PlusJakartaSansExtraBold',
+    fontFamily: FontFamily.extraBold,
     fontSize: mediumScreen ? FontSize.ten : FontSize.eight,
     textTransform: 'uppercase',
     letterSpacing: 1.8,
@@ -482,14 +482,14 @@ const s = StyleSheet.create({
     height: '100%',
   },
   modalTitle: {
-    fontFamily: 'PlusJakartaSansExtraBold',
+    fontFamily: FontFamily.extraBold,
     fontSize: mediumScreen ? FontSize.twentyTwo : FontSize.eighteen,
     textTransform: 'uppercase',
   },
   modalMeta: {
     marginTop: 4,
     color: PRIMARY_COLOR,
-    fontFamily: 'PlusJakartaSansExtraBold',
+    fontFamily: FontFamily.extraBold,
     fontSize: mediumScreen ? FontSize.nine : FontSize.eight,
     textTransform: 'uppercase',
     letterSpacing: 1.8,
@@ -527,7 +527,7 @@ const s = StyleSheet.create({
     gap: 10,
   },
   actionText: {
-    fontFamily: 'PlusJakartaSansBold',
+    fontFamily: FontFamily.bold,
     fontSize: mediumScreen ? FontSize.twelve : FontSize.ten,
   },
   cancelSubscriptionButton: {
@@ -543,7 +543,7 @@ const s = StyleSheet.create({
   },
   cancelSubscriptionText: {
     color: '#ef4444',
-    fontFamily: 'PlusJakartaSansExtraBold',
+    fontFamily: FontFamily.extraBold,
     fontSize: mediumScreen ? FontSize.ten : FontSize.eight,
     textTransform: 'uppercase',
     letterSpacing: 1.2,

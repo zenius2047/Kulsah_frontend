@@ -3,7 +3,7 @@ import { useThemeMode, PRIMARY_COLOR } from "../theme";
 import { Image, ImageBackground, Pressable, StatusBar, Text, View } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
 import { MaterialIcons } from '@expo/vector-icons';
-import { FontSize } from '../fonts';
+import { FontFamily, FontSize } from '../fonts';
 
 interface OnboardingProps {
   onLogin: (role: 'fan' | 'creator') => void;
@@ -66,7 +66,7 @@ const Onboarding: React.FC<OnboardingProps> = ({ onLogin }) => {
             fontSize: FontSize.fiftyTwo,
             // fontWeight: '900',
             letterSpacing: -1,
-            fontFamily: 'PlusJakartaSansExtraBold'
+            fontFamily: FontFamily.extraBold
             }}>KULSAH</Text>
           <Text
             style={{
@@ -95,7 +95,7 @@ const Onboarding: React.FC<OnboardingProps> = ({ onLogin }) => {
             textAlign: 'center',
             lineHeight: 38,
             textTransform: 'uppercase',
-            fontFamily: 'PlusJakartaSansBold'
+            fontFamily: FontFamily.bold
              }}>
             Own the Stage.{'\n'}Inspire the Orbits.
           </Text>
@@ -106,7 +106,7 @@ const Onboarding: React.FC<OnboardingProps> = ({ onLogin }) => {
             fontSize: FontSize.fourteen,
             lineHeight: 18,
             // fontWeight: '800',
-            fontFamily: 'PlusJakartaSansBold'
+            fontFamily: FontFamily.bold
              }}>
             Join an elite network where creative energy converts into real-world{"\n"}impact.
           </Text>

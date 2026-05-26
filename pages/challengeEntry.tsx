@@ -13,7 +13,7 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 import { LinearGradient } from 'expo-linear-gradient';
 import { MaterialIcons } from '@expo/vector-icons';
 import { useNavigation } from '@react-navigation/native';
-import { FontSize } from '../fonts';
+import { FontFamily, FontSize } from '../fonts';
 
 const HERO_IMAGE =
   'https://lh3.googleusercontent.com/aida-public/AB6AXuAtfTYQLqMJlJJOkz8ywMdhjF-eWbj7INd0yFasAuyZNpzKYjK4P08-YCMEDOCnxcrYLx2kkKwABUJgD4Z0WvCVEv77uMa0we3fuOu1TzAe6eYEhr5AMtAvI4C7F36ui82Kqzmu0xdJdlCumb2rnIzHeNHEjGGjN_sR7ldmEktvp1g9ThgpBc2PK2P5oWZTJNVQf7ZCWvlfAnrGGiy7JY_cOPBEj9IQPFgmdM5Vyow6NxrduDhAJnICPLtROgH-A1nIjRjxk9ZFxBbr';
@@ -183,7 +183,7 @@ const styles = StyleSheet.create({
     flex: 1,
     textAlign: 'center',
     color: '#F8FAFC',
-    fontFamily: 'PlusJakartaSansBold',
+    fontFamily: FontFamily.bold,
     fontSize: FontSize.thirteen,
   },
   headerRight: {
@@ -238,19 +238,19 @@ const styles = StyleSheet.create({
   },
   liveBadgeText: {
     color: '#fff',
-    fontFamily: 'PlusJakartaSansBold',
+    fontFamily: FontFamily.bold,
     fontSize: FontSize.eight,
     textTransform: 'uppercase',
     letterSpacing: 0.6,
   },
   entryCount: {
     color: 'rgba(217, 21, 210, 0.82)',
-    fontFamily: 'PlusJakartaSansBold',
+    fontFamily: FontFamily.bold,
     fontSize: FontSize.ten,
   },
   heroTitle: {
     color: '#fff',
-    fontFamily: 'PlusJakartaSansBold',
+    fontFamily: FontFamily.bold,
     fontSize: FontSize.eighteen,
     lineHeight: 30,
   },
@@ -260,13 +260,13 @@ const styles = StyleSheet.create({
   },
   descriptionText: {
     color: '#94A3B8',
-    fontFamily: 'PlusJakartaSans',
+    fontFamily: FontFamily.regular,
     fontSize: FontSize.twelve,
     lineHeight: 22,
   },
   hashTag: {
     color: PRIMARY_COLOR,
-    fontFamily: 'PlusJakartaSansBold',
+    fontFamily: FontFamily.bold,
   },
   audioSection: {
     paddingHorizontal: 16,
@@ -280,12 +280,12 @@ const styles = StyleSheet.create({
   },
   sectionTitle: {
     color: '#F8FAFC',
-    fontFamily: 'PlusJakartaSansBold',
+    fontFamily: FontFamily.bold,
     fontSize: FontSize.thirteen,
   },
   seeAll: {
     color: PRIMARY_COLOR,
-    fontFamily: 'PlusJakartaSansBold',
+    fontFamily: FontFamily.bold,
     fontSize: FontSize.ten,
   },
   audioCard: {
@@ -320,13 +320,13 @@ const styles = StyleSheet.create({
   },
   audioTitle: {
     color: '#F8FAFC',
-    fontFamily: 'PlusJakartaSansBold',
+    fontFamily: FontFamily.bold,
     fontSize: FontSize.eleven,
     marginBottom: 4,
   },
   audioMeta: {
     color: '#94A3B8',
-    fontFamily: 'PlusJakartaSans',
+    fontFamily: FontFamily.regular,
     fontSize: FontSize.ten,
   },
   uploadSection: {
@@ -377,13 +377,13 @@ const styles = StyleSheet.create({
   },
   recordLabel: {
     color: '#fff',
-    fontFamily: 'PlusJakartaSansBold',
+    fontFamily: FontFamily.bold,
     fontSize: FontSize.twelve,
     textAlign: 'center',
   },
   libraryLabel: {
     color: '#F8FAFC',
-    fontFamily: 'PlusJakartaSansBold',
+    fontFamily: FontFamily.bold,
     fontSize: FontSize.twelve,
     textAlign: 'center',
   },

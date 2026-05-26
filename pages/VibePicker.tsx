@@ -13,7 +13,7 @@ import {
   View,
 } from 'react-native';
 import { SafeAreaView, useSafeAreaInsets } from 'react-native-safe-area-context';
-import { FontSize } from '../fonts';
+import { FontFamily, FontSize } from '../fonts';
 import { useThemeMode, PRIMARY_COLOR } from "../theme";
 import { mediumScreen } from '../types';
 
@@ -184,14 +184,14 @@ const styles = StyleSheet.create({
   },
   title: {
     fontSize: mediumScreen ? FontSize.twentyEight : FontSize.twentyFour,
-    fontFamily: 'PlusJakartaSansExtraBold',
+    fontFamily: FontFamily.extraBold,
     letterSpacing: -1.4,
     textAlign: 'center',
   },
   subtitle: {
     marginTop: 8,
     fontSize: mediumScreen ? FontSize.sixteen:FontSize.twelve,
-    fontFamily: 'PlusJakartaSansMedium',
+    fontFamily: FontFamily.medium,
     textAlign: 'center',
   },
   scrollContent: {
@@ -254,14 +254,14 @@ const styles = StyleSheet.create({
   cardTitle: {
     color: '#fff',
     fontSize: mediumScreen ? FontSize.eighteen : FontSize.fourteen,
-    fontFamily: 'PlusJakartaSansExtraBold',
+    fontFamily: FontFamily.extraBold,
     lineHeight: mediumScreen ? FontSize.nineteen : FontSize.fifteen,
   },
   cardDesc: {
     // marginTop: 4,
     color: 'rgba(255,255,255,0.6)',
     fontSize: mediumScreen ? FontSize.twelve: FontSize.eight,
-    fontFamily: 'PlusJakartaSansBold',
+    fontFamily: FontFamily.bold,
     textTransform: 'uppercase',
     // letterSpacing: 0.5,
   },
@@ -302,7 +302,7 @@ const styles = StyleSheet.create({
   continueText: {
     color: '#fff',
     fontSize: mediumScreen ? FontSize.eighteen: FontSize.fourteen,
-    fontFamily: 'PlusJakartaSansExtraBold',
+    fontFamily: FontFamily.extraBold,
     lineHeight: 15
   },
   continueTextDisabled: {

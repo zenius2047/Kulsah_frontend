@@ -9,7 +9,7 @@ import StarsIcon from '../assets/icons/stars-svg.svg';
 import TicketIcon from '../assets/icons/ticket-svg.svg';
 import VerifyIcon from '../assets/icons/verified-svg.svg';
 import AsyncStorage from '@react-native-async-storage/async-storage';
-import { FontSize } from '../fonts';
+import { FontFamily, FontSize } from '../fonts';
 import KulsahInputBar from '../components/KulsahInputBar';
 
 interface SignupProps {
@@ -54,8 +54,8 @@ export const SignupVibesStep: React.FC<SignupVibesStepProps> = ({
   onContinue,
 }) => (
   <View style={{ gap: 14 }}>
-    <Text style={{ color: 'white', fontSize: FontSize.heading, fontFamily: "PlusJakartaSansExtraBold" }}>Inspirations</Text>
-    <Text style={{ color: '#cbd5e1', fontSize: FontSize.eleven, fontFamily: "PlusJakartaSansBold" }}>Select your preferred creative orbits.</Text>
+    <Text style={{ color: 'white', fontSize: FontSize.heading, fontFamily: FontFamily.extraBold }}>Inspirations</Text>
+    <Text style={{ color: '#cbd5e1', fontSize: FontSize.eleven, fontFamily: FontFamily.bold }}>Select your preferred creative orbits.</Text>
     <View style={{ flexDirection: 'row', flexWrap: 'wrap', gap: 10 }}>
       {INSPIRATIONS.map((tag) => {
         const isSelected = selectedVibes.has(tag.id);
@@ -82,7 +82,7 @@ export const SignupVibesStep: React.FC<SignupVibesStepProps> = ({
               top: 0,
               justifyContent: 'flex-end'
               }}>
-              <Text style={{ color: 'white', fontSize: FontSize.eleven, fontFamily: "PlusJakartaSansBold" }}>{tag.label}</Text>
+              <Text style={{ color: 'white', fontSize: FontSize.eleven, fontFamily: FontFamily.bold }}>{tag.label}</Text>
             </View>
           </Pressable>
         );
@@ -99,7 +99,7 @@ export const SignupVibesStep: React.FC<SignupVibesStepProps> = ({
         justifyContent: 'center',
       }}
     >
-      <Text style={{ color: 'white', fontFamily: "PlusJakartaSansBold" }}>Secure Orbits</Text>
+      <Text style={{ color: 'white', fontFamily: FontFamily.bold }}>Secure Orbits</Text>
     </Pressable>
   </View>
 );
@@ -198,19 +198,19 @@ const Signup: React.FC<SignupProps> = ({ onLogin }) => {
         ) : (
           <View style={{ width: 24 }} />
         )}
-        <Text style={{ color: 'white', fontFamily: "PlusJakartaSansExtraBold", fontSize: FontSize.twenty }}>KULSAH</Text>
+        <Text style={{ color: 'white', fontFamily: FontFamily.extraBold, fontSize: FontSize.twenty }}>KULSAH</Text>
         <View style={{ width: 24 }} />
       </View>
 
       <ScrollView contentContainerStyle={{ paddingHorizontal: 22, paddingBottom: 30 }} keyboardShouldPersistTaps="handled">
         {step === 'welcome' && (
           <View style={{ gap: 18 }}>
-            <Text style={{ color: 'white', fontSize: FontSize.forty, textTransform: 'uppercase', fontFamily: 'PlusJakartaSansExtraBold'}}>{'Enter the\nGalaxy.'}</Text>
+            <Text style={{ color: 'white', fontSize: FontSize.forty, textTransform: 'uppercase', fontFamily: FontFamily.extraBold}}>{'Enter the\nGalaxy.'}</Text>
             <Text style={{
               color: '#ffffff99',
               fontSize: FontSize.sixteen,
               lineHeight: 18,
-              fontFamily: 'PlusJakartaSansBold'
+              fontFamily: FontFamily.bold
                }}>
               Join a new era of creator-fan connection. Your unique identity starts here.
             </Text>
@@ -236,29 +236,29 @@ const Signup: React.FC<SignupProps> = ({ onLogin }) => {
                     <TicketIcon height = {24} width= {24} fill={PRIMARY_COLOR}></TicketIcon>
                   }
                 </View>
-                <Text style={{ color: '#ffffffcc', fontFamily: 'PlusJakartaSansMedium' }}>{item}</Text>
+                <Text style={{ color: '#ffffffcc', fontFamily: FontFamily.medium }}>{item}</Text>
               </View>
             ))}
             <Pressable
               onPress={handleNext}
               style={{ backgroundColor: PRIMARY_COLOR, borderRadius: 20, height: 56, alignItems: 'center', justifyContent: 'center', marginTop: 6 }}
             >
-              <Text style={{ color: 'white', fontFamily: "PlusJakartaSansBold"}}>Get Started</Text>
+              <Text style={{ color: 'white', fontFamily: FontFamily.bold}}>Get Started</Text>
             </Pressable>
           </View>
         )}
 
         {step === 'name' && (
           <View style={{ gap: 14 }}>
-            <Text style={{ color: 'white', fontSize: FontSize.thirty, fontFamily: 'PlusJakartaSansExtraBold' }}>YOUR ALIAS</Text>
+            <Text style={{ color: 'white', fontSize: FontSize.thirty, fontFamily: FontFamily.extraBold }}>YOUR ALIAS</Text>
             <Text style={{
               color: '#FFFFFF99',
-              fontFamily: 'PlusJakartaSansMedium'
+              fontFamily: FontFamily.medium
                }}>This is how the galaxy will recognize{'\n'}you.</Text>
             <Text
             style={{
               color: '#94a3b8',
-              fontFamily: 'PlusJakartaSansBold',
+              fontFamily: FontFamily.bold,
               fontSize: FontSize.ten,
               letterSpacing: 4,
               marginTop: 35,
@@ -280,7 +280,7 @@ const Signup: React.FC<SignupProps> = ({ onLogin }) => {
               }}
               inputStyle={{
                 color: 'white',
-                fontFamily: 'PlusJakartaSansBold',
+                fontFamily: FontFamily.bold,
                 fontSize: FontSize.sixteen,
               }}
             />
@@ -297,7 +297,7 @@ const Signup: React.FC<SignupProps> = ({ onLogin }) => {
               >
               <Text
               style = {{
-                fontFamily: "PlusJakartaSansBold",
+                fontFamily: FontFamily.bold,
                 color: '#cb2bee',
                 fontSize: FontSize.nine,
                 letterSpacing: 4,
@@ -324,7 +324,7 @@ const Signup: React.FC<SignupProps> = ({ onLogin }) => {
                 }}>
                   <Text
                   style = {{
-                    fontFamily: 'PlusJakartaSansBold',
+                    fontFamily: FontFamily.bold,
                     color: PRIMARY_COLOR,
                     fontSize: FontSize.twenty,
                     textAlign: 'center'
@@ -340,7 +340,7 @@ const Signup: React.FC<SignupProps> = ({ onLogin }) => {
                 >
                 <Text
                 style={{
-                  fontFamily: 'PlusJakartaSansBold',
+                  fontFamily: FontFamily.bold,
                   color: 'white',
                   fontSize: FontSize.sixteen,
                 }}
@@ -351,7 +351,7 @@ const Signup: React.FC<SignupProps> = ({ onLogin }) => {
                   color: '#94a3b8',
                   letterSpacing: 1,
                   fontSize: FontSize.ten,
-                  fontFamily: 'PlusJakartaSans',
+                  fontFamily: FontFamily.regular,
                 }}>
                   NEW ARRIVAL {'#'}0042
                 </Text>
@@ -369,7 +369,7 @@ const Signup: React.FC<SignupProps> = ({ onLogin }) => {
                 alignItems: 'center',
                 justifyContent: 'center',
               }}
-            ><Text style={{ color: 'white', fontFamily: "PlusJakartaSansBold" }}>Continue</Text>
+            ><Text style={{ color: 'white', fontFamily: FontFamily.bold }}>Continue</Text>
             </Pressable>
           </View>
         )}
@@ -378,7 +378,7 @@ const Signup: React.FC<SignupProps> = ({ onLogin }) => {
 
         {step === 'credentials' && (
           <View style={{ gap: 14 }}>
-            <Text style={{ color: 'white', fontSize: FontSize.thirty, fontFamily: "PlusJakartaSansExtraBold" }}>Uplink Keys</Text>
+            <Text style={{ color: 'white', fontSize: FontSize.thirty, fontFamily: FontFamily.extraBold }}>Uplink Keys</Text>
             <Text style={{ color: '#cbd5e1' }}>Synchronize your account with our secure node.</Text>
             <KulsahInputBar
               value={formData.email}
@@ -427,7 +427,7 @@ const Signup: React.FC<SignupProps> = ({ onLogin }) => {
                 justifyContent: 'center',
               }}
             >
-              <Text style={{ color: 'white', fontFamily: "PlusJakartaSansBold" }}>{isProcessing ? 'Processing...' : 'Register'}</Text>
+              <Text style={{ color: 'white', fontFamily: FontFamily.bold }}>{isProcessing ? 'Processing...' : 'Register'}</Text>
             </Pressable>
           </View>
         )}
@@ -456,9 +456,9 @@ const Signup: React.FC<SignupProps> = ({ onLogin }) => {
               <VerifyIcon fill='white' height={90} width={90}  strokeWidth={0}/>
             </View>
             </View>
-            <Text style={{ color: 'white', fontSize: FontSize.thirtyFour, textAlign: 'center', fontFamily: 'PlusJakartaSansExtraBold' }}>{'IDENTITY\nSECURED'}</Text>
+            <Text style={{ color: 'white', fontSize: FontSize.thirtyFour, textAlign: 'center', fontFamily: FontFamily.extraBold }}>{'IDENTITY\nSECURED'}</Text>
             <Text style={{ color: '#cbd5e1', textAlign: 'center' }}>
-              Welcome home,{'\n'}<Text style={{ color: PRIMARY_COLOR, fontFamily: "PlusJakartaSansBold" }}>{formData.name || 'Fan'}</Text>.
+              Welcome home,{'\n'}<Text style={{ color: PRIMARY_COLOR, fontFamily: FontFamily.bold }}>{formData.name || 'Fan'}</Text>.
             </Text>
             <Pressable
               onPress={completeOnboarding}
@@ -468,7 +468,7 @@ const Signup: React.FC<SignupProps> = ({ onLogin }) => {
             >
               <Text style={{
                 color: 'white',
-                fontFamily: "PlusJakartaSansBold",
+                fontFamily: FontFamily.bold,
                 textTransform: 'uppercase'
                  }}>ENTER THE GALAXY</Text>
             </Pressable>

@@ -21,7 +21,7 @@ import { LinearGradient } from 'expo-linear-gradient';
 import PlayIcon from '../assets/icons/play-arrow-svg.svg';
 import ImageIcon from '../assets/icons/image-svg.svg';
 import VideoCamIcon from '../assets/icons/videocam-svg.svg';
-import { FontSize } from '../fonts';
+import { FontFamily, FontSize } from '../fonts';
 
 type Step = 'select' | 'edit' | 'post';
 type ActiveTool = 'none' | 'filters' | 'adjust' | 'voice' | 'captions' | 'trim';
@@ -174,7 +174,7 @@ const UploadContent: React.FC = () => {
                 </View>
                 <View>
                   <Text style={{
-                    fontFamily: 'PlusJakartaBold',
+                    fontFamily: FontFamily.bold,
                     color: 'white',
                     fontWeight: 'bold',
                     fontSize: FontSize.twelve,
@@ -621,4 +621,3 @@ const s = StyleSheet.create({
 });
 
 export default UploadContent;
-

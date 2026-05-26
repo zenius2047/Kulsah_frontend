@@ -12,7 +12,7 @@ import CreatorChallenges from './CreatorChallenges';
 
 
 
-import { FontSize } from '../fonts';
+import { FontFamily, FontSize } from '../fonts';
 
 const Arena :React.FC = ({route}:any)=>{
     const { isDark, theme } = useThemeMode();
@@ -47,7 +47,7 @@ const Arena :React.FC = ({route}:any)=>{
         <MaterialIcons name='chevron-left' size={34} color={theme.text}/>
         <Text style={{
             color: theme.text,
-            fontFamily: 'PlusJakartaSansExtraBold',
+            fontFamily: FontFamily.extraBold,
             fontSize: mediumScreen ? FontSize.twentyTwo: FontSize.eighteen,
             lineHeight:25,
         }}> Arena
@@ -101,7 +101,7 @@ const Arena :React.FC = ({route}:any)=>{
             // color: activeTab == item ? theme.accent : theme.textSecondary,
             color: activeTab === item ? isDark ? '#ffffff': '#000000': isDark ? '#ffffff5d':'#0000005d',
             textTransform: 'capitalize',
-            fontFamily: "PlusJakartaSansBold",
+            fontFamily: FontFamily.bold,
             fontSize: mediumScreen ? FontSize.twenty: FontSize.sixteen,
             marginBottom: 10
         }}>

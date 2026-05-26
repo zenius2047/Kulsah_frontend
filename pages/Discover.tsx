@@ -1,632 +1,603 @@
-import React, { useEffect, useState } from 'react';
-import { useThemeMode, PRIMARY_COLOR, primaryColorAlpha } from "../theme";
-import { Image, Pressable, ScrollView, Text, TextInput, View } from 'react-native';
-import { useNavigation } from '@react-navigation/native';
 import { MaterialIcons } from '@expo/vector-icons';
+import { useNavigation } from '@react-navigation/native';
 import { LinearGradient } from 'expo-linear-gradient';
-import { mediumScreen } from '../types';
-import { FontSize } from '../fonts';
+import React, { useMemo, useState } from 'react';
+import {
+  GestureResponderEvent,
+  Image,
+  Modal,
+  Pressable,
+  ScrollView,
+  StyleSheet,
+  Text,
+  TextInput,
+  View,
+} from 'react-native';
+import { SafeAreaView, useSafeAreaInsets } from 'react-native-safe-area-context';
+import { FontFamily, FontSize } from '../fonts';
+import { PRIMARY_COLOR, primaryColorAlpha, useThemeMode } from '../theme';
 
-type Artist = {
-  name: string;
-  fans: string;
-  img: string;
-};
+type DiscoverTab = 'all' | 'creators' | 'tickets' | 'videos' | 'challenges';
 
-type SoundMeta = {
-  id: string;
-  title: string;
-  artist: string;
-  usageCount: number;
-  duration: string;
-  cover: string;
-};
-
-type FeaturedClip = {
-  id: string;
-  title: string;
-  artist: string;
-  views: string;
-  img: string;
-  sound?: SoundMeta;
-};
-
-type MerchItem = {
+interface CreatorItem {
   id: string;
   name: string;
-  artist: string;
-  price: string;
-  img: string;
-};
+  handle: string;
+  isLive: boolean;
+  avatar: string;
+  style: string;
+  tool: string;
+  followers: string;
+  isPremium?: boolean;
+}
 
-type EventItem = {
+interface TicketItem {
   id: string;
-  title: string;
-  artist: string;
+  eventTitle: string;
+  creator: string;
   date: string;
-  location: string;
+  venue: string;
+  price: number;
+  currency: string;
   img: string;
-  price: string;
+  colors: readonly [string, string];
+  duration: string;
+}
+
+interface VideoItem {
+  id: string;
+  title: string;
+  creator: string;
+  views: string;
+  likes: number;
+  img: string;
+  duration: string;
+  category: string;
+}
+
+interface ChallengeItem {
+  id: string;
   tag: string;
-};
+  creator: string;
+  prizePool: string;
+  participants: number;
+  type: 'VFX Overlay' | 'Seamless Transition' | 'Cinematic Vlog' | 'Drone Hyperlapse';
+  endTime: string;
+  img: string;
+}
+
+const topCreators: CreatorItem[] = [
+  { id: 'sarah_vfx', name: 'Sarah Chen', handle: '@sarahvfx', isLive: true, avatar: 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&q=80&w=200', style: '3D VFX & Neon Transitions', tool: 'After Effects • Blender', followers: '3.1M', isPremium: true },
+  { id: 'devon_vlog', name: 'Devon Carter', handle: '@devoncarter', isLive: false, avatar: 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?auto=format&fit=crop&q=80&w=200', style: 'Cinematic Travel Vlogs', tool: 'DaVinci Resolve • Red Komodo', followers: '1.8M', isPremium: true },
+  { id: 'aisha_cgi', name: 'Aisha Rahman', handle: '@aishacgi', isLive: false, avatar: 'https://images.unsplash.com/photo-1544005313-94ddf0286df2?auto=format&fit=crop&q=80&w=200', style: 'Virtual Production & CGI', tool: 'Unreal Engine 5 • Nuke', followers: '2.9M', isPremium: true },
+  { id: 'elena_edits', name: 'Elena Rostova', handle: '@elenacuts', isLive: true, avatar: 'https://images.unsplash.com/photo-1517841905240-472988babdf9?auto=format&fit=crop&q=80&w=200', style: 'Cyberpunk Drone Hyperlapses', tool: 'Premiere Pro • DJI Mavic 3 Pro', followers: '2.5M' },
+  { id: 'marcus_focus', name: 'Marcus Thorne', handle: '@marcuscinemas', isLive: false, avatar: 'https://images.unsplash.com/photo-1500648767791-00dcc994a43e?auto=format&fit=crop&q=80&w=200', style: 'Anamorphic Storytelling', tool: 'Sony FX3 • Sirui 50mm', followers: '4.2M', isPremium: true },
+  { id: 'kenji_tokyo', name: 'Kenji Sato', handle: '@kenjitokyo', isLive: false, avatar: 'https://images.unsplash.com/photo-1501196354995-cbb51c65aaea?auto=format&fit=crop&q=80&w=200', style: 'First-Person Hyperlapse', tool: 'Insta360 Pro • Gimbal Rig', followers: '1.2M' },
+  { id: 'liam_drone', name: 'Liam Gallagher', handle: '@liamdrone', isLive: true, avatar: 'https://images.unsplash.com/photo-1506794778202-cad84cf45f1d?auto=format&fit=crop&q=80&w=200', style: 'FPV Mountain Speedflying', tool: 'GoPro Hero 12 • Custom Quad', followers: '1.5M' },
+  { id: 'alex_rivera', name: 'Alex Rivera', handle: '@alexrivera', isLive: false, avatar: 'https://images.unsplash.com/photo-1500648767791-00dcc994a43e?auto=format&fit=crop&q=80&w=200', style: 'Cyberpunk CGI Concept', tool: 'Unreal Engine 5 • Blender', followers: '1.4M', isPremium: true },
+  { id: 'amara_vfx', name: 'Amara Lopez', handle: '@amaralopez', isLive: false, avatar: 'https://images.unsplash.com/photo-1494790108377-be9c29b29330?auto=format&fit=crop&q=80&w=200', style: 'Hyperreal Motion Design', tool: 'Cinema 4D • Octane', followers: '2.1M' },
+  { id: 'lucas_3d', name: 'Lucas Dupont', handle: '@lucas3d', isLive: true, avatar: 'https://images.unsplash.com/photo-1539571696357-5a69c17a67c6?auto=format&fit=crop&q=80&w=200', style: 'Anamorphic Real-time Sim', tool: 'Houdini • Unreal Engine 5', followers: '1.9M', isPremium: true },
+];
+
+const ticketShows: TicketItem[] = [
+  { id: 'tix-grading', eventTitle: 'Mastering Cinematic Color Grading', creator: 'Devon Carter', date: 'JUN 15, 2026', venue: 'Metropolis Theater & Virtual Dome', price: 120, currency: 'KulCoins', img: 'https://images.unsplash.com/photo-1470229722913-7c0e2dbbafd3?auto=format&fit=crop&q=80&w=400', colors: ['rgba(245,158,11,0.3)', 'rgba(244,63,94,0.04)'], duration: '4 Hour Live Lab' },
+  { id: 'tix-blender', eventTitle: 'Real-time 3D Blender Integrations', creator: 'Sarah Chen', date: 'JUL 08, 2026', venue: 'Tokyo Creative Hub (Online)', price: 90, currency: 'KulCoins', img: 'https://images.unsplash.com/photo-1550745165-9bc0b252726f?auto=format&fit=crop&q=80&w=400', colors: ['rgba(6,182,212,0.3)', 'rgba(59,130,246,0.04)'], duration: '3 Hour Interactive Stream' },
+  { id: 'tix-mavic', eventTitle: 'Advanced Drone Cinematography Camp', creator: 'Elena Rostova', date: 'AUG 12, 2026', venue: 'Grand Canyon Scenic Reserve', price: 250, currency: 'KulCoins', img: 'https://images.unsplash.com/photo-1508214751196-bcfd4ca60f91?auto=format&fit=crop&q=80&w=400', colors: ['rgba(168,85,247,0.3)', 'rgba(99,102,241,0.04)'], duration: 'Full Day Hybrid Pass' },
+  { id: 'tix-anamorphic', eventTitle: 'Short Film Premiere & Q&A Board', creator: 'Marcus Thorne', date: 'SEP 04, 2026', venue: 'Rooftop Cinema Lounge, LA', price: 60, currency: 'KulCoins', img: 'https://images.unsplash.com/photo-1514525253161-7a46d19cd819?auto=format&fit=crop&q=80&w=400', colors: ['rgba(236,72,153,0.3)', 'rgba(168,85,247,0.04)'], duration: '2 Hour Exclusive Stream' },
+];
+
+const trendingVideos: VideoItem[] = [
+  { id: 'cl1', title: 'How I filmed this surreal cyberpunk look in Shibuya utilizing pure camera tricks', creator: 'Sarah Chen', views: '4.8M', likes: 312000, img: 'https://images.unsplash.com/photo-1511671782779-c97d3d27a1d4?auto=format&fit=crop&q=80&w=400', duration: '8:45', category: 'VFX Tutorial' },
+  { id: 'cl2', title: 'The art of the whip-pan seamless cinematic transition - 60 seconds masterclass', creator: 'Devon Carter', views: '2.1M', likes: 184000, img: 'https://images.unsplash.com/photo-1598488035139-bdbb2231ce04?auto=format&fit=crop&q=80&w=400', duration: '1:00', category: 'Transition' },
+  { id: 'cl3', title: 'Tracking 4K cinematic FPV drone shots through Tokyo alleyways', creator: 'Elena Rostova', views: '3.6M', likes: 295000, img: 'https://images.unsplash.com/photo-1516450360452-9312f5e86fc7?auto=format&fit=crop&q=80&w=400', duration: '11:20', category: 'Cinematic Drone' },
+  { id: 'cl4', title: 'Lighting setups that make a $1,000 camera body look like an Alexa LF', creator: 'Marcus Thorne', views: '1.9M', likes: 104500, img: 'https://images.unsplash.com/photo-1501386761578-eac5c94b800a?auto=format&fit=crop&q=80&w=400', duration: '14:32', category: 'Studio Lighting' },
+];
+
+const activeChallenges: ChallengeItem[] = [
+  { id: 'ch-seamless', tag: 'ContinuousMatchCutChallenge', creator: 'Devon Carter', prizePool: '8,000 KulCoins', participants: 41200, type: 'Seamless Transition', endTime: 'Ends in 2 days', img: 'https://images.unsplash.com/photo-1520523839897-bd0b52f945a0?auto=format&fit=crop&q=80&w=150' },
+  { id: 'ch-cyberneon', tag: 'CyberpunkColorVibeGrading', creator: 'Sarah Chen', prizePool: '5,500 KulCoins', participants: 28900, type: 'VFX Overlay', endTime: 'Ends in 4 days', img: 'https://images.unsplash.com/photo-1518609878373-06d740f60d8b?auto=format&fit=crop&q=80&w=150' },
+  { id: 'ch-hyperlapse', tag: 'InfiniteSpeedRampHyperlapse', creator: 'Elena Rostova', prizePool: '10,000 KulCoins', participants: 51000, type: 'Drone Hyperlapse', endTime: 'Ends in 12 hours', img: 'https://images.unsplash.com/photo-1498038432885-c6f3f1b912ee?auto=format&fit=crop&q=80&w=150' },
+  { id: 'ch-anamorphic', tag: 'AnamorphicAtmosphericDepth', creator: 'Lucas Dupont', prizePool: '12,500 KulCoins', participants: 34500, type: 'Cinematic Vlog', endTime: 'Ends in 3 days', img: 'https://images.unsplash.com/photo-1536440136628-849c177e76a1?auto=format&fit=crop&q=80&w=150' },
+];
+
+const tabs: { id: DiscoverTab; label: string }[] = [
+  { id: 'all', label: 'All Spotlights' },
+  { id: 'creators', label: 'Top Creators' },
+  { id: 'tickets', label: 'Event' },
+  { id: 'videos', label: 'Trending Reels' },
+  { id: 'challenges', label: 'Creator Challenges' },
+];
 
 const Discover: React.FC<{ embedded?: boolean }> = ({ embedded = false }) => {
   const { isDark, theme } = useThemeMode();
   const navigation = useNavigation<any>();
-  const [activeCategory, setActiveCategory] = useState('All');
-  const categories = ['All', 'Creators', 'Videos', 'Events', 'Shorts'];
-  const headerBackground = isDark ? '#1f1022' : theme.card;
-  const glassSurface = isDark ? 'rgba(255,255,255,0.08)' : theme.surface;
-  const softBorder = isDark ? 'rgba(255,255,255,0.05)' : theme.border;
-  const cardBackground = isDark ? '#111827' : theme.card;
-  const iconTint = isDark ? '#94a3b8' : theme.textSecondary;
-  const overlayMusicSurface = isDark ? 'rgba(0,0,0,0.45)' : 'rgba(255,255,255,0.92)';
-  const overlayMusicBorder = isDark ? 'rgba(255,255,255,0.12)' : theme.border;
+  const insets = useSafeAreaInsets();
+  const styles = useMemo(() => createStyles(isDark), [isDark]);
+  const [activeTab, setActiveTab] = useState<DiscoverTab>('all');
+  const [searchQuery, setSearchQuery] = useState('');
+  const [followedCreators, setFollowedCreators] = useState<string[]>(['sarah_vfx']);
+  const [likedVideos, setLikedVideos] = useState<string[]>(['cl3', 'cl4']);
+  const [ticketCart, setTicketCart] = useState<string[]>([]);
+  const [joinedChallenges, setJoinedChallenges] = useState<string[]>([]);
+  const [selectedTicket, setSelectedTicket] = useState<TicketItem | null>(null);
+  const [isSuccessModalOpen, setIsSuccessModalOpen] = useState(false);
+  const query = searchQuery.trim().toLowerCase();
 
-  const artists: Artist[] = [
-    { name: 'Luna Ray', fans: '1.2M Fans', img: 'https://picsum.photos/seed/art1/150/150' },
-    { name: 'The Glitch', fans: '850K Fans', img: 'https://picsum.photos/seed/art2/150/150' },
-    { name: 'Echo Vibe', fans: '2.1M Fans', img: 'https://picsum.photos/seed/art3/150/150' },
-    { name: 'Elena Rose', fans: '3.4M Fans', img: 'https://picsum.photos/seed/mila/150/150' },
-    { name: 'Zion King', fans: '920K Fans', img: 'https://picsum.photos/seed/zion/150/150' },
-    { name: 'Burna Boy', fans: '15M Fans', img: 'https://picsum.photos/seed/burna/150/150' },
-  ];
+  const filteredCreators = useMemo(() => topCreators.filter((creator) => [creator.name, creator.style, creator.tool, creator.handle].some((value) => value.toLowerCase().includes(query))), [query]);
+  const filteredTickets = useMemo(() => ticketShows.filter((ticket) => [ticket.eventTitle, ticket.creator, ticket.venue].some((value) => value.toLowerCase().includes(query))), [query]);
+  const filteredVideos = useMemo(() => trendingVideos.filter((video) => [video.title, video.creator, video.category].some((value) => value.toLowerCase().includes(query))), [query]);
+  const filteredChallenges = useMemo(() => activeChallenges.filter((challenge) => [challenge.tag, challenge.creator, challenge.type].some((value) => value.toLowerCase().includes(query))), [query]);
 
-  const featuredClips: FeaturedClip[] = [
-    {
-      id: 'v1',
-      title: 'Midnight Soul Session',
-      artist: 'Elena Rose',
-      views: '1.2M',
-      img: 'https://picsum.photos/seed/vid1/400/225',
-      sound: {
-        id: 's1',
-        title: 'Neon Dreams',
-        artist: 'Synthwave Kid',
-        usageCount: 12400,
-        duration: '0:30',
-        cover: 'https://picsum.photos/seed/s1/100',
-      },
-    },
-    {
-      id: 'v2',
-      title: 'Summer Tour BTS',
-      artist: 'Burna Boy',
-      views: '840K',
-      img: 'https://picsum.photos/seed/vid2/400/225',
-      sound: {
-        id: 's2',
-        title: 'Midnight City',
-        artist: 'Urban Echo',
-        usageCount: 8500,
-        duration: '0:15',
-        cover: 'https://picsum.photos/seed/s2/100',
-      },
-    },
-  ];
+  const stop = (event: GestureResponderEvent) => event.stopPropagation();
 
-  const featuredMerch: MerchItem[] = [
-    { id: 'm1', name: '1000 Kulsah Coins', artist: 'Kulsah Official', price: '$9.99', img: 'https://images.unsplash.com/photo-1621416894569-0f39ed31d247?auto=format&fit=crop&q=80&w=400' },
-    { id: 'm2', name: 'Fan Sticker Pack', artist: 'Kulsah Official', price: '$4.99', img: 'https://images.unsplash.com/photo-1572375927902-e60e87bb7385?auto=format&fit=crop&q=80&w=800' },
-    { id: 'm3', name: 'Buy Coffee for Elena', artist: 'Elena Rose', price: '$5.00', img: 'https://images.unsplash.com/photo-1509042239860-f550ce710b93?auto=format&fit=crop&q=80&w=400' },
-    { id: 'm4', name: 'Season Sticker', artist: 'Zion King', price: '$14.99', img: 'https://images.unsplash.com/photo-1534438327276-14e5300c3a48?auto=format&fit=crop&q=80&w=400' },
-  ];
+  const handleFollowToggle = (creatorId: string, event: GestureResponderEvent) => {
+    stop(event);
+    setFollowedCreators((prev) => (prev.includes(creatorId) ? prev.filter((id) => id !== creatorId) : [...prev, creatorId]));
+  };
 
-  const upcomingEvents: EventItem[] = [
-    {
-      id: 'burna-boy',
-      title: 'Love, Damini World Tour',
-      artist: 'Burna Boy',
-      date: 'Aug 24',
-      location: 'O2 Arena, London',
-      img: 'https://images.unsplash.com/photo-1470229722913-7c0e2dbbafd3?auto=format&fit=crop&q=80&w=800',
-      price: '$125+',
-      tag: 'On-Air Live',
-    },
-    {
-      id: 'elena-rose',
-      title: 'Ethereal Soul Experience',
-      artist: 'Elena Rose',
-      date: 'Sep 12',
-      location: 'The Fillmore, San Francisco',
-      img: 'https://images.unsplash.com/photo-1598488035139-bdbb2231ce04?auto=format&fit=crop&q=80&w=800',
-      price: '$85+',
-      tag: 'Exclusive View',
-    },
-    {
-      id: 'afro-fest',
-      title: 'Afro-Cinema Fest 2024',
-      artist: 'Multiple Creators',
-      date: 'Oct 05',
-      location: 'National Theatre, Lagos',
-      img: 'https://images.unsplash.com/photo-1546707012-c51841275c6f?auto=format&fit=crop&q=80&w=800',
-      price: '$45+',
-      tag: 'Festival',
-    },
-  ];
+  const handleLikeVideo = (videoId: string, event: GestureResponderEvent) => {
+    stop(event);
+    setLikedVideos((prev) => (prev.includes(videoId) ? prev.filter((id) => id !== videoId) : [...prev, videoId]));
+  };
 
-  const challenges = [
-    { id: 'c1', title: 'Night Vibes', creator: 'Mila Ray', participants: '1.2k', img: 'https://images.unsplash.com/photo-1547153760-18fc86324498?auto=format&fit=crop&q=80&w=800' },
-                { id: 'c2', title: 'Nebula Vocal', creator: 'Elena Rose', participants: '850', img: 'https://images.unsplash.com/photo-1516450360452-9312f5e86fc7?auto=format&fit=crop&q=80&w=800' },
-                { id: 'c3', title: 'Neon Pulse', creator: 'Zoe K', participants: '420', img: 'https://images.unsplash.com/photo-1550745165-9bc0b252726f?auto=format&fit=crop&q=80&w=800' }
-  ]
+  const handleJoinChallenge = (challengeId: string, event: GestureResponderEvent) => {
+    stop(event);
+    if (joinedChallenges.includes(challengeId)) {
+      setJoinedChallenges((prev) => prev.filter((id) => id !== challengeId));
+      return;
+    }
+
+    setJoinedChallenges((prev) => [...prev, challengeId]);
+    navigation.navigate('SubmitEntry', { challengeId });
+  };
+
+  const handleConfirmTicketPurchase = () => {
+    if (!selectedTicket) return;
+    setTicketCart((prev) => (prev.includes(selectedTicket.id) ? prev : [...prev, selectedTicket.id]));
+    setSelectedTicket(null);
+    setIsSuccessModalOpen(true);
+  };
+
+  const renderEmpty = (message: string) => (
+    <View style={styles.emptyState}>
+      <Text style={styles.emptyText}>{message}</Text>
+    </View>
+  );
 
   return (
-    <ScrollView
-      keyboardShouldPersistTaps="handled"
-    bounces={false}
-    showsVerticalScrollIndicator={false}
-    style={{ flex: 1, backgroundColor: theme.background }} contentContainerStyle={{ paddingBottom: 40 }}>
-      <View
-        style={{
-          backgroundColor: headerBackground,
-        }}
-      >
-        <View style={{ paddingHorizontal: 16, paddingTop: 22, paddingBottom: 12 }}>
+    <SafeAreaView edges={embedded ? [] : ['top']} style={[styles.safeArea, { backgroundColor: theme.background }]}>
+      <ScrollView keyboardShouldPersistTaps="handled" bounces={false} showsVerticalScrollIndicator={false} contentContainerStyle={[styles.content, { paddingBottom: insets.bottom + 120 }]}> 
+        <View style={styles.ambientOne} pointerEvents="none" />
+        <View style={styles.ambientTwo} pointerEvents="none" />
+
+        <View style={[styles.header, { backgroundColor: isDark ? 'rgba(9,9,11,0.92)' : 'rgba(248,250,252,0.95)', borderBottomColor: isDark ? '#27272a' : '#e2e8f0' }]}> 
           {!embedded ? (
-            <View style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between' }}>
-              <Pressable
-                onPress={() => navigation.goBack()}
-                style={{
-                  width: 40,
-                  height: 40,
-                  borderRadius: 20,
-                  alignItems: 'center',
-                  justifyContent: 'center',
-                  backgroundColor: glassSurface,
-                  borderWidth: 1,
-                  borderColor: softBorder,
-                }}
-              >
-                <MaterialIcons name="chevron-left" size={20} color={theme.text} />
+            <View style={styles.headerRow}>
+              <Pressable onPress={() => navigation.goBack()} style={styles.iconButton} accessibilityRole="button" accessibilityLabel="Back to Feed">
+                <MaterialIcons name="arrow-back" size={20} color={theme.text} />
               </Pressable>
-              <Text style={{ color: theme.text, fontSize: mediumScreen ? FontSize.twentyTwo : FontSize.eighteen, fontWeight: '700', fontFamily: 'PlusJakartaSansBold' }}>Discover</Text>
-              <View style={{ width: 40 }} />
+              <Text style={[styles.headerTitle, { color: theme.text }]}>Discover</Text>
+              <Pressable onPress={() => navigation.navigate('Notification')} style={styles.iconButton} accessibilityRole="button" accessibilityLabel="View notifications">
+                <MaterialIcons name="notifications-none" size={20} color={theme.text} />
+                <View style={styles.notificationDot} />
+              </Pressable>
             </View>
           ) : null}
 
-          <View
-            style={{
-              marginTop: embedded ? 0 : 12,
-              backgroundColor: glassSurface,
-              borderRadius: 14,
-              paddingHorizontal: 12,
-              paddingVertical: 10,
-              flexDirection: 'row',
-              alignItems: 'center',
-              borderWidth: 1,
-              borderColor: softBorder,
-            }}
-          >
-            <MaterialIcons name="search" size={18} color={iconTint} style={{ marginRight: 8 }} />
+          <View style={[styles.searchWrap, { backgroundColor: isDark ? '#18181b' : '#fff', borderColor: isDark ? '#27272a' : '#e2e8f0' }]}> 
+            <MaterialIcons name="search" size={20} color={isDark ? '#71717a' : '#94a3b8'} />
             <TextInput
-              placeholder="Search creators, videos, or events..."
-              placeholderTextColor={theme.textSecondary}
-              style={{ color: theme.text, flex: 1, fontFamily: 'PlusJakartaSans' }}
+              value={searchQuery}
+              onChangeText={setSearchQuery}
+              placeholder="Search directors, masterclasses, cinematic transitions..."
+              placeholderTextColor={isDark ? '#71717a' : '#94a3b8'}
+              style={[styles.searchInput, { color: theme.text }]}
             />
+            {searchQuery ? (
+              <Pressable onPress={() => setSearchQuery('')} hitSlop={10}>
+                <MaterialIcons name="close" size={18} color={isDark ? '#a1a1aa' : '#64748b'} />
+              </Pressable>
+            ) : null}
           </View>
 
-          <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={{ gap: 10, marginTop: 14 }}>
-            {categories.map((cat) => (
-              <Pressable
-                key={cat}
-                onPress={() => setActiveCategory(cat)}
-                style={{
-                  paddingHorizontal: 16,
-                  paddingVertical: 9,
-                  borderRadius: 999,
-                  backgroundColor: activeCategory === cat ? PRIMARY_COLOR : glassSurface,
-                  borderWidth: activeCategory === cat ? 0 : 1,
-                  borderColor: softBorder,
-                }}
-              >
-                <Text style={{ color: activeCategory === cat ? '#fff' : theme.text, fontSize: mediumScreen ? FontSize.fourteen : FontSize.eleven, fontWeight: '700', fontFamily: 'PlusJakartaSansBold' }}>
-                  {cat.toUpperCase()}
-                </Text>
-              </Pressable>
-            ))}
+          <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={styles.tabList}>
+            {tabs.map((tab) => {
+              const isSelected = activeTab === tab.id;
+              return (
+                <Pressable key={tab.id} onPress={() => setActiveTab(tab.id)} style={[styles.tab, isSelected ? styles.tabSelected : styles.tabIdle]}>
+                  <Text style={[styles.tabText, { color: isSelected ? '#fff' : isDark ? '#a1a1aa' : '#475569' }]}>{tab.label}</Text>
+                </Pressable>
+              );
+            })}
           </ScrollView>
         </View>
-      </View>
 
-      <View style={{  gap: 24 }}>
-        {(activeCategory === 'All' || activeCategory === 'Creators') && (
-          <View>
-            <View style={{ paddingHorizontal: 16, flexDirection: 'row', justifyContent: 'space-between', marginVertical: 20, alignItems: 'center' }}>
-              <Text style={{ color: theme.text, fontSize: mediumScreen ? FontSize.sixteen : FontSize.twelve, fontWeight: 'bold', fontFamily: 'PlusJakartaSansExtraBold' }}>TOP CREATORS</Text>
-              <Pressable>
-                <Text style={{ color: PRIMARY_COLOR, fontSize: mediumScreen ? FontSize.fourteen : FontSize.ten, fontWeight: 'bold', fontFamily: 'PlusJakartaSansBold' }}>VIEW ALL</Text>
-              </Pressable>
-            </View>
-            <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={{ gap: 20, paddingVertical: 4 }}>
-              {artists.map((artist) => (
-                <Pressable key={artist.name} onPress={() => navigation.navigate('ArtistProfile', { isOwner: false, id: artist.name })} style={{ alignItems: 'center', width: 104 }}>
-                  <View
-                    style={{
-                      width: 86,
-                      height: 86,
-                      borderRadius: 43,
-                      borderColor: primaryColorAlpha(0.35),
-                      borderWidth: 2,
-                      padding: 4,
-                    }}
-                  >
-                    <Image
-                      source={{ uri: artist.img }}
-                      style={{
-                        width: '100%',
-                        height: '100%',
-                        borderRadius: 40,
-                      }}
-                    />
-                    <View
-                      style={{
-                        position: 'absolute',
-                        right: 2,
-                        bottom: 2,
-                        width: 22,
-                        height: 22,
-                        borderRadius: 11,
-                        backgroundColor: PRIMARY_COLOR,
-                        borderWidth: 2,
-                        borderColor: theme.background,
-                        alignItems: 'center',
-                        justifyContent: 'center',
-                      }}
-                    >
-                      <MaterialIcons name="verified" size={14} color="white" />
-                    </View>
-                  </View>
-                  <Text style={{ color: theme.text, fontSize: mediumScreen ? FontSize.fourteen : FontSize.ten, fontWeight: 'bold', marginTop: 10, fontFamily: 'PlusJakartaSansBold' }} numberOfLines={1}>
-                    {artist.name.toUpperCase()}
-                  </Text>
-                  <Text style={{ color: theme.textSecondary, fontSize: mediumScreen ? FontSize.twelve : FontSize.eight, fontWeight: 'bold', fontFamily: 'PlusJakartaSansBold' }} numberOfLines={1}>
-                    {artist.fans.toUpperCase()}
-                  </Text>
-                </Pressable>
-              ))}
-            </ScrollView>
-          </View>
-        )}
-
-        {(activeCategory === 'All' || activeCategory === 'Events') && (
-          <View>
-            <View style={{ paddingHorizontal: 16, flexDirection: 'row', justifyContent: 'space-between', marginVertical: 20 }}>
-              <Text style={{ color: theme.text, fontSize: mediumScreen ? FontSize.sixteen : FontSize.twelve, fontWeight: 'bold', fontFamily: 'PlusJakartaSansExtraBold' }}>HOT TICKETS</Text>
-              <Pressable onPress={()=>{
-                navigation.navigate('Events')
-              }}>
-                <Text style={{ color: PRIMARY_COLOR, fontSize: mediumScreen ? FontSize.fourteen : FontSize.ten, fontWeight: 'bold', fontFamily: 'PlusJakartaSansBold' }}>FULL CALENDAR</Text>
-              </Pressable>
-            </View>
-            <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={{ gap: 14, paddingHorizontal: 16 }}>
-              {upcomingEvents.map((event) => (
-                <Pressable key={event.id} onPress={() => navigation.navigate('EventDetail')} style={{ width: 320 }}>
-                  <View style={{ borderRadius: 32, overflow: 'hidden', backgroundColor: cardBackground, height: 300, borderWidth: 1, borderColor: theme.border }}>
-                    <Image source={{ uri: event.img }} style={{ width: '100%', height: '100%', opacity: 0.7 }} />
-                    <LinearGradient
-                      colors={['transparent', 'rgba(0,0,0,0.18)', 'rgba(0,0,0,0.95)']}
-                      start={{ x: 0, y: 0 }}
-                      end={{ x: 0, y: 1 }}
-                      style={{
-                        position: 'absolute',
-                        top: 0,
-                        left: 0,
-                        right: 0,
-                        bottom: 0,
-                        padding: 18,
-                        justifyContent: 'flex-end',
-                      }}
-                    >
-                      <View>
-                        <Text
-                          numberOfLines={2}
-                          style={{
-                            color: PRIMARY_COLOR,
-                            marginTop: 4,
-                            fontSize: mediumScreen ? FontSize.fourteen : FontSize.ten,
-                            width: '72%',
-                            fontFamily: 'PlusJakartaSansExtraBold',
-                            letterSpacing: 1.6,
-                          }}
-                        >
-                          {`${event.date.toUpperCase()} - ${event.location.toUpperCase()}`}
-                        </Text>
-                        <Text
-                          numberOfLines={2}
-                          style={{
-                            color: 'white',
-                            fontSize: mediumScreen ? FontSize.twentyThree : FontSize.eighteen,
-                            fontWeight: '800',
-                            marginTop: 8,
-                            fontFamily: 'PlusJakartaSansExtraBold',
-                            width: '72%',
-                          }}
-                        >
-                          {event.title.toUpperCase()}
-                        </Text>
-                        <View style={{ position: 'absolute', bottom: 2, right: 0 }}>
-                          <Text style={{ color: isDark ? '#888' : theme.textSecondary, fontSize: mediumScreen ? FontSize.twelve : FontSize.nine, fontWeight: 'bold', fontFamily: 'PlusJakartaSansBold' }}>FROM</Text>
-                          <Text style={{ color: 'white', fontSize: mediumScreen ? FontSize.twentyTwo : FontSize.eighteen, fontWeight: 'bold', fontFamily: 'PlusJakartaSansExtraBold' }}>
-                            {event.price}
-                          </Text>
+        <View style={styles.main}>
+          {(activeTab === 'all' || activeTab === 'creators') && (
+            <View style={styles.section}>
+              <SectionHeader icon="movie-creation" title="Top creators" color={PRIMARY_COLOR} />
+              {filteredCreators.length === 0 ? renderEmpty('No creators matching your query.') : (
+                <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={styles.creatorList}>
+                  {filteredCreators.map((creator) => {
+                    const isFollowed = followedCreators.includes(creator.id);
+                    return (
+                      <Pressable key={creator.id} onPress={() => navigation.navigate('ArtistProfile', { isOwner: false, id: creator.name })} style={styles.creatorCard}>
+                        {creator.isLive ? (
+                          <View style={styles.liveBadge}>
+                            <View style={styles.liveDot} />
+                            <Text style={styles.liveText}>LIVE LAB</Text>
+                          </View>
+                        ) : null}
+                        {creator.isPremium ? <Text style={styles.proBadge}>PRO</Text> : null}
+                        <View style={styles.creatorAvatarWrap}>
+                          <Image source={{ uri: creator.avatar }} style={styles.creatorAvatar} />
+                          {creator.isLive ? <MaterialIcons name="videocam" size={12} color="#fff" style={styles.creatorLiveIcon} /> : null}
                         </View>
-                      </View>
-                    </LinearGradient>
-
-                    <View
-                      style={{
-                        position: 'absolute',
-                        top: 16,
-                        left: 16,
-                        borderRadius: 999,
-                        paddingHorizontal: 12,
-                        height: 34,
-                        alignItems: 'center',
-                        justifyContent: 'center',
-                        flexDirection: 'row',
-                        backgroundColor: primaryColorAlpha(0.12),
-                        borderColor: primaryColorAlpha(0.35),
-                        borderWidth: 1,
-                      }}
-                    >
-                      <View style={{ backgroundColor: PRIMARY_COLOR, width: 8, height: 8, borderRadius: 4 }} />
-                      <Text style={{ color: 'white', fontSize: mediumScreen ? FontSize.eleven : FontSize.nine, fontWeight: '700', marginLeft: 8, fontFamily: 'PlusJakartaSansBold' }}>
-                        {event.tag.toUpperCase()}
-                      </Text>
-                    </View>
-                  </View>
-                </Pressable>
-              ))}
-            </ScrollView>
-          </View>
-        )}
-
-
-        {(activeCategory === 'All' ) && (
-          <View>
-            <View style={{ paddingHorizontal: 16, flexDirection: 'row', justifyContent: 'space-between', marginVertical: 20 }}>
-              <Text style={{ color: theme.text, fontSize: mediumScreen ? FontSize.eighteen : FontSize.fourteen, fontWeight: 'bold', fontFamily: 'PlusJakartaSansExtraBold' }}>TRENDING CHALLENGE</Text>
-              <Pressable>
-                <Text style={{ color: PRIMARY_COLOR, fontSize: mediumScreen ? FontSize.fourteen : FontSize.ten, fontWeight: 'bold', fontFamily: 'PlusJakartaSansBold' }}>VIEW ORBIT</Text>
-              </Pressable>
+                        <View style={styles.creatorCopy}>
+                          <View style={styles.creatorNameRow}>
+                            <Text numberOfLines={1} style={styles.creatorName}>{creator.name}</Text>
+                            <MaterialIcons name="verified" size={12} color={PRIMARY_COLOR} />
+                          </View>
+                          <Text style={styles.creatorHandle}>{creator.handle}</Text>
+                          <Text numberOfLines={2} style={styles.creatorStyle}>{creator.style}</Text>
+                        </View>
+                        <Pressable onPress={(event) => handleFollowToggle(creator.id, event)} style={[styles.followButton, isFollowed ? styles.followingButton : styles.subscribeButton]}>
+                          <MaterialIcons name={isFollowed ? 'done' : 'person-add-alt-1'} size={12} color={isFollowed ? PRIMARY_COLOR : '#fff'} />
+                          <Text style={[styles.followText, { color: isFollowed ? PRIMARY_COLOR : '#fff' }]}>{isFollowed ? 'Following' : 'Subscribe'}</Text>
+                        </Pressable>
+                      </Pressable>
+                    );
+                  })}
+                </ScrollView>
+              )}
             </View>
-            <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={{ gap: 14, paddingHorizontal: 16 }}>
-              {challenges.map((event) => (
-                <Pressable key={event.id} onPress={() => navigation.navigate('ChallengeFeed')} style={{ width: 220 }}>
-                  <View style={{ borderRadius: 32, overflow: 'hidden', backgroundColor: cardBackground, height: 300, borderWidth: 1, borderColor: theme.border }}>
-                    <Image source={{ uri: event.img }} style={{ width: '100%', height: '100%', opacity: 0.7 }} />
-                    <LinearGradient
-                      colors={['transparent', 'rgba(0,0,0,0.18)', 'rgba(0,0,0,0.95)']}
-                      start={{ x: 0, y: 0 }}
-                      end={{ x: 0, y: 1 }}
-                      style={{
-                        position: 'absolute',
-                        top: 0,
-                        left: 0,
-                        right: 0,
-                        bottom: 0,
-                        padding: 18,
-                        justifyContent: 'flex-end',
-                      }}
-                    >
-                      <View style={{
-                        justifyContent:'flex-start'
-                      }}>
-                        <Text
-                          numberOfLines={1}
-                          style={{
-                            color: PRIMARY_COLOR,
-                            fontSize: mediumScreen ? FontSize.fourteen : FontSize.ten,
-                            width: '90%',
-                            fontFamily: 'PlusJakartaSansBold',
-                            letterSpacing: 0.6,
-                          }}
-                        >
-                          @{event.creator}
-                        </Text>
-                        <Text
-                          numberOfLines={1}
-                          style={{
-                            color: 'white',
-                            fontSize: mediumScreen ? FontSize.eighteen : FontSize.fourteen,
-                            // fontWeight: '800',
-                            // marginTop: 0,
-                            fontFamily: 'PlusJakartaSansExtraBold',
-                            width: '90%',
-                          }}
-                        >
-                          {event.title.toUpperCase()}
-                        </Text>
-                        {/* <View style={{ position: 'absolute', bottom: 2, right: 0 }}>
-                          <Text style={{ color: isDark ? '#888' : theme.textSecondary, fontSize: mediumScreen ? FontSize.twelve : FontSize.nine, fontWeight: 'bold', fontFamily: 'PlusJakartaSansBold' }}>FROM</Text>
-                          <Text style={{ color: 'white', fontSize: mediumScreen ? FontSize.twentyTwo : FontSize.eighteen, fontWeight: 'bold', fontFamily: 'PlusJakartaSansExtraBold' }}>
-                            {event.price}
-                          </Text>
-                        </View> */}
-                         <Text style={{
-                          color: '#ffffff8c',
-                          fontSize: mediumScreen ? FontSize.twelve : FontSize.eight,
-                          fontFamily: 'PlusJakartaSansExtraBold',
-                          textTransform: 'uppercase',
-                          letterSpacing: 0.5
-                           }}>
-                       {event.participants}{" JOINED"}
-                      </Text>
-                      </View>
-                    </LinearGradient>
+          )}
 
-                    <View
-                      style={{
-                        alignItems: 'center',
-                        justifyContent: 'center',
-                      }}
-                    >
-                      <Text style={{ color: 'white', fontSize: mediumScreen ? FontSize.eleven : FontSize.nine, marginLeft: 8, fontFamily: 'PlusJakartaSansBold' }}>
-                       {event.participants}
-                      </Text>
-                    </View>
-                  </View>
-                </Pressable>
-              ))}
-            </ScrollView>
-          </View>
-        )}
-
-
-
-
-
-
-
-
-        {(activeCategory === 'All' || activeCategory === 'Videos' || activeCategory === 'Shorts') && (
-          <View>
-            <View style={{ paddingHorizontal: 16, flexDirection: 'row', justifyContent: 'space-between', marginBottom: 10, marginTop: 4 }}>
-              <Text style={{ color: theme.text, fontSize: mediumScreen ? FontSize.eighteen : FontSize.fourteen, fontWeight: 'bold', fontFamily: 'PlusJakartaSansExtraBold' }}>TRENDING VIDEO</Text>
-              <Pressable onPress={()=>{
-                navigation.navigate("TrendingVideos")
-              }}>
-                <Text style={{ color: PRIMARY_COLOR, fontSize: mediumScreen ? FontSize.fifteen : FontSize.eleven, fontWeight: 'bold', fontFamily: 'PlusJakartaSansBold' }}>SEE ALL</Text>
-              </Pressable>
+          {(activeTab === 'all' || activeTab === 'tickets') && (
+            <View style={styles.section}>
+              <SectionHeader icon="confirmation-number" title="Event" color={PRIMARY_COLOR} action="view calendar" onAction={() => navigation.navigate('Events')} />
+              {filteredTickets.length === 0 ? renderEmpty('No video workshops matching your search.') : (
+                <View style={styles.twoColumnGrid}>
+                  {filteredTickets.map((ticket) => {
+                    const inCart = ticketCart.includes(ticket.id);
+                    return (
+                      <Pressable key={ticket.id} onPress={() => setSelectedTicket(ticket)} style={styles.ticketCard}>
+                        <LinearGradient colors={ticket.colors} start={{ x: 0, y: 0 }} end={{ x: 1, y: 1 }} style={StyleSheet.absoluteFill} />
+                        <Image source={{ uri: ticket.img }} style={styles.ticketImage} />
+                        <View style={styles.ticketBody}>
+                          <View style={styles.ticketCreatorRow}>
+                            <MaterialIcons name="videocam" size={11} color={PRIMARY_COLOR} />
+                            <Text numberOfLines={1} style={styles.ticketCreator}>by {ticket.creator}</Text>
+                          </View>
+                          <Text numberOfLines={2} style={styles.ticketTitle}>{ticket.eventTitle}</Text>
+                          <Text numberOfLines={1} style={styles.ticketMeta}>{ticket.date}</Text>
+                          <Text numberOfLines={1} style={styles.ticketVenue}>{ticket.venue} • {ticket.duration}</Text>
+                          <View style={styles.dashedLine} />
+                          <View style={styles.ticketFooter}>
+                            <View>
+                              <Text style={styles.priceLabel}>Price</Text>
+                              <Text style={styles.priceText}>{ticket.price} KC</Text>
+                            </View>
+                            <Pressable onPress={(event) => { stop(event); setSelectedTicket(ticket); }} style={[styles.bookButton, inCart ? styles.bookedButton : null]}>
+                              <Text style={[styles.bookButtonText, { color: inCart ? '#059669' : '#fff' }]}>{inCart ? 'Booked' : 'Book'}</Text>
+                            </Pressable>
+                          </View>
+                        </View>
+                      </Pressable>
+                    );
+                  })}
+                </View>
+              )}
             </View>
-            <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={{ gap: 14, paddingHorizontal: 16 }}>
-              {featuredClips.map((vid) => (
-                <Pressable key={vid.id} onPress={() => navigation.navigate('Feed')}>
-                  <View style={{ borderRadius: 28, overflow: 'hidden', backgroundColor: cardBackground, height: 300, width: 220, borderWidth: 1, borderColor: theme.border }}>
-                    <Image source={{ uri: vid.img }} style={{ width: '100%', height: '100%', opacity: 0.75 }} />
-                    <LinearGradient
-                      colors={['transparent', 'rgba(0,0,0,0.22)', 'rgba(0,0,0,0.92)']}
-                      start={{ x: 0, y: 0 }}
-                      end={{ x: 0, y: 1 }}
-                      style={{
-                        position: 'absolute',
-                        top: 0,
-                        left: 0,
-                        right: 0,
-                        bottom: 0,
-                      }}
-                    />
-                    <View
-                      style={{
-                        padding: 16,
-                        position: 'absolute',
-                        bottom: 0,
-                        left: 0,
-                        right: 0,
-                      }}
-                    >
-                      <Text style={{
-                          fontFamily: "PlusJakartaSansBold",
-                          fontSize: mediumScreen? FontSize.fourteen: FontSize.ten,
-                          color: PRIMARY_COLOR
+          )}
 
-                        }}>
-                         { `@ ${vid.artist}`}
-                        </Text>
-                      <Text
-                      numberOfLines={1}
-                      style={{ color: 'white', fontSize: mediumScreen ? FontSize.sixteen : FontSize.twelve,  fontFamily: 'PlusJakartaSansExtraBold' }}>
-                        {vid.title.toUpperCase()}
-                      </Text>
-                      <View style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', gap: 12, marginTop: 6 }}>
-                        <Text style={{ color: theme.textSecondary, fontSize: mediumScreen ? FontSize.twelve : FontSize.eight,fontFamily: 'PlusJakartaSansBold',}}>
-                          {`${vid.views.toUpperCase()} VIEWS`}
-                        </Text>
-                        {vid.sound && (
-                          <Pressable
-                            onPress={() => navigation.navigate('UploadContent')}
-                            style={{
-                              flexDirection: 'row',
-                              alignItems: 'center',
-                              gap: 4,
-                              backgroundColor: overlayMusicSurface,
-                              borderRadius: 10,
-                              paddingHorizontal: 8,
-                              paddingVertical: 6,
-                              borderWidth: 1,
-                              borderColor: overlayMusicBorder,
-                            }}
-                          >
-                            <MaterialIcons name="music-note" size={12} color={PRIMARY_COLOR} />
-                            {/* <Text style={{ color: isDark ? 'white' : theme.text, fontSize: FontSize.nine, fontFamily: 'PlusJakartaSansBold' }} numberOfLines={1}>
-                              {vid.sound.title.toUpperCase()}
-                            </Text> */}
-                          </Pressable>
-                        )}
-                      </View>
-                    </View>
-                  </View>
-                </Pressable>
-              ))}
-            </ScrollView>
-          </View>
-        )}
-
-        {/* {(activeCategory === 'All' || activeCategory === 'Creators') && (
-          <View style={{ paddingBottom: 10 }}>
-            <View style={{ flexDirection: 'row', justifyContent: 'space-between', marginBottom: 10, marginTop: 4, paddingHorizontal: 16 }}>
-              <Text style={{ color: theme.text, fontSize: mediumScreen ? FontSize.eighteen : FontSize.fourteen, fontWeight: 'bold', fontFamily: 'PlusJakartaSansExtraBold' }}>KULSAH STORE</Text>
-              <Pressable onPress={() => {
-                navigation.navigate('MarketPlace')
-              }}>
-                <Text style={{ color: PRIMARY_COLOR, fontSize: mediumScreen ? FontSize.fifteen : FontSize.eleven, fontWeight: 'bold', fontFamily: 'PlusJakartaSansBold' }}>BROWSE ALL</Text>
-              </Pressable>
+          {(activeTab === 'all' || activeTab === 'challenges') && (
+            <View style={styles.section}>
+              <SectionHeader icon="emoji-events" title="Creator Challenges" color="#cd2bee" action="view more" onAction={() => navigation.navigate('Challenges')} />
+              {filteredChallenges.length === 0 ? renderEmpty('No creator challenges matching your query.') : (
+                <View style={styles.twoColumnGrid}>
+                  {filteredChallenges.map((challenge) => {
+                    const isJoined = joinedChallenges.includes(challenge.id);
+                    const matchedCreator = topCreators.find((creator) => creator.name === challenge.creator);
+                    return (
+                      <Pressable key={challenge.id} onPress={() => navigation.navigate('ChallengeFeed', { challengeId: challenge.id })} style={styles.challengeCard}>
+                        <View style={styles.challengeImageWrap}>
+                          <Image source={{ uri: challenge.img }} style={styles.challengeImage} />
+                          <Text numberOfLines={1} style={styles.challengeType}>{challenge.type}</Text>
+                          <LinearGradient colors={['transparent', 'rgba(0,0,0,0.42)']} style={styles.challengeImageFade} />
+                        </View>
+                        <View style={styles.challengeBody}>
+                          <View style={styles.challengeCreatorRow}>
+                            <Image source={{ uri: matchedCreator?.avatar || challenge.img }} style={styles.challengeAvatar} />
+                            <Text numberOfLines={1} style={styles.challengeCreator}>@{challenge.creator}</Text>
+                          </View>
+                          <Text numberOfLines={2} style={styles.challengeTitle}>#{challenge.tag}</Text>
+                          <Text style={styles.challengePrize}>{challenge.prizePool}</Text>
+                          <View style={styles.metricPill}>
+                            <MaterialIcons name="groups" size={11} color="#cd2bee" />
+                            <Text style={styles.metricText}>{(challenge.participants / 1000).toFixed(1)}K entries</Text>
+                          </View>
+                          <View style={styles.dashedLine} />
+                          <View style={styles.challengeFooter}>
+                            <Text numberOfLines={1} style={styles.joinedText}>+{(challenge.participants - 110).toLocaleString()} joined</Text>
+                            <Pressable onPress={(event) => handleJoinChallenge(challenge.id, event)} style={[styles.joinButton, isJoined ? styles.joinedButton : null]}>
+                              <MaterialIcons name={isJoined ? 'verified' : 'bolt'} size={11} color={isJoined ? '#10b981' : '#fff'} />
+                              <Text style={[styles.joinText, { color: isJoined ? '#10b981' : '#fff' }]}>{isJoined ? 'Joined' : 'Join'}</Text>
+                            </Pressable>
+                          </View>
+                        </View>
+                      </Pressable>
+                    );
+                  })}
+                </View>
+              )}
             </View>
-            <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={{ gap: 12, paddingHorizontal: 16 }}>
-              {featuredMerch.map((item) => (
-                <Pressable key={item.id} style={{ width: 180 }} onPress={() => navigation.navigate('MarketPlace')}>
-                  <View style={{ borderRadius: 24, overflow: 'hidden', backgroundColor: cardBackground, borderWidth: 1, borderColor: theme.border }}>
-                    <Image source={{ uri: item.img }} style={{ width: '100%', aspectRatio: 1 }} />
-                    <View style={{ position: 'absolute', top: 10, right: 10, backgroundColor: PRIMARY_COLOR, borderRadius: 999, paddingHorizontal: 10, paddingVertical: 6 }}>
-                      <Text style={{ color: 'white', fontSize: mediumScreen ? FontSize.twelve : FontSize.ten, fontWeight: '700', fontFamily: 'PlusJakartaSansBold' }}>{item.price}</Text>
-                    </View>
-                    <View
-                      style={{
-                        position: 'absolute',
-                        top: 0,
-                        left: 0,
-                        right: 0,
-                        bottom: 0,
-                        alignItems: 'center',
-                        justifyContent: 'center',
-                      }}
-                    >
-                      <View
-                        style={{
-                          width: 42,
-                          height: 42,
-                          borderRadius: 21,
-                          backgroundColor: isDark ? 'rgba(255,255,255,0.15)' : 'rgba(255,255,255,0.78)',
-                          borderWidth: 1,
-                          borderColor: isDark ? 'rgba(255,255,255,0.3)' : theme.border,
-                          alignItems: 'center',
-                          justifyContent: 'center',
-                        }}
-                      >
-                        <MaterialIcons name="shopping-bag" size={20} color={isDark ? 'white' : theme.text} />
-                      </View>
-                    </View>
-                  </View>
-                  <View style={{ padding: 10 }}>
-                    <Text style={{ color: theme.text, fontSize: mediumScreen ? FontSize.twelve : FontSize.nine, fontWeight: 'bold', fontFamily: 'PlusJakartaSansBold' }} numberOfLines={1}>
-                      {item.name.toUpperCase()}
-                    </Text>
-                    <Text style={{ color: theme.textSecondary, fontSize: mediumScreen ? FontSize.ten : FontSize.seven, marginTop: 4, fontWeight: 'bold', fontFamily: 'PlusJakartaSansBold' }} numberOfLines={1}>
-                      {item.artist.toUpperCase()}
-                    </Text>
-                  </View>
-                </Pressable>
-              ))}
-            </ScrollView>
-          </View>
-        )} */}
-      </View>
-      <View style={{
-        height: 100,
-      }}/>
-    </ScrollView>
+          )}
+
+          {(activeTab === 'all' || activeTab === 'videos') && (
+            <View style={styles.section}>
+              <SectionHeader icon="play-circle-outline" title="Trending Now" color={PRIMARY_COLOR} action="see full trend" onAction={() => navigation.navigate('TrendingVideos')} />
+              {filteredVideos.length === 0 ? renderEmpty('No reels or clips matching your query.') : (
+                <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={styles.videoList}>
+                  {filteredVideos.map((video) => {
+                    const isLiked = likedVideos.includes(video.id);
+                    return (
+                      <Pressable key={video.id} onPress={() => navigation.navigate('Video', { id: video.id })} style={styles.videoCard}>
+                        <Image source={{ uri: video.img }} style={styles.videoImage} />
+                        <LinearGradient colors={['rgba(0,0,0,0.12)', 'rgba(0,0,0,0.82)']} style={StyleSheet.absoluteFill} />
+                        <Text style={styles.videoCategory}>{video.category}</Text>
+                        <Text style={styles.videoDuration}>{video.duration}</Text>
+                        <Pressable onPress={(event) => handleLikeVideo(video.id, event)} style={styles.likeButton}>
+                          <MaterialIcons name="favorite" size={15} color={isLiked ? '#f43f5e' : '#64748b'} />
+                        </Pressable>
+                        <View style={styles.playButton}>
+                          <MaterialIcons name="play-arrow" size={24} color="#fff" />
+                        </View>
+                        <View style={styles.videoInfo}>
+                          <Text numberOfLines={1} style={styles.videoCreator}>{video.creator}</Text>
+                          <Text numberOfLines={2} style={styles.videoTitle}>{video.title}</Text>
+                          <View style={styles.viewsRow}>
+                            <MaterialIcons name="visibility" size={10} color="rgba(255,255,255,0.78)" />
+                            <Text style={styles.viewsText}>{video.views} Views</Text>
+                          </View>
+                        </View>
+                      </Pressable>
+                    );
+                  })}
+                </ScrollView>
+              )}
+            </View>
+          )}
+        </View>
+      </ScrollView>
+
+      <TicketModal ticket={selectedTicket} styles={styles} onClose={() => setSelectedTicket(null)} onConfirm={handleConfirmTicketPurchase} onConfigure={(ticket) => { setSelectedTicket(null); navigation.navigate('SelectTickets', { eventId: ticket.id }); }} />
+      <SuccessModal visible={isSuccessModalOpen} styles={styles} onClose={() => setIsSuccessModalOpen(false)} />
+    </SafeAreaView>
   );
+};
+
+const SectionHeader = ({ icon, title, color, action, onAction }: { icon: keyof typeof MaterialIcons.glyphMap; title: string; color: string; action?: string; onAction?: () => void }) => (
+  <View style={sectionHeaderStyles.row}>
+    <View style={sectionHeaderStyles.titleRow}>
+      <MaterialIcons name={icon} size={16} color={color} />
+      <Text style={sectionHeaderStyles.title}>{title}</Text>
+    </View>
+    {action ? (
+      <Pressable onPress={onAction} style={sectionHeaderStyles.actionButton}>
+        <Text style={sectionHeaderStyles.actionText}>{action}</Text>
+      </Pressable>
+    ) : null}
+  </View>
+);
+
+const TicketModal = ({ ticket, styles, onClose, onConfirm, onConfigure }: { ticket: TicketItem | null; styles: ReturnType<typeof createStyles>; onClose: () => void; onConfirm: () => void; onConfigure: (ticket: TicketItem) => void }) => (
+  <Modal visible={Boolean(ticket)} transparent animationType="slide" onRequestClose={onClose}>
+    {ticket ? (
+      <View style={styles.modalOverlay}>
+        <Pressable style={StyleSheet.absoluteFill} onPress={onClose} />
+        <View style={styles.ticketModalSheet}>
+          <View style={styles.modalHandle} />
+          <View style={styles.modalTitleRow}>
+            <View style={styles.modalTitleCopy}>
+              <Text style={styles.modalEyebrow}>CREATOR MASTERCLASS PASS</Text>
+              <Text style={styles.modalTitle}>{ticket.eventTitle}</Text>
+            </View>
+            <Pressable onPress={onClose} style={styles.modalCloseButton}>
+              <MaterialIcons name="close" size={20} color="#71717a" />
+            </Pressable>
+          </View>
+          <View style={styles.modalTicketCard}>
+            <Image source={{ uri: ticket.img }} style={styles.modalTicketImage} />
+            <View style={styles.modalTicketCopy}>
+              <Text style={styles.modalTicketInstructor}>Instructed by {ticket.creator}</Text>
+              <Text numberOfLines={1} style={styles.modalTicketTitle}>{ticket.eventTitle}</Text>
+              <Text numberOfLines={2} style={styles.modalTicketMeta}>{ticket.date} • {ticket.venue}</Text>
+            </View>
+          </View>
+          <View style={styles.breakdown}>
+            <PriceRow label="1x VIP Hub Access Pass" value={`${ticket.price} KC`} styles={styles} />
+            <PriceRow label="Interactive Project Stems" value="Included" styles={styles} success />
+            <View style={styles.totalRow}>
+              <Text style={styles.totalLabel}>Total Deduction</Text>
+              <Text style={styles.totalValue}>{ticket.price} KulCoins</Text>
+            </View>
+          </View>
+          <View style={styles.modalActions}>
+            <Pressable onPress={() => onConfigure(ticket)} style={styles.configureButton}>
+              <Text style={styles.configureText}>Configure Seat</Text>
+            </Pressable>
+            <Pressable onPress={onConfirm} style={styles.confirmButton}>
+              <Text style={styles.confirmText}>Book Securely</Text>
+            </Pressable>
+          </View>
+        </View>
+      </View>
+    ) : null}
+  </Modal>
+);
+
+const PriceRow = ({ label, value, styles, success }: { label: string; value: string; styles: ReturnType<typeof createStyles>; success?: boolean }) => (
+  <View style={styles.priceRow}>
+    <Text style={styles.priceRowLabel}>{label}</Text>
+    <Text style={[styles.priceRowValue, success ? styles.successText : null]}>{value}</Text>
+  </View>
+);
+
+const SuccessModal = ({ visible, styles, onClose }: { visible: boolean; styles: ReturnType<typeof createStyles>; onClose: () => void }) => (
+  <Modal visible={visible} transparent animationType="fade" onRequestClose={onClose}>
+    <View style={styles.successOverlay}>
+      <View style={styles.successCard}>
+        <View style={styles.successIconWrap}>
+          <MaterialIcons name="check-circle" size={40} color="#10b981" />
+        </View>
+        <Text style={styles.successTitle}>Pass Secured!</Text>
+        <Text style={styles.successBody}>Your VIP Creator Access ticket is successfully saved to your creator catalog, ready for the livestream.</Text>
+        <Pressable onPress={onClose} style={styles.successButton}>
+          <Text style={styles.successButtonText}>Access My Tickets</Text>
+        </Pressable>
+      </View>
+    </View>
+  </Modal>
+);
+
+const sectionHeaderStyles = StyleSheet.create({
+  row: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between' },
+  titleRow: { flexDirection: 'row', alignItems: 'center', gap: 8 },
+  title: { color: '#71717a', fontFamily: FontFamily.extraBold, fontSize: FontSize.eleven, letterSpacing: 3, textTransform: 'uppercase' },
+  actionButton: { minHeight: 32, justifyContent: 'center', paddingHorizontal: 10, borderRadius: 12, backgroundColor: primaryColorAlpha(0.1), borderWidth: 1, borderColor: primaryColorAlpha(0.18) },
+  actionText: { color: PRIMARY_COLOR, fontFamily: FontFamily.extraBold, fontSize: FontSize.eleven, letterSpacing: 1.2, textTransform: 'uppercase' },
+});
+
+const createStyles = (isDark: boolean) => {
+  const background = isDark ? '#09090b' : '#f8fafc';
+  const card = isDark ? '#18181b' : '#ffffff';
+  const cardMuted = isDark ? '#09090b' : '#f8fafc';
+  const border = isDark ? '#27272a' : '#e2e8f0';
+  const text = isDark ? '#ffffff' : '#0f172a';
+  const textSoft = isDark ? '#d4d4d8' : '#334155';
+  const muted = isDark ? '#a1a1aa' : '#64748b';
+
+  return StyleSheet.create({
+    safeArea: { flex: 1 },
+    content: { backgroundColor: background },
+    ambientOne: { position: 'absolute', top: 0, alignSelf: 'center', width: 240, height: 240, borderRadius: 120, backgroundColor: primaryColorAlpha(isDark ? 0.08 : 0.12), opacity: 0.85 },
+    ambientTwo: { position: 'absolute', top: 480, right: -100, width: 220, height: 220, borderRadius: 110, backgroundColor: 'rgba(147,51,234,0.06)' },
+    header: { paddingHorizontal: 20, paddingBottom: 14, borderBottomWidth: 1 },
+    headerRow: { minHeight: 58, flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between' },
+    iconButton: { width: 44, height: 44, borderRadius: 22, alignItems: 'center', justifyContent: 'center', backgroundColor: card, borderWidth: 1, borderColor: border },
+    headerTitle: { fontFamily: FontFamily.displayExtraBold, fontSize: FontSize.body, letterSpacing: 2.2, textTransform: 'uppercase' },
+    notificationDot: { position: 'absolute', top: 11, right: 11, width: 8, height: 8, borderRadius: 4, backgroundColor: PRIMARY_COLOR, borderWidth: 2, borderColor: background },
+    searchWrap: { height: 48, borderRadius: 18, paddingHorizontal: 14, flexDirection: 'row', alignItems: 'center', borderWidth: 1, gap: 10 },
+    searchInput: { flex: 1, fontFamily: FontFamily.bold, fontSize: FontSize.twelve, paddingVertical: 0 },
+    tabList: { gap: 8, paddingTop: 12 },
+    tab: { minHeight: 34, paddingHorizontal: 14, borderRadius: 12, alignItems: 'center', justifyContent: 'center', borderWidth: 1 },
+    tabSelected: { backgroundColor: PRIMARY_COLOR, borderColor: 'transparent' },
+    tabIdle: { backgroundColor: card, borderColor: border },
+    tabText: { fontFamily: FontFamily.extraBold, fontSize: FontSize.eleven, letterSpacing: 1.2, textTransform: 'uppercase' },
+    main: { paddingHorizontal: 20, paddingTop: 24, gap: 32 },
+    section: { gap: 14 },
+    emptyState: { padding: 28, borderRadius: 18, backgroundColor: card, borderWidth: 1, borderColor: border, alignItems: 'center' },
+    emptyText: { color: muted, fontFamily: FontFamily.bold, fontSize: FontSize.body, textAlign: 'center' },
+    creatorList: { gap: 8, paddingVertical: 4, paddingRight: 20 },
+    creatorCard: { width: 172, minHeight: 226, borderRadius: 20, backgroundColor: card, borderWidth: 1, borderColor: border, padding: 14, alignItems: 'center', overflow: 'hidden' },
+    liveBadge: { position: 'absolute', top: 10, left: 10, flexDirection: 'row', alignItems: 'center', gap: 5, backgroundColor: '#ef4444', paddingHorizontal: 7, paddingVertical: 3, borderRadius: 999 },
+    liveDot: { width: 4, height: 4, borderRadius: 2, backgroundColor: '#fff' },
+    liveText: { color: '#fff', fontFamily: FontFamily.extraBold, fontSize: FontSize.eleven, letterSpacing: 1 },
+    proBadge: { position: 'absolute', top: 10, right: 10, color: '#f59e0b', backgroundColor: isDark ? 'rgba(120,53,15,0.32)' : '#fffbeb', borderRadius: 6, paddingHorizontal: 6, paddingVertical: 2, fontFamily: FontFamily.extraBold, fontSize: FontSize.eleven, letterSpacing: 0.8 },
+    creatorAvatarWrap: { marginTop: 18, marginBottom: 12, width: 70, height: 70, borderRadius: 35, borderWidth: 2, borderColor: primaryColorAlpha(0.28), padding: 3 },
+    creatorAvatar: { width: '100%', height: '100%', borderRadius: 32 },
+    creatorLiveIcon: { position: 'absolute', right: -2, bottom: -2, width: 20, height: 20, borderRadius: 10, backgroundColor: PRIMARY_COLOR, textAlign: 'center', textAlignVertical: 'center', borderWidth: 2, borderColor: card },
+    creatorCopy: { alignItems: 'center', flex: 1, width: '100%' },
+    creatorNameRow: { flexDirection: 'row', alignItems: 'center', justifyContent: 'center', gap: 4, maxWidth: '100%' },
+    creatorName: { color: text, fontFamily: FontFamily.displayExtraBold, fontSize: FontSize.eleven, letterSpacing: 1, textTransform: 'uppercase', maxWidth: 120 },
+    creatorHandle: { color: muted, fontFamily: FontFamily.bold, fontSize: FontSize.eleven, marginTop: 3, marginBottom: 6 },
+    creatorStyle: { color: textSoft, fontFamily: FontFamily.regular, fontSize: FontSize.eleven, textAlign: 'center', lineHeight: 15 },
+    followButton: { width: '100%', height: 34, borderRadius: 13, flexDirection: 'row', alignItems: 'center', justifyContent: 'center', gap: 5, borderWidth: 1 },
+    subscribeButton: { backgroundColor: PRIMARY_COLOR, borderColor: 'transparent' },
+    followingButton: { backgroundColor: primaryColorAlpha(0.1), borderColor: primaryColorAlpha(0.2) },
+    followText: { fontFamily: FontFamily.extraBold, fontSize: FontSize.eleven, letterSpacing: 1, textTransform: 'uppercase' },
+    twoColumnGrid: { flexDirection: 'row', flexWrap: 'wrap', gap: 10 },
+    ticketCard: { width: '48.5%', borderRadius: 20, overflow: 'hidden', backgroundColor: card, borderWidth: 1, borderColor: border },
+    ticketImage: { width: '100%', aspectRatio: 3 / 4, backgroundColor: cardMuted },
+    ticketBody: { padding: 12, gap: 6 },
+    ticketCreatorRow: { flexDirection: 'row', alignItems: 'center', gap: 4 },
+    ticketCreator: { flex: 1, color: PRIMARY_COLOR, fontFamily: FontFamily.extraBold, fontSize: FontSize.eleven, letterSpacing: 0.8, textTransform: 'uppercase' },
+    ticketTitle: { color: text, fontFamily: FontFamily.displayExtraBold, fontSize: FontSize.twelve, lineHeight: 18, textTransform: 'uppercase' },
+    ticketMeta: { color: textSoft, fontFamily: FontFamily.bold, fontSize: FontSize.eleven, textTransform: 'uppercase' },
+    ticketVenue: { color: muted, fontFamily: FontFamily.bold, fontSize: FontSize.eleven },
+    dashedLine: { borderTopWidth: 1, borderStyle: 'dashed', borderColor: border, marginVertical: 6 },
+    ticketFooter: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between' },
+    priceLabel: { color: muted, fontFamily: FontFamily.extraBold, fontSize: FontSize.eleven, letterSpacing: 0.8, textTransform: 'uppercase' },
+    priceText: { color: PRIMARY_COLOR, fontFamily: FontFamily.extraBold, fontSize: FontSize.eleven, textTransform: 'uppercase' },
+    bookButton: { minWidth: 54, height: 30, borderRadius: 11, alignItems: 'center', justifyContent: 'center', backgroundColor: PRIMARY_COLOR },
+    bookedButton: { backgroundColor: isDark ? 'rgba(6,78,59,0.24)' : '#ecfdf5', borderWidth: 1, borderColor: isDark ? 'rgba(16,185,129,0.25)' : '#a7f3d0' },
+    bookButtonText: { fontFamily: FontFamily.extraBold, fontSize: FontSize.eleven, letterSpacing: 0.8, textTransform: 'uppercase' },
+    challengeCard: { width: '48.5%', borderRadius: 20, padding: 10, backgroundColor: card, borderWidth: 1, borderColor: border },
+    challengeImageWrap: { width: '100%', aspectRatio: 3 / 4, borderRadius: 16, overflow: 'hidden', backgroundColor: cardMuted },
+    challengeImage: { width: '100%', height: '100%' },
+    challengeImageFade: { position: 'absolute', left: 0, right: 0, bottom: 0, height: 48 },
+    challengeType: { position: 'absolute', top: 8, left: 8, right: 8, color: text, backgroundColor: isDark ? 'rgba(24,24,27,0.92)' : 'rgba(255,255,255,0.9)', borderRadius: 8, paddingHorizontal: 7, paddingVertical: 3, fontFamily: FontFamily.extraBold, fontSize: FontSize.eleven, textTransform: 'uppercase' },
+    challengeBody: { paddingTop: 10, gap: 6 },
+    challengeCreatorRow: { flexDirection: 'row', alignItems: 'center', gap: 5 },
+    challengeAvatar: { width: 16, height: 16, borderRadius: 8 },
+    challengeCreator: { flex: 1, color: muted, fontFamily: FontFamily.bold, fontSize: FontSize.eleven },
+    challengeTitle: { color: text, fontFamily: FontFamily.displayExtraBold, fontSize: FontSize.twelve, lineHeight: 18, textTransform: 'uppercase' },
+    challengePrize: { color: PRIMARY_COLOR, fontFamily: FontFamily.extraBold, fontSize: FontSize.eleven, textTransform: 'uppercase' },
+    metricPill: { alignSelf: 'flex-start', flexDirection: 'row', alignItems: 'center', gap: 4, paddingHorizontal: 7, paddingVertical: 4, borderRadius: 8, backgroundColor: cardMuted, borderWidth: 1, borderColor: border },
+    metricText: { color: textSoft, fontFamily: FontFamily.bold, fontSize: FontSize.eleven },
+    challengeFooter: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', gap: 6 },
+    joinedText: { flex: 1, color: muted, fontFamily: FontFamily.bold, fontSize: FontSize.eleven },
+    joinButton: { height: 30, borderRadius: 11, paddingHorizontal: 10, flexDirection: 'row', alignItems: 'center', justifyContent: 'center', gap: 3, backgroundColor: PRIMARY_COLOR },
+    joinedButton: { backgroundColor: isDark ? 'rgba(6,78,59,0.24)' : '#ecfdf5', borderWidth: 1, borderColor: isDark ? 'rgba(16,185,129,0.25)' : '#a7f3d0' },
+    joinText: { fontFamily: FontFamily.extraBold, fontSize: FontSize.eleven, letterSpacing: 0.6, textTransform: 'uppercase' },
+    videoList: { gap: 10, paddingBottom: 6, paddingRight: 20 },
+    videoCard: { width: 220, aspectRatio: 4 / 5, borderRadius: 20, overflow: 'hidden', backgroundColor: '#0f172a', borderWidth: 1, borderColor: border },
+    videoImage: { width: '100%', height: '100%', position: 'absolute' },
+    videoCategory: { position: 'absolute', top: 10, left: 10, color: '#fb7185', backgroundColor: 'rgba(0,0,0,0.55)', borderRadius: 7, paddingHorizontal: 7, paddingVertical: 3, fontFamily: FontFamily.extraBold, fontSize: FontSize.eleven, letterSpacing: 1, textTransform: 'uppercase' },
+    videoDuration: { position: 'absolute', top: 10, right: 10, color: '#fff', backgroundColor: 'rgba(0,0,0,0.6)', borderRadius: 7, paddingHorizontal: 6, paddingVertical: 3, fontFamily: FontFamily.extraBold, fontSize: FontSize.eleven },
+    likeButton: { position: 'absolute', right: 12, bottom: 58, width: 32, height: 32, borderRadius: 16, alignItems: 'center', justifyContent: 'center', backgroundColor: isDark ? '#18181b' : 'rgba(255,255,255,0.92)', borderWidth: 1, borderColor: border },
+    playButton: { position: 'absolute', alignSelf: 'center', top: '43%', width: 50, height: 50, borderRadius: 25, alignItems: 'center', justifyContent: 'center', backgroundColor: primaryColorAlpha(0.94) },
+    videoInfo: { position: 'absolute', left: 12, right: 42, bottom: 12 },
+    videoCreator: { color: '#fb7185', fontFamily: FontFamily.extraBold, fontSize: FontSize.eleven, letterSpacing: 1.2, textTransform: 'uppercase' },
+    videoTitle: { color: '#fff', fontFamily: FontFamily.displayExtraBold, fontSize: FontSize.eleven, lineHeight: 15, marginTop: 4 },
+    viewsRow: { flexDirection: 'row', alignItems: 'center', gap: 4, marginTop: 5 },
+    viewsText: { color: 'rgba(255,255,255,0.78)', fontFamily: FontFamily.extraBold, fontSize: FontSize.eleven },
+    modalOverlay: { flex: 1, justifyContent: 'flex-end', backgroundColor: 'rgba(0,0,0,0.55)' },
+    ticketModalSheet: { borderTopLeftRadius: 36, borderTopRightRadius: 36, backgroundColor: card, borderTopWidth: 1, borderColor: border, padding: 22, paddingBottom: 34, gap: 18 },
+    modalHandle: { alignSelf: 'center', width: 48, height: 5, borderRadius: 3, backgroundColor: isDark ? '#3f3f46' : '#e2e8f0' },
+    modalTitleRow: { flexDirection: 'row', alignItems: 'flex-start', justifyContent: 'space-between', gap: 12 },
+    modalTitleCopy: { flex: 1 },
+    modalEyebrow: { color: PRIMARY_COLOR, fontFamily: FontFamily.extraBold, fontSize: FontSize.eleven, letterSpacing: 1.7 },
+    modalTitle: { color: text, fontFamily: FontFamily.displayExtraBold, fontSize: FontSize.title, lineHeight: 28, textTransform: 'uppercase', marginTop: 4 },
+    modalCloseButton: { width: 36, height: 36, borderRadius: 18, alignItems: 'center', justifyContent: 'center', backgroundColor: cardMuted, borderWidth: 1, borderColor: border },
+    modalTicketCard: { flexDirection: 'row', gap: 12, padding: 14, borderRadius: 22, backgroundColor: cardMuted, borderWidth: 1, borderColor: border },
+    modalTicketImage: { width: 64, height: 64, borderRadius: 14 },
+    modalTicketCopy: { flex: 1, justifyContent: 'center' },
+    modalTicketInstructor: { color: muted, fontFamily: FontFamily.bold, fontSize: FontSize.eleven, letterSpacing: 0.7, textTransform: 'uppercase' },
+    modalTicketTitle: { color: textSoft, fontFamily: FontFamily.extraBold, fontSize: FontSize.twelve, textTransform: 'uppercase', marginTop: 4 },
+    modalTicketMeta: { color: muted, fontFamily: FontFamily.bold, fontSize: FontSize.eleven, marginTop: 4 },
+    breakdown: { gap: 12 },
+    priceRow: { flexDirection: 'row', justifyContent: 'space-between', borderBottomWidth: 1, borderColor: border, paddingBottom: 10, gap: 10 },
+    priceRowLabel: { flex: 1, color: muted, fontFamily: FontFamily.regular, fontSize: FontSize.eleven },
+    priceRowValue: { color: text, fontFamily: FontFamily.extraBold, fontSize: FontSize.eleven },
+    successText: { color: '#10b981' },
+    totalRow: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center' },
+    totalLabel: { color: textSoft, fontFamily: FontFamily.bold, fontSize: FontSize.twelve },
+    totalValue: { color: PRIMARY_COLOR, fontFamily: FontFamily.extraBold, fontSize: FontSize.twelve },
+    modalActions: { flexDirection: 'row', gap: 12 },
+    configureButton: { flex: 1, height: 48, borderRadius: 18, alignItems: 'center', justifyContent: 'center', backgroundColor: cardMuted, borderWidth: 1, borderColor: border },
+    configureText: { color: textSoft, fontFamily: FontFamily.extraBold, fontSize: FontSize.eleven, letterSpacing: 1, textTransform: 'uppercase' },
+    confirmButton: { flex: 1, height: 48, borderRadius: 18, alignItems: 'center', justifyContent: 'center', backgroundColor: PRIMARY_COLOR },
+    confirmText: { color: '#fff', fontFamily: FontFamily.extraBold, fontSize: FontSize.eleven, letterSpacing: 1, textTransform: 'uppercase' },
+    successOverlay: { flex: 1, alignItems: 'center', justifyContent: 'center', padding: 24, backgroundColor: 'rgba(0,0,0,0.45)' },
+    successCard: { width: '100%', maxWidth: 320, borderRadius: 30, padding: 24, alignItems: 'center', gap: 14, backgroundColor: card, borderWidth: 1, borderColor: border },
+    successIconWrap: { width: 68, height: 68, borderRadius: 34, alignItems: 'center', justifyContent: 'center', backgroundColor: isDark ? 'rgba(6,78,59,0.22)' : '#ecfdf5', borderWidth: 1, borderColor: isDark ? 'rgba(16,185,129,0.25)' : '#a7f3d0' },
+    successTitle: { color: text, fontFamily: FontFamily.extraBold, fontSize: FontSize.body, textTransform: 'uppercase' },
+    successBody: { color: textSoft, fontFamily: FontFamily.regular, fontSize: FontSize.twelve, lineHeight: 20, textAlign: 'center' },
+    successButton: { width: '100%', height: 46, borderRadius: 18, alignItems: 'center', justifyContent: 'center', backgroundColor: '#10b981' },
+    successButtonText: { color: '#fff', fontFamily: FontFamily.extraBold, fontSize: FontSize.eleven, letterSpacing: 1, textTransform: 'uppercase' },
+  });
 };
 
 export default Discover;

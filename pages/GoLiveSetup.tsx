@@ -12,7 +12,7 @@ import {
 } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
 import { MaterialIcons } from '@expo/vector-icons';
-import { FontSize } from '../fonts';
+import { FontFamily, FontSize } from '../fonts';
 import { mediumScreen } from '../types';
 
 type Step = 'media' | 'details' | 'protocol';
@@ -309,7 +309,7 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     backgroundColor: 'rgba(255,255,255,0.06)',
   },
-  headerTitle: { fontSize: mediumScreen ? FontSize.sixteen:FontSize.twelve, fontFamily: 'PlusJakartaSansExtraBold' },
+  headerTitle: { fontSize: mediumScreen ? FontSize.sixteen:FontSize.twelve, fontFamily: FontFamily.extraBold },
   readyPill: {
     borderRadius: 999,
     paddingHorizontal: 10,
@@ -318,7 +318,7 @@ const styles = StyleSheet.create({
     borderColor: primaryColorAlpha(0.4),
     backgroundColor: primaryColorAlpha(0.15),
   },
-  readyText: { color: PRIMARY_COLOR, fontSize: FontSize.nine, letterSpacing: 1.2, fontFamily: 'PlusJakartaSansExtraBold' },
+  readyText: { color: PRIMARY_COLOR, fontSize: FontSize.nine, letterSpacing: 1.2, fontFamily: FontFamily.extraBold },
   stepperRow: { marginTop: 14, flexDirection: 'row', justifyContent: 'space-between', position: 'relative' },
   stepTrack: {
     position: 'absolute',
@@ -342,13 +342,13 @@ const styles = StyleSheet.create({
   },
   stepIconActive: { backgroundColor: PRIMARY_COLOR, borderColor: PRIMARY_COLOR },
   stepIconCompleted: { backgroundColor: PRIMARY_COLOR, borderColor: PRIMARY_COLOR },
-  stepLabel: { fontSize: mediumScreen ? FontSize.twelve:FontSize.eight, letterSpacing: 1, fontFamily: 'PlusJakartaSansExtraBold' },
+  stepLabel: { fontSize: mediumScreen ? FontSize.twelve:FontSize.eight, letterSpacing: 1, fontFamily: FontFamily.extraBold },
   stepLabelActive: { color: PRIMARY_COLOR },
   body: { flex: 1 },
   bodyContent: { paddingHorizontal: 16, paddingTop: 16, paddingBottom: 220, gap: 18 },
   sectionWrap: { gap: 22 },
   section: { gap: 10 },
-  sectionLabel: { fontSize: mediumScreen? FontSize.twelve:FontSize.ten, letterSpacing: 1.6, fontFamily: 'PlusJakartaSansExtraBold' },
+  sectionLabel: { fontSize: mediumScreen? FontSize.twelve:FontSize.ten, letterSpacing: 1.6, fontFamily: FontFamily.extraBold },
   previewCard: {
     height: 210,
     borderRadius: 28,
@@ -380,10 +380,10 @@ const styles = StyleSheet.create({
     gap: 4,
   },
   qualityItemActive: { backgroundColor: PRIMARY_COLOR, borderColor: PRIMARY_COLOR },
-  qualityLabel: { fontSize: mediumScreen ? FontSize.sixteen: FontSize.twelve, fontFamily: 'PlusJakartaSansExtraBold' },
-  qualityBitrate: { fontSize: mediumScreen? FontSize.twelve:FontSize.eight, fontFamily: 'PlusJakartaSansBold' },
+  qualityLabel: { fontSize: mediumScreen ? FontSize.sixteen: FontSize.twelve, fontFamily: FontFamily.extraBold },
+  qualityBitrate: { fontSize: mediumScreen? FontSize.twelve:FontSize.eight, fontFamily: FontFamily.bold },
   qualityTextActive: { color: '#fff' },
-  helperText: { fontSize: FontSize.eleven, fontFamily: 'PlusJakartaSansMedium' },
+  helperText: { fontSize: FontSize.eleven, fontFamily: FontFamily.medium },
   titleInput: {
     height: 58,
     borderRadius: 16,
@@ -393,7 +393,7 @@ const styles = StyleSheet.create({
     paddingHorizontal: 14,
     color: '#fff',
     fontSize: mediumScreen? FontSize.sixteen:FontSize.twelve,
-    fontFamily: 'PlusJakartaSansBold',
+    fontFamily: FontFamily.bold,
   },
   vibeWrap: { flexDirection: 'row', flexWrap: 'wrap', gap: 8 },
   vibeChip: {
@@ -405,7 +405,7 @@ const styles = StyleSheet.create({
     paddingVertical: 10,
   },
   vibeChipActive: { backgroundColor: PRIMARY_COLOR, borderColor: PRIMARY_COLOR },
-  vibeText: { fontSize: mediumScreen? FontSize.twelve:FontSize.eight, letterSpacing: 0.8, fontFamily: 'PlusJakartaSansExtraBold' },
+  vibeText: { fontSize: mediumScreen? FontSize.twelve:FontSize.eight, letterSpacing: 0.8, fontFamily: FontFamily.extraBold },
   vibeTextActive: { color: '#fff' },
   protocolRow: { flexDirection: 'row', gap: 10 },
   protocolCard: {
@@ -441,8 +441,8 @@ const styles = StyleSheet.create({
   radioOuterPremium: { borderColor: '#eab308' },
   radioInner: { width: 8, height: 8, borderRadius: 4, backgroundColor: PRIMARY_COLOR },
   radioInnerPremium: { width: 8, height: 8, borderRadius: 4, backgroundColor: '#eab308' },
-  protocolTitle: { fontSize: mediumScreen ? FontSize.sixteen:FontSize.twelve, fontFamily: 'PlusJakartaSansExtraBold' },
-  protocolSub: { fontSize: FontSize.ten, fontFamily: 'PlusJakartaSansBold' },
+  protocolTitle: { fontSize: mediumScreen ? FontSize.sixteen:FontSize.twelve, fontFamily: FontFamily.extraBold },
+  protocolSub: { fontSize: FontSize.ten, fontFamily: FontFamily.bold },
   notifyRow: {
     borderRadius: 16,
     borderWidth: 1,
@@ -453,8 +453,8 @@ const styles = StyleSheet.create({
     justifyContent: 'space-between',
     alignItems: 'center',
   },
-  notifyTitle: { fontSize: FontSize.twelve, fontFamily: 'PlusJakartaSansBold' },
-  notifySub: { fontSize: FontSize.ten, marginTop: 2, fontFamily: 'PlusJakartaSansMedium' },
+  notifyTitle: { fontSize: FontSize.twelve, fontFamily: FontFamily.bold },
+  notifySub: { fontSize: FontSize.ten, marginTop: 2, fontFamily: FontFamily.medium },
   footer: {
     position: 'absolute',
     left: 0,
@@ -468,8 +468,8 @@ const styles = StyleSheet.create({
     borderTopColor: 'rgba(255,255,255,0.08)',
   },
   progressMeta: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', marginBottom: 8 },
-  progressText: { fontSize: FontSize.ten, fontFamily: 'PlusJakartaSansBold' },
-  progressValue: { color: PRIMARY_COLOR, fontSize: FontSize.ten, fontFamily: 'PlusJakartaSansExtraBold' },
+  progressText: { fontSize: FontSize.ten, fontFamily: FontFamily.bold },
+  progressValue: { color: PRIMARY_COLOR, fontSize: FontSize.ten, fontFamily: FontFamily.extraBold },
   progressTrack: {
     height: 8,
     borderRadius: 5,
@@ -490,7 +490,7 @@ const styles = StyleSheet.create({
     gap: 8,
   },
   primaryBtnDisabled: { opacity: 0.35 },
-  primaryBtnText: { color: '#fff', fontSize: mediumScreen? FontSize.sixteen:FontSize.twelve, letterSpacing: 1, fontFamily: 'PlusJakartaSansExtraBold', lineHeight: 26 },
+  primaryBtnText: { color: '#fff', fontSize: mediumScreen? FontSize.sixteen:FontSize.twelve, letterSpacing: 1, fontFamily: FontFamily.extraBold, lineHeight: 26 },
 });
 
 export default GoLiveSetup;

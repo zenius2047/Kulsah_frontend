@@ -14,7 +14,7 @@ import { MaterialIcons } from '@expo/vector-icons';
 import { useNavigation, useRoute } from '@react-navigation/native';
 import { BlurView } from 'expo-blur';
 import { useThemeMode, PRIMARY_COLOR, primaryColorAlpha } from "./theme";
-import { FontSize } from './fonts';
+import { FontFamily, FontSize } from './fonts';
 import { mediumScreen } from './types';
 
 const OTP_LENGTH = 4;
@@ -283,7 +283,7 @@ const styles = StyleSheet.create({
   },
   brandText: {
     color: '#ffffff',
-    fontFamily: 'PlusJakartaSansExtraBold',
+    fontFamily: FontFamily.extraBold,
     fontSize: mediumScreen ? FontSize.twenty : FontSize.seventeen,
     letterSpacing: -0.8,
     paddingVertical: 2,
@@ -320,13 +320,13 @@ const styles = StyleSheet.create({
     marginBottom: 36,
   },
   title: {
-    fontFamily: 'PlusJakartaSansExtraBold',
+    fontFamily: FontFamily.extraBold,
     fontSize: mediumScreen ? FontSize.twentyEight : FontSize.twentyFour,
     letterSpacing: -1,
     marginBottom: 10,
   },
   subtitle: {
-    fontFamily: 'PlusJakartaSansMedium',
+    fontFamily: FontFamily.medium,
     fontSize: mediumScreen ? FontSize.thirteen : FontSize.eleven,
     lineHeight: mediumScreen ? FontSize.twentyOne : FontSize.eighteen,
     textAlign: 'center',
@@ -334,7 +334,7 @@ const styles = StyleSheet.create({
   },
   highlightText: {
     color: PRIMARY_COLOR,
-    fontFamily: 'PlusJakartaSansBold',
+    fontFamily: FontFamily.bold,
   },
   otpRow: {
     flexDirection: 'row',
@@ -356,11 +356,11 @@ const styles = StyleSheet.create({
     overflow: 'hidden',
   },
   otpDigit: {
-    fontFamily: 'PlusJakartaSansExtraBold',
+    fontFamily: FontFamily.extraBold,
     fontSize: mediumScreen ? FontSize.twentyFour : FontSize.twentyOne,
   },
   otpPlaceholder: {
-    fontFamily: 'PlusJakartaSansBold',
+    fontFamily: FontFamily.bold,
     fontSize: mediumScreen ? FontSize.twentyThree : FontSize.twenty,
   },
   cursor: {
@@ -378,12 +378,12 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
   },
   resendText: {
-    fontFamily: 'PlusJakartaSansMedium',
+    fontFamily: FontFamily.medium,
     fontSize: mediumScreen ? FontSize.thirteen : FontSize.eleven,
   },
   resendAction: {
     color: PRIMARY_COLOR,
-    fontFamily: 'PlusJakartaSansExtraBold',
+    fontFamily: FontFamily.extraBold,
     fontSize: mediumScreen ? FontSize.thirteen : FontSize.eleven,
   },
   primaryButton: {
@@ -408,7 +408,7 @@ const styles = StyleSheet.create({
   },
   primaryButtonText: {
     color: '#ffffff',
-    fontFamily: 'PlusJakartaSansExtraBold',
+    fontFamily: FontFamily.extraBold,
     fontSize: mediumScreen ? FontSize.fifteen : FontSize.thirteen,
   },
   keypadWrap: {
@@ -437,7 +437,7 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
   },
   keyText: {
-    fontFamily: 'PlusJakartaSansExtraBold',
+    fontFamily: FontFamily.extraBold,
     fontSize: mediumScreen ? FontSize.twentyFour : FontSize.twentyOne,
   },
 });

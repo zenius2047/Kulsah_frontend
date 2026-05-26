@@ -34,7 +34,7 @@ import VerifiedIcon from '../assets/icons/verified-svg.svg';
 import HandShakeIcon from '../assets/icons/handshake-svg.svg';
 import FireIcon from '../assets/icons/fire-svg.svg';
 import { mediumScreen, setDark, setUser, user } from '../types';
-import { FontSize } from '../fonts';
+import { FontFamily, FontSize } from '../fonts';
 
 
 type SettingsSubView = 'main' | 'tags' | 'identity';
@@ -458,7 +458,7 @@ const s = StyleSheet.create({
     justifyContent: 'center',
     backgroundColor: '#ffffff14',
   },
-  headerTitle: { color: '#fff', fontSize: mediumScreen ? FontSize.sixteen: FontSize.twelve, fontFamily: 'PlusJakartaSansExtraBold', textTransform: 'uppercase' },
+  headerTitle: { color: '#fff', fontSize: mediumScreen ? FontSize.sixteen: FontSize.twelve, fontFamily: FontFamily.extraBold, textTransform: 'uppercase' },
   donePill: {
     paddingHorizontal: 10,
     paddingVertical: 6,
@@ -470,7 +470,7 @@ const s = StyleSheet.create({
   donePillText: {
     color: PRIMARY_COLOR,
     fontSize: FontSize.ten,
-    fontFamily: 'PlusJakartaSansBold',
+    fontFamily: FontFamily.bold,
     textTransform: 'uppercase',
     letterSpacing: 1,
   },
@@ -517,11 +517,11 @@ const s = StyleSheet.create({
   },
   profileNameBlock: { paddingBottom: 10 },
   nameRow: { flexDirection: 'row', alignItems: 'center', gap: 6, justifyContent: 'center',},
-  profileName: { color: '#fff', fontSize: FontSize.sixteen, fontFamily: 'PlusJakartaSansExtraBold' },
+  profileName: { color: '#fff', fontSize: FontSize.sixteen, fontFamily: FontFamily.extraBold },
   profileHandle: {
     color: PRIMARY_COLOR,
     fontSize: FontSize.ten,
-    fontFamily: 'PlusJakartaSansBold',
+    fontFamily: FontFamily.bold,
     textTransform: 'uppercase',
     letterSpacing: 0.5,
     marginTop: 0,
@@ -530,7 +530,7 @@ const s = StyleSheet.create({
   sectionTitle: {
     color: '#8b90a8',
     fontSize: FontSize.nine,
-    fontFamily: 'PlusJakartaSansExtraBold',
+    fontFamily: FontFamily.extraBold,
     textTransform: 'uppercase',
     letterSpacing: 2.0,
     marginBottom: 8,
@@ -559,8 +559,8 @@ const s = StyleSheet.create({
     borderColor: 'rgba(0 0 0 / 0.05)',
   },
   itemCopy: { flex: 1 },
-  itemLabel: { color: '#fff', fontFamily: 'PlusJakartaSansExtraBold', fontSize: mediumScreen ? FontSize.sixteen:FontSize.twelve },
-  itemDesc: { color: '#8e91a6', marginTop: 0, fontSize: FontSize.eleven, fontFamily: 'PlusJakartaSansMedium' },
+  itemLabel: { color: '#fff', fontFamily: FontFamily.extraBold, fontSize: mediumScreen ? FontSize.sixteen:FontSize.twelve },
+  itemDesc: { color: '#8e91a6', marginTop: 0, fontSize: FontSize.eleven, fontFamily: FontFamily.medium },
   footerActions: { paddingHorizontal: 16, marginTop: 22, gap: 10 },
   signOutBtn: {
     height: 58,
@@ -573,7 +573,7 @@ const s = StyleSheet.create({
     flexDirection: 'row',
     gap: 8,
   },
-  signOutText: { color: '#fff', fontFamily: 'PlusJakartaSansBold', fontSize: FontSize.twelve },
+  signOutText: { color: '#fff', fontFamily: FontFamily.bold, fontSize: FontSize.twelve },
   deactivateBtn: {
     height: 58,
     borderRadius: 22,
@@ -585,7 +585,7 @@ const s = StyleSheet.create({
     flexDirection: 'row',
     gap: 8,
   },
-  deactivateText: { color: '#ef4444', fontFamily: 'PlusJakartaSansBold', fontSize: FontSize.twelve },
+  deactivateText: { color: '#ef4444', fontFamily: FontFamily.bold, fontSize: FontSize.twelve },
   versionText: {
     marginTop: 2,
     color: '#70758f',
@@ -600,7 +600,7 @@ const s = StyleSheet.create({
   inputLabel: {
     color: '#8b90a8',
     fontSize: mediumScreen ? FontSize.fourteen:FontSize.ten,
-    fontFamily: 'PlusJakartaSansExtraBold',
+    fontFamily: FontFamily.extraBold,
     textTransform: 'uppercase',
     letterSpacing: 2,
     paddingHorizontal: 3,
@@ -630,7 +630,7 @@ const s = StyleSheet.create({
     borderColor: '#ffffff1a',
     backgroundColor: '#ffffff08',
     color: '#fff',
-    fontFamily: 'PlusJakartaSansBold',
+    fontFamily: FontFamily.bold,
     fontSize: mediumScreen ? FontSize.fourteen:FontSize.ten,
     paddingHorizontal: 14,
   },
@@ -639,11 +639,11 @@ const s = StyleSheet.create({
     fontSize: mediumScreen ? FontSize.twelve:FontSize.eight,
     textTransform: 'uppercase',
     letterSpacing: 1,
-    fontFamily: 'PlusJakartaSansBold',
+    fontFamily: FontFamily.bold,
     paddingHorizontal: 3,
   },
   rowBetween: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center' },
-  counterText: { color: '#8f95af', fontSize: FontSize.ten, fontFamily: 'PlusJakartaSansBold' },
+  counterText: { color: '#8f95af', fontSize: FontSize.ten, fontFamily: FontFamily.bold },
   counterWarn: { color: '#ef4444' },
   textarea: {
     minHeight: 120,
@@ -653,7 +653,7 @@ const s = StyleSheet.create({
     backgroundColor: '#ffffff08',
     color: '#fff',
     fontSize: mediumScreen ? FontSize.fourteen:FontSize.ten,
-    fontFamily: 'PlusJakartaSansBold',
+    fontFamily: FontFamily.bold,
     lineHeight: 20,
     paddingHorizontal: 14,
     paddingVertical: 12,
@@ -669,7 +669,7 @@ const s = StyleSheet.create({
   sectionHeading: {
     color: '#8b90a8',
     fontSize: FontSize.nine,
-    fontFamily: 'PlusJakartaSansExtraBold',
+    fontFamily: FontFamily.extraBold,
     textTransform: 'uppercase',
     letterSpacing: 2.5,
     paddingHorizontal: 3,
@@ -678,7 +678,7 @@ const s = StyleSheet.create({
   fieldName: {
     color: '#8f95af',
     fontSize: FontSize.nine,
-    fontFamily: 'PlusJakartaSansBold',
+    fontFamily: FontFamily.bold,
     textTransform: 'uppercase',
     letterSpacing: 1.4,
     paddingHorizontal: 3,
@@ -696,7 +696,7 @@ const s = StyleSheet.create({
   tagText: {
     color: '#a8adc4',
     fontSize: FontSize.ten,
-    fontFamily: 'PlusJakartaSansExtraBold',
+    fontFamily: FontFamily.extraBold,
     textTransform: 'uppercase',
     letterSpacing: 1.1,
   },
@@ -709,7 +709,7 @@ const s = StyleSheet.create({
     textAlign: 'center',
     lineHeight: 15,
     marginTop: 8,
-    fontFamily: 'PlusJakartaSansBold',
+    fontFamily: FontFamily.bold,
   },
 });
 

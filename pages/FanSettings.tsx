@@ -15,7 +15,7 @@ import { MaterialIcons } from '@expo/vector-icons';
 import { useNavigation, useRoute } from '@react-navigation/native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { mediumScreen, setDark, setUser, subscribeUser, user } from '../types';
-import { FontSize } from '../fonts';
+import { FontFamily, FontSize } from '../fonts';
 import CreatorSettings from './CreatorSettings';
 import DarkIcon from '../assets/icons/dark-mode-svg.svg';
 import AccountIcon from '../assets/icons/account-circle-svg.svg';
@@ -721,7 +721,7 @@ const s = StyleSheet.create({
     justifyContent: 'center',
     backgroundColor: '#eef2ff',
   },
-  headerTitle: { fontSize: mediumScreen ? FontSize.sixteen:FontSize.twelve, fontFamily: 'PlusJakartaSansExtraBold', textTransform: 'uppercase', color: '#0f172a' },
+  headerTitle: { fontSize: mediumScreen ? FontSize.sixteen:FontSize.twelve, fontFamily: FontFamily.extraBold, textTransform: 'uppercase', color: '#0f172a' },
   viewWrap: { flex: 1, backgroundColor: '#f8fafc' },
   formCard: { padding: 16, gap: 18 },
   profileAvatarWrap: { alignItems: 'center', marginBottom: 12 },
@@ -753,7 +753,7 @@ const s = StyleSheet.create({
     justifyContent: 'center',
   },
   formBlock: { gap: 8 },
-  label: { fontSize: mediumScreen ? FontSize.fourteen:FontSize.ten, fontFamily: 'PlusJakartaSansExtraBold', textTransform: 'uppercase', letterSpacing: 2, color: '#94a3b8' },
+  label: { fontSize: mediumScreen ? FontSize.fourteen:FontSize.ten, fontFamily: FontFamily.extraBold, textTransform: 'uppercase', letterSpacing: 2, color: '#94a3b8' },
   input: {
     height: 52,
     borderRadius: 18,
@@ -763,13 +763,13 @@ const s = StyleSheet.create({
     backgroundColor: '#fff',
     fontSize: mediumScreen ? FontSize.fourteen:FontSize.ten,
     color: '#0f172a',
-    fontFamily: 'PlusJakartaSansBold',
+    fontFamily: FontFamily.bold,
   },
   handleWrap: { position: 'relative', justifyContent: 'center' },
-  handlePrefix: { position: 'absolute', left: 16, color: PRIMARY_COLOR, fontFamily: 'PlusJakartaSansExtraBold' },
+  handlePrefix: { position: 'absolute', left: 16, color: PRIMARY_COLOR, fontFamily: FontFamily.extraBold },
   handleInput: { paddingLeft: 34 },
   rowBetween: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between' },
-  counter: { fontSize: mediumScreen ? FontSize.fourteen:FontSize.ten, fontFamily: 'PlusJakartaSansBold', color: '#94a3b8' },
+  counter: { fontSize: mediumScreen ? FontSize.fourteen:FontSize.ten, fontFamily: FontFamily.bold, color: '#94a3b8' },
   textArea: {
     minHeight: 120,
     borderRadius: 22,
@@ -779,7 +779,7 @@ const s = StyleSheet.create({
     textAlignVertical: 'top',
     backgroundColor: '#fff',
     color: '#334155',
-    fontFamily: 'PlusJakartaSansBold',
+    fontFamily: FontFamily.bold,
     fontSize: mediumScreen ? FontSize.fourteen:FontSize.ten
   },
   primaryButton: {
@@ -790,7 +790,7 @@ const s = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'center',
   },
-  primaryButtonText: { color: '#fff', fontSize: FontSize.twelve, fontFamily: 'PlusJakartaSansExtraBold', textTransform: 'uppercase', letterSpacing: 2 },
+  primaryButtonText: { color: '#fff', fontSize: FontSize.twelve, fontFamily: FontFamily.extraBold, textTransform: 'uppercase', letterSpacing: 2 },
   identityContent: { padding: 16, paddingBottom: 120, gap: 20 },
   carouselWrap: { gap: 12 },
   cardSlide: { width: 360, paddingRight: 12 },
@@ -808,11 +808,11 @@ const s = StyleSheet.create({
   cardFront: { gap: 16 },
   cardBack: { gap: 14, alignItems: 'center' },
   cardRowBetween: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center' },
-  cardTag: { fontSize: FontSize.ten, fontFamily: 'PlusJakartaSansExtraBold', textTransform: 'uppercase', letterSpacing: 3, color: PRIMARY_COLOR },
-  cardName: { fontSize: FontSize.twentyThree, fontFamily: 'PlusJakartaSansExtraBold', color: '#0f172a', textTransform: 'uppercase' },
-  cardSub: { fontSize: FontSize.eleven, fontFamily: 'PlusJakartaSansBold', color: '#94a3b8', textTransform: 'uppercase' },
-  cardTitle: { fontSize: FontSize.eighteen, fontFamily: 'PlusJakartaSansExtraBold', color: '#0f172a', textTransform: 'uppercase' },
-  cardLabel: { fontSize: FontSize.ten, fontFamily: 'PlusJakartaSansExtraBold', letterSpacing: 3, color: PRIMARY_COLOR, textTransform: 'uppercase' },
+  cardTag: { fontSize: FontSize.ten, fontFamily: FontFamily.extraBold, textTransform: 'uppercase', letterSpacing: 3, color: PRIMARY_COLOR },
+  cardName: { fontSize: FontSize.twentyThree, fontFamily: FontFamily.extraBold, color: '#0f172a', textTransform: 'uppercase' },
+  cardSub: { fontSize: FontSize.eleven, fontFamily: FontFamily.bold, color: '#94a3b8', textTransform: 'uppercase' },
+  cardTitle: { fontSize: FontSize.eighteen, fontFamily: FontFamily.extraBold, color: '#0f172a', textTransform: 'uppercase' },
+  cardLabel: { fontSize: FontSize.ten, fontFamily: FontFamily.extraBold, letterSpacing: 3, color: PRIMARY_COLOR, textTransform: 'uppercase' },
   cardIconBadge: {
     width: 40,
     height: 40,
@@ -838,14 +838,14 @@ const s = StyleSheet.create({
     paddingVertical: 6,
     borderRadius: 999,
     fontSize: FontSize.ten,
-    fontFamily: 'PlusJakartaSansExtraBold',
+    fontFamily: FontFamily.extraBold,
     textTransform: 'uppercase',
   },
-  smallLabel: { fontSize: FontSize.nine, fontFamily: 'PlusJakartaSansExtraBold', color: '#94a3b8', textTransform: 'uppercase', letterSpacing: 2 },
-  monoText: { fontSize: FontSize.eleven, fontFamily: 'PlusJakartaSansBold', color: '#64748b' },
+  smallLabel: { fontSize: FontSize.nine, fontFamily: FontFamily.extraBold, color: '#94a3b8', textTransform: 'uppercase', letterSpacing: 2 },
+  monoText: { fontSize: FontSize.eleven, fontFamily: FontFamily.bold, color: '#64748b' },
   iconRow: { flexDirection: 'row', gap: 8 },
   ticketRow: { flexDirection: 'row', justifyContent: 'space-between' },
-  ticketValue: { fontSize: FontSize.thirteen, fontFamily: 'PlusJakartaSansBold', color: '#0f172a' },
+  ticketValue: { fontSize: FontSize.thirteen, fontFamily: FontFamily.bold, color: '#0f172a' },
   blueText: { color: '#3b82f6' },
   qrBadge: {
     width: 36,
@@ -884,18 +884,18 @@ const s = StyleSheet.create({
     backgroundColor: '#f0fdf4',
   },
   tokenDot: { width: 8, height: 8, borderRadius: 4, backgroundColor: PRIMARY_COLOR },
-  tokenText: { fontSize: FontSize.ten, fontFamily: 'PlusJakartaSansExtraBold', color: '#7c3aed' },
-  tokenTextAlt: { fontSize: FontSize.ten, fontFamily: 'PlusJakartaSansExtraBold', color: '#16a34a' },
-  tokenHint: { fontSize: FontSize.ten, fontFamily: 'PlusJakartaSansBold', color: '#94a3b8', textAlign: 'center' },
+  tokenText: { fontSize: FontSize.ten, fontFamily: FontFamily.extraBold, color: '#7c3aed' },
+  tokenTextAlt: { fontSize: FontSize.ten, fontFamily: FontFamily.extraBold, color: '#16a34a' },
+  tokenHint: { fontSize: FontSize.ten, fontFamily: FontFamily.bold, color: '#94a3b8', textAlign: 'center' },
   progressBarWrap: { gap: 8 },
   progressTrack: { height: 6, borderRadius: 999, backgroundColor: '#e2e8f0' },
   progressFill: { height: '100%', borderRadius: 999, backgroundColor: PRIMARY_COLOR },
   progressLabels: { flexDirection: 'row', justifyContent: 'space-between' },
-  progressText: { fontSize: FontSize.ten, fontFamily: 'PlusJakartaSansBold', textTransform: 'uppercase', color: '#94a3b8' },
+  progressText: { fontSize: FontSize.ten, fontFamily: FontFamily.bold, textTransform: 'uppercase', color: '#94a3b8' },
   progressTextActive: { color: PRIMARY_COLOR },
   sectionBlock: { gap: 10 },
-  sectionTitle: { fontSize: FontSize.nine, fontFamily: 'PlusJakartaSansExtraBold', textTransform: 'uppercase', letterSpacing: 2, color: '#94a3b8' },
-  sectionBadge: { fontSize: FontSize.ten, fontFamily: 'PlusJakartaSansBold', textTransform: 'uppercase', color: PRIMARY_COLOR },
+  sectionTitle: { fontSize: FontSize.nine, fontFamily: FontFamily.extraBold, textTransform: 'uppercase', letterSpacing: 2, color: '#94a3b8' },
+  sectionBadge: { fontSize: FontSize.ten, fontFamily: FontFamily.bold, textTransform: 'uppercase', color: PRIMARY_COLOR },
   rail: { marginTop: 6 },
   railCard: {
     width: 170,
@@ -916,8 +916,8 @@ const s = StyleSheet.create({
     justifyContent: 'center',
   },
   railIconBlue: { backgroundColor: '#eff6ff' },
-  railTitle: { fontSize: FontSize.eleven, fontFamily: 'PlusJakartaSansExtraBold', color: '#0f172a' },
-  railMeta: { fontSize: FontSize.ten, fontFamily: 'PlusJakartaSansBold', color: '#94a3b8', textTransform: 'uppercase' },
+  railTitle: { fontSize: FontSize.eleven, fontFamily: FontFamily.extraBold, color: '#0f172a' },
+  railMeta: { fontSize: FontSize.ten, fontFamily: FontFamily.bold, color: '#94a3b8', textTransform: 'uppercase' },
   statusCard: {
     padding: 14,
     borderRadius: 20,
@@ -937,10 +937,10 @@ const s = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'center',
   },
-  statusText: { fontSize: FontSize.twelve, fontFamily: 'PlusJakartaSansBold', color: '#0f172a' },
+  statusText: { fontSize: FontSize.twelve, fontFamily: FontFamily.bold, color: '#0f172a' },
   statusBadge: {
     fontSize: FontSize.nine,
-    fontFamily: 'PlusJakartaSansExtraBold',
+    fontFamily: FontFamily.extraBold,
     textTransform: 'uppercase',
     color: PRIMARY_COLOR,
     backgroundColor: '#f5f3ff',
@@ -963,13 +963,13 @@ const s = StyleSheet.create({
   walletContent: { gap: 12 },
   walletValue: {
     fontSize: mediumScreen ? FontSize.thirtyTwo : FontSize.twentyEight,
-    fontFamily: 'PlusJakartaSansExtraBold',
+    fontFamily: FontFamily.extraBold,
     color: '#0f172a',
     marginTop: 4,
   },
   walletUnit: {
     fontSize: mediumScreen ? FontSize.eighteen : FontSize.fourteen,
-    fontFamily: 'PlusJakartaSansExtraBold',
+    fontFamily: FontFamily.extraBold,
     color: PRIMARY_COLOR,
   },
   walletActions: {
@@ -988,7 +988,7 @@ const s = StyleSheet.create({
   walletPrimaryButtonText: {
     color: '#fff',
     fontSize: FontSize.ten,
-    fontFamily: 'PlusJakartaSansExtraBold',
+    fontFamily: FontFamily.extraBold,
     textTransform: 'uppercase',
     letterSpacing: 1.5,
   },
@@ -1002,7 +1002,7 @@ const s = StyleSheet.create({
   },
   moreItemsMeta: {
     fontSize: FontSize.nine,
-    fontFamily: 'PlusJakartaSansExtraBold',
+    fontFamily: FontFamily.extraBold,
     textTransform: 'uppercase',
     letterSpacing: 1.5,
   },
@@ -1032,13 +1032,13 @@ const s = StyleSheet.create({
   giftTextWrap: { flex: 1 },
   giftTitle: {
     fontSize: FontSize.twelve,
-    fontFamily: 'PlusJakartaSansExtraBold',
+    fontFamily: FontFamily.extraBold,
     textTransform: 'uppercase',
   },
   giftDesc: {
     marginTop: 2,
     fontSize: FontSize.ten,
-    fontFamily: 'PlusJakartaSansMedium',
+    fontFamily: FontFamily.medium,
   },
   giftRight: {
     alignItems: 'flex-end',
@@ -1046,13 +1046,13 @@ const s = StyleSheet.create({
   },
   giftCount: {
     fontSize: FontSize.eighteen,
-    fontFamily: 'PlusJakartaSansExtraBold',
+    fontFamily: FontFamily.extraBold,
     lineHeight: FontSize.twenty,
   },
   giftMeta: {
     marginTop: 2,
     fontSize: FontSize.eight,
-    fontFamily: 'PlusJakartaSansExtraBold',
+    fontFamily: FontFamily.extraBold,
     textTransform: 'uppercase',
     letterSpacing: 1.5,
   },
@@ -1078,11 +1078,11 @@ const s = StyleSheet.create({
   },
   marketplaceTitle: {
     fontSize: FontSize.twelve,
-    fontFamily: 'PlusJakartaSansBold',
+    fontFamily: FontFamily.bold,
   },
   marketplaceDesc: {
     fontSize: FontSize.ten,
-    fontFamily: 'PlusJakartaSansMedium',
+    fontFamily: FontFamily.medium,
     textAlign: 'center',
     lineHeight: FontSize.sixteen,
   },
@@ -1105,11 +1105,11 @@ const s = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'center',
   },
-  methodTitle: { fontSize: FontSize.twelve, fontFamily: 'PlusJakartaSansBold', color: '#0f172a' },
-  methodMeta: { fontSize: FontSize.ten, fontFamily: 'PlusJakartaSansBold', color: '#94a3b8', textTransform: 'uppercase' },
+  methodTitle: { fontSize: FontSize.twelve, fontFamily: FontFamily.bold, color: '#0f172a' },
+  methodMeta: { fontSize: FontSize.ten, fontFamily: FontFamily.bold, color: '#94a3b8', textTransform: 'uppercase' },
   methodBadge: {
     fontSize: FontSize.nine,
-    fontFamily: 'PlusJakartaSansExtraBold',
+    fontFamily: FontFamily.extraBold,
     textTransform: 'uppercase',
     color: PRIMARY_COLOR,
     backgroundColor: '#f5f3ff',
@@ -1126,13 +1126,13 @@ const s = StyleSheet.create({
     alignItems: 'center',
     gap: 8,
   },
-  emptyText: { fontSize: FontSize.ten, fontFamily: 'PlusJakartaSansExtraBold', textTransform: 'uppercase', letterSpacing: 2, color: '#94a3b8' },
+  emptyText: { fontSize: FontSize.ten, fontFamily: FontFamily.extraBold, textTransform: 'uppercase', letterSpacing: 2, color: '#94a3b8' },
   mainContent: { padding: 16, paddingBottom: 120, gap: 18 },
   profileHeader: { alignItems: 'center', gap: 12 },
   profileTextWrap: { alignItems: 'center' },
   profileNameRow: { flexDirection: 'row', alignItems: 'center', gap: 6 },
-  profileName: { fontSize: FontSize.sixteen, fontFamily: 'PlusJakartaSansExtraBold', color: '#0f172a' },
-  profileHandle: { fontSize: FontSize.ten, fontFamily: 'PlusJakartaSansBold', letterSpacing: 0.5, color: PRIMARY_COLOR, textTransform: 'uppercase' },
+  profileName: { fontSize: FontSize.sixteen, fontFamily: FontFamily.extraBold, color: '#0f172a' },
+  profileHandle: { fontSize: FontSize.ten, fontFamily: FontFamily.bold, letterSpacing: 0.5, color: PRIMARY_COLOR, textTransform: 'uppercase' },
   itemRow: {
     marginTop: 8,
     padding: 14,
@@ -1155,8 +1155,8 @@ const s = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'center',
   },
-  itemLabel: { fontSize: FontSize.twelve, fontFamily: 'PlusJakartaSansExtraBold', color: '#0f172a' },
-  itemDesc: { fontSize: FontSize.eleven, fontFamily: 'PlusJakartaSansMedium', color: '#94a3b8' },
+  itemLabel: { fontSize: FontSize.twelve, fontFamily: FontFamily.extraBold, color: '#0f172a' },
+  itemDesc: { fontSize: FontSize.eleven, fontFamily: FontFamily.medium, color: '#94a3b8' },
   toggle: {
     width: 44,
     height: 24,
@@ -1186,8 +1186,8 @@ const s = StyleSheet.create({
     borderColor: '#fecaca',
     backgroundColor: '#fee2e2',
   },
-  logoutText: { fontSize: FontSize.twelve, fontFamily: 'PlusJakartaSansBold', color: '#ef4444' },
-  versionText: { fontSize: FontSize.nine, fontFamily: 'PlusJakartaSansExtraBold', textTransform: 'uppercase', color: '#94a3b8', letterSpacing: 2 },
+  logoutText: { fontSize: FontSize.twelve, fontFamily: FontFamily.bold, color: '#ef4444' },
+  versionText: { fontSize: FontSize.nine, fontFamily: FontFamily.extraBold, textTransform: 'uppercase', color: '#94a3b8', letterSpacing: 2 },
 });
 
 export default FanSettings;

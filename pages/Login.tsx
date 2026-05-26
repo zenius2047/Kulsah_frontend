@@ -13,7 +13,7 @@ import {
 } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
 import type { UserRole } from '../types';
-import { FontSize } from '../fonts';
+import { FontFamily, FontSize } from '../fonts';
 import { PRIMARY_COLOR, primaryColorAlpha } from "../theme";
 
 interface LoginProps {
@@ -175,13 +175,13 @@ const styles = StyleSheet.create({
     color: '#f7f5f8',
     fontSize: FontSize.thirtySix,
     lineHeight: FontSize.thirtyEight,
-    fontFamily: 'PlusJakartaSansExtraBold',
+    fontFamily: FontFamily.extraBold,
     letterSpacing: -1.4,
   },
   brandSubtitle: {
     color: 'rgba(148,163,184,0.8)',
     fontSize: FontSize.eleven,
-    fontFamily: 'PlusJakartaSansBold',
+    fontFamily: FontFamily.bold,
     textTransform: 'uppercase',
     letterSpacing: 1.6,
     marginTop: 8,
@@ -209,7 +209,7 @@ const styles = StyleSheet.create({
   cardTitle: {
     color: '#f7f5f8',
     fontSize: FontSize.twentyFour,
-    fontFamily: 'PlusJakartaSansExtraBold',
+    fontFamily: FontFamily.extraBold,
     textAlign: 'center',
     marginBottom: 24,
   },
@@ -231,7 +231,7 @@ const styles = StyleSheet.create({
   secondaryButtonText: {
     color: '#f7f5f8',
     fontSize: FontSize.fourteen,
-    fontFamily: 'PlusJakartaSansBold',
+    fontFamily: FontFamily.bold,
   },
   googleMark: {
     width: 24,
@@ -244,12 +244,12 @@ const styles = StyleSheet.create({
   googleMarkText: {
     color: '#f7f5f8',
     fontSize: FontSize.twelve,
-    fontFamily: 'PlusJakartaSansExtraBold',
+    fontFamily: FontFamily.extraBold,
   },
   appleMark: {
     color: '#f7f5f8',
     fontSize: FontSize.thirteen,
-    fontFamily: 'PlusJakartaSansExtraBold',
+    fontFamily: FontFamily.extraBold,
   },
   primaryButton: {
     minHeight: 58,
@@ -269,14 +269,14 @@ const styles = StyleSheet.create({
   primaryButtonText: {
     color: '#ffffff',
     fontSize: FontSize.fourteen,
-    fontFamily: 'PlusJakartaSansExtraBold',
+    fontFamily: FontFamily.extraBold,
   },
   legalText: {
     marginTop: 24,
     color: '#64748b',
     fontSize: FontSize.eleven,
     lineHeight: FontSize.eighteen,
-    fontFamily: 'PlusJakartaSansMedium',
+    fontFamily: FontFamily.medium,
     textAlign: 'center',
     paddingHorizontal: 8,
   },
@@ -293,12 +293,12 @@ const styles = StyleSheet.create({
   creatorPrompt: {
     color: '#94a3b8',
     fontSize: FontSize.thirteen,
-    fontFamily: 'PlusJakartaSansMedium',
+    fontFamily: FontFamily.medium,
   },
   creatorAction: {
     color: PRIMARY_COLOR,
     fontSize: FontSize.fourteen,
-    fontFamily: 'PlusJakartaSansExtraBold',
+    fontFamily: FontFamily.extraBold,
   },
   previewGrid: {
     width: '100%',

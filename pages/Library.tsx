@@ -14,7 +14,7 @@ import {
 import { MaterialIcons } from '@expo/vector-icons';
 import { useNavigation } from '@react-navigation/native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
-import { FontSize } from '../fonts';
+import { FontFamily, FontSize } from '../fonts';
 
 type FilterKey = 'Recents' | 'Videos' | 'Favourites' | 'WhatsApp';
 
@@ -250,7 +250,7 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
   },
   headerTitle: {
-    fontFamily: 'PlusJakartaSansBold',
+    fontFamily: FontFamily.bold,
     fontSize: FontSize.fifteen,
   },
   selectButton: {
@@ -266,7 +266,7 @@ const styles = StyleSheet.create({
   },
   selectButtonText: {
     color: '#fff',
-    fontFamily: 'PlusJakartaSansBold',
+    fontFamily: FontFamily.bold,
     fontSize: FontSize.ten,
   },
   content: {
@@ -291,7 +291,7 @@ const styles = StyleSheet.create({
     borderColor: primaryColorAlpha(0.3),
   },
   filterChipText: {
-    fontFamily: 'PlusJakartaSansBold',
+    fontFamily: FontFamily.bold,
     fontSize: FontSize.eight,
     textTransform: 'uppercase',
     letterSpacing: 0.8,
@@ -330,7 +330,7 @@ const styles = StyleSheet.create({
   },
   durationText: {
     color: '#fff',
-    fontFamily: 'PlusJakartaSansBold',
+    fontFamily: FontFamily.bold,
     fontSize: FontSize.ten,
   },
   selectedBadge: {

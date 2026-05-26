@@ -15,7 +15,7 @@ import { LinearGradient } from 'expo-linear-gradient';
 import { MaterialIcons } from '@expo/vector-icons';
 import { useNavigation } from '@react-navigation/native';
 import { useThemeMode, PRIMARY_COLOR, primaryColorAlpha } from "../theme";
-import { FontSize, fontScale } from '../fonts';
+import { FontFamily, FontSize, fontScale } from '../fonts';
 import { mediumScreen } from '../types';
 import GoogleIcon from '../assets/icons/google-svg.svg';
 import AppleIcon from '../assets/icons/apple-logo-svg.svg';
@@ -281,7 +281,7 @@ const styles = StyleSheet.create({
     borderWidth: 1,
   },
   headerTitle: {
-    fontFamily: 'PlusJakartaSansExtraBold',
+    fontFamily: FontFamily.extraBold,
     fontSize: mediumScreen ? FontSize.seventeen : FontSize.fourteenHalf,
     letterSpacing: -0.4,
   },
@@ -332,13 +332,13 @@ const styles = StyleSheet.create({
     elevation: 8,
   },
   brandTitle: {
-    fontFamily: 'PlusJakartaSansExtraBold',
+    fontFamily: FontFamily.extraBold,
     fontSize: mediumScreen ? FontSize.twentyFour : FontSize.twenty,
     letterSpacing: -0.7,
     marginBottom: 6,
   },
   brandSubtitle: {
-    fontFamily: 'PlusJakartaSansMedium',
+    fontFamily: FontFamily.medium,
     fontSize: mediumScreen ? FontSize.tenHalf : FontSize.nine,
     lineHeight: mediumScreen ? FontSize.fourteen : FontSize.twelve,
     textAlign: 'center',
@@ -357,12 +357,12 @@ const styles = StyleSheet.create({
   inputLabel: {
     position: 'absolute',
     left: 16,
-    fontFamily: 'PlusJakartaSansMedium',
+    fontFamily: FontFamily.medium,
   },
   input: {
     height: 40,
     paddingTop: 5,
-    fontFamily: 'PlusJakartaSansMedium',
+    fontFamily: FontFamily.medium,
     fontSize: mediumScreen ? FontSize.fourteen : FontSize.twelve,
   },
   primaryButton: {
@@ -385,7 +385,7 @@ const styles = StyleSheet.create({
   },
   primaryButtonText: {
     color: '#ffffff',
-    fontFamily: 'PlusJakartaSansExtraBold',
+    fontFamily: FontFamily.extraBold,
     fontSize: mediumScreen ? FontSize.ten : FontSize.eightHalf,
     letterSpacing: 1.2,
   },
@@ -394,7 +394,7 @@ const styles = StyleSheet.create({
     paddingTop: 4,
   },
   helpLinkText: {
-    fontFamily: 'PlusJakartaSansMedium',
+    fontFamily: FontFamily.medium,
     fontSize: mediumScreen ? FontSize.twelve : FontSize.eight,
   },
   dividerRow: {
@@ -408,7 +408,7 @@ const styles = StyleSheet.create({
     height: 1,
   },
   dividerText: {
-    fontFamily: 'PlusJakartaSansExtraBold',
+    fontFamily: FontFamily.extraBold,
     fontSize: mediumScreen ? FontSize.seven : FontSize.six,
     textTransform: 'uppercase',
     letterSpacing: 2.2,
@@ -429,7 +429,7 @@ const styles = StyleSheet.create({
     paddingHorizontal: 12,
   },
   socialText: {
-    fontFamily: 'PlusJakartaSansBold',
+    fontFamily: FontFamily.bold,
     fontSize: mediumScreen ? FontSize.nineHalf : FontSize.eight,
   },
   footer: {
@@ -438,14 +438,14 @@ const styles = StyleSheet.create({
     gap: 10,
   },
   footerPrompt: {
-    fontFamily: 'PlusJakartaSansMedium',
+    fontFamily: FontFamily.medium,
     fontSize: mediumScreen ? FontSize.ten : FontSize.six,
     textTransform: 'uppercase',
     letterSpacing: 1.2,
   },
   footerAction: {
     color: PRIMARY_COLOR,
-    fontFamily: 'PlusJakartaSansExtraBold',
+    fontFamily: FontFamily.extraBold,
     fontSize: mediumScreen ? FontSize.twelve : FontSize.eight,
   },
 });

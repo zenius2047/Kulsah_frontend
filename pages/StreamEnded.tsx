@@ -11,7 +11,7 @@ import {
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { LinearGradient } from 'expo-linear-gradient';
 import { MaterialIcons } from '@expo/vector-icons';
-import { FontSize } from '../fonts';
+import { FontFamily, FontSize } from '../fonts';
 
 const heroImage =
   'https://lh3.googleusercontent.com/aida-public/AB6AXuBmaQN3OAWLDySOXQCRnphM1I4oP8vh_9TOy93A5xUQlcHn-OmwZKMUXoVARGtJlJv4QGOfZzVfwQw-6nQSlI3R8AgPkE_CUfmRY1RuYTEaZaQEmntiW4ub1BtgrG-5_1CXWJU9AYbfLJ1pXJ5P36o9x1vSRrlVuQGNevrNH79hYKvPGDMNOytyP9yx1xT9XL_64b-nN6esGCw7oSbboa36QxN0Xak-TOtPOg0Yo52Yls6EoSaFOLkIgm_dqt3qz6bilTTY6EOsNC2z';
@@ -182,7 +182,7 @@ const styles = StyleSheet.create({
     flex: 1,
     color: '#fff',
     textAlign: 'center',
-    fontFamily: 'PlusJakartaSansExtraBold',
+    fontFamily: FontFamily.extraBold,
     fontSize: FontSize.sixteen,
   },
   scrollContent: {
@@ -217,7 +217,7 @@ const styles = StyleSheet.create({
   },
   recordedPillText: {
     color: '#c924eb',
-    fontFamily: 'PlusJakartaSansExtraBold',
+    fontFamily: FontFamily.extraBold,
     fontSize: FontSize.eleven,
     letterSpacing: 1.2,
     textTransform: 'uppercase',
@@ -228,19 +228,19 @@ const styles = StyleSheet.create({
   },
   heroTitle: {
     color: '#fff',
-    fontFamily: 'PlusJakartaSansExtraBold',
+    fontFamily: FontFamily.extraBold,
     fontSize: FontSize.twentySix,
     lineHeight: 34,
   },
   heroSubtitle: {
     color: 'rgba(255,255,255,0.7)',
-    fontFamily: 'PlusJakartaSansMedium',
+    fontFamily: FontFamily.medium,
     fontSize: FontSize.fifteen,
     marginTop: 8,
   },
   sectionTitle: {
     color: '#fff',
-    fontFamily: 'PlusJakartaSansExtraBold',
+    fontFamily: FontFamily.extraBold,
     fontSize: FontSize.eighteen,
     marginTop: 20,
     marginHorizontal: 16,
@@ -248,7 +248,7 @@ const styles = StyleSheet.create({
   },
   sectionTitleSpaced: {
     color: '#fff',
-    fontFamily: 'PlusJakartaSansExtraBold',
+    fontFamily: FontFamily.extraBold,
     fontSize: FontSize.twenty,
     marginTop: 26,
     marginHorizontal: 16,
@@ -275,12 +275,12 @@ const styles = StyleSheet.create({
   },
   statLabel: {
     color: 'rgba(255,255,255,0.8)',
-    fontFamily: 'PlusJakartaSansMedium',
+    fontFamily: FontFamily.medium,
     fontSize: FontSize.fourteen,
   },
   statValue: {
     color: '#fff',
-    fontFamily: 'PlusJakartaSansExtraBold',
+    fontFamily: FontFamily.extraBold,
     fontSize: FontSize.twentyEight,
   },
   eventCard: {
@@ -306,7 +306,7 @@ const styles = StyleSheet.create({
   },
   presaleBadgeText: {
     color: '#fff',
-    fontFamily: 'PlusJakartaSansExtraBold',
+    fontFamily: FontFamily.extraBold,
     fontSize: FontSize.ten,
     textTransform: 'uppercase',
   },
@@ -315,19 +315,19 @@ const styles = StyleSheet.create({
   },
   eventTitle: {
     color: '#fff',
-    fontFamily: 'PlusJakartaSansExtraBold',
+    fontFamily: FontFamily.extraBold,
     fontSize: FontSize.eighteen,
     lineHeight: 25,
   },
   eventDate: {
     color: '#c924eb',
-    fontFamily: 'PlusJakartaSansBold',
+    fontFamily: FontFamily.bold,
     fontSize: FontSize.fifteen,
     marginTop: 12,
   },
   eventVenue: {
     color: '#bf92c8',
-    fontFamily: 'PlusJakartaSansMedium',
+    fontFamily: FontFamily.medium,
     fontSize: FontSize.thirteen,
     marginTop: 4,
   },
@@ -341,7 +341,7 @@ const styles = StyleSheet.create({
   },
   ticketButtonText: {
     color: '#fff',
-    fontFamily: 'PlusJakartaSansExtraBold',
+    fontFamily: FontFamily.extraBold,
     fontSize: FontSize.fourteen,
   },
   recommendationsRow: {
@@ -377,18 +377,18 @@ const styles = StyleSheet.create({
   },
   playCountText: {
     color: '#fff',
-    fontFamily: 'PlusJakartaSansExtraBold',
+    fontFamily: FontFamily.extraBold,
     fontSize: FontSize.ten,
   },
   recommendationTitle: {
     color: '#fff',
-    fontFamily: 'PlusJakartaSansMedium',
+    fontFamily: FontFamily.medium,
     fontSize: FontSize.thirteen,
     marginTop: 10,
   },
   recommendationGenre: {
     color: '#bf92c8',
-    fontFamily: 'PlusJakartaSansMedium',
+    fontFamily: FontFamily.medium,
     fontSize: FontSize.ten,
     marginTop: 4,
   },
@@ -408,7 +408,7 @@ const styles = StyleSheet.create({
   },
   profileButtonText: {
     color: '#fff',
-    fontFamily: 'PlusJakartaSansExtraBold',
+    fontFamily: FontFamily.extraBold,
     fontSize: FontSize.sixteen,
   },
 });

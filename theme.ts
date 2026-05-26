@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react';
 import { darkMode, subscribeDarkMode } from './types';
 
-export const PRIMARY_COLOR = '#097ced';
+export const PRIMARY_COLOR = '#38a9e5';
 
 const normalizeHexColor = (hexColor: string) => hexColor.replace('#', '');
 

@@ -14,7 +14,7 @@ import {
   View,
 } from 'react-native';
 import { SafeAreaView, useSafeAreaInsets } from 'react-native-safe-area-context';
-import { FontSize } from '../fonts';
+import { FontFamily, FontSize } from '../fonts';
 import { mediumScreen } from '../types';
 import GradientText from '../components/GradientText';
 import KulsahBlack from '../assets/icons/kulsah-black-svg.svg';
@@ -234,7 +234,7 @@ const s = StyleSheet.create({
   badgeText: {
     color: PRIMARY_COLOR,
     fontSize: mediumScreen ? FontSize.twelve:FontSize.eight,
-    fontFamily: 'PlusJakartaSansExtraBold',
+    fontFamily: FontFamily.extraBold,
     letterSpacing: 2,
     textTransform: 'uppercase',
   },
@@ -243,7 +243,7 @@ const s = StyleSheet.create({
     fontSize: mediumScreen ? FontSize.thirtyTwo : FontSize.twentyEight,
     lineHeight: mediumScreen ? FontSize.thirtySix : FontSize.thirtyTwo,
     textAlign: 'center',
-    fontFamily: 'PlusJakartaSansExtraBold',
+    fontFamily: FontFamily.extraBold,
     letterSpacing: -1.2,
     maxWidth: 300,
   },
@@ -255,14 +255,14 @@ const s = StyleSheet.create({
     fontSize: mediumScreen ? FontSize.thirtyTwo : FontSize.twentyEight,
     lineHeight: mediumScreen ? FontSize.thirtySix : FontSize.thirtyTwo,
     textAlign: 'center',
-    fontFamily: 'PlusJakartaSansExtraBold',
+    fontFamily: FontFamily.extraBold,
     letterSpacing: -1.2,
     fontStyle: 'italic',
   },
   subtitle: {
     marginTop: 5,
     fontSize: mediumScreen ? FontSize.sixteen:FontSize.twelve,
-    fontFamily: 'PlusJakartaSansMedium',
+    fontFamily: FontFamily.medium,
     textAlign: 'center',
   },
   cardStack: {
@@ -291,14 +291,14 @@ const s = StyleSheet.create({
   featureTitle: {
     color: '#f8fafc',
     fontSize: mediumScreen ? FontSize.sixteen:FontSize.twelve,
-    fontFamily: 'PlusJakartaSansExtraBold',
+    fontFamily: FontFamily.extraBold,
   },
   featureBody: {
     marginTop: 3,
     color: '#d0c1d8',
     fontSize: mediumScreen ? FontSize.fourteen:FontSize.ten,
     lineHeight: FontSize.sixteen,
-    fontFamily: 'PlusJakartaSansMedium',
+    fontFamily: FontFamily.medium,
   },
   footerBlock: {
     marginTop: 14,
@@ -329,12 +329,12 @@ const s = StyleSheet.create({
   avatarMoreText: {
     color: '#f8fafc',
     fontSize: mediumScreen ? FontSize.twelve:FontSize.eight,
-    fontFamily: 'PlusJakartaSansExtraBold',
+    fontFamily: FontFamily.extraBold,
   },
   communityText: {
     color: '#94a3b8',
     fontSize: mediumScreen ? FontSize.twelve:FontSize.eight,
-    fontFamily: 'PlusJakartaSansExtraBold',
+    fontFamily: FontFamily.extraBold,
     textTransform: 'uppercase',
     letterSpacing: 1.7,
   },
@@ -359,7 +359,7 @@ const s = StyleSheet.create({
   ctaText: {
     color: '#ffffff',
     fontSize: mediumScreen ? FontSize.sixteen:FontSize.twelve,
-    fontFamily: 'PlusJakartaSansExtraBold',
+    fontFamily: FontFamily.extraBold,
     textTransform: 'uppercase',
     letterSpacing: 1,
   },
@@ -368,7 +368,7 @@ const s = StyleSheet.create({
     textAlign: 'center',
     fontSize: mediumScreen ? FontSize.ten:FontSize.eight,
     lineHeight: FontSize.twelve,
-    fontFamily: 'PlusJakartaSansBold',
+    fontFamily: FontFamily.bold,
     paddingHorizontal: 8,
   },
 });

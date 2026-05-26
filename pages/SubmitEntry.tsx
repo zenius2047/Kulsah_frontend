@@ -14,7 +14,7 @@ import {
 } from 'react-native';
 import { MaterialIcons } from '@expo/vector-icons';
 import { useNavigation } from '@react-navigation/native';
-import { FontSize } from '../fonts';
+import { FontFamily, FontSize } from '../fonts';
 
 const previewImage =
   'https://lh3.googleusercontent.com/aida-public/AB6AXuDhFOftNzhs814shqXm7wsAjhpwgP6vdnALyuid0Wfz-EnNLz-62RACTh85zIywL8WoBz1HuyX-nfeEHJ-I6SrmLZJQvP9lXpMHO1vwvZVjYORCfTKexBTzDZounMgCXAAniKec20F8gMW3jJtkvU2f5DjjLu1GhLyMGomadglNeGEbriDqwCKQkMeBpc3obvTvhuG5cINCuKXP1i6v9u-fGTyWtwo7nGMa3Y9_NNvdnVt8z_U3NJsKZfECzDg6dyvdMqB9bOIfE77E';
@@ -290,7 +290,7 @@ const styles = StyleSheet.create({
     gap: 12,
   },
   headerTitle: {
-    fontFamily: 'PlusJakartaSansBold',
+    fontFamily: FontFamily.bold,
     fontSize: FontSize.thirteen,
   },
   headerPostButton: {
@@ -300,7 +300,7 @@ const styles = StyleSheet.create({
   },
   headerPostText: {
     color: PRIMARY_COLOR,
-    fontFamily: 'PlusJakartaSansBold',
+    fontFamily: FontFamily.bold,
     fontSize: FontSize.twelve,
   },
   content: {
@@ -339,7 +339,7 @@ const styles = StyleSheet.create({
   },
   previewDurationText: {
     color: '#fff',
-    fontFamily: 'PlusJakartaSansBold',
+    fontFamily: FontFamily.bold,
     fontSize: FontSize.ten,
     letterSpacing: 0.7,
   },
@@ -352,7 +352,7 @@ const styles = StyleSheet.create({
   },
   inputLabel: {
     marginLeft: 4,
-    fontFamily: 'PlusJakartaSansBold',
+    fontFamily: FontFamily.bold,
     fontSize: FontSize.ten,
     textTransform: 'uppercase',
     letterSpacing: 0.8,
@@ -361,7 +361,7 @@ const styles = StyleSheet.create({
     borderRadius: 14,
     paddingHorizontal: 14,
     paddingVertical: 12,
-    fontFamily: 'PlusJakartaSansMedium',
+    fontFamily: FontFamily.medium,
     fontSize: FontSize.twelve,
   },
   textArea: {
@@ -370,7 +370,7 @@ const styles = StyleSheet.create({
     paddingHorizontal: 14,
     paddingVertical: 12,
     textAlignVertical: 'top',
-    fontFamily: 'PlusJakartaSansMedium',
+    fontFamily: FontFamily.medium,
     fontSize: FontSize.twelve,
   },
   section: {
@@ -383,12 +383,12 @@ const styles = StyleSheet.create({
     paddingHorizontal: 2,
   },
   sectionTitle: {
-    fontFamily: 'PlusJakartaSansBold',
+    fontFamily: FontFamily.bold,
     fontSize: FontSize.fifteen,
   },
   sectionHint: {
     color: PRIMARY_COLOR,
-    fontFamily: 'PlusJakartaSansBold',
+    fontFamily: FontFamily.bold,
     fontSize: FontSize.ten,
     textTransform: 'uppercase',
     letterSpacing: 0.8,
@@ -417,7 +417,7 @@ const styles = StyleSheet.create({
   },
   activeTagText: {
     color: PRIMARY_COLOR,
-    fontFamily: 'PlusJakartaSansBold',
+    fontFamily: FontFamily.bold,
     fontSize: FontSize.thirteen,
   },
   addTagButton: {
@@ -429,7 +429,7 @@ const styles = StyleSheet.create({
     borderRadius: 999,
   },
   addTagText: {
-    fontFamily: 'PlusJakartaSansBold',
+    fontFamily: FontFamily.bold,
     fontSize: FontSize.ten,
     textTransform: 'uppercase',
     letterSpacing: 0.8,
@@ -447,7 +447,7 @@ const styles = StyleSheet.create({
     borderRadius: 10,
   },
   suggestedChipText: {
-    fontFamily: 'PlusJakartaSansMedium',
+    fontFamily: FontFamily.medium,
     fontSize: FontSize.twelve,
   },
   permissionsCard: {
@@ -477,12 +477,12 @@ const styles = StyleSheet.create({
     borderWidth: 1,
   },
   permissionTitle: {
-    fontFamily: 'PlusJakartaSansBold',
+    fontFamily: FontFamily.bold,
     fontSize: FontSize.eleven,
   },
   permissionSubtitle: {
     marginTop: 2,
-    fontFamily: 'PlusJakartaSans',
+    fontFamily: FontFamily.regular,
     fontSize: FontSize.eleven,
   },
   advancedButton: {
@@ -493,7 +493,7 @@ const styles = StyleSheet.create({
     paddingVertical: 4,
   },
   advancedText: {
-    fontFamily: 'PlusJakartaSansBold',
+    fontFamily: FontFamily.bold,
     fontSize: FontSize.ten,
     textTransform: 'uppercase',
     letterSpacing: 1,
@@ -517,7 +517,7 @@ const styles = StyleSheet.create({
   },
   postVideoText: {
     color: '#fff',
-    fontFamily: 'PlusJakartaSansExtraBold',
+    fontFamily: FontFamily.extraBold,
     fontSize: FontSize.twelve,
     letterSpacing: 1.1,
   },

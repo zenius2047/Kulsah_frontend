@@ -14,7 +14,7 @@ import { SafeAreaView, useSafeAreaInsets } from 'react-native-safe-area-context'
 import { MaterialIcons } from '@expo/vector-icons';
 import { LinearGradient } from 'expo-linear-gradient';
 import { useThemeMode, PRIMARY_COLOR, primaryColorAlpha } from "../theme";
-import { FontSize, fontScale } from '../fonts';
+import { FontFamily, FontSize, fontScale } from '../fonts';
 import { mediumScreen } from '../types';
 
 type CoinPack = {
@@ -356,7 +356,7 @@ const styles = StyleSheet.create({
     minWidth: 68,
   },
   walletText: {
-    fontFamily: 'PlusJakartaSansBold',
+    fontFamily: FontFamily.bold,
     fontSize: mediumScreen ? FontSize.ten : FontSize.eightHalf,
     letterSpacing: 0.6,
   },
@@ -367,7 +367,7 @@ const styles = StyleSheet.create({
   },
   logoText: {
     color: '#ffffff',
-    fontFamily: 'GudlaExtraBold',
+    fontFamily: FontFamily.displayExtraBold,
     fontSize: mediumScreen ? FontSize.fifteen : FontSize.twelveHalf,
     letterSpacing: 1.4,
   },
@@ -410,21 +410,21 @@ const styles = StyleSheet.create({
   },
   flashPillText: {
     color: '#f0abfc',
-    fontFamily: 'PlusJakartaSansExtraBold',
+    fontFamily: FontFamily.extraBold,
     fontSize: mediumScreen ? FontSize.eightHalf : FontSize.seven,
     letterSpacing: 1,
     textTransform: 'uppercase',
   },
   heroTitle: {
     color: '#ffffff',
-    fontFamily: 'PlusJakartaSansExtraBold',
+    fontFamily: FontFamily.extraBold,
     fontSize: mediumScreen ? FontSize.twentyFour : FontSize.twenty,
     lineHeight: mediumScreen ? FontSize.twentySix : FontSize.twentyTwo,
     letterSpacing: -0.8,
   },
   heroSubtitle: {
     color: '#d1d5db',
-    fontFamily: 'PlusJakartaSansMedium',
+    fontFamily: FontFamily.medium,
     fontSize: mediumScreen ? FontSize.tenHalf : FontSize.nine,
     lineHeight: mediumScreen ? FontSize.fourteen : FontSize.twelve,
     maxWidth: '72%',
@@ -441,7 +441,7 @@ const styles = StyleSheet.create({
   },
   heroButtonText: {
     color: '#ffffff',
-    fontFamily: 'PlusJakartaSansExtraBold',
+    fontFamily: FontFamily.extraBold,
     fontSize: mediumScreen ? FontSize.nine : FontSize.sevenHalf,
     letterSpacing: 0.8,
   },
@@ -454,13 +454,13 @@ const styles = StyleSheet.create({
     justifyContent: 'space-between',
   },
   sectionTitle: {
-    fontFamily: 'PlusJakartaSansBold',
+    fontFamily: FontFamily.bold,
     fontSize: mediumScreen ? FontSize.sixteen : FontSize.thirteenHalf,
     letterSpacing: -0.4,
   },
   sectionLink: {
     color: '#c084fc',
-    fontFamily: 'PlusJakartaSansExtraBold',
+    fontFamily: FontFamily.extraBold,
     fontSize: mediumScreen ? FontSize.eightHalf : FontSize.seven,
     textTransform: 'uppercase',
     letterSpacing: 1,
@@ -495,12 +495,12 @@ const styles = StyleSheet.create({
     borderWidth: 1,
   },
   packTitle: {
-    fontFamily: 'PlusJakartaSansBold',
+    fontFamily: FontFamily.bold,
     fontSize: mediumScreen ? FontSize.twelve : FontSize.ten,
   },
   packSubtitle: {
     marginTop: 2,
-    fontFamily: 'PlusJakartaSansMedium',
+    fontFamily: FontFamily.medium,
     fontSize: mediumScreen ? FontSize.nineHalf : FontSize.eight,
   },
   priceButton: {
@@ -514,7 +514,7 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
   },
   priceText: {
-    fontFamily: 'PlusJakartaSansBold',
+    fontFamily: FontFamily.bold,
     fontSize: mediumScreen ? FontSize.eleven : FontSize.eight,
   },
   featuredPriceButton: {
@@ -532,7 +532,7 @@ const styles = StyleSheet.create({
   },
   featuredPriceText: {
     color: '#ffffff',
-    fontFamily: 'PlusJakartaSansExtraBold',
+    fontFamily: FontFamily.extraBold,
     fontSize: mediumScreen ? FontSize.eleven : FontSize.nineHalf,
   },
   popularTag: {
@@ -546,7 +546,7 @@ const styles = StyleSheet.create({
   },
   popularTagText: {
     color: '#ffffff',
-    fontFamily: 'PlusJakartaSansExtraBold',
+    fontFamily: FontFamily.extraBold,
     fontSize: mediumScreen ? FontSize.sixHalf : FontSize.fiveHalf,
     textTransform: 'uppercase',
     letterSpacing: 0.8,
@@ -556,13 +556,13 @@ const styles = StyleSheet.create({
     gap: 10,
   },
   filterText: {
-    fontFamily: 'PlusJakartaSansBold',
+    fontFamily: FontFamily.bold,
     fontSize: mediumScreen ? FontSize.eight : FontSize.sixPointEight,
     textTransform: 'uppercase',
     letterSpacing: 0.8,
   },
   filterTextActive: {
-    fontFamily: 'PlusJakartaSansExtraBold',
+    fontFamily: FontFamily.extraBold,
     fontSize: mediumScreen ? FontSize.eight : FontSize.sixPointEight,
     textTransform: 'uppercase',
     letterSpacing: 0.8,
@@ -602,7 +602,7 @@ const styles = StyleSheet.create({
   },
   hotTagText: {
     color: '#ffffff',
-    fontFamily: 'PlusJakartaSansExtraBold',
+    fontFamily: FontFamily.extraBold,
     fontSize: mediumScreen ? FontSize.sixHalf : FontSize.fiveHalf,
     letterSpacing: 0.6,
   },
@@ -612,7 +612,7 @@ const styles = StyleSheet.create({
     gap: 4,
   },
   giftName: {
-    fontFamily: 'PlusJakartaSansBold',
+    fontFamily: FontFamily.bold,
     fontSize: mediumScreen ? FontSize.eleven : FontSize.ninePointTwo,
     textAlign: 'center',
   },
@@ -623,7 +623,7 @@ const styles = StyleSheet.create({
   },
   giftPrice: {
     color: '#c084fc',
-    fontFamily: 'PlusJakartaSansBold',
+    fontFamily: FontFamily.bold,
     fontSize: mediumScreen ? FontSize.nineHalf : FontSize.eight,
   },
   giftButton: {
@@ -635,7 +635,7 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
   },
   giftButtonText: {
-    fontFamily: 'PlusJakartaSansExtraBold',
+    fontFamily: FontFamily.extraBold,
     fontSize: mediumScreen ? FontSize.eight : FontSize.sixPointEight,
     textTransform: 'uppercase',
     letterSpacing: 1,
@@ -653,7 +653,7 @@ const styles = StyleSheet.create({
   },
   giftButtonPrimaryText: {
     color: '#ffffff',
-    fontFamily: 'PlusJakartaSansExtraBold',
+    fontFamily: FontFamily.extraBold,
     fontSize: mediumScreen ? FontSize.eight : FontSize.sixPointEight,
     textTransform: 'uppercase',
     letterSpacing: 1,

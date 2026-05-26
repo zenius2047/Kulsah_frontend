@@ -11,7 +11,7 @@ import {
   View,
 } from 'react-native';
 import { MaterialIcons } from '@expo/vector-icons';
-import { FontSize } from '../fonts';
+import { FontFamily, FontSize } from '../fonts';
 
 type VoteTab = 'Hot' | 'For You' | 'Favourites' | 'Recents';
 
@@ -277,7 +277,7 @@ const styles = StyleSheet.create({
     backgroundColor: 'rgba(255,255,255,0.06)',
   },
   headerTitle: {
-    fontFamily: 'PlusJakartaSansExtraBold',
+    fontFamily: FontFamily.extraBold,
     fontSize: FontSize.thirteen,
   },
   content: {
@@ -297,7 +297,7 @@ const styles = StyleSheet.create({
   },
   searchInput: {
     flex: 1,
-    fontFamily: 'PlusJakartaSansMedium',
+    fontFamily: FontFamily.medium,
     fontSize: FontSize.ten,
   },
   tabsScroll: {
@@ -314,7 +314,7 @@ const styles = StyleSheet.create({
     borderBottomWidth: 2,
   },
   tabText: {
-    fontFamily: 'PlusJakartaSansExtraBold',
+    fontFamily: FontFamily.extraBold,
     fontSize: FontSize.eight,
     letterSpacing: 1.2,
     textTransform: 'uppercase',
@@ -331,7 +331,7 @@ const styles = StyleSheet.create({
     gap: 8,
   },
   sectionTitle: {
-    fontFamily: 'PlusJakartaSansBold',
+    fontFamily: FontFamily.bold,
     fontSize: FontSize.eleven,
   },
   hotBadge: {
@@ -344,7 +344,7 @@ const styles = StyleSheet.create({
   },
   hotBadgeText: {
     color: PRIMARY_COLOR,
-    fontFamily: 'PlusJakartaSansExtraBold',
+    fontFamily: FontFamily.extraBold,
     fontSize: FontSize.eight,
     textTransform: 'uppercase',
     letterSpacing: 1.2,
@@ -389,15 +389,15 @@ const styles = StyleSheet.create({
     gap: 2,
   },
   trackTitle: {
-    fontFamily: 'PlusJakartaSansBold',
+    fontFamily: FontFamily.bold,
     fontSize: FontSize.nine,
   },
   trackArtist: {
-    fontFamily: 'PlusJakartaSansMedium',
+    fontFamily: FontFamily.medium,
     fontSize: FontSize.nine,
   },
   trackDuration: {
-    fontFamily: 'PlusJakartaSansBold',
+    fontFamily: FontFamily.bold,
     fontSize: FontSize.nine,
     marginTop: 2,
   },

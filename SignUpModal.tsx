@@ -14,7 +14,7 @@ import Facebook from './assets/icons/facebook-svg.svg';
 import Google from './assets/icons/google-svg.svg';
 import Apple from './assets/icons/apple-logo-svg.svg';
 import { mediumScreen, setUser, user } from './types';
-import { FontSize } from './fonts';
+import { FontFamily, FontSize } from './fonts';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 
 type SignUpModalProps = {
@@ -184,7 +184,7 @@ const styles = StyleSheet.create({
     lineHeight: 20,
     // fontWeight: '900',
     textTransform: 'uppercase',
-    fontFamily: 'PlusJakartaSansExtraBold',
+    fontFamily: FontFamily.extraBold,
     textAlign: 'center',
     letterSpacing: -0.6,
   },
@@ -193,7 +193,7 @@ const styles = StyleSheet.create({
     lineHeight: 15,
     // fontWeight: '600',
     textAlign: 'center',
-    fontFamily: 'PlusJakartaSansBold'
+    fontFamily: FontFamily.bold
   },
   actions: {
     width: '100%',
@@ -227,12 +227,12 @@ const styles = StyleSheet.create({
     fontSize: FontSize.eleven,
     // fontWeight: '900',
     textTransform: 'uppercase',
-    fontFamily: 'PlusJakartaSansExtraBold'
+    fontFamily: FontFamily.extraBold
   },
   authButtonText: {
     fontSize: mediumScreen ? FontSize.fourteen: FontSize.ten,
     // fontWeight: '800',
-    fontFamily: "PlusJakartaSansBold"
+    fontFamily: FontFamily.bold
   },
   primaryButton: {
     minHeight: 56,
@@ -249,7 +249,7 @@ const styles = StyleSheet.create({
     // fontWeight: '900',
     textTransform: 'uppercase',
     letterSpacing: 1,
-    fontFamily: "PlusJakartaSansBold"
+    fontFamily: FontFamily.bold
   },
   secondaryButton: {
     minHeight: 30,
@@ -262,19 +262,19 @@ const styles = StyleSheet.create({
     // fontWeight: '900',
     textTransform: 'uppercase',
     letterSpacing: 1.6,
-    fontFamily: 'PlusJakartaSansBold'
+    fontFamily: FontFamily.bold
   },
   legalText: {
     marginTop: 18,
     fontSize: mediumScreen ? FontSize.fourteen:FontSize.ten,
     lineHeight: 17,
     // fontWeight: '600',
-    fontFamily: 'PlusJakartaSansBold',
+    fontFamily: FontFamily.bold,
     textAlign: 'center',
   },
   legalLink: {
     textDecorationLine: 'underline',
-    fontFamily: 'PlusJakartaSansBold'
+    fontFamily: FontFamily.bold
   },
 });
 

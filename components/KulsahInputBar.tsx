@@ -8,7 +8,7 @@ import {
   View,
   ViewStyle,
 } from 'react-native';
-import { FontSize } from '../fonts';
+import { FontFamily, FontSize } from '../fonts';
 import { useThemeMode, primaryColorAlpha } from "../theme";
 import { mediumScreen } from '../types';
 
@@ -78,7 +78,7 @@ const styles = StyleSheet.create({
     flex: 1,
     minHeight: 39,
     paddingVertical: 0,
-    fontFamily: 'PlusJakartaSansMedium',
+    fontFamily: FontFamily.medium,
     fontSize: mediumScreen ? FontSize.twelve : FontSize.nine,
   },
 });

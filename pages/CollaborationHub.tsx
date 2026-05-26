@@ -16,7 +16,7 @@ import { useNavigation, useRoute } from '@react-navigation/native';
 import { MaterialIcons } from '@expo/vector-icons';
 import { GoogleGenAI } from '@google/genai';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
-import { fontScale } from '../fonts';
+import { FontFamily, fontScale } from '../fonts';
 import { mediumScreen } from '../types';
 
 type CollabTab = 'discover' | 'incoming' | 'outgoing' | 'active';
@@ -779,7 +779,7 @@ const styles = StyleSheet.create({
     flex: 1,
   },
   title: {
-    fontFamily: 'PlusJakartaSansExtraBold',
+    fontFamily: FontFamily.extraBold,
     fontSize: scaledFont(12),
     textTransform: 'uppercase',
     letterSpacing: -0.6,
@@ -792,7 +792,7 @@ const styles = StyleSheet.create({
   },
   neuralText: {
     color: BRAND,
-    fontFamily: 'PlusJakartaSansExtraBold',
+    fontFamily: FontFamily.extraBold,
     fontSize: scaledFont(7),
     textTransform: 'uppercase',
     letterSpacing: 1.4,
@@ -809,7 +809,7 @@ const styles = StyleSheet.create({
     position: 'relative',
   },
   tabText: {
-    fontFamily: 'PlusJakartaSansExtraBold',
+    fontFamily: FontFamily.extraBold,
     fontSize: scaledFont(8),
     textTransform: 'uppercase',
     letterSpacing: 2.2,
@@ -825,7 +825,7 @@ const styles = StyleSheet.create({
   },
   badgeText: {
     color: '#fff',
-    fontFamily: 'PlusJakartaSansExtraBold',
+    fontFamily: FontFamily.extraBold,
     fontSize: scaledFont(6.5),
   },
   tabUnderline: {
@@ -848,17 +848,17 @@ const styles = StyleSheet.create({
     gap: 6,
   },
   sectionKicker: {
-    fontFamily: 'PlusJakartaSansExtraBold',
+    fontFamily: FontFamily.extraBold,
     fontSize: scaledFont(7.5),
     textTransform: 'uppercase',
     letterSpacing: 2.6,
   },
   helperText: {
-    fontFamily: 'PlusJakartaSansMedium',
+    fontFamily: FontFamily.medium,
     fontSize: scaledFont(10),
   },
   helperTextCentered: {
-    fontFamily: 'PlusJakartaSansMedium',
+    fontFamily: FontFamily.medium,
     fontSize: scaledFont(10),
     textAlign: 'center',
     maxWidth: 260,
@@ -874,7 +874,7 @@ const styles = StyleSheet.create({
   },
   input: {
     flex: 1,
-    fontFamily: 'PlusJakartaSansMedium',
+    fontFamily: FontFamily.medium,
     fontSize: scaledFont(11),
     paddingHorizontal: 10,
   },
@@ -928,29 +928,29 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
   },
   partnerName: {
-    fontFamily: 'PlusJakartaSansExtraBold',
+    fontFamily: FontFamily.extraBold,
     fontSize: scaledFont(11),
     textTransform: 'uppercase',
   },
   partnerMeta: {
-    fontFamily: 'PlusJakartaSansBold',
+    fontFamily: FontFamily.bold,
     fontSize: scaledFont(7),
     textTransform: 'uppercase',
     letterSpacing: 1.3,
     marginTop: 4,
   },
   partnerBio: {
-    fontFamily: 'PlusJakartaSansMedium',
+    fontFamily: FontFamily.medium,
     fontSize: scaledFont(8.5),
     marginTop: 6,
   },
   matchText: {
     color: BRAND,
-    fontFamily: 'PlusJakartaSansExtraBold',
+    fontFamily: FontFamily.extraBold,
     fontSize: scaledFont(15),
   },
   smallMeta: {
-    fontFamily: 'PlusJakartaSansExtraBold',
+    fontFamily: FontFamily.extraBold,
     fontSize: scaledFont(6.5),
     textTransform: 'uppercase',
     letterSpacing: 1.4,
@@ -966,7 +966,7 @@ const styles = StyleSheet.create({
     paddingVertical: 10,
   },
   filterChipText: {
-    fontFamily: 'PlusJakartaSansExtraBold',
+    fontFamily: FontFamily.extraBold,
     fontSize: scaledFont(7),
     textTransform: 'uppercase',
   },
@@ -993,17 +993,17 @@ const styles = StyleSheet.create({
     paddingHorizontal: 8,
     paddingVertical: 3,
     overflow: 'hidden',
-    fontFamily: 'PlusJakartaSansExtraBold',
+    fontFamily: FontFamily.extraBold,
     fontSize: scaledFont(6.4),
     textTransform: 'uppercase',
   },
   cardTitle: {
-    fontFamily: 'PlusJakartaSansExtraBold',
+    fontFamily: FontFamily.extraBold,
     fontSize: scaledFont(10.5),
     textTransform: 'uppercase',
   },
   cardBody: {
-    fontFamily: 'PlusJakartaSansMedium',
+    fontFamily: FontFamily.medium,
     fontSize: scaledFont(9),
     lineHeight: scaledFont(14),
   },
@@ -1020,7 +1020,7 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
   },
   splitText: {
-    fontFamily: 'PlusJakartaSansExtraBold',
+    fontFamily: FontFamily.extraBold,
     fontSize: scaledFont(9),
     textTransform: 'uppercase',
   },
@@ -1034,7 +1034,7 @@ const styles = StyleSheet.create({
   },
   secondaryMiniBtnText: {
     color: BRAND,
-    fontFamily: 'PlusJakartaSansExtraBold',
+    fontFamily: FontFamily.extraBold,
     fontSize: scaledFont(7.5),
     textTransform: 'uppercase',
   },
@@ -1053,7 +1053,7 @@ const styles = StyleSheet.create({
   },
   primaryActionText: {
     color: '#fff',
-    fontFamily: 'PlusJakartaSansExtraBold',
+    fontFamily: FontFamily.extraBold,
     fontSize: scaledFont(8.5),
     textTransform: 'uppercase',
     letterSpacing: 1.4,
@@ -1074,7 +1074,7 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
   },
   statusBannerText: {
-    fontFamily: 'PlusJakartaSansExtraBold',
+    fontFamily: FontFamily.extraBold,
     fontSize: scaledFont(7.5),
     textTransform: 'uppercase',
     letterSpacing: 1.4,
@@ -1095,7 +1095,7 @@ const styles = StyleSheet.create({
     backgroundColor: BRAND,
   },
   progressText: {
-    fontFamily: 'PlusJakartaSansExtraBold',
+    fontFamily: FontFamily.extraBold,
     fontSize: scaledFont(6.6),
     textTransform: 'uppercase',
   },
@@ -1110,7 +1110,7 @@ const styles = StyleSheet.create({
     gap: 8,
   },
   followUpText: {
-    fontFamily: 'PlusJakartaSansExtraBold',
+    fontFamily: FontFamily.extraBold,
     fontSize: scaledFont(7.5),
     textTransform: 'uppercase',
   },
@@ -1124,7 +1124,7 @@ const styles = StyleSheet.create({
   },
   withdrawText: {
     color: '#ef4444',
-    fontFamily: 'PlusJakartaSansExtraBold',
+    fontFamily: FontFamily.extraBold,
     fontSize: scaledFont(7.5),
     textTransform: 'uppercase',
   },
@@ -1139,7 +1139,7 @@ const styles = StyleSheet.create({
   },
   greenActionText: {
     color: '#fff',
-    fontFamily: 'PlusJakartaSansExtraBold',
+    fontFamily: FontFamily.extraBold,
     fontSize: scaledFont(7.5),
     textTransform: 'uppercase',
   },
@@ -1150,7 +1150,7 @@ const styles = StyleSheet.create({
     paddingVertical: 6,
   },
   statusPillText: {
-    fontFamily: 'PlusJakartaSansExtraBold',
+    fontFamily: FontFamily.extraBold,
     fontSize: scaledFont(6.5),
     textTransform: 'uppercase',
   },
@@ -1161,7 +1161,7 @@ const styles = StyleSheet.create({
     gap: 12,
   },
   emptyText: {
-    fontFamily: 'PlusJakartaSansExtraBold',
+    fontFamily: FontFamily.extraBold,
     fontSize: scaledFont(8),
     textTransform: 'uppercase',
     letterSpacing: 1.4,
@@ -1221,13 +1221,13 @@ const styles = StyleSheet.create({
     borderRadius: 26,
   },
   modalTitle: {
-    fontFamily: 'PlusJakartaSansExtraBold',
+    fontFamily: FontFamily.extraBold,
     fontSize: scaledFont(18),
     textTransform: 'uppercase',
   },
   modalAccent: {
     color: BRAND,
-    fontFamily: 'PlusJakartaSansExtraBold',
+    fontFamily: FontFamily.extraBold,
     fontSize: scaledFont(7.5),
     textTransform: 'uppercase',
     letterSpacing: 1.8,
@@ -1247,12 +1247,12 @@ const styles = StyleSheet.create({
     gap: 14,
   },
   rangeLabel: {
-    fontFamily: 'PlusJakartaSansExtraBold',
+    fontFamily: FontFamily.extraBold,
     fontSize: scaledFont(8),
   },
   rangeValue: {
     color: BRAND,
-    fontFamily: 'PlusJakartaSansExtraBold',
+    fontFamily: FontFamily.extraBold,
     fontSize: scaledFont(14),
   },
   rangeWrap: {
@@ -1270,7 +1270,7 @@ const styles = StyleSheet.create({
     borderRadius: 24,
     borderWidth: 1,
     padding: 16,
-    fontFamily: 'PlusJakartaSansMedium',
+    fontFamily: FontFamily.medium,
     fontSize: scaledFont(10),
   },
   textField: {
@@ -1278,7 +1278,7 @@ const styles = StyleSheet.create({
     borderRadius: 18,
     borderWidth: 1,
     paddingHorizontal: 16,
-    fontFamily: 'PlusJakartaSansBold',
+    fontFamily: FontFamily.bold,
     fontSize: scaledFont(10),
   },
   modalPrimaryBtn: {
@@ -1291,7 +1291,7 @@ const styles = StyleSheet.create({
   },
   modalPrimaryText: {
     color: '#fff',
-    fontFamily: 'PlusJakartaSansExtraBold',
+    fontFamily: FontFamily.extraBold,
     fontSize: scaledFont(8.5),
     textTransform: 'uppercase',
     letterSpacing: 1.8,
@@ -1322,7 +1322,7 @@ const styles = StyleSheet.create({
     gap: 8,
   },
   protocolText: {
-    fontFamily: 'PlusJakartaSansExtraBold',
+    fontFamily: FontFamily.extraBold,
     fontSize: scaledFont(7.4),
     textTransform: 'uppercase',
   },
@@ -1336,7 +1336,7 @@ const styles = StyleSheet.create({
     paddingVertical: 10,
   },
   toneChipText: {
-    fontFamily: 'PlusJakartaSansExtraBold',
+    fontFamily: FontFamily.extraBold,
     fontSize: scaledFont(7.4),
   },
 });

@@ -10,7 +10,7 @@ import {
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { MaterialIcons } from '@expo/vector-icons';
 import { useNavigation } from '@react-navigation/native';
-import { FontSize } from '../fonts';
+import { FontFamily, FontSize } from '../fonts';
 
 type StreakData = {
   count: number;
@@ -189,7 +189,7 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
   },
   headerTitle: {
-    fontFamily: 'PlusJakartaSansExtraBold',
+    fontFamily: FontFamily.extraBold,
     fontSize: FontSize.twelve,
     textTransform: 'uppercase',
     letterSpacing: 0.4,
@@ -224,21 +224,21 @@ const styles = StyleSheet.create({
     marginBottom: 14,
   },
   streakCount: {
-    fontFamily: 'PlusJakartaSansExtraBold',
+    fontFamily: FontFamily.extraBold,
     fontSize: FontSize.thirtySix,
     lineHeight: FontSize.forty,
   },
   streakLabel: {
     marginTop: 2,
     color: '#f97316',
-    fontFamily: 'PlusJakartaSansExtraBold',
+    fontFamily: FontFamily.extraBold,
     fontSize: FontSize.eight,
     letterSpacing: 3.5,
   },
   streakDesc: {
     marginTop: 12,
     textAlign: 'center',
-    fontFamily: 'PlusJakartaSansMedium',
+    fontFamily: FontFamily.medium,
     fontSize: FontSize.nine,
     lineHeight: FontSize.fourteen,
     maxWidth: 220,
@@ -246,7 +246,7 @@ const styles = StyleSheet.create({
   sectionTitle: {
     marginBottom: 12,
     marginLeft: 2,
-    fontFamily: 'PlusJakartaSansExtraBold',
+    fontFamily: FontFamily.extraBold,
     fontSize: FontSize.eight,
     letterSpacing: 2.5,
   },
@@ -266,13 +266,13 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
   },
   rewardName: {
-    fontFamily: 'PlusJakartaSansExtraBold',
+    fontFamily: FontFamily.extraBold,
     fontSize: FontSize.twelve,
     textTransform: 'uppercase',
   },
   rewardDays: {
     marginTop: 2,
-    fontFamily: 'PlusJakartaSansBold',
+    fontFamily: FontFamily.bold,
     fontSize: FontSize.seven,
     letterSpacing: 1.2,
   },
@@ -288,11 +288,11 @@ const styles = StyleSheet.create({
   },
   daysLeftWrap: { alignItems: 'flex-end' },
   daysLeftValue: {
-    fontFamily: 'PlusJakartaSansExtraBold',
+    fontFamily: FontFamily.extraBold,
     fontSize: FontSize.twelve,
   },
   daysLeftLabel: {
-    fontFamily: 'PlusJakartaSansBold',
+    fontFamily: FontFamily.bold,
     fontSize: FontSize.sixHalf,
     letterSpacing: 1.2,
   },
@@ -317,14 +317,14 @@ const styles = StyleSheet.create({
     gap: 8,
   },
   infoTitle: {
-    fontFamily: 'PlusJakartaSansExtraBold',
+    fontFamily: FontFamily.extraBold,
     fontSize: FontSize.ten,
     letterSpacing: 1.6,
     textTransform: 'uppercase',
   },
   infoBody: {
     textAlign: 'center',
-    fontFamily: 'PlusJakartaSansMedium',
+    fontFamily: FontFamily.medium,
     fontSize: FontSize.nine,
     lineHeight: FontSize.fourteen,
   },

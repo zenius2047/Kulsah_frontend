@@ -3,7 +3,7 @@ import { MaterialIcons } from '@expo/vector-icons';
 import { Modal, Pressable, Text, View } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
 import { useThemeMode, PRIMARY_COLOR } from "../theme";
-import { FontSize } from '../fonts';
+import { FontFamily, FontSize } from '../fonts';
 import { mediumScreen } from '../types';
 
 interface KulCoinPromptProps {
@@ -77,7 +77,7 @@ const KulCoinPrompt: React.FC<KulCoinPromptProps> = ({
               style={{
                 color: theme.text,
                 fontSize: mediumScreen ? FontSize.twentyTwo : FontSize.eighteen,
-                fontFamily: 'PlusJakartaSansExtraBold',
+                fontFamily: FontFamily.extraBold,
                 textTransform: 'uppercase',
                 textAlign: 'center',
                 marginBottom: 8,
@@ -90,13 +90,13 @@ const KulCoinPrompt: React.FC<KulCoinPromptProps> = ({
               style={{
                 color: isDark ? 'rgba(255,255,255,0.45)' : '#64748b',
                 fontSize: FontSize.eleven,
-                fontFamily: 'PlusJakartaSansMedium',
+                fontFamily: FontFamily.medium,
                 lineHeight: 20,
                 textAlign: 'center',
                 marginBottom: 24,
               }}
             >
-              You need <Text style={{ color: PRIMARY_COLOR, fontFamily: 'PlusJakartaSansExtraBold' }}>{requiredCoins} KulCoins</Text> to complete this subscription. Your current balance is <Text style={{ color: theme.text, fontFamily: 'PlusJakartaSansExtraBold' }}>{currentCoins}</Text>.
+              You need <Text style={{ color: PRIMARY_COLOR, fontFamily: FontFamily.extraBold }}>{requiredCoins} KulCoins</Text> to complete this subscription. Your current balance is <Text style={{ color: theme.text, fontFamily: FontFamily.extraBold }}>{currentCoins}</Text>.
             </Text>
 
             <View style={{ width: '100%', rowGap: 12 }}>
@@ -125,7 +125,7 @@ const KulCoinPrompt: React.FC<KulCoinPromptProps> = ({
                   style={{
                     color: '#fff',
                     fontSize: FontSize.ten,
-                    fontFamily: 'PlusJakartaSansExtraBold',
+                    fontFamily: FontFamily.extraBold,
                     textTransform: 'uppercase',
                     letterSpacing: 2,
                   }}
@@ -149,7 +149,7 @@ const KulCoinPrompt: React.FC<KulCoinPromptProps> = ({
                   style={{
                     color: isDark ? 'rgba(255,255,255,0.6)' : '#64748b',
                     fontSize: FontSize.ten,
-                    fontFamily: 'PlusJakartaSansExtraBold',
+                    fontFamily: FontFamily.extraBold,
                     textTransform: 'uppercase',
                     letterSpacing: 2,
                   }}
@@ -178,7 +178,7 @@ const KulCoinPrompt: React.FC<KulCoinPromptProps> = ({
                 style={{
                   color: '#22c55e',
                   fontSize: FontSize.seven,
-                  fontFamily: 'PlusJakartaSansExtraBold',
+                  fontFamily: FontFamily.extraBold,
                   textTransform: 'uppercase',
                   letterSpacing: 1.4,
                 }}

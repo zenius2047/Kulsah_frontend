@@ -14,7 +14,7 @@ import { MaterialIcons } from '@expo/vector-icons';
 import { BlurView } from 'expo-blur';
 import { useNavigation, useRoute } from '@react-navigation/native';
 import { useThemeMode, PRIMARY_COLOR, primaryColorAlpha } from "./theme";
-import { FontSize } from './fonts';
+import { FontFamily, FontSize } from './fonts';
 import { mediumScreen } from './types';
 
 const BRAND_GRADIENT = [PRIMARY_COLOR, PRIMARY_COLOR] as const;
@@ -203,12 +203,12 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
   },
   brandText: {
-    fontFamily: 'PlusJakartaSansExtraBold',
+    fontFamily: FontFamily.extraBold,
     fontSize: mediumScreen ? FontSize.twenty : FontSize.seventeen,
     letterSpacing: -0.8,
   },
   headerTitle: {
-    fontFamily: 'PlusJakartaSansBold',
+    fontFamily: FontFamily.bold,
     fontSize: mediumScreen ? FontSize.fourteen : FontSize.twelve,
     letterSpacing: -0.3,
   },
@@ -258,21 +258,21 @@ const styles = StyleSheet.create({
     marginBottom: 34,
   },
   title: {
-    fontFamily: 'PlusJakartaSansExtraBold',
+    fontFamily: FontFamily.extraBold,
     fontSize: mediumScreen ? FontSize.thirtyOne : FontSize.twentySeven,
     letterSpacing: -1,
     textAlign: 'center',
     marginBottom: 12,
   },
   subtitle: {
-    fontFamily: 'PlusJakartaSansMedium',
+    fontFamily: FontFamily.medium,
     fontSize: mediumScreen ? FontSize.seventeen : FontSize.fourteen,
     textAlign: 'center',
     marginBottom: 4,
   },
   emailText: {
     color: PRIMARY_COLOR,
-    fontFamily: 'PlusJakartaSansBold',
+    fontFamily: FontFamily.bold,
     fontSize: mediumScreen ? FontSize.seventeen : FontSize.fourteen,
     textAlign: 'center',
   },
@@ -296,7 +296,7 @@ const styles = StyleSheet.create({
   },
   primaryText: {
     color: '#ffffff',
-    fontFamily: 'PlusJakartaSansExtraBold',
+    fontFamily: FontFamily.extraBold,
     fontSize: mediumScreen ? FontSize.fifteen : FontSize.thirteen,
     letterSpacing: 1.1,
     textTransform: 'uppercase',
@@ -316,7 +316,7 @@ const styles = StyleSheet.create({
     height: 1,
   },
   dividerText: {
-    fontFamily: 'PlusJakartaSansBold',
+    fontFamily: FontFamily.bold,
     fontSize: mediumScreen ? FontSize.eightHalf : FontSize.sevenHalf,
     textTransform: 'uppercase',
     letterSpacing: 1.5,
@@ -328,7 +328,7 @@ const styles = StyleSheet.create({
   },
   resendText: {
     color: PRIMARY_COLOR,
-    fontFamily: 'PlusJakartaSansExtraBold',
+    fontFamily: FontFamily.extraBold,
     fontSize: mediumScreen ? FontSize.fourteen : FontSize.twelve,
   },
   infoCard: {
@@ -349,14 +349,14 @@ const styles = StyleSheet.create({
     flex: 1,
   },
   infoTitle: {
-    fontFamily: 'PlusJakartaSansExtraBold',
+    fontFamily: FontFamily.extraBold,
     fontSize: mediumScreen ? FontSize.ten : FontSize.nine,
     textTransform: 'uppercase',
     letterSpacing: 1.6,
     marginBottom: 6,
   },
   infoText: {
-    fontFamily: 'PlusJakartaSansMedium',
+    fontFamily: FontFamily.medium,
     fontSize: mediumScreen ? FontSize.twelve : FontSize.ten,
     lineHeight: mediumScreen ? FontSize.eighteen : FontSize.fifteen,
   },

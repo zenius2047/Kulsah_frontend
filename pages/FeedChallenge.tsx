@@ -20,7 +20,7 @@ import {
   ViewToken,
 } from 'react-native';
 import { SafeAreaView, useSafeAreaInsets } from 'react-native-safe-area-context';
-import { FontSize } from '../fonts';
+import { FontFamily, FontSize } from '../fonts';
 import { useThemeMode, PRIMARY_COLOR, primaryColorAlpha } from "../theme";
 import KulcoinTopUpDrawer from '../components/KulcoinTopUpDrawer';
 
@@ -754,7 +754,7 @@ const styles = StyleSheet.create({
   },
   voteActionLabel: {
     color: '#ffffff',
-    fontFamily: 'PlusJakartaSansExtraBold',
+    fontFamily: FontFamily.extraBold,
     fontSize: FontSize.seven,
     textTransform: 'uppercase',
   },
@@ -774,12 +774,12 @@ const styles = StyleSheet.create({
   },
   voteCostText: {
     color: PRIMARY_COLOR,
-    fontFamily: 'PlusJakartaSansExtraBold',
+    fontFamily: FontFamily.extraBold,
     fontSize: FontSize.sixHalf,
   },
   railCount: {
     color: '#ffffff',
-    fontFamily: 'PlusJakartaSansBold',
+    fontFamily: FontFamily.bold,
     fontSize: FontSize.ten,
   },
   bottomInfo: {
@@ -801,19 +801,19 @@ const styles = StyleSheet.create({
   captionWrap: {},
   handleText: {
     color: '#ffffff',
-    fontFamily: 'PlusJakartaSansExtraBold',
+    fontFamily: FontFamily.extraBold,
     fontSize: FontSize.eighteen,
   },
   captionText: {
     color: 'rgba(255,255,255,0.92)',
-    fontFamily: 'PlusJakartaSansMedium',
+    fontFamily: FontFamily.medium,
     fontSize: FontSize.eleven,
     lineHeight: 20,
   },
   moreLessText: {
     color: '#ffffff',
     marginTop: 1,
-    fontFamily: 'PlusJakartaSansExtraBold',
+    fontFamily: FontFamily.extraBold,
     fontSize: FontSize.ten,
   },
   soundRow: {
@@ -840,7 +840,7 @@ const styles = StyleSheet.create({
     color: '#ffffffcc',
     fontSize: FontSize.eight,
     lineHeight: 20,
-    fontFamily: 'PlusJakartaSansMedium',
+    fontFamily: FontFamily.medium,
   },
   entryBadge: {
     alignSelf: 'flex-start',
@@ -856,7 +856,7 @@ const styles = StyleSheet.create({
   },
   entryBadgeText: {
     color: PRIMARY_COLOR,
-    fontFamily: 'PlusJakartaSansExtraBold',
+    fontFamily: FontFamily.extraBold,
     fontSize: FontSize.seven,
     textTransform: 'uppercase',
     letterSpacing: 1.2,
@@ -887,13 +887,13 @@ const styles = StyleSheet.create({
   },
   voteSuccessTitle: {
     color: '#ffffff',
-    fontFamily: 'PlusJakartaSansExtraBold',
+    fontFamily: FontFamily.extraBold,
     fontSize: FontSize.eighteen,
     textTransform: 'uppercase',
   },
   voteSuccessSubtitle: {
     color: '#6ee7b7',
-    fontFamily: 'PlusJakartaSansExtraBold',
+    fontFamily: FontFamily.extraBold,
     fontSize: FontSize.eight,
     textTransform: 'uppercase',
     letterSpacing: 2,
@@ -939,7 +939,7 @@ const styles = StyleSheet.create({
   },
   balancePillText: {
     color: '#ffffff',
-    fontFamily: 'PlusJakartaSansExtraBold',
+    fontFamily: FontFamily.extraBold,
     fontSize: FontSize.nine,
   },
   addCoinButton: {
@@ -963,7 +963,7 @@ const styles = StyleSheet.create({
   },
   feedLabel: {
     color: '#ffffff',
-    fontFamily: 'PlusJakartaSansExtraBold',
+    fontFamily: FontFamily.extraBold,
     fontSize: FontSize.eight,
     textTransform: 'uppercase',
     letterSpacing: 1,
@@ -989,7 +989,7 @@ const styles = StyleSheet.create({
   },
   backToOrbitText: {
     color: '#ffffff',
-    fontFamily: 'PlusJakartaSansExtraBold',
+    fontFamily: FontFamily.extraBold,
     fontSize: FontSize.ten,
     textTransform: 'uppercase',
     letterSpacing: 1.8,

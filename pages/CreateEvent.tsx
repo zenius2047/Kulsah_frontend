@@ -13,7 +13,7 @@ import { LinearGradient } from 'expo-linear-gradient';
 import { MaterialIcons } from '@expo/vector-icons';
 import { mediumScreen } from '../types';
 import { useNavigation } from '@react-navigation/native';
-import { FontSize } from '../fonts';
+import { FontFamily, FontSize } from '../fonts';
 
 const toolItems = [
   { label: 'Editor', icon: 'photo-camera' as const },
@@ -326,7 +326,7 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
   },
   headerTitle: {
-    fontFamily: 'PlusJakartaSansExtraBold',
+    fontFamily: FontFamily.extraBold,
     fontSize: mediumScreen ? FontSize.sixteen: FontSize.thirteen,
     letterSpacing: 3.2,
   },
@@ -356,7 +356,7 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
   },
   toolLabel: {
-    fontFamily: 'PlusJakartaSansBold',
+    fontFamily: FontFamily.bold,
     fontSize: mediumScreen ? FontSize.twelve: FontSize.eight,
     lineHeight: 13,
     letterSpacing: 1,
@@ -389,7 +389,7 @@ const styles = StyleSheet.create({
   },
   newVideoTitle: {
     color: '#000000',
-    fontFamily: 'PlusJakartaSansExtraBold',
+    fontFamily: FontFamily.extraBold,
     fontSize: mediumScreen ? FontSize.sixteen: FontSize.thirteen,
   },
   draftCard: {
@@ -411,12 +411,12 @@ const styles = StyleSheet.create({
   },
   draftCount: {
     color: '#ffffff',
-    fontFamily: 'PlusJakartaSansExtraBold',
+    fontFamily: FontFamily.extraBold,
     fontSize: FontSize.twentyEight,
   },
   draftLabel: {
     color: '#ffffff',
-    fontFamily: 'PlusJakartaSansBold',
+    fontFamily: FontFamily.bold,
     fontSize: mediumScreen ? FontSize.fourteen: FontSize.ten,
     letterSpacing: 1.2,
   },
@@ -443,12 +443,12 @@ const styles = StyleSheet.create({
     flex: 1,
   },
   actionTitle: {
-    fontFamily: 'PlusJakartaSansExtraBold',
+    fontFamily: FontFamily.extraBold,
     fontSize: mediumScreen ? FontSize.sixteen: FontSize.thirteen,
     marginBottom: 4,
   },
   actionDescription: {
-    fontFamily: 'PlusJakartaSansMedium',
+    fontFamily: FontFamily.medium,
     fontSize: mediumScreen ? FontSize.sixteen: FontSize.twelve,
     lineHeight: 20,
   },
@@ -462,7 +462,7 @@ const styles = StyleSheet.create({
     marginBottom: 18,
   },
   templatesTitle: {
-    fontFamily: 'PlusJakartaSansExtraBold',
+    fontFamily: FontFamily.extraBold,
     fontSize: mediumScreen ? FontSize.twentyOne: FontSize.eighteen,
     letterSpacing: -0.6,
   },
@@ -482,7 +482,7 @@ const styles = StyleSheet.create({
     alignItems: 'center',
   },
   tabText: {
-    fontFamily: 'PlusJakartaSansBold',
+    fontFamily: FontFamily.bold,
     fontSize: mediumScreen ? FontSize.eighteen:FontSize.fourteen,
     marginBottom: 12,
   },
@@ -542,22 +542,22 @@ const styles = StyleSheet.create({
   },
   templateName: {
     color: '#ffffff',
-    fontFamily: 'PlusJakartaSansExtraBold',
+    fontFamily: FontFamily.extraBold,
     fontSize: mediumScreen ? FontSize.fifteen:FontSize.eleven,
     letterSpacing: 0.6,
   },
   templateMeta: {
-    fontFamily: 'PlusJakartaSansMedium',
+    fontFamily: FontFamily.medium,
     fontSize: mediumScreen ? FontSize.fourteen:FontSize.ten,
     marginTop: 3,
   },
   soundSectionTitle: {
-    fontFamily: 'PlusJakartaSansExtraBold',
+    fontFamily: FontFamily.extraBold,
     fontSize: mediumScreen ? FontSize.twenty:FontSize.sixteen,
   },
   seeAllText: {
     color: PRIMARY_COLOR,
-    fontFamily: 'PlusJakartaSansBold',
+    fontFamily: FontFamily.bold,
     fontSize: mediumScreen ? FontSize.sixteen:FontSize.twelve,
     letterSpacing: 1,
     textTransform: 'uppercase',
@@ -579,12 +579,12 @@ const styles = StyleSheet.create({
     flex: 1,
   },
   soundTitle: {
-    fontFamily: 'PlusJakartaSansBold',
+    fontFamily: FontFamily.bold,
     fontSize: mediumScreen ? FontSize.sixteen:FontSize.thirteen,
     marginBottom: 4,
   },
   soundMeta: {
-    fontFamily: 'PlusJakartaSansMedium',
+    fontFamily: FontFamily.medium,
     fontSize: mediumScreen ? FontSize.sixteen:FontSize.twelve,
   },
   soundAddButton: {

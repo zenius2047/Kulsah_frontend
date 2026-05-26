@@ -5,7 +5,7 @@ import { useThemeMode } from '../theme';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import K from '../assets/icons/k.svg'
 import { mediumScreen } from '../types';
-import { FontSize } from '../fonts';
+import { FontFamily, FontSize } from '../fonts';
 
 
 const { height: SCREEN_HEIGHT, width: SCREEN_WIDTH } = Dimensions.get('screen');
@@ -45,7 +45,7 @@ const {isDark, theme} = useThemeMode();
         }}>
             <Text style={{
             fontSize: mediumScreen ? FontSize.thirtyFour: FontSize.thirty,
-            fontFamily: 'GudlaExtraBold',
+            fontFamily: FontFamily.displayExtraBold,
             letterSpacing: 0.5,
             color: isDark ? 'white': 'black'
                 }}>
@@ -53,7 +53,7 @@ const {isDark, theme} = useThemeMode();
             </Text>
             <Text style={{
             fontSize: mediumScreen ? FontSize.six: FontSize.six,
-            fontFamily: 'GudlaRegular',
+            fontFamily: FontFamily.display,
             color: isDark ? 'white': 'black',
             letterSpacing: 0.4
                 }}>

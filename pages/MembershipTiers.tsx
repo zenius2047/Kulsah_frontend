@@ -17,7 +17,7 @@ import {
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { GoogleGenAI } from '@google/genai';
 import { useThemeMode, PRIMARY_COLOR, primaryColorAlphaHex } from "../theme";
-import { FontSize } from '../fonts';
+import { FontFamily, FontSize } from '../fonts';
 import { mediumScreen } from '../types';
 
 type SubscriptionTier = {
@@ -29,7 +29,7 @@ type SubscriptionTier = {
 };
 
 const INITIAL_SUBSCRIPTION: SubscriptionTier = {
-  name: 'Pulsar Access',
+  name: 'Kulsah Access',
   price: '9.99',
   perks: ['Exclusive feed access', 'Direct messaging', 'Badge of honor'],
   currentMembers: 1248,
@@ -338,7 +338,7 @@ const s = StyleSheet.create({
   },
   headerTitle: {
     fontSize: mediumScreen ? FontSize.fourteen : FontSize.twelve,
-    fontFamily: 'PlusJakartaSansExtraBold',
+    fontFamily: FontFamily.extraBold,
     textTransform: 'uppercase',
   },
   aiButton: {
@@ -373,14 +373,14 @@ const s = StyleSheet.create({
   metricRight: { alignItems: 'flex-end' },
   metricLabel: {
     fontSize: mediumScreen ? FontSize.twelve:FontSize.eight,
-    fontFamily: 'PlusJakartaSansExtraBold',
+    fontFamily: FontFamily.extraBold,
     letterSpacing: 2,
     textTransform: 'uppercase',
   },
   metricValue: {
     marginTop: 4,
     fontSize: mediumScreen ? FontSize.eighteen : FontSize.fourteen,
-    fontFamily: 'PlusJakartaSansExtraBold',
+    fontFamily: FontFamily.extraBold,
   },
   progressTrack: {
     marginTop: 18,
@@ -398,7 +398,7 @@ const s = StyleSheet.create({
   microText: {
     flex: 1,
     fontSize: mediumScreen ? FontSize.eleven:FontSize.seven,
-    fontFamily: 'PlusJakartaSansBold',
+    fontFamily: FontFamily.bold,
     textTransform: 'uppercase',
     letterSpacing: 1,
   },
@@ -406,7 +406,7 @@ const s = StyleSheet.create({
   sectionTitle: {
     paddingHorizontal: 4,
     fontSize: mediumScreen ? FontSize.twelve:FontSize.eight,
-    fontFamily: 'PlusJakartaSansExtraBold',
+    fontFamily: FontFamily.extraBold,
     textTransform: 'uppercase',
     letterSpacing: 3,
   },
@@ -419,12 +419,12 @@ const s = StyleSheet.create({
   rowBetween: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', gap: 12 },
   tierName: {
     fontSize: mediumScreen ? FontSize.twenty : FontSize.sixteen,
-    fontFamily: 'PlusJakartaSansExtraBold',
+    fontFamily: FontFamily.extraBold,
   },
   tierCaption: {
     marginTop: 4,
     fontSize: FontSize.eight,
-    fontFamily: 'PlusJakartaSansExtraBold',
+    fontFamily: FontFamily.extraBold,
     textTransform: 'uppercase',
     letterSpacing: 2,
   },
@@ -441,18 +441,18 @@ const s = StyleSheet.create({
   },
   priceDollar: {
     fontSize: mediumScreen ? FontSize.sixteen:FontSize.twelve,
-    fontFamily: 'PlusJakartaSansExtraBold',
+    fontFamily: FontFamily.extraBold,
   },
   priceInput: {
     minWidth: 54,
     fontSize: FontSize.fourteen,
-    fontFamily: 'PlusJakartaSansExtraBold',
+    fontFamily: FontFamily.extraBold,
     padding: 0,
   },
   perksSection: { gap: 10 },
   perksLabel: {
     fontSize: FontSize.eight,
-    fontFamily: 'PlusJakartaSansExtraBold',
+    fontFamily: FontFamily.extraBold,
     textTransform: 'uppercase',
     letterSpacing: 2,
   },
@@ -465,7 +465,7 @@ const s = StyleSheet.create({
   },
   perkText: {
     fontSize: FontSize.ten,
-    fontFamily: 'PlusJakartaSansBold',
+    fontFamily: FontFamily.bold,
   },
   editChip: {
     width: 34,
@@ -487,11 +487,11 @@ const s = StyleSheet.create({
   statsRow: { flexDirection: 'row', alignItems: 'center', gap: 16, flex: 1 },
   statValue: {
     fontSize: FontSize.eighteen,
-    fontFamily: 'PlusJakartaSansExtraBold',
+    fontFamily: FontFamily.extraBold,
   },
   statLabel: {
     fontSize: mediumScreen ? FontSize.twelve:FontSize.eight,
-    fontFamily: 'PlusJakartaSansBold',
+    fontFamily: FontFamily.bold,
     textTransform: 'uppercase',
   },
   divider: { width: 1, height: 34 },
@@ -526,7 +526,7 @@ const s = StyleSheet.create({
   publishText: {
     color: '#fff',
     fontSize: mediumScreen ? FontSize.sixteen:FontSize.twelve,
-    fontFamily: 'PlusJakartaSansExtraBold',
+    fontFamily: FontFamily.extraBold,
     textTransform: 'uppercase',
     letterSpacing: 2,
   },
@@ -558,7 +558,7 @@ const s = StyleSheet.create({
   modalHeader: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', marginBottom: 18 },
   modalTitle: {
     fontSize: mediumScreen ? FontSize.twenty:FontSize.sixteen,
-    fontFamily: 'PlusJakartaSansExtraBold',
+    fontFamily: FontFamily.extraBold,
   },
   modalClose: {
     width: 38,
@@ -572,7 +572,7 @@ const s = StyleSheet.create({
   fieldBlock: { gap: 10 },
   fieldLabel: {
     fontSize: mediumScreen ? FontSize.twelve:FontSize.eight,
-    fontFamily: 'PlusJakartaSansExtraBold',
+    fontFamily: FontFamily.extraBold,
     textTransform: 'uppercase',
     letterSpacing: 2,
     marginLeft: 4,
@@ -583,7 +583,7 @@ const s = StyleSheet.create({
     borderWidth: 1,
     paddingHorizontal: 16,
     fontSize: FontSize.thirteen,
-    fontFamily: 'PlusJakartaSansBold',
+    fontFamily: FontFamily.bold,
   },
   priceEditorWrap: {
     height: 60,
@@ -596,12 +596,12 @@ const s = StyleSheet.create({
   },
   editorDollar: {
     fontSize: mediumScreen ? FontSize.eighteen:FontSize.fourteen,
-    fontFamily: 'PlusJakartaSansExtraBold',
+    fontFamily: FontFamily.extraBold,
   },
   priceEditorInput: {
     flex: 1,
     fontSize: mediumScreen ? FontSize.twenty: FontSize.sixteen,
-    fontFamily: 'PlusJakartaSansExtraBold',
+    fontFamily: FontFamily.extraBold,
     padding: 0,
   },
   listWrap: { gap: 10 },
@@ -618,7 +618,7 @@ const s = StyleSheet.create({
   listItemText: {
     flex: 1,
     fontSize: FontSize.twelve,
-    fontFamily: 'PlusJakartaSansBold',
+    fontFamily: FontFamily.bold,
   },
   addRow: { flexDirection: 'row', gap: 10 },
   addInput: {
@@ -628,7 +628,7 @@ const s = StyleSheet.create({
     borderWidth: 1,
     paddingHorizontal: 16,
     fontSize: FontSize.twelve,
-    fontFamily: 'PlusJakartaSans',
+    fontFamily: FontFamily.regular,
   },
   addButton: {
     width: 54,
@@ -649,7 +649,7 @@ const s = StyleSheet.create({
   syncButtonText: {
     color: '#fff',
     fontSize: mediumScreen ? FontSize.fourteen:FontSize.ten,
-    fontFamily: 'PlusJakartaSansExtraBold',
+    fontFamily: FontFamily.extraBold,
     textTransform: 'uppercase',
     letterSpacing: 1.4,
   },

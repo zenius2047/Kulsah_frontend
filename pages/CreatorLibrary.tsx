@@ -17,7 +17,7 @@ import {
   View,
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
-import { FontSize } from '../fonts';
+import { FontFamily, FontSize } from '../fonts';
 import VisibilityIcon from '../assets/icons/visibility-svg.svg';
 import PaymentIcon from '../assets/icons/payments-svg.svg';
 
@@ -180,7 +180,7 @@ export default function CreatorLibrary() {
             color: PRIMARY_COLOR,
             fontSize: FontSize.ten,
             textTransform: 'uppercase',
-            fontFamily: 'PlusJakartaSansExtraBold'
+            fontFamily: FontFamily.extraBold
           }}>Explore All</Text>
         </View>
         <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={s.trendingRow}>
@@ -229,7 +229,7 @@ export default function CreatorLibrary() {
               style={{
                 fontSize: FontSize.eight,
                 color: '#ffffff4d',
-                fontFamily: 'PlusJakartaSansExtraBold',
+                fontFamily: FontFamily.extraBold,
                 textTransform: 'uppercase',
                 textAlign: 'center'
               }}>{sound.artist}</Text>
@@ -272,7 +272,7 @@ export default function CreatorLibrary() {
                     paddingHorizontal: 6,
                     paddingVertical: 2,
                     fontSize: FontSize.eight,
-                    fontFamily: 'PlusJakartaSansBold',
+                    fontFamily: FontFamily.bold,
                     borderColor:
                     item.type === 'public' ? '#3b82f64d' :
                     item.type === 'premium' ?'#e5e7eb' :
@@ -283,7 +283,7 @@ export default function CreatorLibrary() {
                     }]}>{item.type.toUpperCase()}</Text>
                 <Text style={{
                   color: '#94a3b8',
-                  fontFamily: 'PlusJakartaSansBold',
+                  fontFamily: FontFamily.bold,
                   fontSize: FontSize.ten,
                   textTransform: 'uppercase'
                 }}>{item.date}</Text>
@@ -315,7 +315,7 @@ export default function CreatorLibrary() {
               </View>}
               {item.type === 'draft' && <Text style={{
                 color: '#ffffff33',
-                fontFamily: 'PlusJakartaSansExtraBold',
+                fontFamily: FontFamily.extraBold,
                 fontSize: FontSize.ten,
                 fontStyle: 'italic',
                 marginTop: 5,
@@ -372,12 +372,12 @@ const s = StyleSheet.create({
   row: { flexDirection: 'row', alignItems: 'center', gap: 8 },
   rowBetween: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between' ,paddingHorizontal: 16, },
   iconBtn: { width: 36, height: 36, borderRadius: 18, alignItems: 'center', justifyContent: 'center',  },
-  title: { color: '#fff', fontSize: FontSize.sixteen, fontFamily: 'PlusJakartaSansExtraBold', textTransform: 'uppercase' },
+  title: { color: '#fff', fontSize: FontSize.sixteen, fontFamily: FontFamily.extraBold, textTransform: 'uppercase' },
   searchWrap: { marginTop: 25, height: 48, borderRadius: 16, borderWidth: 1, borderColor: '#ffffff1a', backgroundColor: '#ffffff0a', flexDirection: 'row', alignItems: 'center', paddingHorizontal: 10, gap: 8, marginHorizontal: 16 },
   searchInput: { flex: 1, color: '#94a3b8' },
   tabs: { gap: 14, paddingTop: 10, paddingBottom: 4,  paddingHorizontal: 16, },
   tabBtn: { alignItems: 'center', gap: 6, marginTop: 20 },
-  tabText: { color: '#94a3b8', textTransform: 'uppercase', fontSize: FontSize.ten, fontFamily: 'PlusJakartaSansExtraBold', letterSpacing: 2, },
+  tabText: { color: '#94a3b8', textTransform: 'uppercase', fontSize: FontSize.ten, fontFamily: FontFamily.extraBold, letterSpacing: 2, },
   tabTextActive: { color: PRIMARY_COLOR },
   tabDot: { width: '100%', height: 4, borderRadius: 999, backgroundColor: PRIMARY_COLOR },
   content: {gap: 12, paddingBottom: 120 },
@@ -386,12 +386,12 @@ const s = StyleSheet.create({
   aiText: { color: '#d9dce9', fontStyle: 'italic', fontSize: FontSize.thirteen },
   auditBtn: { height: 40, borderRadius: 10, borderWidth: 1, borderColor: primaryColorAlphaHex('50'), alignItems: 'center', justifyContent: 'center' },
   auditBtnText: { color: PRIMARY_COLOR, textTransform: 'uppercase', fontWeight: '900', fontSize: FontSize.ten },
-  section: { color: '#fff', fontSize: FontSize.sixteen, textTransform: 'uppercase', fontFamily: 'PlusJakartaSansExtraBold' },
+  section: { color: '#fff', fontSize: FontSize.sixteen, textTransform: 'uppercase', fontFamily: FontFamily.extraBold },
   trendingRow: { gap: 20, },
   soundCard: { width: 104, alignItems: 'center',justifyContent: 'center',},
   soundImg: { width: '100%', height: '100%', borderRadius: 999 },
-  soundTitle: { color: '#fff', fontSize: FontSize.eight, fontFamily: 'PlusJakartaSansExtraBold', textTransform: 'uppercase' },
-  soundMeta: { color: 'white', fontSize: FontSize.five, fontFamily: 'PlusJakartaSansBold' },
+  soundTitle: { color: '#fff', fontSize: FontSize.eight, fontFamily: FontFamily.extraBold, textTransform: 'uppercase' },
+  soundMeta: { color: 'white', fontSize: FontSize.five, fontFamily: FontFamily.bold },
   itemCard: {
     borderRadius: 18,
     borderWidth: 1,
@@ -403,8 +403,8 @@ const s = StyleSheet.create({
     marginHorizontal: 16,
   },
   itemImg: { width: 68, height: 68, borderRadius: 12 },
-  itemTitle: { color: '#fff', fontFamily: 'PlusJakartaSansExtraBold', flex: 1, marginRight: 8, lineHeight: 10, fontSize: FontSize.eleven },
-  itemMeta: { color: '#8f95af', fontSize: FontSize.ten, fontFamily: 'PlusJakartaSansBold', lineHeight: 12 },
+  itemTitle: { color: '#fff', fontFamily: FontFamily.extraBold, flex: 1, marginRight: 8, lineHeight: 10, fontSize: FontSize.eleven },
+  itemMeta: { color: '#8f95af', fontSize: FontSize.ten, fontFamily: FontFamily.bold, lineHeight: 12 },
   smallBtn: { width: 30, height: 30, borderRadius: 15, backgroundColor: '#ffffff10', alignItems: 'center', justifyContent: 'center' },
   overlay: { flex: 1, backgroundColor: '#00000080', justifyContent: 'center', paddingHorizontal: 20 },
   menu: { borderRadius: 14, backgroundColor: '#11151f', borderWidth: 1, borderColor: '#ffffff20', overflow: 'hidden' },

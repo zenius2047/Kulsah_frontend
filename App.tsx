@@ -99,7 +99,7 @@ import Search from './pages/Search';
 
 
 
-import { FontFamily, FontSize } from './fonts';
+import { FontFamily, FontSize, typographyStyles } from './fonts';
 
 const Stack = createNativeStackNavigator();
 const Tab = createBottomTabNavigator();
@@ -109,12 +109,14 @@ const navigationRef = createNavigationContainerRef();
 
 const TextWithDefaults = Text as unknown as { defaultProps?: { style?: unknown } };
 TextWithDefaults.defaultProps = TextWithDefaults.defaultProps || {};
-TextWithDefaults.defaultProps.style = [{ fontFamily: FontFamily.regular }, TextWithDefaults.defaultProps.style];
+// Regression: unstyled text default -> body role, iOS 15pt / Android 14sp, native.
+TextWithDefaults.defaultProps.style = [typographyStyles.body, TextWithDefaults.defaultProps.style];
 
 const TextInputWithDefaults = TextInput as unknown as { defaultProps?: { style?: unknown } };
 TextInputWithDefaults.defaultProps = TextInputWithDefaults.defaultProps || {};
 TextInputWithDefaults.defaultProps.style = [
-  { fontFamily: FontFamily.regular },
+  // Regression: unstyled input text default -> body role, iOS 15pt / Android 14sp, native.
+  typographyStyles.body,
   TextInputWithDefaults.defaultProps.style,
 ];
 
@@ -147,7 +149,7 @@ const CreatorTabs = ({ isDarkMode }: TabsProps) => {
         tabBarInactiveTintColor: '#8E8E93',
         sceneStyle: { backgroundColor: '#000' },
         tabBarLabelStyle:{
-          fontFamily: 'PlusJakartaSansBold'
+          fontFamily: FontFamily.bold
         },
         tabBarStyle: [
           styles.tabBar,
@@ -175,11 +177,11 @@ const CreatorTabs = ({ isDarkMode }: TabsProps) => {
       component={Arena}
       options={{
         tabBarIcon: ({ color, size, focused }) =>
-          focused ? (
-            <MaterialIcons name="home" size={size} color={color} />
-          ) : (
-            <HomeIcon width={size} height={size} fill={color} />
-          ),
+        focused ? (
+          <MaterialIcons name="explore" size={size} color={color} />
+        ) : (
+          <ExploreIcon width={size} height={size} fill={color} />
+        )
       }}
     />
     <Tab.Screen
@@ -301,7 +303,7 @@ const FanTabs = ({isDarkMode, user, onTap}: TabsProps) => {
     name="Discover"
     component={FanArena}
     options = {{
-      tabBarLabel: 'Arena',
+      // tabBarLabel: '',
       tabBarIcon: ({ color, size, focused }) =>
         focused ? (
           <MaterialIcons name="explore" size={size} color={color} />
@@ -598,7 +600,7 @@ const styles = StyleSheet.create({
     height: SCREEN_HEIGHT * 0.08,
     paddingBottom: 0,
     fontSize: mediumScreen ? FontSize.twelve: FontSize.eight,
-    fontFamily: "PlusJakartaSans",
+    fontFamily: FontFamily.regular,
     // backgroundColor: 'blue'
   },
 });

@@ -10,7 +10,7 @@ import {
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { MaterialIcons } from '@expo/vector-icons';
 import { useThemeMode, PRIMARY_COLOR, primaryColorAlpha } from "../theme";
-import { FontSize, fontScale } from '../fonts';
+import { FontFamily, FontSize, fontScale } from '../fonts';
 import { mediumScreen } from '../types';
 
 const Notifications: React.FC = () => {
@@ -162,7 +162,7 @@ const styles = StyleSheet.create({
   content: { paddingHorizontal: 16, paddingBottom: 28, paddingTop: 10 },
   section: { marginBottom: 24 },
   sectionTitle: {
-    fontFamily: 'PlusJakartaSansExtraBold',
+    fontFamily: FontFamily.extraBold,
     fontSize: mediumScreen ? FontSize.twelve:FontSize.eight,
     letterSpacing: 2,
     marginBottom: 14,
@@ -180,7 +180,7 @@ const styles = StyleSheet.create({
   hotBadge: {
     backgroundColor: primaryColorAlpha(0.2),
     color: PRIMARY_COLOR,
-    fontFamily: 'PlusJakartaSansExtraBold',
+    fontFamily: FontFamily.extraBold,
     fontSize: FontSize.six,
     paddingHorizontal: 8,
     paddingVertical: 4,
@@ -197,31 +197,31 @@ const styles = StyleSheet.create({
     marginTop: 2,
   },
   titleText: {
-    fontFamily: 'PlusJakartaSansBold',
+    fontFamily: FontFamily.bold,
     fontSize: FontSize.ten,
     marginBottom: 6,
     paddingRight: 70,
   },
   titleSmall: {
-    fontFamily: 'PlusJakartaSansBold',
+    fontFamily: FontFamily.bold,
     fontSize: FontSize.ten,
     marginBottom: 4,
   },
   accentText: { color: PRIMARY_COLOR },
   bodyText: {
-    fontFamily: 'PlusJakartaSansMedium',
+    fontFamily: FontFamily.medium,
     fontSize: FontSize.nine,
     lineHeight: FontSize.thirteen,
     marginBottom: 10,
   },
   inlineText: {
-    fontFamily: 'PlusJakartaSansMedium',
+    fontFamily: FontFamily.medium,
     fontSize: FontSize.nine,
     marginBottom: 4,
   },
-  strongText: { fontFamily: 'PlusJakartaSansBold' },
+  strongText: { fontFamily: FontFamily.bold },
   timeText: {
-    fontFamily: 'PlusJakartaSansMedium',
+    fontFamily: FontFamily.medium,
     fontSize: FontSize.seven,
     textTransform: 'uppercase',
   },
@@ -239,7 +239,7 @@ const styles = StyleSheet.create({
   },
   joinButtonText: {
     color: '#ffffff',
-    fontFamily: 'PlusJakartaSansExtraBold',
+    fontFamily: FontFamily.extraBold,
     fontSize: FontSize.seven,
     textTransform: 'uppercase',
     letterSpacing: 1.3,
@@ -274,7 +274,7 @@ const styles = StyleSheet.create({
     paddingVertical: 10,
   },
   quoteText: {
-    fontFamily: 'PlusJakartaSansMedium',
+    fontFamily: FontFamily.medium,
     fontSize: FontSize.eightHalf,
     fontStyle: 'italic',
     lineHeight: FontSize.thirteen,
@@ -282,7 +282,7 @@ const styles = StyleSheet.create({
   replyText: {
     marginTop: 8,
     color: PRIMARY_COLOR,
-    fontFamily: 'PlusJakartaSansBold',
+    fontFamily: FontFamily.bold,
     fontSize: FontSize.seven,
     textTransform: 'uppercase',
     letterSpacing: 1,
@@ -295,7 +295,7 @@ const styles = StyleSheet.create({
   },
   followButtonText: {
     color: PRIMARY_COLOR,
-    fontFamily: 'PlusJakartaSansBold',
+    fontFamily: FontFamily.bold,
     fontSize: mediumScreen ? FontSize.sixHalf:FontSize.fourHalf,
     textTransform: 'uppercase',
     letterSpacing: 1,

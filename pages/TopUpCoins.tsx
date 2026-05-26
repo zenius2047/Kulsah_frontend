@@ -10,7 +10,7 @@ import {
   Text,
   View,
 } from 'react-native';
-import { FontSize } from '../fonts';
+import { FontFamily, FontSize } from '../fonts';
 import { useThemeMode, PRIMARY_COLOR, primaryColorAlpha } from "../theme";
 import { mediumScreen, setUser, user as globalUser } from '../types';
 
@@ -153,7 +153,7 @@ const TopUpCoins: React.FC = () => {
           style={{
             color: theme.text,
             fontSize: mediumScreen ? FontSize.eighteen : FontSize.fourteen,
-            fontFamily: 'PlusJakartaSansExtraBold',
+            fontFamily: FontFamily.extraBold,
             textTransform: 'uppercase',
           }}
         >
@@ -180,7 +180,7 @@ const TopUpCoins: React.FC = () => {
             style={{
               color: PRIMARY_COLOR,
               fontSize: FontSize.eight,
-              fontFamily: 'PlusJakartaSansExtraBold',
+              fontFamily: FontFamily.extraBold,
               textTransform: 'uppercase',
               letterSpacing: 3,
             }}
@@ -196,7 +196,7 @@ const TopUpCoins: React.FC = () => {
                   style={{
                     color: theme.text,
                     fontSize: mediumScreen ? FontSize.forty : FontSize.thirtyTwo,
-                    fontFamily: 'PlusJakartaSansExtraBold',
+                    fontFamily: FontFamily.extraBold,
                   }}
                 >
                   {currentCoins.toLocaleString()}
@@ -210,7 +210,7 @@ const TopUpCoins: React.FC = () => {
               marginTop: 8,
               color: subtleText,
               fontSize: FontSize.ten,
-              fontFamily: 'PlusJakartaSansBold',
+              fontFamily: FontFamily.bold,
             }}
           >
             Kulcoins for Creator Support
@@ -223,7 +223,7 @@ const TopUpCoins: React.FC = () => {
               marginLeft: 8,
               color: sectionLabel,
               fontSize: FontSize.eight,
-              fontFamily: 'PlusJakartaSansExtraBold',
+              fontFamily: FontFamily.extraBold,
               textTransform: 'uppercase',
               letterSpacing: 3,
             }}
@@ -266,7 +266,7 @@ const TopUpCoins: React.FC = () => {
                         style={{
                           color: '#fff',
                           fontSize: FontSize.sixHalf,
-                          fontFamily: 'PlusJakartaSansExtraBold',
+                          fontFamily: FontFamily.extraBold,
                           textTransform: 'uppercase',
                           letterSpacing: 1.5,
                         }}
@@ -294,7 +294,7 @@ const TopUpCoins: React.FC = () => {
                     style={{
                       color: theme.text,
                       fontSize: mediumScreen ? FontSize.eighteen : FontSize.fourteen,
-                      fontFamily: 'PlusJakartaSansExtraBold',
+                      fontFamily: FontFamily.extraBold,
                     }}
                   >
                     {pkg.coins.toLocaleString()}
@@ -306,7 +306,7 @@ const TopUpCoins: React.FC = () => {
                         marginTop: 3,
                         color: '#4ade80',
                         fontSize: FontSize.eight,
-                        fontFamily: 'PlusJakartaSansExtraBold',
+                        fontFamily: FontFamily.extraBold,
                         textTransform: 'uppercase',
                       }}
                     >
@@ -327,7 +327,7 @@ const TopUpCoins: React.FC = () => {
                       style={{
                         color: '#fff',
                         fontSize: FontSize.ten,
-                        fontFamily: 'PlusJakartaSansExtraBold',
+                        fontFamily: FontFamily.extraBold,
                       }}
                     >
                       {pkg.price} GHS
@@ -358,7 +358,7 @@ const TopUpCoins: React.FC = () => {
               style={{
                 color: '#fff',
                 fontSize: mediumScreen ? FontSize.sixteen : FontSize.twelve,
-                fontFamily: 'PlusJakartaSansExtraBold',
+                fontFamily: FontFamily.extraBold,
               }}
             >
               Confirm Purchase
@@ -373,7 +373,7 @@ const TopUpCoins: React.FC = () => {
               color: disclaimer,
               fontSize: FontSize.eight,
               lineHeight: 18,
-              fontFamily: 'PlusJakartaSansBold',
+              fontFamily: FontFamily.bold,
               paddingHorizontal: 24,
             }}
           >
@@ -421,7 +421,7 @@ const TopUpCoins: React.FC = () => {
               style={{
                 color: theme.text,
                 fontSize: mediumScreen ? FontSize.twentyTwo : FontSize.eighteen,
-                fontFamily: 'PlusJakartaSansExtraBold',
+                fontFamily: FontFamily.extraBold,
                 textTransform: 'uppercase',
                 textAlign: 'center',
               }}
@@ -441,20 +441,20 @@ const TopUpCoins: React.FC = () => {
                 }}
               >
                 <View style={{ flexDirection: 'row', justifyContent: 'space-between' }}>
-                  <Text style={{ color: theme.textSecondary, fontFamily: 'PlusJakartaSansBold' }}>Package</Text>
-                  <Text style={{ color: theme.text, fontFamily: 'PlusJakartaSansExtraBold' }}>
+                  <Text style={{ color: theme.textSecondary, fontFamily: FontFamily.bold }}>Package</Text>
+                  <Text style={{ color: theme.text, fontFamily: FontFamily.extraBold }}>
                     {selectedPkgData.coins} Kulcoins
                   </Text>
                 </View>
                 <View style={{ flexDirection: 'row', justifyContent: 'space-between' }}>
-                  <Text style={{ color: theme.textSecondary, fontFamily: 'PlusJakartaSansBold' }}>Bonus</Text>
-                  <Text style={{ color: '#4ade80', fontFamily: 'PlusJakartaSansExtraBold' }}>
+                  <Text style={{ color: theme.textSecondary, fontFamily: FontFamily.bold }}>Bonus</Text>
+                  <Text style={{ color: '#4ade80', fontFamily: FontFamily.extraBold }}>
                     +{selectedPkgData.bonus}
                   </Text>
                 </View>
                 <View style={{ flexDirection: 'row', justifyContent: 'space-between' }}>
-                  <Text style={{ color: theme.textSecondary, fontFamily: 'PlusJakartaSansBold' }}>Amount</Text>
-                  <Text style={{ color: PRIMARY_COLOR, fontFamily: 'PlusJakartaSansExtraBold' }}>
+                  <Text style={{ color: theme.textSecondary, fontFamily: FontFamily.bold }}>Amount</Text>
+                  <Text style={{ color: PRIMARY_COLOR, fontFamily: FontFamily.extraBold }}>
                     {selectedPkgData.price} GHS
                   </Text>
                 </View>
@@ -479,7 +479,7 @@ const TopUpCoins: React.FC = () => {
                   style={{
                     color: '#fff',
                     fontSize: FontSize.eleven,
-                    fontFamily: 'PlusJakartaSansExtraBold',
+                    fontFamily: FontFamily.extraBold,
                     textTransform: 'uppercase',
                     letterSpacing: 2,
                   }}
@@ -504,7 +504,7 @@ const TopUpCoins: React.FC = () => {
                 style={{
                   color: theme.textSecondary,
                   fontSize: FontSize.ten,
-                  fontFamily: 'PlusJakartaSansExtraBold',
+                  fontFamily: FontFamily.extraBold,
                   textTransform: 'uppercase',
                   letterSpacing: 1.5,
                 }}
@@ -546,7 +546,7 @@ const TopUpCoins: React.FC = () => {
             style={{
               color: theme.text,
               fontSize: mediumScreen ? FontSize.twentyEight : FontSize.twentyTwo,
-              fontFamily: 'PlusJakartaSansExtraBold',
+              fontFamily: FontFamily.extraBold,
               textTransform: 'uppercase',
               marginBottom: 8,
               textAlign: 'center',
@@ -558,7 +558,7 @@ const TopUpCoins: React.FC = () => {
             style={{
               color: successBody,
               fontSize: FontSize.eleven,
-              fontFamily: 'PlusJakartaSansBold',
+              fontFamily: FontFamily.bold,
               textAlign: 'center',
             }}
           >
@@ -584,7 +584,7 @@ const TopUpCoins: React.FC = () => {
               style={{
                 color: theme.text,
                 fontSize: FontSize.sixteen,
-                fontFamily: 'PlusJakartaSansExtraBold',
+                fontFamily: FontFamily.extraBold,
               }}
             >
               {currentCoins.toLocaleString()} Coins

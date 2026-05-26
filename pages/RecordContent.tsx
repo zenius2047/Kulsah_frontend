@@ -17,7 +17,7 @@ import { LinearGradient } from 'expo-linear-gradient';
 import { MaterialIcons } from '@expo/vector-icons';
 import { useNavigation } from '@react-navigation/native';
 import { CameraView, useCameraPermissions } from 'expo-camera';
-import { FontSize } from '../fonts';
+import { FontFamily, FontSize } from '../fonts';
 import { VoteSheetContent } from './SoundSelect';
 import { mediumScreen } from '../types';
 
@@ -318,14 +318,14 @@ const styles = StyleSheet.create({
   },
   permissionTitle: {
     color: '#fff',
-    fontFamily: 'PlusJakartaSansBold',
+    fontFamily: FontFamily.bold,
     fontSize: mediumScreen ? FontSize.eighteen :FontSize.fourteen,
     marginTop: 18,
     marginBottom: 8,
   },
   permissionText: {
     color: 'rgba(255,255,255,0.75)',
-    fontFamily: 'PlusJakartaSansMedium',
+    fontFamily: FontFamily.medium,
     fontSize: mediumScreen ? FontSize.fourteen : FontSize.ten,
     lineHeight: 20,
     textAlign: 'center',
@@ -342,7 +342,7 @@ const styles = StyleSheet.create({
   },
   permissionButtonText: {
     color: '#fff',
-    fontFamily: 'PlusJakartaSansBold',
+    fontFamily: FontFamily.bold,
     fontSize: mediumScreen ? FontSize.fourteen: FontSize.ten,
   },
   topArea: {
@@ -366,14 +366,14 @@ const styles = StyleSheet.create({
   },
   progressLabel: {
     color: 'rgba(255,255,255,0.85)',
-    fontFamily: 'PlusJakartaSansBold',
+    fontFamily: FontFamily.bold,
     fontSize: FontSize.eleven,
     textTransform: 'uppercase',
     letterSpacing: 1,
   },
   progressTime: {
     color: '#fff',
-    fontFamily: 'PlusJakartaSansMedium',
+    fontFamily: FontFamily.medium,
     fontSize: FontSize.twelve,
   },
   progressTrack: {
@@ -426,7 +426,7 @@ const styles = StyleSheet.create({
   },
   soundButtonText: {
     color: '#fff',
-    fontFamily: 'PlusJakartaSansBold',
+    fontFamily: FontFamily.bold,
     fontSize: mediumScreen ? FontSize.fourteen: FontSize.ten,
     maxWidth: '85%',
   },
@@ -461,14 +461,14 @@ const styles = StyleSheet.create({
   },
   sideLabel: {
     color: '#fff',
-    fontFamily: 'PlusJakartaSansMedium',
+    fontFamily: FontFamily.medium,
     fontSize: FontSize.eight,
     textTransform: 'uppercase',
     marginTop: 2,
   },
   sideLabelActive: {
     color: PRIMARY_COLOR,
-    fontFamily: 'PlusJakartaSansBold',
+    fontFamily: FontFamily.bold,
   },
   bottomArea: {
     marginTop: 'auto',
@@ -515,12 +515,12 @@ const styles = StyleSheet.create({
   filterText: {
     marginTop: 8,
     color: 'rgba(255,255,255,0.7)',
-    fontFamily: 'PlusJakartaSansMedium',
+    fontFamily: FontFamily.medium,
     fontSize: FontSize.twelve,
   },
   filterTextActive: {
     color: PRIMARY_COLOR,
-    fontFamily: 'PlusJakartaSansBold',
+    fontFamily: FontFamily.bold,
   },
   primaryActions: {
     flexDirection: 'row',
@@ -541,7 +541,7 @@ const styles = StyleSheet.create({
   },
   utilityLabel: {
     color: '#fff',
-    fontFamily: 'PlusJakartaSansBold',
+    fontFamily: FontFamily.bold,
     fontSize: FontSize.ten,
     textTransform: 'uppercase',
     marginTop: 8,
@@ -600,7 +600,7 @@ const styles = StyleSheet.create({
   },
   modeText: {
     color: 'rgba(255,255,255,0.4)',
-    fontFamily: 'PlusJakartaSansBold',
+    fontFamily: FontFamily.bold,
     fontSize: FontSize.fourteen,
   },
   modeTextActive: {

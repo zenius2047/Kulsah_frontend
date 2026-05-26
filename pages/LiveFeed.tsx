@@ -4,7 +4,7 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 import { MaterialIcons } from '@expo/vector-icons';
 import { LinearGradient } from 'expo-linear-gradient';
 import { useThemeMode, PRIMARY_COLOR, primaryColorAlpha } from "../theme";
-import { FontSize } from '../fonts';
+import { FontFamily, FontSize } from '../fonts';
 import GiftDialog, { GiftSelection } from '../components/GiftDialog';
 
 interface Creator {
@@ -408,7 +408,7 @@ const styles = StyleSheet.create({
   },
   sectionTitle: {
     fontSize: FontSize.six,
-    fontFamily: 'PlusJakartaSansExtraBold',
+    fontFamily: FontFamily.extraBold,
     letterSpacing: 2.6,
     textTransform: 'uppercase',
   },
@@ -446,7 +446,7 @@ const styles = StyleSheet.create({
   creatorHandle: {
     marginTop: 10,
     fontSize: FontSize.sevenHalf,
-    fontFamily: 'PlusJakartaSansBold',
+    fontFamily: FontFamily.bold,
   },
   feedStack: {
     backgroundColor: 'black',
@@ -499,7 +499,7 @@ const styles = StyleSheet.create({
   liveBadgeText: {
     color: '#ffdad6',
     fontSize: FontSize.seven,
-    fontFamily: 'PlusJakartaSansExtraBold',
+    fontFamily: FontFamily.extraBold,
     letterSpacing: 2.2,
   },
   viewerBadge: {
@@ -516,7 +516,7 @@ const styles = StyleSheet.create({
   viewerBadgeText: {
     color: '#f8fafc',
     fontSize: FontSize.seven,
-    fontFamily: 'PlusJakartaSansBold',
+    fontFamily: FontFamily.bold,
   },
   bottomOverlay: {
     paddingHorizontal: 20,
@@ -566,7 +566,7 @@ const styles = StyleSheet.create({
   },
   chatUser: {
     color: primaryColorAlpha(0.76),
-    fontFamily: 'PlusJakartaSansExtraBold',
+    fontFamily: FontFamily.extraBold,
     fontSize: FontSize.eightHalf,
     letterSpacing: 1.1,
     textTransform: 'uppercase',
@@ -579,7 +579,7 @@ const styles = StyleSheet.create({
   },
   chatText: {
     color: '#fff',
-    fontFamily: 'PlusJakartaSansMedium',
+    fontFamily: FontFamily.medium,
     fontSize: FontSize.tenHalf,
     lineHeight: 15,
     marginTop: 2,
@@ -603,12 +603,12 @@ const styles = StyleSheet.create({
   hostName: {
     color: '#ffffff',
     fontSize: FontSize.fourteen,
-    fontFamily: 'PlusJakartaSansExtraBold',
+    fontFamily: FontFamily.extraBold,
   },
   hostSubtitle: {
     color: '#d1d5db',
     fontSize: FontSize.seven,
-    fontFamily: 'PlusJakartaSansMedium',
+    fontFamily: FontFamily.medium,
     marginTop: 2,
   },
   commentComposer: {
@@ -625,7 +625,7 @@ const styles = StyleSheet.create({
   commentInput: {
     flex: 1,
     color: '#fff',
-    fontFamily: 'PlusJakartaSansMedium',
+    fontFamily: FontFamily.medium,
     fontSize: FontSize.eleven,
   },
   joinButton: {
@@ -643,7 +643,7 @@ const styles = StyleSheet.create({
   joinButtonText: {
     color: '#ffffff',
     fontSize: FontSize.nine,
-    fontFamily: 'PlusJakartaSansExtraBold',
+    fontFamily: FontFamily.extraBold,
     letterSpacing: 1.8,
     textTransform: 'uppercase',
   },
@@ -669,7 +669,7 @@ const styles = StyleSheet.create({
   metricText: {
     color: '#ffffff',
     fontSize: FontSize.sevenHalf,
-    fontFamily: 'PlusJakartaSansBold',
+    fontFamily: FontFamily.bold,
   },
   bottomNav: {
     position: 'absolute',
@@ -704,7 +704,7 @@ const styles = StyleSheet.create({
   navLabel: {
     marginTop: 4,
     fontSize: FontSize.sixHalf,
-    fontFamily: 'PlusJakartaSansBold',
+    fontFamily: FontFamily.bold,
     letterSpacing: 0.8,
     textTransform: 'uppercase',
   },

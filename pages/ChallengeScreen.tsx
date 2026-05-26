@@ -14,7 +14,7 @@ import { useNavigation } from '@react-navigation/native';
 
 
 
-import { FontSize } from '../fonts';
+import { FontFamily, FontSize } from '../fonts';
 
 interface Props {
   videoLink: string;
@@ -165,7 +165,7 @@ const navigation = useNavigation<any>()
             }}>
                 <BadgeIcon height={34} width={34} fill={PRIMARY_COLOR}/>
             <Text style={{
-                fontFamily: "PlusJakartaSansBold",
+                fontFamily: FontFamily.bold,
                 fontSize: mediumScreen ? FontSize.twentyTwo: FontSize.sixteen,
                 color: !isDark ? 'black': 'white',
             }}>
@@ -200,7 +200,7 @@ const navigation = useNavigation<any>()
                 }}>
                  <Text style={{
                     color: activeTab === tab ? isDark ? '#ffffff': '#000000': isDark ? '#ffffff5d':'#0000005d',
-                    fontFamily: "PlusJakartaSansBold",
+                    fontFamily: FontFamily.bold,
                     fontSize: mediumScreen ? FontSize.eighteen: FontSize.fourteen,
                     marginBottom: 10,
                  }}>
@@ -264,14 +264,14 @@ const navigation = useNavigation<any>()
             <View>
                 <Text style={{
                     fontSize: mediumScreen ? FontSize.eighteen: FontSize.fourteen,
-                    fontFamily: 'PlusJakartaSansBold',
+                    fontFamily: FontFamily.bold,
                     color: isDark ? 'white': 'black',
                 }}>
                     {content.creator}
                 </Text>
                 <Text style={{
                     fontSize: mediumScreen ? FontSize.fourteen: FontSize.ten,
-                    fontFamily: 'PlusJakartaSans',
+                    fontFamily: FontFamily.regular,
                     color: isDark ? 'grey': 'black',
                 }}>
                     by @{content.username}
@@ -291,7 +291,7 @@ const navigation = useNavigation<any>()
                 numberOfLines={1}
                 style={{
                     color: PRIMARY_COLOR,
-                    fontFamily: 'PlusJakartaSansBold',
+                    fontFamily: FontFamily.bold,
                     fontSize: mediumScreen ? FontSize.sixteen : FontSize.twelve,
                 }}>
                     {content.tag}
@@ -326,7 +326,7 @@ const navigation = useNavigation<any>()
             }}>
             <Text style={{
                 color: isDark ? 'grey' : 'black',
-                fontFamily: 'PlusJakartaSansBold',
+                fontFamily: FontFamily.bold,
                 fontSize: mediumScreen ? FontSize.sixteen: FontSize.twelve,
                 // paddingHorizontal: 12,
                 // paddingTop: 12,
@@ -335,7 +335,7 @@ const navigation = useNavigation<any>()
             </Text>
             <Text style={{
                 color: isDark ? item===3 ? PRIMARY_COLOR:'white' : item===3 ? PRIMARY_COLOR:'black',
-                fontFamily: 'PlusJakartaSansBold',
+                fontFamily: FontFamily.bold,
                 fontSize: mediumScreen ? FontSize.fourteen: FontSize.ten,
                 paddingHorizontal: 12,
             }}>
@@ -355,7 +355,7 @@ const navigation = useNavigation<any>()
             <Text style={{
                 color: isDark ? 'grey': 'black',
                 fontSize: mediumScreen ? FontSize.fourteen : FontSize.ten,
-                fontFamily: 'PlusJakartaSansBold',
+                fontFamily: FontFamily.bold,
             }}>
                 RECENT PARTICIPANTS
             </Text>
@@ -367,7 +367,7 @@ const navigation = useNavigation<any>()
                 <Text style={{
                 color: 'purple',
                 fontSize: mediumScreen ? FontSize.fourteen : FontSize.ten,
-                fontFamily: 'PlusJakartaSansBold',
+                fontFamily: FontFamily.bold,
              }}>
                 VIEW ALL
             </Text>
@@ -416,7 +416,7 @@ const navigation = useNavigation<any>()
         }}>
         <MaterialIcons name='add-circle' size={24} color='white'/>
         <Text style={{
-            fontFamily: 'PlusJakartaSansBold',
+            fontFamily: FontFamily.bold,
             color: !isDark ? 'white': 'black',
             fontSize: mediumScreen ? FontSize.twenty: FontSize.sixteen,
             lineHeight: 35

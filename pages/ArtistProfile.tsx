@@ -11,7 +11,7 @@ import TrophyIcon from '../assets/icons/trophy-svg.svg';
 import BookmarkIcon from '../assets/icons/bookmark-svg.svg';
 import EditIcon from '../assets/icons/edit-svg.svg';
 import { mediumScreen, subscribeUser, user, User } from '../types';
-import { FontSize } from '../fonts';
+import { FontFamily, FontSize } from '../fonts';
 import { BlurView } from 'expo-blur';
 import VerifiedIcon from '../assets/icons/verified-svg.svg';
 import FireIcon from '../assets/icons/fireIcon-svg.svg';
@@ -30,7 +30,7 @@ interface SubscriptionTier {
 }
 
 const INITIAL_SUBSCRIPTION: SubscriptionTier = {
-  name: 'Pulsar Access',
+  name: 'Kulsah Access',
   price: '9.99',
   perks: [
     'Exclusive Feed Access',
@@ -319,7 +319,7 @@ const  ArtistProfile: React.FC = () => {
                       style = {{
                         color: "rgb(34 197 94)",
                         fontSize: FontSize.eight,
-                        fontFamily: 'PlusJakartaSansExtraBold',
+                        fontFamily: FontFamily.extraBold,
                         textTransform: 'uppercase'
                       }}>-15%</Text>
                 </View>
@@ -329,7 +329,7 @@ const  ArtistProfile: React.FC = () => {
 
 
           <Pressable style={[s.card, { backgroundColor: isDark ? '#ffffff0d' : theme.card, borderColor: theme.border, shadowColor: theme.shadow, shadowOpacity: isDark ? 0 : 0.08, shadowRadius: 16, elevation: isDark ? 0 : 2 }]} onPress={openSubscription}>
-            <Text style={[s.cardTitle, { color: theme.textSecondary, fontFamily: "PlusJakartaSansMedium" }]}>{INITIAL_SUBSCRIPTION.name}</Text>
+            <Text style={[s.cardTitle, { color: theme.textSecondary, fontFamily: FontFamily.medium }]}>{INITIAL_SUBSCRIPTION.name}</Text>
             <View style={s.priceLine}>
               <Text style={[s.cardPrice, { color: theme.text }]}>${calculatePrice(INITIAL_SUBSCRIPTION.price)}</Text>
               <Text style={[s.priceSuffix, { color: theme.textSecondary }]}>/{billingCycle === 'monthly' ? 'mo' : 'yr'}</Text>
@@ -356,7 +356,7 @@ const  ArtistProfile: React.FC = () => {
                 <Text style = {{
                   color: theme.text,
                   // fontWeight: 'bold',
-                  fontFamily: 'PlusJakartaSansBold',
+                  fontFamily: FontFamily.bold,
                   fontSize: mediumScreen? FontSize.twelve:FontSize.eight,
                 }}>
                   {billingCycle === 'monthly' ? 'SUBSCRIBE MONTHLY': 'SUBSCRIBE ANNUALLY'}
@@ -459,7 +459,7 @@ const  ArtistProfile: React.FC = () => {
                           >
                             <Text style={{
                           color: PRIMARY_COLOR,
-                          fontFamily: 'PlusJakartaSansBold',
+                          fontFamily: FontFamily.bold,
                           fontSize: FontSize.twelve,
                           lineHeight: 15,
                         }}>
@@ -499,7 +499,7 @@ const  ArtistProfile: React.FC = () => {
                           <View style={{
                             marginLeft: 5
                           }}>
-                            <Text style={[{ color: '#ffffff66', width: '100%', fontSize: mediumScreen ? FontSize.twelve: FontSize.eight, fontFamily: 'PlusJakartaSansExtraBold'}]}>Date</Text>
+                            <Text style={[{ color: '#ffffff66', width: '100%', fontSize: mediumScreen ? FontSize.twelve: FontSize.eight, fontFamily: FontFamily.extraBold}]}>Date</Text>
                           <Text style={[s.sub, { color: '#dbe4f0', width: '70%', fontSize: mediumScreen ? FontSize.ten: FontSize.six }]}>{item.meta}</Text>
                           </View>
                         </View>
@@ -528,7 +528,7 @@ const  ArtistProfile: React.FC = () => {
                           <View style={{
                             marginLeft: 5
                           }}>
-                            <Text style={[{ color: '#ffffff66', width: '100%', fontSize: mediumScreen ? FontSize.twelve: FontSize.eight, fontFamily: 'PlusJakartaSansExtraBold'}]}>Location</Text>
+                            <Text style={[{ color: '#ffffff66', width: '100%', fontSize: mediumScreen ? FontSize.twelve: FontSize.eight, fontFamily: FontFamily.extraBold}]}>Location</Text>
                           <Text style={[s.sub, { color: '#dbe4f0', width: '60%', fontSize: mediumScreen ? FontSize.ten: FontSize.six }]}>{item.location}</Text>
                           </View>
                         </View>
@@ -551,7 +551,7 @@ const  ArtistProfile: React.FC = () => {
                           height: 40,
                         }}>
                           <Text style={{
-                            fontFamily: 'PlusJakartaSansBold',
+                            fontFamily: FontFamily.bold,
                             textAlign: 'center',
                             fontSize: mediumScreen ? FontSize.twelve: FontSize.eight,
                           }}>Get{"\n"}Ticket</Text>
@@ -681,20 +681,20 @@ const  ArtistProfile: React.FC = () => {
 
 const s = StyleSheet.create({
   screen: { flex: 1, backgroundColor: '#060913' },
-  toast: { position: 'absolute', top: 56, alignSelf: 'center', zIndex: 40, backgroundColor: PRIMARY_COLOR, color: '#fff', paddingHorizontal: 16, paddingVertical: 8, borderRadius: 999, fontSize: FontSize.ten, fontFamily: 'PlusJakartaSansExtraBold' },
-  icon: { width: 40, height: 40, borderRadius: 20, alignItems: 'center', justifyContent: 'center', backgroundColor: 'rgba(255,255,255,0.06)' }, header: { paddingTop: 46, paddingHorizontal: 14, paddingBottom: 12, flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', backgroundColor: 'rgba(15,23,42,0.72)' }, headerBtn: { width: 40, height: 40, borderRadius: 20, alignItems: 'center', justifyContent: 'center', backgroundColor: 'rgba(255,255,255,0.06)' }, headerTitle: { flex: 1, textAlign: 'center', marginHorizontal: 10, color: '#fff', fontSize: mediumScreen? FontSize.sixteen:FontSize.twelve, fontFamily: 'PlusJakartaSansExtraBold', textTransform: 'uppercase' },
-  content: { paddingBottom: 120, }, cover: { height: 280 }, hero: { marginTop: -88, paddingHorizontal: 20, alignItems: 'center' }, avatarWrap: { width: 148, height: 148, borderRadius: 999, borderWidth: 1, borderColor: '#060913', padding: 7}, image: { width: '100%', height: '100%', borderRadius: 999 }, fire: { position: 'absolute', right: 12, bottom: -2, width: 40, height: 40, borderRadius: 999, backgroundColor: '#f97316', borderWidth: 0, borderColor: '#060913', alignItems: 'center', justifyContent: 'center', flexDirection: 'row' }, fireText: { color: '#fff', fontSize: FontSize.eight, fontFamily: 'PlusJakartaSansExtraBold' },
-  name: {color: '#fff', fontSize: FontSize.sixteen, fontFamily: 'PlusJakartaSansBold', textTransform: 'uppercase' }, role: { marginTop: 4, color: PRIMARY_COLOR, fontSize: FontSize.nine, fontFamily: 'PlusJakartaSansExtraBold', textTransform: 'uppercase', letterSpacing: 2 }, stat: { flex: 1, textAlign: 'center', color: '#fff', fontSize: FontSize.eighteen, fontFamily: 'PlusJakartaSansExtraBold' }, muted: { color: '#7d859e', fontSize: FontSize.eight, fontFamily: 'PlusJakartaSansExtraBold' }, purple: { color: PRIMARY_COLOR, fontFamily: 'PlusJakartaSansBold', fontSize: mediumScreen ? FontSize.twelve: FontSize.ten },
+  toast: { position: 'absolute', top: 56, alignSelf: 'center', zIndex: 40, backgroundColor: PRIMARY_COLOR, color: '#fff', paddingHorizontal: 16, paddingVertical: 8, borderRadius: 999, fontSize: FontSize.ten, fontFamily: FontFamily.extraBold },
+  icon: { width: 40, height: 40, borderRadius: 20, alignItems: 'center', justifyContent: 'center', backgroundColor: 'rgba(255,255,255,0.06)' }, header: { paddingTop: 46, paddingHorizontal: 14, paddingBottom: 12, flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', backgroundColor: 'rgba(15,23,42,0.72)' }, headerBtn: { width: 40, height: 40, borderRadius: 20, alignItems: 'center', justifyContent: 'center', backgroundColor: 'rgba(255,255,255,0.06)' }, headerTitle: { flex: 1, textAlign: 'center', marginHorizontal: 10, color: '#fff', fontSize: mediumScreen? FontSize.sixteen:FontSize.twelve, fontFamily: FontFamily.extraBold, textTransform: 'uppercase' },
+  content: { paddingBottom: 120, }, cover: { height: 280 }, hero: { marginTop: -88, paddingHorizontal: 20, alignItems: 'center' }, avatarWrap: { width: 148, height: 148, borderRadius: 999, borderWidth: 1, borderColor: '#060913', padding: 7}, image: { width: '100%', height: '100%', borderRadius: 999 }, fire: { position: 'absolute', right: 12, bottom: -2, width: 40, height: 40, borderRadius: 999, backgroundColor: '#f97316', borderWidth: 0, borderColor: '#060913', alignItems: 'center', justifyContent: 'center', flexDirection: 'row' }, fireText: { color: '#fff', fontSize: FontSize.eight, fontFamily: FontFamily.extraBold },
+  name: {color: '#fff', fontSize: FontSize.sixteen, fontFamily: FontFamily.bold, textTransform: 'uppercase' }, role: { marginTop: 4, color: PRIMARY_COLOR, fontSize: FontSize.nine, fontFamily: FontFamily.extraBold, textTransform: 'uppercase', letterSpacing: 2 }, stat: { flex: 1, textAlign: 'center', color: '#fff', fontSize: FontSize.eighteen, fontFamily: FontFamily.extraBold }, muted: { color: '#7d859e', fontSize: FontSize.eight, fontFamily: FontFamily.extraBold }, purple: { color: PRIMARY_COLOR, fontFamily: FontFamily.bold, fontSize: mediumScreen ? FontSize.twelve: FontSize.ten },
   actions: { marginTop: 22, flexDirection: 'row', gap: 10, alignItems: 'center', justifyContent: 'center' },
   action: { height: 56, borderRadius: 24, alignItems: 'center', justifyContent: 'center', flexDirection: 'row', gap: 8 },
   primary: { backgroundColor: PRIMARY_COLOR, minHeight: 36, borderRadius: 34, alignItems: 'center', justifyContent: 'center', flexDirection: 'row', },
-  secondary: { height: 36, borderRadius: 34, alignItems: 'center', justifyContent: 'center', backgroundColor: 'rgba(255,255,255,0.06)' }, iconAction: { width: 56, height: 36, borderRadius: 24, alignItems: 'center', justifyContent: 'center', backgroundColor: 'rgba(255,255,255,0.06)' }, btnText: { color: '#fff', fontSize: mediumScreen ? FontSize.fifteen:FontSize.eleven, fontFamily: 'PlusJakartaSansExtraBold', textTransform: 'uppercase', lineHeight: 15}, follow: { flex: 1, height: 56, borderRadius: 24, alignItems: 'center', justifyContent: 'center', backgroundColor: 'rgba(255,255,255,0.06)' }, followOn: { backgroundColor: primaryColorAlpha(0.12) }, followText: { color: '#fff', fontSize: FontSize.eleven, fontFamily: 'PlusJakartaSansExtraBold', textTransform: 'uppercase' }, followTextOn: { color: PRIMARY_COLOR },
-  bio: { paddingHorizontal: 34, marginTop: 18, marginBottom: 18, color: '#8b94ad', fontSize: mediumScreen? FontSize.fourteen:FontSize.twelve, lineHeight: 20, fontStyle: 'italic', textAlign: 'center', fontFamily: 'PlusJakartaSansMedium' },
-  membership: { paddingHorizontal: 16, gap: 14 }, membershipHeader: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', paddingHorizontal: 16 }, section: { color: '#fff', fontSize: mediumScreen? FontSize.eighteen: FontSize.fourteen, fontFamily: 'PlusJakartaSansExtraBold', textTransform: 'uppercase' }, toggle: { flexDirection: 'row', gap: 6, padding: 6, borderRadius: 18, backgroundColor: 'rgba(255,255,255,0.05)' }, toggleBtn: { minHeight: 34, paddingHorizontal: 10, borderRadius: 12, alignItems: 'center', justifyContent: 'center' }, toggleOn: { backgroundColor: 'rgba(255,255,255,0.08)' }, toggleText: { color: '#8b94ad', fontSize: FontSize.ten, fontFamily: 'PlusJakartaSansExtraBold', textTransform: 'uppercase' },
- cardLabel: { color: '#8b94ad', fontSize: FontSize.ten, fontFamily: 'PlusJakartaSansExtraBold', textTransform: 'uppercase' }, price: { color: '#fff', fontSize: FontSize.twentyEight, fontFamily: 'PlusJakartaSansExtraBold' }, perk: { color: '#d4d8e8', fontSize: FontSize.twelve, fontFamily: 'PlusJakartaSansMedium' },
+  secondary: { height: 36, borderRadius: 34, alignItems: 'center', justifyContent: 'center', backgroundColor: 'rgba(255,255,255,0.06)' }, iconAction: { width: 56, height: 36, borderRadius: 24, alignItems: 'center', justifyContent: 'center', backgroundColor: 'rgba(255,255,255,0.06)' }, btnText: { color: '#fff', fontSize: mediumScreen ? FontSize.fifteen:FontSize.eleven, fontFamily: FontFamily.extraBold, textTransform: 'uppercase', lineHeight: 15}, follow: { flex: 1, height: 56, borderRadius: 24, alignItems: 'center', justifyContent: 'center', backgroundColor: 'rgba(255,255,255,0.06)' }, followOn: { backgroundColor: primaryColorAlpha(0.12) }, followText: { color: '#fff', fontSize: FontSize.eleven, fontFamily: FontFamily.extraBold, textTransform: 'uppercase' }, followTextOn: { color: PRIMARY_COLOR },
+  bio: { paddingHorizontal: 34, marginTop: 18, marginBottom: 18, color: '#8b94ad', fontSize: mediumScreen? FontSize.fourteen:FontSize.twelve, lineHeight: 20, fontStyle: 'italic', textAlign: 'center', fontFamily: FontFamily.medium },
+  membership: { paddingHorizontal: 16, gap: 14 }, membershipHeader: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', paddingHorizontal: 16 }, section: { color: '#fff', fontSize: mediumScreen? FontSize.eighteen: FontSize.fourteen, fontFamily: FontFamily.extraBold, textTransform: 'uppercase' }, toggle: { flexDirection: 'row', gap: 6, padding: 6, borderRadius: 18, backgroundColor: 'rgba(255,255,255,0.05)' }, toggleBtn: { minHeight: 34, paddingHorizontal: 10, borderRadius: 12, alignItems: 'center', justifyContent: 'center' }, toggleOn: { backgroundColor: 'rgba(255,255,255,0.08)' }, toggleText: { color: '#8b94ad', fontSize: FontSize.ten, fontFamily: FontFamily.extraBold, textTransform: 'uppercase' },
+ cardLabel: { color: '#8b94ad', fontSize: FontSize.ten, fontFamily: FontFamily.extraBold, textTransform: 'uppercase' }, price: { color: '#fff', fontSize: FontSize.twentyEight, fontFamily: FontFamily.extraBold }, perk: { color: '#d4d8e8', fontSize: FontSize.twelve, fontFamily: FontFamily.medium },
   tabs: {
     // backgroundColor: 'white',
-    paddingHorizontal: 16, paddingTop: 18, paddingBottom: 6 }, tab: { minWidth: 74, alignItems: 'center', paddingBottom: 14, marginRight: 14 }, tabText: { marginTop: 4, color: '#69738d', fontSize: FontSize.eight, fontFamily: 'PlusJakartaSansExtraBold', textTransform: 'uppercase' }, tabOn: { color: PRIMARY_COLOR },
+    paddingHorizontal: 16, paddingTop: 18, paddingBottom: 6 }, tab: { minWidth: 74, alignItems: 'center', paddingBottom: 14, marginRight: 14 }, tabText: { marginTop: 4, color: '#69738d', fontSize: FontSize.eight, fontFamily: FontFamily.extraBold, textTransform: 'uppercase' }, tabOn: { color: PRIMARY_COLOR },
   body: {
     paddingHorizontal: 16,
     paddingTop: 10,
@@ -710,12 +710,12 @@ const s = StyleSheet.create({
   videoGridImage: { width: '100%', height: '100%' },
   videoGridOverlay: { ...StyleSheet.absoluteFillObject },
   videoGridMeta: { position: 'absolute', left: 8, bottom: 8, flexDirection: 'row', alignItems: 'center', gap: 2 },
-  videoGridMetaText: { color: '#fff', fontFamily: 'PlusJakartaSansBold', fontSize: FontSize.eleven },
-  sub: { marginTop: 0, color: '#9ca3af', fontSize: FontSize.eight, fontFamily: 'PlusJakartaSansExtraBold', textTransform: 'uppercase' },
-  stack: { gap: 16 }, banner: { height: 230, borderRadius: 40, overflow: 'hidden', backgroundColor: '#0f172a' }, bannerText: { color: '#fff', fontSize: mediumScreen ? FontSize.sixteen:FontSize.twelve, fontFamily: 'PlusJakartaSansExtraBold', textTransform: 'uppercase', width:'50%' },
-  bannerBottom: { position: 'absolute', left: 18, right: 18, bottom: 18 }, eventCard: { height: 240, borderRadius: 40, overflow: 'hidden', backgroundColor: '#0f172a' }, chip: { position: 'absolute', top: 18, left: 18, flexDirection: 'row', alignItems: 'center', gap: 6, paddingHorizontal: 12, paddingVertical: 8, borderRadius: 999, backgroundColor: primaryColorAlpha(0.14) }, chipText: { color: PRIMARY_COLOR, fontSize: FontSize.nine, fontFamily: 'PlusJakartaSansExtraBold', textTransform: 'uppercase' },
+  videoGridMetaText: { color: '#fff', fontFamily: FontFamily.bold, fontSize: FontSize.eleven },
+  sub: { marginTop: 0, color: '#9ca3af', fontSize: FontSize.eight, fontFamily: FontFamily.extraBold, textTransform: 'uppercase' },
+  stack: { gap: 16 }, banner: { height: 230, borderRadius: 40, overflow: 'hidden', backgroundColor: '#0f172a' }, bannerText: { color: '#fff', fontSize: mediumScreen ? FontSize.sixteen:FontSize.twelve, fontFamily: FontFamily.extraBold, textTransform: 'uppercase', width:'50%' },
+  bannerBottom: { position: 'absolute', left: 18, right: 18, bottom: 18 }, eventCard: { height: 240, borderRadius: 40, overflow: 'hidden', backgroundColor: '#0f172a' }, chip: { position: 'absolute', top: 18, left: 18, flexDirection: 'row', alignItems: 'center', gap: 6, paddingHorizontal: 12, paddingVertical: 8, borderRadius: 999, backgroundColor: primaryColorAlpha(0.14) }, chipText: { color: PRIMARY_COLOR, fontSize: FontSize.nine, fontFamily: FontFamily.extraBold, textTransform: 'uppercase' },
   sound: { flexDirection: 'row', alignItems: 'center', gap: 12, padding: 14, borderRadius: 28, backgroundColor: 'rgba(255,255,255,0.05)' },
-  play: { width: 58, height: 58, borderRadius: 20, backgroundColor: primaryColorAlpha(0.2), alignItems: 'center', justifyContent: 'center' }, playOn: { backgroundColor: PRIMARY_COLOR }, soundTitle: { color: '#fff', fontSize: mediumScreen ? FontSize.fourteen: FontSize.ten, fontFamily: 'PlusJakartaSansExtraBold', textTransform: 'uppercase' }, soundMeta: { marginTop: 4, color: '#8b94ad', fontSize: FontSize.nine, fontFamily: 'PlusJakartaSansBold', textTransform: 'uppercase' }, soundUsage: { color: PRIMARY_COLOR, fontSize: FontSize.eight, fontFamily: 'PlusJakartaSansExtraBold', textTransform: 'uppercase' },
+  play: { width: 58, height: 58, borderRadius: 20, backgroundColor: primaryColorAlpha(0.2), alignItems: 'center', justifyContent: 'center' }, playOn: { backgroundColor: PRIMARY_COLOR }, soundTitle: { color: '#fff', fontSize: mediumScreen ? FontSize.fourteen: FontSize.ten, fontFamily: FontFamily.extraBold, textTransform: 'uppercase' }, soundMeta: { marginTop: 4, color: '#8b94ad', fontSize: FontSize.nine, fontFamily: FontFamily.bold, textTransform: 'uppercase' }, soundUsage: { color: PRIMARY_COLOR, fontSize: FontSize.eight, fontFamily: FontFamily.extraBold, textTransform: 'uppercase' },
   overlay: { flex: 1, backgroundColor: 'rgba(0,0,0,0.8)', justifyContent: 'flex-end' },
   subscriptionModal: {
     borderTopLeftRadius: 40,
@@ -755,13 +755,13 @@ const s = StyleSheet.create({
   subscriptionHeaderText: { flex: 1 },
   subscriptionTitle: {
     fontSize: mediumScreen ? FontSize.eighteen : FontSize.fourteen,
-    fontFamily: 'PlusJakartaSansExtraBold',
+    fontFamily: FontFamily.extraBold,
     textTransform: 'uppercase',
   },
   subscriptionMeta: {
     marginTop: 6,
     fontSize: FontSize.nine,
-    fontFamily: 'PlusJakartaSansExtraBold',
+    fontFamily: FontFamily.extraBold,
     textTransform: 'uppercase',
     letterSpacing: 2,
   },
@@ -769,7 +769,7 @@ const s = StyleSheet.create({
   subscriptionLabel: {
     marginLeft: 4,
     fontSize: FontSize.eight,
-    fontFamily: 'PlusJakartaSansExtraBold',
+    fontFamily: FontFamily.extraBold,
     textTransform: 'uppercase',
     letterSpacing: 3,
   },
@@ -793,7 +793,7 @@ const s = StyleSheet.create({
   subscriptionPerkText: {
     flex: 1,
     fontSize: mediumScreen ? FontSize.thirteen : FontSize.eleven,
-    fontFamily: 'PlusJakartaSansBold',
+    fontFamily: FontFamily.bold,
   },
   balanceCard: {
     marginTop: 4,
@@ -814,24 +814,24 @@ const s = StyleSheet.create({
   balanceLabel: {
     color: '#d97706',
     fontSize: FontSize.eight,
-    fontFamily: 'PlusJakartaSansExtraBold',
+    fontFamily: FontFamily.extraBold,
     textTransform: 'uppercase',
     letterSpacing: 2,
   },
   balanceSubLabel: {
     fontSize: FontSize.eight,
-    fontFamily: 'PlusJakartaSansExtraBold',
+    fontFamily: FontFamily.extraBold,
     textTransform: 'uppercase',
     letterSpacing: 1.5,
   },
   balanceValue: {
     fontSize: mediumScreen ? FontSize.eighteen : FontSize.fourteen,
-    fontFamily: 'PlusJakartaSansExtraBold',
+    fontFamily: FontFamily.extraBold,
   },
   balanceCost: {
     color: PRIMARY_COLOR,
     fontSize: mediumScreen ? FontSize.eighteen : FontSize.fourteen,
-    fontFamily: 'PlusJakartaSansExtraBold',
+    fontFamily: FontFamily.extraBold,
   },
   subscriptionPrimary: {
     minHeight: 55,
@@ -849,7 +849,7 @@ const s = StyleSheet.create({
   subscriptionPrimaryText: {
     color: '#fff',
     fontSize: mediumScreen ? FontSize.fifteen : FontSize.eleven,
-    fontFamily: 'PlusJakartaSansExtraBold',
+    fontFamily: FontFamily.extraBold,
     textTransform: 'uppercase',
     letterSpacing: 2,
   },
@@ -872,7 +872,7 @@ const s = StyleSheet.create({
     textAlign: 'center',
     fontSize: mediumScreen ? FontSize.thirty : FontSize.twentyFour,
     lineHeight: mediumScreen ? 40 : 30,
-    fontFamily: 'PlusJakartaSansExtraBold',
+    fontFamily: FontFamily.extraBold,
     textTransform: 'uppercase',
   },
   switchBtn: {
@@ -893,7 +893,7 @@ const s = StyleSheet.create({
     fontSize: FontSize.thirty,
     lineHeight: 42,
     // fontWeight: '900',
-    fontFamily: 'PlusJakartaSansBold' },
+    fontFamily: FontFamily.bold },
   card: {
     backgroundColor: '#ffffff0d',
     borderWidth: 1,
@@ -911,7 +911,7 @@ const s = StyleSheet.create({
     textTransform: 'uppercase',
     // fontWeight: '800',
     letterSpacing: 1.5,
-    fontFamily: "PlusJakartaSansMedium"
+    fontFamily: FontFamily.medium
   },
   priceLine: { flexDirection: 'row', alignItems: 'flex-end' },
   saveText: {
@@ -926,7 +926,7 @@ const s = StyleSheet.create({
     fontSize: FontSize.twelve,
     marginBottom: 8,
     marginLeft: 4,
-    fontFamily: 'PlusJakartaSansBold'
+    fontFamily: FontFamily.bold
    },
    perkRow: {
     flexDirection: 'row',
@@ -951,14 +951,14 @@ const s = StyleSheet.create({
   },
   statsTablet: { paddingHorizontal: 24 },
   statBlock: { flex: 1, alignItems: 'center' },
-  statValue: { color: '#fff', fontSize: mediumScreen? FontSize.sixteen:FontSize.twelve, fontFamily: 'PlusJakartaSansExtraBold' },
+  statValue: { color: '#fff', fontSize: mediumScreen? FontSize.sixteen:FontSize.twelve, fontFamily: FontFamily.extraBold },
   statLabel: {
     color: '#9ea0b6',
     fontSize: mediumScreen? FontSize.twelve:FontSize.eight,
     textTransform: 'uppercase',
     letterSpacing: 1.2,
     marginTop: 2,
-    fontFamily: 'PlusJakartaSansBold'
+    fontFamily: FontFamily.bold
   },
   accent: { color: PRIMARY_COLOR },
   sep: { width: StyleSheet.hairlineWidth, height: 28, backgroundColor: '#ffffff2d' },
@@ -988,12 +988,12 @@ const s = StyleSheet.create({
   },
   ticketTitle: {
     fontSize: FontSize.thirteen,
-    fontFamily: 'PlusJakartaSansExtraBold',
+    fontFamily: FontFamily.extraBold,
   },
   ticketMeta: {
     marginTop: 2,
     fontSize: FontSize.ten,
-    fontFamily: 'PlusJakartaSansBold',
+    fontFamily: FontFamily.bold,
     textTransform: 'uppercase',
     letterSpacing: 1.1,
   },

@@ -12,7 +12,7 @@ import {
 import { MaterialIcons } from '@expo/vector-icons';
 import { LinearGradient } from 'expo-linear-gradient';
 import { useNavigation } from '@react-navigation/native';
-import { FontSize } from '../fonts';
+import { FontFamily, FontSize } from '../fonts';
 
 const HERO_IMAGE =
   'https://lh3.googleusercontent.com/aida-public/AB6AXuC_nWXY2AjaIksgSrdVz-rWJuHhSgT-45-SRU3MJ6e4gJxNtQZGIYyPIlbQ9PEIkdyN4qv28cdTSaRODCpkLcUIG9ftoeHKVQ05SBQ09b-NaLDq3rvKAprnqeOLPF_nXSr8bQHKD_GQz_Hmqf1ISoPQZHvJHRDaMVEHv2LJtIkI8A-oYXv2fZVI79soN7r-cUbNV8mlgAc2cdq8N1atKiZGY3EttYb1xX5mLWFxqAi3d3cE11d3kprkfZrbaT_JV42R-ZZAeRVvMh80';
@@ -191,7 +191,7 @@ const styles = StyleSheet.create({
     padding: 4,
   },
   headerTitle: {
-    fontFamily: 'PlusJakartaSansBold',
+    fontFamily: FontFamily.bold,
     fontSize: FontSize.thirteen,
   },
   postButton: {
@@ -207,7 +207,7 @@ const styles = StyleSheet.create({
   },
   postButtonText: {
     color: '#fff',
-    fontFamily: 'PlusJakartaSansBold',
+    fontFamily: FontFamily.bold,
     fontSize: FontSize.ten,
     letterSpacing: 0.8,
   },
@@ -244,13 +244,13 @@ const styles = StyleSheet.create({
   },
   badgeMeta: {
     color: PRIMARY_COLOR,
-    fontFamily: 'PlusJakartaSansBold',
+    fontFamily: FontFamily.bold,
     fontSize: FontSize.eight,
     textTransform: 'uppercase',
     letterSpacing: 0.9,
   },
   badgeTitle: {
-    fontFamily: 'PlusJakartaSansBold',
+    fontFamily: FontFamily.bold,
     fontSize: FontSize.nine,
   },
   rightRail: {
@@ -272,7 +272,7 @@ const styles = StyleSheet.create({
     borderWidth: 1,
   },
   quickActionLabel: {
-    fontFamily: 'PlusJakartaSansBold',
+    fontFamily: FontFamily.bold,
     fontSize: FontSize.ten,
     textTransform: 'uppercase',
     letterSpacing: 0.8,
@@ -292,7 +292,7 @@ const styles = StyleSheet.create({
     marginBottom: 10,
   },
   timelineMeta: {
-    fontFamily: 'PlusJakartaSansBold',
+    fontFamily: FontFamily.bold,
     fontSize: FontSize.ten,
     textTransform: 'uppercase',
     letterSpacing: 1,

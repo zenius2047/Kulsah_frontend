@@ -12,7 +12,7 @@ import {
   ViewStyle,
 } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
-import { FontSize } from '../fonts';
+import { FontFamily, FontSize } from '../fonts';
 import { useThemeMode, PRIMARY_COLOR } from "../theme";
 import { mediumScreen } from '../types';
 import KulsahInputBar from './KulsahInputBar';
@@ -332,7 +332,7 @@ const styles = StyleSheet.create({
     },
   },
   tabText: {
-    fontFamily: 'PlusJakartaSansExtraBold',
+    fontFamily: FontFamily.extraBold,
     fontSize: FontSize.eight,
     textTransform: 'uppercase',
     letterSpacing: 1.4,
@@ -362,7 +362,7 @@ const styles = StyleSheet.create({
   searchInput: {
     flex: 1,
     minHeight: 40,
-    fontFamily: 'PlusJakartaSansMedium',
+    fontFamily: FontFamily.medium,
     fontSize: FontSize.nine,
   },
   scrollContent: {
@@ -414,7 +414,7 @@ const styles = StyleSheet.create({
   },
   stickerLabel: {
     color: '#ffffff',
-    fontFamily: 'PlusJakartaSansExtraBold',
+    fontFamily: FontFamily.extraBold,
     fontSize: FontSize.sixHalf,
     textTransform: 'uppercase',
     letterSpacing: 1.2,
@@ -427,14 +427,14 @@ const styles = StyleSheet.create({
   },
   footerText: {
     textAlign: 'center',
-    fontFamily: 'PlusJakartaSansExtraBold',
+    fontFamily: FontFamily.extraBold,
     fontSize: FontSize.sixHalf,
     textTransform: 'uppercase',
     letterSpacing: 2.4,
   },
   emptyText: {
     textAlign: 'center',
-    fontFamily: 'PlusJakartaSansBold',
+    fontFamily: FontFamily.bold,
     fontSize: FontSize.eight,
     paddingVertical: 18,
     textTransform: 'uppercase',

@@ -1,7 +1,7 @@
 import React from 'react';
 import { Pressable, Text, View } from 'react-native';
 
-import { FontSize } from '../fonts';
+import { FontFamily, FontSize } from '../fonts';
 import { PRIMARY_COLOR } from "../theme";
 
 type ErrorBoundaryProps = {
@@ -57,7 +57,7 @@ class ErrorBoundary extends React.Component<ErrorBoundaryProps, ErrorBoundarySta
           style={{
             color: '#fff',
             fontSize: FontSize.eighteen,
-            fontFamily: 'PlusJakartaSansBold',
+            fontFamily: FontFamily.bold,
             textAlign: 'center',
           }}
         >
@@ -68,7 +68,7 @@ class ErrorBoundary extends React.Component<ErrorBoundaryProps, ErrorBoundarySta
             color: '#94a3b8',
             marginTop: 8,
             textAlign: 'center',
-            fontFamily: 'PlusJakartaSans',
+            fontFamily: FontFamily.regular,
           }}
         >
           {this.props.fallbackMessage ?? 'Please try again.'}
@@ -83,7 +83,7 @@ class ErrorBoundary extends React.Component<ErrorBoundaryProps, ErrorBoundarySta
             backgroundColor: PRIMARY_COLOR,
           }}
         >
-          <Text style={{ color: '#fff', fontFamily: 'PlusJakartaSansBold' }}>
+          <Text style={{ color: '#fff', fontFamily: FontFamily.bold }}>
             Retry
           </Text>
         </Pressable>

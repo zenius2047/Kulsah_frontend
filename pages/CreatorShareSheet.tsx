@@ -10,7 +10,7 @@ import {
   View,
 } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
-import { FontSize } from '../fonts';
+import { FontFamily, FontSize } from '../fonts';
 import { useThemeMode, PRIMARY_COLOR } from "../theme";
 
 type ShareFriend = {
@@ -244,14 +244,14 @@ const styles = StyleSheet.create({
     paddingHorizontal: 16,
   },
   sectionTitle: {
-    fontFamily: 'PlusJakartaSansExtraBold',
+    fontFamily: FontFamily.extraBold,
     fontSize: FontSize.fourteen,
     paddingHorizontal: 16,
 
   },
   sectionAccent: {
     color: '#d915d2',
-    fontFamily: 'PlusJakartaSansExtraBold',
+    fontFamily: FontFamily.extraBold,
     fontSize: FontSize.seven,
     textTransform: 'uppercase',
     letterSpacing: 1.4,
@@ -295,7 +295,7 @@ const styles = StyleSheet.create({
     borderColor: '#0a050d',
   },
   friendName: {
-    fontFamily: 'PlusJakartaSansBold',
+    fontFamily: FontFamily.bold,
     fontSize: FontSize.eight,
   },
   platformRow: {
@@ -317,7 +317,7 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
   },
   platformLabel: {
-    fontFamily: 'PlusJakartaSansExtraBold',
+    fontFamily: FontFamily.extraBold,
     fontSize: FontSize.sixPointEight,
     textTransform: 'uppercase',
     letterSpacing: 0.7,
@@ -340,7 +340,7 @@ const styles = StyleSheet.create({
     gap: 10,
   },
   actionText: {
-    fontFamily: 'PlusJakartaSansMedium',
+    fontFamily: FontFamily.medium,
     fontSize: FontSize.eight,
     textAlign: 'center',
     lineHeight: 14,

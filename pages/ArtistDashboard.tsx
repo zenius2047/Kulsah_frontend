@@ -15,7 +15,7 @@ import {
 } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { HEIGHT, user, WIDTH } from '../types';
-import { FontSize } from '../fonts';
+import { FontFamily, FontSize } from '../fonts';
 import NotificationIcon from '../assets/icons/notifications-svg.svg';
 import MovieIcon from '../assets/icons/movie-edit-svg.svg';
 import TicketIcon from '../assets/icons/ticket-svg.svg';
@@ -261,7 +261,7 @@ const ArtistDashboard: React.FC<ArtistDashboardProps> = ({ onToggleRole }) => {
           letterSpacing: 2,
           fontSize: FontSize.eight,
           color: '#ffffff4d',
-          fontFamily: 'PlusJakartaSansBold'
+          fontFamily: FontFamily.bold
         }}>
           COLLABORATION HUB
         </Text>
@@ -269,7 +269,7 @@ const ArtistDashboard: React.FC<ArtistDashboardProps> = ({ onToggleRole }) => {
           letterSpacing: 2,
           fontSize: FontSize.eight,
           color: PRIMARY_COLOR,
-          fontFamily: 'PlusJakartaSansBold'
+          fontFamily: FontFamily.bold
         }}>
           VIEW ALL
         </Text>
@@ -332,7 +332,7 @@ const ArtistDashboard: React.FC<ArtistDashboardProps> = ({ onToggleRole }) => {
             }}>
               <Text style={{
                 color: '#ffffff4d',
-                fontFamily: 'PlusJakartaSansBold',
+                fontFamily: FontFamily.bold,
                 textTransform: 'uppercase',
                 fontSize: FontSize.ten
               }}>
@@ -340,7 +340,7 @@ const ArtistDashboard: React.FC<ArtistDashboardProps> = ({ onToggleRole }) => {
             </Text>
             <Text style={{
                 color: '#ffffff',
-                fontFamily: 'PlusJakartaSansBold',
+                fontFamily: FontFamily.bold,
                 // textTransform: 'uppercase',
                 fontSize: FontSize.twelve,
 
@@ -355,7 +355,7 @@ const ArtistDashboard: React.FC<ArtistDashboardProps> = ({ onToggleRole }) => {
             }}>
               <Text style={{
                 color: PRIMARY_COLOR,
-                fontFamily: 'PlusJakartaSansBold',
+                fontFamily: FontFamily.bold,
                 textTransform: 'uppercase',
                 fontSize: FontSize.ten
               }}>
@@ -369,7 +369,7 @@ const ArtistDashboard: React.FC<ArtistDashboardProps> = ({ onToggleRole }) => {
               }}>
                 <Text style={{
                 color: '#ffffff66',
-                fontFamily: 'PlusJakartaSansBold',
+                fontFamily: FontFamily.bold,
                 textTransform: 'uppercase',
                 fontSize: FontSize.eight
               }}>
@@ -441,7 +441,7 @@ const s = StyleSheet.create({
     color: '#fff',
     fontSize: FontSize.body,
     // fontWeight: '900',
-    fontFamily: 'PlusJakartaSansBold',
+    fontFamily: FontFamily.bold,
     // textTransform: 'uppercase',
     letterSpacing: 0.8,
   },
@@ -450,7 +450,7 @@ const s = StyleSheet.create({
     fontSize: FontSize.ten,
     marginTop: 2,
     // fontWeight: '700',
-    fontFamily: 'PlusJakartaSansBold',
+    fontFamily: FontFamily.bold,
     letterSpacing: 1,
     textTransform: 'uppercase'
   },
@@ -525,7 +525,7 @@ const s = StyleSheet.create({
   actionTitle: {
     color: '#fff',
     // fontWeight: '800',
-    fontFamily: 'PlusJakartaSansExtraBold',
+    fontFamily: FontFamily.extraBold,
     fontSize: FontSize.body,
     letterSpacing: -0.5
   },
@@ -533,7 +533,7 @@ const s = StyleSheet.create({
     color: '#ffffff66',
     fontSize: FontSize.eight,
     textTransform: 'uppercase',
-    fontFamily: 'PlusJakartaSansBold',
+    fontFamily: FontFamily.bold,
     marginTop: 2 },
   dualRow: { flexDirection: 'row', gap: 10, paddingHorizontal: 16, marginVertical : 20 },
   compactCard: {
@@ -579,7 +579,7 @@ const s = StyleSheet.create({
   compactTitle: {
     color: '#fff',
     fontSize: FontSize.small,
-    fontFamily: 'PlusJakartaSansBold',
+    fontFamily: FontFamily.bold,
     // fontWeight: '900',
     // lineHeight: 16,
     marginTop: 5
@@ -590,7 +590,7 @@ const s = StyleSheet.create({
     color: '#e5e7eb',
     fontSize: FontSize.eight,
     // fontWeight: '700',
-    fontFamily: 'PlusJakartaSansBold',
+    fontFamily: FontFamily.bold,
     textTransform: 'uppercase',
     letterSpacing: 1,
   },
@@ -612,7 +612,7 @@ const s = StyleSheet.create({
     fontSize: FontSize.ten,
     color: PRIMARY_COLOR,
     textTransform: 'uppercase',
-    fontFamily: 'PlusJakartaSansBold',
+    fontFamily: FontFamily.bold,
     letterSpacing: 2
   },
   aiText: {
@@ -620,7 +620,7 @@ const s = StyleSheet.create({
     fontSize: FontSize.small,
     lineHeight: 20,
     fontStyle: 'italic',
-    fontFamily: 'PlusJakartaSansBold'
+    fontFamily: FontFamily.bold
   },
   aiButton: {
     marginTop: 2,
@@ -642,7 +642,7 @@ const s = StyleSheet.create({
     fontSize: FontSize.eleven,
     // fontWeight: '900',
     textTransform: 'uppercase',
-    fontFamily: 'PlusJakartaSansExtraBold',
+    fontFamily: FontFamily.extraBold,
     letterSpacing: 1 },
   metricsGrid: {
     marginTop: 2,
@@ -682,14 +682,14 @@ const s = StyleSheet.create({
     color: '#fff',
     fontSize: FontSize.body,
     // fontWeight: '900'
-    fontFamily: 'PlusJakartaSansExtraBold'
+    fontFamily: FontFamily.extraBold
    },
   metricLabel: {
     color: '#FFFFFF66',
     fontSize: FontSize.ten,
     textTransform: 'uppercase',
     letterSpacing: 1,
-    fontFamily: 'PlusJakartaSansBold'
+    fontFamily: FontFamily.bold
     // fontWeight: '700',
   },
   chartCard: {

@@ -20,7 +20,7 @@ import MovieIcon from './assets/icons/play-circle-svg.svg';
 import BookMarkIcon from './assets/icons/bookmark-svg.svg';
 import PremiumIcon from './assets/icons/premium-svg.svg';
 import CalenderIcon from './assets/icons/calendar-svg.svg';
-import { FontSize } from './fonts';
+import { FontFamily, FontSize } from './fonts';
 import { BlurView } from 'expo-blur';
 
 interface FanProfileProps {
@@ -425,7 +425,7 @@ const FanProfile: React.FC<FanProfileProps> = ({ onToggleRole }) => {
                                     alignItems: 'center',
                                     // backgroundColor: 'red',
                                   }}>
-                                    <Text style={{ color: '#fff', fontSize: mediumScreen ? FontSize.sixteen:FontSize.twelve, fontFamily: 'PlusJakartaSansExtraBold', textTransform: 'uppercase', width:'50%' }}>{item.title}</Text>
+                                    <Text style={{ color: '#fff', fontSize: mediumScreen ? FontSize.sixteen:FontSize.twelve, fontFamily: FontFamily.extraBold, textTransform: 'uppercase', width:'50%' }}>{item.title}</Text>
                                     <View style={{
                                       borderWidth: 2,
                                       borderColor: '#ffffff1a',
@@ -451,7 +451,7 @@ const FanProfile: React.FC<FanProfileProps> = ({ onToggleRole }) => {
                                         >
                                           <Text style={{
                                         color: PRIMARY_COLOR,
-                                        fontFamily: 'PlusJakartaSansBold',
+                                        fontFamily: FontFamily.bold,
                                         fontSize: FontSize.twelve,
                                         lineHeight: 15,
                                       }}>
@@ -491,8 +491,8 @@ const FanProfile: React.FC<FanProfileProps> = ({ onToggleRole }) => {
                                         <View style={{
                                           marginLeft: 5
                                         }}>
-                                          <Text style={[{ color: '#ffffff66', width: '100%', fontSize: mediumScreen ? FontSize.twelve: FontSize.eight, fontFamily: 'PlusJakartaSansExtraBold'}]}>Date</Text>
-                                        <Text style={[{ marginTop: 0, color: '#9ca3af', fontSize: FontSize.eight, fontFamily: 'PlusJakartaSansExtraBold', textTransform: 'uppercase' }, { color: '#dbe4f0', width: '70%', fontSize: mediumScreen ? FontSize.ten: FontSize.six }]}>{item.meta}</Text>
+                                          <Text style={[{ color: '#ffffff66', width: '100%', fontSize: mediumScreen ? FontSize.twelve: FontSize.eight, fontFamily: FontFamily.extraBold}]}>Date</Text>
+                                        <Text style={[{ marginTop: 0, color: '#9ca3af', fontSize: FontSize.eight, fontFamily: FontFamily.extraBold, textTransform: 'uppercase' }, { color: '#dbe4f0', width: '70%', fontSize: mediumScreen ? FontSize.ten: FontSize.six }]}>{item.meta}</Text>
                                         </View>
                                       </View>
 
@@ -520,8 +520,8 @@ const FanProfile: React.FC<FanProfileProps> = ({ onToggleRole }) => {
                                         <View style={{
                                           marginLeft: 5
                                         }}>
-                                          <Text style={[{ color: '#ffffff66', width: '100%', fontSize: mediumScreen ? FontSize.twelve: FontSize.eight, fontFamily: 'PlusJakartaSansExtraBold'}]}>Location</Text>
-                                        <Text style={[{ marginTop: 0, color: '#9ca3af', fontSize: FontSize.eight, fontFamily: 'PlusJakartaSansExtraBold', textTransform: 'uppercase' }, { color: '#dbe4f0', width: '60%', fontSize: mediumScreen ? FontSize.ten: FontSize.six }]}>{item.location}</Text>
+                                          <Text style={[{ color: '#ffffff66', width: '100%', fontSize: mediumScreen ? FontSize.twelve: FontSize.eight, fontFamily: FontFamily.extraBold}]}>Location</Text>
+                                        <Text style={[{ marginTop: 0, color: '#9ca3af', fontSize: FontSize.eight, fontFamily: FontFamily.extraBold, textTransform: 'uppercase' }, { color: '#dbe4f0', width: '60%', fontSize: mediumScreen ? FontSize.ten: FontSize.six }]}>{item.location}</Text>
                                         </View>
                                       </View>
 
@@ -543,7 +543,7 @@ const FanProfile: React.FC<FanProfileProps> = ({ onToggleRole }) => {
                                         height: 40,
                                       }}>
                                         <Text style={{
-                                          fontFamily: 'PlusJakartaSansBold',
+                                          fontFamily: FontFamily.bold,
                                           textAlign: 'center',
                                           fontSize: mediumScreen ? FontSize.twelve: FontSize.eight,
                                         }}>Get{"\n"}Ticket</Text>
@@ -647,7 +647,7 @@ const s = StyleSheet.create({
   streakCount: {
     color: '#fff',
     fontSize: FontSize.eight,
-    fontFamily: 'PlusJakartaSansExtraBold',
+    fontFamily: FontFamily.extraBold,
     marginTop: 1,
   },
   nameWrap: {
@@ -656,12 +656,12 @@ const s = StyleSheet.create({
   name: {
     color: '#fff',
     fontSize: mediumScreen ? FontSize.twentyFive : FontSize.twentyOne,
-    fontFamily: 'PlusJakartaSansExtraBold',
+    fontFamily: FontFamily.extraBold,
   },
   member: {
     color: PRIMARY_COLOR,
     fontSize: FontSize.ten,
-    fontFamily: 'PlusJakartaSansExtraBold',
+    fontFamily: FontFamily.extraBold,
     textTransform: 'uppercase',
     letterSpacing: 2.5,
     marginTop: 2,
@@ -687,7 +687,7 @@ const s = StyleSheet.create({
   vibeText: {
     color: PRIMARY_COLOR,
     fontSize: FontSize.nine,
-    fontFamily: 'PlusJakartaSansExtraBold',
+    fontFamily: FontFamily.extraBold,
     textTransform: 'uppercase',
     letterSpacing: 1.2,
   },
@@ -716,12 +716,12 @@ const s = StyleSheet.create({
   statValue: {
     color: '#fff',
     fontSize: mediumScreen? FontSize.sixteen:FontSize.twelve,
-    fontFamily: 'PlusJakartaSansExtraBold',
+    fontFamily: FontFamily.extraBold,
   },
   statLabel: {
     color: '#8f95af',
     fontSize: mediumScreen ? FontSize.twelve:FontSize.eight,
-    fontFamily: 'PlusJakartaSansExtraBold',
+    fontFamily: FontFamily.extraBold,
     textTransform: 'uppercase',
     letterSpacing: 1.2,
     marginTop: 4,
@@ -765,14 +765,14 @@ const s = StyleSheet.create({
   switchRoleTitle: {
     color: '#fff',
     fontSize: mediumScreen ? FontSize.fourteen: FontSize.ten,
-    fontFamily: 'PlusJakartaSansExtraBold',
+    fontFamily: FontFamily.extraBold,
     textTransform: 'uppercase',
     letterSpacing: 1.3,
   },
   switchRoleMeta: {
     color: 'rgba(255,255,255,0.78)',
     fontSize: mediumScreen ? FontSize.twelve: FontSize.eight,
-    fontFamily: 'PlusJakartaSansBold',
+    fontFamily: FontFamily.bold,
     textTransform: 'uppercase',
     letterSpacing: 1.1,
     marginTop: 3,
@@ -793,7 +793,7 @@ const s = StyleSheet.create({
   tabText: {
     color: '#6b7280',
     fontSize: FontSize.eight,
-    fontFamily: 'PlusJakartaSansExtraBold',
+    fontFamily: FontFamily.extraBold,
     textTransform: 'uppercase',
     letterSpacing: 1.2,
     marginTop: 4,
@@ -822,14 +822,14 @@ const s = StyleSheet.create({
   sectionEyebrow: {
     color: '#71788f',
     fontSize: FontSize.nine,
-    fontFamily: 'PlusJakartaSansExtraBold',
+    fontFamily: FontFamily.extraBold,
     textTransform: 'uppercase',
     letterSpacing: 2.2,
   },
   sectionMini: {
     color: '#71788f',
     fontSize: FontSize.nine,
-    fontFamily: 'PlusJakartaSansExtraBold',
+    fontFamily: FontFamily.extraBold,
     textTransform: 'uppercase',
     letterSpacing: 1.8,
   },
@@ -860,12 +860,12 @@ const s = StyleSheet.create({
   listTitle: {
     color: '#fff',
     fontSize: FontSize.fourteen,
-    fontFamily: 'PlusJakartaSansBold',
+    fontFamily: FontFamily.bold,
   },
   listMeta: {
     color: '#8f95af',
     fontSize: FontSize.ten,
-    fontFamily: 'PlusJakartaSansExtraBold',
+    fontFamily: FontFamily.extraBold,
     textTransform: 'uppercase',
     letterSpacing: 1.1,
     marginTop: 2,
@@ -882,7 +882,7 @@ const s = StyleSheet.create({
   creatorDropMeta: {
     color: PRIMARY_COLOR,
     fontSize: FontSize.ten,
-    fontFamily: 'PlusJakartaSansExtraBold',
+    fontFamily: FontFamily.extraBold,
     textTransform: 'uppercase',
     letterSpacing: 1.1,
   },
@@ -920,7 +920,7 @@ const s = StyleSheet.create({
   },
   videoGridMetaText: {
     color: '#fff',
-    fontFamily: 'PlusJakartaSansBold',
+    fontFamily: FontFamily.bold,
     fontSize: FontSize.eleven,
   },
   twoColGrid: {
@@ -1000,7 +1000,7 @@ const s = StyleSheet.create({
   premiumTagText: {
     color: '#fff',
     fontSize: FontSize.eight,
-    fontFamily: 'PlusJakartaSansExtraBold',
+    fontFamily: FontFamily.extraBold,
     textTransform: 'uppercase',
     letterSpacing: 1,
   },
@@ -1033,7 +1033,7 @@ const s = StyleSheet.create({
   playlistCountText: {
     color: '#fff',
     fontSize: FontSize.eight,
-    fontFamily: 'PlusJakartaSansExtraBold',
+    fontFamily: FontFamily.extraBold,
     textTransform: 'uppercase',
     letterSpacing: 1,
   },
@@ -1048,19 +1048,19 @@ const s = StyleSheet.create({
   verticalMetaText: {
     color: '#fff',
     fontSize: FontSize.eight,
-    fontFamily: 'PlusJakartaSansExtraBold',
+    fontFamily: FontFamily.extraBold,
     textTransform: 'uppercase',
     letterSpacing: 1.1,
   },
   gridTitle: {
     color: '#d7dbea',
     fontSize: FontSize.eleven,
-    fontFamily: 'PlusJakartaSansBold',
+    fontFamily: FontFamily.bold,
   },
   gridMeta: {
     color: '#8f95af',
     fontSize: FontSize.eight,
-    fontFamily: 'PlusJakartaSansExtraBold',
+    fontFamily: FontFamily.extraBold,
     textTransform: 'uppercase',
     letterSpacing: 1.2,
   },
@@ -1075,7 +1075,7 @@ const s = StyleSheet.create({
   backText: {
     color: PRIMARY_COLOR,
     fontSize: FontSize.ten,
-    fontFamily: 'PlusJakartaSansExtraBold',
+    fontFamily: FontFamily.extraBold,
     textTransform: 'uppercase',
     letterSpacing: 1.1,
   },
@@ -1107,12 +1107,12 @@ const s = StyleSheet.create({
   ticketTitle: {
     color: '#fff',
     fontSize: FontSize.thirteen,
-    fontFamily: 'PlusJakartaSansExtraBold',
+    fontFamily: FontFamily.extraBold,
   },
   ticketMeta: {
     color: '#8f95af',
     fontSize: FontSize.ten,
-    fontFamily: 'PlusJakartaSansBold',
+    fontFamily: FontFamily.bold,
     textTransform: 'uppercase',
     letterSpacing: 1.1,
     marginTop: 2,

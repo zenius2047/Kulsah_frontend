@@ -17,7 +17,7 @@ import { useNavigation } from '@react-navigation/native';
 import { MaterialIcons } from '@expo/vector-icons';
 import { LinearGradient } from 'expo-linear-gradient';
 import { GoogleGenAI } from '@google/genai';
-import { FontSize } from '../fonts';
+import { FontFamily, FontSize } from '../fonts';
 import { mediumScreen } from '../types';
 import { useThemeMode, primaryColorAlpha } from "../theme";
 
@@ -468,7 +468,7 @@ const styles = StyleSheet.create({
   },
   toastText: {
     color: '#fff',
-    fontFamily: 'PlusJakartaSansExtraBold',
+    fontFamily: FontFamily.extraBold,
     fontSize: FontSize.ten,
     letterSpacing: 2.6,
   },
@@ -495,7 +495,7 @@ const styles = StyleSheet.create({
   },
   headerTitle: {
     color: '#F8FAFC',
-    fontFamily: 'PlusJakartaSansExtraBold',
+    fontFamily: FontFamily.extraBold,
     fontSize: mediumScreen? FontSize.sixteen: FontSize.twelve,
     letterSpacing: 0.5,
   },
@@ -508,7 +508,7 @@ const styles = StyleSheet.create({
   },
   headerPostText: {
     color: '#d900c7',
-    fontFamily: 'PlusJakartaSansExtraBold',
+    fontFamily: FontFamily.extraBold,
     fontSize: mediumScreen? FontSize.sixteen: FontSize.twelve,
     letterSpacing: 0.3,
   },
@@ -554,7 +554,7 @@ const styles = StyleSheet.create({
   },
   profileName: {
     color: '#F8FAFC',
-    fontFamily: 'PlusJakartaSansExtraBold',
+    fontFamily: FontFamily.extraBold,
     fontSize: mediumScreen? FontSize.eighteen: FontSize.fourteen,
   },
   profileSubRow: {
@@ -571,7 +571,7 @@ const styles = StyleSheet.create({
   },
   profileSubText: {
     color: '#d900c7',
-    fontFamily: 'PlusJakartaSansExtraBold',
+    fontFamily: FontFamily.extraBold,
     fontSize: mediumScreen? FontSize.twelve: FontSize.eight,
     letterSpacing: 2.5,
   },
@@ -586,7 +586,7 @@ const styles = StyleSheet.create({
   textArea: {
     minHeight: 210,
     color: '#F8FAFC',
-    fontFamily: 'PlusJakartaSansMedium',
+    fontFamily: FontFamily.medium,
     fontSize: mediumScreen? FontSize.eighteen: FontSize.fourteen,
     lineHeight: 28,
     textAlignVertical: 'top',
@@ -647,7 +647,7 @@ const styles = StyleSheet.create({
   },
   aiButtonText: {
     color: '#d900c7',
-    fontFamily: 'PlusJakartaSansExtraBold',
+    fontFamily: FontFamily.extraBold,
     fontSize: FontSize.ten,
     letterSpacing: 1.8,
   },
@@ -674,7 +674,7 @@ const styles = StyleSheet.create({
   },
   pollTitle: {
     color: '#d900c7',
-    fontFamily: 'PlusJakartaSansExtraBold',
+    fontFamily: FontFamily.extraBold,
     fontSize: FontSize.ten,
     letterSpacing: 2,
   },
@@ -691,7 +691,7 @@ const styles = StyleSheet.create({
     borderRadius: 14,
     paddingHorizontal: 16,
     color: '#F8FAFC',
-    fontFamily: 'PlusJakartaSansMedium',
+    fontFamily: FontFamily.medium,
     fontSize: FontSize.fourteen,
     backgroundColor: 'rgba(255,255,255,0.05)',
     borderWidth: 1,
@@ -716,7 +716,7 @@ const styles = StyleSheet.create({
   },
   addPollText: {
     color: '#d900c7',
-    fontFamily: 'PlusJakartaSansExtraBold',
+    fontFamily: FontFamily.extraBold,
     fontSize: FontSize.ten,
     letterSpacing: 1.8,
   },
@@ -765,7 +765,7 @@ const styles = StyleSheet.create({
   },
   audienceText: {
     color: '#94A3B8',
-    fontFamily: 'PlusJakartaSansBold',
+    fontFamily: FontFamily.bold,
     fontSize: mediumScreen? FontSize.twelve: FontSize.eight,
     letterSpacing: 1.6,
   },
@@ -789,7 +789,7 @@ const styles = StyleSheet.create({
   },
   publishButtonText: {
     color: '#fff',
-    fontFamily: 'PlusJakartaSansBold',
+    fontFamily: FontFamily.bold,
     fontSize: mediumScreen? FontSize.sixteen: FontSize.twelve,
   },
   modalRoot: {
@@ -826,12 +826,12 @@ const styles = StyleSheet.create({
   },
   modalTitle: {
     color: '#F8FAFC',
-    fontFamily: 'PlusJakartaSansExtraBold',
+    fontFamily: FontFamily.extraBold,
     fontSize: FontSize.eighteen,
   },
   modalSectionTitle: {
     color: '#94A3B8',
-    fontFamily: 'PlusJakartaSansExtraBold',
+    fontFamily: FontFamily.extraBold,
     fontSize: FontSize.ten,
     letterSpacing: 2,
     marginBottom: 12,

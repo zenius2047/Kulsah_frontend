@@ -13,7 +13,7 @@ import { LinearGradient } from 'expo-linear-gradient';
 import { MaterialIcons } from '@expo/vector-icons';
 import { useNavigation, useRoute } from '@react-navigation/native';
 import { useThemeMode, PRIMARY_COLOR, primaryColorAlpha } from "../theme";
-import { FontSize } from '../fonts';
+import { FontFamily, FontSize } from '../fonts';
 import { mediumScreen } from '../types';
 
 const EVENT_IMAGE =
@@ -197,14 +197,14 @@ const styles = StyleSheet.create({
   },
   headerKicker: {
     fontSize: FontSize.nine,
-    fontFamily: 'PlusJakartaSansExtraBold',
+    fontFamily: FontFamily.extraBold,
     textTransform: 'uppercase',
     letterSpacing: 2.5,
   },
   headerTitle: {
     marginTop: 4,
     fontSize: FontSize.twelve,
-    fontFamily: 'PlusJakartaSansBold',
+    fontFamily: FontFamily.bold,
     textTransform: 'uppercase',
     maxWidth: 180,
   },
@@ -247,14 +247,14 @@ const styles = StyleSheet.create({
   artistName: {
     color: '#fff',
     fontSize: mediumScreen ? FontSize.twentyFour : FontSize.twenty,
-    fontFamily: 'PlusJakartaSansExtraBold',
+    fontFamily: FontFamily.extraBold,
     textTransform: 'uppercase',
   },
   artistSub: {
     marginTop: 2,
     color: 'rgba(255,255,255,0.72)',
     fontSize: FontSize.ten,
-    fontFamily: 'PlusJakartaSansBold',
+    fontFamily: FontFamily.bold,
     textTransform: 'uppercase',
     letterSpacing: 1.2,
   },
@@ -267,7 +267,7 @@ const styles = StyleSheet.create({
   verifiedText: {
     color: '#fff',
     fontSize: FontSize.eight,
-    fontFamily: 'PlusJakartaSansExtraBold',
+    fontFamily: FontFamily.extraBold,
     textTransform: 'uppercase',
     letterSpacing: 1.6,
   },
@@ -285,19 +285,19 @@ const styles = StyleSheet.create({
   },
   detailLabel: {
     fontSize: FontSize.eight,
-    fontFamily: 'PlusJakartaSansExtraBold',
+    fontFamily: FontFamily.extraBold,
     textTransform: 'uppercase',
     letterSpacing: 1.8,
     marginBottom: 4,
   },
   detailValue: {
     fontSize: FontSize.thirteen,
-    fontFamily: 'PlusJakartaSansExtraBold',
+    fontFamily: FontFamily.extraBold,
   },
   detailSub: {
     marginTop: 3,
     fontSize: FontSize.ten,
-    fontFamily: 'PlusJakartaSansMedium',
+    fontFamily: FontFamily.medium,
   },
   qrSection: {
     alignItems: 'center',
@@ -324,14 +324,14 @@ const styles = StyleSheet.create({
     marginTop: 22,
     color: '#0f172a',
     fontSize: FontSize.sixteen,
-    fontFamily: 'PlusJakartaSansExtraBold',
+    fontFamily: FontFamily.extraBold,
     letterSpacing: 5,
     textTransform: 'uppercase',
   },
   scanHint: {
     marginTop: 8,
     fontSize: FontSize.eight,
-    fontFamily: 'PlusJakartaSansExtraBold',
+    fontFamily: FontFamily.extraBold,
     textTransform: 'uppercase',
     letterSpacing: 1.8,
     textAlign: 'center',
@@ -349,7 +349,7 @@ const styles = StyleSheet.create({
   },
   ticketCode: {
     fontSize: FontSize.eleven,
-    fontFamily: 'PlusJakartaSansBold',
+    fontFamily: FontFamily.bold,
     letterSpacing: 0.6,
   },
   nfcBadge: {
@@ -378,7 +378,7 @@ const styles = StyleSheet.create({
   },
   actionText: {
     fontSize: FontSize.eleven,
-    fontFamily: 'PlusJakartaSansExtraBold',
+    fontFamily: FontFamily.extraBold,
     textTransform: 'uppercase',
   },
   perfLeft: {
