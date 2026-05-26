@@ -309,7 +309,9 @@ const ChatView: React.FC = () => {
             {m.type === 'drop' ? (
               <View style={styles.dropBubble}>
                 <View style={styles.dropThumb}>
-                  <MaterialIcons name="play-circle" size={42} color={PRIMARY_COLOR} />
+                  <View style={styles.playButton}>
+                    <MaterialIcons name="play-arrow" size={38} color="#ffffff" />
+                  </View>
                 </View>
                 <Text style={styles.dropTitle}>Private Drop Established</Text>
                 <Text style={[styles.dropName, { color: primaryText }]}>Nebula Acoustic Cut.mov</Text>
@@ -518,6 +520,7 @@ const styles = StyleSheet.create({
     gap: 6,
   },
   dropThumb: { borderRadius: 14, backgroundColor: '#000', height: 120, justifyContent: 'center', alignItems: 'center' },
+  playButton: { width: 66, height: 66, borderRadius: 33, backgroundColor: primaryColorAlpha(0.24), borderWidth: 1, borderColor: primaryColorAlpha(0.5), alignItems: 'center', justifyContent: 'center' },
   dropTitle: { color: PRIMARY_COLOR, fontSize: FontSize.nine, fontFamily: FontFamily.extraBold },
   dropName: { fontSize: FontSize.twelve, fontFamily: FontFamily.bold },
   tipBubble: {

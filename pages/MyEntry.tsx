@@ -96,8 +96,10 @@ const MyEntry: React.FC = () => {
                       style={styles.videoOverlay}
                     />
 
-                    <View style={styles.playButton}>
-                      <MaterialIcons name="play-arrow" size={34} color="#fff" />
+                    <View style={styles.playOverlay}>
+                      <View style={styles.playButton}>
+                        <MaterialIcons name="play-arrow" size={38} color="#ffffff" />
+                      </View>
                     </View>
 
                     <View style={styles.videoStats}>
@@ -364,23 +366,20 @@ const styles = StyleSheet.create({
   videoOverlay: {
     ...StyleSheet.absoluteFillObject,
   },
-  playButton: {
-    position: 'absolute',
-    top: '50%',
-    left: '50%',
-    width: 64,
-    height: 64,
-    marginLeft: -32,
-    marginTop: -32,
-    borderRadius: 32,
+  playOverlay: {
+    ...StyleSheet.absoluteFillObject,
     alignItems: 'center',
     justifyContent: 'center',
-    backgroundColor: PRIMARY_COLOR,
-    shadowColor: PRIMARY_COLOR,
-    shadowOffset: { width: 0, height: 0 },
-    shadowOpacity: 0.5,
-    shadowRadius: 20,
-    elevation: 8,
+  },
+  playButton: {
+    width: 66,
+    height: 66,
+    borderRadius: 33,
+    alignItems: 'center',
+    justifyContent: 'center',
+    backgroundColor: primaryColorAlpha(0.24),
+    borderWidth: 1,
+    borderColor: primaryColorAlpha(0.5),
   },
   videoStats: {
     position: 'absolute',

@@ -311,7 +311,9 @@ const CreatorChallenges: React.FC = () => {
                   <View style={styles.thumbWrap}>
                     <Image source={{ uri: submission.thumbnailUrl }} style={styles.fillImage} />
                     <View style={styles.thumbOverlay}>
-                      <MaterialIcons name="play-circle" size={28} color="#fff" />
+                      <View style={styles.playButton}>
+                        <MaterialIcons name="play-arrow" size={38} color="#ffffff" />
+                      </View>
                     </View>
                   </View>
                   <View style={styles.listBody}>
@@ -517,6 +519,7 @@ const styles = StyleSheet.create({
   listCard: { borderRadius: 28, borderWidth: 1, padding: 14, flexDirection: 'row', gap: 14, alignItems: 'center' },
   thumbWrap: { width: 96, height: 96, borderRadius: 18, overflow: 'hidden' },
   thumbOverlay: { ...StyleSheet.absoluteFillObject, backgroundColor: 'rgba(0,0,0,0.2)', alignItems: 'center', justifyContent: 'center' },
+  playButton: { width: 66, height: 66, borderRadius: 33, backgroundColor: primaryColorAlpha(0.24), borderWidth: 1, borderColor: primaryColorAlpha(0.5), alignItems: 'center', justifyContent: 'center' },
   listBody: { flex: 1, minWidth: 0 },
   authorRow: { flexDirection: 'row', alignItems: 'center', gap: 8, marginBottom: 4 },
   authorAvatar: { width: 20, height: 20, borderRadius: 10 },

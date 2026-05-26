@@ -1,5 +1,5 @@
 import React, { useEffect, useRef, useState } from 'react';
-import { useThemeMode, PRIMARY_COLOR } from "../theme";
+import { useThemeMode, PRIMARY_COLOR, primaryColorAlpha } from "../theme";
 import {
   FlatList,
   Image,
@@ -129,7 +129,9 @@ const ChallengeFeedCard: React.FC<{
 
       <Pressable style={styles.videoPressable} onPress={() => setPlayVideo((value) => !value)}>
         {!playVideo ? (
-          <MaterialIcons name="play-circle-filled" size={74} color="#ffffff80" />
+          <View style={styles.playButton}>
+            <MaterialIcons name="play-arrow" size={38} color="#ffffff" />
+          </View>
         ) : null}
       </Pressable>
 
@@ -326,6 +328,16 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'center',
   },
+  playButton: {
+    width: 66,
+    height: 66,
+    borderRadius: 33,
+    backgroundColor: primaryColorAlpha(0.24),
+    borderWidth: 1,
+    borderColor: primaryColorAlpha(0.5),
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
   header: {
     position: 'absolute',
     left: 0,
@@ -494,5 +506,4 @@ const styles = StyleSheet.create({
 });
 
 export default ChallengeFeed;
-
 

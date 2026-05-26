@@ -367,7 +367,7 @@ const Discover: React.FC<{ embedded?: boolean }> = ({ embedded = false }) => {
                   {filteredVideos.map((video) => {
                     const isLiked = likedVideos.includes(video.id);
                     return (
-                      <Pressable key={video.id} onPress={() => navigation.navigate('MainTabs')} style={styles.videoCard}>
+                      <Pressable key={video.id} onPress={() => navigation.navigate('MainTabs', {screen: "Galaxy"})} style={styles.videoCard}>
                         <Image source={{ uri: video.img }} style={styles.videoImage} />
                         <LinearGradient colors={['rgba(0,0,0,0.12)', 'rgba(0,0,0,0.82)']} style={StyleSheet.absoluteFill} />
                         <Text style={styles.videoCategory}>{video.category}</Text>
@@ -375,8 +375,10 @@ const Discover: React.FC<{ embedded?: boolean }> = ({ embedded = false }) => {
                         <Pressable onPress={(event) => handleLikeVideo(video.id, event)} style={styles.likeButton}>
                           <MaterialIcons name="favorite" size={15} color={isLiked ? '#f43f5e' : '#64748b'} />
                         </Pressable>
-                        <View style={styles.playButton}>
-                          <MaterialIcons name="play-arrow" size={24} color="#fff" />
+                        <View style={styles.playOverlay}>
+                          <View style={styles.playButton}>
+                            <MaterialIcons name="play-arrow" size={38} color="#ffffff" />
+                          </View>
                         </View>
                         <View style={styles.videoInfo}>
                           <Text numberOfLines={1} style={styles.videoCreator}>{video.creator}</Text>
@@ -582,7 +584,8 @@ const createStyles = (isDark: boolean) => {
     videoCategory: { position: 'absolute', top: 10, left: 10, color: '#fb7185', backgroundColor: 'rgba(0,0,0,0.55)', borderRadius: 7, paddingHorizontal: 7, paddingVertical: 3, fontFamily: FontFamily.extraBold, fontSize: FontSize.eleven, letterSpacing: 1, textTransform: 'uppercase' },
     videoDuration: { position: 'absolute', top: 10, right: 10, color: '#fff', backgroundColor: 'rgba(0,0,0,0.6)', borderRadius: 7, paddingHorizontal: 6, paddingVertical: 3, fontFamily: FontFamily.extraBold, fontSize: FontSize.eleven },
     likeButton: { position: 'absolute', right: 12, bottom: 58, width: 32, height: 32, borderRadius: 16, alignItems: 'center', justifyContent: 'center', backgroundColor: isDark ? '#18181b' : 'rgba(255,255,255,0.92)', borderWidth: 1, borderColor: border },
-    playButton: { position: 'absolute', alignSelf: 'center', top: '43%', width: 50, height: 50, borderRadius: 25, alignItems: 'center', justifyContent: 'center', backgroundColor: primaryColorAlpha(0.94) },
+    playOverlay: { ...StyleSheet.absoluteFillObject, alignItems: 'center', justifyContent: 'center' },
+    playButton: { width: 66, height: 66, borderRadius: 33, backgroundColor: primaryColorAlpha(0.24), borderWidth: 1, borderColor: primaryColorAlpha(0.5), alignItems: 'center', justifyContent: 'center' },
     videoInfo: { position: 'absolute', left: 12, right: 42, bottom: 12 },
     videoCreator: { color: '#fb7185', fontFamily: FontFamily.extraBold, fontSize: FontSize.eleven, letterSpacing: 1.2, textTransform: 'uppercase' },
     videoTitle: { color: '#fff', fontFamily: FontFamily.displayExtraBold, fontSize: FontSize.eleven, lineHeight: 15, marginTop: 4 },

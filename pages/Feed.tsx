@@ -28,7 +28,6 @@ import { NativeStackScreenProps } from '@react-navigation/native-stack';
 import { mediumScreen, RootStackParamList, smallWidth } from '../types';
 import { subscribeUser, user } from '../types';
 import TickIcon from '../assets/icons/ticket-svg.svg';
-import PlayFilledIcon from '../assets/icons/play-arrow-filled-svg.svg';
 import FireIcon from '../assets/icons/fireIcon-svg.svg';
 import BookMarkIcon from '../assets/icons/bookmark-svg.svg';
 import { FontFamily, FontSize } from '../fonts';
@@ -890,7 +889,22 @@ useEffect(() => {
           alignItems: 'center',
         }}
         >
-          {!playVideo && <PlayFilledIcon height={74} width={74} fill={'#ffffff70'}/>}
+          {!playVideo && (
+            <View
+              style={{
+                width: 66,
+                height: 66,
+                borderRadius: 33,
+                backgroundColor: primaryColorAlpha(0.24),
+                borderWidth: 1,
+                borderColor: primaryColorAlpha(0.5),
+                alignItems: 'center',
+                justifyContent: 'center',
+              }}
+            >
+              <MaterialIcons name="play-arrow" size={38} color="#ffffff" />
+            </View>
+          )}
         </Pressable>
       </View>
 

@@ -195,25 +195,26 @@ const CreatorTabs = ({ isDarkMode }: TabsProps) => {
       })}
       options={{
         tabBarIcon: () => (
-          <View style={styles.creatorCreateTabOuter}>
-            <View style={styles.creatorCreateGlow} />
-            <LinearGradient
-              colors={['#ff4fd8', PRIMARY_COLOR, '#4f46e5']}
-              start={{ x: 0.06, y: 0 }}
-              end={{ x: 1, y: 1 }}
-              style={styles.creatorCreateButton}
-            >
-              <View style={styles.creatorCreateInner}>
-                <View style={styles.creatorCreateHalo} />
-                <View style={styles.creatorCreatePlusPlate}>
+          <View style={styles.creatorCreatePlusPlate}>
                   <View style={styles.creatorCreatePlusVertical} />
                   <View style={styles.creatorCreatePlusHorizontal} />
                 </View>
-                <View style={[styles.creatorCreateCorner, styles.creatorCreateCornerTop]} />
-                <View style={[styles.creatorCreateCorner, styles.creatorCreateCornerBottom]} />
-              </View>
-            </LinearGradient>
-          </View>
+          // <View style={styles.creatorCreateTabOuter}>
+          //   <View style={styles.creatorCreateGlow} />
+          //   <LinearGradient
+          //     colors={['#ff4fd8', PRIMARY_COLOR, '#4f46e5']}
+          //     start={{ x: 0.06, y: 0 }}
+          //     end={{ x: 1, y: 1 }}
+          //     style={styles.creatorCreateButton}
+          //   >
+          //     <View style={styles.creatorCreateInner}>
+          //       <View style={styles.creatorCreateHalo} />
+                
+          //       <View style={[styles.creatorCreateCorner, styles.creatorCreateCornerTop]} />
+          //       <View style={[styles.creatorCreateCorner, styles.creatorCreateCornerBottom]} />
+          //     </View>
+          //   </LinearGradient>
+          // </View>
         ),
       }}
     />
@@ -665,9 +666,9 @@ const styles = StyleSheet.create({
     backgroundColor: 'rgba(255,255,255,0.08)',
   },
   creatorCreatePlusPlate: {
-    width: 28,
-    height: 28,
-    borderRadius: 14,
+    width: 48,
+    height: 48,
+    borderRadius: 99,
     backgroundColor: '#ffffff',
     alignItems: 'center',
     justifyContent: 'center',
@@ -676,6 +677,7 @@ const styles = StyleSheet.create({
     shadowRadius: 8,
     shadowOffset: { width: 0, height: 3 },
     elevation: 3,
+    marginTop: 25,
   },
   creatorCreatePlusVertical: {
     position: 'absolute',
