@@ -8,7 +8,6 @@ import React, { useEffect, useRef, useState } from 'react';
 import {
   Animated,
   Dimensions,
-  DimensionValue,
   FlatList,
   Image,
   Platform,
@@ -51,6 +50,8 @@ type ChallengeVideoItemProps = {
 
 const VOTE_COST = 5;
 const KULCOIN_STORAGE_KEY = 'kulcoins';
+const SING_CHALLENGE_VIDEO_URL = 'https://res.cloudinary.com/dh0dywpzm/video/upload/v1779794760/kulsah_sing_vgqxne.mp4';
+const DANCE_CHALLENGE_VIDEO_URL = 'https://res.cloudinary.com/dh0dywpzm/video/upload/v1779795517/dance_cha_001_p1flkl.mp4';
 
 const baseEntries: ChallengeEntry[] = [
   {
@@ -58,7 +59,7 @@ const baseEntries: ChallengeEntry[] = [
     userName: 'MusicLover99',
     userHandle: 'musiclover',
     userAvatar: 'https://picsum.photos/seed/fan1/200',
-    videoUrl: 'https://res.cloudinary.com/dir15sl86/video/upload/v1776164002/kuls_video_001080p_ujhorb.mp4',
+    videoUrl: DANCE_CHALLENGE_VIDEO_URL,
     thumbnailUrl: 'https://images.unsplash.com/photo-1511379938547-c1f69419868d?auto=format&fit=crop&q=80&w=800',
     caption:
       'My entry for the Night Vibes Challenge! Hope you guys like the choreography. #NightVibes #Kulsah',
@@ -70,27 +71,10 @@ const baseEntries: ChallengeEntry[] = [
   },
   {
     id: 'e2',
-    userName: 'Champion Fan',
-    userHandle: 'champion',
-    userAvatar: 'https://picsum.photos/seed/fan2/200',
-    videoUrl: 'https://res.cloudinary.com/dir15sl86/video/upload/v1776268951/IMG_2312_kieklh.mp4',
-    thumbnailUrl: 'https://images.unsplash.com/photo-1493225457124-a3eb161ffa5f?auto=format&fit=crop&q=80&w=800',
-    caption:
-      'Late night vibes only. This track is a masterpiece! #NightVibes #ElenaRose',
-    likes: 890,
-    votes: 320,
-    isLiked: true,
-    isVoted: false,
-    originalSound: false,
-    soundArtist: 'Elena Rose',
-    soundTitle: 'Night Vibes',
-  },
-  {
-    id: 'e3',
     userName: 'BassMaster',
     userHandle: 'bassmaster',
     userAvatar: 'https://picsum.photos/seed/fan3/200',
-    videoUrl: 'https://res.cloudinary.com/dir15sl86/video/upload/v1776098026/kul_kid_n4_exwwrc.mp4',
+    videoUrl: 'https://res.cloudinary.com/dh0dywpzm/video/upload/v1779795719/dance-0000_fumuie.mp4',
     thumbnailUrl: 'https://images.unsplash.com/photo-1501386761578-eac5c94b800a?auto=format&fit=crop&q=80&w=800',
     caption:
       'Adding some low-end to the Night Vibes. #NightVibes #ChallengeEntry',
@@ -102,6 +86,24 @@ const baseEntries: ChallengeEntry[] = [
     soundArtist: 'BassMaster',
     soundTitle: 'Low End Echo',
   },
+  {
+    id: 'e3',
+    userName: 'Champion Fan',
+    userHandle: 'champion',
+    userAvatar: 'https://picsum.photos/seed/fan2/200',
+    videoUrl: 'https://res.cloudinary.com/dh0dywpzm/video/upload/v1779790223/K12242_wmlewi.mp4',
+    thumbnailUrl: 'https://images.unsplash.com/photo-1493225457124-a3eb161ffa5f?auto=format&fit=crop&q=80&w=800',
+    caption:
+      'Late night vibes only. This track is a masterpiece! #NightVibes #ElenaRose',
+    likes: 890,
+    votes: 320,
+    isLiked: true,
+    isVoted: false,
+    originalSound: false,
+    soundArtist: 'Elena Rose',
+    soundTitle: 'Night Vibes',
+  },
+  
 ];
 
 const formatCount = (num: number) => {
@@ -123,7 +125,6 @@ const ChallengeVideoItem: React.FC<ChallengeVideoItemProps> = ({
     instance.timeUpdateEventInterval = 0.2;
   });
   const sourceLoad = useEvent(player, 'sourceLoad');
-  const timeUpdate = useEvent(player as any, 'timeUpdate', { currentTime: 0 });
   const voteScale = useRef(new Animated.Value(0)).current;
   const playOverlay = useRef(new Animated.Value(0)).current;
   const rotateValue = useRef(new Animated.Value(0)).current;
@@ -136,8 +137,6 @@ const ChallengeVideoItem: React.FC<ChallengeVideoItemProps> = ({
   const [showPlayState, setShowPlayState] = useState(false);
   const [captionLines, setCaptionLines] = useState(1);
   const [showMore, setShowMore] = useState(true);
-  const [duration, setDuration] = useState(0);
-  const [currentTime, setCurrentTime] = useState(0);
   const [dimensions, setDimensions] = useState({ width: 0, height: 0 });
 
   // useEffect(() => {
@@ -151,19 +150,7 @@ const ChallengeVideoItem: React.FC<ChallengeVideoItemProps> = ({
       const height = track.size?.height ?? 0;
       setDimensions((prev) => (prev.width === width && prev.height === height ? prev : { width, height }));
     }
-
-    const loadedDuration = (sourceLoad as any)?.duration;
-    if (typeof loadedDuration === 'number' && loadedDuration > 0) {
-      setDuration((prev) => (prev === loadedDuration ? prev : loadedDuration));
-    }
   }, [sourceLoad]);
-
-  useEffect(() => {
-    const nextTime = timeUpdate?.currentTime;
-    if (typeof nextTime === 'number') {
-      setCurrentTime((prev) => (prev === nextTime ? prev : nextTime));
-    }
-  }, [timeUpdate]);
 
   useEffect(() => {
     if (isActive && isPlaying) {
@@ -235,11 +222,6 @@ const ChallengeVideoItem: React.FC<ChallengeVideoItemProps> = ({
     inputRange: [0, 1],
     outputRange: ['0deg', '360deg'],
   });
-  const progressWidth: DimensionValue =
-    duration > 0
-      ? (`${Math.min((currentTime / duration) * 100, 100)}%` as const)
-      : '0%';
-
   const togglePlay = () => {
     if (!showMore) {
       setCaptionLines(1);
@@ -318,12 +300,6 @@ const ChallengeVideoItem: React.FC<ChallengeVideoItemProps> = ({
           />
         </Pressable>
       </View> */}
-
-      <View style={styles.progressBar}>
-        <View style={styles.progressTrack}>
-          <View style={[styles.progressFill, { width: progressWidth }]} />
-        </View>
-      </View>
 
       <View style={[styles.sideRail, { bottom: 25, gap: Platform.OS == 'ios' ? 20 : 10 }]}>
         <View style={styles.avatarWrap}>
@@ -485,7 +461,7 @@ const FeedChallenge: React.FC = () => {
       userName: 'Mila Ray',
       userHandle: 'milaray',
       userAvatar: 'https://picsum.photos/seed/mila/150',
-      videoUrl: 'https://res.cloudinary.com/dir15sl86/video/upload/v1776099706/IMG_2303_k3wrts.mp4',
+      videoUrl: SING_CHALLENGE_VIDEO_URL,
       thumbnailUrl:
         'https://images.unsplash.com/photo-1547153760-18fc86324498?auto=format&fit=crop&q=80&w=800',
       caption:
@@ -562,6 +538,11 @@ const FeedChallenge: React.FC = () => {
             offset: feedItemHeight * index,
             index,
           })}
+          // ListFooterComponent={() => (
+          //             <View style={{ height: SCREEN_HEIGHT * 0.08, justifyContent: 'center', alignItems: 'center', backgroundColor: 'gold' }}>
+          //               <Text style={{ color: '#94a3b8', fontSize: FontSize.eleven }}>Syncing more galaxy feed...</Text>
+          //             </View>
+          //           )}
           onViewableItemsChanged={onViewRef.current}
           viewabilityConfig={viewConfigRef.current}
           renderItem={({ item, index }) => (
@@ -675,24 +656,6 @@ const styles = StyleSheet.create({
     backgroundColor: 'rgba(0,0,0,0.28)',
     borderWidth: 1,
     borderColor: 'rgba(255,255,255,0.12)',
-  },
-  progressBar: {
-    position: 'absolute',
-    left: 0,
-    right: 0,
-    bottom: 0,
-    zIndex: 40,
-  },
-  progressTrack: {
-    height: 4,
-    backgroundColor: 'rgba(255,255,255,0.12)',
-  },
-  progressFill: {
-    height: '100%',
-    backgroundColor: PRIMARY_COLOR,
-    shadowColor: PRIMARY_COLOR,
-    shadowOpacity: 0.45,
-    shadowRadius: 12,
   },
   sideRail: {
     position: 'absolute',

@@ -19,16 +19,14 @@ import LocalIcon from './assets/icons/local-activity-svg.svg';
 import MovieIcon from './assets/icons/play-circle-svg.svg';
 import BookMarkIcon from './assets/icons/bookmark-svg.svg';
 import PremiumIcon from './assets/icons/premium-svg.svg';
-import CalenderIcon from './assets/icons/calendar-svg.svg';
 import { FontFamily, FontSize } from './fonts';
-import { BlurView } from 'expo-blur';
 
 interface FanProfileProps {
   onLogout?: () => void;
   onToggleRole?: () => void;
 }
 
-type ProfileTab = 'Video' | 'Premium' | 'Tickets' |'Events' | 'Saved' | 'Favorite'  ;
+type ProfileTab = 'Video' | 'Premium' | 'Tickets' | 'Saved' | 'Favorite';
 
 type StreakData = {
   count: number;
@@ -71,15 +69,14 @@ const FanProfile: React.FC<FanProfileProps> = ({ onToggleRole }) => {
     { id: 'Video', icon: 'movie' },
     { id: 'Premium', icon: 'workspace-premium' },
     { id: 'Tickets', icon: 'local-activity' },
-    {id: 'Events', icon: 'favorite'},
     { id: 'Saved', icon: 'bookmark' },
     { id: 'Favorite', icon: 'favorite' },
 
   ];
 
   const stats = [
-    { label: 'Following', value: '24', onPress: () => navigation.navigate('Feed') },
-    { label: 'Unlocked', value: '12', onPress: () => navigation.navigate('Feed') },
+    { label: 'Following', value: '24', onPress: () => navigation.navigate('MainTabs') },
+    { label: 'Unlocked', value: '12', onPress: () => navigation.navigate('MainTabs') },
     {
       label: 'Events',
       value: '2',
@@ -94,11 +91,6 @@ const FanProfile: React.FC<FanProfileProps> = ({ onToggleRole }) => {
     { name: 'Zion King', img: 'https://picsum.photos/seed/zion/150', handle: '@zion_k' },
     { name: 'Amara', img: 'https://picsum.photos/seed/amara/150', handle: '@amara_v' },
   ];
-
-  const events = [
-  { id: 'e1', title: 'Neon Nights: Live Concert', meta: 'Sept 15, 2024', price: 'Free', img: 'https://images.unsplash.com/photo-1470225620780-dba8ba36b745?auto=format&fit=crop&q=80&w=600', location: 'Virtual Arena' },
-  { id: 'e2', title: 'Synthwave Workshop', meta: 'Sept 20, 2024', price: '$25.00', img: 'https://images.unsplash.com/photo-1514525253361-bee8718a74a2?auto=format&fit=crop&q=80&w=600', location: 'Creator Studio' },
-];
 
   const favoriteVideos = [
     { id: 'fv1', title: 'Midnight Soul Session', artist: 'Elena Rose', views: '1.2M', img: 'https://picsum.photos/seed/vid1/400/225' },
@@ -168,7 +160,7 @@ const FanProfile: React.FC<FanProfileProps> = ({ onToggleRole }) => {
         {items.map((item) => (
           <Pressable
             key={item.id}
-            onPress={() => navigation.navigate('Feed')}
+            onPress={() => navigation.navigate('MainTabs')}
             style={[
               s.videoGridCard,
               {
@@ -194,15 +186,16 @@ const FanProfile: React.FC<FanProfileProps> = ({ onToggleRole }) => {
       <ScrollView contentContainerStyle={s.content} showsVerticalScrollIndicator={false}>
         <View style={s.coverSection}>
           <ImageBackground
+            // resizeMode='contain'
             source={{
-              uri: 'https://res.cloudinary.com/dir15sl86/image/upload/v1776701629/3564364_ftz8px.jpg',
+              uri: 'https://res.cloudinary.com/dh0dywpzm/image/upload/v1779792704/banner_image_-2_man_t7rt22.jpg',
             }}
             style={s.cover}
           >
             <LinearGradient colors={[isDark ?'rgba(0,0,0,0.08)':'rgba(255,255,255,0.08)', isDark ?'rgba(0,0,0,0.15)': 'rgba(255,255,255,0.15)', isDark?'rgb(6, 9, 19)': 'rgb(255, 255, 255)']} style={StyleSheet.absoluteFillObject} />
 
             <View style={s.headerRow}>
-              <Pressable onPress={() => navigation.navigate('Feed')} style={[s.glassButton, { backgroundColor: isDark ? 'rgba(255,255,255,0.08)' : 'rgba(255,255,255,0.82)' }]}>
+              <Pressable onPress={() => navigation.navigate('MainTabs')} style={[s.glassButton, { backgroundColor: isDark ? 'rgba(255,255,255,0.08)' : 'rgba(255,255,255,0.82)' }]}>
                 <MaterialIcons name="close" size={20} color={theme.text} />
               </Pressable>
 
@@ -221,7 +214,7 @@ const FanProfile: React.FC<FanProfileProps> = ({ onToggleRole }) => {
             <View style={s.avatarWrap}>
               <Image
               resizeMode='cover'
-              source={{ uri: 'https://res.cloudinary.com/dir15sl86/image/upload/v1776701629/35464tdgggdg_ldnz5i.jpg' }} style={[s.avatar, {borderColor: isDark ?'#060913': 'white',}]} />
+              source={{ uri: 'https://res.cloudinary.com/dh0dywpzm/image/upload/v1779792704/profile_image_man_tu0uw1.jpg' }} style={[s.avatar, {borderColor: isDark ?'#060913': 'white',}]} />
               {streak.count > 0 && (
                 <Pressable onPress={() => navigation.navigate('StreakReward')} style={[s.streakBadge, {borderColor: isDark ?'#060913': 'white',}]}>
                   <MaterialIcons name="local-fire-department" size={12} color="#fff" />
@@ -290,7 +283,6 @@ const FanProfile: React.FC<FanProfileProps> = ({ onToggleRole }) => {
             tab.id === 'Video' ? <MovieIcon height={22} width={22} fill={activeTab === tab.id ? PRIMARY_COLOR : '#69738d'}/>:
             tab.id === 'Premium'? <PremiumIcon height={22} width={22} fill={activeTab === tab.id ? PRIMARY_COLOR : '#69738d'}/>:
             tab.id === 'Tickets'? <LocalIcon height={22} width={22} fill={activeTab === tab.id ? PRIMARY_COLOR : '#69738d'}/>:
-            tab.id === 'Events'? <CalenderIcon height={22} width={22} fill={activeTab === tab.id ? PRIMARY_COLOR : '#69738d'}/>:
             tab.id === 'Saved'?   <BookMarkIcon height={22} width={22} fill={activeTab === tab.id ? PRIMARY_COLOR : '#69738d'}/>:
             tab.id === 'Favorite'? <MaterialIcons name="favorite-border" size={22} color={activeTab === tab.id ? PRIMARY_COLOR : '#69738d'}/>:null
           }
@@ -349,7 +341,7 @@ const FanProfile: React.FC<FanProfileProps> = ({ onToggleRole }) => {
                         <Text style={s.sectionMini}>Premium Videos</Text>
                         <View style={s.twoColGrid}>
                           {premiumContent[selectedCreator].videos.map((vid) => (
-                            <Pressable key={vid.id} style={s.gridCard} onPress={() => navigation.navigate('Feed')}>
+                            <Pressable key={vid.id} style={s.gridCard} onPress={() => navigation.navigate('MainTabs')}>
                               <View style={s.videoThumbWrap}>
                                 <Image source={{ uri: vid.img }} style={s.thumbImage} />
                                 <View style={s.thumbDark} />
@@ -367,7 +359,7 @@ const FanProfile: React.FC<FanProfileProps> = ({ onToggleRole }) => {
                         <Text style={s.sectionMini}>Playlists</Text>
                         <View style={s.twoColGrid}>
                           {premiumContent[selectedCreator].playlists.map((playlist) => (
-                            <Pressable key={playlist.id} style={s.gridCard} onPress={() => navigation.navigate('Feed')}>
+                            <Pressable key={playlist.id} style={s.gridCard} onPress={() => navigation.navigate("MainTabs")}>
                               <View style={s.squareThumbWrap}>
                                 <Image source={{ uri: playlist.img }} style={s.thumbImage} />
                                 <View style={s.squareDark} />
@@ -413,149 +405,6 @@ const FanProfile: React.FC<FanProfileProps> = ({ onToggleRole }) => {
                 </View>
               )}
 
-
-              {activeTab === 'Events' ? <View style={{gap: 16}}>{events.map((item) =>
-                          <Pressable key={item.id} onPress={() => navigation.navigate('EventDetail')} style={[{ height: 230, borderRadius: 40, overflow: 'hidden', backgroundColor: '#0f172a' }, { backgroundColor: isDark ? '#0f172a' : theme.surface }]}>
-                            <Image source={{ uri: item.img }} style={[{ width: '100%', height: '100%', borderRadius: 999 }, {borderRadius: 0}]} />
-                              <LinearGradient colors={['transparent', 'rgba(0,0,0,0.9)']} style={StyleSheet.absoluteFillObject} />
-                                <View style={{ position: 'absolute', left: 18, right: 18, bottom: 18 }}>
-                                  <View style={{
-                                    flexDirection: 'row',
-                                    justifyContent: 'space-between',
-                                    alignItems: 'center',
-                                    // backgroundColor: 'red',
-                                  }}>
-                                    <Text style={{ color: '#fff', fontSize: mediumScreen ? FontSize.sixteen:FontSize.twelve, fontFamily: FontFamily.extraBold, textTransform: 'uppercase', width:'50%' }}>{item.title}</Text>
-                                    <View style={{
-                                      borderWidth: 2,
-                                      borderColor: '#ffffff1a',
-                                      borderRadius: 16,
-                                      height: 40,
-                                      width: 80,
-                                      justifyContent: 'center',
-                                      alignItems: 'center',
-                                      overflow: 'hidden',
-                                    }}>
-                                       <BlurView
-                                          intensity={50} // controls blur strength
-                                          tint="light"
-                                          style={{
-                                            // position: 'absolute',
-                                            // bottom: 0,
-                                            width: 80,
-                                            height: 40,
-                                            justifyContent: 'center',
-                                            alignItems: 'center',
-                                            // padding: 20,
-                                          }}
-                                        >
-                                          <Text style={{
-                                        color: PRIMARY_COLOR,
-                                        fontFamily: FontFamily.bold,
-                                        fontSize: FontSize.twelve,
-                                        lineHeight: 15,
-                                      }}>
-                                        {item.price}
-                                      </Text>
-                                        </BlurView>
-
-                                    </View>
-                                  </View>
-                                    <View style={{
-                                      flexDirection: 'row',
-                                      marginTop: 5,
-                                      gap: 10
-                                    }}>
-
-
-
-                                      <View style={{
-                                        flexDirection: 'row',
-                                        // backgroundColor: 'blue',
-                                        alignItems: 'center'
-                                        // height: 50,
-                                        // width: 200,
-                                      }}>
-                                        <View style={{
-                                          borderRadius: 8,
-                                          backgroundColor: '#ffffff1a',
-                                          // backgroundColor: 'green',
-                                          // padding: 6,
-                                          justifyContent: 'center',
-                                          alignItems: 'center',
-                                          height: 30,
-                                          width: 30,
-                                        }}>
-                                        <CalenderIcon height={18} width={18} fill='#ffffff99' />
-                                        </View>
-                                        <View style={{
-                                          marginLeft: 5
-                                        }}>
-                                          <Text style={[{ color: '#ffffff66', width: '100%', fontSize: mediumScreen ? FontSize.twelve: FontSize.eight, fontFamily: FontFamily.extraBold}]}>Date</Text>
-                                        <Text style={[{ marginTop: 0, color: '#9ca3af', fontSize: FontSize.eight, fontFamily: FontFamily.extraBold, textTransform: 'uppercase' }, { color: '#dbe4f0', width: '70%', fontSize: mediumScreen ? FontSize.ten: FontSize.six }]}>{item.meta}</Text>
-                                        </View>
-                                      </View>
-
-
-
-                                      <View style={{
-                                        flexDirection: 'row',
-                                        // backgroundColor: 'blue',
-                                        alignItems: 'center'
-                                        // height: 50,
-                                        // width: 200,
-                                      }}>
-                                        <View style={{
-                                          borderRadius: 8,
-                                          backgroundColor: '#ffffff1a',
-                                          // backgroundColor: 'green',
-                                          // padding: 6,
-                                          justifyContent: 'center',
-                                          alignItems: 'center',
-                                          height: 30,
-                                          width: 30,
-                                        }}>
-                                        <CalenderIcon height={18} width={18} fill='#ffffff99' />
-                                        </View>
-                                        <View style={{
-                                          marginLeft: 5
-                                        }}>
-                                          <Text style={[{ color: '#ffffff66', width: '100%', fontSize: mediumScreen ? FontSize.twelve: FontSize.eight, fontFamily: FontFamily.extraBold}]}>Location</Text>
-                                        <Text style={[{ marginTop: 0, color: '#9ca3af', fontSize: FontSize.eight, fontFamily: FontFamily.extraBold, textTransform: 'uppercase' }, { color: '#dbe4f0', width: '60%', fontSize: mediumScreen ? FontSize.ten: FontSize.six }]}>{item.location}</Text>
-                                        </View>
-                                      </View>
-
-
-                                      <Pressable
-                                      onPress={()=>{
-                                        navigation.navigate('EventDetail')
-                                      }}
-                                      style={{
-                                        backgroundColor: 'white',
-                                        position: 'absolute',
-                                        right: 0,
-                                        bottom: 0,
-                                        borderRadius: 12,
-                                        // paddingHorizontal: 5,
-                                        justifyContent: 'center',
-                                        alignItems: 'center',
-                                        width: '30%',
-                                        height: 40,
-                                      }}>
-                                        <Text style={{
-                                          fontFamily: FontFamily.bold,
-                                          textAlign: 'center',
-                                          fontSize: mediumScreen ? FontSize.twelve: FontSize.eight,
-                                        }}>Get{"\n"}Ticket</Text>
-                                      </Pressable>
-
-
-                                    </View>
-                                </View>
-                                </Pressable>)}
-                                </View> : null}
-
-
               {activeTab === 'Saved' && (
                 <View style={s.savedGrid}>
                   {[1, 2, 3, 4].map((item) => (
@@ -591,7 +440,7 @@ const s = StyleSheet.create({
     marginBottom: 14,
   },
   cover: {
-    height: 256,
+    height: 200,
     justifyContent: 'flex-start',
   },
   headerRow: {

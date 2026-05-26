@@ -1,8 +1,11 @@
-import React, { useEffect, useState } from 'react';
+import React, { useCallback, useEffect, useRef, useState } from 'react';
 import { Dimensions, FlatList, Image, ImageBackground, Keyboard, Platform, Pressable, StyleSheet, Text, TextInput, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { MaterialIcons } from '@expo/vector-icons';
 import { LinearGradient } from 'expo-linear-gradient';
+import { useIsFocused } from '@react-navigation/native';
+import { useEvent } from 'expo';
+import { useVideoPlayer, VideoView } from 'expo-video';
 import { useThemeMode, PRIMARY_COLOR, primaryColorAlpha } from "../theme";
 import { FontFamily, FontSize } from '../fonts';
 import GiftDialog, { GiftSelection } from '../components/GiftDialog';
@@ -20,6 +23,7 @@ interface LiveCard {
   host: string;
   hostAvatar: string;
   background: string;
+  video?: string;
   viewers: string;
   likes: string;
   shares: string;
@@ -69,6 +73,7 @@ const LIVE_CARDS: LiveCard[] = [
     host: 'Jax Vibe',
     hostAvatar: 'https://lh3.googleusercontent.com/aida-public/AB6AXuAzMt1t9ktdctuxyxjzE4qg-cwmCNuIkWWkoJ_YAMMycXSppvXqs6Gd7x7jjDrnYmGnxon5AiHf6KQYhQu8czjIwjN6i3_qx4RQ2WcgHXdQM6yZsRP8j3ZV2iHHyO5kqQ3JywhWKbi8oVpRzBkk5Fd8nR2AGslyQrMDoU12xb9rd2Q2HYuA_C2scKn3SvqKGpbHOvjbBQv2fAHp8wHx3qYe7Q3ApqiDU-aDCI52Rit_r5Nat6uBMi3I8Mek78Lw8XD-YGZ_Z7Dp6x76',
     background: 'https://lh3.googleusercontent.com/aida-public/AB6AXuCWFbjP_sxpdd4GfgqN9EveXOHviBX1FAOj--gOgEA32jLJFvqbjt5HFbXDD2A-eInh0mdQFFY_mJ2pdG_eFUAfVC4foCAMjO73euuUwXlznm9DfxVLm7fpQCkMxaw7Jnl3BDR9-2lMorOyuPAIeuAxZMD9lrWhk5xYqOMzbmTzi0yDJbpZom5h_SJXUGU_WNlw6dJlV9dTWgz8oG3bOg94xIcNNwAZNbCAy_6YHsAaiFD-Vbs6Ep-bzfmjesCI-98p3yvR885zHVCU',
+    video: 'https://res.cloudinary.com/dh0dywpzm/video/upload/v1779790082/k434_live_qaebmy.mp4',
     viewers: '14.2K',
     likes: '1.2K',
     shares: '452',
@@ -80,16 +85,113 @@ const LIVE_CARDS: LiveCard[] = [
     host: 'Luna Art',
     hostAvatar: 'https://lh3.googleusercontent.com/aida-public/AB6AXuBah-FMJI3CsndGYvwStH67BnBdzg5wGfeR-5fLu2TReyIinbph2Z07Po3fUl9Mhww1EZLgFUx7hKvBpAyPz7g3kT2uSSIba1xpbhtUw4Y-wD4kMVwtZ4mMbf6qiW_mcOz1mocU85Cu0cCIWk0qNMeZ73nMcoHUIW3jE7qHniHu2HML17HiRLBQ6t7wraIyp2v5nLhiPEdFlanCoVTJhKg9H3pvHvDs1D4se9ZZr9sX6gCiRuWHMoLUUUfsIbT3hexYJwHLeug_Fi2l',
     background: 'https://lh3.googleusercontent.com/aida-public/AB6AXuAKfVGBTtWh5dH3fubvRegqq3-V3mC2RRO9kvRAdv7OfHlcnwRCd9PG_b1djBvd39C6DhmvVWHRmBcdvoe4iWYCCH7JUnagMrQaYpM4nBA5X2XLs7VBMJAPuV3HgxUlh2h6esPaAfApWIfnGjSLgUR_uuoo7VP3gpYxxKgTjSF-_f2-faN9URONof-GmdJFaQYKReT6kLMPvSMzcuHEhXfX9zr8ct8_vbJFRUv52P4BxFVLzb2FmTD8HCujuSM3n1LNSAkLWptHZdHb',
+    video: 'https://res.cloudinary.com/dh0dywpzm/video/upload/v1779790948/K50526_sfmxi0.mp4',
+    viewers: '8.9K',
+    likes: '4.5K',
+    shares: '1.1K',
+  },
+  {
+    id: '3',
+    title: 'Bliss Khalil',
+    subtitle: 'Personality Challenge',
+    host: 'Khalil',
+    hostAvatar: 'https://lh3.googleusercontent.com/aida-public/AB6AXuBah-FMJI3CsndGYvwStH67BnBdzg5wGfeR-5fLu2TReyIinbph2Z07Po3fUl9Mhww1EZLgFUx7hKvBpAyPz7g3kT2uSSIba1xpbhtUw4Y-wD4kMVwtZ4mMbf6qiW_mcOz1mocU85Cu0cCIWk0qNMeZ73nMcoHUIW3jE7qHniHu2HML17HiRLBQ6t7wraIyp2v5nLhiPEdFlanCoVTJhKg9H3pvHvDs1D4se9ZZr9sX6gCiRuWHMoLUUUfsIbT3hexYJwHLeug_Fi2l',
+    background: 'https://lh3.googleusercontent.com/aida-public/AB6AXuAKfVGBTtWh5dH3fubvRegqq3-V3mC2RRO9kvRAdv7OfHlcnwRCd9PG_b1djBvd39C6DhmvVWHRmBcdvoe4iWYCCH7JUnagMrQaYpM4nBA5X2XLs7VBMJAPuV3HgxUlh2h6esPaAfApWIfnGjSLgUR_uuoo7VP3gpYxxKgTjSF-_f2-faN9URONof-GmdJFaQYKReT6kLMPvSMzcuHEhXfX9zr8ct8_vbJFRUv52P4BxFVLzb2FmTD8HCujuSM3n1LNSAkLWptHZdHb',
+    video: 'https://res.cloudinary.com/dh0dywpzm/video/upload/v1779791753/0526k_293_jg9442.mp4',
     viewers: '8.9K',
     likes: '4.5K',
     shares: '1.1K',
   },
 ];
 
+const INITIAL_TIME_UPDATE = { currentTime: 0 } as const;
+
+const LiveCardVideo: React.FC<{
+  video?: string;
+  fallbackImage: string;
+  isPlaying: boolean;
+  isMuted: boolean;
+}> = ({ video, fallbackImage, isPlaying, isMuted }) => {
+  const isFocused = useIsFocused();
+  const playbackStateRef = useRef<boolean | null>(null);
+  const muteStateRef = useRef<boolean | null>(null);
+  const [dimensions, setDimensions] = useState({ width: 0, height: 0 });
+
+  const configurePlayer = useCallback((player: any) => {
+    player.loop = true;
+    player.timeUpdateEventInterval = 0.25;
+  }, []);
+
+  const player = useVideoPlayer(video ?? null, configurePlayer);
+  const loadedMetadata = useEvent(player, 'sourceLoad');
+  useEvent(player as any, 'timeUpdate', INITIAL_TIME_UPDATE);
+
+  const loadedTrack = loadedMetadata?.availableVideoTracks?.[0];
+  const loadedWidth = loadedTrack?.size?.width ?? 0;
+  const loadedHeight = loadedTrack?.size?.height ?? 0;
+  const isPortraitVideo =
+    dimensions.width === 0 ||
+    dimensions.height === 0 ||
+    dimensions.height >= dimensions.width;
+
+  useEffect(() => {
+    if (loadedWidth > 0 && loadedHeight > 0) {
+      setDimensions((prev) => (
+        prev.width === loadedWidth && prev.height === loadedHeight
+          ? prev
+          : { width: loadedWidth, height: loadedHeight }
+      ));
+    }
+  }, [loadedHeight, loadedWidth]);
+
+  useEffect(() => {
+    if (!video || !player) return;
+
+    const shouldPlay = isFocused && isPlaying;
+    if (playbackStateRef.current === shouldPlay) return;
+
+    playbackStateRef.current = shouldPlay;
+
+    if (shouldPlay) {
+      player.play();
+    } else {
+      player.pause();
+    }
+  }, [isFocused, isPlaying, player, video]);
+
+  useEffect(() => {
+    if (!video || !player || muteStateRef.current === isMuted) return;
+    muteStateRef.current = isMuted;
+    player.muted = isMuted;
+  }, [isMuted, player, video]);
+
+  if (!video) {
+    return (
+      <ImageBackground
+        source={{ uri: fallbackImage }}
+        style={StyleSheet.absoluteFill}
+        imageStyle={styles.cardImage}
+      />
+    );
+  }
+
+  return (
+    <VideoView
+      player={player}
+      nativeControls={false}
+      contentFit={isPortraitVideo ? 'cover' : 'contain'}
+      style={StyleSheet.absoluteFill}
+      allowsPictureInPicture
+    />
+  );
+};
+
 const LiveFeed: React.FC = () => {
   const { isDark, theme } = useThemeMode();
   const viewportHeight = Dimensions.get('screen').height;
   const creatorStripHeight = viewportHeight * 0.18;
+  const [activeIndex, setActiveIndex] = useState(0);
+  const [isGlobalMuted, setIsGlobalMuted] = useState(true);
   const [keyboardHeight, setKeyboardHeight] = useState(0);
   const [focusedCardId, setFocusedCardId] = useState<string | null>(null);
   const [commentDrafts, setCommentDrafts] = useState<Record<string, string>>({});
@@ -172,6 +274,17 @@ const LiveFeed: React.FC = () => {
     };
   }, []);
 
+  const viewabilityConfig = useRef({
+    itemVisiblePercentThreshold: 75,
+  }).current;
+
+  const onViewableItemsChanged = useRef(({ viewableItems }: { viewableItems: Array<{ index: number | null }> }) => {
+    const nextIndex = viewableItems.find((entry) => entry.index !== null)?.index;
+    if (typeof nextIndex === 'number') {
+      setActiveIndex(nextIndex);
+    }
+  }).current;
+
   const renderCreatorStrip = () => (
     <View style={{ height: creatorStripHeight, backgroundColor: theme.background, paddingTop: viewportHeight * 0.05}}>
       <FlatList
@@ -217,11 +330,13 @@ const LiveFeed: React.FC = () => {
           },
         ]}
       >
-        <ImageBackground
-          source={{ uri: card.background }}
-          style={[styles.card, { height: '100%', paddingTop: index !== 0 ? viewportHeight * 0.025 : 0 }]}
-          imageStyle={styles.cardImage}
-        >
+        <View style={[styles.card, { height: '100%', paddingTop: index !== 0 ? viewportHeight * 0.025 : 0 }]}>
+          <LiveCardVideo
+            video={card.video}
+            fallbackImage={card.background}
+            isPlaying={index === activeIndex}
+            isMuted={isGlobalMuted}
+          />
           <View style={styles.cardTint} />
 
           <View style={styles.topRow}>
@@ -234,6 +349,10 @@ const LiveFeed: React.FC = () => {
               <MaterialIcons name="visibility" size={14} color="#f8fafc" />
               <Text style={styles.viewerBadgeText}>{card.viewers}</Text>
             </View>
+
+            <Pressable style={styles.viewerBadge} onPress={() => setIsGlobalMuted((prev) => !prev)}>
+              <MaterialIcons name={isGlobalMuted ? 'volume-off' : 'volume-up'} size={14} color="#f8fafc" />
+            </Pressable>
           </View>
 
           <LinearGradient
@@ -343,7 +462,7 @@ const LiveFeed: React.FC = () => {
               </View>
             </View>
           </LinearGradient>
-        </ImageBackground>
+        </View>
       </View>
     );
   };
@@ -365,6 +484,8 @@ const LiveFeed: React.FC = () => {
           keyExtractor={(item) => item.id}
           renderItem={renderLiveCard}
           ListHeaderComponent={renderCreatorStrip}
+          onViewableItemsChanged={onViewableItemsChanged}
+          viewabilityConfig={viewabilityConfig}
           showsVerticalScrollIndicator={false}
           contentContainerStyle={styles.content}
           snapToAlignment='start'

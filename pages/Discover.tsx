@@ -301,11 +301,11 @@ const Discover: React.FC<{ embedded?: boolean }> = ({ embedded = false }) => {
                     const matchedCreator = topCreators.find((creator) => creator.name === challenge.creator);
                     return (
                       <Pressable key={challenge.id} onPress={() => navigation.navigate('ChallengeFeed', { challengeId: challenge.id })} style={styles.challengeCard}>
-                        <View style={styles.challengeImageWrap}>
+                        {/* <View style={styles.challengeImageWrap}>
                           <Image source={{ uri: challenge.img }} style={styles.challengeImage} />
                           <Text numberOfLines={1} style={styles.challengeType}>{challenge.type}</Text>
                           <LinearGradient colors={['transparent', 'rgba(0,0,0,0.42)']} style={styles.challengeImageFade} />
-                        </View>
+                        </View> */}
                         <View style={styles.challengeBody}>
                           <View style={styles.challengeCreatorRow}>
                             <Image source={{ uri: matchedCreator?.avatar || challenge.img }} style={styles.challengeAvatar} />

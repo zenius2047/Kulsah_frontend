@@ -21,7 +21,7 @@ import KulCoinPrompt from '../components/KulCoinPrompt';
 
 type Tab = 'Videos' | 'Public' | 'Premium'  | 'Tickets' | 'Events' | 'Challenges' | 'Favorites' | 'Saved';
 type Billing = 'monthly' | 'annually';
-const { height: SCREEN_HEIGHT } = Dimensions.get('screen');
+const { height: SCREEN_HEIGHT, width: SCREEN_WIDTH } = Dimensions.get('screen');
 
 interface SubscriptionTier {
   name: string;
@@ -137,7 +137,7 @@ const  ArtistProfile: React.FC = () => {
               return;
             }
             if (currentUser?.role === 'creator') {
-              navigation.navigate('Feed');
+              navigation.navigate('MainTabs');
             }
           }}
           style={[
@@ -221,11 +221,11 @@ const  ArtistProfile: React.FC = () => {
       stickyHeaderIndices={isOwner?[3]:[4]}
       contentContainerStyle={s.content} showsVerticalScrollIndicator={false} keyboardShouldPersistTaps="handled">
         <ImageBackground
-        resizeMode="cover"
-        source={{ uri: 'https://res.cloudinary.com/dir15sl86/image/upload/v1776789639/male24_uxspl8.png' }} style={s.cover}><LinearGradient colors={isDark ? ['rgba(0,0,0,0.1)', '#060913'] : ['rgba(255,255,255,0.06)', '#f8fafc']} style={StyleSheet.absoluteFillObject} /></ImageBackground>
+        resizeMode= 'contain'
+        source={{ uri: 'https://res.cloudinary.com/dh0dywpzm/image/upload/v1779792408/banner_image_001_ewjudx.jpg' }} style={[s.cover, {width: SCREEN_WIDTH}]}><LinearGradient colors={isDark ? ['rgba(0,0,0,0.1)', '#060913'] : ['rgba(255,255,255,0.06)', '#f8fafc']} style={StyleSheet.absoluteFillObject} /></ImageBackground>
         <View style={s.hero}>
           <View style={[s.avatarWrap, { borderColor: 'rgba(59 130 246 / 0.5)' }]}>
-            <Image source={{ uri: 'https://res.cloudinary.com/dir15sl86/image/upload/v1776764686/35464_ama_gubuoc.jpg' }}
+            <Image source={{ uri: 'https://res.cloudinary.com/dh0dywpzm/image/upload/v1779792408/profile_image_001_utl9qa.jpg' }}
                 style={s.image} />
                   <Pressable
                   onPress={()=>{
@@ -562,7 +562,12 @@ const  ArtistProfile: React.FC = () => {
                   </View>
                   </Pressable>)}
                   </View> : null}
-          {activeTab === 'Challenges' ? <View style={s.stack}>{challenges.map((item) => <Pressable key={item.id} onPress={() => navigation.navigate('Challenges')} style={[s.banner, { backgroundColor: isDark ? '#0f172a' : theme.surface }]}><Image source={{ uri: item.img }} style={[s.image, {borderRadius: 0}]} /><LinearGradient colors={['transparent', 'rgba(0,0,0,0.9)']} style={StyleSheet.absoluteFillObject} /><View style={s.bannerBottom}><Text style={s.bannerText}>{item.title}</Text><Text style={[s.sub, { color: '#dbe4f0' }]}>{item.meta}</Text></View></Pressable>)}</View> : null}
+          {activeTab === 'Challenges'
+            ? renderGrid(
+                challenges.map((item) => ({ ...item, views: item.meta })),
+                () => navigation.navigate('ChallengeFeed')
+              )
+            : null}
           {activeTab === 'Favorites' ? renderGrid(favorites) : null}
           {activeTab === 'Saved' ?
           <View style={s.stack}>{sounds.map((sound) =>
@@ -683,7 +688,7 @@ const s = StyleSheet.create({
   screen: { flex: 1, backgroundColor: '#060913' },
   toast: { position: 'absolute', top: 56, alignSelf: 'center', zIndex: 40, backgroundColor: PRIMARY_COLOR, color: '#fff', paddingHorizontal: 16, paddingVertical: 8, borderRadius: 999, fontSize: FontSize.ten, fontFamily: FontFamily.extraBold },
   icon: { width: 40, height: 40, borderRadius: 20, alignItems: 'center', justifyContent: 'center', backgroundColor: 'rgba(255,255,255,0.06)' }, header: { paddingTop: 46, paddingHorizontal: 14, paddingBottom: 12, flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', backgroundColor: 'rgba(15,23,42,0.72)' }, headerBtn: { width: 40, height: 40, borderRadius: 20, alignItems: 'center', justifyContent: 'center', backgroundColor: 'rgba(255,255,255,0.06)' }, headerTitle: { flex: 1, textAlign: 'center', marginHorizontal: 10, color: '#fff', fontSize: mediumScreen? FontSize.sixteen:FontSize.twelve, fontFamily: FontFamily.extraBold, textTransform: 'uppercase' },
-  content: { paddingBottom: 120, }, cover: { height: 280 }, hero: { marginTop: -88, paddingHorizontal: 20, alignItems: 'center' }, avatarWrap: { width: 148, height: 148, borderRadius: 999, borderWidth: 1, borderColor: '#060913', padding: 7}, image: { width: '100%', height: '100%', borderRadius: 999 }, fire: { position: 'absolute', right: 12, bottom: -2, width: 40, height: 40, borderRadius: 999, backgroundColor: '#f97316', borderWidth: 0, borderColor: '#060913', alignItems: 'center', justifyContent: 'center', flexDirection: 'row' }, fireText: { color: '#fff', fontSize: FontSize.eight, fontFamily: FontFamily.extraBold },
+  content: { paddingBottom: 120, }, cover: { height: 180, }, hero: { marginTop: -88, paddingHorizontal: 20, alignItems: 'center' }, avatarWrap: { width: 148, height: 148, borderRadius: 999, borderWidth: 1, borderColor: '#060913', padding: 7}, image: { width: '100%', height: '100%', borderRadius: 999 }, fire: { position: 'absolute', right: 12, bottom: -2, width: 40, height: 40, borderRadius: 999, backgroundColor: '#f97316', borderWidth: 0, borderColor: '#060913', alignItems: 'center', justifyContent: 'center', flexDirection: 'row' }, fireText: { color: '#fff', fontSize: FontSize.eight, fontFamily: FontFamily.extraBold },
   name: {color: '#fff', fontSize: FontSize.sixteen, fontFamily: FontFamily.bold, textTransform: 'uppercase' }, role: { marginTop: 4, color: PRIMARY_COLOR, fontSize: FontSize.nine, fontFamily: FontFamily.extraBold, textTransform: 'uppercase', letterSpacing: 2 }, stat: { flex: 1, textAlign: 'center', color: '#fff', fontSize: FontSize.eighteen, fontFamily: FontFamily.extraBold }, muted: { color: '#7d859e', fontSize: FontSize.eight, fontFamily: FontFamily.extraBold }, purple: { color: PRIMARY_COLOR, fontFamily: FontFamily.bold, fontSize: mediumScreen ? FontSize.twelve: FontSize.ten },
   actions: { marginTop: 22, flexDirection: 'row', gap: 10, alignItems: 'center', justifyContent: 'center' },
   action: { height: 56, borderRadius: 24, alignItems: 'center', justifyContent: 'center', flexDirection: 'row', gap: 8 },
@@ -898,7 +903,7 @@ const s = StyleSheet.create({
     backgroundColor: '#ffffff0d',
     borderWidth: 1,
     borderColor: '#e5e7eb',
-    borderRadius: 42,
+    borderRadius: 22,
     paddingHorizontal: 20,
     paddingVertical: 16,
     gap: 8,
@@ -1009,4 +1014,3 @@ const s = StyleSheet.create({
 });
 
 export default ArtistProfile;
-
