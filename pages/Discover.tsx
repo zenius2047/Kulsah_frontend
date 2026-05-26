@@ -16,6 +16,9 @@ import {
 import { SafeAreaView, useSafeAreaInsets } from 'react-native-safe-area-context';
 import { FontFamily, FontSize } from '../fonts';
 import { PRIMARY_COLOR, primaryColorAlpha, useThemeMode } from '../theme';
+import CalenderIcon from '../assets/icons/calendar-svg.svg';
+import LocationIcon from '../assets/icons/location-svg.svg';
+
 
 type DiscoverTab = 'all' | 'creators' | 'tickets' | 'videos' | 'challenges';
 
@@ -122,7 +125,7 @@ const Discover: React.FC<{ embedded?: boolean }> = ({ embedded = false }) => {
   const [selectedTicket, setSelectedTicket] = useState<TicketItem | null>(null);
   const [isSuccessModalOpen, setIsSuccessModalOpen] = useState(false);
   const query = searchQuery.trim().toLowerCase();
-
+  const faintSurface = isDark ? 'rgba(255,255,255,0.04)' : theme.surface;
   const filteredCreators = useMemo(() => topCreators.filter((creator) => [creator.name, creator.style, creator.tool, creator.handle].some((value) => value.toLowerCase().includes(query))), [query]);
   const filteredTickets = useMemo(() => ticketShows.filter((ticket) => [ticket.eventTitle, ticket.creator, ticket.venue].some((value) => value.toLowerCase().includes(query))), [query]);
   const filteredVideos = useMemo(() => trendingVideos.filter((video) => [video.title, video.creator, video.category].some((value) => value.toLowerCase().includes(query))), [query]);
@@ -165,24 +168,33 @@ const Discover: React.FC<{ embedded?: boolean }> = ({ embedded = false }) => {
   );
 
   return (
-    <SafeAreaView edges={embedded ? [] : ['top']} style={[styles.safeArea, { backgroundColor: theme.background }]}>
+    <SafeAreaView edges={[]} style={[styles.safeArea, { backgroundColor: theme.background }]}>
       <ScrollView keyboardShouldPersistTaps="handled" bounces={false} showsVerticalScrollIndicator={false} contentContainerStyle={[styles.content, { paddingBottom: insets.bottom + 120 }]}> 
-        <View style={styles.ambientOne} pointerEvents="none" />
-        <View style={styles.ambientTwo} pointerEvents="none" />
+        {/* <View style={styles.ambientOne} pointerEvents="none" />
+        <View style={styles.ambientTwo} pointerEvents="none" /> */}
 
-        <View style={[styles.header, { backgroundColor: isDark ? 'rgba(9,9,11,0.92)' : 'rgba(248,250,252,0.95)', borderBottomColor: isDark ? '#27272a' : '#e2e8f0' }]}> 
-          {!embedded ? (
-            <View style={styles.headerRow}>
-              <Pressable onPress={() => navigation.goBack()} style={styles.iconButton} accessibilityRole="button" accessibilityLabel="Back to Feed">
-                <MaterialIcons name="arrow-back" size={20} color={theme.text} />
-              </Pressable>
-              <Text style={[styles.headerTitle, { color: theme.text }]}>Discover</Text>
-              <Pressable onPress={() => navigation.navigate('Notification')} style={styles.iconButton} accessibilityRole="button" accessibilityLabel="View notifications">
-                <MaterialIcons name="notifications-none" size={20} color={theme.text} />
-                <View style={styles.notificationDot} />
-              </Pressable>
-            </View>
-          ) : null}
+        <View style={[styles.header, { backgroundColor: isDark ? 'rgb(0, 0, 0)' : 'rgb(255, 255, 255)', borderBottomColor: isDark ? '#27272a' : '#e2e8f0' }]}> 
+          <View style={{
+            // backgroundColor: 'blue',
+            flexDirection: 'row',
+            justifyContent: 'space-between',
+            marginBottom: 20,
+          }}>
+                    <Pressable onPress={() => navigation.goBack()} style={[styles.headerRoundBtn, { backgroundColor: faintSurface, borderColor: theme.border }]}>
+                      <MaterialIcons name="chevron-left" size={22} color={theme.text} />
+                    </Pressable>
+            
+                    <View style={styles.headerTitleWrap}>
+                      <Text style={[styles.headerTitle, { color: theme.text }]}>Discover</Text>
+                      <Text style={styles.headerSubtitle}>Galaxy Universe</Text>
+                    </View>
+            
+                    <View style={styles.headerSpacer} />
+                    {/* <Pressable onPress={() => navigation.navigate('Inbox')} style={[styles.headerRoundBtn, { backgroundColor: faintSurface, borderColor: softBorder }]}>
+                      <MaterialIcons name="notifications-none" size={22} color={theme.text} />
+                    </Pressable> */}
+                  </View>
+          <View/>
 
           <View style={[styles.searchWrap, { backgroundColor: isDark ? '#18181b' : '#fff', borderColor: isDark ? '#27272a' : '#e2e8f0' }]}> 
             <MaterialIcons name="search" size={20} color={isDark ? '#71717a' : '#94a3b8'} />
@@ -225,10 +237,10 @@ const Discover: React.FC<{ embedded?: boolean }> = ({ embedded = false }) => {
                         {creator.isLive ? (
                           <View style={styles.liveBadge}>
                             <View style={styles.liveDot} />
-                            <Text style={styles.liveText}>LIVE LAB</Text>
+                            <Text style={styles.liveText}>LIVE</Text>
                           </View>
                         ) : null}
-                        {creator.isPremium ? <Text style={styles.proBadge}>PRO</Text> : null}
+                        {/* {creator.isPremium ? <Text style={styles.proBadge}>PRO</Text> : null} */}
                         <View style={styles.creatorAvatarWrap}>
                           <Image source={{ uri: creator.avatar }} style={styles.creatorAvatar} />
                           {creator.isLive ? <MaterialIcons name="videocam" size={12} color="#fff" style={styles.creatorLiveIcon} /> : null}
@@ -270,8 +282,21 @@ const Discover: React.FC<{ embedded?: boolean }> = ({ embedded = false }) => {
                             <Text numberOfLines={1} style={styles.ticketCreator}>by {ticket.creator}</Text>
                           </View>
                           <Text numberOfLines={2} style={styles.ticketTitle}>{ticket.eventTitle}</Text>
-                          <Text numberOfLines={1} style={styles.ticketMeta}>{ticket.date}</Text>
-                          <Text numberOfLines={1} style={styles.ticketVenue}>{ticket.venue} • {ticket.duration}</Text>
+                          <View style={{
+                            flexDirection: 'row',
+                            gap: 2
+                          }}>
+                            <CalenderIcon fill={"#cd2bee"} height={10} width={10}/>
+                            <Text numberOfLines={1} style={styles.ticketMeta}>{ticket.date}</Text>
+                          </View>
+                          <View style={{
+                            flexDirection: 'row',
+                            gap : 2
+                          }}>
+                            <LocationIcon fill={"#00000076"} height={10} width={10}/>
+                            <Text numberOfLines={1} style={styles.ticketVenue}>{ticket.venue}</Text>
+                          </View>
+                          <Text style={[styles.ticketVenue, {color: '#cd2bee'}]}>{ticket.duration}</Text>
                           <View style={styles.dashedLine} />
                           <View style={styles.ticketFooter}>
                             <View>
@@ -342,7 +367,7 @@ const Discover: React.FC<{ embedded?: boolean }> = ({ embedded = false }) => {
                   {filteredVideos.map((video) => {
                     const isLiked = likedVideos.includes(video.id);
                     return (
-                      <Pressable key={video.id} onPress={() => navigation.navigate('Video', { id: video.id })} style={styles.videoCard}>
+                      <Pressable key={video.id} onPress={() => navigation.navigate('MainTabs')} style={styles.videoCard}>
                         <Image source={{ uri: video.img }} style={styles.videoImage} />
                         <LinearGradient colors={['rgba(0,0,0,0.12)', 'rgba(0,0,0,0.82)']} style={StyleSheet.absoluteFill} />
                         <Text style={styles.videoCategory}>{video.category}</Text>
@@ -465,7 +490,7 @@ const sectionHeaderStyles = StyleSheet.create({
   row: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between' },
   titleRow: { flexDirection: 'row', alignItems: 'center', gap: 8 },
   title: { color: '#71717a', fontFamily: FontFamily.extraBold, fontSize: FontSize.eleven, letterSpacing: 3, textTransform: 'uppercase' },
-  actionButton: { minHeight: 32, justifyContent: 'center', paddingHorizontal: 10, borderRadius: 12, backgroundColor: primaryColorAlpha(0.1), borderWidth: 1, borderColor: primaryColorAlpha(0.18) },
+  actionButton: { minHeight: 32, justifyContent: 'center', paddingHorizontal: 10, borderRadius: 12, },
   actionText: { color: PRIMARY_COLOR, fontFamily: FontFamily.extraBold, fontSize: FontSize.eleven, letterSpacing: 1.2, textTransform: 'uppercase' },
 });
 
@@ -488,10 +513,10 @@ const createStyles = (isDark: boolean) => {
     iconButton: { width: 44, height: 44, borderRadius: 22, alignItems: 'center', justifyContent: 'center', backgroundColor: card, borderWidth: 1, borderColor: border },
     headerTitle: { fontFamily: FontFamily.displayExtraBold, fontSize: FontSize.body, letterSpacing: 2.2, textTransform: 'uppercase' },
     notificationDot: { position: 'absolute', top: 11, right: 11, width: 8, height: 8, borderRadius: 4, backgroundColor: PRIMARY_COLOR, borderWidth: 2, borderColor: background },
-    searchWrap: { height: 48, borderRadius: 18, paddingHorizontal: 14, flexDirection: 'row', alignItems: 'center', borderWidth: 1, gap: 10 },
+    searchWrap: { height: 48, borderRadius: 999, paddingHorizontal: 14, flexDirection: 'row', alignItems: 'center', borderWidth: 1, gap: 10 },
     searchInput: { flex: 1, fontFamily: FontFamily.bold, fontSize: FontSize.twelve, paddingVertical: 0 },
     tabList: { gap: 8, paddingTop: 12 },
-    tab: { minHeight: 34, paddingHorizontal: 14, borderRadius: 12, alignItems: 'center', justifyContent: 'center', borderWidth: 1 },
+    tab: { minHeight: 34, paddingHorizontal: 14, borderRadius: 999, alignItems: 'center', justifyContent: 'center', borderWidth: 1 },
     tabSelected: { backgroundColor: PRIMARY_COLOR, borderColor: 'transparent' },
     tabIdle: { backgroundColor: card, borderColor: border },
     tabText: { fontFamily: FontFamily.extraBold, fontSize: FontSize.eleven, letterSpacing: 1.2, textTransform: 'uppercase' },
@@ -513,7 +538,7 @@ const createStyles = (isDark: boolean) => {
     creatorName: { color: text, fontFamily: FontFamily.displayExtraBold, fontSize: FontSize.eleven, letterSpacing: 1, textTransform: 'uppercase', maxWidth: 120 },
     creatorHandle: { color: muted, fontFamily: FontFamily.bold, fontSize: FontSize.eleven, marginTop: 3, marginBottom: 6 },
     creatorStyle: { color: textSoft, fontFamily: FontFamily.regular, fontSize: FontSize.eleven, textAlign: 'center', lineHeight: 15 },
-    followButton: { width: '100%', height: 34, borderRadius: 13, flexDirection: 'row', alignItems: 'center', justifyContent: 'center', gap: 5, borderWidth: 1 },
+    followButton: { width: '100%', height: 34, borderRadius: 999, flexDirection: 'row', alignItems: 'center', justifyContent: 'center', gap: 5, borderWidth: 1 },
     subscribeButton: { backgroundColor: PRIMARY_COLOR, borderColor: 'transparent' },
     followingButton: { backgroundColor: primaryColorAlpha(0.1), borderColor: primaryColorAlpha(0.2) },
     followText: { fontFamily: FontFamily.extraBold, fontSize: FontSize.eleven, letterSpacing: 1, textTransform: 'uppercase' },
@@ -597,6 +622,37 @@ const createStyles = (isDark: boolean) => {
     successBody: { color: textSoft, fontFamily: FontFamily.regular, fontSize: FontSize.twelve, lineHeight: 20, textAlign: 'center' },
     successButton: { width: '100%', height: 46, borderRadius: 18, alignItems: 'center', justifyContent: 'center', backgroundColor: '#10b981' },
     successButtonText: { color: '#fff', fontFamily: FontFamily.extraBold, fontSize: FontSize.eleven, letterSpacing: 1, textTransform: 'uppercase' },
+    // headerTitle: {
+    //     color: '#fff',
+    //     fontSize: mediumScreen ? FontSize.sixteen : FontSize.thirteen,
+    //     fontFamily: FontFamily.extraBold,
+    //     letterSpacing: 2,
+    //     textTransform: 'uppercase',
+    //   },
+      headerSubtitle: {
+        color: PRIMARY_COLOR,
+        marginTop: 4,
+        fontFamily: FontFamily.extraBold,
+        fontSize: FontSize.seven,
+        letterSpacing: 1.5,
+        textTransform: 'uppercase',
+      },
+      headerSpacer: {
+        width: 40,
+      },
+      headerTitleWrap: {
+        alignItems: 'center',
+      },
+      headerRoundBtn: {
+        height: 40,
+        width: 40,
+        borderRadius: 20,
+        backgroundColor: 'rgba(255,255,255,0.08)',
+        borderWidth: 1,
+        borderColor: 'rgba(255,255,255,0.1)',
+        justifyContent: 'center',
+        alignItems: 'center',
+      },
   });
 };
 

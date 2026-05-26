@@ -66,17 +66,19 @@ KulsahInputBar.displayName = 'KulsahInputBar';
 
 const styles = StyleSheet.create({
   inputRow: {
-    minHeight: 52,
+    height: 50,
     borderRadius: 999,
     borderWidth: 1,
     flexDirection: 'row',
     alignItems: 'center',
     paddingHorizontal: 10,
     gap: 4,
+    justifyContent: 'center',
+    // alignItems: 'center'
   },
   input: {
     flex: 1,
-    minHeight: 39,
+    minHeight: 29,
     paddingVertical: 0,
     fontFamily: FontFamily.medium,
     fontSize: mediumScreen ? FontSize.twelve : FontSize.nine,

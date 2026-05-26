@@ -352,7 +352,7 @@ const Reactions: React.FC<ReactionsProps> = ({
               onChangeText={setMessage}
               placeholder="Join the discussion..."
               placeholderTextColor={muted}
-              containerStyle={{ backgroundColor: cardBackground, borderColor: softBorder, paddingBottom: insets.bottom }}
+              containerStyle={{ backgroundColor: cardBackground, borderColor: softBorder }}
               rightAccessory={(
                 <>
                   <View style={styles.inputActions}>

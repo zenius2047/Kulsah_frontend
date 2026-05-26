@@ -20,25 +20,6 @@ const FanArena: React.FC = () => {
       }}
     >
 
-      <View
-        style={{
-          alignItems: 'center',
-          marginTop: 15,
-          backgroundColor: theme.screen,
-        }}
-      >
-        <Text
-          style={{
-            color: isDark ? '#ffffff' : '#000000',
-            fontFamily: FontFamily.bold,
-            fontSize: mediumScreen ? FontSize.twenty : FontSize.sixteen,
-            // marginBottom: 10,
-          }}
-        >
-          Discover
-        </Text>
-      </View>
-
       <Discover embedded />
     </View>
   );

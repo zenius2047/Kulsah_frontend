@@ -19,6 +19,7 @@ import { MaterialIcons } from '@expo/vector-icons';
 import { useVideoPlayer, VideoView } from 'expo-video';
 import { mediumScreen, user } from '../types';
 import { FontFamily, FontSize } from '../fonts';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 interface Comment {
   id: string;
@@ -203,6 +204,7 @@ const Community: React.FC<{ embedded?: boolean }> = ({ embedded = false }) => {
 
   const isCreator = currentUser.role === 'creator';
   const normalizedHandle = (currentUser.handle ?? '').replace('@', '');
+  const insets = useSafeAreaInsets();
   const activeCommentTarget = activeCommentPost
     ? posts.find((post) => post.id === activeCommentPost) ?? null
     : null;
@@ -342,16 +344,20 @@ const Community: React.FC<{ embedded?: boolean }> = ({ embedded = false }) => {
 
   return (
     <View style={[styles.container, { backgroundColor: theme.background }]}>
-      {user!.role === 'fan' && !embedded && <View style={[styles.header, { borderBottomColor: softBorder }]}>
-        <View style={styles.headerLeft}>
-          <Pressable onPress={() => navigation.goBack()} style={[styles.headerRoundBtn, { backgroundColor: faintSurface, borderColor: softBorder }]}>
-            <MaterialIcons name="chevron-left" size={22} color={theme.text} />
-          </Pressable>
-          <Text style={[styles.headerTitle, { color: theme.text }]}>GALAXY UNIVERSE</Text>
-        </View>
-        <Pressable onPress={() => navigation.navigate('Inbox')} style={[styles.headerRoundBtn, { backgroundColor: faintSurface, borderColor: softBorder }]}>
-          <MaterialIcons name="notifications-none" size={22} color={theme.text} />
+      {user!.role === 'fan' && !embedded && <View style={[styles.header, {marginTop: Platform.OS == 'ios' ? 54 : insets.bottom} ]}>
+        <Pressable onPress={() => navigation.goBack()} style={[styles.headerRoundBtn, { backgroundColor: faintSurface, borderColor: softBorder }]}>
+          <MaterialIcons name="chevron-left" size={22} color={theme.text} />
         </Pressable>
+
+        <View style={styles.headerTitleWrap}>
+          <Text style={[styles.headerTitle, { color: theme.text }]}>Community</Text>
+          <Text style={styles.headerSubtitle}>Galaxy Universe</Text>
+        </View>
+
+        <View style={styles.headerSpacer} />
+        {/* <Pressable onPress={() => navigation.navigate('Inbox')} style={[styles.headerRoundBtn, { backgroundColor: faintSurface, borderColor: softBorder }]}>
+          <MaterialIcons name="notifications-none" size={22} color={theme.text} />
+        </Pressable> */}
       </View> }
 
       <ScrollView contentContainerStyle={styles.scrollBody} showsVerticalScrollIndicator={false} keyboardShouldPersistTaps="handled">
@@ -659,7 +665,6 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'space-between',
   },
-  headerLeft: { flexDirection: 'row', alignItems: 'center', gap: 12 },
   headerRoundBtn: {
     height: 40,
     width: 40,
@@ -670,7 +675,27 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     alignItems: 'center',
   },
-  headerTitle: { color: '#fff', fontSize: mediumScreen?FontSize.eighteen:FontSize.fourteen, fontFamily: FontFamily.extraBold, letterSpacing: 0.4 },
+  headerTitleWrap: {
+    alignItems: 'center',
+  },
+  headerTitle: {
+    color: '#fff',
+    fontSize: mediumScreen ? FontSize.sixteen : FontSize.thirteen,
+    fontFamily: FontFamily.extraBold,
+    letterSpacing: 2,
+    textTransform: 'uppercase',
+  },
+  headerSubtitle: {
+    color: PRIMARY_COLOR,
+    marginTop: 4,
+    fontFamily: FontFamily.extraBold,
+    fontSize: FontSize.seven,
+    letterSpacing: 1.5,
+    textTransform: 'uppercase',
+  },
+  headerSpacer: {
+    width: 40,
+  },
   scrollBody: { padding: 14, paddingBottom: 130, gap: 14 },
   postCard: {
     backgroundColor: '#121219',

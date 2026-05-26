@@ -118,15 +118,21 @@ const Inbox: React.FC = () => {
       <View style={[styles.screen, { backgroundColor: shell }]}>
         <ScrollView contentContainerStyle={styles.content} showsVerticalScrollIndicator={false} keyboardShouldPersistTaps="handled">
           <View style={styles.topUtilityRow}>
-            <View style={styles.headerLeft}>
-                          <View style={[styles.avatarWrap, { borderColor: theme.accent }]}>
+            {/* <View style={styles.headerLeft}>
+                          
+                        </View> */}
+            <View style={[styles.avatarWrap, { borderColor: theme.accent }]}>
                             <Image source={{ uri: 'https://picsum.photos/seed/mila/100' }} style={styles.avatar} />
                           </View>
                           <View>
-                            <Text style={[styles.title, { color: theme.accent }]}>INBOX</Text>
-                            <Text style={styles.subtitle}>CREATOR PROTOCOL</Text>
+                            <View style={{
+                              justifyContent: 'center',
+                              alignItems: 'center'
+                            }}>
+                              <Text style={[styles.title, {color: theme.text}]}>SIGNAL</Text>
+                            <Text style={[styles.subtitle, { color: theme.accent }]}>CREATOR PROTOCOL</Text>
+                            </View>
                           </View>
-                        </View>
             <Pressable
               onPress={()=>{
                 navigation.navigate('Notification')
@@ -180,7 +186,7 @@ const Inbox: React.FC = () => {
               onPress={()=>{
                 navigation.navigate('Chat')
               }}
-              key={chat.id} style={[styles.chatCard, { backgroundColor: card, borderColor: border }]}>
+              key={chat.id} style={[styles.chatCard, { backgroundColor: card, }]}>
                 <View style={styles.chatAvatarWrap}>
                   <Image source={{ uri: chat.avatar }} style={[styles.chatAvatar, chat.unread && styles.chatAvatarUnread]} />
                   {chat.vip ? <View style={styles.vipBadge}><Text style={styles.vipText}>VIP</Text></View> : null}
@@ -253,7 +259,7 @@ const styles = StyleSheet.create({
   searchRow: { marginTop: 12, minHeight: 52, borderWidth: 1, borderRadius: 16, flexDirection: 'row', alignItems: 'center', gap: 8, paddingHorizontal: 12 },
   searchInput: { flex: 1, fontFamily: FontFamily.medium, fontSize: FontSize.ten },
   chatList: { gap: 10 },
-  chatCard: { borderWidth: 1, borderRadius: 18, padding: 12, flexDirection: 'row', alignItems: 'center', gap: 12 },
+  chatCard: { padding: 12, flexDirection: 'row', alignItems: 'center', gap: 12 },
   chatAvatarWrap: { width: 56, height: 56, position: 'relative' },
   chatAvatar: { width: '100%', height: '100%', borderRadius: 28, borderWidth: 1, borderColor: 'rgba(255,255,255,0.1)' },
   chatAvatarUnread: { borderColor: PRIMARY_COLOR, borderWidth: 2 },
@@ -280,9 +286,9 @@ const styles = StyleSheet.create({
     overflow: 'hidden',
   },
   title: {
-      color: '#F8FAFC',
+      // color: '#F8FAFC',
       fontSize: mediumScreen ? FontSize.twentyOne:FontSize.eighteen,
-      fontWeight: '900',
+      // fontWeight: '900',
       letterSpacing: 0.5,
     },
   avatar: {
@@ -290,9 +296,9 @@ const styles = StyleSheet.create({
     height: '100%',
   },
     subtitle: {
-      color: '#D946EF',
+      // color: '#D946EF',
       fontSize: mediumScreen ? FontSize.twelve:FontSize.eight,
-      fontWeight: '900',
+      // fontWeight: '900',
       letterSpacing: 2.5,
       marginTop: 2,
     },

@@ -70,7 +70,7 @@ const baseEntries: ChallengeEntry[] = [
     originalSound: true,
   },
   {
-    id: 'e2',
+    id: 'e2 ',
     userName: 'BassMaster',
     userHandle: 'bassmaster',
     userAvatar: 'https://picsum.photos/seed/fan3/200',

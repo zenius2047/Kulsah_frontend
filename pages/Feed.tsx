@@ -39,6 +39,7 @@ import SparkleIcon from '../assets/icons/sparkle-style.svg';
 import CommentIcon from '../assets/icons/comment-svg.svg';
 import KulCoinPrompt from '../components/KulCoinPrompt';
 import CreatorShareSheet from './CreatorShareSheet';
+import Premium from '../assets/icons/kulsah_premium_icon.svg';
 
 interface FeedItem {
   id: string;
@@ -1129,9 +1130,10 @@ useEffect(() => {
             </View>
           </Pressable>
           {item.isPremium && (
-            <View style={{ borderRadius: 6,  borderWidth: 1, paddingHorizontal: 6, justifyContent: 'center', alignItems: 'center', paddingVertical: 3, borderColor: 'white' }}>
-              <Text style={{ color: '#fff', fontWeight: 'bold', fontSize: mediumScreen ? FontSize.ten: FontSize.eight }}>Premium</Text>
-            </View>
+            // <View style={{ borderRadius: 6,  borderWidth: 1, paddingHorizontal: 6, justifyContent: 'center', alignItems: 'center', paddingVertical: 3, borderColor: 'white' }}>
+            //   <Text style={{ color: '#fff', fontWeight: 'bold', fontSize: mediumScreen ? FontSize.ten: FontSize.eight }}>Premium</Text>
+            // </View>
+            <Premium height={24} width={24}/>
           )}
           <Pressable
             onPress={() => {

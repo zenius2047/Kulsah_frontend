@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { useThemeMode } from './theme';
+import { useThemeMode, PRIMARY_COLOR, primaryColorAlpha } from './theme';
 import { View, StyleSheet, ActivityIndicator, Text, TextInput, Pressable, StatusBar, Dimensions , Image, useWindowDimensions, Platform} from 'react-native';
 import { NavigationContainer, createNavigationContainerRef } from '@react-navigation/native';
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
@@ -7,13 +7,13 @@ import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { MaterialIcons,} from '@expo/vector-icons';
 import { useFonts } from 'expo-font';
+import { LinearGradient } from 'expo-linear-gradient';
 import ExploreIcon from './assets/icons/explore-svg.svg';
 // import LocalLibraryIcon from './assets/icons/local_library-svg.svg';
 import MovieIcon from './assets/icons/movieIcon-svg.svg';
 import HomeIcon from './assets/icons/home-svg.svg';
 import ForumIcon from './assets/icons/forum-svg.svg';
 import { SafeAreaView, useSafeAreaInsets } from 'react-native-safe-area-context';
-import CreateIcon from './assets/icons/create-svg.svg';
 // import MaterialSymbols from 'react-native-vector-icons/MaterialSymbolsOutlined';
 
 // import Icon from 'react-native-vector-icons/MaterialIcons';
@@ -194,19 +194,27 @@ const CreatorTabs = ({ isDarkMode }: TabsProps) => {
         },
       })}
       options={{
-        tabBarIcon: ({ color, size }) =>
-        <View
-        style={{
-          height: 55,
-          width: 55,
-          alignItems: 'center',
-          justifyContent: 'center',
-          // backgroundColor: 'blue',
-          marginBottom: -20,
-        }}>
-          {/* <MaterialIcons name='add-circle' size={54} color={'white'}/> */}
-          <CreateIcon height={64} width={64}/>
-        </View>
+        tabBarIcon: () => (
+          <View style={styles.creatorCreateTabOuter}>
+            <View style={styles.creatorCreateGlow} />
+            <LinearGradient
+              colors={['#ff4fd8', PRIMARY_COLOR, '#4f46e5']}
+              start={{ x: 0.06, y: 0 }}
+              end={{ x: 1, y: 1 }}
+              style={styles.creatorCreateButton}
+            >
+              <View style={styles.creatorCreateInner}>
+                <View style={styles.creatorCreateHalo} />
+                <View style={styles.creatorCreatePlusPlate}>
+                  <View style={styles.creatorCreatePlusVertical} />
+                  <View style={styles.creatorCreatePlusHorizontal} />
+                </View>
+                <View style={[styles.creatorCreateCorner, styles.creatorCreateCornerTop]} />
+                <View style={[styles.creatorCreateCorner, styles.creatorCreateCornerBottom]} />
+              </View>
+            </LinearGradient>
+          </View>
+        ),
       }}
     />
     <Tab.Screen
@@ -602,6 +610,106 @@ const styles = StyleSheet.create({
     fontSize: mediumScreen ? FontSize.twelve: FontSize.eight,
     fontFamily: FontFamily.regular,
     // backgroundColor: 'blue'
+  },
+  creatorCreateTabOuter: {
+    width: 66,
+    height: 66,
+    marginBottom: -18,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  creatorCreateGlow: {
+    position: 'absolute',
+    width: 70,
+    height: 48,
+    borderRadius: 24,
+    backgroundColor: primaryColorAlpha(0.34),
+    shadowColor: PRIMARY_COLOR,
+    shadowOpacity: 0.72,
+    shadowRadius: 22,
+    shadowOffset: { width: 0, height: 10 },
+    elevation: 12,
+  },
+  creatorCreateButton: {
+    width: 64,
+    height: 50,
+    borderRadius: 25,
+    borderWidth: 2,
+    borderColor: 'rgba(255,255,255,0.9)',
+    alignItems: 'center',
+    justifyContent: 'center',
+    shadowColor: PRIMARY_COLOR,
+    shadowOpacity: 0.44,
+    shadowRadius: 14,
+    shadowOffset: { width: 0, height: 8 },
+    elevation: 10,
+  },
+  creatorCreateInner: {
+    width: 52,
+    height: 38,
+    borderRadius: 19,
+    alignItems: 'center',
+    justifyContent: 'center',
+    overflow: 'hidden',
+    backgroundColor: 'rgba(12,9,32,0.28)',
+    borderWidth: 1,
+    borderColor: 'rgba(255,255,255,0.26)',
+  },
+  creatorCreateHalo: {
+    position: 'absolute',
+    width: 42,
+    height: 42,
+    borderRadius: 21,
+    borderWidth: 1,
+    borderColor: 'rgba(255,255,255,0.32)',
+    backgroundColor: 'rgba(255,255,255,0.08)',
+  },
+  creatorCreatePlusPlate: {
+    width: 28,
+    height: 28,
+    borderRadius: 14,
+    backgroundColor: '#ffffff',
+    alignItems: 'center',
+    justifyContent: 'center',
+    shadowColor: '#000000',
+    shadowOpacity: 0.2,
+    shadowRadius: 8,
+    shadowOffset: { width: 0, height: 3 },
+    elevation: 3,
+  },
+  creatorCreatePlusVertical: {
+    position: 'absolute',
+    width: 5,
+    height: 17,
+    borderRadius: 3,
+    backgroundColor: PRIMARY_COLOR,
+  },
+  creatorCreatePlusHorizontal: {
+    position: 'absolute',
+    width: 17,
+    height: 5,
+    borderRadius: 3,
+    backgroundColor: PRIMARY_COLOR,
+  },
+  creatorCreateCorner: {
+    position: 'absolute',
+    width: 8,
+    height: 8,
+    borderColor: 'rgba(255,255,255,0.88)',
+  },
+  creatorCreateCornerTop: {
+    top: 7,
+    left: 8,
+    borderTopWidth: 2,
+    borderLeftWidth: 2,
+    borderTopLeftRadius: 4,
+  },
+  creatorCreateCornerBottom: {
+    right: 8,
+    bottom: 7,
+    borderRightWidth: 2,
+    borderBottomWidth: 2,
+    borderBottomRightRadius: 4,
   },
 });
 
