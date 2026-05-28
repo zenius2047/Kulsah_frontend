@@ -392,7 +392,11 @@ const ChallengeVideoItem: React.FC<ChallengeVideoItemProps> = ({
               <Text style={styles.moreLessText}>{showMore ? 'more' : 'less'}</Text>
             </Pressable>
           </View>
-          <View style={styles.entryBadge}>
+          <Pressable
+          onPress={()=>{
+            navigation.navigate("challengeParticipants")
+          }}
+          style={styles.entryBadge}>
             <MaterialIcons
               name={entry.isSeed ? 'rocket-launch' : 'emoji-events'}
               size={14}
@@ -401,7 +405,7 @@ const ChallengeVideoItem: React.FC<ChallengeVideoItemProps> = ({
             <Text style={styles.entryBadgeText}>
               {entry.isSeed ? 'Official Seed' : 'Challenge Entry'}
             </Text>
-          </View>
+          </Pressable>
           <View style={styles.soundRow}>
             <View style={styles.soundIconWrap}>
               <Animated.View style={{ transform: [{ rotate: rotation }] }}>

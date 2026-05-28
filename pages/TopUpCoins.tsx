@@ -147,7 +147,7 @@ const TopUpCoins: React.FC = () => {
             justifyContent: 'center',
           }}
         >
-          <MaterialIcons name="arrow-back" size={20} color={theme.text} />
+          <MaterialIcons name="chevron-left" size={20} color={theme.text} />
         </Pressable>
         <Text
           style={{

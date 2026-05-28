@@ -15,11 +15,13 @@ import {
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { useNavigation, useRoute } from '@react-navigation/native';
 import { MaterialIcons } from '@expo/vector-icons';
+import { useEvent } from 'expo';
 import { useVideoPlayer, VideoView } from 'expo-video';
 import { useThemeMode, PRIMARY_COLOR, primaryColorAlpha } from "../theme";
 import { FontFamily, FontSize } from '../fonts';
 import { mediumScreen, user } from '../types';
 import KulsahInputBar from '../components/KulsahInputBar';
+import DotTrioLoader from '../components/DotTrioLoader';
 
 interface Comment {
   id: string;
@@ -125,10 +127,17 @@ const DetailLivePreview: React.FC<{ videoUrl: string; viewerCount?: number }> = 
     p.loop = true;
     p.play();
   });
+  const { status } = useEvent(player, 'statusChange', { status: player.status });
+  const isVideoLoading = status !== 'readyToPlay' && status !== 'error';
 
   return (
     <View style={styles.mediaWrap}>
       <VideoView player={player} style={styles.video} nativeControls allowsPictureInPicture />
+      {isVideoLoading && (
+        <View pointerEvents="none" style={styles.videoLoaderOverlay}>
+          <DotTrioLoader />
+        </View>
+      )}
       <View style={styles.liveBadges}>
         <View style={styles.livePill}>
           <View style={styles.liveDot} />
@@ -329,11 +338,11 @@ const CommunityPostDetail: React.FC = () => {
 
   return (
     <KeyboardAvoidingView
-      style={[styles.container, { backgroundColor: screenBg }]}
+      style={[styles.container, { backgroundColor: theme.background }]}
       behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
       keyboardVerticalOffset={Platform.OS === 'ios' ? 20 : 0}
     >
-      <View style={[styles.header, { borderBottomColor: softBorder, backgroundColor: headerBg }]}>
+      <View style={[styles.header, {backgroundColor: headerBg }]}>
         <Pressable onPress={() => navigation.goBack()} style={[styles.headerRoundBtn, { backgroundColor: screenBg, borderColor: softBorder }]}>
           <MaterialIcons name="chevron-left" size={22} color={theme.text} />
         </Pressable>
@@ -347,7 +356,7 @@ const CommunityPostDetail: React.FC = () => {
       </View>
 
       <ScrollView contentContainerStyle={styles.scrollBody} showsVerticalScrollIndicator={false} keyboardShouldPersistTaps="handled">
-        <View style={[styles.feedCard, { backgroundColor: cardBg, borderBottomColor: softBorder }]}>
+        <View style={[styles.feedCard, { backgroundColor: cardBg}]}>
           <View style={styles.postHeader}>
             <Pressable style={styles.authorRow} onPress={() => navigation.navigate('ArtistProfile', { isOwner: false, id: post.artist })}>
               <Image source={{ uri: post.avatar }} style={styles.avatar} />
@@ -367,12 +376,12 @@ const CommunityPostDetail: React.FC = () => {
             </Pressable>
 
             <View style={styles.headerActions}>
-              <Pressable style={[styles.followBtn, { backgroundColor: screenBg }]} onPress={() => void toggleFollow()}>
+              <Pressable style={[styles.followBtn,]} onPress={() => void toggleFollow()}>
                 <Text style={[styles.followBtnText, { color: post.isFollowing ? mutedText : '#1877f2' }]}>
-                  {post.isFollowing ? 'following' : 'follow'}
+                  {post.isFollowing ? 'Following' : 'Follow'}
                 </Text>
               </Pressable>
-              <Pressable style={[styles.iconBtn, { backgroundColor: screenBg }]}>
+              <Pressable style={[styles.iconBtn,]}>
                 <MaterialIcons name="more-horiz" size={22} color={dimIcon} />
               </Pressable>
             </View>
@@ -594,7 +603,6 @@ const styles = StyleSheet.create({
     paddingHorizontal: 12,
     paddingTop: 8,
     paddingBottom: 10,
-    borderBottomWidth: 1,
     flexDirection: 'row',
     alignItems: 'center',
     gap: 12,
@@ -611,7 +619,7 @@ const styles = StyleSheet.create({
   headerTitle: { fontSize: mediumScreen ? FontSize.fifteen : FontSize.twelve, fontFamily: FontFamily.extraBold },
   headerSubtitle: { fontSize: mediumScreen ? FontSize.ten : FontSize.eight, fontFamily: FontFamily.medium },
   scrollBody: { paddingBottom: 96 },
-  feedCard: { borderBottomWidth: 1, borderRadius: 28, overflow: 'hidden', marginHorizontal: 12, marginTop: 12 },
+  feedCard: {overflow: 'hidden'},
   postHeader: {
     paddingHorizontal: 12,
     paddingTop: 10,
@@ -637,6 +645,12 @@ const styles = StyleSheet.create({
   postContent: { fontSize: mediumScreen ? FontSize.sixteen : FontSize.fourteen, lineHeight: 22, fontFamily: FontFamily.medium },
   mediaWrap: { height: 280, marginBottom: 12, overflow: 'hidden' },
   video: { width: '100%', height: '100%' },
+  videoLoaderOverlay: {
+    ...StyleSheet.absoluteFillObject,
+    alignItems: 'center',
+    justifyContent: 'center',
+    backgroundColor: 'rgba(0,0,0,0.18)',
+  },
   liveBadges: { position: 'absolute', top: 10, left: 10, flexDirection: 'row', gap: 8 },
   livePill: { flexDirection: 'row', alignItems: 'center', gap: 5, borderRadius: 999, backgroundColor: '#ef4444', paddingHorizontal: 10, paddingVertical: 5 },
   liveDot: { height: 6, width: 6, borderRadius: 3, backgroundColor: '#fff' },

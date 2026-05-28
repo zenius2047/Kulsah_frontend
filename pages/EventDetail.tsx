@@ -133,7 +133,7 @@ const EventDetail: React.FC = () => {
   const soft = isDark ? 'rgba(255,255,255,0.06)' : 'rgba(15,23,42,0.05)';
   const subtle = isDark ? '#94a3b8' : theme.textSecondary;
   const faint = isDark ? 'rgba(255,255,255,0.45)' : theme.textMuted;
-  const accent = isDark ? PRIMARY_COLOR : '#a21caf';
+  const accent = PRIMARY_COLOR;
 
   useEffect(() => {
     const unsubscribe = subscribeUser(setCurrentUser);

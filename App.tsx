@@ -40,9 +40,7 @@ import CreatorAnalytics from './pages/CreatorAnalytics';
 import CreatorRevenue from './pages/CreatorRevenue';
 import FanSubscriptions from './pages/FanSubscriptions';
 import CreatorLibrary from './pages/CreatorLibrary';
-import ChallengeCard from './pages/ChallengeScreen';
-import ChallengesScreen from './pages/ChallengeScreen';
-import ChallengeScreen from './pages/ChallengeScreen';
+import Challenges from './pages/Challenges';
 import UseSound from './pages/UseSound';
 import UseEffect from './pages/UseEffect';
 import RecordContent from './pages/RecordContent';
@@ -96,6 +94,7 @@ import ChallengeLeaderboard from './pages/ChallengeLeaderboard';
 import Events from './pages/Events';
 import TrendingVideos from './pages/TrendingVideos';
 import Search from './pages/Search';
+import Submissions from './pages/Submissions';
 
 
 
@@ -135,6 +134,20 @@ interface TabsProps {
   onTap?: ()=>void
 }
 
+const getTabBarShadow = (isDarkMode: boolean, isGalaxy: boolean) => ({
+  borderTopWidth: 1,
+  borderTopColor: isGalaxy
+    ? 'rgba(255,255,255,0.08)'
+    : isDarkMode
+      ? 'rgba(255,255,255,0.1)'
+      : 'rgba(15,23,42,0.08)',
+  shadowColor: isDarkMode || isGalaxy ? '#000000' : '#0f172a',
+  shadowOpacity: isDarkMode || isGalaxy ? 0.42 : 0.16,
+  shadowRadius: isDarkMode || isGalaxy ? 18 : 16,
+  shadowOffset: { width: 0, height: -8 },
+  elevation: isDarkMode || isGalaxy ? 18 : 12,
+});
+
 const CreatorTabs = ({ isDarkMode }: TabsProps) => {
   const insets = useSafeAreaInsets();
   const tabBarHeight = (Platform.OS === 'ios' ? SCREEN_HEIGHT * 0.08 : SCREEN_HEIGHT * 0.07 +insets.bottom);
@@ -157,6 +170,7 @@ const CreatorTabs = ({ isDarkMode }: TabsProps) => {
             backgroundColor: route.name === 'Galaxy' ? '#000' : isDarkMode ? '#000' : '#ffffff',
             height: tabBarHeight,
           },
+          getTabBarShadow(isDarkMode, route.name === 'Galaxy'),
         ],
       })}
     >
@@ -293,6 +307,7 @@ const FanTabs = ({isDarkMode, user, onTap}: TabsProps) => {
             backgroundColor: route.name === 'Galaxy' ? '#000' : isDarkMode ? '#1f1022' : '#ffffff',
             height: tabBarHeight,
           },
+          getTabBarShadow(isDarkMode, route.name === 'Galaxy'),
         ],
       })}
     >
@@ -506,7 +521,7 @@ const App: React.FC = () => {
                   <Stack.Screen name="Community" component={Community} />
                   <Stack.Screen name="Analytics" component={CreatorAnalytics} />
                   <Stack.Screen name="Subscribers" component={Subscribers} />
-                  <Stack.Screen name="Challenges" component={ChallengesScreen} />
+                  <Stack.Screen name="Challenges" component={Challenges} />
                   <Stack.Screen name="RecordContent" component={RecordContent}/>
                   <Stack.Screen name="CreateContent" component={CreateEvent}/>
                   <Stack.Screen name="CreatorLiveStream" component={CreatorLiveStream}/>
@@ -542,6 +557,7 @@ const App: React.FC = () => {
                   <Stack.Screen name="Events" component={Events}/>
                   <Stack.Screen name="TrendingVideos" component={TrendingVideos}/>
                   <Stack.Screen name="Search" component={Search}/>
+                  <Stack.Screen name="Submissions" component={Submissions}/>
                 </>
               ) : (
                 <>
@@ -605,7 +621,6 @@ const styles = StyleSheet.create({
     right: 0,
     bottom: 0,
     borderTopWidth: 0,
-    elevation: 0,
     height: SCREEN_HEIGHT * 0.08,
     paddingBottom: 0,
     fontSize: mediumScreen ? FontSize.twelve: FontSize.eight,

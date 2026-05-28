@@ -245,7 +245,7 @@ const Search: React.FC = () => {
         <View style={[styles.header, { paddingTop: Platform.OS === 'ios' ? insets.top + 4 : insets.top + 12, backgroundColor: colors.header, borderBottomColor: colors.border }]}>
           <View style={styles.searchRow}>
             <Pressable onPress={() => navigation.goBack()} style={({ pressed }) => [styles.backButton, pressed && styles.iconPressed]}>
-              <MaterialIcons name="arrow-back" size={28} color={colors.text} />
+              <MaterialIcons name="chevron-left" size={28} color={colors.text} />
             </Pressable>
             <KulsahInputBar
                 value={searchQuery}

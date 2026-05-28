@@ -192,7 +192,7 @@ const Events: React.FC = () => {
               onPress={() => navigation.goBack()}
               style={[styles.iconButton, { backgroundColor: chipIdleBg, borderColor: softBorder }]}
             >
-              <MaterialIcons name="arrow-back" size={20} color={theme.text} />
+              <MaterialIcons name="chevron-left" size={20} color={theme.text} />
             </Pressable>
 
             <View style={styles.headerTitleWrap}>
@@ -483,7 +483,7 @@ const styles = StyleSheet.create({
     flex: 1,
   },
   header: {
-    paddingHorizontal: 20,
+    // paddingHorizontal: 20,
     paddingTop: 8,
     paddingBottom: 18,
     borderBottomWidth: 1,
@@ -493,6 +493,7 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'space-between',
     marginBottom: 18,
+    paddingHorizontal: 20,
   },
   iconButton: {
     width: 42,
@@ -527,12 +528,13 @@ const styles = StyleSheet.create({
   },
   searchBar: {
     minHeight: 50,
-    borderRadius: 18,
+    borderRadius: 999,
     borderWidth: 1,
     paddingHorizontal: 14,
     flexDirection: 'row',
     alignItems: 'center',
     gap: 10,
+    marginHorizontal: 20
   },
   searchInput: {
     flex: 1,
@@ -542,6 +544,7 @@ const styles = StyleSheet.create({
   filterScroll: {
     gap: 10,
     paddingBottom: 2,
+    paddingHorizontal: 20,
   },
   filterGroup: {
     flexDirection: 'row',

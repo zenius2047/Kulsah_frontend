@@ -39,6 +39,7 @@ import CommentIcon from '../assets/icons/comment-svg.svg';
 import KulCoinPrompt from '../components/KulCoinPrompt';
 import CreatorShareSheet from './CreatorShareSheet';
 import Premium from '../assets/icons/kulsah_premium_icon.svg';
+import DotTrioLoader from '../components/DotTrioLoader';
 
 interface FeedItem {
   id: string;
@@ -708,6 +709,7 @@ const VideoFeedItem: React.FC<{
   // });
 
   const loadedMetadata = useEvent(player, 'sourceLoad');
+  const { status } = useEvent(player, 'statusChange', { status: player.status });
   const timeUpdate: any = useEvent(player as any, 'timeUpdate', INITIAL_TIME_UPDATE);
   const [dimensions, setDimensions] = useState({ width: 0, height: 0 });
   const isPortraitVideo =
@@ -828,6 +830,7 @@ useEffect(() => {
   const effectiveDuration = duration > 0 ? duration : 1;
   const effectiveCurrentTime = isScrubbing ? scrubTime : currentTime;
   const progressRatio = clamp(effectiveCurrentTime / effectiveDuration, 0, 1);
+  const isVideoLoading = status !== 'readyToPlay' && status !== 'error';
 
   const seekTo = useCallback((seconds: number) => {
     const target = clamp(seconds, 0, duration > 0 ? duration : 0);
@@ -879,6 +882,23 @@ useEffect(() => {
 
 
         />
+        {isVideoLoading && (
+          <View
+            pointerEvents="none"
+            style={{
+              position: 'absolute',
+              top: 0,
+              right: 0,
+              bottom: 0,
+              left: 0,
+              alignItems: 'center',
+              justifyContent: 'center',
+              backgroundColor: 'rgba(0,0,0,0.18)',
+            }}
+          >
+            <DotTrioLoader />
+          </View>
+        )}
         <Pressable
         onPress={handleVideoTap}
         style={{
@@ -989,7 +1009,7 @@ useEffect(() => {
           elevation: 4,
          }}
         >
-          <MaterialIcons name='favorite' size={32} color={isLiked ? PRIMARY_COLOR : 'white'} />
+          <MaterialIcons name='favorite' size={32} color={isLiked ? 'red' : 'white'} />
           <Text style={{ color: 'white', fontSize: mediumScreen ? FontSize.fourteen:FontSize.ten, fontFamily: FontFamily.bold }}>{item.likes}</Text>
         </Pressable>
 

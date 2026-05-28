@@ -16,10 +16,13 @@ import {
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { useNavigation } from '@react-navigation/native';
 import { MaterialIcons } from '@expo/vector-icons';
+import { useEvent } from 'expo';
+import { BlurView } from 'expo-blur';
 import { useVideoPlayer, VideoView } from 'expo-video';
 import { mediumScreen, user } from '../types';
 import { FontFamily, FontSize } from '../fonts';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
+import DotTrioLoader from '../components/DotTrioLoader';
 
 interface Comment {
   id: string;
@@ -158,10 +161,17 @@ const LivePreview: React.FC<{ videoUrl: string; viewerCount?: number; isCreator:
     p.muted = true;
     p.play();
   });
+  const { status } = useEvent(player, 'statusChange', { status: player.status });
+  const isVideoLoading = status !== 'readyToPlay' && status !== 'error';
 
   return (
     <View style={[styles.mediaWrap, { borderColor: theme.border }]}>
       <VideoView player={player} style={styles.video} nativeControls={false} allowsPictureInPicture />
+      {isVideoLoading && (
+        <View pointerEvents="none" style={styles.videoLoaderOverlay}>
+          <DotTrioLoader />
+        </View>
+      )}
       <View style={styles.liveBadges}>
         <View style={styles.livePill}>
           <View style={styles.liveDot} />
@@ -366,7 +376,7 @@ const Community: React.FC<{ embedded?: boolean }> = ({ embedded = false }) => {
           const totalVotes = post.pollOptions?.reduce((acc, curr) => acc + curr.votes, 0) ?? 0;
 
           return (
-            <View key={post.id} style={[styles.postCard, { backgroundColor: panelSurface, borderColor: softBorder }]}>
+            <View key={post.id} style={[styles.postCard, { backgroundColor: panelSurface, borderBottomColor: softBorder, borderBottomWidth: 1 }]}>
               <Pressable onPress={() => openPostDetail(post.id)}>
               <View style={styles.postHeader}>
                 <Pressable style={styles.authorRow} onPress={() => navigation.navigate('ArtistProfile', { isOwner: false, id: post.artist })}>
@@ -379,22 +389,40 @@ const Community: React.FC<{ embedded?: boolean }> = ({ embedded = false }) => {
                       {!post.isVerified ? (
                           <MaterialIcons name="verified" size={16} color='#33aae4'/>
                         ) : null}
-                      <Pressable style={styles.followMetaAction} onPress={() => void toggleFollow(post.id)} hitSlop={8}>
-                        <Text style={[styles.followStateText, { color: post.isFollowing ? mutedText : '#1877f2' }]}>
-                          {post.isFollowing ? 'following' : 'follow'}
-                        </Text>
-                      </Pressable>
                     </View>
                     <Text style={[styles.timeText, { color: mutedText }]}>{post.time}</Text>
                   </View>
                 </Pressable>
+
+              <View style={{
+                flexDirection: 'row',
+                alignItems: 'center',
+                gap: 15,
+                // backgroundColor: 'red'
+              }}>
+                
+                <Pressable style={styles.followMetaAction} onPress={() => void toggleFollow(post.id)} hitSlop={8}>
+                        <Text style={[styles.followStateText, { color: post.isFollowing ? mutedText : '#1877f2' }]}>
+                          {post.isFollowing ? 'Following' : 'Follow'}
+                        </Text>
+                      </Pressable>
 
                 <View style={styles.optionsWrap}>
                   <Pressable onPress={() => setShowOptionsPostId(showOptionsPostId === post.id ? null : post.id)}>
                     <MaterialIcons name="more-horiz" size={24} color={dimIcon} />
                   </Pressable>
                   {showOptionsPostId === post.id && (
-                    <View style={[styles.optionsMenu, { backgroundColor: panelElevated, borderColor: softBorder }]}>
+                    <BlurView
+                      intensity={Platform.OS === 'android' ? 100 : 28}
+                      tint={isDark ? 'dark' : 'light'}
+                      style={[
+                        styles.optionsMenu,
+                        {
+                          backgroundColor: isDark ? 'rgba(29,29,39,0.78)' : 'rgba(255,255,255,0.78)',
+                          borderColor: softBorder,
+                        },
+                      ]}
+                    >
                       {ownPost ? (
                         <>
                           <Pressable style={styles.optionItem} onPress={() => startEditing(post)}>
@@ -418,9 +446,10 @@ const Community: React.FC<{ embedded?: boolean }> = ({ embedded = false }) => {
                           </Pressable>
                         </>
                       )}
-                    </View>
+                    </BlurView>
                   )}
                 </View>
+              </View>
               </View>
 
               <View style={styles.postContentWrap}>
@@ -491,7 +520,7 @@ const Community: React.FC<{ embedded?: boolean }> = ({ embedded = false }) => {
               )}
               </Pressable>
 
-              <View style={[styles.actionBar, { borderTopColor: softBorder }]}>
+              <View style={[styles.actionBar, ]}>
                 <Pressable style={styles.actionItem} onPress={() => toggleLike(post.id)}>
                   <MaterialIcons name={post.isLiked ? 'favorite' : 'favorite-border'} size={23} color={post.isLiked ? PRIMARY_COLOR : dimIcon} />
                   <Text style={[styles.actionText, { color: post.isLiked ? PRIMARY_COLOR : mutedText }]}>{post.likes.toLocaleString()}</Text>
@@ -696,15 +725,15 @@ const styles = StyleSheet.create({
   headerSpacer: {
     width: 40,
   },
-  scrollBody: { padding: 14, paddingBottom: 130, gap: 14 },
+  scrollBody: { paddingVertical: 14, paddingBottom: 130, gap: 14 },
   postCard: {
     backgroundColor: '#121219',
-    borderColor: 'rgba(255,255,255,0.08)',
-    borderWidth: 1,
-    borderRadius: 28,
+    // borderColor: 'rgba(255,255,255,0.08)',
+    // borderWidth: 1,
+    // borderRadius: 8,
     overflow: 'hidden',
   },
-  postHeader: { paddingHorizontal: 16, paddingTop: 16, flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center' },
+  postHeader: { paddingHorizontal: 16, paddingTop: 16, flexDirection: 'row', justifyContent: 'space-between', alignItems: 'flex-start'},
   authorRow: { flexDirection: 'row', alignItems: 'center', gap: 12 },
   avatarRing: {
     height: 46,
@@ -715,12 +744,16 @@ const styles = StyleSheet.create({
     padding: 2,
   },
   avatar: { height: '100%', width: '100%', borderRadius: 20 },
-  handleMetaRow: { flexDirection: 'row', alignItems: 'center', gap: 6, flexWrap: 'wrap' },
+  handleMetaRow: { flexDirection: 'row', alignItems: 'center', gap: 6,},
   followMetaAction: { flexDirection: 'row', alignItems: 'center', gap: 4 },
   handleText: { color: '#fff', fontFamily: FontFamily.bold, fontSize:  mediumScreen ? FontSize.sixteen: FontSize.twelve },
-  followStateText: { fontSize: mediumScreen ? FontSize.fourteen: FontSize.ten, fontFamily: FontFamily.bold },
+  followStateText: { 
+    fontSize: mediumScreen ? FontSize.fourteen: FontSize.ten,
+    fontFamily: FontFamily.bold,
+    lineHeight: mediumScreen ? FontSize.fourteen: FontSize.ten,
+   },
   timeText: { color: '#94a3b8', fontSize: mediumScreen ? FontSize.fourteen: FontSize.ten, fontFamily: FontFamily.bold, letterSpacing: 1.2 },
-  optionsWrap: { position: 'relative' },
+  optionsWrap: { position: 'relative',},
   optionsMenu: {
     position: 'absolute',
     top: 26,
@@ -732,6 +765,7 @@ const styles = StyleSheet.create({
     borderColor: 'rgba(255,255,255,0.08)',
     zIndex: 30,
     paddingVertical: 4,
+    overflow: 'hidden',
   },
   optionItem: { flexDirection: 'row', alignItems: 'center', gap: 8, paddingVertical: 11, paddingHorizontal: 12 },
   optionText: { color: '#cbd5e1', fontSize: mediumScreen?FontSize.sixteen:FontSize.twelve, fontFamily: FontFamily.bold },
@@ -772,6 +806,12 @@ const styles = StyleSheet.create({
     borderColor: 'rgba(255,255,255,0.12)',
   },
   video: { width: '100%', height: '100%' },
+  videoLoaderOverlay: {
+    ...StyleSheet.absoluteFillObject,
+    alignItems: 'center',
+    justifyContent: 'center',
+    backgroundColor: 'rgba(0,0,0,0.18)',
+  },
   liveBadges: { position: 'absolute', top: 10, left: 10, flexDirection: 'row', gap: 8 },
   livePill: {
     flexDirection: 'row',

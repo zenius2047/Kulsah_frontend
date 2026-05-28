@@ -84,6 +84,7 @@ const  ArtistProfile: React.FC = () => {
   const { isDark, theme } = useThemeMode();
   const { width } = useWindowDimensions();
   const navigation = useNavigation<any>();
+  const faintSurface = isDark ? 'rgba(255,255,255,0.04)' : theme.surface;
   const isTablet = width >= 768;
   const gridColumns = 3;
   const gridGap = isTablet ? 5 : 1;
@@ -208,14 +209,22 @@ const  ArtistProfile: React.FC = () => {
   return (
     <View style={[s.screen, { backgroundColor: theme.screen }]}>
       {toast ? <Text style={s.toast}>{toast}</Text> : null}
-      <View style={[s.header, { backgroundColor: isDark ? 'rgba(15,23,42,0.72)' : 'rgba(255,255,255,0.92)', borderBottomColor: theme.border, borderBottomWidth: 1 }]}>
-        <Pressable onPress={() => navigation.goBack()} style={[s.icon, { backgroundColor: isDark ? 'rgba(255,255,255,0.06)' : theme.surface }]}>
-          <MaterialIcons name="chevron-left" size={20} color={theme.text} />
-        </Pressable>
-        <Text style={[s.headerTitle, { color: theme.text }]}>{isOwner ? 'Your Galaxy' : name}</Text>
-        <Pressable onPress={isOwner ? () => navigation.navigate('Settings') : share} style={[s.icon, { backgroundColor: isDark ? 'rgba(255,255,255,0.06)' : theme.surface }]}>
-          <MaterialIcons name={isOwner ? 'settings' : 'share'} size={20} color={theme.text} />
-        </Pressable>
+      <View style={[s.header, { backgroundColor: isDark ? 'rgb(0, 0, 0)' : 'rgb(255, 255, 255)', borderBottomColor: isDark ? '#27272a' : '#e2e8f0' }]}>
+        <View style={s.headerTopRow}>
+          <Pressable onPress={() => navigation.goBack()} style={[s.headerRoundBtn, { backgroundColor: faintSurface, borderColor: theme.border }]}>
+            <MaterialIcons name="chevron-left" size={22} color={theme.text} />
+          </Pressable>
+
+          <View style={s.headerTitleWrap}>
+            <Text numberOfLines={1} style={[s.headerTitle, { color: theme.text }]}>{isOwner ? 'Profile' : name}</Text>
+            <Text numberOfLines={1} style={s.headerSubtitle}>{isOwner ? 'Your Galaxy' : 'Creator Universe'}</Text>
+          </View>
+
+          <Pressable onPress={isOwner ? () => navigation.navigate('Settings') : share} style={[s.headerRoundBtn, { backgroundColor: faintSurface, borderColor: theme.border }]}>
+            <MaterialIcons name={isOwner ? 'settings' : 'share'} size={20} color={theme.text} />
+          </Pressable>
+        </View>
+        <View />
       </View>
       <ScrollView
       stickyHeaderIndices={isOwner?[3]:[4]}
@@ -266,12 +275,12 @@ const  ArtistProfile: React.FC = () => {
           </View>
           <View style={[s.actions, ]}>{isOwner ? <>
           <Pressable onPress={() => navigation.navigate('Settings')} style={[s.primary, {width: '30%'}]}>
-            <EditIcon height={24} width={24} fill='white'/>
-            <Text style={s.btnText}>{" "}Edit</Text>
+            <EditIcon height={24} width={24} fill={theme.background}/>
+            <Text style={[s.btnText, {color: theme.background}]}>{" "}Edit</Text>
             </Pressable>
             <Pressable onPress={share}
             style={[s.secondary, { width: '30%', backgroundColor: isDark ? 'rgba(255,255,255,0.06)' : theme.surface, flexDirection: 'row' , alignItems: 'center', justifyContent: 'center'}]}>
-            <MaterialIcons name='share' size={18}/>
+            <MaterialIcons name='share' size={20} color= {theme.text}/>
             <Text style={[s.btnText, { color: theme.text }]}>{" "}Share</Text></Pressable></> :
             <><Pressable onPress={() => navigation.navigate('Chat')}
             style={[s.iconAction, { backgroundColor: isDark ? 'rgba(255,255,255,0.06)' : theme.surface }]}>
@@ -687,7 +696,14 @@ const  ArtistProfile: React.FC = () => {
 const s = StyleSheet.create({
   screen: { flex: 1, backgroundColor: '#060913' },
   toast: { position: 'absolute', top: 56, alignSelf: 'center', zIndex: 40, backgroundColor: PRIMARY_COLOR, color: '#fff', paddingHorizontal: 16, paddingVertical: 8, borderRadius: 999, fontSize: FontSize.ten, fontFamily: FontFamily.extraBold },
-  icon: { width: 40, height: 40, borderRadius: 20, alignItems: 'center', justifyContent: 'center', backgroundColor: 'rgba(255,255,255,0.06)' }, header: { paddingTop: 46, paddingHorizontal: 14, paddingBottom: 12, flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', backgroundColor: 'rgba(15,23,42,0.72)' }, headerBtn: { width: 40, height: 40, borderRadius: 20, alignItems: 'center', justifyContent: 'center', backgroundColor: 'rgba(255,255,255,0.06)' }, headerTitle: { flex: 1, textAlign: 'center', marginHorizontal: 10, color: '#fff', fontSize: mediumScreen? FontSize.sixteen:FontSize.twelve, fontFamily: FontFamily.extraBold, textTransform: 'uppercase' },
+  icon: { width: 40, height: 40, borderRadius: 20, alignItems: 'center', justifyContent: 'center', backgroundColor: 'rgba(255,255,255,0.06)' },
+  header: { paddingTop: 46, paddingBottom: 7, borderBottomWidth: 1 },
+  headerTopRow: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', marginBottom: 20, paddingHorizontal: 20 },
+  headerRoundBtn: { height: 40, width: 40, borderRadius: 20, borderWidth: 1, justifyContent: 'center', alignItems: 'center' },
+  headerTitleWrap: { flex: 1, alignItems: 'center', paddingHorizontal: 10 },
+  headerBtn: { width: 40, height: 40, borderRadius: 20, alignItems: 'center', justifyContent: 'center', backgroundColor: 'rgba(255,255,255,0.06)' },
+  headerTitle: { textAlign: 'center', color: '#fff', fontSize: FontSize.body, fontFamily: FontFamily.displayExtraBold, letterSpacing: 2.2, textTransform: 'uppercase' },
+  headerSubtitle: { color: PRIMARY_COLOR, marginTop: 4, fontFamily: FontFamily.extraBold, fontSize: FontSize.seven, letterSpacing: 1.5, textTransform: 'uppercase' },
   content: { paddingBottom: 120, }, cover: { height: 180, }, hero: { marginTop: -88, paddingHorizontal: 20, alignItems: 'center' }, avatarWrap: { width: 148, height: 148, borderRadius: 999, borderWidth: 1, borderColor: '#060913', padding: 7}, image: { width: '100%', height: '100%', borderRadius: 999 }, fire: { position: 'absolute', right: 12, bottom: -2, width: 40, height: 40, borderRadius: 999, backgroundColor: '#f97316', borderWidth: 0, borderColor: '#060913', alignItems: 'center', justifyContent: 'center', flexDirection: 'row' }, fireText: { color: '#fff', fontSize: FontSize.eight, fontFamily: FontFamily.extraBold },
   name: {color: '#fff', fontSize: FontSize.sixteen, fontFamily: FontFamily.bold, textTransform: 'uppercase' }, role: { marginTop: 4, color: PRIMARY_COLOR, fontSize: FontSize.nine, fontFamily: FontFamily.extraBold, textTransform: 'uppercase', letterSpacing: 2 }, stat: { flex: 1, textAlign: 'center', color: '#fff', fontSize: FontSize.eighteen, fontFamily: FontFamily.extraBold }, muted: { color: '#7d859e', fontSize: FontSize.eight, fontFamily: FontFamily.extraBold }, purple: { color: PRIMARY_COLOR, fontFamily: FontFamily.bold, fontSize: mediumScreen ? FontSize.twelve: FontSize.ten },
   actions: { marginTop: 22, flexDirection: 'row', gap: 10, alignItems: 'center', justifyContent: 'center' },

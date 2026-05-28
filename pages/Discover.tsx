@@ -1,8 +1,9 @@
 import { MaterialIcons } from '@expo/vector-icons';
 import { useNavigation } from '@react-navigation/native';
 import { LinearGradient } from 'expo-linear-gradient';
-import React, { useMemo, useState } from 'react';
+import React, { useEffect, useMemo, useRef, useState } from 'react';
 import {
+  Animated,
   GestureResponderEvent,
   Image,
   Modal,
@@ -97,11 +98,47 @@ const trendingVideos: VideoItem[] = [
 ];
 
 const activeChallenges: ChallengeItem[] = [
-  { id: 'ch-seamless', tag: 'ContinuousMatchCutChallenge', creator: 'Devon Carter', prizePool: '8,000 KulCoins', participants: 41200, type: 'Seamless Transition', endTime: 'Ends in 2 days', img: 'https://images.unsplash.com/photo-1520523839897-bd0b52f945a0?auto=format&fit=crop&q=80&w=150' },
-  { id: 'ch-cyberneon', tag: 'CyberpunkColorVibeGrading', creator: 'Sarah Chen', prizePool: '5,500 KulCoins', participants: 28900, type: 'VFX Overlay', endTime: 'Ends in 4 days', img: 'https://images.unsplash.com/photo-1518609878373-06d740f60d8b?auto=format&fit=crop&q=80&w=150' },
-  { id: 'ch-hyperlapse', tag: 'InfiniteSpeedRampHyperlapse', creator: 'Elena Rostova', prizePool: '10,000 KulCoins', participants: 51000, type: 'Drone Hyperlapse', endTime: 'Ends in 12 hours', img: 'https://images.unsplash.com/photo-1498038432885-c6f3f1b912ee?auto=format&fit=crop&q=80&w=150' },
-  { id: 'ch-anamorphic', tag: 'AnamorphicAtmosphericDepth', creator: 'Lucas Dupont', prizePool: '12,500 KulCoins', participants: 34500, type: 'Cinematic Vlog', endTime: 'Ends in 3 days', img: 'https://images.unsplash.com/photo-1536440136628-849c177e76a1?auto=format&fit=crop&q=80&w=150' },
-];
+    {
+      id: 'ch-seamless',
+      tag: 'ContinuousMatchCutChallenge',
+      creator: 'Devon Carter',
+      prizePool: '8,000 KulCoins',
+      participants: 41200,
+      type: 'Seamless Transition',
+      endTime: 'Ends in 2 days',
+      img: 'https://images.unsplash.com/photo-1520523839897-bd0b52f945a0?auto=format&fit=crop&q=80&w=150'
+    },
+    {
+      id: 'ch-cyberneon',
+      tag: 'CyberpunkColorVibeGrading',
+      creator: 'Sarah Chen',
+      prizePool: '5,500 KulCoins',
+      participants: 28900,
+      type: 'VFX Overlay',
+      endTime: 'Ends in 4 days',
+      img: 'https://images.unsplash.com/photo-1518609878373-06d740f60d8b?auto=format&fit=crop&q=80&w=150'
+    },
+    {
+      id: 'ch-hyperlapse',
+      tag: 'InfiniteSpeedRampHyperlapse',
+      creator: 'Elena Rostova',
+      prizePool: '10,000 KulCoins',
+      participants: 51000,
+      type: 'Drone Hyperlapse',
+      endTime: 'Ends in 12 hours',
+      img: 'https://images.unsplash.com/photo-1498038432885-c6f3f1b912ee?auto=format&fit=crop&q=80&w=150'
+    },
+    {
+      id: 'ch-anamorphic',
+      tag: 'AnamorphicAtmosphericDepth',
+      creator: 'Lucas Dupont',
+      prizePool: '12,500 KulCoins',
+      participants: 34500,
+      type: 'Cinematic Vlog',
+      endTime: 'Ends in 3 days',
+      img: 'https://images.unsplash.com/photo-1536440136628-849c177e76a1?auto=format&fit=crop&q=80&w=150'
+    }
+  ];
 
 const tabs: { id: DiscoverTab; label: string }[] = [
   { id: 'all', label: 'All Spotlights' },
@@ -110,6 +147,75 @@ const tabs: { id: DiscoverTab; label: string }[] = [
   { id: 'videos', label: 'Trending Reels' },
   { id: 'challenges', label: 'Creator Challenges' },
 ];
+
+const LiveCreatorAvatar = ({
+  avatar,
+  isLive,
+  styles,
+}: {
+  avatar: string;
+  isLive: boolean;
+  styles: ReturnType<typeof createStyles>;
+}) => {
+  const pulse = useRef(new Animated.Value(0)).current;
+
+  useEffect(() => {
+    if (!isLive) {
+      pulse.setValue(0);
+      return;
+    }
+
+    const animation = Animated.loop(
+      Animated.sequence([
+        Animated.timing(pulse, {
+          toValue: 1,
+          duration: 1300,
+          useNativeDriver: true,
+        }),
+        Animated.timing(pulse, {
+          toValue: 0,
+          duration: 900,
+          useNativeDriver: true,
+        }),
+      ]),
+    );
+
+    animation.start();
+    return () => animation.stop();
+  }, [isLive, pulse]);
+
+  const haloOpacity = pulse.interpolate({
+    inputRange: [0, 1],
+    outputRange: [0.25, 0.75],
+  });
+
+  const haloScale = pulse.interpolate({
+    inputRange: [0, 1],
+    outputRange: [0.96, 1.08],
+  });
+
+  return (
+    <View style={styles.creatorAvatarShell}>
+      {isLive ? (
+        <>
+          <Animated.View
+            style={[
+              styles.liveAvatarHalo,
+              {
+                opacity: haloOpacity,
+                transform: [{ scale: haloScale }],
+              },
+            ]}
+          />
+          <View style={styles.liveAvatarGlow} />
+        </>
+      ) : null}
+      <View style={[styles.creatorAvatarWrap, isLive ? styles.creatorAvatarWrapLive : null]}>
+        <Image source={{ uri: avatar }} style={styles.creatorAvatar} />
+      </View>
+    </View>
+  );
+};
 
 const Discover: React.FC<{ embedded?: boolean }> = ({ embedded = false }) => {
   const { isDark, theme } = useThemeMode();
@@ -169,16 +275,13 @@ const Discover: React.FC<{ embedded?: boolean }> = ({ embedded = false }) => {
 
   return (
     <SafeAreaView edges={[]} style={[styles.safeArea, { backgroundColor: theme.background }]}>
-      <ScrollView keyboardShouldPersistTaps="handled" bounces={false} showsVerticalScrollIndicator={false} contentContainerStyle={[styles.content, { paddingBottom: insets.bottom + 120 }]}> 
-        {/* <View style={styles.ambientOne} pointerEvents="none" />
-        <View style={styles.ambientTwo} pointerEvents="none" /> */}
-
-        <View style={[styles.header, { backgroundColor: isDark ? 'rgb(0, 0, 0)' : 'rgb(255, 255, 255)', borderBottomColor: isDark ? '#27272a' : '#e2e8f0' }]}> 
+      <View style={[styles.header, { backgroundColor: isDark ? 'rgb(0, 0, 0)' : 'rgb(255, 255, 255)', borderBottomColor: isDark ? '#27272a' : '#e2e8f0' }]}> 
           <View style={{
             // backgroundColor: 'blue',
             flexDirection: 'row',
             justifyContent: 'space-between',
             marginBottom: 20,
+            paddingHorizontal: 20,
           }}>
                     <Pressable onPress={() => navigation.goBack()} style={[styles.headerRoundBtn, { backgroundColor: faintSurface, borderColor: theme.border }]}>
                       <MaterialIcons name="chevron-left" size={22} color={theme.text} />
@@ -196,7 +299,7 @@ const Discover: React.FC<{ embedded?: boolean }> = ({ embedded = false }) => {
                   </View>
           <View/>
 
-          <View style={[styles.searchWrap, { backgroundColor: isDark ? '#18181b' : '#fff', borderColor: isDark ? '#27272a' : '#e2e8f0' }]}> 
+          <View style={[styles.searchWrap, { backgroundColor: isDark ? '#18181b' : '#fff', borderColor: isDark ? '#27272a' : '#e2e8f0', marginHorizontal: 20 }]}> 
             <MaterialIcons name="search" size={20} color={isDark ? '#71717a' : '#94a3b8'} />
             <TextInput
               value={searchQuery}
@@ -223,6 +326,11 @@ const Discover: React.FC<{ embedded?: boolean }> = ({ embedded = false }) => {
             })}
           </ScrollView>
         </View>
+      <ScrollView keyboardShouldPersistTaps="handled" bounces={false} showsVerticalScrollIndicator={false} contentContainerStyle={[styles.content, { paddingBottom: insets.bottom + 120 }]}> 
+        {/* <View style={styles.ambientOne} pointerEvents="none" />
+        <View style={styles.ambientTwo} pointerEvents="none" /> */}
+
+        
 
         <View style={styles.main}>
           {(activeTab === 'all' || activeTab === 'creators') && (
@@ -234,17 +342,14 @@ const Discover: React.FC<{ embedded?: boolean }> = ({ embedded = false }) => {
                     const isFollowed = followedCreators.includes(creator.id);
                     return (
                       <Pressable key={creator.id} onPress={() => navigation.navigate('ArtistProfile', { isOwner: false, id: creator.name })} style={styles.creatorCard}>
-                        {creator.isLive ? (
+                        {/* {creator.isLive ? (
                           <View style={styles.liveBadge}>
                             <View style={styles.liveDot} />
                             <Text style={styles.liveText}>LIVE</Text>
                           </View>
-                        ) : null}
+                        ) : null} */}
                         {/* {creator.isPremium ? <Text style={styles.proBadge}>PRO</Text> : null} */}
-                        <View style={styles.creatorAvatarWrap}>
-                          <Image source={{ uri: creator.avatar }} style={styles.creatorAvatar} />
-                          {creator.isLive ? <MaterialIcons name="videocam" size={12} color="#fff" style={styles.creatorLiveIcon} /> : null}
-                        </View>
+                        <LiveCreatorAvatar avatar={creator.avatar} isLive={creator.isLive} styles={styles} />
                         <View style={styles.creatorCopy}>
                           <View style={styles.creatorNameRow}>
                             <Text numberOfLines={1} style={styles.creatorName}>{creator.name}</Text>
@@ -255,7 +360,7 @@ const Discover: React.FC<{ embedded?: boolean }> = ({ embedded = false }) => {
                         </View>
                         <Pressable onPress={(event) => handleFollowToggle(creator.id, event)} style={[styles.followButton, isFollowed ? styles.followingButton : styles.subscribeButton]}>
                           <MaterialIcons name={isFollowed ? 'done' : 'person-add-alt-1'} size={12} color={isFollowed ? PRIMARY_COLOR : '#fff'} />
-                          <Text style={[styles.followText, { color: isFollowed ? PRIMARY_COLOR : '#fff' }]}>{isFollowed ? 'Following' : 'Subscribe'}</Text>
+                          <Text style={[styles.followText, { color: isFollowed ? PRIMARY_COLOR : '#fff' }]}>{isFollowed ? 'Following' : 'Follow'}</Text>
                         </Pressable>
                       </Pressable>
                     );
@@ -326,11 +431,11 @@ const Discover: React.FC<{ embedded?: boolean }> = ({ embedded = false }) => {
                     const matchedCreator = topCreators.find((creator) => creator.name === challenge.creator);
                     return (
                       <Pressable key={challenge.id} onPress={() => navigation.navigate('ChallengeFeed', { challengeId: challenge.id })} style={styles.challengeCard}>
-                        {/* <View style={styles.challengeImageWrap}>
+                        <View style={styles.challengeImageWrap}>
                           <Image source={{ uri: challenge.img }} style={styles.challengeImage} />
-                          <Text numberOfLines={1} style={styles.challengeType}>{challenge.type}</Text>
+                          {/* <Text numberOfLines={1} style={styles.challengeType}>{challenge.type}</Text> */}
                           <LinearGradient colors={['transparent', 'rgba(0,0,0,0.42)']} style={styles.challengeImageFade} />
-                        </View> */}
+                        </View>
                         <View style={styles.challengeBody}>
                           <View style={styles.challengeCreatorRow}>
                             <Image source={{ uri: matchedCreator?.avatar || challenge.img }} style={styles.challengeAvatar} />
@@ -489,7 +594,7 @@ const SuccessModal = ({ visible, styles, onClose }: { visible: boolean; styles: 
 );
 
 const sectionHeaderStyles = StyleSheet.create({
-  row: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between' },
+  row: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', paddingHorizontal: 20 },
   titleRow: { flexDirection: 'row', alignItems: 'center', gap: 8 },
   title: { color: '#71717a', fontFamily: FontFamily.extraBold, fontSize: FontSize.eleven, letterSpacing: 3, textTransform: 'uppercase' },
   actionButton: { minHeight: 32, justifyContent: 'center', paddingHorizontal: 10, borderRadius: 12, },
@@ -510,29 +615,51 @@ const createStyles = (isDark: boolean) => {
     content: { backgroundColor: background },
     ambientOne: { position: 'absolute', top: 0, alignSelf: 'center', width: 240, height: 240, borderRadius: 120, backgroundColor: primaryColorAlpha(isDark ? 0.08 : 0.12), opacity: 0.85 },
     ambientTwo: { position: 'absolute', top: 480, right: -100, width: 220, height: 220, borderRadius: 110, backgroundColor: 'rgba(147,51,234,0.06)' },
-    header: { paddingHorizontal: 20, paddingBottom: 14, borderBottomWidth: 1 },
-    headerRow: { minHeight: 58, flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between' },
+    header: {  paddingBottom: 14, borderBottomWidth: 1,},
+    headerRow: { minHeight: 58, flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between',},
     iconButton: { width: 44, height: 44, borderRadius: 22, alignItems: 'center', justifyContent: 'center', backgroundColor: card, borderWidth: 1, borderColor: border },
     headerTitle: { fontFamily: FontFamily.displayExtraBold, fontSize: FontSize.body, letterSpacing: 2.2, textTransform: 'uppercase' },
     notificationDot: { position: 'absolute', top: 11, right: 11, width: 8, height: 8, borderRadius: 4, backgroundColor: PRIMARY_COLOR, borderWidth: 2, borderColor: background },
     searchWrap: { height: 48, borderRadius: 999, paddingHorizontal: 14, flexDirection: 'row', alignItems: 'center', borderWidth: 1, gap: 10 },
     searchInput: { flex: 1, fontFamily: FontFamily.bold, fontSize: FontSize.twelve, paddingVertical: 0 },
-    tabList: { gap: 8, paddingTop: 12 },
+    tabList: { gap: 8, paddingTop: 12, paddingHorizontal: 20 },
     tab: { minHeight: 34, paddingHorizontal: 14, borderRadius: 999, alignItems: 'center', justifyContent: 'center', borderWidth: 1 },
     tabSelected: { backgroundColor: PRIMARY_COLOR, borderColor: 'transparent' },
     tabIdle: { backgroundColor: card, borderColor: border },
     tabText: { fontFamily: FontFamily.extraBold, fontSize: FontSize.eleven, letterSpacing: 1.2, textTransform: 'uppercase' },
-    main: { paddingHorizontal: 20, paddingTop: 24, gap: 32 },
+    main: { paddingTop: 24, gap: 32 },
     section: { gap: 14 },
     emptyState: { padding: 28, borderRadius: 18, backgroundColor: card, borderWidth: 1, borderColor: border, alignItems: 'center' },
     emptyText: { color: muted, fontFamily: FontFamily.bold, fontSize: FontSize.body, textAlign: 'center' },
-    creatorList: { gap: 8, paddingVertical: 4, paddingRight: 20 },
-    creatorCard: { width: 172, minHeight: 226, borderRadius: 20, backgroundColor: card, borderWidth: 1, borderColor: border, padding: 14, alignItems: 'center', overflow: 'hidden' },
+    creatorList: { gap: 8, paddingVertical: 4, paddingRight: 20, paddingHorizontal: 20 },
+    creatorCard: { width: 172, minHeight: 190, borderRadius: 20, backgroundColor: card, borderWidth: 1, borderColor: border, padding: 14, alignItems: 'center', overflow: 'hidden' },
     liveBadge: { position: 'absolute', top: 10, left: 10, flexDirection: 'row', alignItems: 'center', gap: 5, backgroundColor: '#ef4444', paddingHorizontal: 7, paddingVertical: 3, borderRadius: 999 },
     liveDot: { width: 4, height: 4, borderRadius: 2, backgroundColor: '#fff' },
     liveText: { color: '#fff', fontFamily: FontFamily.extraBold, fontSize: FontSize.eleven, letterSpacing: 1 },
     proBadge: { position: 'absolute', top: 10, right: 10, color: '#f59e0b', backgroundColor: isDark ? 'rgba(120,53,15,0.32)' : '#fffbeb', borderRadius: 6, paddingHorizontal: 6, paddingVertical: 2, fontFamily: FontFamily.extraBold, fontSize: FontSize.eleven, letterSpacing: 0.8 },
-    creatorAvatarWrap: { marginTop: 18, marginBottom: 12, width: 70, height: 70, borderRadius: 35, borderWidth: 2, borderColor: primaryColorAlpha(0.28), padding: 3 },
+    creatorAvatarShell: { marginTop: 0, marginBottom: 12, width: 76, height: 74, alignItems: 'center', justifyContent: 'center' },
+    liveAvatarHalo: { position: 'absolute', width: 74, height: 74, borderRadius: 37, backgroundColor: 'rgba(239,68,68,0.28)' },
+    liveAvatarGlow: {
+      position: 'absolute',
+      width: 72,
+      height: 72,
+      borderRadius: 36,
+      backgroundColor: 'rgba(239,68,68,0.1)',
+      shadowColor: '#ef4444',
+      shadowOpacity: isDark ? 0.52 : 0.32,
+      shadowRadius: 10,
+      shadowOffset: { width: 0, height: 0 },
+      elevation: 5,
+    },
+    creatorAvatarWrap: { width: 70, height: 70, borderRadius: 35, borderWidth: 2, borderColor: primaryColorAlpha(0.28), padding: 3, backgroundColor: card },
+    creatorAvatarWrapLive: {
+      borderColor: '#ef4444',
+      shadowColor: '#ef4444',
+      shadowOpacity: isDark ? 0.6 : 0.38,
+      shadowRadius: 12,
+      shadowOffset: { width: 0, height: 0 },
+      elevation: 8,
+    },
     creatorAvatar: { width: '100%', height: '100%', borderRadius: 32 },
     creatorLiveIcon: { position: 'absolute', right: -2, bottom: -2, width: 20, height: 20, borderRadius: 10, backgroundColor: PRIMARY_COLOR, textAlign: 'center', textAlignVertical: 'center', borderWidth: 2, borderColor: card },
     creatorCopy: { alignItems: 'center', flex: 1, width: '100%' },
@@ -544,7 +671,7 @@ const createStyles = (isDark: boolean) => {
     subscribeButton: { backgroundColor: PRIMARY_COLOR, borderColor: 'transparent' },
     followingButton: { backgroundColor: primaryColorAlpha(0.1), borderColor: primaryColorAlpha(0.2) },
     followText: { fontFamily: FontFamily.extraBold, fontSize: FontSize.eleven, letterSpacing: 1, textTransform: 'uppercase' },
-    twoColumnGrid: { flexDirection: 'row', flexWrap: 'wrap', gap: 10 },
+    twoColumnGrid: { flexDirection: 'row', flexWrap: 'wrap', gap: 10, paddingHorizontal: 20 },
     ticketCard: { width: '48.5%', borderRadius: 20, overflow: 'hidden', backgroundColor: card, borderWidth: 1, borderColor: border },
     ticketImage: { width: '100%', aspectRatio: 3 / 4, backgroundColor: cardMuted },
     ticketBody: { padding: 12, gap: 6 },
@@ -578,7 +705,7 @@ const createStyles = (isDark: boolean) => {
     joinButton: { height: 30, borderRadius: 11, paddingHorizontal: 10, flexDirection: 'row', alignItems: 'center', justifyContent: 'center', gap: 3, backgroundColor: PRIMARY_COLOR },
     joinedButton: { backgroundColor: isDark ? 'rgba(6,78,59,0.24)' : '#ecfdf5', borderWidth: 1, borderColor: isDark ? 'rgba(16,185,129,0.25)' : '#a7f3d0' },
     joinText: { fontFamily: FontFamily.extraBold, fontSize: FontSize.eleven, letterSpacing: 0.6, textTransform: 'uppercase' },
-    videoList: { gap: 10, paddingBottom: 6, paddingRight: 20 },
+    videoList: { gap: 10, paddingBottom: 6, paddingHorizontal: 20 },
     videoCard: { width: 220, aspectRatio: 4 / 5, borderRadius: 20, overflow: 'hidden', backgroundColor: '#0f172a', borderWidth: 1, borderColor: border },
     videoImage: { width: '100%', height: '100%', position: 'absolute' },
     videoCategory: { position: 'absolute', top: 10, left: 10, color: '#fb7185', backgroundColor: 'rgba(0,0,0,0.55)', borderRadius: 7, paddingHorizontal: 7, paddingVertical: 3, fontFamily: FontFamily.extraBold, fontSize: FontSize.eleven, letterSpacing: 1, textTransform: 'uppercase' },

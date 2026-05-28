@@ -1,11 +1,9 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useMemo, useState } from 'react';
 import { useThemeMode, PRIMARY_COLOR } from "../theme";
-import { View, Text, Pressable, Platform } from 'react-native';
+import { View, Text, Pressable, Platform, StyleSheet } from 'react-native';
 import { mediumScreen } from '../types';
 import { MaterialIcons } from '@expo/vector-icons';
-import NotificationIcon from '../assets/icons/notifications-svg.svg';
 import Community from './Community';
-import ChallengeScreen from './ChallengeScreen';
 import { useNavigation } from '@react-navigation/native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import CreatorChallenges from './CreatorChallenges';
@@ -19,6 +17,8 @@ const Arena :React.FC = ({route}:any)=>{
     const [activeTab, setActiveTab] = useState<string | "challenges" | "community">('community');
     const navigation = useNavigation<any>();
     const insets = useSafeAreaInsets();
+    const styles = useMemo(() => createStyles(), []);
+    const faintSurface = isDark ? 'rgba(255,255,255,0.04)' : theme.surface;
 
     useEffect(()=>{
         const tabToRoute = route?.params?.tabToRoute;
@@ -34,54 +34,34 @@ const Arena :React.FC = ({route}:any)=>{
         paddingTop: Platform.OS == 'ios' ? 54: insets.top,
     }}>
 
-    {/* <View style={{
-        flexDirection: 'row',
-        paddingHorizontal: 16,
-        gap: 10,
-        alignItems: 'center',
-        borderBottomWidth: 1,
-        borderBottomColor: theme.border,
-        paddingBottom: 12,
-        backgroundColor: 'white'
-    }}>
-        <MaterialIcons name='chevron-left' size={34} color={theme.text}/>
-        <Text style={{
-            color: theme.text,
-            fontFamily: FontFamily.extraBold,
-            fontSize: mediumScreen ? FontSize.twentyTwo: FontSize.eighteen,
-            lineHeight:25,
-        }}> Arena
-            </Text>
-        <View style={{
-            flexDirection: 'row',
-            alignItems:'center',
-            justifyContent: 'flex-end',
-            width: '70%',
-            // backgroundColor: 'red',
-            paddingRight: 16,
-        }}>
-            <NotificationIcon
-        height={30}
-        width={30}
-        fill={isDark ? 'white': 'black'}
-        />
-        {activeTab === 'challenges' && <Pressable
-        onPress= {()=>{
-            navigation.navigate('CreateChallenge');
-        }}
-        style={{
-            height: 40,
-            width: 40,
-            alignItems: 'center',
-            justifyContent: 'center',
-            backgroundColor: theme.accent,
-            // paddingHorizontal: 12,
-            borderRadius: 999,
-        }}>
-           <MaterialIcons name="add" color={theme.background} size={24}/>
-        </Pressable>}
-        </View>
-    </View> */}
+   <View style={[styles.header, { backgroundColor: isDark ? 'rgb(0, 0, 0)' : 'rgb(255, 255, 255)', borderBottomColor: isDark ? '#27272a' : '#e2e8f0' }]}> 
+             <View style={{
+               // backgroundColor: 'blue',
+               flexDirection: 'row',
+               justifyContent: 'space-between',
+               marginBottom: 15,
+               paddingHorizontal: 20,
+             }}>
+                       <Pressable onPress={() => navigation.goBack()} style={[styles.headerRoundBtn, { backgroundColor: faintSurface, borderColor: theme.border }]}>
+                         <MaterialIcons name="chevron-left" size={22} color={theme.text} />
+                       </Pressable>
+               
+                       <View style={styles.headerTitleWrap}>
+                         <Text style={[styles.headerTitle, { color: theme.text }]}>Arena</Text>
+                         <Text style={styles.headerSubtitle}>Galaxy Space</Text>
+                       </View>
+               
+                       <View style={styles.headerSpacer} />
+                       {/* <Pressable onPress={() => navigation.navigate('Inbox')} style={[styles.headerRoundBtn, { backgroundColor: faintSurface, borderColor: softBorder }]}>
+                         <MaterialIcons name="notifications-none" size={22} color={theme.text} />
+                       </Pressable> */}
+                     </View>
+             <View/>
+   
+            
+   
+             
+           </View>
     {/*Main Tabs........... "Community" & Challenges */}
     <View style={{
         flexDirection: 'row',
@@ -103,14 +83,14 @@ const Arena :React.FC = ({route}:any)=>{
             textTransform: 'capitalize',
             fontFamily: FontFamily.bold,
             fontSize: mediumScreen ? FontSize.twenty: FontSize.sixteen,
-            marginBottom: 10
+            marginBottom: 5
         }}>
             {item}
         </Text>
         {activeTab === item && <View
         style={{
-            height: 2.5,
-            width: 70,
+            height: 2,
+            width: 50,
             backgroundColor: PRIMARY_COLOR,
 
         }}
@@ -123,4 +103,37 @@ const Arena :React.FC = ({route}:any)=>{
     {activeTab == 'challenges' && <CreatorChallenges/>}
     </View>);
 }
+
+const createStyles = () => StyleSheet.create({
+    header: { paddingBottom: 0, borderBottomWidth: 1 },
+    headerTitle: {
+        fontFamily: FontFamily.displayExtraBold,
+        fontSize: FontSize.body,
+        letterSpacing: 2.2,
+        textTransform: 'uppercase',
+    },
+    headerSubtitle: {
+        color: PRIMARY_COLOR,
+        marginTop: 4,
+        fontFamily: FontFamily.extraBold,
+        fontSize: FontSize.seven,
+        letterSpacing: 1.5,
+        textTransform: 'uppercase',
+    },
+    headerSpacer: {
+        width: 40,
+    },
+    headerTitleWrap: {
+        alignItems: 'center',
+    },
+    headerRoundBtn: {
+        height: 40,
+        width: 40,
+        borderRadius: 20,
+        borderWidth: 1,
+        justifyContent: 'center',
+        alignItems: 'center',
+    },
+});
+
 export default Arena;

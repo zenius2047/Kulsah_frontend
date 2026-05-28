@@ -138,7 +138,7 @@ const ChallengeLeaderboard: React.FC = () => {
             onPress={() => navigation.goBack()}
             style={[styles.headerButton, { backgroundColor: softSurface, borderColor }]}
           >
-            <MaterialIcons name="arrow-back" size={22} color={theme.text} />
+            <MaterialIcons name="chevron-left" size={22} color={theme.text} />
           </Pressable>
 
           <Text style={[styles.headerTitle, { color: theme.text }]}>Orbit Leaderboard</Text>

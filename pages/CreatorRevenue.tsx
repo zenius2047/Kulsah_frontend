@@ -166,7 +166,7 @@ const CreatorRevenue: React.FC = () => {
       <View style={[s.header, { backgroundColor: isDark ? 'rgba(6,9,19,0.94)' : 'rgba(255,255,255,0.96)', borderBottomColor: border }]}>
         <View style={s.headerLeft}>
           <Pressable onPress={() => navigation.goBack()} style={[s.headerButton, { backgroundColor: softBg, borderColor: border }]}>
-            <MaterialIcons name="arrow-back" size={20} color={titleColor} />
+            <MaterialIcons name="chevron-left" size={20} color={titleColor} />
           </Pressable>
           <Text style={[s.headerTitle, { color: titleColor }]}>Galaxy Economy</Text>
         </View>

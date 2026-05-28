@@ -175,7 +175,7 @@ const CreatorChallenges: React.FC = () => {
   };
 
   return (
-    <SafeAreaView style={[styles.safeArea, { backgroundColor: shell }]} edges={['top', 'left', 'right']}>
+    <SafeAreaView style={[styles.safeArea, { backgroundColor: shell }]} edges={['left', 'right']}>
       <View style={[styles.screen, { backgroundColor: theme.screen }]}>
         {/* <View style={[styles.header, { backgroundColor: isDark ? 'rgba(31,16,34,0.75)' : theme.card, borderBottomColor: border }]}>
           <Pressable onPress={() => navigation.goBack()} style={[styles.headerBtn, { backgroundColor: surface, borderColor: border }]}>
@@ -279,7 +279,7 @@ const CreatorChallenges: React.FC = () => {
                       <View style={styles.actionRow}>
                         {isOwner ? (
                           <>
-                            <Pressable onPress={() => go('ChallengeFeed')} style={styles.primaryAction}>
+                            <Pressable onPress={() => go('Submissions', { challengeId: challenge.id })} style={styles.primaryAction}>
                               <Text style={styles.primaryActionText}>View Submissions</Text>
                             </Pressable>
                             <Pressable style={styles.iconAction}>
@@ -287,7 +287,7 @@ const CreatorChallenges: React.FC = () => {
                             </Pressable>
                           </>
                         ) : (
-                          <Pressable onPress={() => go('SubmitEntry')} style={[styles.primaryAction, styles.primaryActionAlt]}>
+                          <Pressable onPress={() => go('SubmitEntry')} style={[styles.primaryAction, {backgroundColor: PRIMARY_COLOR}]}>
                             <MaterialIcons name="rocket-launch" size={16} color="#fff" />
                             <Text style={styles.primaryActionText}>Join Challenge</Text>
                           </Pressable>
@@ -344,7 +344,7 @@ const CreatorChallenges: React.FC = () => {
                   </View> */}
                 </View>
               ))}
-              <Pressable onPress={() => go('ChallengeFeed')} style={[styles.dashedBtn, { borderColor: primaryColorAlpha(0.3) }]}>
+              <Pressable onPress={() => go('Submissions')} style={[styles.dashedBtn, { borderColor: primaryColorAlpha(0.3) }]}>
                 <Text style={styles.dashedBtnText}>View All Submissions</Text>
               </Pressable>
             </View>
@@ -513,7 +513,7 @@ const styles = StyleSheet.create({
   reward: { color: PRIMARY_COLOR, fontFamily: FontFamily.extraBold, fontSize: FontSize.seven, textTransform: 'uppercase', letterSpacing: 1.4, flexShrink: 1, textAlign: 'left',  },
   actionRow: { flexDirection: 'row', gap: 10 },
   primaryAction: { flex: 1, minHeight: 48, borderRadius: 24, backgroundColor: PRIMARY_COLOR, alignItems: 'center', justifyContent: 'center', flexDirection: 'row', gap: 8, paddingHorizontal: 16 },
-  primaryActionAlt: { backgroundColor: '#b012d4' },
+  // primaryActionAlt: { backgroundColor: '#b012d4' },
   primaryActionText: { color: '#fff', fontFamily: FontFamily.extraBold, fontSize: FontSize.eight, textTransform: 'uppercase', letterSpacing: 1.6 },
   iconAction: { width: 48, height: 48, borderRadius: 18, backgroundColor: 'rgba(255,255,255,0.12)', borderWidth: 1, borderColor: 'rgba(255,255,255,0.1)', alignItems: 'center', justifyContent: 'center' },
   listCard: { borderRadius: 28, borderWidth: 1, padding: 14, flexDirection: 'row', gap: 14, alignItems: 'center' },
