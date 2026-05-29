@@ -1,16 +1,17 @@
 import { MaterialIcons } from '@expo/vector-icons';
 import { useNavigation, useRoute } from '@react-navigation/native';
 import React, { useEffect, useMemo, useState } from 'react';
-import { useThemeMode, PRIMARY_COLOR, primaryColorAlpha } from "../theme";
+import { useThemeMode, PRIMARY_COLOR, primaryColorAlpha, primaryColorAlphaHex } from "../theme";
 import { ActivityIndicator, Dimensions, Image, ImageBackground, Modal, Pressable, ScrollView, Share, StyleSheet, Text, useWindowDimensions, View } from 'react-native';
 import { LinearGradient } from 'expo-linear-gradient';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 import PlayIcon from '../assets/icons/play-circle-svg.svg';
 import StarsIcon from '../assets/icons/premium-svg.svg';
 import CalenderIcon from '../assets/icons/calendar-svg.svg';
 import TrophyIcon from '../assets/icons/trophy-svg.svg';
 import BookmarkIcon from '../assets/icons/bookmark-svg.svg';
 import EditIcon from '../assets/icons/edit-svg.svg';
-import { mediumScreen, subscribeUser, user, User } from '../types';
+import { mediumScreen, setUser, subscribeUser, user, User } from '../types';
 import { FontFamily, FontSize } from '../fonts';
 import { BlurView } from 'expo-blur';
 import VerifiedIcon from '../assets/icons/verified-svg.svg';
@@ -85,6 +86,7 @@ const  ArtistProfile: React.FC = () => {
   const { width } = useWindowDimensions();
   const navigation = useNavigation<any>();
   const faintSurface = isDark ? 'rgba(255,255,255,0.04)' : theme.surface;
+  const elevatedSurface = isDark ? 'rgba(31, 16, 34, 0.75)' : theme.card;
   const isTablet = width >= 768;
   const gridColumns = 3;
   const gridGap = isTablet ? 5 : 1;
@@ -113,6 +115,7 @@ const  ArtistProfile: React.FC = () => {
   const [following, setFollowing] = useState(false);
   const [playingSoundId, setPlayingSoundId] = useState<string | null>(null);
   const [billingCycle, setBillingCycle] = useState<Billing>('monthly');
+  const [isRoleSwitchModalOpen, setIsRoleSwitchModalOpen] = useState(false);
   const ping = (m: string) => { setToast(m); setTimeout(() => setToast(''), 2200); };
   const share = async () => { try { await Share.share({ title: `${name} on Kulsah`, message: `Check out ${name}'s creative universe on Kulsah!` }); } catch { ping('Share failed'); } };
 
@@ -178,6 +181,18 @@ const  ArtistProfile: React.FC = () => {
   const openSubscription = () => {
     setSelectedSub(INITIAL_SUBSCRIPTION);
     setShowSuccess(false);
+  };
+
+  const creatorToggle = async () => {
+    const nextUser: User = {
+      id: currentUser?.id || user?.id || 'mila_ray_01',
+      name: currentUser?.name || user?.name || 'Mila Ray',
+      role: 'creator',
+    };
+    setUser(nextUser);
+    await AsyncStorage.setItem('pulsar_user', JSON.stringify(nextUser));
+    setIsRoleSwitchModalOpen(false);
+    navigation.navigate('MainTabs', { screen: 'Galaxy' });
   };
 
   const closeSubscription = () => {
@@ -293,6 +308,20 @@ const  ArtistProfile: React.FC = () => {
                           <Text style={s.btnText}>Subscribe</Text></Pressable>
                           </>}
                           </View>
+          {currentUser?.role !== 'creator' ? (
+            <Pressable onPress={() => setIsRoleSwitchModalOpen(true)} style={s.switchCreatorButton}>
+              <LinearGradient
+                colors={['#4f46e5', PRIMARY_COLOR]}
+                start={{ x: 0, y: 0 }}
+                end={{ x: 1, y: 0 }}
+                style={s.switchCreatorGradient}
+              >
+                <MaterialIcons name="rocket-launch" size={18} color="#ffffff" />
+                <Text style={s.switchCreatorText}>Switch to Creator</Text>
+                <MaterialIcons name="chevron-right" size={20} color="#ffffff" />
+              </LinearGradient>
+            </Pressable>
+          ) : null}
         </View>
 
         <Text style={[s.bio, { color: theme.textSecondary }]}>"Exploring the nexus of synthwave rhythms and cinematic soul. Join the journey through the star systems of sound."</Text>
@@ -598,6 +627,49 @@ const  ArtistProfile: React.FC = () => {
           height: mediumScreen ? 120:70,
         }}/> */}
       </ScrollView>
+
+      <Modal
+        visible={isRoleSwitchModalOpen}
+        transparent
+        animationType="fade"
+        statusBarTranslucent
+        onRequestClose={() => setIsRoleSwitchModalOpen(false)}
+      >
+        <View style={s.roleModalRoot}>
+          <Pressable
+            style={s.roleModalBackdrop}
+            onPress={() => setIsRoleSwitchModalOpen(false)}
+          />
+          <View style={[s.roleModalCard, { backgroundColor: elevatedSurface, borderColor: theme.border }]}>
+            <View style={[s.roleModalIcon, { backgroundColor: isDark ? primaryColorAlphaHex('20') : theme.accentSoft }]}>
+              <MaterialIcons name="rocket-launch" size={38} color={theme.accent} />
+            </View>
+            <View style={s.roleModalCopy}>
+              <Text style={[s.roleModalTitle, { color: theme.text }]}>Switch to Creator?</Text>
+              <Text style={[s.roleModalBody, { color: theme.textSecondary }]}>
+                You're about to unlock creator tools. You'll be able to upload content, manage events, and track your revenue.
+              </Text>
+            </View>
+            <View style={s.roleModalActions}>
+              <Pressable
+                onPress={() => {
+                  setIsRoleSwitchModalOpen(false);
+                  void creatorToggle();
+                }}
+                style={s.roleModalPrimary}
+              >
+                <Text style={s.roleModalPrimaryText}>Confirm Switch</Text>
+              </Pressable>
+              <Pressable
+                onPress={() => setIsRoleSwitchModalOpen(false)}
+                style={[s.roleModalSecondary, { borderColor: theme.border, backgroundColor: isDark ? 'rgba(255,255,255,0.05)' : 'rgba(0,0,0,0.05)' }]}
+              >
+                <Text style={[s.roleModalSecondaryText, { color: theme.text }]}>Stay as Fan</Text>
+              </Pressable>
+            </View>
+          </View>
+        </View>
+      </Modal>
 
       <Modal visible={!!selectedSub} transparent animationType="slide" statusBarTranslucent onRequestClose={closeSubscription}>
         {selectedSub ? (
@@ -941,6 +1013,111 @@ const s = StyleSheet.create({
     textTransform: 'uppercase',
     fontWeight: '900',
     letterSpacing: 0.5,
+  },
+  switchCreatorButton: {
+    width: '70%',
+    alignSelf: 'center',
+    marginTop: 12,
+    borderRadius: 18,
+    overflow: 'hidden',
+  },
+  switchCreatorGradient: {
+    minHeight: 46,
+    paddingHorizontal: 16,
+    borderRadius: 18,
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
+    gap: 8,
+  },
+  switchCreatorText: {
+    color: '#ffffff',
+    fontFamily: FontFamily.extraBold,
+    fontSize: FontSize.eight,
+    textTransform: 'uppercase',
+    letterSpacing: 1.2,
+  },
+  roleModalRoot: {
+    flex: 1,
+    alignItems: 'center',
+    justifyContent: 'center',
+    padding: 24,
+  },
+  roleModalBackdrop: {
+    ...StyleSheet.absoluteFillObject,
+    backgroundColor: 'rgba(0,0,0,0.62)',
+  },
+  roleModalCard: {
+    width: '100%',
+    maxWidth: 380,
+    borderRadius: 48,
+    borderWidth: 1,
+    padding: 40,
+    alignItems: 'center',
+  },
+  roleModalIcon: {
+    width: 80,
+    height: 80,
+    borderRadius: 32,
+    alignItems: 'center',
+    justifyContent: 'center',
+    marginBottom: 24,
+  },
+  roleModalCopy: {
+    alignItems: 'center',
+    gap: 8,
+  },
+  roleModalTitle: {
+    fontSize: FontSize.twentyTwo,
+    fontFamily: FontFamily.extraBold,
+    textTransform: 'uppercase',
+    textAlign: 'center',
+    lineHeight: 28,
+  },
+  roleModalBody: {
+    fontSize: FontSize.twelve,
+    fontFamily: FontFamily.medium,
+    lineHeight: 20,
+    textAlign: 'center',
+  },
+  roleModalActions: {
+    width: '100%',
+    gap: 12,
+    marginTop: 28,
+  },
+  roleModalPrimary: {
+    width: '100%',
+    minHeight: 64,
+    borderRadius: 24,
+    backgroundColor: PRIMARY_COLOR,
+    alignItems: 'center',
+    justifyContent: 'center',
+    shadowColor: PRIMARY_COLOR,
+    shadowOpacity: 0.3,
+    shadowRadius: 16,
+    shadowOffset: { width: 0, height: 8 },
+    elevation: 8,
+  },
+  roleModalPrimaryText: {
+    color: '#ffffff',
+    fontSize: FontSize.ten,
+    fontFamily: FontFamily.extraBold,
+    textTransform: 'uppercase',
+    letterSpacing: 1.8,
+  },
+  roleModalSecondary: {
+    width: '100%',
+    minHeight: 64,
+    borderRadius: 24,
+    borderWidth: 1,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  roleModalSecondaryText: {
+    fontSize: FontSize.ten,
+    fontFamily: FontFamily.extraBold,
+    textTransform: 'uppercase',
+    letterSpacing: 1.6,
   },
   priceSuffix: {
     color: '#818398',

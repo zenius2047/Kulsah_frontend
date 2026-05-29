@@ -310,13 +310,14 @@ const styles = StyleSheet.create({
     gap: 28,
   },
   previewSection: {
-    flexDirection: 'row',
+    // flexDirection: 'row',
     gap: 18,
     alignItems: 'flex-start',
   },
   previewCard: {
-    width: 120,
-    aspectRatio: 9 / 16,
+    width: "100%",
+    height: 200,
+    // aspectRatio: 9 / 16,
     borderRadius: 16,
     overflow: 'hidden',
   },
@@ -346,6 +347,7 @@ const styles = StyleSheet.create({
   formColumn: {
     flex: 1,
     gap: 14,
+    width: '100%'
   },
   inputGroup: {
     gap: 4,

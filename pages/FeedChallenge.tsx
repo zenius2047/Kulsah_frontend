@@ -1,6 +1,6 @@
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { MaterialIcons } from '@expo/vector-icons';
-import { useNavigation } from '@react-navigation/native';
+import { useIsFocused, useNavigation } from '@react-navigation/native';
 import { LinearGradient } from 'expo-linear-gradient';
 import { useEvent } from 'expo';
 import { useVideoPlayer, VideoView } from 'expo-video';
@@ -10,6 +10,8 @@ import {
   Dimensions,
   FlatList,
   Image,
+  KeyboardAvoidingView,
+  Modal,
   Platform,
   Pressable,
   StatusBar,
@@ -22,6 +24,9 @@ import { SafeAreaView, useSafeAreaInsets } from 'react-native-safe-area-context'
 import { FontFamily, FontSize } from '../fonts';
 import { useThemeMode, PRIMARY_COLOR, primaryColorAlpha } from "../theme";
 import KulcoinTopUpDrawer from '../components/KulcoinTopUpDrawer';
+import Reactions from './Reactions';
+import CommentIcon from '../assets/icons/comment-svg.svg';
+import { VoteModalContent } from './Vote';
 
 type ChallengeEntry = {
   id: string;
@@ -32,6 +37,7 @@ type ChallengeEntry = {
   thumbnailUrl: string;
   caption: string;
   likes: number;
+  comments: number;
   votes: number;
   isLiked: boolean;
   isVoted: boolean;
@@ -46,6 +52,8 @@ type ChallengeVideoItemProps = {
   height: number;
   isActive: boolean;
   onVote: () => boolean;
+  coinBalance: number;
+  onBalanceChange: (nextBalance: number) => void;
 };
 
 const VOTE_COST = 5;
@@ -64,6 +72,7 @@ const baseEntries: ChallengeEntry[] = [
     caption:
       'My entry for the Night Vibes Challenge! Hope you guys like the choreography. #NightVibes #Kulsah',
     likes: 1240,
+    comments: 88100,
     votes: 450,
     isLiked: false,
     isVoted: false,
@@ -79,6 +88,7 @@ const baseEntries: ChallengeEntry[] = [
     caption:
       'Adding some low-end to the Night Vibes. #NightVibes #ChallengeEntry',
     likes: 2100,
+    comments: 12200,
     votes: 680,
     isLiked: false,
     isVoted: true,
@@ -96,6 +106,7 @@ const baseEntries: ChallengeEntry[] = [
     caption:
       'Late night vibes only. This track is a masterpiece! #NightVibes #ElenaRose',
     likes: 890,
+    comments: 4500,
     votes: 320,
     isLiked: true,
     isVoted: false,
@@ -117,8 +128,11 @@ const ChallengeVideoItem: React.FC<ChallengeVideoItemProps> = ({
   height,
   isActive,
   onVote,
+  coinBalance,
+  onBalanceChange,
 }) => {
   const navigation = useNavigation<any>();
+  const isFocused = useIsFocused();
   const insets = useSafeAreaInsets();
   const player = useVideoPlayer(entry.videoUrl, (instance) => {
     instance.loop = true;
@@ -128,11 +142,14 @@ const ChallengeVideoItem: React.FC<ChallengeVideoItemProps> = ({
   const voteScale = useRef(new Animated.Value(0)).current;
   const playOverlay = useRef(new Animated.Value(0)).current;
   const rotateValue = useRef(new Animated.Value(0)).current;
+  const playbackStateRef = useRef<boolean | null>(null);
 
   const [isPlaying, setIsPlaying] = useState(true);
   const [isLiked, setIsLiked] = useState(entry.isLiked);
   const [likesCount, setLikesCount] = useState(entry.likes);
   const [votesCount, setVotesCount] = useState(entry.votes);
+  const [showComments, setShowComments] = useState(false);
+  const [showVoteDialog, setShowVoteDialog] = useState(false);
   const [showVoteAnimation, setShowVoteAnimation] = useState(false);
   const [showPlayState, setShowPlayState] = useState(false);
   const [captionLines, setCaptionLines] = useState(1);
@@ -153,12 +170,19 @@ const ChallengeVideoItem: React.FC<ChallengeVideoItemProps> = ({
   }, [sourceLoad]);
 
   useEffect(() => {
-    if (isActive && isPlaying) {
+    if (!player) return;
+
+    const shouldPlay = isFocused && isActive && isPlaying;
+    if (playbackStateRef.current === shouldPlay) return;
+
+    playbackStateRef.current = shouldPlay;
+
+    if (shouldPlay) {
       player.play();
     } else {
       player.pause();
     }
-  }, [isActive, isPlaying, player]);
+  }, [isActive, isFocused, isPlaying, player]);
 
   useEffect(() => {
     if (!showPlayState) return;
@@ -232,15 +256,18 @@ const ChallengeVideoItem: React.FC<ChallengeVideoItemProps> = ({
     const nextPlaying = !isPlaying;
     setIsPlaying(nextPlaying);
     setShowPlayState(true);
-    if (nextPlaying && isActive) {
-      player.play();
-    } else {
-      player.pause();
-    }
   };
 
   const handleVote = () => {
-    if (!onVote()) return;
+    setShowVoteDialog(true);
+  };
+
+  const handleConfirmVote = () => {
+    if (!onVote()) {
+      setShowVoteDialog(false);
+      return;
+    }
+    setShowVoteDialog(false);
     setVotesCount((prev) => prev + 1);
     setShowVoteAnimation(true);
   };
@@ -330,6 +357,13 @@ const ChallengeVideoItem: React.FC<ChallengeVideoItemProps> = ({
             />
           </Pressable>
           <Text style={styles.railCount}>{formatCount(likesCount)}</Text>
+        </View>
+
+        <View style={styles.railAction}>
+          <Pressable onPress={() => setShowComments(true)} style={styles.iconOnlyButton}>
+            <CommentIcon height={32} width={32} fill="#ffffff" />
+          </Pressable>
+          <Text style={styles.railCount}>{formatCount(entry.comments)}</Text>
         </View>
 
         {!entry.isSeed ? (
@@ -448,6 +482,41 @@ const ChallengeVideoItem: React.FC<ChallengeVideoItemProps> = ({
           </View>
         </Animated.View>
       ) : null}
+
+      <Modal
+        visible={showComments}
+        transparent
+        statusBarTranslucent
+        animationType="slide"
+        onRequestClose={() => setShowComments(false)}
+      >
+        <KeyboardAvoidingView
+          behavior={Platform.OS === 'ios' ? 'padding' : undefined}
+          keyboardVerticalOffset={0}
+          style={styles.commentsKeyboardAvoidingView}
+        >
+          <Reactions
+            onClose={() => setShowComments(false)}
+            title={`${formatCount(entry.comments)} Reactions`}
+            currentBalance={coinBalance}
+            onBalanceChange={onBalanceChange}
+          />
+        </KeyboardAvoidingView>
+      </Modal>
+
+      <Modal
+        visible={showVoteDialog}
+        transparent
+        statusBarTranslucent
+        animationType="slide"
+        onRequestClose={() => setShowVoteDialog(false)}
+      >
+        <VoteModalContent
+          sheetMode
+          onClose={() => setShowVoteDialog(false)}
+          onConfirm={handleConfirmVote}
+        />
+      </Modal>
     </View>
   );
 };
@@ -471,6 +540,7 @@ const FeedChallenge: React.FC = () => {
       caption:
         'OFFICIAL SEED: The Night Vibes Challenge is officially LIVE. Show me your best moves to win a backstage pass. #NightVibes #OfficialSeed',
       likes: 85000,
+      comments: 88100,
       votes: 0,
       isLiked: false,
       isVoted: false,
@@ -555,6 +625,8 @@ const FeedChallenge: React.FC = () => {
               height={feedItemHeight}
               isActive={index === activeIndex}
               onVote={handleVoteAttempt}
+              coinBalance={kulcoins}
+              onBalanceChange={setKulcoins}
             />
           )}
           removeClippedSubviews
@@ -960,6 +1032,10 @@ const styles = StyleSheet.create({
     fontSize: FontSize.ten,
     textTransform: 'uppercase',
     letterSpacing: 1.8,
+  },
+  commentsKeyboardAvoidingView: {
+    flex: 1,
+    justifyContent: 'flex-end',
   },
 });
 

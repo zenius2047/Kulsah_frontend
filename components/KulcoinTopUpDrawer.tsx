@@ -1,6 +1,6 @@
 import { MaterialIcons } from '@expo/vector-icons';
 import React, { useEffect, useMemo, useState } from 'react';
-import { Modal, Pressable, StyleSheet, Text, View } from 'react-native';
+import { KeyboardAvoidingView, Modal, Platform, Pressable, ScrollView, StyleSheet, Text, View } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { FontFamily, FontSize } from '../fonts';
 import { useThemeMode, PRIMARY_COLOR, primaryColorAlpha } from "../theme";
@@ -90,108 +90,118 @@ const KulcoinTopUpDrawer: React.FC<KulcoinTopUpDrawerProps> = ({
   return (
     <>
       <Modal visible={isOpen} transparent animationType="slide" statusBarTranslucent onRequestClose={onClose}>
-        <View style={styles.modalRoot}>
+        <KeyboardAvoidingView
+          behavior={Platform.OS === 'ios' ? 'padding' : undefined}
+          keyboardVerticalOffset={0}
+          style={styles.modalRoot}
+        >
           <Pressable style={[styles.modalBackdrop, { backgroundColor: overlayColor }]} onPress={onClose} />
           <View style={[styles.drawerCard, { paddingBottom: Math.max(insets.bottom, 16), backgroundColor: surfaceColor, borderColor }]}>
-            <View style={[styles.drawerHandle, { backgroundColor: handleColor }]} />
+            <ScrollView
+              showsVerticalScrollIndicator={false}
+              keyboardShouldPersistTaps="handled"
+              contentContainerStyle={styles.drawerScrollContent}
+            >
+              <View style={[styles.drawerHandle, { backgroundColor: handleColor }]} />
 
-            <View style={styles.drawerHeader}>
-              <View style={styles.warningRow}>
-                <MaterialIcons name="warning" size={14} color={PRIMARY_COLOR} />
-                <Text style={styles.warningText}>{warningText}</Text>
-              </View>
-              <Text style={[styles.drawerTitle, { color: titleColor }]}>Top Up Kulcoins</Text>
-              <Text style={[styles.drawerBalance, { color: mutedText }]}>Current Balance: {currentBalance} KC</Text>
-            </View>
-
-            <View style={styles.packageGrid}>
-              {coinPackages.map((pkg) => {
-                const isSelected = pkg.id === selectedPackage;
-                return (
-                  <Pressable
-                    key={pkg.id}
-                    onPress={() => setSelectedPackage(pkg.id)}
-                    style={[
-                      styles.packageCard,
-                      { backgroundColor: cardBg, borderColor: cardBorder },
-                      isSelected ? [styles.packageCardSelected, { backgroundColor: selectedBg }] : null,
-                    ]}
-                  >
-                    {pkg.popular ? (
-                      <View style={styles.bestValueChip}>
-                        <Text style={styles.bestValueText}>Best Value</Text>
-                      </View>
-                    ) : null}
-                    <View style={styles.packageIcon}>
-                      <MaterialIcons name="monetization-on" size={24} color={PRIMARY_COLOR} />
-                    </View>
-                    <Text style={[styles.packageCoins, { color: titleColor }]}>{pkg.coins}</Text>
-                    <Text style={[styles.packageLabel, { color: tertiaryText }]}>{pkg.label}</Text>
-                  </Pressable>
-                );
-              })}
-              <Pressable
-                onPress={() => setSelectedPackage(CUSTOM_PACKAGE_ID)}
-                style={[
-                  styles.customCard,
-                  { backgroundColor: cardBg, borderColor: cardBorder },
-                  selectedPackage === CUSTOM_PACKAGE_ID
-                    ? [styles.packageCardSelected, { backgroundColor: selectedBg }]
-                    : null,
-                ]}
-              >
-                <View style={styles.customHeader}>
-                  <View style={styles.packageIcon}>
-                    <MaterialIcons name="edit" size={22} color={PRIMARY_COLOR} />
-                  </View>
-                  <View style={styles.customCopy}>
-                    <Text style={[styles.customTitle, { color: titleColor }]}>Custom Amount</Text>
-                    <Text style={[styles.customSubtitle, { color: mutedText }]}>
-                      Enter any GHS amount to buy Kulcoins
-                    </Text>
-                  </View>
+              <View style={styles.drawerHeader}>
+                <View style={styles.warningRow}>
+                  <MaterialIcons name="warning" size={14} color={PRIMARY_COLOR} />
+                  <Text style={styles.warningText}>{warningText}</Text>
                 </View>
-                <KulsahInputBar
-                    value={customAmount}
-                    onFocus={() => setSelectedPackage(CUSTOM_PACKAGE_ID)}
-                    onChangeText={(value) => {
-                      const sanitized = value.replace(/[^0-9.]/g, '');
-                      setCustomAmount(sanitized);
-                      setSelectedPackage(CUSTOM_PACKAGE_ID);
-                    }}
-                    keyboardType="decimal-pad"
-                    placeholder="Enter amount"
-                    placeholderTextColor={tertiaryText}
-                    containerStyle={[styles.customInputWrap, { backgroundColor: customInputBg, borderColor: customInputBorder }]}
-                    inputStyle={[styles.customInput, { color: titleColor }]}
-                    leftAccessory={<Text style={styles.customCurrency}>GHS</Text>}
-                  />
-                <Text style={[styles.customEstimate, { color: mutedText }]}>
-                  {customPkgData
-                    ? `You will receive about ${customPkgData.coins} KC`
-                    : 'Minimum purchase must be greater than 0 GHS'}
-                </Text>
-              </Pressable>
-            </View>
+                <Text style={[styles.drawerTitle, { color: titleColor }]}>Top Up Kulcoins</Text>
+                <Text style={[styles.drawerBalance, { color: mutedText }]}>Current Balance: {currentBalance} KC</Text>
+              </View>
 
-            <View style={styles.drawerActions}>
-              <Pressable
-                onPress={() => {
-                  if (selectedPkgData) setIsPaymentOpen(true);
-                }}
-                disabled={!selectedPkgData}
-                style={[styles.purchaseButton, !selectedPkgData ? styles.buttonDisabled : null]}
-              >
-                <Text style={styles.purchaseButtonText}>Purchase</Text>
-                <MaterialIcons name="payments" size={20} color="#ffffff" />
-              </Pressable>
+              <View style={styles.packageGrid}>
+                {coinPackages.map((pkg) => {
+                  const isSelected = pkg.id === selectedPackage;
+                  return (
+                    <Pressable
+                      key={pkg.id}
+                      onPress={() => setSelectedPackage(pkg.id)}
+                      style={[
+                        styles.packageCard,
+                        { backgroundColor: cardBg, borderColor: cardBorder },
+                        isSelected ? [styles.packageCardSelected, { backgroundColor: selectedBg }] : null,
+                      ]}
+                    >
+                      {pkg.popular ? (
+                        <View style={styles.bestValueChip}>
+                          <Text style={styles.bestValueText}>Best Value</Text>
+                        </View>
+                      ) : null}
+                      <View style={styles.packageIcon}>
+                        <MaterialIcons name="monetization-on" size={24} color={PRIMARY_COLOR} />
+                      </View>
+                      <Text style={[styles.packageCoins, { color: titleColor }]}>{pkg.coins}</Text>
+                      <Text style={[styles.packageLabel, { color: tertiaryText }]}>{pkg.label}</Text>
+                    </Pressable>
+                  );
+                })}
+                <Pressable
+                  onPress={() => setSelectedPackage(CUSTOM_PACKAGE_ID)}
+                  style={[
+                    styles.customCard,
+                    { backgroundColor: cardBg, borderColor: cardBorder },
+                    selectedPackage === CUSTOM_PACKAGE_ID
+                      ? [styles.packageCardSelected, { backgroundColor: selectedBg }]
+                      : null,
+                  ]}
+                >
+                  <View style={styles.customHeader}>
+                    <View style={styles.packageIcon}>
+                      <MaterialIcons name="edit" size={22} color={PRIMARY_COLOR} />
+                    </View>
+                    <View style={styles.customCopy}>
+                      <Text style={[styles.customTitle, { color: titleColor }]}>Custom Amount</Text>
+                      <Text style={[styles.customSubtitle, { color: mutedText }]}>
+                        Enter any GHS amount to buy Kulcoins
+                      </Text>
+                    </View>
+                  </View>
+                  <KulsahInputBar
+                      value={customAmount}
+                      onFocus={() => setSelectedPackage(CUSTOM_PACKAGE_ID)}
+                      onChangeText={(value) => {
+                        const sanitized = value.replace(/[^0-9.]/g, '');
+                        setCustomAmount(sanitized);
+                        setSelectedPackage(CUSTOM_PACKAGE_ID);
+                      }}
+                      keyboardType="decimal-pad"
+                      placeholder="Enter amount"
+                      placeholderTextColor={tertiaryText}
+                      containerStyle={[styles.customInputWrap, { backgroundColor: customInputBg, borderColor: customInputBorder }]}
+                      inputStyle={[styles.customInput, { color: titleColor }]}
+                      leftAccessory={<Text style={styles.customCurrency}>GHS</Text>}
+                    />
+                  <Text style={[styles.customEstimate, { color: mutedText }]}>
+                    {customPkgData
+                      ? `You will receive about ${customPkgData.coins} KC`
+                      : 'Minimum purchase must be greater than 0 GHS'}
+                  </Text>
+                </Pressable>
+              </View>
 
-              <Pressable onPress={onClose} style={styles.cancelTransactionButton}>
-                <Text style={[styles.cancelTransactionText, {color: isDark ? 'white': 'black'}]}>Cancel Transaction</Text>
-              </Pressable>
-            </View>
+              <View style={styles.drawerActions}>
+                <Pressable
+                  onPress={() => {
+                    if (selectedPkgData) setIsPaymentOpen(true);
+                  }}
+                  disabled={!selectedPkgData}
+                  style={[styles.purchaseButton, !selectedPkgData ? styles.buttonDisabled : null]}
+                >
+                  <Text style={styles.purchaseButtonText}>Purchase</Text>
+                  <MaterialIcons name="payments" size={20} color="#ffffff" />
+                </Pressable>
+
+                <Pressable onPress={onClose} style={styles.cancelTransactionButton}>
+                  <Text style={[styles.cancelTransactionText, {color: isDark ? 'white': 'black'}]}>Cancel Transaction</Text>
+                </Pressable>
+              </View>
+            </ScrollView>
           </View>
-        </View>
+        </KeyboardAvoidingView>
       </Modal>
 
       <Modal
@@ -201,7 +211,11 @@ const KulcoinTopUpDrawer: React.FC<KulcoinTopUpDrawerProps> = ({
         statusBarTranslucent
         onRequestClose={() => setIsPaymentOpen(false)}
       >
-        <View style={styles.modalRoot}>
+        <KeyboardAvoidingView
+          behavior={Platform.OS === 'ios' ? 'padding' : undefined}
+          keyboardVerticalOffset={0}
+          style={styles.modalRoot}
+        >
           <Pressable style={[styles.modalBackdrop, { backgroundColor: overlayColor }]} onPress={() => setIsPaymentOpen(false)} />
           <View style={[styles.paymentCard, { paddingBottom: Math.max(insets.bottom, 20), backgroundColor: surfaceColor, borderColor }]}>
             <View style={[styles.drawerHandle, { backgroundColor: handleColor }]} />
@@ -229,7 +243,7 @@ const KulcoinTopUpDrawer: React.FC<KulcoinTopUpDrawerProps> = ({
               <Text style={[styles.cancelPaymentText, { color: secondaryText }]}>Cancel</Text>
             </Pressable>
           </View>
-        </View>
+        </KeyboardAvoidingView>
       </Modal>
     </>
   );
@@ -245,13 +259,16 @@ const styles = StyleSheet.create({
     backgroundColor: 'rgba(0,0,0,0.82)',
   },
   drawerCard: {
+    maxHeight: '88%',
     borderTopLeftRadius: 36,
     borderTopRightRadius: 36,
     paddingHorizontal: 20,
-    paddingTop: 14,
     backgroundColor: '#111114',
     borderTopWidth: 1,
     borderColor: 'rgba(255,255,255,0.08)',
+  },
+  drawerScrollContent: {
+    paddingTop: 14,
   },
   drawerHandle: {
     width: 48,

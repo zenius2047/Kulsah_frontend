@@ -218,7 +218,7 @@ const EventDetail: React.FC = () => {
                 <Text style={[styles.eyebrowAccent, { color: accent }]}>{currentEvent.type} Event</Text>
                 <Text style={[styles.title, { color: theme.text }]}>{currentEvent.title}</Text>
               </View>
-              <View style={styles.fastBadge}><Text style={styles.fastBadgeText}>Selling Fast</Text></View>
+              {/* <View style={styles.fastBadge}><Text style={styles.fastBadgeText}>Selling Fast</Text></View> */}
             </View>
 
             <View style={[styles.infoBlock, { borderColor: border }]}>
@@ -234,10 +234,10 @@ const EventDetail: React.FC = () => {
               <View style={styles.creatorSection}>
                 <View style={styles.rowBetween}>
                   <Text style={[styles.eyebrowAccent, { color: accent }]}>Creator Insights</Text>
-                  <View style={styles.liveBadge}>
+                  {/* <View style={styles.liveBadge}>
                     <View style={styles.liveBadgeDot} />
                     <Text style={styles.liveBadgeText}>Live Updates</Text>
-                  </View>
+                  </View> */}
                 </View>
 
                 <View style={styles.statsGrid}>

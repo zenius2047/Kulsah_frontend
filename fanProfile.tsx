@@ -20,6 +20,7 @@ import MovieIcon from './assets/icons/play-circle-svg.svg';
 import BookMarkIcon from './assets/icons/bookmark-svg.svg';
 import PremiumIcon from './assets/icons/premium-svg.svg';
 import { FontFamily, FontSize } from './fonts';
+import SwitchIcon from './assets/icons/switch.svg';
 
 interface FanProfileProps {
   onLogout?: () => void;
@@ -263,7 +264,7 @@ const FanProfile: React.FC<FanProfileProps> = ({ onToggleRole }) => {
               >
                 <View style={s.switchRoleLeft}>
                   <View style={s.switchRoleIcon}>
-                    <MaterialIcons name="rocket-launch" size={20} color="#fff" />
+                    <SwitchIcon  height={20} width={20} color="#fff" />
                   </View>
                   <View>
                     <Text style={s.switchRoleTitle}>Switch to Creator</Text>

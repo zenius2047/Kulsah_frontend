@@ -19,7 +19,10 @@ import { FontFamily, FontSize } from '../fonts';
 import { PRIMARY_COLOR, primaryColorAlpha, useThemeMode } from '../theme';
 import { useNavigation } from '@react-navigation/native';
 
-type SubmissionTab = 'all' | 'shortlisted' | 'popular';
+type SubmissionTab =
+  | 'all'
+  // | 'shortlisted'
+  | 'popular';
 type ViewMode = 'grid' | 'list';
 
 type ChallengeSubmission = {
@@ -106,8 +109,8 @@ const Submissions: React.FC = () => {
   const [searchQuery, setSearchQuery] = useState('');
   const [activeTab, setActiveTab] = useState<SubmissionTab>('all');
   const [viewMode, setViewMode] = useState<ViewMode>('list');
-  const [shortlistedIds, setShortlistedIds] = useState<Set<string>>(new Set());
-  const [approvedIds, setApprovedIds] = useState<Set<string>>(new Set());
+  // const [shortlistedIds, setShortlistedIds] = useState<Set<string>>(new Set());
+  // const [approvedIds, setApprovedIds] = useState<Set<string>>(new Set());
   const [activePlayerVideo, setActivePlayerVideo] = useState<ChallengeSubmission | null>(null);
   const [isPlaying, setIsPlaying] = useState(false);
   const [playProgress, setPlayProgress] = useState(35);
@@ -124,33 +127,33 @@ const Submissions: React.FC = () => {
     setTimeout(() => setToastMessage(null), 2600);
   };
 
-  const toggleShortlist = (id: string, name: string) => {
-    setShortlistedIds((prev) => {
-      const next = new Set(prev);
-      if (next.has(id)) {
-        next.delete(id);
-        showToast(`Removed ${name} from shortlist.`);
-      } else {
-        next.add(id);
-        showToast(`Added ${name} to shortlist.`);
-      }
-      return next;
-    });
-  };
+  // const toggleShortlist = (id: string, name: string) => {
+  //   setShortlistedIds((prev) => {
+  //     const next = new Set(prev);
+  //     if (next.has(id)) {
+  //       next.delete(id);
+  //       showToast(`Removed ${name} from shortlist.`);
+  //     } else {
+  //       next.add(id);
+  //       showToast(`Added ${name} to shortlist.`);
+  //     }
+  //     return next;
+  //   });
+  // };
 
-  const toggleApprove = (id: string, name: string) => {
-    setApprovedIds((prev) => {
-      const next = new Set(prev);
-      if (next.has(id)) {
-        next.delete(id);
-        showToast(`Revoked approval for ${name}.`);
-      } else {
-        next.add(id);
-        showToast(`Approved and featured ${name}.`);
-      }
-      return next;
-    });
-  };
+  // const toggleApprove = (id: string, name: string) => {
+  //   setApprovedIds((prev) => {
+  //     const next = new Set(prev);
+  //     if (next.has(id)) {
+  //       next.delete(id);
+  //       showToast(`Revoked approval for ${name}.`);
+  //     } else {
+  //       next.add(id);
+  //       showToast(`Approved and featured ${name}.`);
+  //     }
+  //     return next;
+  //   });
+  // };
 
   const filteredSubmissions = useMemo(() => {
     return submissions.filter((submission) => {
@@ -164,21 +167,21 @@ const Submissions: React.FC = () => {
         if (!searchable.includes(query)) return false;
       }
 
-      if (activeTab === 'shortlisted') return shortlistedIds.has(submission.id);
+      // if (activeTab === 'shortlisted') return shortlistedIds.has(submission.id);
       if (activeTab === 'popular') return submission.likes >= 120;
       return true;
     });
-  }, [activeTab, searchQuery, shortlistedIds, submissions]);
+  }, [activeTab, searchQuery, submissions]);
 
   const stats = useMemo(() => {
     const total = submissions.length;
     const totalLikes = submissions.reduce((sum, submission) => sum + submission.likes, 0);
     return {
       total,
-      totalShortlisted: shortlistedIds.size,
+      // totalShortlisted: shortlistedIds.size,
       averageLikes: total > 0 ? Math.round(totalLikes / total) : 0,
     };
-  }, [shortlistedIds.size, submissions]);
+  }, [submissions]);
 
   const resetFilters = () => {
     setSearchQuery('');
@@ -196,8 +199,8 @@ const Submissions: React.FC = () => {
   };
 
   return (
-    <SafeAreaView edges={[]} style={[styles.safeArea, { backgroundColor: theme.background, marginTop: Platform.OS === 'ios' ? 54 : insets.top }]}>
-      <View style={[styles.header, { backgroundColor: isDark ? '#000000' : '#ffffff', borderBottomColor: isDark ? '#27272a' : '#e2e8f0' }]}>
+    <SafeAreaView edges={[]} style={[styles.safeArea, { backgroundColor: theme.background,  }]}>
+      <View style={[styles.header, { backgroundColor: isDark ? '#000000' : '#ffffff', borderBottomColor: isDark ? '#27272a' : '#e2e8f0', marginTop: Platform.OS === 'ios' ? 54 : insets.top }]}>
         <View style={styles.headerTopRow}>
           <Pressable onPress={() => navigation.goBack()} style={[styles.headerRoundBtn, { backgroundColor: theme.surface, borderColor: theme.border }]}>
             <MaterialIcons name="chevron-left" size={22} color={theme.text} />
@@ -228,7 +231,7 @@ const Submissions: React.FC = () => {
         <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={styles.tabList}>
           {[
             { id: 'all' as const, label: 'All' },
-            { id: 'shortlisted' as const, label: 'Shortlist' },
+            // { id: 'shortlisted' as const, label: 'Shortlist' },
             { id: 'popular' as const, label: 'Popular' },
           ].map((tab) => {
             const selected = activeTab === tab.id;
@@ -262,7 +265,7 @@ const Submissions: React.FC = () => {
       >
         <View style={styles.statsGrid}>
           <StatCard icon="video-library" label="Submissions" value={`${stats.total}`} color={PRIMARY_COLOR} styles={styles} />
-          <StatCard icon="grade" label="Shortlisted" value={`${stats.totalShortlisted}`} color="#f59e0b" styles={styles} />
+          {/* <StatCard icon="grade" label="Shortlisted" value={`${stats.totalShortlisted}`} color="#f59e0b" styles={styles} /> */}
           <StatCard icon="favorite" label="Avg Likes" value={`${stats.averageLikes}`} color="#f43f5e" styles={styles} />
         </View>
 
@@ -295,11 +298,11 @@ const Submissions: React.FC = () => {
               <SubmissionListCard
                 key={submission.id}
                 submission={submission}
-                isShortlisted={shortlistedIds.has(submission.id)}
-                isApproved={approvedIds.has(submission.id)}
+                // isShortlisted={shortlistedIds.has(submission.id)}
+                // isApproved={approvedIds.has(submission.id)}
                 onOpen={() => openPlayer(submission)}
-                onShortlist={() => toggleShortlist(submission.id, submission.userName)}
-                onApprove={() => toggleApprove(submission.id, submission.userName)}
+                // onShortlist={() => toggleShortlist(submission.id, submission.userName)}
+                // onApprove={() => toggleApprove(submission.id, submission.userName)}
                 styles={styles}
               />
             ))}
@@ -310,11 +313,11 @@ const Submissions: React.FC = () => {
               <SubmissionGridCard
                 key={submission.id}
                 submission={submission}
-                isShortlisted={shortlistedIds.has(submission.id)}
-                isApproved={approvedIds.has(submission.id)}
+                // isShortlisted={shortlistedIds.has(submission.id)}
+                // isApproved={approvedIds.has(submission.id)}
                 onOpen={() => openPlayer(submission)}
-                onShortlist={() => toggleShortlist(submission.id, submission.userName)}
-                onApprove={() => toggleApprove(submission.id, submission.userName)}
+                // onShortlist={() => toggleShortlist(submission.id, submission.userName)}
+                // onApprove={() => toggleApprove(submission.id, submission.userName)}
                 styles={styles}
               />
             ))}
@@ -328,14 +331,14 @@ const Submissions: React.FC = () => {
         isPlaying={isPlaying}
         playProgress={playProgress}
         volume={volume}
-        shortlisted={!!activePlayerVideo && shortlistedIds.has(activePlayerVideo.id)}
-        approved={!!activePlayerVideo && approvedIds.has(activePlayerVideo.id)}
+        // shortlisted={!!activePlayerVideo && shortlistedIds.has(activePlayerVideo.id)}
+        // approved={!!activePlayerVideo && approvedIds.has(activePlayerVideo.id)}
         onClose={closePlayer}
         onTogglePlay={() => setIsPlaying((prev) => !prev)}
         onSetProgress={setPlayProgress}
         onSetVolume={setVolume}
-        onShortlist={() => activePlayerVideo && toggleShortlist(activePlayerVideo.id, activePlayerVideo.userName)}
-        onApprove={() => activePlayerVideo && toggleApprove(activePlayerVideo.id, activePlayerVideo.userName)}
+        // onShortlist={() => activePlayerVideo && toggleShortlist(activePlayerVideo.id, activePlayerVideo.userName)}
+        // onApprove={() => activePlayerVideo && toggleApprove(activePlayerVideo.id, activePlayerVideo.userName)}
         onReward={() => {
           if (!activePlayerVideo) return;
           showToast(`Awarded 500 KulCoins to ${activePlayerVideo.userName}.`);
@@ -358,27 +361,27 @@ const StatCard = ({ icon, label, value, color, styles }: { icon: keyof typeof Ma
 
 const SubmissionListCard = ({
   submission,
-  isShortlisted,
-  isApproved,
+  // isShortlisted,
+  // isApproved,
   onOpen,
-  onShortlist,
-  onApprove,
+  // onShortlist,
+  // onApprove,
   styles,
 }: {
   submission: ChallengeSubmission;
-  isShortlisted: boolean;
-  isApproved: boolean;
+  // isShortlisted: boolean;
+  // isApproved: boolean;
   onOpen: () => void;
-  onShortlist: () => void;
-  onApprove: () => void;
+  // onShortlist: () => void;
+  // onApprove: () => void;
   styles: ReturnType<typeof createStyles>;
 }) => (
-  <View style={[styles.submissionListCard, isApproved ? styles.approvedCard : isShortlisted ? styles.shortlistedCard : null]}>
-    {isApproved ? (
+  <View style={styles.submissionListCard}>
+    {/* {isApproved ? (
       <View style={styles.approvedMark}>
         <MaterialIcons name="check" size={12} color="#fff" />
       </View>
-    ) : null}
+    ) : null} */}
     <Pressable onPress={onOpen} style={styles.listThumb}>
       <Image source={{ uri: submission.thumbnailUrl }} style={styles.fillImage} />
       <View style={styles.thumbOverlay}>
@@ -394,7 +397,7 @@ const SubmissionListCard = ({
       <Text numberOfLines={1} style={styles.submissionTitle}>{submission.challengeTitle}</Text>
       <View style={styles.metaRow}>
         <Text style={styles.submittedAt}>{submission.submittedAt}</Text>
-        {isShortlisted ? <Text style={styles.shortlistPill}>Shortlisted</Text> : null}
+        {/* {isShortlisted ? <Text style={styles.shortlistPill}>Shortlisted</Text> : null} */}
       </View>
       <View style={styles.performanceRow}>
         <Metric icon="favorite" value={`${submission.likes}`} color="#f43f5e" styles={styles} />
@@ -402,8 +405,8 @@ const SubmissionListCard = ({
       </View>
     </View>
     <View style={styles.actionColumn}>
-      <IconAction icon="star" active={isShortlisted} activeColor="#f59e0b" onPress={onShortlist} styles={styles} />
-      <IconAction icon="check-circle" active={isApproved} activeColor="#10b981" onPress={onApprove} styles={styles} />
+      {/* <IconAction icon="star" active={isShortlisted} activeColor="#f59e0b" onPress={onShortlist} styles={styles} /> */}
+      {/* <IconAction icon="check-circle" active={isApproved} activeColor="#10b981" onPress={onApprove} styles={styles} /> */}
       <IconAction icon="visibility" active activeColor={PRIMARY_COLOR} onPress={onOpen} styles={styles} />
     </View>
   </View>
@@ -411,28 +414,28 @@ const SubmissionListCard = ({
 
 const SubmissionGridCard = ({
   submission,
-  isShortlisted,
-  isApproved,
+  // isShortlisted,
+  // isApproved,
   onOpen,
-  onShortlist,
-  onApprove,
+  // onShortlist,
+  // onApprove,
   styles,
 }: {
   submission: ChallengeSubmission;
-  isShortlisted: boolean;
-  isApproved: boolean;
+  // isShortlisted: boolean;
+  // isApproved: boolean;
   onOpen: () => void;
-  onShortlist: () => void;
-  onApprove: () => void;
+  // onShortlist: () => void;
+  // onApprove: () => void;
   styles: ReturnType<typeof createStyles>;
 }) => (
-  <View style={[styles.gridCard, isApproved ? styles.gridApproved : isShortlisted ? styles.gridShortlisted : null]}>
+  <View style={styles.gridCard}>
     <ImageBackground source={{ uri: submission.thumbnailUrl }} resizeMode="cover" style={styles.gridImage}>
       <LinearGradient colors={['rgba(0,0,0,0.12)', 'rgba(0,0,0,0.35)', 'rgba(0,0,0,0.94)']} style={StyleSheet.absoluteFillObject} />
-      <View style={styles.gridMarks}>
+      {/* <View style={styles.gridMarks}>
         {isApproved ? <View style={[styles.gridMark, { backgroundColor: '#10b981' }]}><MaterialIcons name="check" size={11} color="#fff" /></View> : null}
         {isShortlisted ? <View style={[styles.gridMark, { backgroundColor: '#f59e0b' }]}><MaterialIcons name="star" size={11} color="#fff" /></View> : null}
-      </View>
+      </View> */}
       <Pressable onPress={onOpen} style={styles.gridOpenLayer}>
         <MaterialIcons name="play-circle" size={36} color="rgba(255,255,255,0.9)" />
       </Pressable>
@@ -446,14 +449,14 @@ const SubmissionGridCard = ({
           <Text style={styles.gridMetaText}>{submission.submittedAt}</Text>
           <Text style={styles.gridLikes}>{submission.likes} likes</Text>
         </View>
-        <View style={styles.gridActions}>
+        {/* <View style={styles.gridActions}>
           <Pressable onPress={onShortlist} style={[styles.gridActionButton, isShortlisted ? styles.gridShortlistButton : null]}>
             <Text style={styles.gridActionText}>{isShortlisted ? 'Starred' : 'Shortlist'}</Text>
           </Pressable>
           <Pressable onPress={onApprove} style={[styles.gridActionButton, isApproved ? styles.gridApproveButton : null]}>
             <Text style={styles.gridActionText}>{isApproved ? 'Featured' : 'Approve'}</Text>
           </Pressable>
-        </View>
+        </View> */}
       </View>
     </ImageBackground>
   </View>
@@ -478,14 +481,14 @@ const PlayerModal = ({
   isPlaying,
   playProgress,
   volume,
-  shortlisted,
-  approved,
+  // shortlisted,
+  // approved,
   onClose,
   onTogglePlay,
   onSetProgress,
   onSetVolume,
-  onShortlist,
-  onApprove,
+  // onShortlist,
+  // onApprove,
   onReward,
   styles,
 }: {
@@ -494,14 +497,14 @@ const PlayerModal = ({
   isPlaying: boolean;
   playProgress: number;
   volume: number;
-  shortlisted: boolean;
-  approved: boolean;
+  // shortlisted: boolean;
+  // approved: boolean;
   onClose: () => void;
   onTogglePlay: () => void;
   onSetProgress: (value: number) => void;
   onSetVolume: (value: number) => void;
-  onShortlist: () => void;
-  onApprove: () => void;
+  // onShortlist: () => void;
+  // onApprove: () => void;
   onReward: () => void;
   styles: ReturnType<typeof createStyles>;
 }) => {
@@ -553,7 +556,7 @@ const PlayerModal = ({
                 <Metric icon="how-to-vote" value={`${submission.votes}`} color="#10b981" styles={styles} />
               </View>
             </View>
-            <View style={styles.reviewActions}>
+            {/* <View style={styles.reviewActions}>
               <Pressable onPress={onShortlist} style={[styles.reviewButton, shortlisted ? styles.reviewShortlisted : null]}>
                 <MaterialIcons name="grade" size={16} color={shortlisted ? '#f59e0b' : '#fff'} />
                 <Text style={[styles.reviewButtonText, shortlisted ? { color: '#f59e0b' } : null]}>{shortlisted ? 'Shortlisted' : 'Shortlist'}</Text>
@@ -562,7 +565,7 @@ const PlayerModal = ({
                 <MaterialIcons name="workspace-premium" size={16} color={approved ? '#10b981' : '#fff'} />
                 <Text style={[styles.reviewButtonText, approved ? { color: '#10b981' } : null]}>{approved ? 'Approved' : 'Approve'}</Text>
               </Pressable>
-            </View>
+            </View> */}
             <Pressable onPress={onReward} style={styles.rewardButton}>
               <MaterialIcons name="payments" size={18} color="#fff" />
               <Text style={styles.rewardButtonText}>Send Direct KulCoin Reward</Text>

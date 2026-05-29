@@ -3,6 +3,7 @@ import { useThemeMode, PRIMARY_COLOR, primaryColorAlpha, primaryColorAlphaHex } 
 import {
   Image,
   KeyboardAvoidingView,
+  Modal,
   Platform,
   Pressable,
   ScrollView,
@@ -25,6 +26,7 @@ import VerifiedIcon from '../assets/icons/verified-svg.svg';
 import FireIcon from '../assets/icons/fire-svg.svg';
 import { SvgProps } from 'react-native-svg';
 import CoinsIcon from '../assets/icons/coins-svg.svg';
+import CreatorSwitch from '../assets/icons/switch-creator.svg';
 
 type SubView = 'main' | 'profile' | 'identity' | 'gifts' | 'payments' | 'notifications';
 
@@ -46,6 +48,7 @@ interface FanTicket {
 }
 
 type SettingIcon = React.FC<SvgProps> | string;
+const SHAKE_TO_REFRESH_STORAGE_KEY = 'pulsar_shake_to_refresh';
 
 interface SettingItem {
   label: string;
@@ -67,6 +70,8 @@ const FanSettings: React.FC<FanSettingsProps> = ({ onLogout, isDarkMode, onToggl
   const [currentUser, setCurrentUser] = useState(user);
   const [activeView, setActiveView] = useState<SubView>('main');
   const [currentSlide, setCurrentSlide] = useState(0);
+  const [isRoleSwitchModalOpen, setIsRoleSwitchModalOpen] = useState(false);
+  const [shakeToRefreshEnabled, setShakeToRefreshEnabled] = useState(false);
   const scrollRef = useRef<ScrollView>(null);
 
   const [flippedCards, setFlippedCards] = useState<Record<string, boolean>>({});
@@ -84,6 +89,21 @@ const FanSettings: React.FC<FanSettingsProps> = ({ onLogout, isDarkMode, onToggl
     return unsubscribe;
   }, []);
 
+  useEffect(() => {
+    const loadShakePreference = async () => {
+      const saved = await AsyncStorage.getItem(SHAKE_TO_REFRESH_STORAGE_KEY);
+      setShakeToRefreshEnabled(saved === 'true');
+    };
+
+    void loadShakePreference();
+  }, []);
+
+  const toggleShakeToRefresh = async () => {
+    const next = !shakeToRefreshEnabled;
+    setShakeToRefreshEnabled(next);
+    await AsyncStorage.setItem(SHAKE_TO_REFRESH_STORAGE_KEY, String(next));
+  };
+
   const creatorToggle = async()=>{
     const nextUser = {
       id: user?.id || 'mila_ray_01',
@@ -92,10 +112,7 @@ const FanSettings: React.FC<FanSettingsProps> = ({ onLogout, isDarkMode, onToggl
     };
     setUser(nextUser);
     await AsyncStorage.setItem('pulsar_user', JSON.stringify(nextUser));
-    navigation.reset({
-      index: 1,
-      routes: [{ name: 'MainTabs' }, { name: 'Settings' }],
-    });
+    navigation.navigate('MainTabs', { screen: 'Galaxy' });
   }
 
 
@@ -598,7 +615,15 @@ const FanSettings: React.FC<FanSettingsProps> = ({ onLogout, isDarkMode, onToggl
             setDark(!isDark);
           },
         },
-        { label: 'Switch to Creator', icon: FireIcon, desc: 'Unlock creator tools', onClick: creatorToggle },
+        {
+          label: 'Shake to Refresh Feed',
+          icon: 'vibration',
+          desc: 'Shake your phone on Feed to reload orbit',
+          isToggle: true,
+          enabled: shakeToRefreshEnabled,
+          onToggle: () => void toggleShakeToRefresh(),
+        },
+        { label: 'Switch to Creator', icon: FireIcon, desc: 'Unlock creator tools', onClick: () => setIsRoleSwitchModalOpen(true) },
       ],
     },
     {
@@ -696,6 +721,47 @@ const FanSettings: React.FC<FanSettingsProps> = ({ onLogout, isDarkMode, onToggl
           <Text style={[s.versionText, { color: secondaryText }]}>Kulsah Ecosystem v2.4.2</Text>
         </View>
       </ScrollView>
+
+      <Modal
+        visible={isRoleSwitchModalOpen}
+        transparent
+        animationType="fade"
+        statusBarTranslucent
+        onRequestClose={() => setIsRoleSwitchModalOpen(false)}
+      >
+        <View style={s.roleModalRoot}>
+          <Pressable
+            style={s.roleModalBackdrop}
+            onPress={() => setIsRoleSwitchModalOpen(false)}
+          />
+          <View style={[s.roleModalCard, { backgroundColor: elevatedSurface, borderColor: theme.border }]}>
+            <CreatorSwitch height={88} width={88} color={theme.accent} />
+            <View style={s.roleModalCopy}>
+              <Text style={[s.roleModalTitle, { color: theme.text }]}>Switch to Creator?</Text>
+              <Text style={[s.roleModalBody, { color: theme.textSecondary }]}>
+                You're about to unlock creator tools. You'll be able to upload content, manage events, and track your revenue.
+              </Text>
+            </View>
+            <View style={s.roleModalActions}>
+              <Pressable
+                onPress={() => {
+                  setIsRoleSwitchModalOpen(false);
+                  void creatorToggle();
+                }}
+                style={s.roleModalPrimary}
+              >
+                <Text style={s.roleModalPrimaryText}>Confirm Switch</Text>
+              </Pressable>
+              <Pressable
+                onPress={() => setIsRoleSwitchModalOpen(false)}
+                style={[s.roleModalSecondary, { borderColor: theme.border, backgroundColor: isDark ? 'rgba(255,255,255,0.05)' : 'rgba(0,0,0,0.05)' }]}
+              >
+                <Text style={[s.roleModalSecondaryText, { color: theme.text }]}>Stay as Fan</Text>
+              </Pressable>
+            </View>
+          </View>
+        </View>
+      </Modal>
     </View>
   );
 };
@@ -1188,7 +1254,88 @@ const s = StyleSheet.create({
   },
   logoutText: { fontSize: FontSize.twelve, fontFamily: FontFamily.bold, color: '#ef4444' },
   versionText: { fontSize: FontSize.nine, fontFamily: FontFamily.extraBold, textTransform: 'uppercase', color: '#94a3b8', letterSpacing: 2 },
+  roleModalRoot: {
+    flex: 1,
+    alignItems: 'center',
+    justifyContent: 'center',
+    padding: 24,
+  },
+  roleModalBackdrop: {
+    ...StyleSheet.absoluteFillObject,
+    backgroundColor: 'rgba(0,0,0,0.62)',
+  },
+  roleModalCard: {
+    width: '100%',
+    maxWidth: 380,
+    borderRadius: 48,
+    borderWidth: 1,
+    padding: 40,
+    alignItems: 'center',
+  },
+  roleModalIcon: {
+    width: 80,
+    height: 80,
+    borderRadius: 32,
+    alignItems: 'center',
+    justifyContent: 'center',
+    marginBottom: 24,
+  },
+  roleModalCopy: {
+    alignItems: 'center',
+    gap: 8,
+  },
+  roleModalTitle: {
+    fontSize: FontSize.twentyTwo,
+    fontFamily: FontFamily.extraBold,
+    textTransform: 'uppercase',
+    textAlign: 'center',
+    lineHeight: 28,
+  },
+  roleModalBody: {
+    fontSize: FontSize.twelve,
+    fontFamily: FontFamily.medium,
+    lineHeight: 20,
+    textAlign: 'center',
+  },
+  roleModalActions: {
+    width: '100%',
+    gap: 12,
+    marginTop: 28,
+  },
+  roleModalSecondary: {
+    width: '100%',
+    minHeight: 64,
+    borderRadius: 24,
+    borderWidth: 1,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  roleModalSecondaryText: {
+    fontSize: FontSize.ten,
+    fontFamily: FontFamily.extraBold,
+    textTransform: 'uppercase',
+    letterSpacing: 1.6,
+  },
+  roleModalPrimary: {
+    width: '100%',
+    minHeight: 64,
+    borderRadius: 24,
+    backgroundColor: PRIMARY_COLOR,
+    alignItems: 'center',
+    justifyContent: 'center',
+    shadowColor: PRIMARY_COLOR,
+    shadowOpacity: 0.3,
+    shadowRadius: 16,
+    shadowOffset: { width: 0, height: 8 },
+    elevation: 8,
+  },
+  roleModalPrimaryText: {
+    color: '#ffffff',
+    fontSize: FontSize.ten,
+    fontFamily: FontFamily.extraBold,
+    textTransform: 'uppercase',
+    letterSpacing: 1.8,
+  },
 });
 
 export default FanSettings;
-

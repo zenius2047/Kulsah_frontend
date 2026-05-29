@@ -19,6 +19,7 @@ import { useNavigation } from '@react-navigation/native';
 import { useVideoPlayer, VideoView } from 'expo-video';
 import { FontFamily, FontSize } from '../fonts';
 import { VoteModalContent } from './Vote';
+import Reactions from './Reactions';
 
 type ChallengeFeedItem = {
   id: string;
@@ -109,6 +110,7 @@ const ChallengeFeedCard: React.FC<{
   pageHeight: number;
 }> = ({ item, isActive, onBack, onVote, pageHeight }) => {
   const [playVideo, setPlayVideo] = useState(true);
+  const [showComments, setShowComments] = useState(false);
   const insets = useSafeAreaInsets();
   const player = useVideoPlayer(item.video, (instance) => {
     instance.loop = true;
@@ -181,7 +183,7 @@ const ChallengeFeedCard: React.FC<{
           <Text style={styles.actionLabel}>{item.likes}</Text>
         </Pressable>
 
-        <Pressable style={styles.ghostAction}>
+        <Pressable onPress={() => setShowComments(true)} style={styles.ghostAction}>
           <View style={styles.ghostButton}>
             <MaterialIcons name="chat-bubble" size={28} color="#ffffff" />
           </View>
@@ -237,6 +239,19 @@ const ChallengeFeedCard: React.FC<{
           <View style={styles.progressFill} />
         </View>
       </View>
+
+      <Modal
+        visible={showComments}
+        transparent
+        statusBarTranslucent
+        animationType="slide"
+        onRequestClose={() => setShowComments(false)}
+      >
+        <Reactions
+          onClose={() => setShowComments(false)}
+          title={`${item.comments} Reactions`}
+        />
+      </Modal>
     </View>
   );
 };
@@ -506,4 +521,3 @@ const styles = StyleSheet.create({
 });
 
 export default ChallengeFeed;
-

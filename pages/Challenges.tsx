@@ -8,6 +8,7 @@ import {
   Pressable,
   ScrollView,
   StyleSheet,
+  StatusBar,
   Text,
   TextInput,
   View,
@@ -155,8 +156,11 @@ const Challenges: React.FC = () => {
   };
 
   return (
-    <SafeAreaView edges={[]} style={[styles.safeArea, { backgroundColor: theme.background, marginTop: Platform.OS === 'ios' ? 54 : insets.top }]}>
-      <View style={[styles.header, { backgroundColor: isDark ? '#000000' : '#ffffff', borderBottomColor: isDark ? '#27272a' : '#e2e8f0' }]}>
+    <SafeAreaView edges={[]} style={[styles.safeArea, { 
+      backgroundColor: theme.background, 
+      }]}>
+      {/* <StatusBar barStyle={isDark ? 'light-content' : 'dark-content'} backgroundColor="transparent" translucent /> */}
+      <View style={[styles.header, { backgroundColor: isDark ? '#000000' : '#ffffff', borderBottomColor: isDark ? '#27272a' : '#e2e8f0', marginTop: Platform.OS === 'ios' ? 54 : insets.top  }]}>
         <View style={styles.headerTopRow}>
           <Pressable onPress={() => navigation.goBack()} style={[styles.headerRoundBtn, { backgroundColor: theme.surface, borderColor: theme.border }]}>
             <MaterialIcons name="chevron-left" size={22} color={theme.text} />

@@ -58,6 +58,7 @@ interface SettingItem {
 }
 
 const ALL_TAGS = ['Synthwave', 'Indie-Soul', 'Live-Looping', 'Afrobeats', 'Techno', 'Cinematic', 'Visual Art', 'Jazz Fusion'];
+const SHAKE_TO_REFRESH_STORAGE_KEY = 'pulsar_shake_to_refresh';
 
 const CreatorSettings: React.FC<CreatorSettingsProps> = ({ onLogout, isDarkMode, onToggleTheme, onToggleRole }) => {
   const { isDark, theme } = useThemeMode();
@@ -73,6 +74,7 @@ const CreatorSettings: React.FC<CreatorSettingsProps> = ({ onLogout, isDarkMode,
   const [avatarImage, setAvatarImage] = useState('https://picsum.photos/seed/elena/200');
 
   const [showEvents, setShowEvents] = useState(true);
+  const [shakeToRefreshEnabled, setShakeToRefreshEnabled] = useState(false);
   const [tags, setTags] = useState<string[]>(['Synthwave', 'Indie-Soul', 'Live-Looping']);
 
   const [hideSubs, setHideSubs] = useState(false);
@@ -83,7 +85,9 @@ const CreatorSettings: React.FC<CreatorSettingsProps> = ({ onLogout, isDarkMode,
   useEffect(() => {
     const loadPrefs = async () => {
       const eventsFlag = await AsyncStorage.getItem('pulsar_show_events');
+      const shakeFlag = await AsyncStorage.getItem(SHAKE_TO_REFRESH_STORAGE_KEY);
       setShowEvents(eventsFlag !== 'false');
+      setShakeToRefreshEnabled(shakeFlag === 'true');
     };
     void loadPrefs();
   }, []);
@@ -92,6 +96,12 @@ const CreatorSettings: React.FC<CreatorSettingsProps> = ({ onLogout, isDarkMode,
     const next = !showEvents;
     setShowEvents(next);
     await AsyncStorage.setItem('pulsar_show_events', String(next));
+  };
+
+  const toggleShakeToRefresh = async () => {
+    const next = !shakeToRefreshEnabled;
+    setShakeToRefreshEnabled(next);
+    await AsyncStorage.setItem(SHAKE_TO_REFRESH_STORAGE_KEY, String(next));
   };
 
   const logout = async()=> {
@@ -135,6 +145,14 @@ const CreatorSettings: React.FC<CreatorSettingsProps> = ({ onLogout, isDarkMode,
             isToggle: true,
             enabled: isDark,
             onToggle: () => setDark(!isDark),
+          },
+          {
+            label: 'Shake to Refresh Feed',
+            icon: 'vibration',
+            desc: 'Shake your phone on Feed to reload orbit',
+            isToggle: true,
+            enabled: shakeToRefreshEnabled,
+            onToggle: () => void toggleShakeToRefresh(),
           },
           {
             label: 'Switch to Fan',
@@ -234,7 +252,7 @@ const CreatorSettings: React.FC<CreatorSettingsProps> = ({ onLogout, isDarkMode,
         ] as SettingItem[],
       },
     ],
-    [contentProtection, exclusiveMode, hideSubs, isDark, onToggleRole, showEvents, twoFactor],
+    [contentProtection, exclusiveMode, hideSubs, isDark, onToggleRole, shakeToRefreshEnabled, showEvents, twoFactor],
   );
 
   const renderHeader = (title: string, onBack: () => void) => (
@@ -714,4 +732,3 @@ const s = StyleSheet.create({
 });
 
 export default CreatorSettings;
-

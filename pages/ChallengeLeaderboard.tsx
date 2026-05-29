@@ -1,20 +1,43 @@
 import { MaterialIcons } from '@expo/vector-icons';
 import { useNavigation } from '@react-navigation/native';
 import { LinearGradient } from 'expo-linear-gradient';
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import {
+  ActivityIndicator,
   Image,
+  KeyboardAvoidingView,
+  Modal,
+  Platform,
   Pressable,
   ScrollView,
   StyleSheet,
   Text,
+  TextInput,
   View,
 } from 'react-native';
 import { SafeAreaView, useSafeAreaInsets } from 'react-native-safe-area-context';
 import { FontFamily, FontSize } from '../fonts';
 import { useThemeMode, PRIMARY_COLOR, primaryColorAlpha } from "../theme";
+import { user, User } from '../types';
 
 type LeaderboardTab = 'rankings' | 'rules' | 'prizes';
+type BoostPaymentMethod = 'momo' | 'kc' | 'card';
+type MomoProvider = 'mtn' | 'telecel' | 'at';
+type BoostStage = 'input' | 'processing' | 'momo_otp' | 'success';
+type BoostInputStep = 'payload' | 'payment';
+
+type BoostPackage = {
+  id: string;
+  name: string;
+  votes: number;
+  priceGhc: number;
+  kcEquivalent: number;
+  badge: string;
+  icon: keyof typeof MaterialIcons.glyphMap;
+  colors: readonly [string, string];
+};
+
+type BoostUser = User & { balance?: number };
 
 const topThree = [
   { rank: 2, name: 'MusicLover99', votes: '12.8k', avatar: 'https://picsum.photos/seed/fan1/200' },
@@ -108,11 +131,443 @@ const tabItems: { key: LeaderboardTab; label: string }[] = [
   { key: 'prizes', label: 'Prizes' },
 ];
 
+const boostPackages: BoostPackage[] = [
+  { id: 'b1', name: 'Starter Spark', votes: 150, priceGhc: 10, kcEquivalent: 50, badge: 'Popular for Beginners', icon: 'bolt', colors: ['rgba(59,130,246,0.2)', 'rgba(6,182,212,0.05)'] },
+  { id: 'b2', name: 'Rapid Boost', votes: 500, priceGhc: 25, kcEquivalent: 120, badge: 'Best Value', icon: 'rocket-launch', colors: ['rgba(168,85,247,0.3)', 'rgba(244,63,94,0.05)'] },
+  { id: 'b3', name: 'Stratosphere Surge', votes: 1200, priceGhc: 50, kcEquivalent: 240, badge: 'Creator Recommends', icon: 'cyclone', colors: ['rgba(245,158,11,0.3)', 'rgba(249,115,22,0.05)'] },
+  { id: 'b4', name: 'Cosmic Supernova', votes: 3500, priceGhc: 120, kcEquivalent: 500, badge: 'Insane Results', icon: 'star-rate', colors: ['rgba(236,72,153,0.4)', 'rgba(139,92,246,0.1)'] },
+];
+
+const getBoostRank = (packageId: string) => {
+  if (packageId === 'b1') return 19;
+  if (packageId === 'b2') return 12;
+  if (packageId === 'b3') return 6;
+  return 2;
+};
+
+const formatVotes = (votes: number) => {
+  if (votes >= 1000) return `${(votes / 1000).toFixed(1)}k`;
+  return `${votes}`;
+};
+
+const BoostEntryDialog = ({
+  isOpen,
+  onClose,
+  currentUser,
+  currentRank,
+  baseVotes,
+  onBoostApplied,
+}: {
+  isOpen: boolean;
+  onClose: () => void;
+  currentUser: BoostUser | null;
+  currentRank: number;
+  baseVotes: number;
+  onBoostApplied: (votesAdded: number, updatedRank: number) => void;
+}) => {
+  const { isDark, theme } = useThemeMode();
+  const insets = useSafeAreaInsets();
+  const [selectedPackage, setSelectedPackage] = useState<BoostPackage>(boostPackages[1]);
+  const [paymentMethod, setPaymentMethod] = useState<BoostPaymentMethod>('momo');
+  const [momoProvider, setMomoProvider] = useState<MomoProvider>('mtn');
+  const [phoneNumber, setPhoneNumber] = useState('');
+  const [cardNumber, setCardNumber] = useState('');
+  const [cardExpiry, setCardExpiry] = useState('');
+  const [cardCvv, setCardCvv] = useState('');
+  const [stage, setStage] = useState<BoostStage>('input');
+  const [inputStep, setInputStep] = useState<BoostInputStep>('payload');
+  const [processingStatus, setProcessingStatus] = useState('');
+  const [countdown, setCountdown] = useState(15);
+  const [otpInput, setOtpInput] = useState('');
+  const [errorText, setErrorText] = useState('');
+
+  const availableBalance = currentUser?.balance ?? 1250;
+  const updatedRank = getBoostRank(selectedPackage.id);
+  const boostedTotal = baseVotes + selectedPackage.votes;
+  const canDismiss = stage !== 'processing' && stage !== 'momo_otp';
+  const surface = isDark ? '#0f0f12' : '#ffffff';
+  const border = isDark ? 'rgba(255,255,255,0.08)' : '#e2e8f0';
+  const muted = isDark ? 'rgba(255,255,255,0.46)' : '#64748b';
+  const inputBg = isDark ? 'rgba(255,255,255,0.05)' : 'rgba(15,23,42,0.05)';
+
+  useEffect(() => {
+    if (!isOpen) return;
+    setStage('input');
+    setInputStep('payload');
+    setSelectedPackage(boostPackages[1]);
+    setPaymentMethod('momo');
+    setMomoProvider('mtn');
+    setPhoneNumber('');
+    setCardNumber('');
+    setCardExpiry('');
+    setCardCvv('');
+    setOtpInput('');
+    setCountdown(15);
+    setErrorText('');
+  }, [isOpen]);
+
+  useEffect(() => {
+    if (stage !== 'momo_otp') return;
+    if (countdown === 0) {
+      handleOtpVerify();
+      return;
+    }
+
+    const timer = setInterval(() => {
+      setCountdown((prev) => prev - 1);
+    }, 1000);
+
+    return () => clearInterval(timer);
+  }, [countdown, stage]);
+
+  const completeBoost = () => {
+    setStage('success');
+    onBoostApplied(selectedPackage.votes, updatedRank);
+  };
+
+  const handleContinueToPayment = () => {
+    setErrorText('');
+    setInputStep('payment');
+  };
+
+  const handleBackToPayload = () => {
+    setErrorText('');
+    setInputStep('payload');
+  };
+
+  const handleStartPayment = () => {
+    setErrorText('');
+    if (paymentMethod === 'momo' && !phoneNumber.trim()) {
+      setErrorText('Enter your Mobile Money phone number.');
+      return;
+    }
+    if (paymentMethod === 'card' && (!cardNumber.trim() || !cardExpiry.trim() || !cardCvv.trim())) {
+      setErrorText('Enter all card details.');
+      return;
+    }
+    if (paymentMethod === 'kc' && availableBalance < selectedPackage.kcEquivalent) {
+      setErrorText(`Insufficient balance. You need ${selectedPackage.kcEquivalent} KC.`);
+      return;
+    }
+
+    setStage('processing');
+    setProcessingStatus('Connecting to Ghana National Payment Gateway...');
+
+    setTimeout(() => {
+      if (paymentMethod === 'momo') {
+        setProcessingStatus(`Sending Instant USSD Push Request to ${phoneNumber}...`);
+        setTimeout(() => {
+          setStage('momo_otp');
+          setCountdown(15);
+        }, 1500);
+        return;
+      }
+
+      setProcessingStatus('Securing Payment Reference Code & Authorizing...');
+      setTimeout(() => {
+        setProcessingStatus('Finalizing Boost Sequence Allocation...');
+        setTimeout(completeBoost, 1500);
+      }, 1500);
+    }, 1500);
+  };
+
+  const handleOtpVerify = () => {
+    setStage('processing');
+    setProcessingStatus('Verifying secret Momo transaction hash...');
+    setTimeout(() => {
+      setProcessingStatus('Allocating live votes to SuperFan_01 index...');
+      setTimeout(completeBoost, 1500);
+    }, 1500);
+  };
+
+  const closeAfterSuccess = () => {
+    onClose();
+  };
+
+  return (
+    <Modal visible={isOpen} transparent animationType="slide" statusBarTranslucent onRequestClose={() => canDismiss && onClose()}>
+      <KeyboardAvoidingView behavior={Platform.OS === 'ios' ? 'padding' : undefined} style={styles.boostModalRoot}>
+        <Pressable style={styles.boostBackdrop} onPress={() => canDismiss && onClose()} />
+        <View style={[styles.boostSheet, { backgroundColor: surface, borderColor: border, paddingBottom: Math.max(insets.bottom, 16) }]}>
+          <View style={[styles.boostHandle, { backgroundColor: isDark ? 'rgba(255,255,255,0.12)' : '#e2e8f0' }]} />
+          <ScrollView showsVerticalScrollIndicator={false} keyboardShouldPersistTaps="handled" contentContainerStyle={styles.boostScrollContent}>
+            {stage === 'input' ? (
+              <View style={styles.boostStackLarge}>
+                <View style={styles.boostHeaderRow}>
+                  <View style={{ flex: 1 }}>
+                    <Text style={[styles.boostTitle, { color: theme.text }]}>Boost Your Entry</Text>
+                    <Text style={[styles.boostSubtitle, { color: muted }]}>Rocket up the leaderboard & dominate the orbit</Text>
+                  </View>
+                  <Pressable onPress={onClose} style={[styles.boostClose, { backgroundColor: inputBg }]}>
+                    <MaterialIcons name="close" size={20} color={muted} />
+                  </Pressable>
+                </View>
+
+                <LinearGradient colors={[primaryColorAlpha(0.1), 'rgba(236,72,153,0.1)']} style={styles.boostStatusCard}>
+                  <View style={styles.boostStatusLeft}>
+                    <Image source={{ uri: 'https://picsum.photos/seed/user/200' }} style={styles.boostStatusAvatar} />
+                    <View>
+                      <Text style={[styles.boostStatusName, { color: theme.text }]}>SuperFan_01</Text>
+                      <Text style={styles.boostStatusRank}>Current Standing: Rank #{currentRank}</Text>
+                    </View>
+                  </View>
+                  <View style={styles.boostStatusVotes}>
+                    <Text style={[styles.boostStatusVoteValue, { color: theme.text }]}>{baseVotes.toLocaleString()}</Text>
+                    <Text style={[styles.boostTinyMuted, { color: muted }]}>Base Votes</Text>
+                  </View>
+                </LinearGradient>
+
+                {inputStep === 'payload' ? (
+                  <>
+                    {/* <View style={styles.boostStepPills}>
+                      <View style={styles.boostStepPillActive}>
+                        <Text style={styles.boostStepPillTextActive}>1 Payload</Text>
+                      </View>
+                      <View style={[styles.boostStepPill, { borderColor: border }]}>
+                        <Text style={[styles.boostStepPillText, { color: muted }]}>2 Payment</Text>
+                      </View>
+                    </View> */}
+
+                    <View style={styles.boostStack}>
+                      <Text style={[styles.boostSectionLabel, { color: muted }]}>Select Galaxy Boost Payload</Text>
+                      <ScrollView style={styles.boostPackageScroller} nestedScrollEnabled showsVerticalScrollIndicator={false}>
+                        <View style={styles.boostStackSmall}>
+                          {boostPackages.map((pkg) => {
+                            const selected = selectedPackage.id === pkg.id;
+                            return (
+                              <Pressable
+                                key={pkg.id}
+                                onPress={() => setSelectedPackage(pkg)}
+                                style={[styles.boostPackageCard, { borderColor: selected ? PRIMARY_COLOR : border }]}
+                              >
+                                <LinearGradient colors={pkg.colors} style={StyleSheet.absoluteFillObject} />
+                                <View style={styles.boostPackageLeft}>
+                                  <View style={[styles.boostPackageIcon, { backgroundColor: selected ? PRIMARY_COLOR : inputBg }]}>
+                                    <MaterialIcons name={pkg.icon} size={22} color={selected ? '#ffffff' : muted} />
+                                  </View>
+                                  <View style={{ flex: 1 }}>
+                                    <View style={styles.boostPackageTitleRow}>
+                                      <Text style={[styles.boostPackageName, { color: selected ? PRIMARY_COLOR : theme.text }]}>{pkg.name}</Text>
+                                      <Text style={styles.boostVotesChip}>+{pkg.votes} Votes</Text>
+                                    </View>
+                                    <Text style={[styles.boostTinyMuted, { color: muted }]}>{pkg.badge}</Text>
+                                  </View>
+                                </View>
+                                <View style={styles.boostPriceBlock}>
+                                  <Text style={[styles.boostPrice, { color: theme.text }]}>GHc{pkg.priceGhc}</Text>
+                                  <Text style={[styles.boostTinyMuted, { color: muted }]}>or {pkg.kcEquivalent} KC</Text>
+                                </View>
+                              </Pressable>
+                            );
+                          })}
+                        </View>
+                      </ScrollView>
+                    </View>
+
+                    <Pressable onPress={handleContinueToPayment} style={styles.boostPayButton}>
+                      <Text style={styles.boostPayButtonText}>Continue to Payment</Text>
+                      <MaterialIcons name="arrow-forward" size={16} color="#ffffff" />
+                    </Pressable>
+                  </>
+                ) : (
+                  <>
+                    {/* <View style={styles.boostStepPills}>
+                      <Pressable onPress={handleBackToPayload} style={[styles.boostStepPill, { borderColor: border }]}>
+                        <Text style={[styles.boostStepPillText, { color: muted }]}>1 Payload</Text>
+                      </Pressable>
+                      <View style={styles.boostStepPillActive}>
+                        <Text style={styles.boostStepPillTextActive}>2 Payment</Text>
+                      </View>
+                    </View> */}
+
+                    <View style={[styles.boostSelectedPayload, { backgroundColor: inputBg, borderColor: border }]}>
+                      <View style={styles.boostPackageLeft}>
+                        <View style={[styles.boostPackageIcon, { backgroundColor: PRIMARY_COLOR }]}>
+                          <MaterialIcons name={selectedPackage.icon} size={22} color="#ffffff" />
+                        </View>
+                        <View style={{ flex: 1 }}>
+                          <Text style={[styles.boostPackageName, { color: theme.text }]}>{selectedPackage.name}</Text>
+                          <Text style={[styles.boostTinyMuted, { color: muted }]}>+{selectedPackage.votes} votes selected</Text>
+                        </View>
+                      </View>
+                      <View style={styles.boostPriceBlock}>
+                        <Text style={[styles.boostPrice, { color: theme.text }]}>GHc{selectedPackage.priceGhc}</Text>
+                        <Pressable onPress={handleBackToPayload}>
+                          <Text style={styles.boostChangeText}>Change</Text>
+                        </Pressable>
+                      </View>
+                    </View>
+
+                    <View style={styles.boostStack}>
+                      <Text style={[styles.boostSectionLabel, { color: muted }]}>Choose Payment Pipeline</Text>
+                      <View style={styles.boostPaymentGrid}>
+                        {([
+                          { key: 'momo', icon: 'sms', label: 'Momo' },
+                          { key: 'kc', icon: 'toll', label: 'Kulcoins' },
+                          { key: 'card', icon: 'credit-card', label: 'Card' },
+                        ] as const).map((method) => {
+                          const selected = paymentMethod === method.key;
+                          return (
+                            <Pressable
+                              key={method.key}
+                              onPress={() => setPaymentMethod(method.key)}
+                              style={[styles.boostPaymentButton, { borderColor: selected ? PRIMARY_COLOR : border, backgroundColor: selected ? primaryColorAlpha(0.08) : 'transparent' }]}
+                            >
+                              <MaterialIcons name={method.icon} size={19} color={selected ? PRIMARY_COLOR : muted} />
+                              <Text style={[styles.boostPaymentText, { color: selected ? PRIMARY_COLOR : muted }]}>{method.label}</Text>
+                            </Pressable>
+                          );
+                        })}
+                      </View>
+                    </View>
+
+                    {paymentMethod === 'momo' ? (
+                      <View style={styles.boostStack}>
+                        <View style={styles.boostProviderRow}>
+                          {(['mtn', 'telecel', 'at'] as const).map((provider) => {
+                            const selected = momoProvider === provider;
+                            return (
+                              <Pressable
+                                key={provider}
+                                onPress={() => setMomoProvider(provider)}
+                                style={[styles.boostProviderButton, { borderColor: selected ? 'transparent' : border, backgroundColor: selected ? (isDark ? '#ffffff' : '#111827') : 'transparent' }]}
+                              >
+                                <Text style={[styles.boostProviderText, { color: selected ? (isDark ? '#000000' : '#ffffff') : muted }]}>
+                                  {provider === 'mtn' ? 'MTN MoMo' : provider === 'telecel' ? 'Telecel' : 'AT Money'}
+                                </Text>
+                              </Pressable>
+                            );
+                          })}
+                        </View>
+                        <Text style={[styles.boostInputLabel, { color: muted }]}>Mobile Money Phone Number</Text>
+                        <TextInput
+                          value={phoneNumber}
+                          onChangeText={setPhoneNumber}
+                          keyboardType="phone-pad"
+                          placeholder="e.g. 054 123 4567"
+                          placeholderTextColor={muted}
+                          style={[styles.boostInput, { backgroundColor: inputBg, borderColor: border, color: theme.text }]}
+                        />
+                      </View>
+                    ) : null}
+
+                    {paymentMethod === 'kc' ? (
+                      <View style={styles.boostKcCard}>
+                        <Text style={styles.boostKcTitle}>Pay with KulCoins</Text>
+                        <Text style={[styles.boostKcBalance, { color: theme.text }]}>{availableBalance} KC <Text style={{ color: muted, fontSize: FontSize.ten }}>Available</Text></Text>
+                        <Text style={[styles.boostTinyMuted, { color: muted }]}>Deductible for this pay: {selectedPackage.kcEquivalent} KC</Text>
+                      </View>
+                    ) : null}
+
+                    {paymentMethod === 'card' ? (
+                      <View style={styles.boostStack}>
+                        <Text style={[styles.boostInputLabel, { color: muted }]}>Card Number</Text>
+                        <TextInput value={cardNumber} onChangeText={setCardNumber} keyboardType="number-pad" maxLength={19} placeholder="4111 2222 3333 4444" placeholderTextColor={muted} style={[styles.boostInput, { backgroundColor: inputBg, borderColor: border, color: theme.text }]} />
+                        <View style={styles.boostCardInputRow}>
+                          <View style={{ flex: 1 }}>
+                            <Text style={[styles.boostInputLabel, { color: muted }]}>Expiry Date</Text>
+                            <TextInput value={cardExpiry} onChangeText={setCardExpiry} maxLength={5} placeholder="MM/YY" placeholderTextColor={muted} style={[styles.boostInput, styles.boostCenteredInput, { backgroundColor: inputBg, borderColor: border, color: theme.text }]} />
+                          </View>
+                          <View style={{ flex: 1 }}>
+                            <Text style={[styles.boostInputLabel, { color: muted }]}>CVV Code</Text>
+                            <TextInput value={cardCvv} onChangeText={setCardCvv} keyboardType="number-pad" maxLength={3} secureTextEntry placeholder="***" placeholderTextColor={muted} style={[styles.boostInput, styles.boostCenteredInput, { backgroundColor: inputBg, borderColor: border, color: theme.text }]} />
+                          </View>
+                        </View>
+                      </View>
+                    ) : null}
+
+                    {errorText ? <Text style={styles.boostError}>{errorText}</Text> : null}
+                    <View style={styles.boostActionRow}>
+                      <Pressable onPress={handleBackToPayload} style={[styles.boostBackButton, { borderColor: border }]}>
+                        <MaterialIcons name="arrow-back" size={16} color={muted} />
+                        <Text style={[styles.boostBackButtonText, { color: muted }]}>Back</Text>
+                      </Pressable>
+                      <Pressable onPress={handleStartPayment} style={[styles.boostPayButton, styles.boostActionPayButton]}>
+                        <Text style={styles.boostPayButtonText}>Authorize GHc{selectedPackage.priceGhc}</Text>
+                        <MaterialIcons name="bolt" size={16} color="#ffffff" />
+                      </Pressable>
+                    </View>
+                  </>
+                )}
+              </View>
+            ) : null}
+
+            {stage === 'processing' ? (
+              <View style={styles.boostStageWrap}>
+                <View style={styles.boostSpinnerWrap}>
+                  <ActivityIndicator size="large" color={PRIMARY_COLOR} />
+                </View>
+                <Text style={[styles.boostStageTitle, { color: theme.text }]}>Processing Payload</Text>
+                <Text style={[styles.boostStageBody, { color: muted }]}>{processingStatus}</Text>
+              </View>
+            ) : null}
+
+            {stage === 'momo_otp' ? (
+              <View style={styles.boostStackLarge}>
+                <View style={styles.boostOtpIcon}>
+                  <MaterialIcons name="sms" size={34} color="#f59e0b" />
+                </View>
+                <Text style={[styles.boostStageTitle, { color: theme.text }]}>Momo Authorization Sent</Text>
+                <Text style={[styles.boostStageBody, { color: muted }]}>
+                  We sent a secure USSD push request to {phoneNumber}. Authorize on your phone, then enter the 4-digit reference code.
+                </Text>
+                <TextInput
+                  value={otpInput}
+                  onChangeText={setOtpInput}
+                  maxLength={4}
+                  keyboardType="number-pad"
+                  placeholder="5241"
+                  placeholderTextColor={muted}
+                  style={[styles.boostOtpInput, { backgroundColor: inputBg, borderColor: border, color: theme.text }]}
+                />
+                <Pressable onPress={handleOtpVerify} style={[styles.boostDarkButton, { backgroundColor: isDark ? '#ffffff' : '#111827' }]}>
+                  <Text style={[styles.boostDarkButtonText, { color: isDark ? '#000000' : '#ffffff' }]}>Confirm Authorization</Text>
+                </Pressable>
+                <Text style={[styles.boostCountdown, { color: muted }]}>Auto-Verifying in <Text style={{ color: PRIMARY_COLOR }}>{countdown}s</Text></Text>
+              </View>
+            ) : null}
+
+            {stage === 'success' ? (
+              <View style={styles.boostStageWrap}>
+                <View style={styles.boostSuccessIcon}>
+                  <MaterialIcons name="upgrade" size={54} color="#ffffff" />
+                </View>
+                <Text style={[styles.boostSuccessTitle, { color: theme.text }]}>Power Boost Successful!</Text>
+                <Text style={[styles.boostStageBody, { color: muted }]}>
+                  Your entry has been upgraded with +{selectedPackage.votes} verified votes.
+                </Text>
+                <View style={[styles.boostSuccessStats, { backgroundColor: inputBg, borderColor: border }]}>
+                  <View style={styles.boostSuccessStat}>
+                    <Text style={[styles.boostTinyMuted, { color: muted }]}>New Standings</Text>
+                    <Text style={styles.boostSuccessNumber}>{boostedTotal.toLocaleString()}</Text>
+                    <Text style={[styles.boostTinyMuted, { color: muted }]}>Total Votes</Text>
+                  </View>
+                  <View style={[styles.boostSuccessStat, { borderLeftColor: border, borderLeftWidth: 1 }]}>
+                    <Text style={[styles.boostTinyMuted, { color: muted }]}>Rank Boosted</Text>
+                    <Text style={styles.boostRankMove}>{`#${currentRank} -> #${updatedRank}`}</Text>
+                    <Text style={styles.boostRankGain}>Up {currentRank - updatedRank} Spots!</Text>
+                  </View>
+                </View>
+                <Pressable onPress={closeAfterSuccess} style={[styles.boostDarkButton, { backgroundColor: isDark ? '#ffffff' : '#111827' }]}>
+                  <Text style={[styles.boostDarkButtonText, { color: isDark ? '#000000' : '#ffffff' }]}>View Updated Rankings</Text>
+                </Pressable>
+              </View>
+            ) : null}
+          </ScrollView>
+        </View>
+      </KeyboardAvoidingView>
+    </Modal>
+  );
+};
+
 const ChallengeLeaderboard: React.FC = () => {
   const navigation = useNavigation<any>();
   const insets = useSafeAreaInsets();
   const { isDark, theme } = useThemeMode();
   const [activeTab, setActiveTab] = useState<LeaderboardTab>('rankings');
+  const [boostOpen, setBoostOpen] = useState(false);
+  const [userRank, setUserRank] = useState(24);
+  const [userVotes, setUserVotes] = useState(2100);
 
   const screenBg = isDark ? '#07080d' : '#f8fafc';
   const headerBg = isDark ? 'rgba(7,8,13,0.86)' : 'rgba(248,250,252,0.92)';
@@ -268,14 +723,14 @@ const ChallengeLeaderboard: React.FC = () => {
                 <View style={styles.userGlow} />
                 <View style={styles.userRankContent}>
                   <View style={styles.userRankLeft}>
-                    <Text style={styles.userRankNumber}>24</Text>
+                    <Text style={styles.userRankNumber}>{userRank}</Text>
                     <Image source={{ uri: 'https://picsum.photos/seed/user/200' }} style={styles.userAvatar} />
                     <View style={styles.userCopy}>
                       <Text style={styles.userName}>You (SuperFan_01)</Text>
-                      <Text style={styles.userStats}>2.1k votes * Top 15%</Text>
+                      <Text style={styles.userStats}>{formatVotes(userVotes)} votes * Top 15%</Text>
                     </View>
                   </View>
-                  <Pressable style={styles.boostButton}>
+                  <Pressable onPress={() => setBoostOpen(true)} style={styles.boostButton}>
                     <Text style={styles.boostButtonText}>Boost Entry</Text>
                   </Pressable>
                 </View>
@@ -341,6 +796,18 @@ const ChallengeLeaderboard: React.FC = () => {
             </View>
           ) : null}
         </ScrollView>
+
+        <BoostEntryDialog
+          isOpen={boostOpen}
+          onClose={() => setBoostOpen(false)}
+          currentUser={user as BoostUser | null}
+          currentRank={userRank}
+          baseVotes={userVotes}
+          onBoostApplied={(votesAdded, updatedRank) => {
+            setUserVotes((prev) => prev + votesAdded);
+            setUserRank(updatedRank);
+          }}
+        />
 
         {/* <View
           style={[
@@ -411,13 +878,13 @@ const styles = StyleSheet.create({
   tabWrap: {
     flexDirection: 'row',
     padding: 4,
-    borderRadius: 20,
+    borderRadius: 999,
     borderWidth: 1,
   },
   tabButton: {
     flex: 1,
     minHeight: 46,
-    borderRadius: 16,
+    borderRadius: 999,
     alignItems: 'center',
     justifyContent: 'center',
   },
@@ -460,7 +927,7 @@ const styles = StyleSheet.create({
   sidePodiumAvatar: {
     width: 82,
     height: 82,
-    borderRadius: 41,
+    borderRadius: 999,
     borderWidth: 4,
     borderColor: '#cbd5e1',
   },
@@ -537,7 +1004,7 @@ const styles = StyleSheet.create({
   },
   rankCard: {
     padding: 14,
-    borderRadius: 26,
+    borderRadius: 999,
     borderWidth: 1,
     flexDirection: 'row',
     alignItems: 'center',
@@ -584,7 +1051,7 @@ const styles = StyleSheet.create({
   },
   userRankCard: {
     overflow: 'hidden',
-    borderRadius: 34,
+    borderRadius: 999,
     padding: 22,
   },
   userGlow: {
@@ -639,7 +1106,7 @@ const styles = StyleSheet.create({
   boostButton: {
     minHeight: 48,
     paddingHorizontal: 18,
-    borderRadius: 18,
+    borderRadius: 999,
     alignItems: 'center',
     justifyContent: 'center',
     backgroundColor: '#ffffff',
@@ -650,6 +1117,471 @@ const styles = StyleSheet.create({
     fontSize: FontSize.eight,
     textTransform: 'uppercase',
     letterSpacing: 1.3,
+  },
+  boostModalRoot: {
+    flex: 1,
+    justifyContent: 'flex-end',
+  },
+  boostBackdrop: {
+    ...StyleSheet.absoluteFillObject,
+    backgroundColor: 'rgba(0,0,0,0.8)',
+  },
+  boostSheet: {
+    width: '100%',
+    maxHeight: '92%',
+    borderTopLeftRadius: 36,
+    borderTopRightRadius: 36,
+    borderWidth: 1,
+    overflow: 'hidden',
+  },
+  boostHandle: {
+    width: 48,
+    height: 6,
+    borderRadius: 999,
+    alignSelf: 'center',
+    marginTop: 14,
+    marginBottom: 2,
+  },
+  boostScrollContent: {
+    padding: 24,
+    paddingBottom: 34,
+  },
+  boostStackLarge: {
+    gap: 24,
+  },
+  boostStack: {
+    gap: 12,
+  },
+  boostStackSmall: {
+    gap: 10,
+  },
+  boostHeaderRow: {
+    flexDirection: 'row',
+    alignItems: 'flex-start',
+    justifyContent: 'space-between',
+    gap: 14,
+  },
+  boostTitle: {
+    fontFamily: FontFamily.extraBold,
+    fontSize: FontSize.twenty,
+    textTransform: 'uppercase',
+  },
+  boostSubtitle: {
+    marginTop: 6,
+    fontFamily: FontFamily.extraBold,
+    fontSize: FontSize.eight,
+    textTransform: 'uppercase',
+    letterSpacing: 1.6,
+  },
+  boostClose: {
+    width: 36,
+    height: 36,
+    borderRadius: 18,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  boostStatusCard: {
+    borderRadius: 24,
+    borderWidth: 1,
+    borderColor: primaryColorAlpha(0.2),
+    padding: 16,
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    gap: 12,
+  },
+  boostStatusLeft: {
+    flex: 1,
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 12,
+  },
+  boostStatusAvatar: {
+    width: 42,
+    height: 42,
+    borderRadius: 21,
+    borderWidth: 1,
+    borderColor: primaryColorAlpha(0.3),
+  },
+  boostStatusName: {
+    fontFamily: FontFamily.extraBold,
+    fontSize: FontSize.ten,
+    textTransform: 'uppercase',
+  },
+  boostStatusRank: {
+    marginTop: 4,
+    color: PRIMARY_COLOR,
+    fontFamily: FontFamily.extraBold,
+    fontSize: FontSize.seven,
+    textTransform: 'uppercase',
+  },
+  boostStatusVotes: {
+    alignItems: 'flex-end',
+  },
+  boostStatusVoteValue: {
+    fontFamily: FontFamily.extraBold,
+    fontSize: FontSize.twelve,
+  },
+  boostStepPills: {
+    flexDirection: 'row',
+    gap: 8,
+  },
+  boostStepPill: {
+    flex: 1,
+    minHeight: 38,
+    borderRadius: 14,
+    borderWidth: 1,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  boostStepPillActive: {
+    flex: 1,
+    minHeight: 38,
+    borderRadius: 14,
+    alignItems: 'center',
+    justifyContent: 'center',
+    backgroundColor: PRIMARY_COLOR,
+  },
+  boostStepPillText: {
+    fontFamily: FontFamily.extraBold,
+    fontSize: FontSize.seven,
+    textTransform: 'uppercase',
+    letterSpacing: 1.2,
+  },
+  boostStepPillTextActive: {
+    color: '#ffffff',
+    fontFamily: FontFamily.extraBold,
+    fontSize: FontSize.seven,
+    textTransform: 'uppercase',
+    letterSpacing: 1.2,
+  },
+  boostSelectedPayload: {
+    minHeight: 78,
+    borderRadius: 22,
+    borderWidth: 1,
+    padding: 14,
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    gap: 10,
+  },
+  boostChangeText: {
+    marginTop: 4,
+    color: PRIMARY_COLOR,
+    fontFamily: FontFamily.extraBold,
+    fontSize: FontSize.seven,
+    textTransform: 'uppercase',
+  },
+  boostTinyMuted: {
+    fontFamily: FontFamily.extraBold,
+    fontSize: FontSize.seven,
+    textTransform: 'uppercase',
+    letterSpacing: 0.7,
+  },
+  boostSectionLabel: {
+    marginLeft: 4,
+    fontFamily: FontFamily.extraBold,
+    fontSize: FontSize.seven,
+    textTransform: 'uppercase',
+    letterSpacing: 1.6,
+  },
+  boostPackageScroller: {
+    minHeight: 220,
+  },
+  boostPackageCard: {
+    minHeight: 76,
+    borderRadius: 24,
+    borderWidth: 1,
+    overflow: 'hidden',
+    padding: 12,
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    gap: 10,
+  },
+  boostPackageLeft: {
+    flex: 1,
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 12,
+  },
+  boostPackageIcon: {
+    width: 42,
+    height: 42,
+    borderRadius: 13,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  boostPackageTitleRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    flexWrap: 'wrap',
+    gap: 6,
+  },
+  boostPackageName: {
+    fontFamily: FontFamily.extraBold,
+    fontSize: FontSize.ten,
+    textTransform: 'uppercase',
+  },
+  boostVotesChip: {
+    color: '#db2777',
+    backgroundColor: 'rgba(236,72,153,0.12)',
+    borderRadius: 999,
+    paddingHorizontal: 7,
+    paddingVertical: 3,
+    fontFamily: FontFamily.extraBold,
+    fontSize: FontSize.six,
+    textTransform: 'uppercase',
+  },
+  boostPriceBlock: {
+    alignItems: 'flex-end',
+    minWidth: 62,
+  },
+  boostPrice: {
+    fontFamily: FontFamily.extraBold,
+    fontSize: FontSize.twelve,
+  },
+  boostPaymentGrid: {
+    flexDirection: 'row',
+    gap: 8,
+  },
+  boostPaymentButton: {
+    flex: 1,
+    height: 56,
+    borderRadius: 18,
+    borderWidth: 1,
+    alignItems: 'center',
+    justifyContent: 'center',
+    gap: 4,
+  },
+  boostPaymentText: {
+    fontFamily: FontFamily.extraBold,
+    fontSize: FontSize.seven,
+    textTransform: 'uppercase',
+    letterSpacing: 1.2,
+  },
+  boostProviderRow: {
+    flexDirection: 'row',
+    gap: 8,
+  },
+  boostProviderButton: {
+    flex: 1,
+    height: 38,
+    borderRadius: 13,
+    borderWidth: 1,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  boostProviderText: {
+    fontFamily: FontFamily.extraBold,
+    fontSize: FontSize.seven,
+    textTransform: 'uppercase',
+  },
+  boostInputLabel: {
+    marginLeft: 4,
+    fontFamily: FontFamily.extraBold,
+    fontSize: FontSize.seven,
+    textTransform: 'uppercase',
+    letterSpacing: 1.2,
+  },
+  boostInput: {
+    minHeight: 50,
+    borderRadius: 18,
+    borderWidth: 1,
+    paddingHorizontal: 14,
+    fontFamily: FontFamily.extraBold,
+    fontSize: FontSize.twelve,
+  },
+  boostCenteredInput: {
+    textAlign: 'center',
+  },
+  boostCardInputRow: {
+    flexDirection: 'row',
+    gap: 12,
+  },
+  boostKcCard: {
+    borderRadius: 20,
+    borderWidth: 1,
+    borderColor: 'rgba(245,158,11,0.12)',
+    backgroundColor: 'rgba(245,158,11,0.06)',
+    padding: 16,
+    alignItems: 'center',
+    gap: 8,
+  },
+  boostKcTitle: {
+    color: '#f59e0b',
+    fontFamily: FontFamily.extraBold,
+    fontSize: FontSize.eight,
+    textTransform: 'uppercase',
+    letterSpacing: 1.5,
+  },
+  boostKcBalance: {
+    fontFamily: FontFamily.extraBold,
+    fontSize: FontSize.twenty,
+  },
+  boostError: {
+    color: '#ef4444',
+    fontFamily: FontFamily.extraBold,
+    fontSize: FontSize.eight,
+    textTransform: 'uppercase',
+    textAlign: 'center',
+  },
+  boostPayButton: {
+    minHeight: 56,
+    borderRadius: 24,
+    backgroundColor: PRIMARY_COLOR,
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
+    gap: 8,
+    shadowColor: PRIMARY_COLOR,
+    shadowOpacity: 0.3,
+    shadowRadius: 14,
+    shadowOffset: { width: 0, height: 8 },
+    elevation: 8,
+  },
+  boostActionRow: {
+    flexDirection: 'row',
+    gap: 10,
+  },
+  boostBackButton: {
+    minHeight: 56,
+    paddingHorizontal: 16,
+    borderRadius: 24,
+    borderWidth: 1,
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
+    gap: 6,
+  },
+  boostBackButtonText: {
+    fontFamily: FontFamily.extraBold,
+    fontSize: FontSize.eight,
+    textTransform: 'uppercase',
+    letterSpacing: 1.2,
+  },
+  boostActionPayButton: {
+    flex: 1,
+  },
+  boostPayButtonText: {
+    color: '#ffffff',
+    fontFamily: FontFamily.extraBold,
+    fontSize: FontSize.eight,
+    textTransform: 'uppercase',
+    letterSpacing: 1.8,
+  },
+  boostStageWrap: {
+    minHeight: 340,
+    alignItems: 'center',
+    justifyContent: 'center',
+    gap: 18,
+  },
+  boostSpinnerWrap: {
+    width: 82,
+    height: 82,
+    borderRadius: 41,
+    alignItems: 'center',
+    justifyContent: 'center',
+    backgroundColor: primaryColorAlpha(0.08),
+    borderWidth: 1,
+    borderColor: primaryColorAlpha(0.2),
+  },
+  boostStageTitle: {
+    fontFamily: FontFamily.extraBold,
+    fontSize: FontSize.fourteen,
+    textTransform: 'uppercase',
+    textAlign: 'center',
+  },
+  boostStageBody: {
+    maxWidth: 320,
+    fontFamily: FontFamily.medium,
+    fontSize: FontSize.ten,
+    lineHeight: 18,
+    textAlign: 'center',
+  },
+  boostOtpIcon: {
+    width: 68,
+    height: 68,
+    borderRadius: 34,
+    alignSelf: 'center',
+    alignItems: 'center',
+    justifyContent: 'center',
+    backgroundColor: 'rgba(245,158,11,0.1)',
+  },
+  boostOtpInput: {
+    height: 58,
+    borderRadius: 16,
+    borderWidth: 1,
+    textAlign: 'center',
+    fontFamily: FontFamily.extraBold,
+    fontSize: FontSize.eighteen,
+    letterSpacing: 8,
+  },
+  boostDarkButton: {
+    width: '100%',
+    minHeight: 54,
+    borderRadius: 18,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  boostDarkButtonText: {
+    fontFamily: FontFamily.extraBold,
+    fontSize: FontSize.eight,
+    textTransform: 'uppercase',
+    letterSpacing: 1.6,
+  },
+  boostCountdown: {
+    textAlign: 'center',
+    fontFamily: FontFamily.extraBold,
+    fontSize: FontSize.eight,
+    textTransform: 'uppercase',
+  },
+  boostSuccessIcon: {
+    width: 96,
+    height: 96,
+    borderRadius: 48,
+    alignItems: 'center',
+    justifyContent: 'center',
+    backgroundColor: PRIMARY_COLOR,
+    shadowColor: PRIMARY_COLOR,
+    shadowOpacity: 0.4,
+    shadowRadius: 26,
+    shadowOffset: { width: 0, height: 10 },
+    elevation: 10,
+  },
+  boostSuccessTitle: {
+    fontFamily: FontFamily.extraBold,
+    fontSize: FontSize.twentyTwo,
+    textTransform: 'uppercase',
+    textAlign: 'center',
+  },
+  boostSuccessStats: {
+    width: '100%',
+    borderRadius: 28,
+    borderWidth: 1,
+    padding: 18,
+    flexDirection: 'row',
+  },
+  boostSuccessStat: {
+    flex: 1,
+    alignItems: 'center',
+    gap: 4,
+  },
+  boostSuccessNumber: {
+    color: PRIMARY_COLOR,
+    fontFamily: FontFamily.extraBold,
+    fontSize: FontSize.twentyFour,
+  },
+  boostRankMove: {
+    color: '#10b981',
+    fontFamily: FontFamily.extraBold,
+    fontSize: FontSize.eighteen,
+  },
+  boostRankGain: {
+    color: '#059669',
+    fontFamily: FontFamily.extraBold,
+    fontSize: FontSize.seven,
+    textTransform: 'uppercase',
   },
   rulesCard: {
     borderRadius: 32,

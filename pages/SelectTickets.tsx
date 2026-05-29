@@ -16,6 +16,7 @@ import {
 } from 'react-native';
 import { SafeAreaView, useSafeAreaInsets } from 'react-native-safe-area-context';
 import { mediumScreen } from '../types';
+import PaymentSuccess from '../assets/icons/payment-success.svg'
 
 interface TicketTier {
   id: string;
@@ -113,8 +114,12 @@ const SelectTickets: React.FC = () => {
     return (
       <View style={[styles.successScreen, { backgroundColor: screenBg }]}>
         <View style={styles.successIconWrap}>
-          <View style={[styles.successIcon, { backgroundColor: successIconBg, borderColor: successIconBorder }]}>
-            <MaterialIcons name="check-circle" size={72} color={accent} />
+          <View style={{
+            // backgroundColor: 'blue',
+            height: 250,
+            width: 400,
+          }}>
+            <PaymentSuccess width="100%" height="100%"/>
           </View>
         </View>
         <Text style={[styles.successTitle, { color: titleColor }]}>Payment Success!</Text>
@@ -628,7 +633,7 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     paddingHorizontal: 24,
   },
-  successIconWrap: { marginBottom: 28 },
+  successIconWrap: {},
   successIcon: {
     width: 140,
     height: 140,

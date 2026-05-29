@@ -10,6 +10,7 @@ import { mediumScreen } from '../types';
 import EmojiStickerPicker from '../components/EmojiStickerPicker';
 import GiftDialog, { GiftSelection } from '../components/GiftDialog';
 import KulsahInputBar from '../components/KulsahInputBar';
+import EmptyStateComment from '../assets/icons/Comment VECTOR.svg';
 
 
 // type ReactionTab =  'Gifts'| null;
@@ -237,91 +238,101 @@ const Reactions: React.FC<ReactionsProps> = ({
           })}
         </View> */}
 
-        <ScrollView showsVerticalScrollIndicator={false} contentContainerStyle={styles.content} keyboardShouldPersistTaps="handled">
-          {comments.map((comment) => (
-            <View key={comment.id} style={styles.commentBlock}>
-              <View style={styles.commentRow}>
-                <Image source={{ uri: comment.avatar }} style={styles.avatar} />
-                <View style={styles.commentMain}>
-                  <View style={styles.commentMetaRow}>
-                    <View style={styles.commentNameRow}>
-                      <Text style={[styles.commentHandle, { color: theme.text }]}>{comment.handle}</Text>
-                      {comment.verified ? <MaterialIcons name="verified" size={14} color={PRIMARY_COLOR} /> : null}
-                    </View>
-                    <Text style={[styles.commentTime, { color: muted }]}>{comment.time}</Text>
-                  </View>
-                  {comment.stickerUrl ? (
-                    <Image source={{ uri: comment.stickerUrl }} style={styles.commentSticker} />
-                  ) : comment.gift ? (
-                    <View style={[styles.giftMessageCard, { backgroundColor: cardBackground, borderColor: softBorder }]}>
-                      <View style={styles.giftMessageMedia}>
-                        {comment.gift.isImage ? (
-                          <Image source={{ uri: comment.gift.icon }} style={styles.giftMessageImage} />
-                        ) : (
-                          <Text style={styles.giftMessageEmoji}>{comment.gift.icon}</Text>
-                        )}
-                      </View>
-                      <View style={styles.giftMessageCopy}>
-                        <Text style={[styles.giftMessageTitle, { color: theme.text }]}>{comment.gift.name}</Text>
-                        <Text style={[styles.giftMessagePrice, { color: muted }]}>
-                          Sent a gift worth {comment.gift.price} KC
-                        </Text>
-                      </View>
-                    </View>
-                  ) : (
-                    <Text style={[styles.commentBody, { color: commentText }]}>{comment.text}</Text>
-                  )}
-                  <View style={styles.actionRow}>
-                    <Pressable onPress={() => setReplyingTo(comment.handle)} style={styles.metaAction}>
-                      <MaterialIcons name="reply" size={14} color={muted} />
-                      <Text style={[styles.metaActionText, { color: muted }]}>Reply</Text>
-                    </Pressable>
-                    <Pressable style={styles.metaAction}>
-                      <MaterialIcons name="favorite" size={14} color={muted} />
-                      <Text style={[styles.metaActionText, { color: muted }]}>{comment.likes}</Text>
-                    </Pressable>
-                  </View>
-                </View>
-              </View>
-
-              {comment.reply ? (
-                <View style={styles.replyWrap}>
-                  <View style={[styles.replyLine, { backgroundColor: primaryColorAlpha(0.28) }]} />
-                  <View style={styles.replyRow}>
-                    <Image source={{ uri: comment.reply.avatar }} style={styles.replyAvatar} />
-                    <View style={styles.replyMain}>
+        <ScrollView showsVerticalScrollIndicator={false} contentContainerStyle={[styles.content, comments.length === 0 && styles.emptyContent]} keyboardShouldPersistTaps="handled">
+          {comments.length === 0 ? (
+            <View style={styles.emptyState}>
+              <EmptyStateComment width={180} height={180} />
+              <Text style={[styles.emptyTitle, { color: theme.text }]}>No Comments Yet</Text>
+              <Text style={[styles.emptyBody, { color: secondary }]}>Be the first to start the conversation.</Text>
+            </View>
+          ) : (
+            <>
+              {comments.map((comment) => (
+                <View key={comment.id} style={styles.commentBlock}>
+                  <View style={styles.commentRow}>
+                    <Image source={{ uri: comment.avatar }} style={styles.avatar} />
+                    <View style={styles.commentMain}>
                       <View style={styles.commentMetaRow}>
-                        <Text style={[styles.replyHandle, { color: theme.text }]}>{comment.reply.handle}</Text>
-                        <Text style={[styles.replyTime, { color: muted }]}>{comment.reply.time}</Text>
+                        <View style={styles.commentNameRow}>
+                          <Text style={[styles.commentHandle, { color: theme.text }]}>{comment.handle}</Text>
+                          {comment.verified ? <MaterialIcons name="verified" size={14} color={PRIMARY_COLOR} /> : null}
+                        </View>
+                        <Text style={[styles.commentTime, { color: muted }]}>{comment.time}</Text>
                       </View>
-                      <Text style={[styles.replyBody, { color: commentText }]}>
-                        <Text style={{ color: PRIMARY_COLOR, fontFamily: FontFamily.bold }}>{comment.handle} </Text>
-                        {comment.reply.text}
-                      </Text>
-                      <View style={styles.replyActions}>
-                        <Text style={[styles.replyActionText, { color: muted }]}>Reply</Text>
-                        <Text style={[styles.replyActionText, { color: muted }]}>Like</Text>
+                      {comment.stickerUrl ? (
+                        <Image source={{ uri: comment.stickerUrl }} style={styles.commentSticker} />
+                      ) : comment.gift ? (
+                        <View style={[styles.giftMessageCard, { backgroundColor: cardBackground, borderColor: softBorder }]}>
+                          <View style={styles.giftMessageMedia}>
+                            {comment.gift.isImage ? (
+                              <Image source={{ uri: comment.gift.icon }} style={styles.giftMessageImage} />
+                            ) : (
+                              <Text style={styles.giftMessageEmoji}>{comment.gift.icon}</Text>
+                            )}
+                          </View>
+                          <View style={styles.giftMessageCopy}>
+                            <Text style={[styles.giftMessageTitle, { color: theme.text }]}>{comment.gift.name}</Text>
+                            <Text style={[styles.giftMessagePrice, { color: muted }]}>
+                              Sent a gift worth {comment.gift.price} KC
+                            </Text>
+                          </View>
+                        </View>
+                      ) : (
+                        <Text style={[styles.commentBody, { color: commentText }]}>{comment.text}</Text>
+                      )}
+                      <View style={styles.actionRow}>
+                        <Pressable onPress={() => setReplyingTo(comment.handle)} style={styles.metaAction}>
+                          <MaterialIcons name="reply" size={14} color={muted} />
+                          <Text style={[styles.metaActionText, { color: muted }]}>Reply</Text>
+                        </Pressable>
+                        <Pressable style={styles.metaAction}>
+                          <MaterialIcons name="favorite" size={14} color={muted} />
+                          <Text style={[styles.metaActionText, { color: muted }]}>{comment.likes}</Text>
+                        </Pressable>
                       </View>
                     </View>
                   </View>
-                </View>
-              ) : null}
-            </View>
-          ))}
 
-          <BlurView intensity={32} tint={isDark ? 'dark' : 'light'} style={[styles.giftCard, { borderColor: primaryColorAlpha(0.18) }]}>
-            <Image source={{ uri: 'https://picsum.photos/seed/marcus-digital/120' }} style={styles.avatar} />
-            <View style={{ flex: 1 }}>
-              <View style={styles.giftHeaderRow}>
-                <Text style={[styles.commentHandle, { color: theme.text }]}>@marcus_digital</Text>
-                <Text style={styles.giftLabel}>GIFTER</Text>
-              </View>
-              <View style={styles.giftMetaRow}>
-                <MaterialIcons name="redeem" size={18} color={PRIMARY_COLOR} />
-                <Text style={[styles.giftText, { color: theme.text }]}>Sent a Hyper-Glow Gift</Text>
-              </View>
-            </View>
-          </BlurView>
+                  {comment.reply ? (
+                    <View style={styles.replyWrap}>
+                      <View style={[styles.replyLine, { backgroundColor: primaryColorAlpha(0.28) }]} />
+                      <View style={styles.replyRow}>
+                        <Image source={{ uri: comment.reply.avatar }} style={styles.replyAvatar} />
+                        <View style={styles.replyMain}>
+                          <View style={styles.commentMetaRow}>
+                            <Text style={[styles.replyHandle, { color: theme.text }]}>{comment.reply.handle}</Text>
+                            <Text style={[styles.replyTime, { color: muted }]}>{comment.reply.time}</Text>
+                          </View>
+                          <Text style={[styles.replyBody, { color: commentText }]}>
+                            <Text style={{ color: PRIMARY_COLOR, fontFamily: FontFamily.bold }}>{comment.handle} </Text>
+                            {comment.reply.text}
+                          </Text>
+                          <View style={styles.replyActions}>
+                            <Text style={[styles.replyActionText, { color: muted }]}>Reply</Text>
+                            <Text style={[styles.replyActionText, { color: muted }]}>Like</Text>
+                          </View>
+                        </View>
+                      </View>
+                    </View>
+                  ) : null}
+                </View>
+              ))}
+
+              <BlurView intensity={32} tint={isDark ? 'dark' : 'light'} style={[styles.giftCard, { borderColor: primaryColorAlpha(0.18) }]}>
+                <Image source={{ uri: 'https://picsum.photos/seed/marcus-digital/120' }} style={styles.avatar} />
+                <View style={{ flex: 1 }}>
+                  <View style={styles.giftHeaderRow}>
+                    <Text style={[styles.commentHandle, { color: theme.text }]}>@marcus_digital</Text>
+                    <Text style={styles.giftLabel}>GIFTER</Text>
+                  </View>
+                  <View style={styles.giftMetaRow}>
+                    <MaterialIcons name="redeem" size={18} color={PRIMARY_COLOR} />
+                    <Text style={[styles.giftText, { color: theme.text }]}>Sent a Hyper-Glow Gift</Text>
+                  </View>
+                </View>
+              </BlurView>
+            </>
+          )}
         </ScrollView>
 
         <View
@@ -430,6 +441,32 @@ const styles = StyleSheet.create({
   tabButton: { flex: 1, minHeight: 46, borderRadius: 18, flexDirection: 'row', alignItems: 'center', justifyContent: 'center', gap: 8 },
   tabText: { fontFamily: FontFamily.extraBold, fontSize: FontSize.eight, textTransform: 'uppercase', letterSpacing: 0.2 },
   content: { paddingHorizontal: 24, paddingTop: 10, paddingBottom: 18, gap: 22 },
+  emptyContent: {
+    flexGrow: 1,
+    justifyContent: 'center',
+  },
+  emptyState: {
+    alignItems: 'center',
+    justifyContent: 'center',
+    gap: 10,
+    paddingHorizontal: 24,
+    paddingBottom: 32,
+  },
+  emptyTitle: {
+    marginTop: 4,
+    fontFamily: FontFamily.extraBold,
+    fontSize: mediumScreen ? FontSize.sixteen : FontSize.twelve,
+    textTransform: 'uppercase',
+    letterSpacing: 1.2,
+    textAlign: 'center',
+  },
+  emptyBody: {
+    maxWidth: 260,
+    fontFamily: FontFamily.medium,
+    fontSize: mediumScreen ? FontSize.twelve : FontSize.nine,
+    lineHeight: 18,
+    textAlign: 'center',
+  },
   commentBlock: { gap: 12 },
   commentRow: { flexDirection: 'row', gap: 12 },
   avatar: { width: 40, height: 40, borderRadius: 20 },

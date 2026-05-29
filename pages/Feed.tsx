@@ -1,5 +1,7 @@
 import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { useThemeMode, PRIMARY_COLOR, primaryColorAlpha } from "../theme";
+import AsyncStorage from '@react-native-async-storage/async-storage';
+import { Accelerometer } from 'expo-sensors';
 import {
   Dimensions,
   FlatList,
@@ -14,6 +16,7 @@ import {
   useWindowDimensions,
   ViewToken,
   Animated,
+  ActivityIndicator,
   Platform,
   PanResponder,
 } from 'react-native';
@@ -82,6 +85,10 @@ const FEED_ITEM_HEIGHT = SCREEN_HEIGHT * (Platform.OS === 'ios'? 0.92: 0.92);
 const MONTHLY_KULCOINS = 100;
 const YEARLY_KULCOINS = 1000;
 const INITIAL_TIME_UPDATE = { currentTime: 0 } as const;
+const SHAKE_TO_REFRESH_STORAGE_KEY = 'pulsar_shake_to_refresh';
+const SHAKE_FORCE_THRESHOLD = 2.05;
+const SHAKE_DELTA_THRESHOLD = 1.15;
+const SHAKE_REFRESH_COOLDOWN_MS = 1400;
 const INITIAL_SUBSCRIPTION: SubscriptionTier = {
   name: 'Kulsah Access',
   price: '9.99',
@@ -1412,9 +1419,13 @@ useEffect(() => {
 const Feed: React.FC = () => {
   const { isDark, theme } = useThemeMode();
   const navigation = useNavigation<any>();
+  const isFeedFocused = useIsFocused();
   const [activeTab, setActiveTab] = useState<'premium' | 'foryou' | 'following' >('foryou');
   const [isGlobalMuted, setIsGlobalMuted] = useState(false);
   const swipeHandledRef = useRef(false);
+  const feedListRef = useRef<FlatList<FeedItem> | null>(null);
+  const lastShakeRefreshRef = useRef(0);
+  const lastShakeForceRef = useRef(1);
   const insets= useSafeAreaInsets();
   const [items, setItems] = useState<FeedItem[]>([
     {
@@ -2161,6 +2172,8 @@ const Feed: React.FC = () => {
   const [showSubscriptionSuccess, setShowSubscriptionSuccess] = useState(false);
   const [showKulCoinPrompt, setShowKulCoinPrompt] = useState(false);
   const [isCreatorViewer, setIsCreatorViewer] = useState(user?.role === 'creator');
+  const [shakeToRefreshEnabled, setShakeToRefreshEnabled] = useState(false);
+  const [isShakeRefreshing, setIsShakeRefreshing] = useState(false);
 
 
   useEffect(() => {
@@ -2173,6 +2186,21 @@ const Feed: React.FC = () => {
       setIsCreatorViewer(nextUser?.role === 'creator');
     });
   }, []);
+
+  useEffect(() => {
+    if (!isFeedFocused) return;
+
+    const loadShakePreference = async () => {
+      try {
+        const saved = await AsyncStorage.getItem(SHAKE_TO_REFRESH_STORAGE_KEY);
+        setShakeToRefreshEnabled(saved === 'true');
+      } catch {
+        setShakeToRefreshEnabled(false);
+      }
+    };
+
+    void loadShakePreference();
+  }, [isFeedFocused]);
 
   const onViewRef = React.useRef(
   ({ viewableItems }: { viewableItems: ViewToken[] }) => {
@@ -2234,6 +2262,43 @@ const Feed: React.FC = () => {
   const handleToggleMute = useCallback(() => {
     setIsGlobalMuted((v) => !v);
   }, []);
+
+  const refreshFeedFromShake = useCallback(() => {
+    setIsShakeRefreshing(true);
+    setActiveIndex(0);
+    feedListRef.current?.scrollToOffset({ offset: 0, animated: true });
+    setItems((prev) => {
+      if (prev.length <= 1) return prev;
+      return [...prev.slice(1), prev[0]];
+    });
+
+    setTimeout(() => {
+      setIsShakeRefreshing(false);
+    }, 1100);
+  }, []);
+
+  useEffect(() => {
+    if (!isFeedFocused || !shakeToRefreshEnabled) return;
+
+    Accelerometer.setUpdateInterval(120);
+    const subscription = Accelerometer.addListener(({ x, y, z }) => {
+      const force = Math.sqrt(x * x + y * y + z * z);
+      const forceDelta = Math.abs(force - lastShakeForceRef.current);
+      const now = Date.now();
+      lastShakeForceRef.current = force;
+
+      const hasShakeMotion = force >= SHAKE_FORCE_THRESHOLD || forceDelta >= SHAKE_DELTA_THRESHOLD;
+
+      if (!hasShakeMotion || now - lastShakeRefreshRef.current < SHAKE_REFRESH_COOLDOWN_MS) {
+        return;
+      }
+
+      lastShakeRefreshRef.current = now;
+      refreshFeedFromShake();
+    });
+
+    return () => subscription.remove();
+  }, [isFeedFocused, refreshFeedFromShake, shakeToRefreshEnabled]);
 
   const handleTabSwipe = useCallback((direction: 'left' | 'right') => {
     const tabOrder: Array<'foryou' | 'following' | 'premium'> = ['foryou', 'following', 'premium'];
@@ -2469,6 +2534,7 @@ const Feed: React.FC = () => {
           // paddingBottom: '10%'
         }}>
           <FlatList
+          ref={feedListRef}
           data={displayedItems}
           keyExtractor={(item) => item.id}
           renderItem={renderFeedItem}
@@ -2506,6 +2572,39 @@ const Feed: React.FC = () => {
           </Pressable>
         </View>
       )}
+      {isShakeRefreshing ? (
+        <View
+          pointerEvents="none"
+          style={{
+            position: 'absolute',
+            top: Platform.OS === 'ios' ? 104 : insets.top + 54,
+            alignSelf: 'center',
+            zIndex: 90,
+            minHeight: 46,
+            borderRadius: 999,
+            paddingHorizontal: 18,
+            flexDirection: 'row',
+            alignItems: 'center',
+            gap: 10,
+            backgroundColor: 'rgba(0,0,0,0.72)',
+            borderWidth: 1,
+            borderColor: primaryColorAlpha(0.45),
+          }}
+        >
+          <ActivityIndicator size="small" color={PRIMARY_COLOR} />
+          <Text
+            style={{
+              color: '#ffffff',
+              fontFamily: FontFamily.extraBold,
+              fontSize: FontSize.eight,
+              textTransform: 'uppercase',
+              letterSpacing: 1.4,
+            }}
+          >
+            Refreshing Feed
+          </Text>
+        </View>
+      ) : null}
       <FeedSubscriptionModal
         visible={!!selectedSubscription}
         selection={selectedSubscription}
