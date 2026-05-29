@@ -670,6 +670,11 @@ const VideoFeedItem: React.FC<{
     outputRange: ['0deg', '360deg'],
   });
 
+
+
+
+  
+
   const togglePlayPause = () => {
     console.log("Video is tapped");
     console.log("The value of more:", more);
