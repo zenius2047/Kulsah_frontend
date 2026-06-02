@@ -186,7 +186,7 @@ const Inbox: React.FC = () => {
               onPress={()=>{
                 navigation.navigate('Chat')
               }}
-              key={chat.id} style={[styles.chatCard, { backgroundColor: card, }]}>
+              key={chat.id} style={[styles.chatCard,]}>
                 <View style={styles.chatAvatarWrap}>
                   <Image source={{ uri: chat.avatar }} style={[styles.chatAvatar, chat.unread && styles.chatAvatarUnread]} />
                   {chat.vip ? <View style={styles.vipBadge}><Text style={styles.vipText}>VIP</Text></View> : null}
@@ -256,7 +256,7 @@ const styles = StyleSheet.create({
   collabAvatar: { width: '100%', height: '100%', borderRadius: 30 },
   liveDot: { position: 'absolute', right: 2, bottom: 2, width: 12, height: 12, borderRadius: 6, backgroundColor: '#10b981', borderWidth: 2, borderColor: '#0a050d' },
   collabName: { fontFamily: FontFamily.bold, fontSize: FontSize.seven, textTransform: 'uppercase' },
-  searchRow: { marginTop: 12, minHeight: 52, borderWidth: 1, borderRadius: 16, flexDirection: 'row', alignItems: 'center', gap: 8, paddingHorizontal: 12 },
+  searchRow: { marginTop: 12, minHeight: 52, borderWidth: 1, borderRadius: 999, flexDirection: 'row', alignItems: 'center', gap: 8, paddingHorizontal: 12 },
   searchInput: { flex: 1, fontFamily: FontFamily.medium, fontSize: FontSize.ten },
   chatList: { gap: 10 },
   chatCard: { padding: 12, flexDirection: 'row', alignItems: 'center', gap: 12 },

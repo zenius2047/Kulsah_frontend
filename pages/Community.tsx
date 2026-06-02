@@ -354,7 +354,7 @@ const Community: React.FC<{ embedded?: boolean }> = ({ embedded = false }) => {
 
   return (
     <View style={[styles.container, { backgroundColor: theme.background }]}>
-      {user!.role === 'fan' && !embedded && <View style={[styles.header, {marginTop: Platform.OS == 'ios' ? 54 : insets.bottom} ]}>
+      {user!.role === 'fan' && !embedded && <View style={[styles.header, {marginTop: Platform.OS == 'ios' ? 54 : insets.top} ]}>
         <Pressable onPress={() => navigation.goBack()} style={[styles.headerRoundBtn, { backgroundColor: faintSurface, borderColor: softBorder }]}>
           <MaterialIcons name="chevron-left" size={22} color={theme.text} />
         </Pressable>

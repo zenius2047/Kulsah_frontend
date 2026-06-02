@@ -578,15 +578,25 @@ const CommunityPostDetail: React.FC = () => {
           <KulsahInputBar
             value={commentText}
             onChangeText={setCommentText}
-            placeholder="Write a comment..."
-            placeholderTextColor={theme.textSecondary}
-            multiline
+            placeholder="Join the discussion..."
+            placeholderTextColor={mutedText}
             containerStyle={{ backgroundColor: composerBg, borderColor: softBorder }}
-            inputStyle={[styles.bottomComposerInput, { color: theme.text }]}
             rightAccessory={(
-              <Pressable onPress={() => void addComment(replyingTo ? replyingTo.id : null)} style={styles.sendBtn}>
-                <MaterialIcons name="send" size={18} color={commentText.trim() ? '#1877f2' : dimIcon} />
-              </Pressable>
+              <>
+                <View style={styles.inputActions}>
+                  <Pressable style={styles.inputIcon}>
+                    <MaterialIcons name="redeem" size={26} color={mutedText} />
+                  </Pressable>
+                  <Pressable style={styles.inputIcon}>
+                    <MaterialIcons name="mood" size={26} color={mutedText} />
+                  </Pressable>
+                </View>
+                {commentText ? (
+                  <Pressable onPress={() => void addComment(replyingTo ? replyingTo.id : null)} style={styles.sendButton}>
+                    <MaterialIcons name="send" size={18} color="#fff" />
+                  </Pressable>
+                ) : null}
+              </>
             )}
           />
         </View>
@@ -728,6 +738,9 @@ const styles = StyleSheet.create({
   replyingTarget: { fontFamily: FontFamily.bold },
   bottomComposerInput: { maxHeight: 90, paddingVertical: 4, fontSize: mediumScreen ? FontSize.fourteen : FontSize.twelve, fontFamily: FontFamily.medium },
   sendBtn: { width: 32, height: 32, borderRadius: 16, alignItems: 'center', justifyContent: 'center' },
+  inputActions: { flexDirection: 'row' },
+  inputIcon: { width: 32, height: 32, borderRadius: 16, alignItems: 'center', justifyContent: 'center' },
+  sendButton: { width: 36, height: 36, borderRadius: 12, alignItems: 'center', justifyContent: 'center', backgroundColor: PRIMARY_COLOR },
   emptyState: { flex: 1, justifyContent: 'center', alignItems: 'center', paddingHorizontal: 24, gap: 12 },
   emptyTitle: { fontSize: mediumScreen ? FontSize.eighteen : FontSize.fourteen, fontFamily: FontFamily.extraBold, textTransform: 'uppercase' },
   emptyText: { textAlign: 'center', fontSize: mediumScreen ? FontSize.fifteen : FontSize.twelve, fontFamily: FontFamily.medium, lineHeight: 20 },

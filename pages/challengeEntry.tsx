@@ -94,10 +94,14 @@ const ChallengeEntry: React.FC = () => {
             </Text>
           </View>
 
-          <View style={styles.audioSection}>
+          {/* <View style={styles.audioSection}>
             <View style={styles.sectionHead}>
               <Text style={[styles.sectionTitle, { color: theme.text }]}>Select Audio</Text>
-              <Pressable>
+              <Pressable
+              onPress={()=>(
+                navigation.navigate('UseSound')
+              )}
+              >
                 <Text style={styles.seeAll}>See all</Text>
               </Pressable>
             </View>
@@ -119,7 +123,7 @@ const ChallengeEntry: React.FC = () => {
 
               <MaterialIcons name="check-circle" size={22} color={PRIMARY_COLOR} />
             </Pressable>
-          </View>
+          </View> */}
 
           <View style={styles.uploadSection}>
             <Pressable

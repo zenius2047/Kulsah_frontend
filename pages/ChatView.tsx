@@ -18,15 +18,17 @@ import { GoogleGenAI } from '@google/genai';
 import { FontFamily, FontSize } from '../fonts';
 import { mediumScreen } from '../types';
 import KulsahInputBar from '../components/KulsahInputBar';
+import GiftDialog, { GiftSelection } from '../components/GiftDialog';
 
 interface Message {
   id: number;
   sender: 'me' | 'other';
   text: string;
   time: string;
-  type?: 'text' | 'image' | 'drop' | 'tip_request';
+  type?: 'text' | 'image' | 'drop' | 'tip_request' | 'gift';
   status?: 'sent' | 'read';
   amount?: string;
+  gift?: GiftSelection;
 }
 
 type CallType = 'audio' | 'video';
@@ -51,6 +53,8 @@ const ChatView: React.FC = () => {
   const [isGeneratingReplies, setIsGeneratingReplies] = useState(false);
   const [isToolsOpen, setIsToolsOpen] = useState(false);
   const [showEmojiPicker, setShowEmojiPicker] = useState(false);
+  const [giftDialogOpen, setGiftDialogOpen] = useState(false);
+  const [coinBalance, setCoinBalance] = useState(1250);
 
   const [callStatus, setCallStatus] = useState<CallStatus>('idle');
   const [callType, setCallType] = useState<CallType>('audio');
@@ -195,6 +199,29 @@ const ChatView: React.FC = () => {
     setShowEmojiPicker(false);
   };
 
+  const handleSendGift = (gift: GiftSelection) => {
+    const newMsg: Message = {
+      id: Date.now(),
+      sender: 'me',
+      text: `Sent ${gift.name}`,
+      time: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
+      type: 'gift',
+      amount: `${gift.price} KC`,
+      gift,
+      status: 'sent',
+    };
+
+    setMessages((prev) => [...prev, newMsg]);
+    setCoinBalance((prev) => prev - gift.price);
+    setGiftDialogOpen(false);
+    setIsToolsOpen(false);
+    setShowEmojiPicker(false);
+
+    setTimeout(() => {
+      setMessages((prev) => prev.map((m) => (m.id === newMsg.id ? { ...m, status: 'read' } : m)));
+    }, 900);
+  };
+
   const emojiSet = useMemo(() => ['🔥', '🙌', '❤️', '✨', '🌌', '🚀', '💯'], []);
   const stickers = useMemo(
     () => [
@@ -324,6 +351,21 @@ const ChatView: React.FC = () => {
                   <Text style={[styles.tipAmount, { color: primaryText }]}>Requesting Tip: ${m.amount}</Text>
                 </View>
               </View>
+            ) : m.type === 'gift' ? (
+              <View style={styles.giftBubble}>
+                <View style={styles.giftBubbleIcon}>
+                  {m.gift?.isImage ? (
+                    <Image source={{ uri: m.gift.icon }} style={styles.giftBubbleImage} />
+                  ) : (
+                    <Text style={styles.giftBubbleEmoji}>{m.gift?.icon ?? '🎁'}</Text>
+                  )}
+                </View>
+                <View style={{ flex: 1 }}>
+                  <Text style={styles.giftBubbleLabel}>Gift Sent</Text>
+                  <Text style={[styles.giftBubbleName, { color: primaryText }]}>{m.gift?.name ?? m.text}</Text>
+                  <Text style={[styles.giftBubblePrice, { color: mutedText }]}>{m.amount}</Text>
+                </View>
+              </View>
             ) : m.type === 'image' ? (
               <View style={styles.stickerBubble}>
                 <Image source={{ uri: m.text }} style={styles.stickerImage} />
@@ -426,17 +468,39 @@ const ChatView: React.FC = () => {
               inputStyle={[styles.input, { color: primaryText }]}
               onSubmitEditing={() => handleSend()}
               rightAccessory={(
-                <Pressable onPress={() => setShowEmojiPicker((v) => !v)}>
-                  <MaterialIcons name="mood" size={22} color={showEmojiPicker ? PRIMARY_COLOR : mutedText} />
-                </Pressable>
+                <>
+                  <View style={styles.inputActions}>
+                    <Pressable
+                      onPress={() => setGiftDialogOpen(true)}
+                      style={styles.inputIcon}
+                    >
+                      <MaterialIcons name="redeem" size={24} color={mutedText} />
+                    </Pressable>
+                    <Pressable
+                      onPress={() => setShowEmojiPicker((v) => !v)}
+                      style={styles.inputIcon}
+                    >
+                      <MaterialIcons name="mood" size={24} color={showEmojiPicker ? PRIMARY_COLOR : mutedText} />
+                    </Pressable>
+                  </View>
+                  {msg.trim() ? (
+                    <Pressable onPress={() => handleSend()} style={styles.inputSendButton}>
+                      <MaterialIcons name="send" size={18} color="#fff" />
+                    </Pressable>
+                  ) : null}
+                </>
               )}
             />
-
-          <Pressable onPress={() => handleSend()} disabled={!msg.trim()} style={[styles.sendBtn, !msg.trim() && styles.sendBtnDisabled]}>
-            <MaterialIcons name="send" size={20} color="#fff" />
-          </Pressable>
         </View>
       </View>
+      <GiftDialog
+        isOpen={giftDialogOpen}
+        onClose={() => setGiftDialogOpen(false)}
+        creatorName={id.replace('_', ' ')}
+        currentBalance={coinBalance}
+        onSendGift={handleSendGift}
+        onTopUpSuccess={(amount) => setCoinBalance((prev) => prev + amount)}
+      />
     </View>
     </KeyboardAvoidingView>
   );
@@ -536,6 +600,51 @@ const styles = StyleSheet.create({
   },
   tipLabel: { color: '#22c55e', fontSize: FontSize.ten, fontFamily: FontFamily.extraBold },
   tipAmount: { fontSize: FontSize.thirteen, fontFamily: FontFamily.bold },
+  giftBubble: {
+    maxWidth: '86%',
+    borderRadius: 24,
+    backgroundColor: primaryColorAlpha(0.12),
+    borderWidth: 1,
+    borderColor: primaryColorAlpha(0.35),
+    padding: 12,
+    gap: 10,
+    flexDirection: 'row',
+    alignItems: 'center',
+  },
+  giftBubbleIcon: {
+    width: 48,
+    height: 48,
+    borderRadius: 24,
+    overflow: 'hidden',
+    alignItems: 'center',
+    justifyContent: 'center',
+    backgroundColor: primaryColorAlpha(0.16),
+  },
+  giftBubbleImage: {
+    width: '100%',
+    height: '100%',
+  },
+  giftBubbleEmoji: {
+    fontSize: FontSize.twentyFour,
+  },
+  giftBubbleLabel: {
+    color: PRIMARY_COLOR,
+    fontSize: FontSize.eight,
+    fontFamily: FontFamily.extraBold,
+    textTransform: 'uppercase',
+    letterSpacing: 1.2,
+  },
+  giftBubbleName: {
+    marginTop: 2,
+    fontSize: FontSize.twelve,
+    fontFamily: FontFamily.extraBold,
+  },
+  giftBubblePrice: {
+    marginTop: 2,
+    fontSize: FontSize.eight,
+    fontFamily: FontFamily.bold,
+    textTransform: 'uppercase',
+  },
   stickerBubble: {
     borderRadius: 14,
     overflow: 'hidden',
@@ -608,6 +717,9 @@ const styles = StyleSheet.create({
     gap: 8,
   },
   input: { flex: 1, fontSize: mediumScreen? FontSize.twelve: FontSize.eight, fontFamily: FontFamily.bold },
+  inputActions: { flexDirection: 'row' },
+  inputIcon: { width: 32, height: 32, borderRadius: 16, alignItems: 'center', justifyContent: 'center' },
+  inputSendButton: { width: 36, height: 36, borderRadius: 12, backgroundColor: PRIMARY_COLOR, justifyContent: 'center', alignItems: 'center' },
   sendBtn: { width: 48, height: 48, borderRadius: 24, backgroundColor: PRIMARY_COLOR, justifyContent: 'center', alignItems: 'center' },
   sendBtnDisabled: { backgroundColor: 'rgba(255,255,255,0.12)' },
 });

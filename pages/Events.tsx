@@ -103,7 +103,7 @@ const Events: React.FC = () => {
   const [activeFilter, setActiveFilter] = useState<FilterMode>('all');
   const [activeLocation, setActiveLocation] = useState('Global');
   const [searchQuery, setSearchQuery] = useState('');
-  const [purchasingEvent, setPurchasingEvent] = useState<CalendarEvent | null>(null);
+  // const [purchasingEvent, setPurchasingEvent] = useState<CalendarEvent | null>(null);
   const [isSuccess, setIsSuccess] = useState(false);
 
   const screenBg = theme.background;
@@ -179,7 +179,7 @@ const Events: React.FC = () => {
     setIsSuccess(true);
     setTimeout(() => {
       setIsSuccess(false);
-      setPurchasingEvent(null);
+      // setPurchasingEvent(null);
     }, 2000);
   };
 
@@ -305,7 +305,7 @@ const Events: React.FC = () => {
             filteredEvents.map((event) => (
               <Pressable
                 key={event.id}
-                onPress={() => navigation.navigate('EventDetail', { id: event.id })}
+                // onPress={() => navigation.navigate('EventDetail', { id: event.id })}
                 style={[styles.eventCard, { backgroundColor: surface, borderColor: softBorder }]}
               >
                 <View style={styles.visualWrap}>
@@ -364,9 +364,10 @@ const Events: React.FC = () => {
                   </View>
 
                   <Pressable
-                    onPress={(pressEvent) => {
-                      pressEvent.stopPropagation();
-                      setPurchasingEvent(event);
+                    onPress={() => {
+                      navigation.navigate('EventDetail', { id: event.id })
+                      // pressEvent.stopPropagation();
+                      // setPurchasingEvent(event);
                     }}
                     style={[
                       styles.ctaButton,
@@ -403,7 +404,7 @@ const Events: React.FC = () => {
           )}
         </ScrollView>
 
-        <Modal
+        {/* <Modal
           visible={!!purchasingEvent}
           transparent
           animationType="fade"
@@ -469,7 +470,7 @@ const Events: React.FC = () => {
               ) : null}
             </View>
           </View>
-        </Modal>
+        </Modal> */}
       </View>
     </SafeAreaView>
   );

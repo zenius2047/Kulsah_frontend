@@ -1,19 +1,20 @@
-import React, { useState } from 'react';
+import React, { useMemo, useState } from 'react';
 import {
-  Image,
   ImageBackground,
+  Platform,
   Pressable,
-  SafeAreaView,
   ScrollView,
   StyleSheet,
   Text,
+  TextInput,
   View,
 } from 'react-native';
 import { MaterialIcons } from '@expo/vector-icons';
+import { BlurView } from 'expo-blur';
 import { LinearGradient } from 'expo-linear-gradient';
-import { useSafeAreaInsets } from 'react-native-safe-area-context';
+import { SafeAreaView, useSafeAreaInsets } from 'react-native-safe-area-context';
 import { FontFamily, FontSize } from '../fonts';
-import { PRIMARY_COLOR, primaryColorAlpha } from "../theme";
+import { PRIMARY_COLOR, primaryColorAlpha, useThemeMode } from "../theme";
 
 type CoinPack = {
   id: string;
@@ -37,8 +38,6 @@ const coinPacks: CoinPack[] = [
 
 const headerArtwork =
   'https://lh3.googleusercontent.com/aida-public/AB6AXuCHfY3OyXbRr7O2uM-hGpQ2GtZ_VGqr9xD19gAb5kYCjaJO43WHvai3t6eINqqbk6o6r2731NNXyeWykLceAlG93ol_jEA-qnSlqvQ0d3m-WRfx0DVj9lFK_J8B5gyzwatjPgSYPTWMN2ruaU-hcvY4k_-cgGZNhaOwV_votLH0l5a_3d3-F9QsbLoSeIPkl-3MxJTpC6pKdlKmGQTQi8rylVsHh-ByGiG7Lq0V8pHo4ad6_tk90DZnKb07kPhkEZqUwqjj7xOc6tCy';
-const avatarArtwork =
-  'https://lh3.googleusercontent.com/aida-public/AB6AXuCaoc34r0ZPrSPhn9y8KGXLGaDVEGVQAFIFFHKPphn40n--m99MF3048CysMZJlmUgfYyMIMJgA7CBl4kB962Z20KvSNvFpCegO8y_A18sfITp5iTEMkQs4h1YG9Kd3VxbL3sQRKh1re6QHazEHNFefpn7cfoy4J8gslemV57JpbS1DXrKMH5rYKD0L2OfVDqpw56iU3j_FaslFqJAK2SUh3sf-slQIjchMtbmm9f5kCtWAisIcxzJXvQ5FQ83MHdfIuTcIzdlOboNU';
 
 export const VoteModalContent: React.FC<VoteModalContentProps> = ({
   onClose,
@@ -47,6 +46,17 @@ export const VoteModalContent: React.FC<VoteModalContentProps> = ({
 }) => {
   const insets = useSafeAreaInsets();
   const [selectedPackId, setSelectedPackId] = useState('500');
+  const [voteCount, setVoteCount] = useState('1');
+  const normalizedVoteCount = Math.max(1, Number.parseInt(voteCount, 10) || 1);
+  const walletBalance = 120;
+  const needsTopUp = normalizedVoteCount > walletBalance;
+  const { isDark, theme } = useThemeMode();
+  const styles = useMemo(() => createStyles(isDark, theme), [isDark, theme]);
+
+  const updateVoteCount = (value: string) => {
+    const numeric = value.replace(/[^0-9]/g, '');
+    setVoteCount(numeric);
+  };
 
   return (
     <View style={[styles.overlayRoot, sheetMode && styles.overlaySheet]}>
@@ -56,130 +66,174 @@ export const VoteModalContent: React.FC<VoteModalContentProps> = ({
         style={[
           styles.card,
           sheetMode && styles.sheetCard,
-          { paddingBottom: Math.max(insets.bottom, 18) },
+          { paddingBottom: Platform.OS === 'ios' ? 0 : Math.max(insets.bottom, 18) },
         ]}
       >
-        <Pressable style={styles.closeButton} onPress={onClose}>
-          <MaterialIcons name="close" size={22} color="#94a3b8" />
-        </Pressable>
+        <BlurView intensity={26} tint={isDark ? 'dark' : 'light'} style={styles.cardBlur}>
+          <Pressable style={styles.closeButton} onPress={onClose}>
+            <MaterialIcons name="close" size={22} color={theme.textSecondary} />
+          </Pressable>
 
-        <ScrollView
-          bounces={false}
-          showsVerticalScrollIndicator={false}
-          contentContainerStyle={styles.scrollContent}
-        >
-          <View style={styles.topBar}>
-            <Text style={styles.brand}>NEON PULSE</Text>
-            <View style={styles.topBarRight}>
-              <View style={styles.walletChip}>
-                <MaterialIcons name="account-balance-wallet" size={15} color={PRIMARY_COLOR} />
-                <Text style={styles.walletChipText}>120 Coins</Text>
+          <ScrollView
+            bounces={false}
+            showsVerticalScrollIndicator={false}
+            contentContainerStyle={styles.scrollContent}
+          >
+            {/* <View style={styles.topBar}>
+              <Text style={styles.brand}>NEON PULSE</Text>
+              <View style={styles.topBarRight}>
+                <View style={styles.walletChip}>
+                  <MaterialIcons name="account-balance-wallet" size={15} color={PRIMARY_COLOR} />
+                  <Text style={styles.walletChipText}>120 Coins</Text>
+                </View>
+                <View style={styles.avatarRing}>
+                  <Image source={{ uri: avatarArtwork }} style={styles.avatarImage} />
+                </View>
               </View>
-              <View style={styles.avatarRing}>
-                <Image source={{ uri: avatarArtwork }} style={styles.avatarImage} />
-              </View>
-            </View>
-          </View>
+            </View> */}
 
-          <ImageBackground source={{ uri: headerArtwork }} style={styles.hero} imageStyle={styles.heroImage}>
-            <LinearGradient
-              colors={['rgba(10,5,13,0.08)', 'rgba(10,5,13,0.58)', '#0a050d']}
-              style={StyleSheet.absoluteFillObject}
-            />
-            <View style={styles.heroContent}>
-              <View style={styles.hotBadge}>
-                <Text style={styles.hotBadgeText}>HOT NOW</Text>
-              </View>
-              <Text style={styles.heroTitle}>Electric Sky Challenge</Text>
-              <Text style={styles.heroSubtitle}>
-                Vote for your favorite set to push them to the main stage.
-              </Text>
-            </View>
-          </ImageBackground>
+            <BlurView intensity={34} tint={isDark ? 'dark' : 'light'} style={styles.heroBlurWrap}>
+              <ImageBackground source={{ uri: headerArtwork }} style={styles.hero} imageStyle={styles.heroImage}>
+                <LinearGradient
+                  colors={
+                    isDark
+                      ? ['rgba(10,5,13,0.08)', 'rgba(10,5,13,0.58)', '#0a050d']
+                      : ['rgba(248,250,252,0.08)', 'rgba(248,250,252,0.52)', theme.background]
+                  }
+                  style={StyleSheet.absoluteFillObject}
+                />
+                <View style={styles.heroContent}>
+                  {/* <View style={styles.hotBadge}>
+                    <Text style={styles.hotBadgeText}>HOT NOW</Text>
+                  </View> */}
+                  <Text style={styles.heroTitle}>Electric Sky Challenge</Text>
+                  <Text style={styles.heroSubtitle}>
+                    Vote for your favorite set to push them to the main stage.
+                  </Text>
+                </View>
+              </ImageBackground>
+            </BlurView>
 
-          <View style={styles.sectionHeader}>
-            <Text style={styles.modalTitle}>Cast Your Vote</Text>
-            <Text style={styles.modalSubtitle}>Support your favorite creator</Text>
-            <View style={styles.balancePill}>
-              <MaterialIcons name="payments" size={20} color="#deb7ff" />
-              <Text style={styles.balanceText}>Balance: 120 Coins</Text>
+            <View style={styles.sectionHeader}>
+              <Text style={styles.modalTitle}>Cast Your Vote</Text>
+              <Text style={styles.modalSubtitle}>Support your favorite creator</Text>
+              <BlurView intensity={28} tint={isDark ? 'dark' : 'light'} style={styles.balancePill}>
+                <MaterialIcons name="payments" size={20} color="#deb7ff" />
+              <Text style={styles.balanceText}>Balance: {walletBalance} Coins</Text>
+              </BlurView>
             </View>
-          </View>
 
-          <View style={styles.packSection}>
-            <Text style={styles.packLabel}>Top up your wallet</Text>
-            {coinPacks.map((pack) => {
-              const selected = pack.id === selectedPackId;
-              return (
+            <View style={styles.voteCounterSection}>
+              <Text style={styles.packLabel}>Number of votes</Text>
+              <BlurView intensity={28} tint={isDark ? 'dark' : 'light'} style={styles.voteCounterCard}>
                 <Pressable
-                  key={pack.id}
-                  onPress={() => setSelectedPackId(pack.id)}
-                  style={[
-                    styles.packRow,
-                    selected ? styles.packRowSelected : styles.packRowDefault,
-                  ]}
+                  onPress={() => setVoteCount(String(Math.max(1, (Number.parseInt(voteCount, 10) || 1) - 1)))}
+                  style={styles.voteStepButton}
                 >
-                  <View style={styles.packMain}>
-                    <View
-                      style={[
-                        styles.packIconWrap,
-                        selected ? styles.packIconWrapSelected : styles.packIconWrapDefault,
-                      ]}
-                    >
-                      <MaterialIcons
-                        name={pack.icon}
-                        size={20}
-                        color={selected ? '#ffffff' : PRIMARY_COLOR}
-                      />
-                    </View>
-
-                    <View style={styles.packCopy}>
-                      <Text style={[styles.packCoins, selected && styles.packCoinsSelected]}>
-                        {pack.coins}
-                      </Text>
-                      <Text style={[styles.packPrice, selected && styles.packPriceSelected]}>
-                        {pack.price}
-                      </Text>
-                    </View>
-                  </View>
-
-                  <View style={styles.packActionWrap}>
-                    {pack.featured ? (
-                      <View style={styles.bestValueBadge}>
-                        <Text style={styles.bestValueText}>BEST VALUE</Text>
-                      </View>
-                    ) : null}
-
-                    <View
-                      style={[
-                        styles.packActionButton,
-                        selected ? styles.packActionButtonSelected : styles.packActionButtonDefault,
-                      ]}
-                    >
-                      <Text
-                        style={[
-                          styles.packActionText,
-                          selected ? styles.packActionTextSelected : styles.packActionTextDefault,
-                        ]}
-                      >
-                        {selected ? 'PURCHASE' : 'SELECT'}
-                      </Text>
-                    </View>
-                  </View>
+                  <MaterialIcons name="remove" size={22} color="#ffffff" />
                 </Pressable>
-              );
-            })}
-          </View>
 
-          <Pressable style={styles.confirmButton} onPress={onConfirm ?? onClose}>
-            <Text style={styles.confirmButtonText}>Confirm Vote & Purchase</Text>
-            <MaterialIcons name="arrow-forward" size={20} color="#ffffff" />
-          </Pressable>
+                <View style={styles.voteInputWrap}>
+                  <TextInput
+                    value={voteCount}
+                    onChangeText={updateVoteCount}
+                    keyboardType="number-pad"
+                    placeholder="1"
+                    placeholderTextColor="rgba(255,255,255,0.35)"
+                    textAlign="center"
+                    style={styles.voteInput}
+                  />
+                  <Text style={styles.voteInputCaption}>votes</Text>
+                </View>
 
-          <Pressable style={styles.cancelButton} onPress={onClose}>
-            <Text style={styles.cancelButtonText}>Cancel</Text>
-          </Pressable>
-        </ScrollView>
+                <Pressable
+                  onPress={() => setVoteCount(String(normalizedVoteCount + 1))}
+                  style={styles.voteStepButton}
+                >
+                  <MaterialIcons name="add" size={22} color="#ffffff" />
+                </Pressable>
+              </BlurView>
+            </View>
+
+            {needsTopUp ? (
+              <View style={styles.packSection}>
+                <Text style={styles.packLabel}>Top up your wallet</Text>
+                {coinPacks.map((pack) => {
+                  const selected = pack.id === selectedPackId;
+                  return (
+                    <Pressable
+                      key={pack.id}
+                      onPress={() => setSelectedPackId(pack.id)}
+                      style={[
+                        styles.packRow,
+                        selected ? styles.packRowSelected : styles.packRowDefault,
+                      ]}
+                    >
+                      <View style={styles.packMain}>
+                        <View
+                          style={[
+                            styles.packIconWrap,
+                            selected ? styles.packIconWrapSelected : styles.packIconWrapDefault,
+                          ]}
+                        >
+                          <MaterialIcons
+                            name={pack.icon}
+                            size={20}
+                            color={selected ? '#ffffff' : PRIMARY_COLOR}
+                          />
+                        </View>
+
+                        <View style={styles.packCopy}>
+                          <Text style={[styles.packCoins, selected && styles.packCoinsSelected]}>
+                            {pack.coins}
+                          </Text>
+                          <Text style={[styles.packPrice, selected && styles.packPriceSelected]}>
+                            {pack.price}
+                          </Text>
+                        </View>
+                      </View>
+
+                      <View style={styles.packActionWrap}>
+                        {pack.featured ? (
+                          <View style={styles.bestValueBadge}>
+                            <Text style={styles.bestValueText}>BEST VALUE</Text>
+                          </View>
+                        ) : null}
+
+                        <View
+                          style={[
+                            styles.packActionButton,
+                            selected ? styles.packActionButtonSelected : styles.packActionButtonDefault,
+                          ]}
+                        >
+                          <Text
+                            style={[
+                              styles.packActionText,
+                              selected ? styles.packActionTextSelected : styles.packActionTextDefault,
+                            ]}
+                          >
+                            {selected ? 'PURCHASE' : 'SELECT'}
+                          </Text>
+                        </View>
+                      </View>
+                    </Pressable>
+                  );
+                })}
+              </View>
+            ) : null}
+
+            <Pressable style={styles.confirmButton} onPress={onConfirm ?? onClose}>
+              <Text style={styles.confirmButtonText}>
+                Confirm {normalizedVoteCount} Vote{normalizedVoteCount === 1 ? '' : 's'} & Purchase
+              </Text>
+              <MaterialIcons name="arrow-forward" size={20} color="#ffffff" />
+            </Pressable>
+
+            <Pressable style={styles.cancelButton} onPress={onClose}>
+              <Text style={styles.cancelButtonText}>Cancel</Text>
+            </Pressable>
+          </ScrollView>
+        </BlurView>
       </View>
     </View>
   );
@@ -193,339 +247,394 @@ const Vote: React.FC = () => {
   );
 };
 
-const styles = StyleSheet.create({
-  screen: {
-    flex: 1,
-    backgroundColor: '#0a050d',
-  },
-  overlayRoot: {
-    flex: 1,
-    justifyContent: 'center',
-    paddingHorizontal: 16,
-    paddingVertical: 20,
-  },
-  overlaySheet: {
-    justifyContent: 'flex-end',
-    paddingHorizontal: 12,
-    paddingBottom: 0,
-  },
-  backdrop: {
-    ...StyleSheet.absoluteFillObject,
-    backgroundColor: 'rgba(10,5,13,0.8)',
-  },
-  card: {
-    position: 'relative',
-    alignSelf: 'center',
-    width: '100%',
-    maxWidth: 430,
-    maxHeight: '92%',
-    borderRadius: 28,
-    borderWidth: 1,
-    borderColor: 'rgba(255,255,255,0.1)',
-    backgroundColor: 'rgba(255,255,255,0.04)',
-    overflow: 'hidden',
-  },
-  sheetCard: {
-    maxWidth: 520,
-    width: '100%',
-    borderBottomLeftRadius: 0,
-    borderBottomRightRadius: 0,
-    maxHeight: '94%',
-  },
-  scrollContent: {
-    paddingBottom: 14,
-  },
-  closeButton: {
-    position: 'absolute',
-    top: 14,
-    right: 14,
-    zIndex: 20,
-    width: 38,
-    height: 38,
-    borderRadius: 19,
-    alignItems: 'center',
-    justifyContent: 'center',
-    backgroundColor: 'rgba(10,5,13,0.65)',
-    borderWidth: 1,
-    borderColor: 'rgba(255,255,255,0.08)',
-  },
-  topBar: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'space-between',
-    paddingHorizontal: 20,
-    paddingTop: 18,
-    paddingBottom: 16,
-  },
-  brand: {
-    color: '#f8fafc',
-    fontFamily: FontFamily.extraBold,
-    fontSize: FontSize.fourteen,
-    fontStyle: 'italic',
-    letterSpacing: 0.6,
-  },
-  topBarRight: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: 10,
-  },
-  walletChip: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: 6,
-    paddingHorizontal: 12,
-    paddingVertical: 8,
-    borderRadius: 999,
-    backgroundColor: 'rgba(255,255,255,0.05)',
-    borderWidth: 1,
-    borderColor: 'rgba(255,255,255,0.08)',
-  },
-  walletChipText: {
-    color: '#f8fafc',
-    fontFamily: FontFamily.bold,
-    fontSize: FontSize.nine,
-    textTransform: 'uppercase',
-    letterSpacing: 0.8,
-  },
-  avatarRing: {
-    width: 40,
-    height: 40,
-    borderRadius: 20,
-    padding: 2,
-    borderWidth: 2,
-    borderColor: PRIMARY_COLOR,
-  },
-  avatarImage: {
-    width: '100%',
-    height: '100%',
-    borderRadius: 16,
-  },
-  hero: {
-    height: 260,
-    marginHorizontal: 16,
-    marginBottom: 16,
-    borderRadius: 24,
-    overflow: 'hidden',
-    justifyContent: 'flex-end',
-  },
-  heroImage: {
-    borderRadius: 24,
-  },
-  heroContent: {
-    paddingHorizontal: 18,
-    paddingBottom: 18,
-    gap: 8,
-  },
-  hotBadge: {
-    alignSelf: 'flex-start',
-    paddingHorizontal: 10,
-    paddingVertical: 5,
-    borderRadius: 999,
-    backgroundColor: primaryColorAlpha(0.18),
-    borderWidth: 1,
-    borderColor: primaryColorAlpha(0.35),
-  },
-  hotBadgeText: {
-    color: '#d68cef',
-    fontFamily: FontFamily.extraBold,
-    fontSize: FontSize.seven,
-    letterSpacing: 1.1,
-    fontStyle: 'italic',
-  },
-  heroTitle: {
-    color: '#ffffff',
-    fontFamily: FontFamily.extraBold,
-    fontSize: FontSize.seventeen,
-  },
-  heroSubtitle: {
-    color: '#94a3b8',
-    fontFamily: FontFamily.medium,
-    fontSize: FontSize.nine,
-    lineHeight: 18,
-  },
-  sectionHeader: {
-    alignItems: 'center',
-    paddingHorizontal: 20,
-    paddingTop: 8,
-    paddingBottom: 10,
-  },
-  modalTitle: {
-    color: '#ffffff',
-    fontFamily: FontFamily.extraBold,
-    fontSize: FontSize.sixteen,
-  },
-  modalSubtitle: {
-    marginTop: 4,
-    color: '#94a3b8',
-    fontFamily: FontFamily.medium,
-    fontSize: FontSize.nine,
-  },
-  balancePill: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: 8,
-    marginTop: 16,
-    paddingHorizontal: 16,
-    paddingVertical: 12,
-    borderRadius: 999,
-    backgroundColor: 'rgba(106,0,177,0.35)',
-    borderWidth: 1,
-    borderColor: primaryColorAlpha(0.3),
-  },
-  balanceText: {
-    color: '#ffffff',
-    fontFamily: FontFamily.bold,
-    fontSize: FontSize.eleven,
-  },
-  packSection: {
-    paddingHorizontal: 16,
-    paddingTop: 8,
-    gap: 12,
-  },
-  packLabel: {
-    paddingHorizontal: 6,
-    color: '#64748b',
-    fontFamily: FontFamily.extraBold,
-    fontSize: FontSize.seven,
-    textTransform: 'uppercase',
-    letterSpacing: 1.5,
-  },
-  packRow: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'space-between',
-    gap: 12,
-    padding: 14,
-    borderRadius: 22,
-    borderWidth: 1,
-  },
-  packRowDefault: {
-    backgroundColor: 'rgba(255,255,255,0.03)',
-    borderColor: 'rgba(255,255,255,0.1)',
-  },
-  packRowSelected: {
-    backgroundColor: primaryColorAlpha(0.12),
-    borderColor: primaryColorAlpha(0.55),
-  },
-  packMain: {
-    flex: 1,
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: 12,
-  },
-  packIconWrap: {
-    width: 42,
-    height: 42,
-    borderRadius: 21,
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
-  packIconWrapDefault: {
-    backgroundColor: primaryColorAlpha(0.12),
-  },
-  packIconWrapSelected: {
-    backgroundColor: PRIMARY_COLOR,
-  },
-  packCopy: {
-    gap: 3,
-  },
-  packCoins: {
-    color: '#e2e8f0',
-    fontFamily: FontFamily.bold,
-    fontSize: FontSize.eleven,
-  },
-  packCoinsSelected: {
-    color: '#ffffff',
-  },
-  packPrice: {
-    color: '#94a3b8',
-    fontFamily: FontFamily.bold,
-    fontSize: FontSize.eight,
-    letterSpacing: 0.4,
-    textTransform: 'uppercase',
-  },
-  packPriceSelected: {
-    color: '#deb7ff',
-  },
-  packActionWrap: {
-    alignItems: 'flex-end',
-    gap: 8,
-  },
-  bestValueBadge: {
-    paddingHorizontal: 8,
-    paddingVertical: 4,
-    borderRadius: 999,
-    backgroundColor: primaryColorAlpha(0.16),
-  },
-  bestValueText: {
-    color: '#d68cef',
-    fontFamily: FontFamily.extraBold,
-    fontSize: FontSize.six,
-    letterSpacing: 1,
-    fontStyle: 'italic',
-  },
-  packActionButton: {
-    minWidth: 84,
-    alignItems: 'center',
-    justifyContent: 'center',
-    paddingHorizontal: 14,
-    paddingVertical: 10,
-    borderRadius: 12,
-    borderWidth: 1,
-  },
-  packActionButtonDefault: {
-    backgroundColor: 'rgba(255,255,255,0.08)',
-    borderColor: 'rgba(255,255,255,0.08)',
-  },
-  packActionButtonSelected: {
-    backgroundColor: PRIMARY_COLOR,
-    borderColor: PRIMARY_COLOR,
-  },
-  packActionText: {
-    fontFamily: FontFamily.extraBold,
-    fontSize: FontSize.eight,
-    letterSpacing: 0.8,
-  },
-  packActionTextDefault: {
-    color: '#e2e8f0',
-  },
-  packActionTextSelected: {
-    color: '#ffffff',
-  },
-  confirmButton: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'center',
-    gap: 10,
-    marginHorizontal: 16,
-    marginTop: 22,
-    paddingVertical: 16,
-    borderRadius: 18,
-    backgroundColor: PRIMARY_COLOR,
-    shadowColor: PRIMARY_COLOR,
-    shadowOffset: { width: 0, height: 0 },
-    shadowOpacity: 0.42,
-    shadowRadius: 22,
-    elevation: 10,
-  },
-  confirmButtonText: {
-    color: '#ffffff',
-    fontFamily: FontFamily.extraBold,
-    fontSize: FontSize.eleven,
-  },
-  cancelButton: {
-    alignItems: 'center',
-    justifyContent: 'center',
-    marginTop: 12,
-    paddingVertical: 10,
-  },
-  cancelButtonText: {
-    color: '#64748b',
-    fontFamily: FontFamily.extraBold,
-    fontSize: FontSize.eight,
-    textTransform: 'uppercase',
-    letterSpacing: 1.4,
-  },
-});
+const createStyles = (isDark: boolean, theme: ReturnType<typeof useThemeMode>['theme']) =>
+  StyleSheet.create({
+    screen: {
+      flex: 1,
+      backgroundColor: theme.background,
+    },
+    overlayRoot: {
+      flex: 1,
+      justifyContent: 'center',
+    },
+    overlaySheet: {
+      justifyContent: 'flex-end',
+      paddingBottom: 0,
+    },
+    backdrop: {
+      ...StyleSheet.absoluteFillObject,
+      backgroundColor: isDark ? 'rgba(10,5,13,0.8)' : 'rgba(15,23,42,0.45)',
+    },
+    card: {
+      width: '100%',
+      maxWidth: '100%',
+      height: '85%',
+      borderRadius: 28,
+      borderWidth: 1,
+      borderColor: theme.border,
+      overflow: 'hidden',
+      backgroundColor: theme.card,
+    },
+    cardBlur: {
+      flex: 1,
+      backgroundColor: theme.surface,
+    },
+    sheetCard: {
+      maxWidth: 520,
+      width: '100%',
+      height: '85%',
+    },
+    scrollContent: {
+      paddingBottom: 14,
+      paddingTop: 60,
+    },
+    closeButton: {
+      position: 'absolute',
+      top: 14,
+      right: 14,
+      zIndex: 20,
+      width: 38,
+      height: 38,
+      borderRadius: 19,
+      alignItems: 'center',
+      justifyContent: 'center',
+      backgroundColor: theme.surface,
+      borderWidth: 1,
+      borderColor: theme.border,
+    },
+    topBar: {
+      flexDirection: 'row',
+      alignItems: 'center',
+      justifyContent: 'space-between',
+      paddingHorizontal: 20,
+      paddingTop: 18,
+      paddingBottom: 16,
+    },
+    brand: {
+      color: theme.text,
+      fontFamily: FontFamily.extraBold,
+      fontSize: FontSize.fourteen,
+      fontStyle: 'italic',
+      letterSpacing: 0.6,
+    },
+    topBarRight: {
+      flexDirection: 'row',
+      alignItems: 'center',
+      gap: 10,
+    },
+    walletChip: {
+      flexDirection: 'row',
+      alignItems: 'center',
+      gap: 6,
+      paddingHorizontal: 12,
+      paddingVertical: 8,
+      borderRadius: 999,
+      backgroundColor: theme.surface,
+      borderWidth: 1,
+      borderColor: theme.border,
+    },
+    walletChipText: {
+      color: theme.text,
+      fontFamily: FontFamily.bold,
+      fontSize: FontSize.nine,
+      textTransform: 'uppercase',
+      letterSpacing: 0.8,
+    },
+    avatarRing: {
+      width: 40,
+      height: 40,
+      borderRadius: 20,
+      padding: 2,
+      borderWidth: 2,
+      borderColor: PRIMARY_COLOR,
+    },
+    avatarImage: {
+      width: '100%',
+      height: '100%',
+      borderRadius: 16,
+    },
+    hero: {
+      height: 260,
+      marginHorizontal: 0,
+      marginBottom: 0,
+      borderRadius: 24,
+      overflow: 'hidden',
+      justifyContent: 'flex-end',
+    },
+    heroBlurWrap: {
+      marginHorizontal: 16,
+      marginBottom: 16,
+      borderRadius: 24,
+      overflow: 'hidden',
+    },
+    heroImage: {
+      borderRadius: 24,
+    },
+    heroContent: {
+      paddingHorizontal: 18,
+      paddingBottom: 18,
+      gap: 8,
+    },
+    hotBadge: {
+      alignSelf: 'flex-start',
+      paddingHorizontal: 10,
+      paddingVertical: 5,
+      borderRadius: 999,
+      backgroundColor: primaryColorAlpha(0.18),
+      borderWidth: 1,
+      borderColor: primaryColorAlpha(0.35),
+    },
+    hotBadgeText: {
+      color: isDark ? '#d68cef' : theme.accent,
+      fontFamily: FontFamily.extraBold,
+      fontSize: FontSize.seven,
+      letterSpacing: 1.1,
+      fontStyle: 'italic',
+    },
+    heroTitle: {
+      color: theme.text,
+      fontFamily: FontFamily.extraBold,
+      fontSize: FontSize.seventeen,
+    },
+    heroSubtitle: {
+      color: theme.textSecondary,
+      fontFamily: FontFamily.medium,
+      fontSize: FontSize.nine,
+      lineHeight: 18,
+    },
+    sectionHeader: {
+      alignItems: 'center',
+      paddingHorizontal: 20,
+      paddingTop: 8,
+      paddingBottom: 10,
+    },
+    modalTitle: {
+      color: theme.text,
+      fontFamily: FontFamily.extraBold,
+      fontSize: FontSize.sixteen,
+    },
+    modalSubtitle: {
+      marginTop: 4,
+      color: theme.textSecondary,
+      fontFamily: FontFamily.medium,
+      fontSize: FontSize.nine,
+    },
+    balancePill: {
+      flexDirection: 'row',
+      alignItems: 'center',
+      gap: 8,
+      marginTop: 16,
+      paddingHorizontal: 16,
+      paddingVertical: 12,
+      borderRadius: 999,
+      backgroundColor: isDark ? 'rgba(106,0,177,0.35)' : 'rgba(56,169,229,0.12)',
+      borderWidth: 1,
+      borderColor: primaryColorAlpha(0.3),
+      overflow: 'hidden',
+    },
+    voteCounterSection: {
+      paddingHorizontal: 16,
+      paddingTop: 8,
+      gap: 10,
+    },
+    voteCounterCard: {
+      flexDirection: 'row',
+      alignItems: 'center',
+      justifyContent: 'space-between',
+      gap: 12,
+      paddingHorizontal: 14,
+      paddingVertical: 12,
+      borderRadius: 22,
+      borderWidth: 1,
+      borderColor: theme.border,
+      backgroundColor: theme.surface,
+      overflow: 'hidden',
+    },
+    voteStepButton: {
+      width: 42,
+      height: 42,
+      borderRadius: 21,
+      alignItems: 'center',
+      justifyContent: 'center',
+      backgroundColor: theme.surface,
+      borderWidth: 1,
+      borderColor: theme.border,
+    },
+    balanceText: {
+      color: theme.text,
+      fontFamily: FontFamily.bold,
+      fontSize: FontSize.eleven,
+    },
+    voteInputWrap: {
+      flex: 1,
+      alignItems: 'center',
+      justifyContent: 'center',
+      gap: 2,
+    },
+    voteInput: {
+      minWidth: 90,
+      color: theme.text,
+      fontFamily: FontFamily.extraBold,
+      fontSize: FontSize.twentyTwo,
+      paddingVertical: 0,
+      includeFontPadding: false,
+    },
+    voteInputCaption: {
+      color: theme.textSecondary,
+      fontFamily: FontFamily.bold,
+      fontSize: FontSize.seven,
+      textTransform: 'uppercase',
+      letterSpacing: 1.2,
+    },
+    packSection: {
+      paddingHorizontal: 16,
+      paddingTop: 8,
+      gap: 12,
+    },
+    packLabel: {
+      paddingHorizontal: 6,
+      color: theme.textMuted,
+      fontFamily: FontFamily.extraBold,
+      fontSize: FontSize.seven,
+      textTransform: 'uppercase',
+      letterSpacing: 1.5,
+    },
+    packRow: {
+      flexDirection: 'row',
+      alignItems: 'center',
+      justifyContent: 'space-between',
+      gap: 12,
+      padding: 14,
+      borderRadius: 22,
+      borderWidth: 1,
+    },
+    packRowDefault: {
+      backgroundColor: theme.surface,
+      borderColor: theme.border,
+    },
+    packRowSelected: {
+      backgroundColor: primaryColorAlpha(0.12),
+      borderColor: primaryColorAlpha(0.55),
+    },
+    packMain: {
+      flex: 1,
+      flexDirection: 'row',
+      alignItems: 'center',
+      gap: 12,
+    },
+    packIconWrap: {
+      width: 42,
+      height: 42,
+      borderRadius: 21,
+      alignItems: 'center',
+      justifyContent: 'center',
+    },
+    packIconWrapDefault: {
+      backgroundColor: primaryColorAlpha(0.12),
+    },
+    packIconWrapSelected: {
+      backgroundColor: PRIMARY_COLOR,
+    },
+    packCopy: {
+      gap: 3,
+    },
+    packCoins: {
+      color: theme.text,
+      fontFamily: FontFamily.bold,
+      fontSize: FontSize.eleven,
+    },
+    packCoinsSelected: {
+      color: '#ffffff',
+    },
+    packPrice: {
+      color: theme.textSecondary,
+      fontFamily: FontFamily.bold,
+      fontSize: FontSize.eight,
+      letterSpacing: 0.4,
+      textTransform: 'uppercase',
+    },
+    packPriceSelected: {
+      color: isDark ? '#deb7ff' : theme.accent,
+    },
+    packActionWrap: {
+      alignItems: 'flex-end',
+      gap: 8,
+    },
+    bestValueBadge: {
+      paddingHorizontal: 8,
+      paddingVertical: 4,
+      borderRadius: 999,
+      backgroundColor: primaryColorAlpha(0.16),
+    },
+    bestValueText: {
+      color: isDark ? '#d68cef' : theme.accent,
+      fontFamily: FontFamily.extraBold,
+      fontSize: FontSize.six,
+      letterSpacing: 1,
+      fontStyle: 'italic',
+    },
+    packActionButton: {
+      minWidth: 84,
+      alignItems: 'center',
+      justifyContent: 'center',
+      paddingHorizontal: 14,
+      paddingVertical: 10,
+      borderRadius: 12,
+      borderWidth: 1,
+    },
+    packActionButtonDefault: {
+      backgroundColor: theme.surface,
+      borderColor: theme.border,
+    },
+    packActionButtonSelected: {
+      backgroundColor: PRIMARY_COLOR,
+      borderColor: PRIMARY_COLOR,
+    },
+    packActionText: {
+      fontFamily: FontFamily.extraBold,
+      fontSize: FontSize.eight,
+      letterSpacing: 0.8,
+    },
+    packActionTextDefault: {
+      color: theme.text,
+    },
+    packActionTextSelected: {
+      color: '#ffffff',
+    },
+    confirmButton: {
+      flexDirection: 'row',
+      alignItems: 'center',
+      justifyContent: 'center',
+      gap: 10,
+      marginHorizontal: 16,
+      marginTop: 22,
+      paddingVertical: 16,
+      borderRadius: 18,
+      backgroundColor: PRIMARY_COLOR,
+      shadowColor: PRIMARY_COLOR,
+      shadowOffset: { width: 0, height: 0 },
+      shadowOpacity: 0.42,
+      shadowRadius: 22,
+      elevation: 10,
+    },
+    confirmButtonText: {
+      color: '#ffffff',
+      fontFamily: FontFamily.extraBold,
+      fontSize: FontSize.eleven,
+    },
+    cancelButton: {
+      alignItems: 'center',
+      justifyContent: 'center',
+      marginTop: 12,
+      paddingVertical: 10,
+    },
+    cancelButtonText: {
+      color: theme.textMuted,
+      fontFamily: FontFamily.extraBold,
+      fontSize: FontSize.eight,
+      textTransform: 'uppercase',
+      letterSpacing: 1.4,
+    },
+  });
 
 export default Vote;

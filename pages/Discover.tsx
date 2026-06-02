@@ -102,7 +102,7 @@ const activeChallenges: ChallengeItem[] = [
       id: 'ch-seamless',
       tag: 'ContinuousMatchCutChallenge',
       creator: 'Devon Carter',
-      prizePool: '8,000 KulCoins',
+      prizePool: 'GH₵ 8,000',
       participants: 41200,
       type: 'Seamless Transition',
       endTime: 'Ends in 2 days',
@@ -112,7 +112,7 @@ const activeChallenges: ChallengeItem[] = [
       id: 'ch-cyberneon',
       tag: 'CyberpunkColorVibeGrading',
       creator: 'Sarah Chen',
-      prizePool: '5,500 KulCoins',
+      prizePool: 'GH₵ 5,500',
       participants: 28900,
       type: 'VFX Overlay',
       endTime: 'Ends in 4 days',
@@ -122,7 +122,7 @@ const activeChallenges: ChallengeItem[] = [
       id: 'ch-hyperlapse',
       tag: 'InfiniteSpeedRampHyperlapse',
       creator: 'Elena Rostova',
-      prizePool: '10,000 KulCoins',
+      prizePool: 'GH₵ 10,000',
       participants: 51000,
       type: 'Drone Hyperlapse',
       endTime: 'Ends in 12 hours',
@@ -132,7 +132,7 @@ const activeChallenges: ChallengeItem[] = [
       id: 'ch-anamorphic',
       tag: 'AnamorphicAtmosphericDepth',
       creator: 'Lucas Dupont',
-      prizePool: '12,500 KulCoins',
+      prizePool: 'GH₵ 12,500',
       participants: 34500,
       type: 'Cinematic Vlog',
       endTime: 'Ends in 3 days',
@@ -358,9 +358,9 @@ const Discover: React.FC<{ embedded?: boolean }> = ({ embedded = false }) => {
                           <Text style={styles.creatorHandle}>{creator.handle}</Text>
                           <Text numberOfLines={2} style={styles.creatorStyle}>{creator.style}</Text>
                         </View>
-                        <Pressable onPress={(event) => handleFollowToggle(creator.id, event)} style={[styles.followButton, isFollowed ? styles.followingButton : styles.subscribeButton]}>
-                          <MaterialIcons name={isFollowed ? 'done' : 'person-add-alt-1'} size={12} color={isFollowed ? PRIMARY_COLOR : '#fff'} />
-                          <Text style={[styles.followText, { color: isFollowed ? PRIMARY_COLOR : '#fff' }]}>{isFollowed ? 'Following' : 'Follow'}</Text>
+                        <Pressable onPress={(event) => handleFollowToggle(creator.id, event)} style={[styles.followButton, isFollowed ? styles.followingButton : styles.subscribeButton,{borderColor: creator.isLive ? 'red': PRIMARY_COLOR, backgroundColor: creator.isLive ? 'rgba(255, 0, 0, 1)': isFollowed ? primaryColorAlpha(0.1): PRIMARY_COLOR} ]}>
+                          <MaterialIcons name={creator.isLive ? 'videocam' : isFollowed ? 'done' : 'person-add-alt-1'} size={12} color={creator.isLive ? 'white': isFollowed ? PRIMARY_COLOR : '#fff'} />
+                          <Text style={[styles.followText, { color: creator.isLive ? 'white': isFollowed ? PRIMARY_COLOR : '#fff' }]}>{creator.isLive ? "Join Live" :  isFollowed ? 'Following' : 'Follow'}</Text>
                         </Pressable>
                       </Pressable>
                     );
@@ -406,7 +406,7 @@ const Discover: React.FC<{ embedded?: boolean }> = ({ embedded = false }) => {
                           <View style={styles.ticketFooter}>
                             <View>
                               <Text style={styles.priceLabel}>Price</Text>
-                              <Text style={styles.priceText}>{ticket.price} KC</Text>
+                              <Text style={styles.priceText}>GH₵ {ticket.price}</Text>
                             </View>
                             <Pressable onPress={(event) => { stop(event); setSelectedTicket(ticket); }} style={[styles.bookButton, inCart ? styles.bookedButton : null]}>
                               <Text style={[styles.bookButtonText, { color: inCart ? '#059669' : '#fff' }]}>{inCart ? 'Booked' : 'Book'}</Text>
@@ -548,11 +548,11 @@ const TicketModal = ({ ticket, styles, onClose, onConfirm, onConfigure }: { tick
             </View>
           </View>
           <View style={styles.breakdown}>
-            <PriceRow label="1x VIP Hub Access Pass" value={`${ticket.price} KC`} styles={styles} />
+            <PriceRow label="1x VIP Hub Access Pass" value={`GH₵ ${ticket.price}`} styles={styles} />
             <PriceRow label="Interactive Project Stems" value="Included" styles={styles} success />
             <View style={styles.totalRow}>
               <Text style={styles.totalLabel}>Total Deduction</Text>
-              <Text style={styles.totalValue}>{ticket.price} KulCoins</Text>
+              <Text style={styles.totalValue}>GH₵{" "}{ticket.price}</Text>
             </View>
           </View>
           <View style={styles.modalActions}>

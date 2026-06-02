@@ -139,7 +139,7 @@ const FanTicketDetail: React.FC = () => {
               </View>
             </View>
 
-            <View style={styles.actionRow}>
+            {/* <View style={styles.actionRow}>
               <Pressable style={[styles.actionButton, { backgroundColor: glassSurface, borderColor: softBorder }]}>
                 <MaterialIcons name="phone-iphone" size={20} color={theme.text} />
                 <Text style={[styles.actionText, { color: theme.text }]}>Apple Wallet</Text>
@@ -148,7 +148,7 @@ const FanTicketDetail: React.FC = () => {
                 <MaterialIcons name="account-balance-wallet" size={20} color={theme.text} />
                 <Text style={[styles.actionText, { color: theme.text }]}>Add to Wallet</Text>
               </Pressable>
-            </View>
+            </View> */}
           </View>
         </ScrollView>
 

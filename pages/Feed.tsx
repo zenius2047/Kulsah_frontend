@@ -80,6 +80,136 @@ interface FeedSubscriptionSelection {
   tier: SubscriptionTier;
 }
 
+const LiveFeedCreatorAvatar: React.FC<{
+  avatar: string;
+  isLive: boolean;
+  showLiveBadge: boolean;
+  showFollowBadge: boolean;
+}> = ({ avatar, isLive, showLiveBadge, showFollowBadge }) => {
+  const pulse = useRef(new Animated.Value(0)).current;
+
+  useEffect(() => {
+    if (!isLive) {
+      pulse.setValue(0);
+      return;
+    }
+
+    const animation = Animated.loop(
+      Animated.sequence([
+        Animated.timing(pulse, {
+          toValue: 1,
+          duration: 1300,
+          useNativeDriver: true,
+        }),
+        Animated.timing(pulse, {
+          toValue: 0,
+          duration: 900,
+          useNativeDriver: true,
+        }),
+      ]),
+    );
+
+    animation.start();
+    return () => animation.stop();
+  }, [isLive, pulse]);
+
+  const haloOpacity = pulse.interpolate({
+    inputRange: [0, 1],
+    outputRange: [0.25, 0.75],
+  });
+
+  const haloScale = pulse.interpolate({
+    inputRange: [0, 1],
+    outputRange: [0.96, 1.08],
+  });
+
+  return (
+    <View style={{ position: 'relative', alignItems: 'center', justifyContent: 'center' }}>
+      {isLive ? (
+        <>
+          <Animated.View
+            style={{
+              position: 'absolute',
+              width: 52,
+              height: 52,
+              borderRadius: 31,
+              backgroundColor: 'rgba(239,68,68,0.28)',
+              opacity: haloOpacity,
+              transform: [{ scale: haloScale }],
+            }}
+          />
+          <View
+            style={{
+              position: 'absolute',
+              width: 56,
+              height: 56,
+              borderRadius: 33,
+              backgroundColor: 'rgba(239,68,68,0.12)',
+            }}
+          />
+        </>
+      ) : null}
+      <View
+        style={{
+          borderRadius: 24,
+          height: 48,
+          width: 48,
+          padding: 2,
+          borderWidth: 2,
+          borderColor: isLive ? 'red' : 'white',
+          alignItems: 'center',
+          justifyContent: 'center',
+          position: 'relative',
+          overflow: 'visible',
+        }}
+      >
+        <Image source={{ uri: avatar }} style={{ width: '100%', height: '100%', borderRadius: 24 }} />
+        {showLiveBadge && (
+          <View
+            style={{
+              borderRadius: 6,
+              paddingHorizontal: 6,
+              alignItems: 'center',
+              justifyContent: 'center',
+              paddingVertical: 3,
+              backgroundColor: 'red',
+              bottom: -6,
+              position: 'absolute',
+              height: 15,
+            }}
+          >
+            <Text
+              style={{
+                fontSize: mediumScreen ? FontSize.eight : 4,
+                color: 'white',
+                fontFamily: FontFamily.bold,
+              }}
+            >
+              LIVE
+            </Text>
+          </View>
+        )}
+        {showFollowBadge && (
+          <View
+            style={{
+              borderRadius: 999,
+              alignItems: 'center',
+              justifyContent: 'center',
+              backgroundColor: PRIMARY_COLOR,
+              bottom: -8,
+              position: 'absolute',
+              height: 20,
+              width: 20,
+            }}
+          >
+            <MaterialIcons name="add" size={15} color="white" />
+          </View>
+        )}
+      </View>
+    </View>
+  );
+};
+
 const { height: SCREEN_HEIGHT, width: SCREEN_WIDTH } = Dimensions.get('screen');
 const FEED_ITEM_HEIGHT = SCREEN_HEIGHT * (Platform.OS === 'ios'? 0.92: 0.92);
 const MONTHLY_KULCOINS = 100;
@@ -957,51 +1087,12 @@ useEffect(() => {
 
       }}>
         <Pressable style={{}}>
-          <View style={{
-            borderRadius: 24,
-            height: 48,
-            width: 48,
-            padding: 2,
-            borderWidth: 2,
-            borderColor: isLive ? 'red': 'white',
-            alignItems: 'center',
-            justifyContent: 'center',
-          }}>
-            <Image source={{ uri: item.avatar }} style={{ width: '100%', height: '100%', borderRadius: 24 }} />
-            {isLive && !item.isSubscribed && <View style={{
-              borderRadius: 6,
-              paddingHorizontal: 6,
-              alignItems: 'center',
-              justifyContent: 'center',
-              paddingVertical: 3,
-              backgroundColor: 'red',
-              bottom: -6,
-              position: 'absolute',
-              height: 15,
-            }}>
-              <Text style={{
-                fontSize: mediumScreen ? FontSize.eight: 4,
-                color: 'white',
-                fontFamily: FontFamily.bold
-              }}>
-                LIVE
-              </Text>
-            </View>}
-          {!item.following && <View style={{
-              borderRadius: 999,
-              // paddingHorizontal: 6,
-              alignItems: 'center',
-              justifyContent: 'center',
-              // paddingVertical: 3,
-              backgroundColor: PRIMARY_COLOR,
-              bottom: -8,
-              position: 'absolute',
-              height: 20,
-              width: 20,
-            }}>
-              <MaterialIcons name="add" size={15} color='white'/>
-            </View>}
-          </View>
+          <LiveFeedCreatorAvatar
+            avatar={item.avatar}
+            isLive={Boolean(isLive)}
+            showLiveBadge={Boolean(isLive && !item.isSubscribed)}
+            showFollowBadge={!item.following}
+          />
         </Pressable>
 
         {/* {!item.isSubscribed && (
@@ -1021,13 +1112,13 @@ useEffect(() => {
           elevation: 4,
          }}
         >
-          <MaterialIcons name='favorite' size={32} color={isLiked ? 'red' : 'white'} />
+          <MaterialIcons name='favorite' size={32} color={isLiked ? '#f43f5e' : 'white'} />
           <Text style={{ color: 'white', fontSize: mediumScreen ? FontSize.fourteen:FontSize.ten, fontFamily: FontFamily.bold }}>{item.likes}</Text>
         </Pressable>
 
         <Pressable onPress={() => setShowComments(true)} style={{
           shadowColor: '#000',
-          shadowOffset: { width: 0, height: 2 },
+          shadowOffset: {width: 0, height: 2},
           shadowOpacity: 0.5,
           shadowRadius: 6,
           elevation: 4,
@@ -1433,94 +1524,95 @@ const Feed: React.FC = () => {
   const lastShakeForceRef = useRef(1);
   const insets= useSafeAreaInsets();
   const [items, setItems] = useState<FeedItem[]>([
-    {
-      id: '86',
-      artist: 'drop',
-      handle: 'gibson',
-      avatar: 'https://picsum.photos/seed/elena/150/150',
-      caption: "PRIVATE DROP: Working on 'Nebula' vocal layers. This is the raw studio session for my supporters only. #BTS #KulsahExclusive",
-      background: 'https://images.unsplash.com/photo-1598488035139-bdbb2231ce04?auto=format&fit=crop&q=80&w=800',
-      video: 'https://res.cloudinary.com/dh0dywpzm/video/upload/v1779790948/K50526_sfmxi0.mp4',
-      likes: '2.4M',
-      comments: '88.1K',
-      isLiked: false,
-      isSubscribed: true,
-      isPremium: true,
-      ticketsAvailable: false,
-      // ticketLocation: 'London, UK',
-      originalSound: true,
-      // soundArtist: 'Synthwave Kid',
-      // soundTitle: 'Neon Dreams',
-      following: false,
-      bookmarks: '2.5k',
-      saves: '2.5k',
-    },
-    {
-      id: '83',
-      artist: 'Kulsah Headquarters',
-      handle: 'kulsah_hq',
-      avatar: 'https://picsum.photos/seed/elena/150/150',
-      caption: "Working on 'Nebula' vocal layers. This is the raw studio session for my supporters only. #BTS #KulsahExclusive",
-      background: 'https://images.unsplash.com/photo-1598488035139-bdbb2231ce04?auto=format&fit=crop&q=80&w=800',
-      video: 'https://res.cloudinary.com/dh0dywpzm/video/upload/v1779794760/kulsah_sing_vgqxne.mp4',
-      likes: '2.4M',
-      comments: '88.1K',
-      isLiked: false,
-      isSubscribed: false,
-      isPremium: true,
-      ticketsAvailable: true,
-      ticketLocation: 'London, UK',
-      originalSound: false,
-      soundArtist: 'Rollex Bills',
-      soundTitle: 'Kulsah Theme',
-      following: false,
-      bookmarks: '2.5k',
-      saves: '2.5k',
-    },
-     {
-      id: '84',
-      artist: 'Kulsah Headquarters',
-      handle: 'kulsah_hq',
-      avatar: 'https://picsum.photos/seed/elena/150/150',
-      caption: "Working on 'Nebula' vocal layers. This is the raw studio session for my supporters only. #BTS #KulsahExclusive",
-      background: 'https://images.unsplash.com/photo-1598488035139-bdbb2231ce04?auto=format&fit=crop&q=80&w=800',
-      video: 'https://res.cloudinary.com/dh0dywpzm/video/upload/v1779791753/0526k_293_jg9442.mp4',
-      likes: '2.4M',
-      comments: '88.1K',
-      isLiked: false,
-      isSubscribed: false,
-      isPremium: true,
-      ticketsAvailable: true,
-      ticketLocation: 'London, UK',
-      originalSound: false,
-      soundArtist: 'Rollex Bills',
-      soundTitle: 'Kulsah Theme',
-      following: false,
-      bookmarks: '2.5k',
-      saves: '2.5k',
-    },
-    {
-      id: '79',
-      artist: 'Kulsah Landscape',
-      handle: 'Kulsah_landscape',
-      avatar: 'https://picsum.photos/seed/elena/150/150',
-      caption: "PRIVATE DROP: Working on 'Nebula' vocal layers. This is the raw studio session for my supporters only. #BTS #KulsahExclusive",
-      background: 'https://images.unsplash.com/photo-1598488035139-bdbb2231ce04?auto=format&fit=crop&q=80&w=800',
-      video: 'https://res.cloudinary.com/dh0dywpzm/video/upload/v1779790082/k434_live_qaebmy.mp4',
-      likes: '2.4M',
-      comments: '88.1K',
-      isLiked: false,
-      isSubscribed: true,
-      isPremium: true,
-      ticketsAvailable: true,
-      ticketLocation: 'London, UK',
-      originalSound: true,
-      // soundArtist: 'Synthwave Kid',
-      // soundTitle: 'Neon Dreams',
-      following: false,
-      bookmarks: '2.5k',
-      saves: '2.5k',
-    },
+    // {
+    //   id: '86',
+    //   artist: 'drop',
+    //   handle: 'gibson',
+    //   avatar: 'https://picsum.photos/seed/elena/150/150',
+    //   caption: "PRIVATE DROP: Working on 'Nebula' vocal layers. This is the raw studio session for my supporters only. #BTS #KulsahExclusive",
+    //   background: 'https://images.unsplash.com/photo-1598488035139-bdbb2231ce04?auto=format&fit=crop&q=80&w=800',
+    //   video: 'https://res.cloudinary.com/dh0dywpzm/video/upload/v1779790948/K50526_sfmxi0.mp4',
+    //   likes: '2.4M',
+    //   comments: '88.1K',
+    //   isLiked: false,
+    //   isSubscribed: true,
+    //   isPremium: true,
+    //   ticketsAvailable: false,
+    //   // ticketLocation: 'London, UK',
+    //   originalSound: true,
+    //   // soundArtist: 'Synthwave Kid',
+    //   // soundTitle: 'Neon Dreams',
+    //   following: false,
+    //   bookmarks: '2.5k',
+    //   saves: '2.5k',
+    //   isLive: true,
+    // },
+    // {
+    //   id: '83',
+    //   artist: 'Kulsah Headquarters',
+    //   handle: 'kulsah_hq',
+    //   avatar: 'https://picsum.photos/seed/elena/150/150',
+    //   caption: "Working on 'Nebula' vocal layers. This is the raw studio session for my supporters only. #BTS #KulsahExclusive",
+    //   background: 'https://images.unsplash.com/photo-1598488035139-bdbb2231ce04?auto=format&fit=crop&q=80&w=800',
+    //   video: 'https://res.cloudinary.com/dh0dywpzm/video/upload/v1779794760/kulsah_sing_vgqxne.mp4',
+    //   likes: '2.4M',
+    //   comments: '88.1K',
+    //   isLiked: false,
+    //   isSubscribed: false,
+    //   isPremium: true,
+    //   ticketsAvailable: true,
+    //   ticketLocation: 'London, UK',
+    //   originalSound: false,
+    //   soundArtist: 'Rollex Bills',
+    //   soundTitle: 'Kulsah Theme',
+    //   following: false,
+    //   bookmarks: '2.5k',
+    //   saves: '2.5k',
+    // },
+    //  {
+    //   id: '84',
+    //   artist: 'Kulsah Headquarters',
+    //   handle: 'kulsah_hq',
+    //   avatar: 'https://picsum.photos/seed/elena/150/150',
+    //   caption: "Working on 'Nebula' vocal layers. This is the raw studio session for my supporters only. #BTS #KulsahExclusive",
+    //   background: 'https://images.unsplash.com/photo-1598488035139-bdbb2231ce04?auto=format&fit=crop&q=80&w=800',
+    //   video: 'https://res.cloudinary.com/dh0dywpzm/video/upload/v1779791753/0526k_293_jg9442.mp4',
+    //   likes: '2.4M',
+    //   comments: '88.1K',
+    //   isLiked: false,
+    //   isSubscribed: false,
+    //   isPremium: true,
+    //   ticketsAvailable: true,
+    //   ticketLocation: 'London, UK',
+    //   originalSound: false,
+    //   soundArtist: 'Rollex Bills',
+    //   soundTitle: 'Kulsah Theme',
+    //   following: false,
+    //   bookmarks: '2.5k',
+    //   saves: '2.5k',
+    // },
+    // {
+    //   id: '79',
+    //   artist: 'Kulsah Landscape',
+    //   handle: 'Kulsah_landscape',
+    //   avatar: 'https://picsum.photos/seed/elena/150/150',
+    //   caption: "PRIVATE DROP: Working on 'Nebula' vocal layers. This is the raw studio session for my supporters only. #BTS #KulsahExclusive",
+    //   background: 'https://images.unsplash.com/photo-1598488035139-bdbb2231ce04?auto=format&fit=crop&q=80&w=800',
+    //   video: 'https://res.cloudinary.com/dh0dywpzm/video/upload/v1779790082/k434_live_qaebmy.mp4',
+    //   likes: '2.4M',
+    //   comments: '88.1K',
+    //   isLiked: false,
+    //   isSubscribed: true,
+    //   isPremium: true,
+    //   ticketsAvailable: true,
+    //   ticketLocation: 'London, UK',
+    //   originalSound: true,
+    //   // soundArtist: 'Synthwave Kid',
+    //   // soundTitle: 'Neon Dreams',
+    //   following: false,
+    //   bookmarks: '2.5k',
+    //   saves: '2.5k',
+    // },
     {
       id: '78',
       artist: 'Kulsah Landscape',

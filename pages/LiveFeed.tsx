@@ -1,9 +1,10 @@
 import React, { useCallback, useEffect, useRef, useState } from 'react';
-import { Dimensions, FlatList, Image, ImageBackground, Keyboard, Platform, Pressable, StyleSheet, Text, TextInput, View } from 'react-native';
+import { Dimensions, FlatList, Image, ImageBackground, Keyboard, Modal, Platform, Pressable, StyleSheet, Text, TextInput, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { MaterialIcons } from '@expo/vector-icons';
 import { LinearGradient } from 'expo-linear-gradient';
 import { useIsFocused } from '@react-navigation/native';
+import { useNavigation } from '@react-navigation/native';
 import { useEvent } from 'expo';
 import { useVideoPlayer, VideoView } from 'expo-video';
 import { useThemeMode, PRIMARY_COLOR, primaryColorAlpha } from "../theme";
@@ -188,6 +189,7 @@ const LiveCardVideo: React.FC<{
 
 const LiveFeed: React.FC = () => {
   const { isDark, theme } = useThemeMode();
+  const navigation = useNavigation<any>();
   const viewportHeight = Dimensions.get('screen').height;
   const creatorStripHeight = viewportHeight * 0.18;
   const [activeIndex, setActiveIndex] = useState(0);
@@ -197,6 +199,8 @@ const LiveFeed: React.FC = () => {
   const [commentDrafts, setCommentDrafts] = useState<Record<string, string>>({});
   const [giftDialogOpen, setGiftDialogOpen] = useState(false);
   const [giftTarget, setGiftTarget] = useState<LiveCard | null>(null);
+  const [joinConfirmOpen, setJoinConfirmOpen] = useState(false);
+  const [joinTarget, setJoinTarget] = useState<LiveCard | null>(null);
   const [coinBalance, setCoinBalance] = useState(1250);
   const [commentsByCard, setCommentsByCard] = useState<Record<string, ChatMessage[]>>({
     '1': [
@@ -235,6 +239,17 @@ const LiveFeed: React.FC = () => {
   const openGiftDialog = (card: LiveCard) => {
     setGiftTarget(card);
     setGiftDialogOpen(true);
+  };
+
+  const openJoinConfirm = (card: LiveCard) => {
+    setJoinTarget(card);
+    setJoinConfirmOpen(true);
+  };
+
+  const confirmJoin = () => {
+    setJoinConfirmOpen(false);
+    setJoinTarget(null);
+    navigation.navigate('CreatorLiveStream');
   };
 
   const handleSendGift = (gift: GiftSelection) => {
@@ -296,7 +311,7 @@ const LiveFeed: React.FC = () => {
         renderItem={({ item: creator }) => (
           <View style={[styles.creatorItem]}>
             <LinearGradient
-              colors={[PRIMARY_COLOR, PRIMARY_COLOR]}
+              colors={['#f00', '#f00']}
               start={{ x: 0, y: 0 }}
               end={{ x: 1, y: 1 }}
               style={styles.creatorRing}
@@ -340,10 +355,10 @@ const LiveFeed: React.FC = () => {
           <View style={styles.cardTint} />
 
           <View style={styles.topRow}>
-            <View style={styles.liveBadge}>
+            <Pressable style={styles.liveBadge} onPress={() => openJoinConfirm(card)}>
               <View style={styles.liveDot} />
               <Text style={styles.liveBadgeText}>JOIN</Text>
-            </View>
+            </Pressable>
 
             <View style={styles.viewerBadge}>
               <MaterialIcons name="visibility" size={14} color="#f8fafc" />
@@ -507,6 +522,103 @@ const LiveFeed: React.FC = () => {
         }}
         onTopUpSuccess={(amount) => setCoinBalance((prev) => prev + amount)}
       />
+      <Modal
+        visible={joinConfirmOpen}
+        transparent
+        animationType="fade"
+        statusBarTranslucent
+        onRequestClose={() => {
+          setJoinConfirmOpen(false);
+          setJoinTarget(null);
+        }}
+      >
+        <View style={{
+          flex: 1,
+          backgroundColor: 'rgba(0,0,0,0.65)',
+          justifyContent: 'center',
+          alignItems: 'center',
+          paddingHorizontal: 24,
+        }}>
+          <Pressable
+            style={StyleSheet.absoluteFill}
+            onPress={() => {
+              setJoinConfirmOpen(false);
+              setJoinTarget(null);
+            }}
+          />
+          <View style={{
+            width: '100%',
+            maxWidth: 360,
+            borderRadius: 24,
+            padding: 20,
+            backgroundColor: isDark ? 'rgba(12,8,18,0.98)' : '#ffffff',
+            borderWidth: 1,
+            borderColor: isDark ? 'rgba(255,255,255,0.1)' : 'rgba(15,23,42,0.08)',
+          }}>
+            <View style={{
+              width: 54,
+              height: 54,
+              borderRadius: 27,
+              backgroundColor: primaryColorAlpha(0.18),
+              alignItems: 'center',
+              justifyContent: 'center',
+              marginBottom: 14,
+            }}>
+              <MaterialIcons name="live-tv" size={26} color={PRIMARY_COLOR} />
+            </View>
+            <Text style={{
+              color: isDark ? '#ffffff' : theme.text,
+              fontSize: FontSize.fifteen,
+              fontFamily: FontFamily.extraBold,
+            }}>
+              Join this live?
+            </Text>
+            <Text style={{
+              color: isDark ? '#cbd5e1' : theme.textSecondary,
+              fontSize: FontSize.twelve,
+              fontFamily: FontFamily.medium,
+              lineHeight: 18,
+              marginTop: 8,
+            }}>
+              {joinTarget ? `You're about to enter ${joinTarget.title}'s live stream.` : "You're about to enter this live stream."}
+            </Text>
+
+            <View style={{
+              flexDirection: 'row',
+              gap: 12,
+              marginTop: 22,
+            }}>
+              <Pressable
+                onPress={() => {
+                  setJoinConfirmOpen(false);
+                  setJoinTarget(null);
+                }}
+                style={{
+                  flex: 1,
+                  borderRadius: 999,
+                  paddingVertical: 12,
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  backgroundColor: isDark ? 'rgba(255,255,255,0.08)' : 'rgba(15,23,42,0.06)',
+                }}
+              >
+                <Text style={{
+                  color: isDark ? '#ffffff' : theme.text,
+                  fontSize: FontSize.nine,
+                  fontFamily: FontFamily.extraBold,
+                  textTransform: 'uppercase',
+                  letterSpacing: 1.2,
+                }}>
+                  Cancel
+                </Text>
+              </Pressable>
+              <Pressable onPress={confirmJoin} style={[styles.joinButton, { flex: 1, alignSelf: 'stretch', paddingVertical: 12 }]}>
+                <Text style={styles.joinButtonText}>Join Now</Text>
+              </Pressable>
+            </View>
+          </View>
+        </View>
+      </Modal>
     </SafeAreaView>
   );
 };

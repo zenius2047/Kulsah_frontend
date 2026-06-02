@@ -1,10 +1,14 @@
-import React, { useEffect, useState } from 'react';
+import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { useThemeMode, PRIMARY_COLOR, primaryColorAlpha } from "./theme";
 import { MaterialIcons } from '@expo/vector-icons';
 import { useNavigation } from '@react-navigation/native';
 import {
   Image,
   ImageBackground,
+  LayoutChangeEvent,
+  Modal,
+  NativeScrollEvent,
+  NativeSyntheticEvent,
   Pressable,
   ScrollView,
   StyleSheet,
@@ -21,6 +25,8 @@ import BookMarkIcon from './assets/icons/bookmark-svg.svg';
 import PremiumIcon from './assets/icons/premium-svg.svg';
 import { FontFamily, FontSize } from './fonts';
 import SwitchIcon from './assets/icons/switch.svg';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
+import CreatorSwitch from './assets/icons/switch-creator.svg';
 
 interface FanProfileProps {
   onLogout?: () => void;
@@ -49,6 +55,8 @@ type PremiumAsset = {
   img: string;
 };
 
+const STICKY_HEADER_INDICES = [2];
+
 const FanProfile: React.FC<FanProfileProps> = ({ onToggleRole }) => {
   const { isDark, theme } = useThemeMode();
   const navigation = useNavigation<any>();
@@ -57,6 +65,66 @@ const FanProfile: React.FC<FanProfileProps> = ({ onToggleRole }) => {
   const [streak, setStreak] = useState<StreakData>({ count: 7 });
   const [selectedCreator, setSelectedCreator] = useState<string | null>(null);
   const isTablet = width >= 768;
+  const insets = useSafeAreaInsets();
+  const mainYRef = useRef<number | null>(null);
+  const statsLayoutRef = useRef<{ y: number; height: number } | null>(null);
+  const statsBottomYRef = useRef<number | null>(null);
+  const isStatsOutOfViewRef = useRef(false);
+  const [isStatsOutOfView, setIsStatsOutOfView] = useState(false);
+  const stickyTopPadding = insets.top + 8;
+  const [isRoleSwitchModalOpen, setIsRoleSwitchModalOpen] = useState(false);
+  const elevatedSurface = isDark ? 'rgba(31, 16, 34, 0.75)' : theme.card;
+  const tabsSectionStyle = useMemo(
+    () => [
+      s.tabsSection,
+      {
+        backgroundColor: theme.screen,
+        paddingTop: isStatsOutOfView ? stickyTopPadding : 0,
+      },
+    ],
+    [isStatsOutOfView, stickyTopPadding, theme.screen]
+  );
+
+  const updateStatsBottomY = useCallback(() => {
+    const statsLayout = statsLayoutRef.current;
+    if (mainYRef.current === null) {
+      return;
+    }
+    if (statsLayout === null) {
+      return;
+    }
+
+    statsBottomYRef.current = mainYRef.current + statsLayout.y + statsLayout.height;
+  }, []);
+
+  const handleMainLayout = useCallback((e: LayoutChangeEvent) => {
+    mainYRef.current = e.nativeEvent.layout.y;
+    updateStatsBottomY();
+  }, [updateStatsBottomY]);
+
+  const handleStatsLayout = useCallback((e: LayoutChangeEvent) => {
+    statsLayoutRef.current = {
+      y: e.nativeEvent.layout.y,
+      height: e.nativeEvent.layout.height,
+    };
+    updateStatsBottomY();
+  }, [updateStatsBottomY]);
+
+  const setStatsOutOfView = useCallback((nextIsOutOfView: boolean) => {
+    if (nextIsOutOfView !== isStatsOutOfViewRef.current) {
+      isStatsOutOfViewRef.current = nextIsOutOfView;
+      setIsStatsOutOfView(nextIsOutOfView);
+    }
+  }, []);
+
+  const handleScroll = useCallback((e: NativeSyntheticEvent<NativeScrollEvent>) => {
+    const statsBottomY = statsBottomYRef.current;
+    if (statsBottomY === null) {
+      return;
+    }
+
+    setStatsOutOfView(e.nativeEvent.contentOffset.y >= statsBottomY);
+  }, [setStatsOutOfView]);
 
   useEffect(() => {
     setStreak({ count: 7 });
@@ -104,6 +172,12 @@ const FanProfile: React.FC<FanProfileProps> = ({ onToggleRole }) => {
     { id: 'fv-grid-4', title: 'Studio Cut', views: '9.7K views', img: 'https://picsum.photos/seed/vid4/400/225' },
     { id: 'fv-grid-5', title: 'Orbit Session', views: '6.3K views', img: 'https://picsum.photos/seed/vid5/400/225' },
     { id: 'fv-grid-6', title: 'Afterglow Clip', views: '3.8K views', img: 'https://picsum.photos/seed/vid6/400/225' },
+    { id: 'fv-grid-7', title: 'Midnight Soul Session', views: '2.4K views', img: 'https://picsum.photos/seed/vid1/400/225' },
+    { id: 'fv-grid-8', title: 'Summer Tour BTS', views: '8.2K views', img: 'https://picsum.photos/seed/vid2/400/225' },
+    { id: 'fv-grid-9', title: 'Neon Rehearsal', views: '4.1K views', img: 'https://picsum.photos/seed/vid3/400/225' },
+    { id: 'fv-grid-10', title: 'Studio Cut', views: '9.7K views', img: 'https://picsum.photos/seed/vid4/400/225' },
+    { id: 'fv-grid-11', title: 'Orbit Session', views: '6.3K views', img: 'https://picsum.photos/seed/vid5/400/225' },
+    { id: 'fv-grid-12', title: 'Afterglow Clip', views: '3.8K views', img: 'https://picsum.photos/seed/vid6/400/225' },
   ];
 
   const subscribedCreators: Creator[] = [
@@ -184,7 +258,13 @@ const FanProfile: React.FC<FanProfileProps> = ({ onToggleRole }) => {
 
   return (
     <View style={[s.screen, { backgroundColor: theme.screen }]}>
-      <ScrollView contentContainerStyle={s.content} showsVerticalScrollIndicator={false}>
+      <ScrollView
+        stickyHeaderIndices={STICKY_HEADER_INDICES}
+        onScroll={handleScroll}
+        scrollEventThrottle={16}
+        contentContainerStyle={s.content}
+        showsVerticalScrollIndicator={false}
+      >
         <View style={s.coverSection}>
           <ImageBackground
             // resizeMode='contain'
@@ -231,7 +311,7 @@ const FanProfile: React.FC<FanProfileProps> = ({ onToggleRole }) => {
           </View>
         </View>
 
-        <View style={[s.main, { backgroundColor: theme.screen }]}>
+        <View onLayout={handleMainLayout} style={[s.main, { backgroundColor: theme.screen }]}>
           <View style={s.vibesRow}>
             {vibes.map((vibe) => (
               <View key={vibe} style={[s.vibeChip, { backgroundColor: isDark ? '#111827' : theme.surface, borderColor: theme.border }]}>
@@ -243,7 +323,7 @@ const FanProfile: React.FC<FanProfileProps> = ({ onToggleRole }) => {
             </Pressable>
           </View>
 
-          <View style={s.statsRow}>
+          <View onLayout={handleStatsLayout} style={s.statsRow}>
             {stats.map((stat) => (
               <Pressable key={stat.label} onPress={stat.onPress} style={[s.statCard, {
               // borderColor: theme.border
@@ -255,7 +335,9 @@ const FanProfile: React.FC<FanProfileProps> = ({ onToggleRole }) => {
           </View>
 
           <View style={s.actionSection}>
-            <Pressable onPress={handleSwitchRole} style={s.switchRoleCard}>
+            <Pressable onPress={()=>(
+              setIsRoleSwitchModalOpen(true)
+            )} style={s.switchRoleCard}>
               <LinearGradient
                 colors={['#4f46e5', PRIMARY_COLOR]}
                 start={{ x: 0, y: 0 }}
@@ -275,29 +357,30 @@ const FanProfile: React.FC<FanProfileProps> = ({ onToggleRole }) => {
               </LinearGradient>
             </Pressable>
           </View>
-
-          <View style={s.tabsSection}>
-            <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={s.tabsRow}>
-              {tabs.map((tab) => (
-                <Pressable key={tab.id} onPress={() => setActiveTab(tab.id)} style={s.tabButton}>
-                  {
+        </View>
+        <View style={tabsSectionStyle}>
+          <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={s.tabsRow}>
+            {tabs.map((tab) => (
+              <Pressable key={tab.id} onPress={() => setActiveTab(tab.id)} style={s.tabButton}>
+                {
             tab.id === 'Video' ? <MovieIcon height={22} width={22} fill={activeTab === tab.id ? PRIMARY_COLOR : '#69738d'}/>:
             tab.id === 'Premium'? <PremiumIcon height={22} width={22} fill={activeTab === tab.id ? PRIMARY_COLOR : '#69738d'}/>:
             tab.id === 'Tickets'? <LocalIcon height={22} width={22} fill={activeTab === tab.id ? PRIMARY_COLOR : '#69738d'}/>:
             tab.id === 'Saved'?   <BookMarkIcon height={22} width={22} fill={activeTab === tab.id ? PRIMARY_COLOR : '#69738d'}/>:
             tab.id === 'Favorite'? <MaterialIcons name="favorite-border" size={22} color={activeTab === tab.id ? PRIMARY_COLOR : '#69738d'}/>:null
           }
-                  <Text style={[s.tabText, { color: activeTab === tab.id ? PRIMARY_COLOR : theme.textSecondary }, activeTab === tab.id && s.tabTextActive]}>{tab.id}</Text>
-                  {activeTab === tab.id ? <View style={s.tabIndicator} /> : null}
-                </Pressable>
-              ))}
-            </ScrollView>
+                <Text style={[s.tabText, { color: activeTab === tab.id ? PRIMARY_COLOR : theme.textSecondary }, activeTab === tab.id && s.tabTextActive]}>{tab.id}</Text>
+                {activeTab === tab.id ? <View style={s.tabIndicator} /> : null}
+              </Pressable>
+            ))}
+          </ScrollView>
+        </View>
 
-            <View style={s.tabContent}>
+        <View style={s.tabContent}>
               {activeTab === 'Favorite' && (
                 <View style={s.sectionGroup}>
                   <View style={s.sectionBlock}>
-                    <Text style={[s.sectionEyebrow, { color: theme.textSecondary }]}>Favorite Videos</Text>
+                    {/* <Text style={[s.sectionEyebrow, { color: theme.textSecondary }]}>Favorite Videos</Text> */}
                     {renderVideoGrid(favoriteVideos)}
                   </View>
                 </View>
@@ -416,15 +499,54 @@ const FanProfile: React.FC<FanProfileProps> = ({ onToggleRole }) => {
                           <MaterialIcons name="bookmark" size={14} color={PRIMARY_COLOR} />
                         </View>
                       </View>
-                      <Text style={[s.gridTitle, { color: theme.text }]}>Saved Collection Item</Text>
+                      {/* <Text style={[s.gridTitle, { color: theme.text }]}>Saved Collection Item</Text> */}
                     </Pressable>
                   ))}
                 </View>
               )}
+          </View>
+
+      </ScrollView>
+      <Modal
+        visible={isRoleSwitchModalOpen}
+        transparent
+        animationType="fade"
+        statusBarTranslucent
+        onRequestClose={() => setIsRoleSwitchModalOpen(false)}
+      >
+        <View style={s.roleModalRoot}>
+          <Pressable
+            style={s.roleModalBackdrop}
+            onPress={() => setIsRoleSwitchModalOpen(false)}
+          />
+          <View style={[s.roleModalCard, { backgroundColor: elevatedSurface, borderColor: theme.border }]}>
+            <CreatorSwitch height={88} width={88} color={theme.accent} />
+            <View style={s.roleModalCopy}>
+              <Text style={[s.roleModalTitle, { color: theme.text }]}>Switch to Creator?</Text>
+              <Text style={[s.roleModalBody, { color: theme.textSecondary }]}>
+                You're about to unlock creator tools. You'll be able to upload content, manage events, and track your revenue.
+              </Text>
+            </View>
+            <View style={s.roleModalActions}>
+              <Pressable
+                onPress={() => {
+                  setIsRoleSwitchModalOpen(false);
+                  handleSwitchRole();
+                }}
+                style={s.roleModalPrimary}
+              >
+                <Text style={s.roleModalPrimaryText}>Confirm Switch</Text>
+              </Pressable>
+              <Pressable
+                onPress={() => setIsRoleSwitchModalOpen(false)}
+                style={[s.roleModalSecondary, { borderColor: theme.border, backgroundColor: isDark ? 'rgba(255,255,255,0.05)' : 'rgba(0,0,0,0.05)' }]}
+              >
+                <Text style={[s.roleModalSecondaryText, { color: theme.text }]}>Stay as Fan</Text>
+              </Pressable>
             </View>
           </View>
         </View>
-      </ScrollView>
+      </Modal>
     </View>
   );
 };
@@ -517,7 +639,7 @@ const s = StyleSheet.create({
     marginTop: 2,
   },
   main: {
-    paddingHorizontal: 18,
+    // paddingHorizontal: 18,
     gap: 24,
   },
   vibesRow: {
@@ -525,6 +647,7 @@ const s = StyleSheet.create({
     flexWrap: 'wrap',
     gap: 8,
     alignItems: 'center',
+    paddingHorizontal: 18,
   },
   vibeChip: {
     paddingHorizontal: 14,
@@ -552,6 +675,7 @@ const s = StyleSheet.create({
   statsRow: {
     flexDirection: 'row',
     gap: 10,
+    paddingHorizontal: 18
   },
   statCard: {
     flex: 1,
@@ -586,6 +710,7 @@ const s = StyleSheet.create({
     shadowOpacity: 0.3,
     shadowRadius: 20,
     elevation: 8,
+    marginHorizontal: 18,
   },
   switchRoleGradient: {
     minHeight: 48,
@@ -629,10 +754,14 @@ const s = StyleSheet.create({
   },
   tabsSection: {
     gap: 18,
+    marginTop: 24,
+    zIndex: 10,
+    elevation: 4,
   },
   tabsRow: {
     borderBottomWidth: 1,
     borderBottomColor: 'rgba(255,255,255,0.08)',
+    paddingHorizontal: 5
   },
   tabButton: {
     minWidth: 72,
@@ -662,9 +791,11 @@ const s = StyleSheet.create({
   },
   tabContent: {
     gap: 18,
+    marginTop: 18,
   },
   sectionGroup: {
     gap: 24,
+    paddingHorizontal: 18,
   },
   sectionBlock: {
     gap: 12,
@@ -685,6 +816,7 @@ const s = StyleSheet.create({
   },
   listWrap: {
     gap: 12,
+    paddingHorizontal: 18,
   },
   listCard: {
     flexDirection: 'row',
@@ -738,6 +870,7 @@ const s = StyleSheet.create({
   },
   videoGridWrap: {
     marginHorizontal: -20,
+    // paddingBottom: 120
   },
   videoGrid: {
     flexDirection: 'row',
@@ -780,18 +913,19 @@ const s = StyleSheet.create({
     // rowGap: 14,
   },
   gridCard: {
-    width: '48%',
+    width: '49%',
     // gap: 3,
   },
   savedGrid: {
     flexDirection: 'row',
     flexWrap: 'wrap',
     justifyContent: 'space-between',
-    rowGap: 14,
+    rowGap: 3,
+    // paddingHorizontal: 5,
   },
   savedCard: {
-    width: '47%',
-    gap: 8,
+    width: '49.5%',
+    // gap: 8,
   },
   videoThumbWrap: {
     aspectRatio: 1,
@@ -810,7 +944,7 @@ const s = StyleSheet.create({
   },
   squareThumbWrap: {
     aspectRatio: 1,
-    borderRadius: 24,
+    borderRadius: 0,
     overflow: 'hidden',
     position: 'relative',
     backgroundColor: '#111827',
@@ -978,6 +1112,88 @@ const s = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'center',
   },
+  roleModalRoot: {
+      flex: 1,
+      alignItems: 'center',
+      justifyContent: 'center',
+      padding: 24,
+    },
+    roleModalBackdrop: {
+      ...StyleSheet.absoluteFillObject,
+      backgroundColor: 'rgba(0,0,0,0.62)',
+    },
+    roleModalCard: {
+      width: '100%',
+      maxWidth: 380,
+      borderRadius: 48,
+      borderWidth: 1,
+      padding: 40,
+      alignItems: 'center',
+    },
+    roleModalIcon: {
+      width: 80,
+      height: 80,
+      borderRadius: 32,
+      alignItems: 'center',
+      justifyContent: 'center',
+      marginBottom: 24,
+    },
+    roleModalCopy: {
+      alignItems: 'center',
+      gap: 8,
+    },
+    roleModalTitle: {
+      fontSize: FontSize.twentyTwo,
+      fontFamily: FontFamily.extraBold,
+      textTransform: 'uppercase',
+      textAlign: 'center',
+      lineHeight: 28,
+    },
+    roleModalBody: {
+      fontSize: FontSize.twelve,
+      fontFamily: FontFamily.medium,
+      lineHeight: 20,
+      textAlign: 'center',
+    },
+    roleModalActions: {
+      width: '100%',
+      gap: 12,
+      marginTop: 28,
+    },
+    roleModalSecondary: {
+      width: '100%',
+      minHeight: 64,
+      borderRadius: 24,
+      borderWidth: 1,
+      alignItems: 'center',
+      justifyContent: 'center',
+    },
+    roleModalSecondaryText: {
+      fontSize: FontSize.ten,
+      fontFamily: FontFamily.extraBold,
+      textTransform: 'uppercase',
+      letterSpacing: 1.6,
+    },
+    roleModalPrimary: {
+      width: '100%',
+      minHeight: 64,
+      borderRadius: 24,
+      backgroundColor: PRIMARY_COLOR,
+      alignItems: 'center',
+      justifyContent: 'center',
+      shadowColor: PRIMARY_COLOR,
+      shadowOpacity: 0.3,
+      shadowRadius: 16,
+      shadowOffset: { width: 0, height: 8 },
+      elevation: 8,
+    },
+    roleModalPrimaryText: {
+      color: '#ffffff',
+      fontSize: FontSize.ten,
+      fontFamily: FontFamily.extraBold,
+      textTransform: 'uppercase',
+      letterSpacing: 1.8,
+    },
 });
 
 export default FanProfile;
