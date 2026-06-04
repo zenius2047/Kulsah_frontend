@@ -13,8 +13,9 @@ import {
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { GoogleGenAI } from '@google/genai';
-import { FontFamily, fontScale } from '../fonts';
+import { fontScale } from '../fonts';
 import { mediumScreen } from '../types';
+import { fontSize } from './typography';
 
 type RangeOption = '7d' | '30d' | 'All';
 
@@ -362,7 +363,7 @@ const s = StyleSheet.create({
     borderWidth: 1,
     borderColor: '#ffffff14',
   },
-  headerTitle: { color: '#fff', fontSize: responsiveFont(14), fontFamily: FontFamily.extraBold },
+  headerTitle: { color: '#fff', fontSize: responsiveFont(14) },
   rangeWrap: {
     flexDirection: 'row',
     backgroundColor: '#ffffff10',
@@ -374,7 +375,7 @@ const s = StyleSheet.create({
   },
   rangePill: { paddingHorizontal: 10, paddingVertical: 6, borderRadius: 10 },
   rangePillActive: { backgroundColor: PRIMARY_COLOR },
-  rangeText: { color: '#9093a7', fontSize: responsiveFont(10), fontFamily: FontFamily.extraBold, textTransform: 'uppercase' },
+  rangeText: { color: '#9093a7', fontSize: responsiveFont(10), textTransform: 'uppercase' },
   rangeTextActive: { color: '#fff' },
   content: { paddingHorizontal: 16, paddingTop: 14, paddingBottom: 120, gap: 14 },
   metricGrid: { flexDirection: 'row', gap: 8 },
@@ -389,11 +390,10 @@ const s = StyleSheet.create({
     alignItems: 'center',
   },
   metricCardPrimary: { borderColor: primaryColorAlphaHex('44'), backgroundColor: primaryColorAlphaHex('14') },
-  metricValue: { color: '#fff', fontSize: responsiveFont(16), fontFamily: FontFamily.extraBold },
+  metricValue: { color: '#fff', fontSize: responsiveFont(16) },
   metricLabel: {
     color: '#8d91a8',
     fontSize: responsiveFont(8),
-    fontFamily: FontFamily.extraBold,
     marginTop: 4,
     textTransform: 'uppercase',
     letterSpacing: 1.1,
@@ -419,8 +419,8 @@ const s = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'center',
   },
-  auditTitle: { color: PRIMARY_COLOR, fontFamily: FontFamily.extraBold, fontSize: responsiveFont(9), letterSpacing: 1.6, textTransform: 'uppercase' },
-  auditSubtitle: { color: primaryColorAlphaHex('99'), fontSize: responsiveFont(7), fontFamily: FontFamily.bold, textTransform: 'uppercase', marginTop: 2 },
+  auditTitle: { color: PRIMARY_COLOR, fontSize: responsiveFont(9), letterSpacing: 1.6, textTransform: 'uppercase' },
+  auditSubtitle: { color: primaryColorAlphaHex('99'), fontSize: responsiveFont(7), textTransform: 'uppercase', marginTop: 2 },
   refreshBtn: {
     width: 34,
     height: 34,
@@ -437,13 +437,11 @@ const s = StyleSheet.create({
     borderLeftColor: primaryColorAlphaHex('77'),
     paddingLeft: 8,
     fontStyle: 'italic',
-    fontFamily: FontFamily.medium,
   },
   section: { gap: 8 },
   sectionTitle: {
     color: '#8d91a8',
     fontSize: responsiveFont(9),
-    fontFamily: FontFamily.extraBold,
     textTransform: 'uppercase',
     letterSpacing: 2.1,
     paddingHorizontal: 2,
@@ -457,19 +455,18 @@ const s = StyleSheet.create({
     gap: 10,
   },
   rowBlock: { gap: 4 },
-  rowLabel: { color: '#d5d6e2', fontSize: responsiveFont(10), fontFamily: FontFamily.bold },
+  rowLabel: { color: '#d5d6e2', fontSize: responsiveFont(10) },
   track: { height: 14, backgroundColor: '#ffffff0f', borderRadius: 999, overflow: 'hidden', justifyContent: 'center' },
   fill: { position: 'absolute', left: 0, height: 14, borderRadius: 999, opacity: 0.25 },
   fillThin: { position: 'absolute', left: 0, height: 4, borderRadius: 999 },
   rowValues: { flexDirection: 'row', justifyContent: 'space-between' },
-  rowValue: { color: PRIMARY_COLOR, fontSize: responsiveFont(10), fontFamily: FontFamily.bold },
-  rowValueMuted: { color: '#60a5fa', fontSize: responsiveFont(10), fontFamily: FontFamily.bold },
+  rowValue: { color: PRIMARY_COLOR, fontSize: responsiveFont(10) },
+  rowValueMuted: { color: '#60a5fa', fontSize: responsiveFont(10) },
   sourceSection: { flexDirection: 'row', gap: 8, },
   sourceCol: { flex: 1, gap: 8 },
   sectionTitleCenter: {
     color: '#8d91a8',
     fontSize: responsiveFont(10),
-    fontFamily: FontFamily.extraBold,
     textTransform: 'uppercase',
     letterSpacing: 2,
     textAlign: 'center',
@@ -477,21 +474,21 @@ const s = StyleSheet.create({
   pieLegendWrap: { gap: 8 },
   legendRow: { flexDirection: 'row', alignItems: 'center', gap: 6 },
   legendDot: { width: 8, height: 8, borderRadius: 4 },
-  legendName: { color: '#d4d6e4', fontSize: responsiveFont(9), flex: 1, fontFamily: FontFamily.medium },
-  legendValue: { color: '#fff', fontSize: responsiveFont(10), fontFamily: FontFamily.extraBold },
+  legendName: { color: '#d4d6e4', fontSize: responsiveFont(9), flex: 1 },
+  legendValue: { color: '#fff', fontSize: responsiveFont(10) },
   regionRow: { gap: 3 },
   regionHead: { flexDirection: 'row', justifyContent: 'space-between' },
-  regionCountry: { color: '#d4d6e4', fontSize: responsiveFont(10), fontFamily: FontFamily.bold },
-  regionPct: { color: PRIMARY_COLOR, fontSize: responsiveFont(10), fontFamily: FontFamily.extraBold },
+  regionCountry: { color: '#d4d6e4', fontSize: responsiveFont(10) },
+  regionPct: { color: PRIMARY_COLOR, fontSize: responsiveFont(10) },
   regionTrack: { height: 6, borderRadius: 999, backgroundColor: '#ffffff10', overflow: 'hidden' },
   regionFill: { height: '100%', borderRadius: 999, backgroundColor: primaryColorAlphaHex('88') },
   sectionHeadRow: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center' },
-  totalText: { color: PRIMARY_COLOR, fontSize: responsiveFont(9), fontFamily: FontFamily.extraBold, textTransform: 'uppercase' },
+  totalText: { color: PRIMARY_COLOR, fontSize: responsiveFont(9), textTransform: 'uppercase' },
   engagementRow: { flexDirection: 'row', alignItems: 'center', gap: 8 },
-  engagementLabel: { color: '#d4d6e4', fontSize: responsiveFont(10), width: 66, fontFamily: FontFamily.medium },
+  engagementLabel: { color: '#d4d6e4', fontSize: responsiveFont(10), width: 66 },
   engagementTrack: { flex: 1, height: 14, borderRadius: 999, backgroundColor: '#ffffff10', overflow: 'hidden' },
   engagementFill: { height: '100%', borderRadius: 999 },
-  engagementValue: { color: '#fff', fontSize: responsiveFont(10), width: 40, textAlign: 'right', fontFamily: FontFamily.bold },
+  engagementValue: { color: '#fff', fontSize: responsiveFont(10), width: 40, textAlign: 'right' },
   effCard: {
     borderRadius: 18,
     borderWidth: 1,
@@ -514,11 +511,11 @@ const s = StyleSheet.create({
     borderWidth: 1,
     borderColor: '#ffffff12',
   },
-  effType: { color: '#fff', fontSize: responsiveFont(12), fontFamily: FontFamily.bold },
-  effMeta: { color: '#8d91a8', fontSize: responsiveFont(8), fontFamily: FontFamily.bold, textTransform: 'uppercase' },
+  effType: { color: '#fff', fontSize: responsiveFont(12) },
+  effMeta: { color: '#8d91a8', fontSize: responsiveFont(8), textTransform: 'uppercase' },
   effRight: { alignItems: 'flex-end' },
   effValueRow: { flexDirection: 'row', alignItems: 'center', gap: 3 },
-  effValue: { color: '#fff', fontSize: responsiveFont(12), fontFamily: FontFamily.extraBold },
+  effValue: { color: '#fff', fontSize: responsiveFont(12) },
 });
 
 export default CreatorAnalytics;

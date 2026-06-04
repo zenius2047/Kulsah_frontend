@@ -6,11 +6,11 @@ import { MaterialIcons } from '@expo/vector-icons';
 import { LinearGradient } from 'expo-linear-gradient';
 import { useNavigation } from '@react-navigation/native';
 import { mediumScreen, user } from '../types';
-import { FontFamily, FontSize } from '../fonts';
 import TrophyIcon from '../assets/icons/trophy-svg.svg';
 import SubmissionIcon from '../assets/icons/upload-svg.svg';
 import DraftIcon from '../assets/icons/draft-svg.svg';
 import InviteIcon from '../assets/icons/invite-svg.svg';
+import { fontSize } from '../typography';
 
 type Tab = 'challenges' | 'submissions' | 'drafts' | 'invites';
 
@@ -162,13 +162,13 @@ const CreatorChallenges: React.FC = () => {
       <Pressable
         key={id}
         onPress={() => setActiveTab(id)}
-        style={[styles.tabButton, { backgroundColor: active ? (isDark ? 'rgba(255,255,255,0.08)' : '#fff') : 'transparent' }]}
+        style={[styles.tabButton, ]}
       >
         {id === 'challenges' && <TrophyIcon fill={isDark? activeTab === id ? PRIMARY_COLOR:'white': activeTab === id ? PRIMARY_COLOR :'black'} height={24} width={24}/>}
         {id === 'submissions' && <SubmissionIcon fill={isDark? activeTab === id ? PRIMARY_COLOR:'white':activeTab === id ? PRIMARY_COLOR: 'black'} height={24} width={24}/>}
         {id === 'drafts' && <DraftIcon fill={isDark? activeTab === id ? PRIMARY_COLOR:'white': activeTab === id ? PRIMARY_COLOR:'black'} height={24} width={24}/>}
         {id === 'invites' && <InviteIcon fill={isDark? activeTab === id ? PRIMARY_COLOR:'white': activeTab === id ? PRIMARY_COLOR: 'black'} height={24} width={24}/>}
-        <Text style={[styles.tabText, { color: active ? theme.accent : subtle }]}>{label}</Text>
+        <Text style={[styles.tabText, { color: active ? theme.accent : subtle, ...fontSize.b5, lineHeight: fontSize.b5.fontSize + 1, marginTop: 5 }]}>{label}</Text>
         {dot ? <View style={styles.dot} /> : null}
       </Pressable>
     );
@@ -217,18 +217,18 @@ const CreatorChallenges: React.FC = () => {
                 <MaterialIcons name="emoji-events" size={34} color={theme.accent} />
               </View>
               <View style={{ flex: 1 }}>
-                <Text style={[styles.heroTitle, { color: titleTone }]}>Viral Factory</Text>
-                <Text style={[styles.heroMeta, { color: subtle }]}>Drive Engagement Through Action</Text>
+                <Text style={[styles.heroTitle, { color: titleTone, ...fontSize.b2 }]}>Viral Factory</Text>
+                <Text style={[styles.heroMeta, { color: subtle, ...fontSize.b4, lineHeight: fontSize.b4.fontSize + 1 }]}>Drive Engagement Through Action</Text>
               </View>
             </View>
             <View style={styles.metricRow}>
               <View style={[styles.metricCard, { backgroundColor: card, borderColor: border }]}>
-                <Text style={[styles.metricValue, { color: theme.accent }]}>{metrics.total}</Text>
-                <Text style={[styles.metricLabel, { color: muted }]}>Total Submissions</Text>
+                <Text style={[styles.metricValue, { color: theme.accent, ...fontSize.n1, lineHeight: fontSize.n1.fontSize + 1 }]}>{metrics.total}</Text>
+                <Text style={[styles.metricLabel, { color: muted, ...fontSize.b5, lineHeight: fontSize.b5.fontSize + 1 }]}>Total Submissions</Text>
               </View>
               <View style={[styles.metricCard, { backgroundColor: card, borderColor: border }]}>
-                <Text style={[styles.metricValue, { color: '#10b981' }]}>{metrics.conversion}</Text>
-                <Text style={[styles.metricLabel, { color: muted }]}>Conversion Rate</Text>
+                <Text style={[styles.metricValue, { color: '#10b981', ...fontSize.n1, lineHeight: fontSize.n1.fontSize + 1 }]}>{metrics.conversion}</Text>
+                <Text style={[styles.metricLabel, { color: muted, ...fontSize.b5, lineHeight: fontSize.b5.fontSize + 1 }]}>Conversion Rate</Text>
               </View>
             </View>
           </LinearGradient>
@@ -245,8 +245,8 @@ const CreatorChallenges: React.FC = () => {
           {activeTab === 'challenges' ? (
             <View style={styles.section}>
               <View style={styles.sectionRow}>
-                <Text style={[styles.sectionTitle, { color: muted }]}>Active Challenges</Text>
-                <Text style={styles.sectionAccent}>{CHALLENGES.length} Live</Text>
+                <Text style={[styles.sectionTitle, { color: muted, fontSize: fontSize.b2.fontSize - (mediumScreen ? 0 : 2), fontFamily: fontSize.b2.fontFamily, lineHeight: fontSize.b2.fontSize + 1 }]}>Active Challenges</Text>
+                <Text style={[styles.sectionAccent, {...fontSize.b2, lineHeight: fontSize.b2.fontSize + 1}]}>{CHALLENGES.length} Live</Text>
               </View>
               {CHALLENGES.map((challenge) => {
                 const isOwner = challenge.creatorId === (user?.id || 'mila_ray_01');
@@ -260,27 +260,27 @@ const CreatorChallenges: React.FC = () => {
                     <LinearGradient colors={['transparent', 'rgba(0,0,0,0.35)', 'rgba(0,0,0,0.94)']} style={StyleSheet.absoluteFillObject} />
                     <View style={styles.trending}>
                       <MaterialIcons name="bolt" size={16} color={theme.accent} />
-                      <Text style={styles.trendingText}>Trending</Text>
+                      <Text style={[styles.trendingText, {...fontSize.b4}]}>Trending</Text>
                     </View>
                     <View style={styles.featureBottom}>
-                      <Text style={styles.featureTitle}>{challenge.title}</Text>
-                      <Text style={styles.featureDesc} numberOfLines={2}>{challenge.description}</Text>
+                      <Text style={[styles.featureTitle, {fontSize: fontSize.b1.fontSize + (mediumScreen ? 4: 0), fontFamily: 'Pogonia_700Bold', }]}>{challenge.title}</Text>
+                      <Text style={[styles.featureDesc, {...fontSize.b5, lineHeight: fontSize.b5.fontSize + 2}]} numberOfLines={6}>{challenge.description}</Text>
                       <View style={styles.featureStats}>
                         <View>
-                          <Text style={styles.featureLabel}>Participants</Text>
-                          <Text style={styles.featureValue}>{challenge.participants.toLocaleString()}</Text>
+                          <Text style={[styles.featureLabel, {...fontSize.b5, lineHeight: fontSize.b5.fontSize + 1}]}>Participants</Text>
+                          <Text style={[styles.featureValue, {...fontSize.n5, lineHeight: fontSize.n5.fontSize + 1}]}>{challenge.participants.toLocaleString()}</Text>
                         </View>
                         <View>
-                          <Text style={styles.featureLabel}>Deadline</Text>
-                          <Text style={styles.featureValue}>{challenge.deadline}</Text>
+                          <Text style={[styles.featureLabel, {...fontSize.b5, lineHeight: fontSize.b5.fontSize + 1}]}>Deadline</Text>
+                          <Text style={[styles.featureValue, {...fontSize.n5, lineHeight: fontSize.n5.fontSize + 1}]}>{challenge.deadline}</Text>
                         </View>
-                        <Text style={styles.reward}>{challenge.reward}</Text>
                       </View>
+                      <Text style={[styles.reward, {fontSize: fontSize.b5.fontSize, fontFamily: "Poppins_700Bold"}]}>{challenge.reward}</Text>
                       <View style={styles.actionRow}>
                         {isOwner ? (
                           <>
                             <Pressable onPress={() => go('Submissions', { challengeId: challenge.id })} style={styles.primaryAction}>
-                              <Text style={styles.primaryActionText}>View Submissions</Text>
+                              <Text style={[styles.primaryActionText, {...fontSize.b3, lineHeight: fontSize.b3.fontSize + 1}]}>View Submissions</Text>
                             </Pressable>
                             <Pressable style={styles.iconAction}>
                               <MaterialIcons name="edit" size={20} color="#fff" />
@@ -289,7 +289,7 @@ const CreatorChallenges: React.FC = () => {
                         ) : (
                           <Pressable onPress={() => go('SubmitEntry')} style={[styles.primaryAction, {backgroundColor: PRIMARY_COLOR}]}>
                             <MaterialIcons name="rocket-launch" size={16} color="#fff" />
-                            <Text style={styles.primaryActionText}>Join Challenge</Text>
+                            <Text style={[styles.primaryActionText, {...fontSize.b4, lineHeight: fontSize.b4.fontSize + 1}]}>Join Challenge</Text>
                           </Pressable>
                         )}
                       </View>
@@ -303,8 +303,8 @@ const CreatorChallenges: React.FC = () => {
           {activeTab === 'submissions' ? (
             <View style={styles.section}>
               <View style={styles.sectionRow}>
-                <Text style={[styles.sectionTitle, { color: muted }]}>Recent Submissions</Text>
-                <Text style={styles.sectionAccent}>{SUBMISSIONS.length} New</Text>
+                <Text style={[styles.sectionTitle, { color: muted, fontSize: fontSize.b2.fontSize - (mediumScreen ? 0 : 2), fontFamily: fontSize.b2.fontFamily, lineHeight: fontSize.b2.fontSize + 1  }]}>Recent Submissions</Text>
+                <Text style={[styles.sectionAccent, {fontSize: fontSize.b2.fontSize - (mediumScreen ? 0 : 2), fontFamily: fontSize.b2.fontFamily, lineHeight: fontSize.b2.fontSize + 1 }]}>{SUBMISSIONS.length} New</Text>
               </View>
               {SUBMISSIONS.map((submission) => (
                 <View key={submission.id} style={[styles.listCard, { backgroundColor: card, borderColor: border }]}>
@@ -319,18 +319,18 @@ const CreatorChallenges: React.FC = () => {
                   <View style={styles.listBody}>
                     <View style={styles.authorRow}>
                       <Image source={{ uri: submission.userAvatar }} style={styles.authorAvatar} />
-                      <Text style={[styles.authorName, { color: titleTone }]} numberOfLines={1}>{submission.userName}</Text>
+                      <Text style={[styles.authorName, { color: titleTone, fontSize: fontSize.b5.fontSize, lineHeight: fontSize.b5.fontSize + 1, fontFamily: 'Poppins_600SemiBold'}]} numberOfLines={1}>{submission.userName}</Text>
                     </View>
-                    <Text style={[styles.listTitle, { color: titleTone }]} numberOfLines={1}>{submission.challengeTitle}</Text>
-                    <Text style={[styles.listMeta, { color: muted }]}>{submission.submittedAt}</Text>
+                    <Text style={[styles.listTitle, { color: titleTone, fontSize: fontSize.b5.fontSize, fontFamily: 'Inter_500Medium'}]} numberOfLines={2}>{submission.challengeTitle}</Text>
+                    <Text style={[styles.listMeta, { color: muted, fontSize: fontSize.b5.fontSize }]}>{submission.submittedAt}</Text>
                     <View style={styles.inlineStats}>
                       <View style={styles.inlineStat}>
                         <MaterialIcons name="favorite" size={14} color={theme.accent} />
-                        <Text style={[styles.inlineStatText, { color: titleTone }]}>{submission.likes}</Text>
+                        <Text style={[styles.inlineStatText, { color: titleTone, ...fontSize.n5, lineHeight: fontSize.n5.fontSize + 1 }]}>{submission.likes}</Text>
                       </View>
                       <View style={styles.inlineStat}>
                         <MaterialIcons name="how-to-vote" size={14} color="#10b981" />
-                        <Text style={[styles.inlineStatText, { color: titleTone }]}>{submission.votes}</Text>
+                        <Text style={[styles.inlineStatText, { color: titleTone, ...fontSize.n5, lineHeight: fontSize.n5.fontSize + 1 }]}>{submission.votes}</Text>
                       </View>
                     </View>
                   </View>
@@ -345,7 +345,7 @@ const CreatorChallenges: React.FC = () => {
                 </View>
               ))}
               <Pressable onPress={() => go('Submissions')} style={[styles.dashedBtn, { borderColor: primaryColorAlpha(0.3) }]}>
-                <Text style={styles.dashedBtnText}>View All Submissions</Text>
+                <Text style={[styles.dashedBtnText, {...fontSize.b4}]}>View All Submissions</Text>
               </Pressable>
             </View>
           ) : null}
@@ -353,27 +353,27 @@ const CreatorChallenges: React.FC = () => {
           {activeTab === 'drafts' ? (
             <View style={styles.section}>
               <View style={styles.sectionRow}>
-                <Text style={[styles.sectionTitle, { color: muted }]}>Saved Drafts</Text>
-                <Text style={styles.sectionAccent}>{DRAFTS.length} Drafts</Text>
+                <Text style={[styles.sectionTitle, { color: muted, fontSize: fontSize.b2.fontSize - (mediumScreen ? 0 : 2), fontFamily: fontSize.b2.fontFamily, lineHeight: fontSize.b2.fontSize + 1  }]}>Saved Drafts</Text>
+                <Text style={[styles.sectionAccent, {fontSize: fontSize.b2.fontSize - (mediumScreen ? 0 : 2), fontFamily: fontSize.b2.fontFamily, lineHeight: fontSize.b2.fontSize + 1 }]}>{DRAFTS.length} Drafts</Text>
               </View>
               {DRAFTS.map((draft) => (
-                <View key={draft.id} style={[styles.listCard, { backgroundColor: card, borderColor: border }]}>
+                <View key={draft.id} style={[styles.listCard, { backgroundColor: card, borderColor: border, }]}>
                   <Image source={{ uri: draft.image }} style={styles.draftImage} />
                   <View style={styles.listBody}>
-                    <Text style={[styles.listTitle, { color: titleTone }]} numberOfLines={1}>{draft.title}</Text>
-                    <Text style={[styles.listMeta, { color: muted }]} numberOfLines={1}>{draft.description}</Text>
-                    <View style={styles.draftMeta}>
-                      <Text style={styles.rewardMini}>{draft.reward}</Text>
-                      <Text style={[styles.smallText, { color: muted }]}>Last edited 2d ago</Text>
+                    <Text style={[styles.listTitle, { color: titleTone, fontSize: fontSize.b4.fontSize, fontFamily: fontSize.b4.fontFamily, lineHeight: fontSize.b4.fontSize + 1, marginTop: mediumScreen ? 8: 4}]} numberOfLines={1}>{draft.title}</Text>
+                    <Text style={[styles.listMeta, { color: muted, ...fontSize.b5, lineHeight: fontSize.b5.fontSize + 1}]} numberOfLines={1}>{draft.description}</Text>
+                    <View style={[styles.draftMeta, {marginTop: mediumScreen ? 8: 4, gap: mediumScreen ? 8 : 4}]}>
+                      <Text numberOfLines={1} style={[styles.rewardMini, {...fontSize.b5, lineHeight: fontSize.b5.fontSize + 1}]}>{draft.reward}</Text>
+                      <Text style={[styles.smallText, { color: muted, ...fontSize.b5, lineHeight: fontSize.b5.fontSize + 1 }]}>Last edited 2d ago</Text>
                     </View>
                   </View>
                   <Pressable onPress={() => go('CreateChallenge')} style={[styles.resumeBtn, { backgroundColor: surface, borderColor: border }]}>
-                    <Text style={[styles.resumeBtnText, { color: titleTone }]}>Resume</Text>
+                    <Text style={[styles.resumeBtnText, { color: titleTone, ...fontSize.b5 }]}>Resume</Text>
                   </Pressable>
                 </View>
               ))}
               <Pressable onPress={() => go('CreateChallenge')} style={[styles.dashedBtn, { borderColor: primaryColorAlpha(0.3) }]}>
-                <Text style={styles.dashedBtnText}>View All Drafts</Text>
+                <Text style={[styles.dashedBtnText, {...fontSize.b4}]}>View All Drafts</Text>
               </Pressable>
             </View>
           ) : null}
@@ -381,8 +381,8 @@ const CreatorChallenges: React.FC = () => {
           {activeTab === 'invites' ? (
             <View style={styles.section}>
               <View style={styles.sectionRow}>
-                <Text style={[styles.sectionTitle, { color: muted }]}>Creator Invites</Text>
-                <Text style={styles.sectionAccent}>{INVITES.length} Pending</Text>
+                <Text style={[styles.sectionTitle, { color: muted, fontSize: fontSize.b2.fontSize - (mediumScreen ? 0 : 2), fontFamily: fontSize.b2.fontFamily, lineHeight: fontSize.b2.fontSize + 1 }]}>Creator Invites</Text>
+                <Text style={[styles.sectionAccent, { fontSize: fontSize.b2.fontSize - (mediumScreen ? 0 : 2), fontFamily: fontSize.b2.fontFamily, lineHeight: fontSize.b2.fontSize + 1 }]}>{INVITES.length} Pending</Text>
               </View>
               {INVITES.map((invite) => (
                 <View key={invite.id} style={[styles.inviteCard, { borderColor: border }]}>
@@ -392,33 +392,33 @@ const CreatorChallenges: React.FC = () => {
                     <View style={styles.inviterPill}>
                       <Image source={{ uri: invite.inviterAvatar }} style={styles.inviterAvatar} />
                       <View>
-                        <Text style={styles.inviteTag}>Invited by</Text>
-                        <Text style={styles.inviterName}>{invite.inviterName}</Text>
+                        <Text style={[styles.inviteTag, { ...fontSize.b5, lineHeight: fontSize.b5.fontSize + 1 }]}>Invited by</Text>
+                        <Text style={[styles.inviterName, { ...fontSize.b5, lineHeight: fontSize.b5.fontSize + 1 }]}>{invite.inviterName}</Text>
                       </View>
                     </View>
                     <View style={[styles.statusPill, invite.status === 'pending' ? styles.pending : styles.accepted]}>
-                      <Text style={styles.statusText}>{invite.status}</Text>
+                      <Text style={[styles.statusText, { ...fontSize.b5, lineHeight: fontSize.b5.fontSize + 1 }]}>{invite.status}</Text>
                     </View>
                   </View>
                   <View style={styles.featureBottom}>
-                    <Text style={[styles.featureTitle, { fontSize: mediumScreen ? FontSize.eighteen : FontSize.fourteen, marginTop: 10 }]}>{invite.title}</Text>
-                    <Text style={[styles.featureDesc, { fontStyle: 'italic' }]} numberOfLines={2}>"{invite.description}"</Text>
+                    <Text style={[styles.featureTitle, { fontSize: fontSize.b1.fontSize + (mediumScreen ? 4 : 0), fontFamily: 'Pogonia_700Bold', marginTop: 10 }]}>{invite.title}</Text>
+                    <Text style={[styles.featureDesc, { ...fontSize.b4, lineHeight: fontSize.b4.fontSize + 2, fontStyle: 'italic' }]} numberOfLines={2}>{invite.description}</Text>
                     <View style={styles.inviteFooter}>
                       <View style={{
                       }}>
-                        <Text style={styles.featureLabel}>Potential Reward</Text>
-                        <Text style={styles.reward}>{invite.reward}</Text>
+                        <Text style={[styles.featureLabel, { ...fontSize.b5, lineHeight: fontSize.b5.fontSize + 1 }]}>Potential Reward</Text>
+                        <Text style={[styles.reward, { fontSize: fontSize.b5.fontSize, fontFamily: "Poppins_700Bold" }]}>{invite.reward}</Text>
                       </View>
                       <View style={styles.inviteActions}>
                         {invite.status === 'pending' ? (
                           <>
-                            <Pressable style={styles.acceptBtn}><Text style={styles.acceptBtnText}>Accept</Text></Pressable>
-                            <Pressable style={styles.declineBtn}><Text style={styles.declineBtnText}>Decline</Text></Pressable>
+                            <Pressable style={styles.acceptBtn}><Text style={[styles.acceptBtnText, { ...fontSize.b4, lineHeight: fontSize.b4.fontSize + 1 }]}>Accept</Text></Pressable>
+                            <Pressable style={styles.declineBtn}><Text style={[styles.declineBtnText, { ...fontSize.b4, lineHeight: fontSize.b4.fontSize + 1 }]}>Decline</Text></Pressable>
                           </>
                         ) : (
                           <Pressable style={styles.collabBtn}>
                             <MaterialIcons name="chat" size={14} color="#fff" />
-                            <Text style={styles.acceptBtnText}>Collaborate</Text>
+                            <Text style={[styles.acceptBtnText, { ...fontSize.b4, lineHeight: fontSize.b4.fontSize + 2 }]}>Collaborate</Text>
                           </Pressable>
                         )}
                       </View>
@@ -427,8 +427,8 @@ const CreatorChallenges: React.FC = () => {
                 </View>
               ))}
               <View style={[styles.tipCard, { backgroundColor: isDark ? primaryColorAlpha(0.08) : theme.accentSoft, borderColor: primaryColorAlpha(0.24) }]}>
-                <Text style={styles.tipTitle}>Collaboration Tip</Text>
-                <Text style={[styles.tipBody, { color: subtle }]}>Collaborating on creator challenges can increase your reach by up to 40%. Use invites when creating a challenge to partner up.</Text>
+                <Text style={[styles.tipTitle, { ...fontSize.b4, lineHeight: fontSize.b4.fontSize + 1 }]}>Collaboration Tip</Text>
+                <Text style={[styles.tipBody, { color: subtle, ...fontSize.b5, lineHeight: fontSize.b5.fontSize + 3 }]}>Collaborating on creator challenges can increase your reach by up to 40%. Use invites when creating a challenge to partner up.</Text>
               </View>
             </View>
           ) : null}
@@ -470,8 +470,7 @@ const styles = StyleSheet.create({
     flex: 1,
     textAlign: 'center',
     paddingHorizontal: 16,
-    fontFamily: FontFamily.extraBold,
-    fontSize: mediumScreen ? FontSize.eighteen : FontSize.fifteen,
+    ...fontSize.b1, lineHeight: fontSize.b1.fontSize + 2,
     textTransform: 'uppercase',
     letterSpacing: 0.6,
   },
@@ -482,39 +481,39 @@ const styles = StyleSheet.create({
     width: 64, height: 64, borderRadius: 20, alignItems: 'center', justifyContent: 'center',
     backgroundColor: primaryColorAlpha(0.14), borderWidth: 1, borderColor: primaryColorAlpha(0.3),
   },
-  heroTitle: { fontFamily: FontFamily.extraBold, fontSize: mediumScreen ? FontSize.twenty : FontSize.sixteen, textTransform: 'uppercase' },
-  heroMeta: { marginTop: 4, fontFamily: FontFamily.extraBold, fontSize: FontSize.eight, textTransform: 'uppercase', letterSpacing: 2 },
+  heroTitle: { ...fontSize.b1, lineHeight: fontSize.b1.fontSize + 2, textTransform: 'uppercase' },
+  heroMeta: { marginTop: 4, textTransform: 'uppercase', letterSpacing: 1 },
   metricRow: { flexDirection: 'row', gap: 12, marginTop: 24 },
   metricCard: { flex: 1, borderRadius: 24, borderWidth: 1, padding: 16 },
-  metricValue: { fontFamily: FontFamily.extraBold, fontSize: mediumScreen ? FontSize.twentyTwo : FontSize.eighteen },
-  metricLabel: { marginTop: 4, fontFamily: FontFamily.extraBold, fontSize: FontSize.eight, textTransform: 'uppercase', letterSpacing: 1.8 },
+  metricValue: { },
+  metricLabel: { marginTop: 4, textTransform: 'uppercase', letterSpacing: 0.8 },
   tabBar: { flexDirection: 'row', borderRadius: 0, borderWidth: 0, padding: 0, justifyContent: 'space-around' },
   tabButton: { flex: 0, minHeight: 48, borderRadius: 14, alignItems: 'center', justifyContent: 'center', position: 'relative' },
-  tabText: { fontFamily: FontFamily.extraBold, fontSize: mediumScreen ? FontSize.ten: FontSize.six, textTransform: 'uppercase', letterSpacing: 1.4 },
+  tabText: { ...fontSize.b5, lineHeight: fontSize.b5.fontSize + 1, textTransform: 'uppercase', letterSpacing: 1.4 },
   dot: { position: 'absolute', top: 10, right: 12, width: 6, height: 6, borderRadius: 3, backgroundColor: PRIMARY_COLOR },
   section: { gap: 16 },
   sectionRow: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', paddingHorizontal: 4 },
-  sectionTitle: { fontFamily: FontFamily.bold, fontSize: FontSize.eight, textTransform: 'uppercase', letterSpacing: 2.4 },
-  sectionAccent: { color: PRIMARY_COLOR, fontFamily: FontFamily.extraBold, fontSize: FontSize.eight, textTransform: 'uppercase', letterSpacing: 1.8 },
-  featureCard: { height: 320, borderRadius: 48, overflow: 'hidden', borderWidth: 1, backgroundColor: '#111827' },
+  sectionTitle: {textTransform: 'uppercase', letterSpacing: 0.4 },
+  sectionAccent: { color: PRIMARY_COLOR,textTransform: 'uppercase', letterSpacing: 0.8 },
+  featureCard: { minHeight: mediumScreen ? 310: 320, borderRadius: 48, overflow: 'hidden', borderWidth: 1, backgroundColor: '#111827', gap: 14 },
   fillImage: { ...StyleSheet.absoluteFillObject, width: undefined, height: undefined },
   trending: {
     position: 'absolute', top: 24, left: 24, flexDirection: 'row', alignItems: 'center', gap: 6,
     paddingHorizontal: 14, paddingVertical: 8, borderRadius: 999, backgroundColor: primaryColorAlpha(0.15),
     borderWidth: 1, borderColor: primaryColorAlpha(0.3),
   },
-  trendingText: { color: PRIMARY_COLOR, fontFamily: FontFamily.extraBold, fontSize: FontSize.eight, textTransform: 'uppercase', letterSpacing: 1.4 },
+  trendingText: { color: PRIMARY_COLOR, ...fontSize.b5, lineHeight: fontSize.b5.fontSize + 1, textTransform: 'uppercase', letterSpacing: 1.4 },
   featureBottom: { position: 'absolute', left: 24, right: 24, bottom: 24, gap: 14 },
-  featureTitle: { color: '#fff', fontFamily: FontFamily.extraBold, fontSize: mediumScreen ? FontSize.eighteen : FontSize.fourteen, textTransform: 'uppercase' },
-  featureDesc: { color: 'rgba(255,255,255,0.65)', fontFamily: FontFamily.medium, fontSize: FontSize.ten, lineHeight: 18 },
+  featureTitle: { color: '#fff', ...fontSize.b1, lineHeight: fontSize.b1.fontSize + 2, textTransform: 'uppercase' },
+  featureDesc: { color: 'rgba(255,255,255,0.65)', ...fontSize.b5, lineHeight: fontSize.b5.fontSize + 1,},
   featureStats: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'flex-end', borderTopWidth: 1, borderTopColor: 'rgba(255,255,255,0.1)', paddingTop: 12, gap: 10 },
-  featureLabel: { color: 'rgba(255,255,255,0.4)', fontFamily: FontFamily.extraBold, fontSize: FontSize.seven, textTransform: 'uppercase', letterSpacing: 0.8 },
-  featureValue: { color: '#fff', marginTop: 4, fontFamily: FontFamily.extraBold, fontSize: FontSize.nine, textTransform: 'uppercase' },
-  reward: { color: PRIMARY_COLOR, fontFamily: FontFamily.extraBold, fontSize: FontSize.seven, textTransform: 'uppercase', letterSpacing: 1.4, flexShrink: 1, textAlign: 'left',  },
+  featureLabel: { color: 'rgba(255,255,255,0.4)', ...fontSize.b5, lineHeight: fontSize.b5.fontSize + 1, textTransform: 'uppercase', letterSpacing: 0.8 },
+  featureValue: { color: '#fff', marginTop: 4, ...fontSize.b5, lineHeight: fontSize.b5.fontSize + 1, textTransform: 'uppercase' },
+  reward: { color: PRIMARY_COLOR, ...fontSize.b5, lineHeight: fontSize.b5.fontSize + 1, textTransform: 'uppercase', letterSpacing: 1.4, flexShrink: 1, textAlign: 'left',  },
   actionRow: { flexDirection: 'row', gap: 10 },
   primaryAction: { flex: 1, minHeight: 48, borderRadius: 24, backgroundColor: PRIMARY_COLOR, alignItems: 'center', justifyContent: 'center', flexDirection: 'row', gap: 8, paddingHorizontal: 16 },
   // primaryActionAlt: { backgroundColor: '#b012d4' },
-  primaryActionText: { color: '#fff', fontFamily: FontFamily.extraBold, fontSize: FontSize.eight, textTransform: 'uppercase', letterSpacing: 1.6 },
+  primaryActionText: { color: '#fff', ...fontSize.b5, lineHeight: fontSize.b5.fontSize + 1, textTransform: 'uppercase', letterSpacing: 1.6 },
   iconAction: { width: 48, height: 48, borderRadius: 18, backgroundColor: 'rgba(255,255,255,0.12)', borderWidth: 1, borderColor: 'rgba(255,255,255,0.1)', alignItems: 'center', justifyContent: 'center' },
   listCard: { borderRadius: 28, borderWidth: 1, padding: 14, flexDirection: 'row', gap: 14, alignItems: 'center' },
   thumbWrap: { width: 96, height: 96, borderRadius: 18, overflow: 'hidden' },
@@ -523,42 +522,42 @@ const styles = StyleSheet.create({
   listBody: { flex: 1, minWidth: 0 },
   authorRow: { flexDirection: 'row', alignItems: 'center', gap: 8, marginBottom: 4 },
   authorAvatar: { width: 20, height: 20, borderRadius: 10 },
-  authorName: { fontFamily: FontFamily.extraBold, fontSize: FontSize.eight, textTransform: 'uppercase', letterSpacing: 1, flex: 1 },
-  listTitle: { fontFamily: FontFamily.extraBold, fontSize: FontSize.ten, textTransform: 'uppercase' },
-  listMeta: { marginTop: 4, fontFamily: FontFamily.bold, fontSize: FontSize.eight, textTransform: 'uppercase', letterSpacing: 1.4 },
+  authorName: { ...fontSize.b5, lineHeight: fontSize.b5.fontSize + 1, textTransform: 'uppercase', letterSpacing: 1, flex: 1 },
+  listTitle: { ...fontSize.b5, lineHeight: fontSize.b5.fontSize + 1, textTransform: 'uppercase' },
+  listMeta: { marginTop: 4, ...fontSize.b5, lineHeight: fontSize.b5.fontSize + 1, textTransform: 'uppercase', letterSpacing: 0.4 },
   inlineStats: { flexDirection: 'row', gap: 14, marginTop: 10 },
   inlineStat: { flexDirection: 'row', alignItems: 'center', gap: 4 },
-  inlineStatText: { fontFamily: FontFamily.extraBold, fontSize: FontSize.nine },
+  inlineStatText: {},
   sideActions: { gap: 10 },
   sideBtn: { width: 40, height: 40, borderRadius: 12, borderWidth: 1, alignItems: 'center', justifyContent: 'center' },
   dashedBtn: { minHeight: 54, borderRadius: 18, borderWidth: 1, borderStyle: 'dashed', alignItems: 'center', justifyContent: 'center', paddingHorizontal: 16 },
-  dashedBtnText: { color: PRIMARY_COLOR, fontFamily: FontFamily.extraBold, fontSize: FontSize.eight, textTransform: 'uppercase', letterSpacing: 1.8 },
+  dashedBtnText: { color: PRIMARY_COLOR, ...fontSize.b5, lineHeight: fontSize.b5.fontSize + 1, textTransform: 'uppercase', letterSpacing: 1.8 },
   draftImage: { width: 80, height: 80, borderRadius: 18, opacity: 0.65 },
-  draftMeta: { flexDirection: 'row', gap: 10, marginTop: 8, flexWrap: 'wrap' },
-  rewardMini: { color: PRIMARY_COLOR, fontFamily: FontFamily.extraBold, fontSize: FontSize.seven, textTransform: 'uppercase', letterSpacing: 1.4 },
-  smallText: { fontFamily: FontFamily.bold, fontSize: FontSize.seven, textTransform: 'uppercase', letterSpacing: 1.2 },
+  draftMeta: { flexDirection: 'row', gap: 4, marginTop: 4, flexWrap: 'wrap' },
+  rewardMini: { color: PRIMARY_COLOR, textTransform: 'uppercase', letterSpacing: 0.4 },
+  smallText: { ...fontSize.b5, lineHeight: fontSize.b5.fontSize + 1, textTransform: 'uppercase', letterSpacing: 0.2 },
   resumeBtn: { minHeight: 40, paddingHorizontal: 16, borderRadius: 12, borderWidth: 1, alignItems: 'center', justifyContent: 'center' },
-  resumeBtnText: { fontFamily: FontFamily.extraBold, fontSize: FontSize.seven, textTransform: 'uppercase', letterSpacing: 1.6 },
+  resumeBtnText: { ...fontSize.b5, lineHeight: fontSize.b5.fontSize + 1, textTransform: 'uppercase', letterSpacing: 1.6 },
   inviteCard: { minHeight: 298, borderRadius: 48, overflow: 'hidden', borderWidth: 1, backgroundColor: '#111827' },
   inviteTop: { position: 'absolute', top: 24, left: 24, right: 24, flexDirection: 'row', justifyContent: 'space-between', alignItems: 'flex-start' },
   inviterPill: { flexDirection: 'row', alignItems: 'center', gap: 10, backgroundColor: 'rgba(0,0,0,0.4)', borderWidth: 1, borderColor: 'rgba(255,255,255,0.1)', padding: 8, paddingRight: 14, borderRadius: 999 },
   inviterAvatar: { width: 32, height: 32, borderRadius: 16, borderWidth: 1, borderColor: primaryColorAlpha(0.4) },
-  inviteTag: { color: 'rgba(255,255,255,0.45)', fontFamily: FontFamily.extraBold, fontSize: FontSize.sixHalf, textTransform: 'uppercase', letterSpacing: 1.4 },
-  inviterName: { color: '#fff', fontFamily: FontFamily.extraBold, fontSize: FontSize.eight, textTransform: 'uppercase', marginTop: 2 },
-  statusPill: { paddingHorizontal: 12, paddingVertical: 6, borderRadius: 999, borderWidth: 1 },
+  inviteTag: { color: 'rgba(255,255,255,0.45)', ...fontSize.b5, lineHeight: fontSize.b5.fontSize + 1, textTransform: 'uppercase', letterSpacing: 1.4 },
+  inviterName: { color: '#fff', ...fontSize.b5, lineHeight: fontSize.b5.fontSize + 1, textTransform: 'uppercase', marginTop: 2 },
+  statusPill: { paddingHorizontal: 12, paddingVertical: 6, borderRadius: 999, borderWidth: 1, alignItems: 'center' },
   pending: { backgroundColor: 'rgba(249,115,22,0.16)', borderColor: 'rgba(249,115,22,0.35)' },
   accepted: { backgroundColor: 'rgba(16,185,129,0.16)', borderColor: 'rgba(16,185,129,0.35)' },
-  statusText: { fontFamily: FontFamily.extraBold, fontSize: FontSize.seven, color: '#fff', textTransform: 'uppercase', letterSpacing: 1.4 },
+  statusText: { ...fontSize.b5, lineHeight: fontSize.b5.fontSize + 1, color: '#fff', textTransform: 'uppercase', letterSpacing: 1.4 },
   inviteFooter: { justifyContent: 'space-between', alignItems: 'flex-start', gap: 12 },
   inviteActions: { flexDirection: 'row', gap: 8, flexWrap: 'wrap', justifyContent: 'flex-end' },
   acceptBtn: { minHeight: 40, paddingHorizontal: 20, borderRadius: 12, backgroundColor: PRIMARY_COLOR, alignItems: 'center', justifyContent: 'center' },
   declineBtn: { minHeight: 40, paddingHorizontal: 16, borderRadius: 12, backgroundColor: 'rgba(255,255,255,0.08)', borderWidth: 1, borderColor: 'rgba(255,255,255,0.1)', alignItems: 'center', justifyContent: 'center' },
   collabBtn: { minHeight: 40, paddingHorizontal: 18, borderRadius: 12, backgroundColor: '#10b981', alignItems: 'center', justifyContent: 'center', flexDirection: 'row', gap: 6 },
-  acceptBtnText: { color: '#fff', fontFamily: FontFamily.extraBold, fontSize: FontSize.eight, textTransform: 'uppercase', letterSpacing: 1.4 },
-  declineBtnText: { color: 'rgba(255,255,255,0.7)', fontFamily: FontFamily.extraBold, fontSize: FontSize.eight, textTransform: 'uppercase', letterSpacing: 1.4 },
+  acceptBtnText: { color: '#fff', ...fontSize.b5, lineHeight: fontSize.b5.fontSize + 1, textTransform: 'uppercase', letterSpacing: 1.4 },
+  declineBtnText: { color: 'rgba(255,255,255,0.7)', ...fontSize.b5, lineHeight: fontSize.b5.fontSize + 1, textTransform: 'uppercase', letterSpacing: 1.4 },
   tipCard: { borderRadius: 32, borderWidth: 1, padding: 20, alignItems: 'center', gap: 8 },
-  tipTitle: { color: PRIMARY_COLOR, fontFamily: FontFamily.extraBold, fontSize: FontSize.eight, textTransform: 'uppercase', letterSpacing: 1.8 },
-  tipBody: { textAlign: 'center', fontFamily: FontFamily.medium, fontSize: FontSize.nine, lineHeight: 18 },
+  tipTitle: { color: PRIMARY_COLOR, ...fontSize.b5, lineHeight: fontSize.b5.fontSize + 1, textTransform: 'uppercase', letterSpacing: 1.8 },
+  tipBody: { textAlign: 'center', ...fontSize.b5, lineHeight: fontSize.b5.fontSize + 1,},
 });
 
 export default CreatorChallenges;

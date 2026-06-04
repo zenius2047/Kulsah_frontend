@@ -16,9 +16,9 @@ import {
   View,
 } from 'react-native';
 import { SafeAreaView, useSafeAreaInsets } from 'react-native-safe-area-context';
-import { FontFamily, FontSize } from '../fonts';
 import { useThemeMode, PRIMARY_COLOR, primaryColorAlpha } from "../theme";
 import { user, User } from '../types';
+import { fontSize } from './typography';
 
 type LeaderboardTab = 'rankings' | 'rules' | 'prizes';
 type BoostPaymentMethod = 'momo' | 'kc' | 'card';
@@ -454,7 +454,7 @@ const BoostEntryDialog = ({
                     {paymentMethod === 'kc' ? (
                       <View style={styles.boostKcCard}>
                         <Text style={styles.boostKcTitle}>Pay with KulCoins</Text>
-                        <Text style={[styles.boostKcBalance, { color: theme.text }]}>{availableBalance} KC <Text style={{ color: muted, fontSize: FontSize.ten }}>Available</Text></Text>
+                        <Text style={[styles.boostKcBalance, { color: theme.text }]}>{availableBalance} KC <Text style={{ color: muted, ...fontSize.b5, lineHeight: fontSize.b5.fontSize + 1 }}>Available</Text></Text>
                         <Text style={[styles.boostTinyMuted, { color: muted }]}>Deductible for this pay: {selectedPackage.kcEquivalent} KC</Text>
                       </View>
                     ) : null}
@@ -871,8 +871,7 @@ const styles = StyleSheet.create({
     borderWidth: 1,
   },
   headerTitle: {
-    fontFamily: FontFamily.extraBold,
-    fontSize: FontSize.fourteen,
+    ...fontSize.b4, lineHeight: fontSize.b4.fontSize + 1,
     textTransform: 'uppercase',
   },
   tabWrap: {
@@ -889,8 +888,7 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
   },
   tabText: {
-    fontFamily: FontFamily.extraBold,
-    fontSize: FontSize.eight,
+    ...fontSize.b5, lineHeight: fontSize.b5.fontSize + 1,
     textTransform: 'uppercase',
     letterSpacing: 1.4,
   },
@@ -955,51 +953,44 @@ const styles = StyleSheet.create({
     borderRadius: 8,
   },
   placeBadgeText: {
-    fontFamily: FontFamily.extraBold,
-    fontSize: FontSize.seven,
+    ...fontSize.b5, lineHeight: fontSize.b5.fontSize + 1,
   },
   winnerBadge: {
     backgroundColor: PRIMARY_COLOR,
   },
   winnerBadgeText: {
     color: '#ffffff',
-    fontFamily: FontFamily.extraBold,
-    fontSize: FontSize.seven,
+    ...fontSize.b5, lineHeight: fontSize.b5.fontSize + 1,
   },
   centerAlign: {
     alignItems: 'center',
     gap: 3,
   },
   sidePodiumName: {
-    fontFamily: FontFamily.extraBold,
-    fontSize: FontSize.ten,
+    ...fontSize.b5, lineHeight: fontSize.b5.fontSize + 1,
     textAlign: 'center',
   },
   voteAccent: {
     color: PRIMARY_COLOR,
-    fontFamily: FontFamily.bold,
-    fontSize: FontSize.seven,
+    ...fontSize.b5, lineHeight: fontSize.b5.fontSize + 1,
     textTransform: 'uppercase',
     letterSpacing: 1.2,
     textAlign: 'center',
   },
   winnerName: {
-    fontFamily: FontFamily.extraBold,
-    fontSize: FontSize.thirteen,
+    ...fontSize.b4, lineHeight: fontSize.b4.fontSize + 1,
     textAlign: 'center',
   },
   winnerVotes: {
     color: PRIMARY_COLOR,
-    fontFamily: FontFamily.extraBold,
-    fontSize: FontSize.eight,
+    ...fontSize.b5, lineHeight: fontSize.b5.fontSize + 1,
     textTransform: 'uppercase',
     letterSpacing: 1.5,
     textAlign: 'center',
   },
   sectionTitle: {
     marginLeft: 6,
-    fontFamily: FontFamily.extraBold,
-    fontSize: FontSize.fourteen,
+    ...fontSize.b4, lineHeight: fontSize.b4.fontSize + 1,
     textTransform: 'uppercase',
   },
   rankCard: {
@@ -1013,8 +1004,7 @@ const styles = StyleSheet.create({
   rankNumber: {
     width: 24,
     textAlign: 'center',
-    fontFamily: FontFamily.extraBold,
-    fontSize: FontSize.fourteen,
+    ...fontSize.b4, lineHeight: fontSize.b4.fontSize + 1,
   },
   rankAvatar: {
     width: 48,
@@ -1027,12 +1017,10 @@ const styles = StyleSheet.create({
     gap: 3,
   },
   rankName: {
-    fontFamily: FontFamily.extraBold,
-    fontSize: FontSize.ten,
+    ...fontSize.b5, lineHeight: fontSize.b5.fontSize + 1,
   },
   rankVotes: {
-    fontFamily: FontFamily.bold,
-    fontSize: FontSize.seven,
+    ...fontSize.b5, lineHeight: fontSize.b5.fontSize + 1,
     textTransform: 'uppercase',
     letterSpacing: 1.2,
   },
@@ -1077,8 +1065,7 @@ const styles = StyleSheet.create({
   },
   userRankNumber: {
     color: 'rgba(255,255,255,0.45)',
-    fontFamily: FontFamily.extraBold,
-    fontSize: FontSize.twentyEight,
+    ...fontSize.b1, lineHeight: fontSize.b1.fontSize + 2,
   },
   userAvatar: {
     width: 62,
@@ -1093,13 +1080,11 @@ const styles = StyleSheet.create({
   },
   userName: {
     color: '#ffffff',
-    fontFamily: FontFamily.extraBold,
-    fontSize: FontSize.twelve,
+    ...fontSize.b4, lineHeight: fontSize.b4.fontSize + 1,
   },
   userStats: {
     color: 'rgba(255,255,255,0.64)',
-    fontFamily: FontFamily.bold,
-    fontSize: FontSize.eight,
+    ...fontSize.b5, lineHeight: fontSize.b5.fontSize + 1,
     textTransform: 'uppercase',
     letterSpacing: 1.1,
   },
@@ -1113,8 +1098,7 @@ const styles = StyleSheet.create({
   },
   boostButtonText: {
     color: PRIMARY_COLOR,
-    fontFamily: FontFamily.extraBold,
-    fontSize: FontSize.eight,
+    ...fontSize.b5, lineHeight: fontSize.b5.fontSize + 1,
     textTransform: 'uppercase',
     letterSpacing: 1.3,
   },
@@ -1162,14 +1146,12 @@ const styles = StyleSheet.create({
     gap: 14,
   },
   boostTitle: {
-    fontFamily: FontFamily.extraBold,
-    fontSize: FontSize.twenty,
+    ...fontSize.b1, lineHeight: fontSize.b1.fontSize + 2,
     textTransform: 'uppercase',
   },
   boostSubtitle: {
     marginTop: 6,
-    fontFamily: FontFamily.extraBold,
-    fontSize: FontSize.eight,
+    ...fontSize.b5, lineHeight: fontSize.b5.fontSize + 1,
     textTransform: 'uppercase',
     letterSpacing: 1.6,
   },
@@ -1204,23 +1186,20 @@ const styles = StyleSheet.create({
     borderColor: primaryColorAlpha(0.3),
   },
   boostStatusName: {
-    fontFamily: FontFamily.extraBold,
-    fontSize: FontSize.ten,
+    ...fontSize.b5, lineHeight: fontSize.b5.fontSize + 1,
     textTransform: 'uppercase',
   },
   boostStatusRank: {
     marginTop: 4,
     color: PRIMARY_COLOR,
-    fontFamily: FontFamily.extraBold,
-    fontSize: FontSize.seven,
+    ...fontSize.b5, lineHeight: fontSize.b5.fontSize + 1,
     textTransform: 'uppercase',
   },
   boostStatusVotes: {
     alignItems: 'flex-end',
   },
   boostStatusVoteValue: {
-    fontFamily: FontFamily.extraBold,
-    fontSize: FontSize.twelve,
+    ...fontSize.b4, lineHeight: fontSize.b4.fontSize + 1,
   },
   boostStepPills: {
     flexDirection: 'row',
@@ -1243,15 +1222,13 @@ const styles = StyleSheet.create({
     backgroundColor: PRIMARY_COLOR,
   },
   boostStepPillText: {
-    fontFamily: FontFamily.extraBold,
-    fontSize: FontSize.seven,
+    ...fontSize.b5, lineHeight: fontSize.b5.fontSize + 1,
     textTransform: 'uppercase',
     letterSpacing: 1.2,
   },
   boostStepPillTextActive: {
     color: '#ffffff',
-    fontFamily: FontFamily.extraBold,
-    fontSize: FontSize.seven,
+    ...fontSize.b5, lineHeight: fontSize.b5.fontSize + 1,
     textTransform: 'uppercase',
     letterSpacing: 1.2,
   },
@@ -1268,20 +1245,17 @@ const styles = StyleSheet.create({
   boostChangeText: {
     marginTop: 4,
     color: PRIMARY_COLOR,
-    fontFamily: FontFamily.extraBold,
-    fontSize: FontSize.seven,
+    ...fontSize.b5, lineHeight: fontSize.b5.fontSize + 1,
     textTransform: 'uppercase',
   },
   boostTinyMuted: {
-    fontFamily: FontFamily.extraBold,
-    fontSize: FontSize.seven,
+    ...fontSize.b5, lineHeight: fontSize.b5.fontSize + 1,
     textTransform: 'uppercase',
     letterSpacing: 0.7,
   },
   boostSectionLabel: {
     marginLeft: 4,
-    fontFamily: FontFamily.extraBold,
-    fontSize: FontSize.seven,
+    ...fontSize.b5, lineHeight: fontSize.b5.fontSize + 1,
     textTransform: 'uppercase',
     letterSpacing: 1.6,
   },
@@ -1319,8 +1293,7 @@ const styles = StyleSheet.create({
     gap: 6,
   },
   boostPackageName: {
-    fontFamily: FontFamily.extraBold,
-    fontSize: FontSize.ten,
+    ...fontSize.b5, lineHeight: fontSize.b5.fontSize + 1,
     textTransform: 'uppercase',
   },
   boostVotesChip: {
@@ -1329,8 +1302,7 @@ const styles = StyleSheet.create({
     borderRadius: 999,
     paddingHorizontal: 7,
     paddingVertical: 3,
-    fontFamily: FontFamily.extraBold,
-    fontSize: FontSize.six,
+    ...fontSize.b5, lineHeight: fontSize.b5.fontSize + 1,
     textTransform: 'uppercase',
   },
   boostPriceBlock: {
@@ -1338,8 +1310,7 @@ const styles = StyleSheet.create({
     minWidth: 62,
   },
   boostPrice: {
-    fontFamily: FontFamily.extraBold,
-    fontSize: FontSize.twelve,
+    ...fontSize.b4, lineHeight: fontSize.b4.fontSize + 1,
   },
   boostPaymentGrid: {
     flexDirection: 'row',
@@ -1355,8 +1326,7 @@ const styles = StyleSheet.create({
     gap: 4,
   },
   boostPaymentText: {
-    fontFamily: FontFamily.extraBold,
-    fontSize: FontSize.seven,
+    ...fontSize.b5, lineHeight: fontSize.b5.fontSize + 1,
     textTransform: 'uppercase',
     letterSpacing: 1.2,
   },
@@ -1373,14 +1343,12 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
   },
   boostProviderText: {
-    fontFamily: FontFamily.extraBold,
-    fontSize: FontSize.seven,
+    ...fontSize.b5, lineHeight: fontSize.b5.fontSize + 1,
     textTransform: 'uppercase',
   },
   boostInputLabel: {
     marginLeft: 4,
-    fontFamily: FontFamily.extraBold,
-    fontSize: FontSize.seven,
+    ...fontSize.b5, lineHeight: fontSize.b5.fontSize + 1,
     textTransform: 'uppercase',
     letterSpacing: 1.2,
   },
@@ -1389,8 +1357,7 @@ const styles = StyleSheet.create({
     borderRadius: 18,
     borderWidth: 1,
     paddingHorizontal: 14,
-    fontFamily: FontFamily.extraBold,
-    fontSize: FontSize.twelve,
+    ...fontSize.b4, lineHeight: fontSize.b4.fontSize + 1,
   },
   boostCenteredInput: {
     textAlign: 'center',
@@ -1410,19 +1377,16 @@ const styles = StyleSheet.create({
   },
   boostKcTitle: {
     color: '#f59e0b',
-    fontFamily: FontFamily.extraBold,
-    fontSize: FontSize.eight,
+    ...fontSize.b5, lineHeight: fontSize.b5.fontSize + 1,
     textTransform: 'uppercase',
     letterSpacing: 1.5,
   },
   boostKcBalance: {
-    fontFamily: FontFamily.extraBold,
-    fontSize: FontSize.twenty,
+    ...fontSize.b1, lineHeight: fontSize.b1.fontSize + 2,
   },
   boostError: {
     color: '#ef4444',
-    fontFamily: FontFamily.extraBold,
-    fontSize: FontSize.eight,
+    ...fontSize.b5, lineHeight: fontSize.b5.fontSize + 1,
     textTransform: 'uppercase',
     textAlign: 'center',
   },
@@ -1455,8 +1419,7 @@ const styles = StyleSheet.create({
     gap: 6,
   },
   boostBackButtonText: {
-    fontFamily: FontFamily.extraBold,
-    fontSize: FontSize.eight,
+    ...fontSize.b5, lineHeight: fontSize.b5.fontSize + 1,
     textTransform: 'uppercase',
     letterSpacing: 1.2,
   },
@@ -1465,8 +1428,7 @@ const styles = StyleSheet.create({
   },
   boostPayButtonText: {
     color: '#ffffff',
-    fontFamily: FontFamily.extraBold,
-    fontSize: FontSize.eight,
+    ...fontSize.b5, lineHeight: fontSize.b5.fontSize + 1,
     textTransform: 'uppercase',
     letterSpacing: 1.8,
   },
@@ -1487,15 +1449,13 @@ const styles = StyleSheet.create({
     borderColor: primaryColorAlpha(0.2),
   },
   boostStageTitle: {
-    fontFamily: FontFamily.extraBold,
-    fontSize: FontSize.fourteen,
+    ...fontSize.b4, lineHeight: fontSize.b4.fontSize + 1,
     textTransform: 'uppercase',
     textAlign: 'center',
   },
   boostStageBody: {
     maxWidth: 320,
-    fontFamily: FontFamily.medium,
-    fontSize: FontSize.ten,
+    ...fontSize.b5,
     lineHeight: 18,
     textAlign: 'center',
   },
@@ -1513,8 +1473,7 @@ const styles = StyleSheet.create({
     borderRadius: 16,
     borderWidth: 1,
     textAlign: 'center',
-    fontFamily: FontFamily.extraBold,
-    fontSize: FontSize.eighteen,
+    ...fontSize.b1, lineHeight: fontSize.b1.fontSize + 2,
     letterSpacing: 8,
   },
   boostDarkButton: {
@@ -1525,15 +1484,13 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
   },
   boostDarkButtonText: {
-    fontFamily: FontFamily.extraBold,
-    fontSize: FontSize.eight,
+    ...fontSize.b5, lineHeight: fontSize.b5.fontSize + 1,
     textTransform: 'uppercase',
     letterSpacing: 1.6,
   },
   boostCountdown: {
     textAlign: 'center',
-    fontFamily: FontFamily.extraBold,
-    fontSize: FontSize.eight,
+    ...fontSize.b5, lineHeight: fontSize.b5.fontSize + 1,
     textTransform: 'uppercase',
   },
   boostSuccessIcon: {
@@ -1550,8 +1507,7 @@ const styles = StyleSheet.create({
     elevation: 10,
   },
   boostSuccessTitle: {
-    fontFamily: FontFamily.extraBold,
-    fontSize: FontSize.twentyTwo,
+    ...fontSize.b1, lineHeight: fontSize.b1.fontSize + 2,
     textTransform: 'uppercase',
     textAlign: 'center',
   },
@@ -1569,18 +1525,15 @@ const styles = StyleSheet.create({
   },
   boostSuccessNumber: {
     color: PRIMARY_COLOR,
-    fontFamily: FontFamily.extraBold,
-    fontSize: FontSize.twentyFour,
+    ...fontSize.b1, lineHeight: fontSize.b1.fontSize + 2,
   },
   boostRankMove: {
     color: '#10b981',
-    fontFamily: FontFamily.extraBold,
-    fontSize: FontSize.eighteen,
+    ...fontSize.b1, lineHeight: fontSize.b1.fontSize + 2,
   },
   boostRankGain: {
     color: '#059669',
-    fontFamily: FontFamily.extraBold,
-    fontSize: FontSize.seven,
+    ...fontSize.b5, lineHeight: fontSize.b5.fontSize + 1,
     textTransform: 'uppercase',
   },
   rulesCard: {
@@ -1595,8 +1548,7 @@ const styles = StyleSheet.create({
     gap: 10,
   },
   rulesTitle: {
-    fontFamily: FontFamily.extraBold,
-    fontSize: FontSize.sixteen,
+    ...fontSize.b4, lineHeight: fontSize.b4.fontSize + 1,
     textTransform: 'uppercase',
   },
   ruleRow: {
@@ -1613,21 +1565,18 @@ const styles = StyleSheet.create({
   },
   ruleIndexText: {
     color: PRIMARY_COLOR,
-    fontFamily: FontFamily.extraBold,
-    fontSize: FontSize.nine,
+    ...fontSize.b5, lineHeight: fontSize.b5.fontSize + 1,
   },
   ruleCopy: {
     flex: 1,
     gap: 4,
   },
   ruleTitle: {
-    fontFamily: FontFamily.extraBold,
-    fontSize: FontSize.ten,
+    ...fontSize.b5, lineHeight: fontSize.b5.fontSize + 1,
     textTransform: 'uppercase',
   },
   ruleDesc: {
-    fontFamily: FontFamily.medium,
-    fontSize: FontSize.nine,
+    ...fontSize.b5,
     lineHeight: 18,
   },
   noticeCard: {
@@ -1643,8 +1592,7 @@ const styles = StyleSheet.create({
   noticeText: {
     flex: 1,
     color: '#34d399',
-    fontFamily: FontFamily.bold,
-    fontSize: FontSize.eightHalf,
+    ...fontSize.b5,
     textTransform: 'uppercase',
     letterSpacing: 0.8,
     lineHeight: 16,
@@ -1670,18 +1618,15 @@ const styles = StyleSheet.create({
   },
   prizeRank: {
     color: PRIMARY_COLOR,
-    fontFamily: FontFamily.extraBold,
-    fontSize: FontSize.seven,
+    ...fontSize.b5, lineHeight: fontSize.b5.fontSize + 1,
     textTransform: 'uppercase',
     letterSpacing: 1.8,
   },
   prizeTitle: {
-    fontFamily: FontFamily.extraBold,
-    fontSize: FontSize.thirteen,
+    ...fontSize.b4, lineHeight: fontSize.b4.fontSize + 1,
   },
   prizeDesc: {
-    fontFamily: FontFamily.medium,
-    fontSize: FontSize.nine,
+    ...fontSize.b5,
     lineHeight: 18,
   },
   bottomNav: {
@@ -1701,8 +1646,7 @@ const styles = StyleSheet.create({
     gap: 4,
   },
   navText: {
-    fontFamily: FontFamily.bold,
-    fontSize: FontSize.seven,
+    ...fontSize.b5, lineHeight: fontSize.b5.fontSize + 1,
   },
   profileThumb: {
     width: 24,

@@ -20,9 +20,9 @@ import { useEvent } from 'expo';
 import { BlurView } from 'expo-blur';
 import { useVideoPlayer, VideoView } from 'expo-video';
 import { mediumScreen, user } from '../types';
-import { FontFamily, FontSize } from '../fonts';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import DotTrioLoader from '../components/DotTrioLoader';
+import { fontSize } from '../typography';
 
 interface Comment {
   id: string;
@@ -385,7 +385,7 @@ const Community: React.FC<{ embedded?: boolean }> = ({ embedded = false }) => {
                   </View>
                   <View>
                     <View style={styles.handleMetaRow}>
-                      <Text style={[styles.handleText, { color: theme.text }]}>@ {post.handle}</Text>
+                      <Text style={[styles.handleText, { color: theme.text }]}>@{post.handle}</Text>
                       {!post.isVerified ? (
                           <MaterialIcons name="verified" size={16} color='#33aae4'/>
                         ) : null}
@@ -709,16 +709,14 @@ const styles = StyleSheet.create({
   },
   headerTitle: {
     color: '#fff',
-    fontSize: mediumScreen ? FontSize.sixteen : FontSize.thirteen,
-    fontFamily: FontFamily.extraBold,
+    ...fontSize.b3, lineHeight: fontSize.b3.fontSize + 2,
     letterSpacing: 2,
     textTransform: 'uppercase',
   },
   headerSubtitle: {
     color: PRIMARY_COLOR,
     marginTop: 4,
-    fontFamily: FontFamily.extraBold,
-    fontSize: FontSize.seven,
+    ...fontSize.b5, lineHeight: fontSize.b5.fontSize + 1,
     letterSpacing: 1.5,
     textTransform: 'uppercase',
   },
@@ -746,13 +744,19 @@ const styles = StyleSheet.create({
   avatar: { height: '100%', width: '100%', borderRadius: 20 },
   handleMetaRow: { flexDirection: 'row', alignItems: 'center', gap: 6,},
   followMetaAction: { flexDirection: 'row', alignItems: 'center', gap: 4 },
-  handleText: { color: '#fff', fontFamily: FontFamily.bold, fontSize:  mediumScreen ? FontSize.sixteen: FontSize.twelve },
-  followStateText: { 
-    fontSize: mediumScreen ? FontSize.fourteen: FontSize.ten,
-    fontFamily: FontFamily.bold,
-    lineHeight: mediumScreen ? FontSize.fourteen: FontSize.ten,
+  handleText: {
+    ...fontSize.b2,
+    color: '#fff',
+    // // ...fontSize.b3, lineHeight: fontSize.b3.fontSize + 2
    },
-  timeText: { color: '#94a3b8', fontSize: mediumScreen ? FontSize.fourteen: FontSize.ten, fontFamily: FontFamily.bold, letterSpacing: 1.2 },
+  followStateText: { 
+    // ...fontSize.b4, lineHeight: fontSize.b4.fontSize + 1,
+    // ...fontSize.b2,
+    lineHeight: fontSize.b2.fontSize+4,
+   },
+  timeText: { 
+    ...fontSize.b3,
+    color: '#94a3b8', letterSpacing: 0.4 },
   optionsWrap: { position: 'relative',},
   optionsMenu: {
     position: 'absolute',
@@ -768,10 +772,15 @@ const styles = StyleSheet.create({
     overflow: 'hidden',
   },
   optionItem: { flexDirection: 'row', alignItems: 'center', gap: 8, paddingVertical: 11, paddingHorizontal: 12 },
-  optionText: { color: '#cbd5e1', fontSize: mediumScreen?FontSize.sixteen:FontSize.twelve, fontFamily: FontFamily.bold },
-  deleteText: { color: '#ef4444', fontSize: mediumScreen?FontSize.sixteen:FontSize.twelve, fontFamily: FontFamily.bold },
+  optionText: { color: '#cbd5e1', ...fontSize.b3, lineHeight: fontSize.b3.fontSize + 2 },
+  deleteText: { color: '#ef4444', ...fontSize.b3, lineHeight: fontSize.b3.fontSize + 2 },
   postContentWrap: { paddingHorizontal: 16, paddingVertical: 12 },
-  postContent: { color: '#e2e8f0', fontSize: mediumScreen?FontSize.eighteen:FontSize.fourteen, lineHeight: 22, fontFamily: FontFamily.medium },
+  postContent: { 
+    ...fontSize.b3,
+    color: '#e2e8f0', 
+    // ...fontSize.b1, lineHeight: fontSize.b1.fontSize + 2, 
+    // lineHeight: fontSize.b2.fontSize + (Platform.OS === 'ios' ? 8: 4), 
+   },
   editInput: {
     minHeight: 90,
     borderRadius: 16,
@@ -781,7 +790,7 @@ const styles = StyleSheet.create({
     color: '#fff',
     textAlignVertical: 'top',
     padding: 12,
-    fontSize: mediumScreen?FontSize.eighteen:FontSize.fourteen,
+    ...fontSize.b1, lineHeight: fontSize.b1.fontSize + 2,
   },
   editActions: { flexDirection: 'row', gap: 8 },
   editCancel: {
@@ -794,8 +803,8 @@ const styles = StyleSheet.create({
     alignItems: 'center',
   },
   editSave: { flex: 1, height: 42, borderRadius: 12, backgroundColor: PRIMARY_COLOR, justifyContent: 'center', alignItems: 'center' },
-  editCancelText: { color: '#fff', fontSize: mediumScreen?FontSize.fourteen:FontSize.ten, fontFamily: FontFamily.extraBold, letterSpacing: 1.4 },
-  editSaveText: { color: '#fff', fontSize: mediumScreen?FontSize.fourteen:FontSize.ten, fontFamily: FontFamily.extraBold, letterSpacing: 1.4 },
+  editCancelText: { color: '#fff', ...fontSize.b4, lineHeight: fontSize.b4.fontSize + 1, letterSpacing: 1.4 },
+  editSaveText: { color: '#fff', ...fontSize.b4, lineHeight: fontSize.b4.fontSize + 1, letterSpacing: 1.4 },
   mediaWrap: {
     marginHorizontal: 12,
     marginBottom: 12,
@@ -823,7 +832,10 @@ const styles = StyleSheet.create({
     paddingVertical: 5,
   },
   liveDot: { height: 6, width: 6, borderRadius: 3, backgroundColor: '#fff' },
-  livePillText: { color: '#fff', fontSize: mediumScreen?FontSize.fourteen:FontSize.ten, fontFamily: FontFamily.extraBold, letterSpacing: 1 },
+  livePillText: {
+    ...fontSize.b3,
+    color: '#fff',
+    letterSpacing: 0.4 },
   viewerPill: {
     flexDirection: 'row',
     alignItems: 'center',
@@ -835,7 +847,11 @@ const styles = StyleSheet.create({
     borderWidth: 1,
     borderColor: 'rgba(255,255,255,0.22)',
   },
-  viewerText: { color: '#fff', fontSize: mediumScreen?FontSize.fourteen:FontSize.ten, fontFamily: FontFamily.bold },
+  viewerText: { 
+    ...fontSize.b3,
+    color: '#fff',
+    
+   },
   liveActions: { position: 'absolute', left: 10, right: 10, bottom: 10, flexDirection: 'row' },
   iconGlassBtn: {
     height: 42,
@@ -884,10 +900,21 @@ const styles = StyleSheet.create({
   pollFill: { position: 'absolute', left: 0, top: 0, bottom: 0, backgroundColor: 'rgba(255,255,255,0.08)' },
   pollFillSelected: { backgroundColor: primaryColorAlpha(0.3) },
   pollContent: { flex: 1, flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', paddingHorizontal: 12 },
-  pollText: { color: '#cbd5e1', fontSize: mediumScreen?FontSize.sixteen:FontSize.twelve, fontFamily: FontFamily.bold },
+  pollText: {
+    ...fontSize.b3, 
+    color: '#cbd5e1',
+   },
   pollTextSelected: { color: PRIMARY_COLOR },
-  pollPercent: { color: '#94a3b8', fontSize: mediumScreen?FontSize.fifteen:FontSize.eleven, fontFamily: FontFamily.extraBold },
-  pollFoot: { color: '#94a3b8', textAlign: 'center', marginTop: 4, fontSize: mediumScreen?FontSize.fourteen:FontSize.ten, fontFamily: FontFamily.bold, letterSpacing: 1 },
+  pollPercent: {
+    ...fontSize.b3,
+    color: '#94a3b8',
+  },
+  pollFoot: { 
+    ...fontSize.b3,
+    color: '#94a3b8', 
+    textAlign: 'center', 
+    marginTop: 4, 
+    letterSpacing: 1 },
   actionBar: {
     borderTopWidth: 1,
     borderTopColor: 'rgba(255,255,255,0.06)',
@@ -897,7 +924,10 @@ const styles = StyleSheet.create({
     gap: 18,
   },
   actionItem: { flexDirection: 'row', alignItems: 'center', gap: 6 },
-  actionText: { color: '#9ca3af', fontSize: mediumScreen?FontSize.sixteen:FontSize.twelve, fontFamily: FontFamily.bold },
+  actionText: { 
+    ...fontSize.b3,
+    color: '#9ca3af',  
+  },
   commentsSection: {
     borderTopWidth: 1,
     borderTopColor: 'rgba(255,255,255,0.06)',
@@ -909,15 +939,15 @@ const styles = StyleSheet.create({
   commentRow: { flexDirection: 'row', gap: 8 },
   commentAvatar: { height: 30, width: 30, borderRadius: 15, marginTop: 2 },
   commentBubble: { backgroundColor: 'rgba(255,255,255,0.07)', borderRadius: 16, paddingHorizontal: 12, paddingVertical: 8 },
-  commentHandle: { color: '#fff', fontSize: mediumScreen?FontSize.fifteen:FontSize.eleven, fontFamily: FontFamily.extraBold, marginBottom: 3 },
-  commentText: { color: '#e2e8f0', fontSize: mediumScreen?FontSize.sixteen:FontSize.twelve, fontFamily: FontFamily.medium },
+  commentHandle: { color: '#fff', ...fontSize.b4, lineHeight: fontSize.b4.fontSize + 1, marginBottom: 3 },
+  commentText: { color: '#e2e8f0', ...fontSize.b3, lineHeight: fontSize.b3.fontSize + 2 },
   commentMeta: { flexDirection: 'row', alignItems: 'center', gap: 14, paddingLeft: 8, marginTop: 4 },
-  commentMetaBtn: { color: '#94a3b8', fontSize: mediumScreen?FontSize.fourteen:FontSize.ten, fontFamily: FontFamily.bold },
-  commentTime: { color: '#64748b', fontSize: mediumScreen?FontSize.fourteen:FontSize.ten, fontFamily: FontFamily.medium },
+  commentMetaBtn: { color: '#94a3b8', ...fontSize.b4, lineHeight: fontSize.b4.fontSize + 1 },
+  commentTime: { color: '#64748b', ...fontSize.b4, lineHeight: fontSize.b4.fontSize + 1 },
   moreComments: { paddingLeft: 38 },
-  moreCommentsText: { color: '#94a3b8', fontSize: mediumScreen?FontSize.fifteen:FontSize.eleven, fontFamily: FontFamily.bold },
+  moreCommentsText: { color: '#94a3b8', ...fontSize.b4, lineHeight: fontSize.b4.fontSize + 1 },
   footerLoader: { alignItems: 'center', gap: 8, opacity: 0.6, paddingVertical: 18 },
-  footerText: { color: '#cbd5e1', fontSize: mediumScreen?FontSize.thirteen:FontSize.nine, letterSpacing: 1.4, fontFamily: FontFamily.extraBold },
+  footerText: { color: '#cbd5e1', ...fontSize.b4, lineHeight: fontSize.b4.fontSize + 1, letterSpacing: 1.4 },
   modalRoot: { flex: 1, justifyContent: 'flex-end' },
   modalBackdrop: { ...StyleSheet.absoluteFillObject, backgroundColor: 'rgba(0,0,0,0.65)' },
   modalCard: {
@@ -931,9 +961,9 @@ const styles = StyleSheet.create({
     borderColor: 'rgba(255,255,255,0.08)',
   },
   modalGrabber: { alignSelf: 'center', width: 42, height: 5, borderRadius: 4, backgroundColor: '#374151', marginBottom: 16 },
-  modalTitle: { color: '#fff', fontSize: mediumScreen?FontSize.twentyOne:FontSize.eighteen, fontFamily: FontFamily.extraBold, marginBottom: 12 },
+  modalTitle: { color: '#fff', ...fontSize.b1, lineHeight: fontSize.b1.fontSize + 2, marginBottom: 12 },
   modalHeaderRow: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', marginBottom: 14 },
-  modalSubtitle: { fontSize: mediumScreen ? FontSize.fourteen : FontSize.ten, fontFamily: FontFamily.bold, letterSpacing: 0.6 },
+  modalSubtitle: { ...fontSize.b4, lineHeight: fontSize.b4.fontSize + 1, letterSpacing: 0.6 },
   modalCloseBtn: {
     height: 36,
     width: 36,
@@ -953,8 +983,8 @@ const styles = StyleSheet.create({
   },
   modalPostAvatar: { height: 44, width: 44, borderRadius: 22 },
   modalPostCopy: { flex: 1, gap: 3 },
-  modalPostArtist: { fontSize: mediumScreen ? FontSize.sixteen : FontSize.twelve, fontFamily: FontFamily.extraBold },
-  modalPostSnippet: { fontSize: mediumScreen ? FontSize.fourteen : FontSize.ten, fontFamily: FontFamily.medium, lineHeight: 18 },
+  modalPostArtist: { ...fontSize.b3, lineHeight: fontSize.b3.fontSize + 2 },
+  modalPostSnippet: { ...fontSize.b4,lineHeight: 18 },
   modalCommentsScroll: { maxHeight: 280, marginBottom: 14 },
   modalCommentsContent: { gap: 12, paddingBottom: 6 },
   modalCommentRow: { flexDirection: 'row', gap: 10, alignItems: 'flex-start' },
@@ -962,10 +992,10 @@ const styles = StyleSheet.create({
   modalCommentBody: { flex: 1, gap: 6 },
   modalCommentBubble: { borderRadius: 18, borderWidth: 1, paddingHorizontal: 12, paddingVertical: 10 },
   modalCommentTopline: { flexDirection: 'row', alignItems: 'center', gap: 8, marginBottom: 4, flexWrap: 'wrap' },
-  modalCommentAuthor: { fontSize: mediumScreen ? FontSize.fifteen : FontSize.eleven, fontFamily: FontFamily.extraBold },
-  modalCommentHandle: { fontSize: mediumScreen ? FontSize.thirteen : FontSize.ten, fontFamily: FontFamily.bold },
-  modalCommentText: { fontSize: mediumScreen ? FontSize.fifteen : FontSize.eleven, fontFamily: FontFamily.medium, lineHeight: 20 },
-  modalCommentTime: { fontSize: mediumScreen ? FontSize.twelve : FontSize.ten, fontFamily: FontFamily.medium, paddingLeft: 8 },
+  modalCommentAuthor: { ...fontSize.b4, lineHeight: fontSize.b4.fontSize + 1 },
+  modalCommentHandle: { ...fontSize.b4, lineHeight: fontSize.b4.fontSize + 1 },
+  modalCommentText: { ...fontSize.b4,lineHeight: 20 },
+  modalCommentTime: { ...fontSize.b4, lineHeight: fontSize.b4.fontSize + 1, paddingLeft: 8 },
   modalEmptyState: {
     borderWidth: 1,
     borderRadius: 20,
@@ -974,12 +1004,12 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     gap: 8,
   },
-  modalEmptyTitle: { fontSize: mediumScreen ? FontSize.sixteen : FontSize.twelve, fontFamily: FontFamily.extraBold },
-  modalEmptyText: { fontSize: mediumScreen ? FontSize.fourteen : FontSize.ten, fontFamily: FontFamily.medium, textAlign: 'center', lineHeight: 18 },
+  modalEmptyTitle: { ...fontSize.b3, lineHeight: fontSize.b3.fontSize + 2 },
+  modalEmptyText: { ...fontSize.b4,textAlign: 'center', lineHeight: 18 },
   modalComposer: { borderWidth: 1, borderRadius: 22, padding: 14 },
   modalComposerHeader: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', marginBottom: 10 },
-  modalComposerTitle: { fontSize: mediumScreen ? FontSize.fifteen : FontSize.eleven, fontFamily: FontFamily.extraBold },
-  modalComposerHint: { fontSize: mediumScreen ? FontSize.twelve : FontSize.nine, fontFamily: FontFamily.bold, letterSpacing: 1.2, textTransform: 'uppercase' },
+  modalComposerTitle: { ...fontSize.b4, lineHeight: fontSize.b4.fontSize + 1 },
+  modalComposerHint: { ...fontSize.b4, lineHeight: fontSize.b4.fontSize + 1, letterSpacing: 1.2, textTransform: 'uppercase' },
   modalInput: {
     borderRadius: 16,
     minHeight: 100,
@@ -1001,8 +1031,8 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     backgroundColor: 'rgba(255,255,255,0.04)',
   },
-  emojiText: { fontSize: mediumScreen?FontSize.twenty:FontSize.sixteen },
-  stickerTitle: { marginTop: 14, color: '#94a3b8', fontSize: mediumScreen?FontSize.thirteen:FontSize.nine, letterSpacing: 1.4, fontFamily: FontFamily.extraBold },
+  emojiText: { ...fontSize.b1, lineHeight: fontSize.b1.fontSize + 2 },
+  stickerTitle: { marginTop: 14, color: '#94a3b8', ...fontSize.b4, lineHeight: fontSize.b4.fontSize + 1, letterSpacing: 1.4 },
   stickerRow: { gap: 10, paddingVertical: 10 },
   stickerBtn: {
     height: 56,
@@ -1025,8 +1055,8 @@ const styles = StyleSheet.create({
   },
   modalPost: { flex: 1, height: 50, borderRadius: 14, backgroundColor: PRIMARY_COLOR, justifyContent: 'center', alignItems: 'center' },
   modalPostDisabled: { opacity: 0.45 },
-  modalCancelText: { color: '#fff', fontSize: mediumScreen?FontSize.fourteen:FontSize.ten, letterSpacing: 1.4, fontFamily: FontFamily.extraBold },
-  modalPostText: { color: '#fff', fontSize: mediumScreen?FontSize.fourteen:FontSize.ten, letterSpacing: 1.4, fontFamily: FontFamily.extraBold },
+  modalCancelText: { color: '#fff', ...fontSize.b4, lineHeight: fontSize.b4.fontSize + 1, letterSpacing: 1.4 },
+  modalPostText: { color: '#fff', ...fontSize.b4, lineHeight: fontSize.b4.fontSize + 1, letterSpacing: 1.4 },
   fab: {
     position: 'absolute',
     right: 20,

@@ -1,9 +1,8 @@
 import { useThemeMode, PRIMARY_COLOR, primaryColorAlphaHex } from "../theme";
-﻿import React, { useMemo, useState } from 'react';
+import React, { useMemo, useState } from 'react';
 import { GoogleGenAI } from '@google/genai';
 import { useNavigation, useRoute } from '@react-navigation/native';
 import { MaterialIcons } from '@expo/vector-icons';
-import { FontSize } from '../fonts';
 import {
   ActivityIndicator,
   Image,
@@ -14,6 +13,7 @@ import {
   Text,
   View,
 } from 'react-native';
+import { fontSize } from './typography';
 
 interface TicketTier {
   id: string;
@@ -183,45 +183,45 @@ const s = StyleSheet.create({
   safe: { backgroundColor: '#1f1022d4' },
   header: { flexDirection: 'row', alignItems: 'center', gap: 12, paddingHorizontal: 16, paddingBottom: 12, borderBottomWidth: 1, borderBottomColor: '#ffffff14' },
   headerBtn: { width: 36, height: 36, borderRadius: 18, alignItems: 'center', justifyContent: 'center', backgroundColor: '#ffffff10' },
-  headerTitle: { color: '#fff', fontSize: FontSize.sixteen, fontWeight: '900', textTransform: 'uppercase' },
-  headerSub: { color: '#8f95af', fontSize: FontSize.ten, fontWeight: '800', textTransform: 'uppercase' },
-  stepLabel: { marginLeft: 'auto', color: PRIMARY_COLOR, fontSize: FontSize.ten, fontWeight: '900', textTransform: 'uppercase' },
+  headerTitle: { color: '#fff', ...fontSize.b4, lineHeight: fontSize.b4.fontSize + 1, fontWeight: '900', textTransform: 'uppercase' },
+  headerSub: { color: '#8f95af', ...fontSize.b5, lineHeight: fontSize.b5.fontSize + 1, fontWeight: '800', textTransform: 'uppercase' },
+  stepLabel: { marginLeft: 'auto', color: PRIMARY_COLOR, ...fontSize.b5, lineHeight: fontSize.b5.fontSize + 1, fontWeight: '900', textTransform: 'uppercase' },
   content: { padding: 16, paddingBottom: 180, gap: 12 },
-  sectionTitle: { color: '#8f95af', fontSize: FontSize.nine, fontWeight: '900', textTransform: 'uppercase', letterSpacing: 1.6 },
+  sectionTitle: { color: '#8f95af', ...fontSize.b5, lineHeight: fontSize.b5.fontSize + 1, fontWeight: '900', textTransform: 'uppercase', letterSpacing: 1.6 },
   mapCard: { borderRadius: 20, borderWidth: 1, borderColor: '#ffffff14', backgroundColor: '#1f1022bf', padding: 12, gap: 8 },
   stage: { height: 38, borderRadius: 12, backgroundColor: '#ffffff14', alignItems: 'center', justifyContent: 'center' },
-  stageText: { color: '#8f95af', fontWeight: '900', letterSpacing: 3, fontSize: FontSize.ten },
+  stageText: { color: '#8f95af', fontWeight: '900', letterSpacing: 3, ...fontSize.b5, lineHeight: fontSize.b5.fontSize + 1 },
   zone: { height: 44, borderRadius: 14, borderWidth: 1, borderColor: '#ffffff22', alignItems: 'center', justifyContent: 'center', backgroundColor: '#ffffff08' },
   zonePit: { borderColor: primaryColorAlphaHex('77'), backgroundColor: primaryColorAlphaHex('2b') },
   zoneFloor: { borderColor: '#3b82f677', backgroundColor: '#3b82f62b' },
   zoneMezz: { borderColor: '#22c55e77', backgroundColor: '#22c55e2b' },
-  zoneText: { color: '#fff', fontWeight: '900', fontSize: FontSize.eleven, letterSpacing: 1.2 },
+  zoneText: { color: '#fff', fontWeight: '900', ...fontSize.b5, lineHeight: fontSize.b5.fontSize + 1, letterSpacing: 1.2 },
   aiCard: { borderRadius: 20, borderWidth: 1, borderColor: primaryColorAlphaHex('30'), backgroundColor: primaryColorAlphaHex('14'), padding: 12, gap: 8 },
-  aiTitle: { color: PRIMARY_COLOR, fontWeight: '900', fontSize: FontSize.nine, textTransform: 'uppercase', letterSpacing: 1.8 },
-  aiBody: { color: '#d9dce9', fontSize: FontSize.thirteen, fontStyle: 'italic' },
+  aiTitle: { color: PRIMARY_COLOR, fontWeight: '900', ...fontSize.b5, lineHeight: fontSize.b5.fontSize + 1, textTransform: 'uppercase', letterSpacing: 1.8 },
+  aiBody: { color: '#d9dce9', ...fontSize.b4, lineHeight: fontSize.b4.fontSize + 1, fontStyle: 'italic' },
   aiButton: { height: 40, borderRadius: 10, borderWidth: 1, borderColor: primaryColorAlphaHex('4a'), alignItems: 'center', justifyContent: 'center' },
-  aiButtonText: { color: PRIMARY_COLOR, fontSize: FontSize.ten, fontWeight: '900', textTransform: 'uppercase' },
+  aiButtonText: { color: PRIMARY_COLOR, ...fontSize.b5, lineHeight: fontSize.b5.fontSize + 1, fontWeight: '900', textTransform: 'uppercase' },
   tierCard: { borderRadius: 20, borderWidth: 1, borderColor: '#ffffff14', backgroundColor: '#1f1022bf', padding: 12, gap: 10 },
   tierCardActive: { borderColor: primaryColorAlphaHex('66') },
   rowBetween: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', gap: 10 },
-  tierName: { color: '#fff', fontWeight: '900', fontSize: FontSize.fourteen },
-  tierDesc: { color: '#8f95af', fontSize: FontSize.eleven, marginTop: 2 },
-  price: { fontSize: FontSize.twenty, fontWeight: '900' },
-  badge: { color: '#8f95af', fontSize: FontSize.nine, textTransform: 'uppercase', fontWeight: '900' },
+  tierName: { color: '#fff', fontWeight: '900', ...fontSize.b4, lineHeight: fontSize.b4.fontSize + 1 },
+  tierDesc: { color: '#8f95af', ...fontSize.b5, lineHeight: fontSize.b5.fontSize + 1, marginTop: 2 },
+  price: { ...fontSize.b1, lineHeight: fontSize.b1.fontSize + 2, fontWeight: '900' },
+  badge: { color: '#8f95af', ...fontSize.b5, lineHeight: fontSize.b5.fontSize + 1, textTransform: 'uppercase', fontWeight: '900' },
   qtyWrap: { flexDirection: 'row', alignItems: 'center', gap: 12, backgroundColor: '#ffffff10', borderRadius: 999, paddingVertical: 6, paddingHorizontal: 10 },
-  qtyText: { color: '#fff', fontWeight: '900', minWidth: 18, textAlign: 'center' },
+  qtyText: { color: '#fff', fontWeight: '900', minWidth: 18, textAlign: 'center', ...fontSize.b5, lineHeight: fontSize.b5.fontSize + 1 },
   footer: { position: 'absolute', left: 0, right: 0, bottom: 0, borderTopWidth: 1, borderTopColor: '#ffffff14', backgroundColor: '#11131bcc', padding: 16, gap: 10 },
-  totalLabel: { color: '#8f95af', fontSize: FontSize.ten, textTransform: 'uppercase', fontWeight: '900' },
-  totalPrice: { color: '#fff', fontSize: FontSize.thirty, fontWeight: '900' },
-  totalTickets: { color: PRIMARY_COLOR, fontSize: FontSize.eleven, fontWeight: '900', textTransform: 'uppercase' },
+  totalLabel: { color: '#8f95af', ...fontSize.b5, lineHeight: fontSize.b5.fontSize + 1, textTransform: 'uppercase', fontWeight: '900' },
+  totalPrice: { color: '#fff', ...fontSize.b1, lineHeight: fontSize.b1.fontSize + 2, fontWeight: '900' },
+  totalTickets: { color: PRIMARY_COLOR, ...fontSize.b5, lineHeight: fontSize.b5.fontSize + 1, fontWeight: '900', textTransform: 'uppercase' },
   fans: { flexDirection: 'row', marginLeft: 6 },
   fan: { width: 28, height: 28, borderRadius: 14, marginLeft: -8, borderWidth: 1, borderColor: '#11131b' },
   primaryButton: { height: 50, borderRadius: 14, alignItems: 'center', justifyContent: 'center', backgroundColor: PRIMARY_COLOR },
-  primaryButtonText: { color: '#fff', fontSize: FontSize.fourteen, fontWeight: '900', textTransform: 'uppercase', letterSpacing: 1.2 },
+  primaryButtonText: { color: '#fff', ...fontSize.b4, lineHeight: fontSize.b4.fontSize + 1, fontWeight: '900', textTransform: 'uppercase', letterSpacing: 1.2 },
   successScreen: { flex: 1, backgroundColor: '#060913', alignItems: 'center', justifyContent: 'center', padding: 20, gap: 12 },
   successIcon: { width: 120, height: 120, borderRadius: 60, backgroundColor: primaryColorAlphaHex('1f'), alignItems: 'center', justifyContent: 'center', borderWidth: 1, borderColor: primaryColorAlphaHex('55') },
-  successTitle: { color: '#fff', fontSize: FontSize.twentyFive, fontWeight: '900', textTransform: 'uppercase' },
-  successBody: { color: '#a5abc0', textAlign: 'center', fontSize: FontSize.fourteen, maxWidth: 280 },
+  successTitle: { color: '#fff', ...fontSize.b1, lineHeight: fontSize.b1.fontSize + 2, fontWeight: '900', textTransform: 'uppercase' },
+  successBody: { color: '#a5abc0', textAlign: 'center', ...fontSize.b4, lineHeight: fontSize.b4.fontSize + 1, maxWidth: 280 },
   hiddenText: { height: 0, width: 0, opacity: 0 },
 });
 

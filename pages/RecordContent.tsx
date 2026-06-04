@@ -17,9 +17,9 @@ import { LinearGradient } from 'expo-linear-gradient';
 import { MaterialIcons } from '@expo/vector-icons';
 import { useNavigation } from '@react-navigation/native';
 import { CameraView, useCameraPermissions } from 'expo-camera';
-import { FontFamily, FontSize } from '../fonts';
 import { VoteSheetContent } from './SoundSelect';
 import { mediumScreen } from '../types';
+import { fontSize } from './typography';
 
 type FilterItem = {
   id: string;
@@ -318,15 +318,13 @@ const styles = StyleSheet.create({
   },
   permissionTitle: {
     color: '#fff',
-    fontFamily: FontFamily.bold,
-    fontSize: mediumScreen ? FontSize.eighteen :FontSize.fourteen,
+    ...fontSize.b1, lineHeight: fontSize.b1.fontSize + 2,
     marginTop: 18,
     marginBottom: 8,
   },
   permissionText: {
     color: 'rgba(255,255,255,0.75)',
-    fontFamily: FontFamily.medium,
-    fontSize: mediumScreen ? FontSize.fourteen : FontSize.ten,
+    ...fontSize.b4,
     lineHeight: 20,
     textAlign: 'center',
     marginTop: 10,
@@ -342,8 +340,7 @@ const styles = StyleSheet.create({
   },
   permissionButtonText: {
     color: '#fff',
-    fontFamily: FontFamily.bold,
-    fontSize: mediumScreen ? FontSize.fourteen: FontSize.ten,
+    ...fontSize.b4, lineHeight: fontSize.b4.fontSize + 1,
   },
   topArea: {
     paddingHorizontal: 16,
@@ -366,15 +363,13 @@ const styles = StyleSheet.create({
   },
   progressLabel: {
     color: 'rgba(255,255,255,0.85)',
-    fontFamily: FontFamily.bold,
-    fontSize: FontSize.eleven,
+    ...fontSize.b5, lineHeight: fontSize.b5.fontSize + 1,
     textTransform: 'uppercase',
     letterSpacing: 1,
   },
   progressTime: {
     color: '#fff',
-    fontFamily: FontFamily.medium,
-    fontSize: FontSize.twelve,
+    ...fontSize.b4, lineHeight: fontSize.b4.fontSize + 1,
   },
   progressTrack: {
     height: 6,
@@ -426,8 +421,7 @@ const styles = StyleSheet.create({
   },
   soundButtonText: {
     color: '#fff',
-    fontFamily: FontFamily.bold,
-    fontSize: mediumScreen ? FontSize.fourteen: FontSize.ten,
+    ...fontSize.b4, lineHeight: fontSize.b4.fontSize + 1,
     maxWidth: '85%',
   },
   sideRailWrap: {
@@ -461,14 +455,12 @@ const styles = StyleSheet.create({
   },
   sideLabel: {
     color: '#fff',
-    fontFamily: FontFamily.medium,
-    fontSize: FontSize.eight,
+    ...fontSize.b5, lineHeight: fontSize.b5.fontSize + 1,
     textTransform: 'uppercase',
     marginTop: 2,
   },
   sideLabelActive: {
     color: PRIMARY_COLOR,
-    fontFamily: FontFamily.bold,
   },
   bottomArea: {
     marginTop: 'auto',
@@ -515,12 +507,10 @@ const styles = StyleSheet.create({
   filterText: {
     marginTop: 8,
     color: 'rgba(255,255,255,0.7)',
-    fontFamily: FontFamily.medium,
-    fontSize: FontSize.twelve,
+    ...fontSize.b4, lineHeight: fontSize.b4.fontSize + 1,
   },
   filterTextActive: {
     color: PRIMARY_COLOR,
-    fontFamily: FontFamily.bold,
   },
   primaryActions: {
     flexDirection: 'row',
@@ -541,8 +531,7 @@ const styles = StyleSheet.create({
   },
   utilityLabel: {
     color: '#fff',
-    fontFamily: FontFamily.bold,
-    fontSize: FontSize.ten,
+    ...fontSize.b5, lineHeight: fontSize.b5.fontSize + 1,
     textTransform: 'uppercase',
     marginTop: 8,
   },
@@ -600,8 +589,7 @@ const styles = StyleSheet.create({
   },
   modeText: {
     color: 'rgba(255,255,255,0.4)',
-    fontFamily: FontFamily.bold,
-    fontSize: FontSize.fourteen,
+    ...fontSize.b4, lineHeight: fontSize.b4.fontSize + 1,
   },
   modeTextActive: {
     color: '#fff',

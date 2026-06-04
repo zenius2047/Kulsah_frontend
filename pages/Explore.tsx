@@ -1,13 +1,11 @@
-import React, { useState, useEffect, useMemo, useRef, useCallback } from 'react';
+import React from 'react';
 import { useThemeMode } from '../theme';
 import { View, Text, Pressable, Image, TextInput } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
 
 
 const ElephantLogo = ({ className = "size-6" }: { className?: string }) => (
-  <View viewBox="0 0 24 24" fill="currentColor" xmlns="http://www.w3.org/2000/svg">
-    <View ="M21,11 C21,8.23857625 18.7614237,6 16,6 L14,6 C13.4477153,6 13,5.55228475 13,5 C13,4.44771525 13.4477153,4 14,4 L16,4 C16.5522847,4 17,3.55228475 17,3 C17,2.44771525 16.5522847,2 16,2 L14,2 C11.2385763,2 9,4.23857625 9,7 L9,10 C9,11.1045695 8.1045695,12 7,12 L3,12 L3,22 L10,22 L10,18 C10,16.8954305 10.8954305,16 12,16 L14,16 C15.1045695,16 16,16.8954305 16,18 L16,22 L21,22 L21,11 Z" />
-  </View>
+  <Text>K</Text>
 );
 
 interface ExploreProps {
@@ -26,10 +24,10 @@ const Explore: React.FC<ExploreProps> = ({ onLogout }) => {
   ];
 
   const creators = [
-    { name: 'Amara', status: 'LIVE', img: 'https://picsum.photos/seed/p1/150/150' },
-    { name: 'Zion King', status: '140k subs', img: 'https://picsum.photos/seed/p2/150/150' },
-    { name: 'Lila Moon', status: 'LIVE', img: 'https://picsum.photos/seed/p3/150/150' },
-    { name: 'DJ Kay-T', status: '92k subs', img: 'https://picsum.photos/seed/p4/150/150' },
+    { name: 'Amara', handle: 'amara', status: 'LIVE', img: 'https://picsum.photos/seed/p1/150/150' },
+    { name: 'Zion King', handle: 'zionking', status: '140k subs', img: 'https://picsum.photos/seed/p2/150/150' },
+    { name: 'Lila Moon', handle: 'lilamoon', status: 'LIVE', img: 'https://picsum.photos/seed/p3/150/150' },
+    { name: 'DJ Kay-T', handle: 'djkayt', status: '92k subs', img: 'https://picsum.photos/seed/p4/150/150' },
   ];
 
   return (
@@ -102,7 +100,7 @@ const Explore: React.FC<ExploreProps> = ({ onLogout }) => {
           </View>
           <View>
             {creators.map((creator) => (
-              <View 
+              <Pressable
                 key={creator.name} 
                 
                 onPress={() => navigation.navigate(`/profile/${creator.name}`)}
@@ -119,7 +117,7 @@ const Explore: React.FC<ExploreProps> = ({ onLogout }) => {
                   <Text>{creator.name}</Text>
                   <Text>@{creator.handle}</Text>
                 </View>
-              </View>
+              </Pressable>
             ))}
           </View>
         </View>
@@ -129,7 +127,7 @@ const Explore: React.FC<ExploreProps> = ({ onLogout }) => {
             <Text>Hot Tickets</Text>
             <Pressable>arrow_forward</Pressable>
           </View>
-          <View 
+          <Pressable
             onPress={() => navigation.navigate('/event/burna-boy')}
            
           >
@@ -159,7 +157,7 @@ const Explore: React.FC<ExploreProps> = ({ onLogout }) => {
                 </Pressable>
               </View>
             </View>
-          </View>
+          </Pressable>
         </View>
       </View>
     </View>

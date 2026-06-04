@@ -2,10 +2,10 @@ import { MaterialIcons } from '@expo/vector-icons';
 import React, { useEffect, useMemo, useState } from 'react';
 import { KeyboardAvoidingView, Modal, Platform, Pressable, ScrollView, StyleSheet, Text, View } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
-import { FontFamily, FontSize } from '../fonts';
 import { useThemeMode, PRIMARY_COLOR, primaryColorAlpha } from "../theme";
 import { mediumScreen } from '../types';
 import KulsahInputBar from './KulsahInputBar';
+import { fontSize } from './typography';
 
 type KulcoinTopUpDrawerProps = {
   currentBalance: number;
@@ -290,21 +290,18 @@ const styles = StyleSheet.create({
   },
   warningText: {
     color: PRIMARY_COLOR,
-    fontFamily: FontFamily.extraBold,
-    fontSize: FontSize.seven,
+    ...fontSize.b5, lineHeight: fontSize.b5.fontSize + 1,
     textTransform: 'uppercase',
     letterSpacing: 1.2,
   },
   drawerTitle: {
     color: '#ffffff',
-    fontFamily: FontFamily.extraBold,
-    fontSize: mediumScreen ? FontSize.eighteen: FontSize.fourteen,
+    ...fontSize.b1, lineHeight: fontSize.b1.fontSize + 2,
     textTransform: 'uppercase',
   },
   drawerBalance: {
     color: 'rgba(255,255,255,0.45)',
-    fontFamily: FontFamily.extraBold,
-    fontSize: FontSize.eight,
+    ...fontSize.b5, lineHeight: fontSize.b5.fontSize + 1,
     textTransform: 'uppercase',
     letterSpacing: 2,
   },
@@ -350,14 +347,12 @@ const styles = StyleSheet.create({
   },
   customTitle: {
     color: '#ffffff',
-    fontFamily: FontFamily.extraBold,
-    fontSize: FontSize.twelve,
+    ...fontSize.b4, lineHeight: fontSize.b4.fontSize + 1,
     textTransform: 'uppercase',
   },
   customSubtitle: {
     color: 'rgba(255,255,255,0.48)',
-    fontFamily: FontFamily.bold,
-    fontSize: FontSize.eight,
+    ...fontSize.b5, lineHeight: fontSize.b5.fontSize + 1,
   },
   customInputWrap: {
     minHeight: 54,
@@ -372,21 +367,18 @@ const styles = StyleSheet.create({
   },
   customCurrency: {
     color: PRIMARY_COLOR,
-    fontFamily: FontFamily.extraBold,
-    fontSize: FontSize.ten,
+    ...fontSize.b5, lineHeight: fontSize.b5.fontSize + 1,
     textTransform: 'uppercase',
   },
   customInput: {
     flex: 1,
     color: '#ffffff',
-    fontFamily: FontFamily.extraBold,
-    fontSize: FontSize.twelve,
+    ...fontSize.b4, lineHeight: fontSize.b4.fontSize + 1,
     paddingVertical: 0,
   },
   customEstimate: {
     color: 'rgba(255,255,255,0.56)',
-    fontFamily: FontFamily.bold,
-    fontSize: FontSize.eight,
+    ...fontSize.b5, lineHeight: fontSize.b5.fontSize + 1,
   },
   bestValueChip: {
     position: 'absolute',
@@ -399,8 +391,7 @@ const styles = StyleSheet.create({
   },
   bestValueText: {
     color: '#ffffff',
-    fontFamily: FontFamily.extraBold,
-    fontSize: FontSize.six,
+    ...fontSize.b5, lineHeight: fontSize.b5.fontSize + 1,
     textTransform: 'uppercase',
     letterSpacing: 1,
   },
@@ -414,13 +405,11 @@ const styles = StyleSheet.create({
   },
   packageCoins: {
     color: '#ffffff',
-    fontFamily: FontFamily.extraBold,
-    fontSize: mediumScreen ? FontSize.eighteen: FontSize.fourteen,
+    ...fontSize.b1, lineHeight: fontSize.b1.fontSize + 2,
   },
   packageLabel: {
     color: 'rgba(255,255,255,0.42)',
-    fontFamily: FontFamily.extraBold,
-    fontSize: FontSize.eight,
+    ...fontSize.b5, lineHeight: fontSize.b5.fontSize + 1,
     textTransform: 'uppercase',
     letterSpacing: 1.4,
   },
@@ -442,8 +431,7 @@ const styles = StyleSheet.create({
   },
   purchaseButtonText: {
     color: '#ffffff',
-    fontFamily: FontFamily.extraBold,
-    fontSize: FontSize.eleven,
+    ...fontSize.b5, lineHeight: fontSize.b5.fontSize + 1,
   },
   cancelTransactionButton: {
     alignItems: 'center',
@@ -452,8 +440,7 @@ const styles = StyleSheet.create({
   },
   cancelTransactionText: {
     color: 'rgba(255,255,255,0.26)',
-    fontFamily: FontFamily.extraBold,
-    fontSize: FontSize.eight,
+    ...fontSize.b5, lineHeight: fontSize.b5.fontSize + 1,
     textTransform: 'uppercase',
     letterSpacing: 2,
   },
@@ -469,8 +456,7 @@ const styles = StyleSheet.create({
   paymentTitle: {
     color: '#ffffff',
     textAlign: 'center',
-    fontFamily: FontFamily.extraBold,
-    fontSize: FontSize.eighteen,
+    ...fontSize.b1, lineHeight: fontSize.b1.fontSize + 2,
     textTransform: 'uppercase',
     marginBottom: 18,
   },
@@ -490,18 +476,15 @@ const styles = StyleSheet.create({
   },
   paymentLabel: {
     color: 'rgba(255,255,255,0.5)',
-    fontFamily: FontFamily.bold,
-    fontSize: FontSize.ten,
+    ...fontSize.b5, lineHeight: fontSize.b5.fontSize + 1,
   },
   paymentValue: {
     color: '#ffffff',
-    fontFamily: FontFamily.extraBold,
-    fontSize: FontSize.ten,
+    ...fontSize.b5, lineHeight: fontSize.b5.fontSize + 1,
   },
   paymentAccent: {
     color: PRIMARY_COLOR,
-    fontFamily: FontFamily.extraBold,
-    fontSize: FontSize.ten,
+    ...fontSize.b5, lineHeight: fontSize.b5.fontSize + 1,
   },
   cancelPaymentButton: {
     alignItems: 'center',
@@ -513,8 +496,7 @@ const styles = StyleSheet.create({
   },
   cancelPaymentText: {
     color: 'rgba(255,255,255,0.5)',
-    fontFamily: FontFamily.extraBold,
-    fontSize: FontSize.nine,
+    ...fontSize.b5, lineHeight: fontSize.b5.fontSize + 1,
     textTransform: 'uppercase',
     letterSpacing: 1.4,
   },

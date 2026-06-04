@@ -11,7 +11,7 @@ import {
   View,
 } from 'react-native';
 import { MaterialIcons } from '@expo/vector-icons';
-import { FontFamily, FontSize } from '../fonts';
+import { fontSize } from './typography';
 
 type VoteTab = 'Hot' | 'For You' | 'Favourites' | 'Recents';
 
@@ -277,8 +277,7 @@ const styles = StyleSheet.create({
     backgroundColor: 'rgba(255,255,255,0.06)',
   },
   headerTitle: {
-    fontFamily: FontFamily.extraBold,
-    fontSize: FontSize.thirteen,
+    ...fontSize.b4, lineHeight: fontSize.b4.fontSize + 1,
   },
   content: {
     paddingHorizontal: 24,
@@ -297,8 +296,7 @@ const styles = StyleSheet.create({
   },
   searchInput: {
     flex: 1,
-    fontFamily: FontFamily.medium,
-    fontSize: FontSize.ten,
+    ...fontSize.b5, lineHeight: fontSize.b5.fontSize + 1,
   },
   tabsScroll: {
     marginBottom: 24,
@@ -314,8 +312,7 @@ const styles = StyleSheet.create({
     borderBottomWidth: 2,
   },
   tabText: {
-    fontFamily: FontFamily.extraBold,
-    fontSize: FontSize.eight,
+    ...fontSize.b5, lineHeight: fontSize.b5.fontSize + 1,
     letterSpacing: 1.2,
     textTransform: 'uppercase',
   },
@@ -331,8 +328,7 @@ const styles = StyleSheet.create({
     gap: 8,
   },
   sectionTitle: {
-    fontFamily: FontFamily.bold,
-    fontSize: FontSize.eleven,
+    ...fontSize.b5, lineHeight: fontSize.b5.fontSize + 1,
   },
   hotBadge: {
     paddingHorizontal: 12,
@@ -344,8 +340,7 @@ const styles = StyleSheet.create({
   },
   hotBadgeText: {
     color: PRIMARY_COLOR,
-    fontFamily: FontFamily.extraBold,
-    fontSize: FontSize.eight,
+    ...fontSize.b5, lineHeight: fontSize.b5.fontSize + 1,
     textTransform: 'uppercase',
     letterSpacing: 1.2,
   },
@@ -389,16 +384,13 @@ const styles = StyleSheet.create({
     gap: 2,
   },
   trackTitle: {
-    fontFamily: FontFamily.bold,
-    fontSize: FontSize.nine,
+    ...fontSize.b5, lineHeight: fontSize.b5.fontSize + 1,
   },
   trackArtist: {
-    fontFamily: FontFamily.medium,
-    fontSize: FontSize.nine,
+    ...fontSize.b5, lineHeight: fontSize.b5.fontSize + 1,
   },
   trackDuration: {
-    fontFamily: FontFamily.bold,
-    fontSize: FontSize.nine,
+    ...fontSize.b5, lineHeight: fontSize.b5.fontSize + 1,
     marginTop: 2,
   },
   trackActions: {

@@ -216,7 +216,7 @@ const CreatorStore: React.FC = () => {
                   onPress={() => fileInputRef.current?.click()}
                  
                 >
-                   <TextInput ref={fileInputRef} onChange={handleImageUpload} />
+                   <TextInput ref={fileInputRef} onChange={handleImageUpload as any} />
                    <Image source={{ uri: editingItem.img }} />
                    <View>
                       <View>

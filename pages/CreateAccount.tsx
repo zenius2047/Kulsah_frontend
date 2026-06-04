@@ -13,8 +13,8 @@ import {
   View,
 } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
-import { FontFamily, FontSize } from '../fonts';
 import { PRIMARY_COLOR, primaryColorAlpha } from "../theme";
+import { fontSize } from './typography';
 
 const heroImage =
   'https://lh3.googleusercontent.com/aida-public/AB6AXuCQ3om81-SiKgJwDpjboC8Nuo0ZQ_S5zMyq-49XPhird3g_bOUDeTLN9A90A3mKpBRdleJhGui80HhTd_UmVdFrq6ihXbzUTaNWAMEHwLcQCY4KDIC0snF9_LE1tPpNGe6rMx-S_5KYOus9eURRHkU4ez22Un42e7tEh5psFB1VNUD65yNYF86JocopBe4MP5v0_WxF4z2v1d_TSxB0duA8ABkWzRFsB4DVgesG_7ONuPxSpqleNLgd-Gz3u8cDY8FpyjF_juRJnU8H';
@@ -210,15 +210,13 @@ const styles = StyleSheet.create({
   },
   brandTitle: {
     color: '#f7f5f8',
-    fontSize: FontSize.thirtyEight,
-    lineHeight: FontSize.forty,
-    fontFamily: FontFamily.extraBold,
+    ...fontSize.b1,
+    lineHeight: fontSize.b1.fontSize + 2,
     letterSpacing: -1.4,
   },
   brandSubtitle: {
     color: 'rgba(148,163,184,0.78)',
-    fontSize: FontSize.eleven,
-    fontFamily: FontFamily.bold,
+    ...fontSize.b5, lineHeight: fontSize.b5.fontSize + 1,
     textTransform: 'uppercase',
     letterSpacing: 1.5,
     marginTop: 8,
@@ -250,8 +248,7 @@ const styles = StyleSheet.create({
   },
   cardTitle: {
     color: '#f7f5f8',
-    fontSize: FontSize.twentyFour,
-    fontFamily: FontFamily.extraBold,
+    ...fontSize.b1, lineHeight: fontSize.b1.fontSize + 2,
     textAlign: 'center',
     marginBottom: 28,
   },
@@ -272,8 +269,7 @@ const styles = StyleSheet.create({
   },
   secondaryButtonText: {
     color: '#f7f5f8',
-    fontSize: FontSize.fourteen,
-    fontFamily: FontFamily.bold,
+    ...fontSize.b4, lineHeight: fontSize.b4.fontSize + 1,
     letterSpacing: -0.2,
   },
   primaryButton: {
@@ -296,8 +292,7 @@ const styles = StyleSheet.create({
   },
   primaryButtonText: {
     color: '#ffffff',
-    fontSize: FontSize.fourteen,
-    fontFamily: FontFamily.extraBold,
+    ...fontSize.b4, lineHeight: fontSize.b4.fontSize + 1,
     letterSpacing: -0.2,
   },
   pressed: {
@@ -307,9 +302,8 @@ const styles = StyleSheet.create({
   legalText: {
     marginTop: 26,
     color: '#64748b',
-    fontSize: FontSize.eleven,
-    lineHeight: FontSize.eighteen,
-    fontFamily: FontFamily.medium,
+    ...fontSize.b5,
+    lineHeight: fontSize.b1.fontSize + 2,
     textAlign: 'center',
     paddingHorizontal: 8,
   },
@@ -326,13 +320,11 @@ const styles = StyleSheet.create({
   },
   creatorPrompt: {
     color: '#94a3b8',
-    fontSize: FontSize.thirteen,
-    fontFamily: FontFamily.medium,
+    ...fontSize.b4, lineHeight: fontSize.b4.fontSize + 1,
   },
   creatorAction: {
     color: PRIMARY_COLOR,
-    fontSize: FontSize.fourteen,
-    fontFamily: FontFamily.extraBold,
+    ...fontSize.b4, lineHeight: fontSize.b4.fontSize + 1,
   },
   previewGrid: {
     width: '100%',

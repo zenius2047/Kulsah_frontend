@@ -12,10 +12,10 @@ import {
   ViewStyle,
 } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
-import { FontFamily, FontSize } from '../fonts';
 import { useThemeMode, PRIMARY_COLOR } from "../theme";
 import { mediumScreen } from '../types';
 import KulsahInputBar from './KulsahInputBar';
+import { fontSize } from './typography';
 
 type PickerTab = 'emoji' | 'sticker';
 
@@ -332,8 +332,7 @@ const styles = StyleSheet.create({
     },
   },
   tabText: {
-    fontFamily: FontFamily.extraBold,
-    fontSize: FontSize.eight,
+    ...fontSize.b5, lineHeight: fontSize.b5.fontSize + 1,
     textTransform: 'uppercase',
     letterSpacing: 1.4,
   },
@@ -362,8 +361,7 @@ const styles = StyleSheet.create({
   searchInput: {
     flex: 1,
     minHeight: 40,
-    fontFamily: FontFamily.medium,
-    fontSize: FontSize.nine,
+    ...fontSize.b5, lineHeight: fontSize.b5.fontSize + 1,
   },
   scrollContent: {
     padding: 16,
@@ -382,7 +380,7 @@ const styles = StyleSheet.create({
     padding: 5
   },
   emojiText: {
-    fontSize: mediumScreen ? FontSize.twentySix: FontSize.sixteen,
+    ...fontSize.b1, lineHeight: fontSize.b1.fontSize + 2,
     // lineHeight: 22
   },
   stickerGrid: {
@@ -414,8 +412,7 @@ const styles = StyleSheet.create({
   },
   stickerLabel: {
     color: '#ffffff',
-    fontFamily: FontFamily.extraBold,
-    fontSize: FontSize.sixHalf,
+    ...fontSize.b5, lineHeight: fontSize.b5.fontSize + 1,
     textTransform: 'uppercase',
     letterSpacing: 1.2,
     textAlign: 'center',
@@ -427,15 +424,13 @@ const styles = StyleSheet.create({
   },
   footerText: {
     textAlign: 'center',
-    fontFamily: FontFamily.extraBold,
-    fontSize: FontSize.sixHalf,
+    ...fontSize.b5, lineHeight: fontSize.b5.fontSize + 1,
     textTransform: 'uppercase',
     letterSpacing: 2.4,
   },
   emptyText: {
     textAlign: 'center',
-    fontFamily: FontFamily.bold,
-    fontSize: FontSize.eight,
+    ...fontSize.b5, lineHeight: fontSize.b5.fontSize + 1,
     paddingVertical: 18,
     textTransform: 'uppercase',
     letterSpacing: 1.2,

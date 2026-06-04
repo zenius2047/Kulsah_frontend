@@ -15,12 +15,12 @@ import { LinearGradient } from 'expo-linear-gradient';
 import { MaterialIcons } from '@expo/vector-icons';
 import { useNavigation } from '@react-navigation/native';
 import { useThemeMode, PRIMARY_COLOR, primaryColorAlpha } from "../theme";
-import { FontFamily, FontSize, fontScale } from '../fonts';
 import { mediumScreen } from '../types';
 import GoogleIcon from '../assets/icons/google-svg.svg';
 import AppleIcon from '../assets/icons/apple-logo-svg.svg';
 import KulsahBlack from '../assets/icons/kulsah-black-svg.svg';
 import KulsahWhite from '../assets/icons/kulsah-white-svg.svg';
+import { fontSize } from './typography';
 
 const EmailPhone: React.FC = () => {
   const navigation = useNavigation<any>();
@@ -136,7 +136,7 @@ const EmailPhone: React.FC = () => {
               </LinearGradient> */}
 
               {/* <Text style={[styles.brandTitle, { color: titleColor }]}>Welcome Back</Text> */}
-              <Text style={[styles.brandSubtitle, { color: bodyColor, marginTop: 20, fontSize: mediumScreen ? FontSize.fourteen: FontSize.ten }]}>
+              <Text style={[styles.brandSubtitle, { color: bodyColor, marginTop: 20, ...fontSize.b4, lineHeight: fontSize.b4.fontSize + 1 }]}>
                 Enter your email or phone number
               </Text>
             </View>
@@ -157,13 +157,9 @@ const EmailPhone: React.FC = () => {
                     {
                       color: labelRaised ? PRIMARY_COLOR : bodyColor,
                       top: labelRaised ? 12 : '65%',
-                      fontSize: labelRaised
-                        ? mediumScreen
-                          ? FontSize.eightHalf
-                          : FontSize.seven
-                        : mediumScreen
-                          ? FontSize.fourteen
-                          : FontSize.ten,
+                      fontFamily: labelRaised ? fontSize.b5.fontFamily : fontSize.b4.fontFamily,
+                      fontSize: labelRaised ? fontSize.b5.fontSize : fontSize.b4.fontSize,
+                      lineHeight: (labelRaised ? fontSize.b5.fontSize : fontSize.b4.fontSize) + 1,
                       transform: [{ translateY: labelRaised ? 0 : -10 }],
                     },
                   ]}
@@ -281,8 +277,7 @@ const styles = StyleSheet.create({
     borderWidth: 1,
   },
   headerTitle: {
-    fontFamily: FontFamily.extraBold,
-    fontSize: mediumScreen ? FontSize.seventeen : FontSize.fourteenHalf,
+    ...fontSize.b3, lineHeight: fontSize.b3.fontSize + 2,
     letterSpacing: -0.4,
   },
   headerSpacer: {
@@ -332,15 +327,12 @@ const styles = StyleSheet.create({
     elevation: 8,
   },
   brandTitle: {
-    fontFamily: FontFamily.extraBold,
-    fontSize: mediumScreen ? FontSize.twentyFour : FontSize.twenty,
+    ...fontSize.b1, lineHeight: fontSize.b1.fontSize + 2,
     letterSpacing: -0.7,
     marginBottom: 6,
   },
   brandSubtitle: {
-    fontFamily: FontFamily.medium,
-    fontSize: mediumScreen ? FontSize.tenHalf : FontSize.nine,
-    lineHeight: mediumScreen ? FontSize.fourteen : FontSize.twelve,
+    ...fontSize.b5, lineHeight: fontSize.b5.fontSize + 1,
     textAlign: 'center',
   },
   formBlock: {
@@ -357,13 +349,11 @@ const styles = StyleSheet.create({
   inputLabel: {
     position: 'absolute',
     left: 16,
-    fontFamily: FontFamily.medium,
   },
   input: {
     height: 40,
     paddingTop: 5,
-    fontFamily: FontFamily.medium,
-    fontSize: mediumScreen ? FontSize.fourteen : FontSize.twelve,
+    ...fontSize.b3, lineHeight: fontSize.b3.fontSize + 2,
   },
   primaryButton: {
     borderRadius: 999,
@@ -385,8 +375,7 @@ const styles = StyleSheet.create({
   },
   primaryButtonText: {
     color: '#ffffff',
-    fontFamily: FontFamily.extraBold,
-    fontSize: mediumScreen ? FontSize.ten : FontSize.eightHalf,
+    ...fontSize.b5, lineHeight: fontSize.b5.fontSize + 1,
     letterSpacing: 1.2,
   },
   helpLink: {
@@ -394,8 +383,7 @@ const styles = StyleSheet.create({
     paddingTop: 4,
   },
   helpLinkText: {
-    fontFamily: FontFamily.medium,
-    fontSize: mediumScreen ? FontSize.twelve : FontSize.eight,
+    ...fontSize.b4, lineHeight: fontSize.b4.fontSize + 1,
   },
   dividerRow: {
     flexDirection: 'row',
@@ -408,8 +396,7 @@ const styles = StyleSheet.create({
     height: 1,
   },
   dividerText: {
-    fontFamily: FontFamily.extraBold,
-    fontSize: mediumScreen ? FontSize.seven : FontSize.six,
+    ...fontSize.b5, lineHeight: fontSize.b5.fontSize + 1,
     textTransform: 'uppercase',
     letterSpacing: 2.2,
   },
@@ -429,8 +416,7 @@ const styles = StyleSheet.create({
     paddingHorizontal: 12,
   },
   socialText: {
-    fontFamily: FontFamily.bold,
-    fontSize: mediumScreen ? FontSize.nineHalf : FontSize.eight,
+    ...fontSize.b5, lineHeight: fontSize.b5.fontSize + 1,
   },
   footer: {
     alignItems: 'center',
@@ -438,15 +424,13 @@ const styles = StyleSheet.create({
     gap: 10,
   },
   footerPrompt: {
-    fontFamily: FontFamily.medium,
-    fontSize: mediumScreen ? FontSize.ten : FontSize.six,
+    ...fontSize.b5, lineHeight: fontSize.b5.fontSize + 1,
     textTransform: 'uppercase',
     letterSpacing: 1.2,
   },
   footerAction: {
     color: PRIMARY_COLOR,
-    fontFamily: FontFamily.extraBold,
-    fontSize: mediumScreen ? FontSize.twelve : FontSize.eight,
+    ...fontSize.b4, lineHeight: fontSize.b4.fontSize + 1,
   },
 });
 

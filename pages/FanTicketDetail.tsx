@@ -13,8 +13,8 @@ import { LinearGradient } from 'expo-linear-gradient';
 import { MaterialIcons } from '@expo/vector-icons';
 import { useNavigation, useRoute } from '@react-navigation/native';
 import { useThemeMode, PRIMARY_COLOR, primaryColorAlpha } from "../theme";
-import { FontFamily, FontSize } from '../fonts';
 import { mediumScreen } from '../types';
+import { fontSize } from './typography';
 
 const EVENT_IMAGE =
   'https://images.unsplash.com/photo-1470229722913-7c0e2dbbafd3?auto=format&fit=crop&q=80&w=800';
@@ -196,15 +196,13 @@ const styles = StyleSheet.create({
     paddingHorizontal: 12,
   },
   headerKicker: {
-    fontSize: FontSize.nine,
-    fontFamily: FontFamily.extraBold,
+    ...fontSize.b5, lineHeight: fontSize.b5.fontSize + 1,
     textTransform: 'uppercase',
     letterSpacing: 2.5,
   },
   headerTitle: {
     marginTop: 4,
-    fontSize: FontSize.twelve,
-    fontFamily: FontFamily.bold,
+    ...fontSize.b4, lineHeight: fontSize.b4.fontSize + 1,
     textTransform: 'uppercase',
     maxWidth: 180,
   },
@@ -246,15 +244,13 @@ const styles = StyleSheet.create({
   },
   artistName: {
     color: '#fff',
-    fontSize: mediumScreen ? FontSize.twentyFour : FontSize.twenty,
-    fontFamily: FontFamily.extraBold,
+    ...fontSize.b1, lineHeight: fontSize.b1.fontSize + 2,
     textTransform: 'uppercase',
   },
   artistSub: {
     marginTop: 2,
     color: 'rgba(255,255,255,0.72)',
-    fontSize: FontSize.ten,
-    fontFamily: FontFamily.bold,
+    ...fontSize.b5, lineHeight: fontSize.b5.fontSize + 1,
     textTransform: 'uppercase',
     letterSpacing: 1.2,
   },
@@ -266,8 +262,7 @@ const styles = StyleSheet.create({
   },
   verifiedText: {
     color: '#fff',
-    fontSize: FontSize.eight,
-    fontFamily: FontFamily.extraBold,
+    ...fontSize.b5, lineHeight: fontSize.b5.fontSize + 1,
     textTransform: 'uppercase',
     letterSpacing: 1.6,
   },
@@ -284,20 +279,17 @@ const styles = StyleSheet.create({
     marginBottom: 20,
   },
   detailLabel: {
-    fontSize: FontSize.eight,
-    fontFamily: FontFamily.extraBold,
+    ...fontSize.b5, lineHeight: fontSize.b5.fontSize + 1,
     textTransform: 'uppercase',
     letterSpacing: 1.8,
     marginBottom: 4,
   },
   detailValue: {
-    fontSize: FontSize.thirteen,
-    fontFamily: FontFamily.extraBold,
+    ...fontSize.b4, lineHeight: fontSize.b4.fontSize + 1,
   },
   detailSub: {
     marginTop: 3,
-    fontSize: FontSize.ten,
-    fontFamily: FontFamily.medium,
+    ...fontSize.b5, lineHeight: fontSize.b5.fontSize + 1,
   },
   qrSection: {
     alignItems: 'center',
@@ -323,15 +315,13 @@ const styles = StyleSheet.create({
   scanTitle: {
     marginTop: 22,
     color: '#0f172a',
-    fontSize: FontSize.sixteen,
-    fontFamily: FontFamily.extraBold,
+    ...fontSize.b4, lineHeight: fontSize.b4.fontSize + 1,
     letterSpacing: 5,
     textTransform: 'uppercase',
   },
   scanHint: {
     marginTop: 8,
-    fontSize: FontSize.eight,
-    fontFamily: FontFamily.extraBold,
+    ...fontSize.b5, lineHeight: fontSize.b5.fontSize + 1,
     textTransform: 'uppercase',
     letterSpacing: 1.8,
     textAlign: 'center',
@@ -348,8 +338,7 @@ const styles = StyleSheet.create({
     gap: 2,
   },
   ticketCode: {
-    fontSize: FontSize.eleven,
-    fontFamily: FontFamily.bold,
+    ...fontSize.b5, lineHeight: fontSize.b5.fontSize + 1,
     letterSpacing: 0.6,
   },
   nfcBadge: {
@@ -377,8 +366,7 @@ const styles = StyleSheet.create({
     gap: 10,
   },
   actionText: {
-    fontSize: FontSize.eleven,
-    fontFamily: FontFamily.extraBold,
+    ...fontSize.b5, lineHeight: fontSize.b5.fontSize + 1,
     textTransform: 'uppercase',
   },
   perfLeft: {

@@ -14,7 +14,7 @@ import { LinearGradient } from 'expo-linear-gradient';
 import { MaterialIcons } from '@expo/vector-icons';
 import { useNavigation } from '@react-navigation/native';
 import { mediumScreen } from '../types';
-import { FontFamily, FontSize } from '../fonts';
+import { fontSize } from './typography';
 
 const referenceMedia = [
   {
@@ -80,7 +80,7 @@ const CreateChallenge: React.FC = () => {
     <SafeAreaView style={[styles.safeArea, { backgroundColor: theme.background }]} edges={['top', 'left', 'right']}>
       <View style={[styles.screen, { backgroundColor: theme.screen }]}>
         <LinearGradient
-          colors={bgGradient}
+          colors={bgGradient as any}
           locations={[0, 0.45, 1]}
           style={StyleSheet.absoluteFill}
         />
@@ -353,8 +353,7 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
   },
   headerTitle: {
-    fontFamily: FontFamily.extraBold,
-    fontSize: mediumScreen ? FontSize.sixteen:FontSize.thirteen,
+    ...fontSize.b3, lineHeight: fontSize.b3.fontSize + 2,
     letterSpacing: 1.4,
   },
   scroll: {
@@ -381,22 +380,19 @@ const styles = StyleSheet.create({
   },
   label: {
     color: '#c084fc',
-    fontFamily: FontFamily.extraBold,
-    fontSize: mediumScreen ? FontSize.twelve:FontSize.eight,
+    ...fontSize.b4, lineHeight: fontSize.b4.fontSize + 1,
     letterSpacing: 1.6,
     textTransform: 'uppercase',
     marginBottom: 10,
   },
   labelMuted: {
-    fontFamily: FontFamily.extraBold,
-    fontSize: mediumScreen ? FontSize.twelve:FontSize.eight,
+    ...fontSize.b4, lineHeight: fontSize.b4.fontSize + 1,
     letterSpacing: 1.4,
     textTransform: 'uppercase',
     marginBottom: 12,
   },
   titleInput: {
-    fontFamily: FontFamily.extraBold,
-    fontSize: mediumScreen ? FontSize.twenty: FontSize.sixteen,
+    ...fontSize.b1, lineHeight: fontSize.b1.fontSize + 2,
     padding: 0,
   },
   titleUnderline: {
@@ -408,8 +404,7 @@ const styles = StyleSheet.create({
     borderRadius: 18,
     // paddingHorizontal: 0,
     paddingVertical: 14,
-    fontFamily: FontFamily.bold,
-    fontSize: mediumScreen ? FontSize.eighteen:FontSize.fourteen,
+    ...fontSize.b1,
     lineHeight: 22,
   },
   sectionTitleRow: {
@@ -418,8 +413,7 @@ const styles = StyleSheet.create({
     gap: 8,
   },
   sectionTitle: {
-    fontFamily: FontFamily.extraBold,
-    fontSize: mediumScreen ? FontSize.fifteen:FontSize.eleven,
+    ...fontSize.b4, lineHeight: fontSize.b4.fontSize + 1,
     letterSpacing: 1.8,
     textTransform: 'uppercase',
   },
@@ -454,8 +448,7 @@ const styles = StyleSheet.create({
   },
   uploadLabel: {
     color: '#ffffff',
-    fontFamily: FontFamily.extraBold,
-    fontSize: mediumScreen ? FontSize.fourteen:FontSize.ten,
+    ...fontSize.b4, lineHeight: fontSize.b4.fontSize + 1,
     letterSpacing: 1.4,
     textTransform: 'uppercase',
   },
@@ -468,8 +461,7 @@ const styles = StyleSheet.create({
   },
   mediaBadge: {
     color: '#ffffff',
-    fontFamily: FontFamily.bold,
-    fontSize: FontSize.ten,
+    ...fontSize.b5, lineHeight: fontSize.b5.fontSize + 1,
     backgroundColor: 'rgba(0,0,0,0.4)',
     paddingHorizontal: 8,
     paddingVertical: 6,
@@ -518,15 +510,13 @@ const styles = StyleSheet.create({
     elevation: 4,
   },
   criteriaTitle: {
-    fontFamily: FontFamily.extraBold,
-    fontSize: mediumScreen ? FontSize.fourteen:FontSize.ten,
+    ...fontSize.b4, lineHeight: fontSize.b4.fontSize + 1,
     letterSpacing: 1.2,
     textTransform: 'uppercase',
     textAlign: 'center',
   },
   criteriaMeta: {
-    fontFamily: FontFamily.medium,
-    fontSize: mediumScreen ? FontSize.fourteen:FontSize.ten,
+    ...fontSize.b4, lineHeight: fontSize.b4.fontSize + 1,
     textTransform: 'uppercase',
     textAlign: 'center',
     marginTop: 6,
@@ -538,8 +528,7 @@ const styles = StyleSheet.create({
   },
   inviteCounter: {
     color: '#c084fc',
-    fontFamily: FontFamily.bold,
-    fontSize: mediumScreen? FontSize.fourteen:FontSize.ten,
+    ...fontSize.b4, lineHeight: fontSize.b4.fontSize + 1,
     letterSpacing: 1.2,
   },
   searchCard: {
@@ -554,8 +543,7 @@ const styles = StyleSheet.create({
   },
   searchInput: {
     // flex: 1,
-    fontFamily: FontFamily.regular,
-    fontSize: mediumScreen?FontSize.fifteen:FontSize.twelve,
+    ...fontSize.b3, lineHeight: fontSize.b3.fontSize + 2,
     padding: 0,
     // textAlign: 'center'
     // lineHeight: 24,
@@ -591,8 +579,7 @@ const styles = StyleSheet.create({
     backgroundColor: PRIMARY_COLOR,
   },
   creatorHandle: {
-    fontFamily: FontFamily.bold,
-    fontSize: mediumScreen? FontSize.fourteen:FontSize.ten,
+    ...fontSize.b4, lineHeight: fontSize.b4.fontSize + 1,
   },
   addCreatorButton: {
     width: 70,
@@ -605,8 +592,7 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
   },
   browseLabel: {
-    fontFamily: FontFamily.bold,
-    fontSize: FontSize.ten,
+    ...fontSize.b5, lineHeight: fontSize.b5.fontSize + 1,
   },
   footerAction: {
     paddingTop: 8,
@@ -629,15 +615,13 @@ const styles = StyleSheet.create({
   },
   launchButtonText: {
     color: '#ffffff',
-    fontFamily: FontFamily.extraBold,
-    fontSize: mediumScreen ? FontSize.fourteen : FontSize.ten,
+    ...fontSize.b4, lineHeight: fontSize.b4.fontSize + 1,
     letterSpacing: 1.8,
     textTransform: 'uppercase',
   },
   footerNote: {
     color: '#64748b',
-    fontFamily: FontFamily.medium,
-    fontSize: mediumScreen ? FontSize.fourteen:FontSize.ten,
+    ...fontSize.b4,
     textAlign: 'center',
     textTransform: 'uppercase',
     lineHeight: 16,

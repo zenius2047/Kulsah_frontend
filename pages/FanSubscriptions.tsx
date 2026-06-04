@@ -12,9 +12,8 @@ import {
   View,
 } from 'react-native';
 import { SafeAreaView, useSafeAreaInsets } from 'react-native-safe-area-context';
-import { FontFamily, FontSize } from '../fonts';
 import { useThemeMode, PRIMARY_COLOR, primaryColorAlpha } from "../theme";
-import { mediumScreen } from '../types';
+import { fontSize } from './typography';
 
 type SubscriptionItem = {
   id: string;
@@ -268,8 +267,7 @@ const s = StyleSheet.create({
     justifyContent: 'center',
   },
   headerTitle: {
-    fontFamily: FontFamily.extraBold,
-    fontSize: mediumScreen ? FontSize.eighteen : FontSize.fourteen,
+    ...fontSize.b1, lineHeight: fontSize.b1.fontSize + 2,
     textTransform: 'uppercase',
   },
   headerBadge: {
@@ -282,8 +280,7 @@ const s = StyleSheet.create({
   },
   headerBadgeText: {
     color: PRIMARY_COLOR,
-    fontFamily: FontFamily.extraBold,
-    fontSize: mediumScreen ? FontSize.ten : FontSize.eight,
+    ...fontSize.b5, lineHeight: fontSize.b5.fontSize + 1,
     textTransform: 'uppercase',
     letterSpacing: 1.2,
   },
@@ -332,8 +329,7 @@ const s = StyleSheet.create({
     gap: 6,
   },
   name: {
-    fontFamily: FontFamily.extraBold,
-    fontSize: mediumScreen ? FontSize.twenty : FontSize.sixteen,
+    ...fontSize.b1, lineHeight: fontSize.b1.fontSize + 2,
   },
   planChip: {
     alignSelf: 'flex-start',
@@ -343,8 +339,7 @@ const s = StyleSheet.create({
     borderRadius: 999,
   },
   planChipText: {
-    fontFamily: FontFamily.extraBold,
-    fontSize: mediumScreen ? FontSize.nine : FontSize.seven,
+    ...fontSize.b5, lineHeight: fontSize.b5.fontSize + 1,
     textTransform: 'uppercase',
     letterSpacing: 1.2,
   },
@@ -352,8 +347,7 @@ const s = StyleSheet.create({
     gap: 10,
   },
   microLabel: {
-    fontFamily: FontFamily.extraBold,
-    fontSize: mediumScreen ? FontSize.nine : FontSize.eight,
+    ...fontSize.b5, lineHeight: fontSize.b5.fontSize + 1,
     textTransform: 'uppercase',
     letterSpacing: 1.8,
   },
@@ -369,8 +363,7 @@ const s = StyleSheet.create({
     borderWidth: 1,
   },
   perkText: {
-    fontFamily: FontFamily.bold,
-    fontSize: mediumScreen ? FontSize.ten : FontSize.eight,
+    ...fontSize.b5, lineHeight: fontSize.b5.fontSize + 1,
   },
   billingGrid: {
     flexDirection: 'row',
@@ -381,14 +374,12 @@ const s = StyleSheet.create({
   },
   billingValue: {
     marginTop: 4,
-    fontFamily: FontFamily.bold,
-    fontSize: mediumScreen ? FontSize.twelve : FontSize.ten,
+    ...fontSize.b4, lineHeight: fontSize.b4.fontSize + 1,
   },
   priceValue: {
     marginTop: 4,
     color: PRIMARY_COLOR,
-    fontFamily: FontFamily.extraBold,
-    fontSize: mediumScreen ? FontSize.fourteen : FontSize.twelve,
+    ...fontSize.b3, lineHeight: fontSize.b3.fontSize + 2,
   },
   actionsRow: {
     flexDirection: 'row',
@@ -404,8 +395,7 @@ const s = StyleSheet.create({
   },
   visitButtonText: {
     color: '#fff',
-    fontFamily: FontFamily.extraBold,
-    fontSize: mediumScreen ? FontSize.ten : FontSize.eight,
+    ...fontSize.b5, lineHeight: fontSize.b5.fontSize + 1,
     textTransform: 'uppercase',
     letterSpacing: 1.2,
   },
@@ -418,8 +408,7 @@ const s = StyleSheet.create({
     justifyContent: 'center',
   },
   manageButtonText: {
-    fontFamily: FontFamily.extraBold,
-    fontSize: mediumScreen ? FontSize.ten : FontSize.eight,
+    ...fontSize.b5, lineHeight: fontSize.b5.fontSize + 1,
     textTransform: 'uppercase',
     letterSpacing: 1.2,
   },
@@ -438,8 +427,7 @@ const s = StyleSheet.create({
   },
   discoverText: {
     color: PRIMARY_COLOR,
-    fontFamily: FontFamily.extraBold,
-    fontSize: mediumScreen ? FontSize.ten : FontSize.eight,
+    ...fontSize.b5, lineHeight: fontSize.b5.fontSize + 1,
     textTransform: 'uppercase',
     letterSpacing: 1.8,
   },
@@ -482,15 +470,13 @@ const s = StyleSheet.create({
     height: '100%',
   },
   modalTitle: {
-    fontFamily: FontFamily.extraBold,
-    fontSize: mediumScreen ? FontSize.twentyTwo : FontSize.eighteen,
+    ...fontSize.b1, lineHeight: fontSize.b1.fontSize + 2,
     textTransform: 'uppercase',
   },
   modalMeta: {
     marginTop: 4,
     color: PRIMARY_COLOR,
-    fontFamily: FontFamily.extraBold,
-    fontSize: mediumScreen ? FontSize.nine : FontSize.eight,
+    ...fontSize.b5, lineHeight: fontSize.b5.fontSize + 1,
     textTransform: 'uppercase',
     letterSpacing: 1.8,
   },
@@ -527,8 +513,7 @@ const s = StyleSheet.create({
     gap: 10,
   },
   actionText: {
-    fontFamily: FontFamily.bold,
-    fontSize: mediumScreen ? FontSize.twelve : FontSize.ten,
+    ...fontSize.b4, lineHeight: fontSize.b4.fontSize + 1,
   },
   cancelSubscriptionButton: {
     marginTop: 6,
@@ -543,8 +528,7 @@ const s = StyleSheet.create({
   },
   cancelSubscriptionText: {
     color: '#ef4444',
-    fontFamily: FontFamily.extraBold,
-    fontSize: mediumScreen ? FontSize.ten : FontSize.eight,
+    ...fontSize.b5, lineHeight: fontSize.b5.fontSize + 1,
     textTransform: 'uppercase',
     letterSpacing: 1.2,
   },

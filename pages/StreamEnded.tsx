@@ -11,7 +11,7 @@ import {
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { LinearGradient } from 'expo-linear-gradient';
 import { MaterialIcons } from '@expo/vector-icons';
-import { FontFamily, FontSize } from '../fonts';
+import { fontSize } from './typography';
 
 const heroImage =
   'https://lh3.googleusercontent.com/aida-public/AB6AXuBmaQN3OAWLDySOXQCRnphM1I4oP8vh_9TOy93A5xUQlcHn-OmwZKMUXoVARGtJlJv4QGOfZzVfwQw-6nQSlI3R8AgPkE_CUfmRY1RuYTEaZaQEmntiW4ub1BtgrG-5_1CXWJU9AYbfLJ1pXJ5P36o9x1vSRrlVuQGNevrNH79hYKvPGDMNOytyP9yx1xT9XL_64b-nN6esGCw7oSbboa36QxN0Xak-TOtPOg0Yo52Yls6EoSaFOLkIgm_dqt3qz6bilTTY6EOsNC2z';
@@ -182,8 +182,7 @@ const styles = StyleSheet.create({
     flex: 1,
     color: '#fff',
     textAlign: 'center',
-    fontFamily: FontFamily.extraBold,
-    fontSize: FontSize.sixteen,
+    ...fontSize.b4, lineHeight: fontSize.b4.fontSize + 1,
   },
   scrollContent: {
     paddingBottom: 28,
@@ -217,8 +216,7 @@ const styles = StyleSheet.create({
   },
   recordedPillText: {
     color: '#c924eb',
-    fontFamily: FontFamily.extraBold,
-    fontSize: FontSize.eleven,
+    ...fontSize.b5, lineHeight: fontSize.b5.fontSize + 1,
     letterSpacing: 1.2,
     textTransform: 'uppercase',
   },
@@ -228,28 +226,24 @@ const styles = StyleSheet.create({
   },
   heroTitle: {
     color: '#fff',
-    fontFamily: FontFamily.extraBold,
-    fontSize: FontSize.twentySix,
+    ...fontSize.b1,
     lineHeight: 34,
   },
   heroSubtitle: {
     color: 'rgba(255,255,255,0.7)',
-    fontFamily: FontFamily.medium,
-    fontSize: FontSize.fifteen,
+    ...fontSize.b4, lineHeight: fontSize.b4.fontSize + 1,
     marginTop: 8,
   },
   sectionTitle: {
     color: '#fff',
-    fontFamily: FontFamily.extraBold,
-    fontSize: FontSize.eighteen,
+    ...fontSize.b1, lineHeight: fontSize.b1.fontSize + 2,
     marginTop: 20,
     marginHorizontal: 16,
     marginBottom: 12,
   },
   sectionTitleSpaced: {
     color: '#fff',
-    fontFamily: FontFamily.extraBold,
-    fontSize: FontSize.twenty,
+    ...fontSize.b1, lineHeight: fontSize.b1.fontSize + 2,
     marginTop: 26,
     marginHorizontal: 16,
     marginBottom: 12,
@@ -275,13 +269,11 @@ const styles = StyleSheet.create({
   },
   statLabel: {
     color: 'rgba(255,255,255,0.8)',
-    fontFamily: FontFamily.medium,
-    fontSize: FontSize.fourteen,
+    ...fontSize.b4, lineHeight: fontSize.b4.fontSize + 1,
   },
   statValue: {
     color: '#fff',
-    fontFamily: FontFamily.extraBold,
-    fontSize: FontSize.twentyEight,
+    ...fontSize.b1, lineHeight: fontSize.b1.fontSize + 2,
   },
   eventCard: {
     marginHorizontal: 16,
@@ -306,8 +298,7 @@ const styles = StyleSheet.create({
   },
   presaleBadgeText: {
     color: '#fff',
-    fontFamily: FontFamily.extraBold,
-    fontSize: FontSize.ten,
+    ...fontSize.b5, lineHeight: fontSize.b5.fontSize + 1,
     textTransform: 'uppercase',
   },
   eventContent: {
@@ -315,20 +306,17 @@ const styles = StyleSheet.create({
   },
   eventTitle: {
     color: '#fff',
-    fontFamily: FontFamily.extraBold,
-    fontSize: FontSize.eighteen,
+    ...fontSize.b1,
     lineHeight: 25,
   },
   eventDate: {
     color: '#c924eb',
-    fontFamily: FontFamily.bold,
-    fontSize: FontSize.fifteen,
+    ...fontSize.b4, lineHeight: fontSize.b4.fontSize + 1,
     marginTop: 12,
   },
   eventVenue: {
     color: '#bf92c8',
-    fontFamily: FontFamily.medium,
-    fontSize: FontSize.thirteen,
+    ...fontSize.b4, lineHeight: fontSize.b4.fontSize + 1,
     marginTop: 4,
   },
   ticketButton: {
@@ -341,8 +329,7 @@ const styles = StyleSheet.create({
   },
   ticketButtonText: {
     color: '#fff',
-    fontFamily: FontFamily.extraBold,
-    fontSize: FontSize.fourteen,
+    ...fontSize.b4, lineHeight: fontSize.b4.fontSize + 1,
   },
   recommendationsRow: {
     paddingHorizontal: 16,
@@ -377,19 +364,16 @@ const styles = StyleSheet.create({
   },
   playCountText: {
     color: '#fff',
-    fontFamily: FontFamily.extraBold,
-    fontSize: FontSize.ten,
+    ...fontSize.b5, lineHeight: fontSize.b5.fontSize + 1,
   },
   recommendationTitle: {
     color: '#fff',
-    fontFamily: FontFamily.medium,
-    fontSize: FontSize.thirteen,
+    ...fontSize.b4, lineHeight: fontSize.b4.fontSize + 1,
     marginTop: 10,
   },
   recommendationGenre: {
     color: '#bf92c8',
-    fontFamily: FontFamily.medium,
-    fontSize: FontSize.ten,
+    ...fontSize.b5, lineHeight: fontSize.b5.fontSize + 1,
     marginTop: 4,
   },
   profileButton: {
@@ -408,8 +392,7 @@ const styles = StyleSheet.create({
   },
   profileButtonText: {
     color: '#fff',
-    fontFamily: FontFamily.extraBold,
-    fontSize: FontSize.sixteen,
+    ...fontSize.b4, lineHeight: fontSize.b4.fontSize + 1,
   },
 });
 

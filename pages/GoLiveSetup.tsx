@@ -12,8 +12,8 @@ import {
 } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
 import { MaterialIcons } from '@expo/vector-icons';
-import { FontFamily, FontSize } from '../fonts';
 import { mediumScreen } from '../types';
+import { fontSize } from './typography';
 
 type Step = 'media' | 'details' | 'protocol';
 
@@ -309,7 +309,7 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     backgroundColor: 'rgba(255,255,255,0.06)',
   },
-  headerTitle: { fontSize: mediumScreen ? FontSize.sixteen:FontSize.twelve, fontFamily: FontFamily.extraBold },
+  headerTitle: { ...fontSize.b3, lineHeight: fontSize.b3.fontSize + 2 },
   readyPill: {
     borderRadius: 999,
     paddingHorizontal: 10,
@@ -318,7 +318,7 @@ const styles = StyleSheet.create({
     borderColor: primaryColorAlpha(0.4),
     backgroundColor: primaryColorAlpha(0.15),
   },
-  readyText: { color: PRIMARY_COLOR, fontSize: FontSize.nine, letterSpacing: 1.2, fontFamily: FontFamily.extraBold },
+  readyText: { color: PRIMARY_COLOR, ...fontSize.b5, lineHeight: fontSize.b5.fontSize + 1, letterSpacing: 1.2 },
   stepperRow: { marginTop: 14, flexDirection: 'row', justifyContent: 'space-between', position: 'relative' },
   stepTrack: {
     position: 'absolute',
@@ -342,13 +342,13 @@ const styles = StyleSheet.create({
   },
   stepIconActive: { backgroundColor: PRIMARY_COLOR, borderColor: PRIMARY_COLOR },
   stepIconCompleted: { backgroundColor: PRIMARY_COLOR, borderColor: PRIMARY_COLOR },
-  stepLabel: { fontSize: mediumScreen ? FontSize.twelve:FontSize.eight, letterSpacing: 1, fontFamily: FontFamily.extraBold },
+  stepLabel: { ...fontSize.b4, lineHeight: fontSize.b4.fontSize + 1, letterSpacing: 1 },
   stepLabelActive: { color: PRIMARY_COLOR },
   body: { flex: 1 },
   bodyContent: { paddingHorizontal: 16, paddingTop: 16, paddingBottom: 220, gap: 18 },
   sectionWrap: { gap: 22 },
   section: { gap: 10 },
-  sectionLabel: { fontSize: mediumScreen? FontSize.twelve:FontSize.ten, letterSpacing: 1.6, fontFamily: FontFamily.extraBold },
+  sectionLabel: { ...fontSize.b4, lineHeight: fontSize.b4.fontSize + 1, letterSpacing: 1.6 },
   previewCard: {
     height: 210,
     borderRadius: 28,
@@ -380,10 +380,10 @@ const styles = StyleSheet.create({
     gap: 4,
   },
   qualityItemActive: { backgroundColor: PRIMARY_COLOR, borderColor: PRIMARY_COLOR },
-  qualityLabel: { fontSize: mediumScreen ? FontSize.sixteen: FontSize.twelve, fontFamily: FontFamily.extraBold },
-  qualityBitrate: { fontSize: mediumScreen? FontSize.twelve:FontSize.eight, fontFamily: FontFamily.bold },
+  qualityLabel: { ...fontSize.b3, lineHeight: fontSize.b3.fontSize + 2 },
+  qualityBitrate: { ...fontSize.b4, lineHeight: fontSize.b4.fontSize + 1 },
   qualityTextActive: { color: '#fff' },
-  helperText: { fontSize: FontSize.eleven, fontFamily: FontFamily.medium },
+  helperText: { ...fontSize.b5, lineHeight: fontSize.b5.fontSize + 1 },
   titleInput: {
     height: 58,
     borderRadius: 16,
@@ -392,8 +392,7 @@ const styles = StyleSheet.create({
     backgroundColor: 'rgba(255,255,255,0.05)',
     paddingHorizontal: 14,
     color: '#fff',
-    fontSize: mediumScreen? FontSize.sixteen:FontSize.twelve,
-    fontFamily: FontFamily.bold,
+    ...fontSize.b3, lineHeight: fontSize.b3.fontSize + 2,
   },
   vibeWrap: { flexDirection: 'row', flexWrap: 'wrap', gap: 8 },
   vibeChip: {
@@ -405,7 +404,7 @@ const styles = StyleSheet.create({
     paddingVertical: 10,
   },
   vibeChipActive: { backgroundColor: PRIMARY_COLOR, borderColor: PRIMARY_COLOR },
-  vibeText: { fontSize: mediumScreen? FontSize.twelve:FontSize.eight, letterSpacing: 0.8, fontFamily: FontFamily.extraBold },
+  vibeText: { ...fontSize.b4, lineHeight: fontSize.b4.fontSize + 1, letterSpacing: 0.8 },
   vibeTextActive: { color: '#fff' },
   protocolRow: { flexDirection: 'row', gap: 10 },
   protocolCard: {
@@ -441,8 +440,8 @@ const styles = StyleSheet.create({
   radioOuterPremium: { borderColor: '#eab308' },
   radioInner: { width: 8, height: 8, borderRadius: 4, backgroundColor: PRIMARY_COLOR },
   radioInnerPremium: { width: 8, height: 8, borderRadius: 4, backgroundColor: '#eab308' },
-  protocolTitle: { fontSize: mediumScreen ? FontSize.sixteen:FontSize.twelve, fontFamily: FontFamily.extraBold },
-  protocolSub: { fontSize: FontSize.ten, fontFamily: FontFamily.bold },
+  protocolTitle: { ...fontSize.b3, lineHeight: fontSize.b3.fontSize + 2 },
+  protocolSub: { ...fontSize.b5, lineHeight: fontSize.b5.fontSize + 1 },
   notifyRow: {
     borderRadius: 16,
     borderWidth: 1,
@@ -453,8 +452,8 @@ const styles = StyleSheet.create({
     justifyContent: 'space-between',
     alignItems: 'center',
   },
-  notifyTitle: { fontSize: FontSize.twelve, fontFamily: FontFamily.bold },
-  notifySub: { fontSize: FontSize.ten, marginTop: 2, fontFamily: FontFamily.medium },
+  notifyTitle: { ...fontSize.b4, lineHeight: fontSize.b4.fontSize + 1 },
+  notifySub: { ...fontSize.b5, lineHeight: fontSize.b5.fontSize + 1, marginTop: 2 },
   footer: {
     position: 'absolute',
     left: 0,
@@ -468,8 +467,8 @@ const styles = StyleSheet.create({
     borderTopColor: 'rgba(255,255,255,0.08)',
   },
   progressMeta: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', marginBottom: 8 },
-  progressText: { fontSize: FontSize.ten, fontFamily: FontFamily.bold },
-  progressValue: { color: PRIMARY_COLOR, fontSize: FontSize.ten, fontFamily: FontFamily.extraBold },
+  progressText: { ...fontSize.b5, lineHeight: fontSize.b5.fontSize + 1 },
+  progressValue: { color: PRIMARY_COLOR, ...fontSize.b5, lineHeight: fontSize.b5.fontSize + 1 },
   progressTrack: {
     height: 8,
     borderRadius: 5,
@@ -490,7 +489,7 @@ const styles = StyleSheet.create({
     gap: 8,
   },
   primaryBtnDisabled: { opacity: 0.35 },
-  primaryBtnText: { color: '#fff', fontSize: mediumScreen? FontSize.sixteen:FontSize.twelve, letterSpacing: 1, fontFamily: FontFamily.extraBold, lineHeight: 26 },
+  primaryBtnText: { color: '#fff', ...fontSize.b3,letterSpacing: 1, lineHeight: 26 },
 });
 
 export default GoLiveSetup;

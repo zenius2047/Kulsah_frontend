@@ -15,7 +15,7 @@ import { useNavigation } from '@react-navigation/native';
 import { mediumScreen } from '../types';
 
 
-import { FontFamily, FontSize } from '../fonts';
+import { fontSize } from './typography';
 
 const creatorAvatar =
   'https://lh3.googleusercontent.com/aida-public/AB6AXuDcdWdJodmB8sMBcrMDYhE2cLRhTL5bvZdZwuz6sDZA3vg70icHCnVxvepuAyGDEw739DXsxuY86-unMcCqQJvrkZD1Rb_Nn2BHfeg37VOQ7ncJujS26RdpXjx37HO21pGqL28ipU3YQ9ahEM3Yl52sUo5K4BlIx9jECYGQyNYCfolLObGysbiuUVvq92tuBWJWp4A-p_nP-de3syT2Sr7Mc367D-llkelrbFWR7aQ75jfG3PFsAqeed5l2yXIU-0j4S4gPEcIqwC5v';
@@ -69,7 +69,7 @@ const NoReward: React.FC = () => {
     <SafeAreaView style={[styles.safeArea, { backgroundColor: theme.background }]} edges={['top', 'left', 'right']}>
       <View style={[styles.screen, { backgroundColor: theme.screen }]}>
         <LinearGradient
-          colors={bgGradient}
+          colors={bgGradient as any}
           locations={[0, 0.45, 1]}
           style={StyleSheet.absoluteFill}
         />
@@ -244,13 +244,11 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
   },
   headerTitle: {
-    fontFamily: FontFamily.bold,
-    fontSize: mediumScreen ? FontSize.sixteen : FontSize.twelve,
+    ...fontSize.b3, lineHeight: fontSize.b3.fontSize + 2,
   },
   headerBrand: {
     color: PRIMARY_COLOR,
-    fontFamily: FontFamily.extraBold,
-    fontSize: mediumScreen ? FontSize.twenty : FontSize.sixteen,
+    ...fontSize.b1, lineHeight: fontSize.b1.fontSize + 2,
     letterSpacing: -0.4,
     marginRight: 12,
   },
@@ -312,8 +310,7 @@ const styles = StyleSheet.create({
   },
   heroPillText: {
     color: '#ffffff',
-    fontFamily: FontFamily.bold,
-    fontSize: mediumScreen ? FontSize.fourteen : FontSize.ten,
+    ...fontSize.b4, lineHeight: fontSize.b4.fontSize + 1,
     letterSpacing: 0.8,
     textTransform: 'uppercase',
   },
@@ -323,20 +320,17 @@ const styles = StyleSheet.create({
   },
   heroTitle: {
     color: '#f8fafc',
-    fontFamily: FontFamily.extraBold,
-    fontSize: mediumScreen ? FontSize.twentySix : FontSize.twentyTwo,
+    ...fontSize.b1,
     lineHeight: mediumScreen ? 34 : 30,
     textAlign: 'center',
   },
   heroText: {
-    fontFamily: FontFamily.medium,
-    fontSize: mediumScreen ? FontSize.sixteen : FontSize.twelve,
+    ...fontSize.b3,
     lineHeight: mediumScreen ? 24 : 18,
     textAlign: 'center',
   },
   heroAccent: {
     color: PRIMARY_COLOR,
-    fontFamily: FontFamily.bold,
   },
   valueGrid: {
     gap: 14,
@@ -356,12 +350,10 @@ const styles = StyleSheet.create({
     borderWidth: 1,
   },
   valueTitle: {
-    fontFamily: FontFamily.bold,
-    fontSize: mediumScreen ? FontSize.seventeen : FontSize.fourteen,
+    ...fontSize.b3, lineHeight: fontSize.b3.fontSize + 2,
   },
   valueText: {
-    fontFamily: FontFamily.medium,
-    fontSize: mediumScreen ? FontSize.sixteen : FontSize.twelve,
+    ...fontSize.b3,
     lineHeight: mediumScreen ? 22 : 18,
   },
   insightShell: {
@@ -380,12 +372,10 @@ const styles = StyleSheet.create({
     gap: 4,
   },
   insightTitle: {
-    fontFamily: FontFamily.medium,
-    fontSize: mediumScreen ? FontSize.sixteen : FontSize.thirteen,
+    ...fontSize.b3, lineHeight: fontSize.b3.fontSize + 2,
   },
   insightText: {
-    fontFamily: FontFamily.medium,
-    fontSize: mediumScreen ? FontSize.sixteen : FontSize.twelve,
+    ...fontSize.b3,
     lineHeight: mediumScreen ? 22 : 18,
   },
   actions: {
@@ -408,8 +398,7 @@ const styles = StyleSheet.create({
   },
   primaryButtonText: {
     color: '#ffffff',
-    fontFamily: FontFamily.bold,
-    fontSize: mediumScreen ? FontSize.fourteen : FontSize.ten,
+    ...fontSize.b4, lineHeight: fontSize.b4.fontSize + 1,
     letterSpacing: 1.1,
   },
   secondaryButton: {
@@ -422,8 +411,7 @@ const styles = StyleSheet.create({
     gap: 8,
   },
   secondaryButtonText: {
-    fontFamily: FontFamily.bold,
-    fontSize: mediumScreen ? FontSize.fourteen : FontSize.ten,
+    ...fontSize.b4, lineHeight: fontSize.b4.fontSize + 1,
     letterSpacing: 0.8,
   },
   reachSection: {
@@ -437,15 +425,13 @@ const styles = StyleSheet.create({
     paddingHorizontal: 2,
   },
   reachLabel: {
-    fontFamily: FontFamily.bold,
-    fontSize: mediumScreen ? FontSize.fourteen : FontSize.ten,
+    ...fontSize.b4, lineHeight: fontSize.b4.fontSize + 1,
     textTransform: 'uppercase',
     letterSpacing: 1.2,
   },
   reachValue: {
     color: PRIMARY_COLOR,
-    fontFamily: FontFamily.bold,
-    fontSize: mediumScreen ? FontSize.fourteen : FontSize.ten,
+    ...fontSize.b4, lineHeight: fontSize.b4.fontSize + 1,
     textTransform: 'uppercase',
     letterSpacing: 1.2,
   },

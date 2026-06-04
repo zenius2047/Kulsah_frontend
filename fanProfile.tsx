@@ -23,10 +23,10 @@ import LocalIcon from './assets/icons/local-activity-svg.svg';
 import MovieIcon from './assets/icons/play-circle-svg.svg';
 import BookMarkIcon from './assets/icons/bookmark-svg.svg';
 import PremiumIcon from './assets/icons/premium-svg.svg';
-import { FontFamily, FontSize } from './fonts';
 import SwitchIcon from './assets/icons/switch.svg';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import CreatorSwitch from './assets/icons/switch-creator.svg';
+import { fontSize } from './typography';
 
 interface FanProfileProps {
   onLogout?: () => void;
@@ -425,7 +425,7 @@ const FanProfile: React.FC<FanProfileProps> = ({ onToggleRole }) => {
                         <Text style={s.sectionMini}>Premium Videos</Text>
                         <View style={s.twoColGrid}>
                           {premiumContent[selectedCreator].videos.map((vid) => (
-                            <Pressable key={vid.id} style={s.gridCard} onPress={() => navigation.navigate('MainTabs')}>
+                            <Pressable key={vid.id} style={s.gridCard} onPress={() => navigation.navigate('VideoPlayer')}>
                               <View style={s.videoThumbWrap}>
                                 <Image source={{ uri: vid.img }} style={s.thumbImage} />
                                 <View style={s.thumbDark} />
@@ -618,8 +618,7 @@ const s = StyleSheet.create({
   },
   streakCount: {
     color: '#fff',
-    fontSize: FontSize.eight,
-    fontFamily: FontFamily.extraBold,
+    ...fontSize.b5, lineHeight: fontSize.b5.fontSize + 1,
     marginTop: 1,
   },
   nameWrap: {
@@ -627,13 +626,11 @@ const s = StyleSheet.create({
   },
   name: {
     color: '#fff',
-    fontSize: mediumScreen ? FontSize.twentyFive : FontSize.twentyOne,
-    fontFamily: FontFamily.extraBold,
+    ...fontSize.b1, lineHeight: fontSize.b1.fontSize + 2,
   },
   member: {
     color: PRIMARY_COLOR,
-    fontSize: FontSize.ten,
-    fontFamily: FontFamily.extraBold,
+    ...fontSize.b5, lineHeight: fontSize.b5.fontSize + 1,
     textTransform: 'uppercase',
     letterSpacing: 2.5,
     marginTop: 2,
@@ -659,8 +656,7 @@ const s = StyleSheet.create({
   },
   vibeText: {
     color: PRIMARY_COLOR,
-    fontSize: FontSize.nine,
-    fontFamily: FontFamily.extraBold,
+    ...fontSize.b5, lineHeight: fontSize.b5.fontSize + 1,
     textTransform: 'uppercase',
     letterSpacing: 1.2,
   },
@@ -689,13 +685,11 @@ const s = StyleSheet.create({
   },
   statValue: {
     color: '#fff',
-    fontSize: mediumScreen? FontSize.sixteen:FontSize.twelve,
-    fontFamily: FontFamily.extraBold,
+    ...fontSize.b3, lineHeight: fontSize.b3.fontSize + 2,
   },
   statLabel: {
     color: '#8f95af',
-    fontSize: mediumScreen ? FontSize.twelve:FontSize.eight,
-    fontFamily: FontFamily.extraBold,
+    ...fontSize.b4, lineHeight: fontSize.b4.fontSize + 1,
     textTransform: 'uppercase',
     letterSpacing: 1.2,
     marginTop: 4,
@@ -739,15 +733,13 @@ const s = StyleSheet.create({
   },
   switchRoleTitle: {
     color: '#fff',
-    fontSize: mediumScreen ? FontSize.fourteen: FontSize.ten,
-    fontFamily: FontFamily.extraBold,
+    ...fontSize.b4, lineHeight: fontSize.b4.fontSize + 1,
     textTransform: 'uppercase',
     letterSpacing: 1.3,
   },
   switchRoleMeta: {
     color: 'rgba(255,255,255,0.78)',
-    fontSize: mediumScreen ? FontSize.twelve: FontSize.eight,
-    fontFamily: FontFamily.bold,
+    ...fontSize.b4, lineHeight: fontSize.b4.fontSize + 1,
     textTransform: 'uppercase',
     letterSpacing: 1.1,
     marginTop: 3,
@@ -771,8 +763,7 @@ const s = StyleSheet.create({
   },
   tabText: {
     color: '#6b7280',
-    fontSize: FontSize.eight,
-    fontFamily: FontFamily.extraBold,
+    ...fontSize.b5, lineHeight: fontSize.b5.fontSize + 1,
     textTransform: 'uppercase',
     letterSpacing: 1.2,
     marginTop: 4,
@@ -802,15 +793,13 @@ const s = StyleSheet.create({
   },
   sectionEyebrow: {
     color: '#71788f',
-    fontSize: FontSize.nine,
-    fontFamily: FontFamily.extraBold,
+    ...fontSize.b5, lineHeight: fontSize.b5.fontSize + 1,
     textTransform: 'uppercase',
     letterSpacing: 2.2,
   },
   sectionMini: {
     color: '#71788f',
-    fontSize: FontSize.nine,
-    fontFamily: FontFamily.extraBold,
+    ...fontSize.b5, lineHeight: fontSize.b5.fontSize + 1,
     textTransform: 'uppercase',
     letterSpacing: 1.8,
   },
@@ -841,13 +830,11 @@ const s = StyleSheet.create({
   },
   listTitle: {
     color: '#fff',
-    fontSize: FontSize.fourteen,
-    fontFamily: FontFamily.bold,
+    ...fontSize.b4, lineHeight: fontSize.b4.fontSize + 1,
   },
   listMeta: {
     color: '#8f95af',
-    fontSize: FontSize.ten,
-    fontFamily: FontFamily.extraBold,
+    ...fontSize.b5, lineHeight: fontSize.b5.fontSize + 1,
     textTransform: 'uppercase',
     letterSpacing: 1.1,
     marginTop: 2,
@@ -863,8 +850,7 @@ const s = StyleSheet.create({
   },
   creatorDropMeta: {
     color: PRIMARY_COLOR,
-    fontSize: FontSize.ten,
-    fontFamily: FontFamily.extraBold,
+    ...fontSize.b5, lineHeight: fontSize.b5.fontSize + 1,
     textTransform: 'uppercase',
     letterSpacing: 1.1,
   },
@@ -903,8 +889,7 @@ const s = StyleSheet.create({
   },
   videoGridMetaText: {
     color: '#fff',
-    fontFamily: FontFamily.bold,
-    fontSize: FontSize.eleven,
+    ...fontSize.b5, lineHeight: fontSize.b5.fontSize + 1,
   },
   twoColGrid: {
     flexDirection: 'row',
@@ -983,8 +968,7 @@ const s = StyleSheet.create({
   },
   premiumTagText: {
     color: '#fff',
-    fontSize: FontSize.eight,
-    fontFamily: FontFamily.extraBold,
+    ...fontSize.b5, lineHeight: fontSize.b5.fontSize + 1,
     textTransform: 'uppercase',
     letterSpacing: 1,
   },
@@ -1016,8 +1000,7 @@ const s = StyleSheet.create({
   },
   playlistCountText: {
     color: '#fff',
-    fontSize: FontSize.eight,
-    fontFamily: FontFamily.extraBold,
+    ...fontSize.b5, lineHeight: fontSize.b5.fontSize + 1,
     textTransform: 'uppercase',
     letterSpacing: 1,
   },
@@ -1031,20 +1014,17 @@ const s = StyleSheet.create({
   },
   verticalMetaText: {
     color: '#fff',
-    fontSize: FontSize.eight,
-    fontFamily: FontFamily.extraBold,
+    ...fontSize.b5, lineHeight: fontSize.b5.fontSize + 1,
     textTransform: 'uppercase',
     letterSpacing: 1.1,
   },
   gridTitle: {
     color: '#d7dbea',
-    fontSize: FontSize.eleven,
-    fontFamily: FontFamily.bold,
+    ...fontSize.b5, lineHeight: fontSize.b5.fontSize + 1,
   },
   gridMeta: {
     color: '#8f95af',
-    fontSize: FontSize.eight,
-    fontFamily: FontFamily.extraBold,
+    ...fontSize.b5, lineHeight: fontSize.b5.fontSize + 1,
     textTransform: 'uppercase',
     letterSpacing: 1.2,
   },
@@ -1058,8 +1038,7 @@ const s = StyleSheet.create({
   },
   backText: {
     color: PRIMARY_COLOR,
-    fontSize: FontSize.ten,
-    fontFamily: FontFamily.extraBold,
+    ...fontSize.b5, lineHeight: fontSize.b5.fontSize + 1,
     textTransform: 'uppercase',
     letterSpacing: 1.1,
   },
@@ -1090,13 +1069,11 @@ const s = StyleSheet.create({
   },
   ticketTitle: {
     color: '#fff',
-    fontSize: FontSize.thirteen,
-    fontFamily: FontFamily.extraBold,
+    ...fontSize.b4, lineHeight: fontSize.b4.fontSize + 1,
   },
   ticketMeta: {
     color: '#8f95af',
-    fontSize: FontSize.ten,
-    fontFamily: FontFamily.bold,
+    ...fontSize.b5, lineHeight: fontSize.b5.fontSize + 1,
     textTransform: 'uppercase',
     letterSpacing: 1.1,
     marginTop: 2,
@@ -1143,15 +1120,13 @@ const s = StyleSheet.create({
       gap: 8,
     },
     roleModalTitle: {
-      fontSize: FontSize.twentyTwo,
-      fontFamily: FontFamily.extraBold,
+      ...fontSize.b1,
       textTransform: 'uppercase',
       textAlign: 'center',
       lineHeight: 28,
     },
     roleModalBody: {
-      fontSize: FontSize.twelve,
-      fontFamily: FontFamily.medium,
+      ...fontSize.b4,
       lineHeight: 20,
       textAlign: 'center',
     },
@@ -1169,8 +1144,7 @@ const s = StyleSheet.create({
       justifyContent: 'center',
     },
     roleModalSecondaryText: {
-      fontSize: FontSize.ten,
-      fontFamily: FontFamily.extraBold,
+      ...fontSize.b5, lineHeight: fontSize.b5.fontSize + 1,
       textTransform: 'uppercase',
       letterSpacing: 1.6,
     },
@@ -1189,8 +1163,7 @@ const s = StyleSheet.create({
     },
     roleModalPrimaryText: {
       color: '#ffffff',
-      fontSize: FontSize.ten,
-      fontFamily: FontFamily.extraBold,
+      ...fontSize.b5, lineHeight: fontSize.b5.fontSize + 1,
       textTransform: 'uppercase',
       letterSpacing: 1.8,
     },

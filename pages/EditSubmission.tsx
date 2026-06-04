@@ -12,7 +12,7 @@ import {
 import { MaterialIcons } from '@expo/vector-icons';
 import { LinearGradient } from 'expo-linear-gradient';
 import { useNavigation } from '@react-navigation/native';
-import { FontFamily, FontSize } from '../fonts';
+import { fontSize } from './typography';
 
 const HERO_IMAGE =
   'https://lh3.googleusercontent.com/aida-public/AB6AXuC_nWXY2AjaIksgSrdVz-rWJuHhSgT-45-SRU3MJ6e4gJxNtQZGIYyPIlbQ9PEIkdyN4qv28cdTSaRODCpkLcUIG9ftoeHKVQ05SBQ09b-NaLDq3rvKAprnqeOLPF_nXSr8bQHKD_GQz_Hmqf1ISoPQZHvJHRDaMVEHv2LJtIkI8A-oYXv2fZVI79soN7r-cUbNV8mlgAc2cdq8N1atKiZGY3EttYb1xX5mLWFxqAi3d3cE11d3kprkfZrbaT_JV42R-ZZAeRVvMh80';
@@ -191,8 +191,7 @@ const styles = StyleSheet.create({
     padding: 4,
   },
   headerTitle: {
-    fontFamily: FontFamily.bold,
-    fontSize: FontSize.thirteen,
+    ...fontSize.b4, lineHeight: fontSize.b4.fontSize + 1,
   },
   postButton: {
     paddingHorizontal: 20,
@@ -207,8 +206,7 @@ const styles = StyleSheet.create({
   },
   postButtonText: {
     color: '#fff',
-    fontFamily: FontFamily.bold,
-    fontSize: FontSize.ten,
+    ...fontSize.b5, lineHeight: fontSize.b5.fontSize + 1,
     letterSpacing: 0.8,
   },
   overlayLayer: {
@@ -244,14 +242,12 @@ const styles = StyleSheet.create({
   },
   badgeMeta: {
     color: PRIMARY_COLOR,
-    fontFamily: FontFamily.bold,
-    fontSize: FontSize.eight,
+    ...fontSize.b5, lineHeight: fontSize.b5.fontSize + 1,
     textTransform: 'uppercase',
     letterSpacing: 0.9,
   },
   badgeTitle: {
-    fontFamily: FontFamily.bold,
-    fontSize: FontSize.nine,
+    ...fontSize.b5, lineHeight: fontSize.b5.fontSize + 1,
   },
   rightRail: {
     position: 'absolute',
@@ -272,8 +268,7 @@ const styles = StyleSheet.create({
     borderWidth: 1,
   },
   quickActionLabel: {
-    fontFamily: FontFamily.bold,
-    fontSize: FontSize.ten,
+    ...fontSize.b5, lineHeight: fontSize.b5.fontSize + 1,
     textTransform: 'uppercase',
     letterSpacing: 0.8,
   },
@@ -292,8 +287,7 @@ const styles = StyleSheet.create({
     marginBottom: 10,
   },
   timelineMeta: {
-    fontFamily: FontFamily.bold,
-    fontSize: FontSize.ten,
+    ...fontSize.b5, lineHeight: fontSize.b5.fontSize + 1,
     textTransform: 'uppercase',
     letterSpacing: 1,
   },

@@ -12,9 +12,8 @@ import {
   View,
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
-import { FontFamily, FontSize } from '../fonts';
 import { useThemeMode, PRIMARY_COLOR, primaryColorAlpha } from "../theme";
-import { mediumScreen } from '../types';
+import { fontSize } from './typography';
 
 type FilterMode = 'day' | 'week' | 'month' | 'all';
 type EventType = 'Live' | 'Workshop' | 'Physical';
@@ -508,16 +507,14 @@ const styles = StyleSheet.create({
     alignItems: 'center',
   },
   headerTitle: {
-    fontFamily: FontFamily.extraBold,
-    fontSize: mediumScreen ? FontSize.sixteen : FontSize.thirteen,
+    ...fontSize.b3, lineHeight: fontSize.b3.fontSize + 2,
     textTransform: 'uppercase',
     letterSpacing: 2,
   },
   headerSubtitle: {
     color: PRIMARY_COLOR,
     marginTop: 4,
-    fontFamily: FontFamily.extraBold,
-    fontSize: FontSize.seven,
+    ...fontSize.b5, lineHeight: fontSize.b5.fontSize + 1,
     textTransform: 'uppercase',
     letterSpacing: 1.5,
   },
@@ -539,8 +536,7 @@ const styles = StyleSheet.create({
   },
   searchInput: {
     flex: 1,
-    fontFamily: FontFamily.bold,
-    fontSize: FontSize.ten,
+    ...fontSize.b5, lineHeight: fontSize.b5.fontSize + 1,
   },
   filterScroll: {
     gap: 10,
@@ -562,8 +558,7 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
   },
   filterChipText: {
-    fontFamily: FontFamily.extraBold,
-    fontSize: FontSize.seven,
+    ...fontSize.b5, lineHeight: fontSize.b5.fontSize + 1,
     textTransform: 'uppercase',
     letterSpacing: 1.2,
   },
@@ -574,15 +569,13 @@ const styles = StyleSheet.create({
     alignItems: 'center',
   },
   monthTitle: {
-    fontFamily: FontFamily.extraBold,
-    fontSize: mediumScreen ? FontSize.twentyFour : FontSize.twenty,
+    ...fontSize.b1, lineHeight: fontSize.b1.fontSize + 2,
     textTransform: 'uppercase',
   },
   monthYear: {
     marginTop: 4,
     color: PRIMARY_COLOR,
-    fontFamily: FontFamily.extraBold,
-    fontSize: FontSize.eight,
+    ...fontSize.b5, lineHeight: fontSize.b5.fontSize + 1,
     textTransform: 'uppercase',
     letterSpacing: 2,
   },
@@ -634,15 +627,13 @@ const styles = StyleSheet.create({
   },
   dateBadgeMonth: {
     color: '#64748b',
-    fontFamily: FontFamily.extraBold,
-    fontSize: FontSize.sixHalf,
+    ...fontSize.b5, lineHeight: fontSize.b5.fontSize + 1,
     textTransform: 'uppercase',
     letterSpacing: 1.2,
   },
   dateBadgeDay: {
     color: PRIMARY_COLOR,
-    fontFamily: FontFamily.extraBold,
-    fontSize: FontSize.eighteen,
+    ...fontSize.b1, lineHeight: fontSize.b1.fontSize + 2,
   },
   typeBadge: {
     position: 'absolute',
@@ -654,8 +645,7 @@ const styles = StyleSheet.create({
   },
   typeBadgeText: {
     color: '#ffffff',
-    fontFamily: FontFamily.extraBold,
-    fontSize: FontSize.sixHalf,
+    ...fontSize.b5, lineHeight: fontSize.b5.fontSize + 1,
     textTransform: 'uppercase',
     letterSpacing: 1.2,
   },
@@ -673,15 +663,13 @@ const styles = StyleSheet.create({
   },
   locationText: {
     color: 'rgba(255,255,255,0.82)',
-    fontFamily: FontFamily.extraBold,
-    fontSize: FontSize.seven,
+    ...fontSize.b5, lineHeight: fontSize.b5.fontSize + 1,
     textTransform: 'uppercase',
     letterSpacing: 1.1,
   },
   eventTitle: {
     color: '#ffffff',
-    fontFamily: FontFamily.extraBold,
-    fontSize: mediumScreen ? FontSize.twenty : FontSize.seventeen,
+    ...fontSize.b1, lineHeight: fontSize.b1.fontSize + 2,
     width: '82%',
     textTransform: 'uppercase',
   },
@@ -725,15 +713,13 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
   },
   metaLabel: {
-    fontFamily: FontFamily.extraBold,
-    fontSize: FontSize.sixHalf,
+    ...fontSize.b5, lineHeight: fontSize.b5.fontSize + 1,
     textTransform: 'uppercase',
     letterSpacing: 1.2,
     marginBottom: 4,
   },
   creatorName: {
-    fontFamily: FontFamily.extraBold,
-    fontSize: FontSize.nineHalf,
+    ...fontSize.b5, lineHeight: fontSize.b5.fontSize + 1,
     textTransform: 'uppercase',
   },
   ticketCopy: {
@@ -741,8 +727,7 @@ const styles = StyleSheet.create({
   },
   ticketPrice: {
     color: PRIMARY_COLOR,
-    fontFamily: FontFamily.extraBold,
-    fontSize: FontSize.fourteen,
+    ...fontSize.b4, lineHeight: fontSize.b4.fontSize + 1,
     textTransform: 'uppercase',
   },
   ctaButton: {
@@ -754,8 +739,7 @@ const styles = StyleSheet.create({
     gap: 8,
   },
   ctaText: {
-    fontFamily: FontFamily.extraBold,
-    fontSize: FontSize.eight,
+    ...fontSize.b5, lineHeight: fontSize.b5.fontSize + 1,
     textTransform: 'uppercase',
     letterSpacing: 1.3,
   },
@@ -773,13 +757,11 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
   },
   emptyTitle: {
-    fontFamily: FontFamily.extraBold,
-    fontSize: FontSize.sixteen,
+    ...fontSize.b4, lineHeight: fontSize.b4.fontSize + 1,
     textTransform: 'uppercase',
   },
   emptyBody: {
-    fontFamily: FontFamily.bold,
-    fontSize: FontSize.ten,
+    ...fontSize.b5, lineHeight: fontSize.b5.fontSize + 1,
   },
   modalRoot: {
     flex: 1,
@@ -799,14 +781,12 @@ const styles = StyleSheet.create({
     padding: 24,
   },
   modalTitle: {
-    fontFamily: FontFamily.extraBold,
-    fontSize: FontSize.eighteen,
+    ...fontSize.b1, lineHeight: fontSize.b1.fontSize + 2,
     textTransform: 'uppercase',
     marginBottom: 6,
   },
   modalSubtitle: {
-    fontFamily: FontFamily.bold,
-    fontSize: FontSize.nine,
+    ...fontSize.b5, lineHeight: fontSize.b5.fontSize + 1,
     marginBottom: 22,
   },
   modalSummary: {
@@ -824,22 +804,19 @@ const styles = StyleSheet.create({
     gap: 12,
   },
   modalRowLabel: {
-    fontFamily: FontFamily.extraBold,
-    fontSize: FontSize.seven,
+    ...fontSize.b5, lineHeight: fontSize.b5.fontSize + 1,
     textTransform: 'uppercase',
     letterSpacing: 1.2,
   },
   modalRowValue: {
     flex: 1,
     textAlign: 'right',
-    fontFamily: FontFamily.extraBold,
-    fontSize: FontSize.nine,
+    ...fontSize.b5, lineHeight: fontSize.b5.fontSize + 1,
     textTransform: 'uppercase',
   },
   modalPrice: {
     color: PRIMARY_COLOR,
-    fontFamily: FontFamily.extraBold,
-    fontSize: FontSize.ten,
+    ...fontSize.b5, lineHeight: fontSize.b5.fontSize + 1,
     textTransform: 'uppercase',
   },
   modalActions: {
@@ -863,15 +840,13 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
   },
   modalButtonTextSecondary: {
-    fontFamily: FontFamily.extraBold,
-    fontSize: FontSize.eight,
+    ...fontSize.b5, lineHeight: fontSize.b5.fontSize + 1,
     textTransform: 'uppercase',
     letterSpacing: 1.2,
   },
   modalButtonTextPrimary: {
     color: '#ffffff',
-    fontFamily: FontFamily.extraBold,
-    fontSize: FontSize.eight,
+    ...fontSize.b5, lineHeight: fontSize.b5.fontSize + 1,
     textTransform: 'uppercase',
     letterSpacing: 1.2,
   },
@@ -890,14 +865,12 @@ const styles = StyleSheet.create({
     backgroundColor: 'rgba(34,197,94,0.12)',
   },
   successTitle: {
-    fontFamily: FontFamily.extraBold,
-    fontSize: FontSize.eighteen,
+    ...fontSize.b1, lineHeight: fontSize.b1.fontSize + 2,
     textTransform: 'uppercase',
   },
   successBody: {
     textAlign: 'center',
-    fontFamily: FontFamily.bold,
-    fontSize: FontSize.ten,
+    ...fontSize.b5, lineHeight: fontSize.b5.fontSize + 1,
   },
 });
 

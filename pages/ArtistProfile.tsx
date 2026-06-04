@@ -12,12 +12,12 @@ import TrophyIcon from '../assets/icons/trophy-svg.svg';
 import BookmarkIcon from '../assets/icons/bookmark-svg.svg';
 import EditIcon from '../assets/icons/edit-svg.svg';
 import { mediumScreen, setUser, subscribeUser, user, User } from '../types';
-import { FontFamily, FontSize } from '../fonts';
 import { BlurView } from 'expo-blur';
 import VerifiedIcon from '../assets/icons/verified-svg.svg';
 import FireIcon from '../assets/icons/fireIcon-svg.svg';
 import PublicIcon from '../assets/icons/public-svg.svg';
 import KulCoinPrompt from '../components/KulCoinPrompt';
+import { fontSize } from '../typography';
 
 
 type Tab = 'Videos' | 'Public' | 'Premium'  | 'Tickets' | 'Events' | 'Challenges' | 'Favorites' | 'Saved';
@@ -81,6 +81,8 @@ const sounds = [
   { id: 's2', title: 'Synthwave Pulse', meta: 'Retro Wave - 0:15', usage: '850 uses' },
 ];
 
+
+
 const  ArtistProfile: React.FC = () => {
   const { isDark, theme } = useThemeMode();
   const { width } = useWindowDimensions();
@@ -125,6 +127,204 @@ const  ArtistProfile: React.FC = () => {
       setActiveTab('Videos');
     }
   }, [activeTab, tabs]);
+
+
+  const recentVideos = [
+  {
+    id: 'pv1',
+    title: `${isOwner ? 'Me': name} - Odo Pa feat. Kweku Flick (Official Music Video)`,
+    description: `Exclusive VIP access to the premium production master of "Odo Pa". Merging acoustic instruments with sub-bass synthesis, recorded live at our state studio vault.`,
+    views: '849K views',
+    timeAgo: '1 month ago',
+    duration: '2:36',
+    img: 'https://images.unsplash.com/photo-1598488035139-bdbb2231ce04?auto=format&fit=crop&q=80&w=800',
+    isMusic: true
+  }
+]
+
+
+const musicReleases = [
+  {
+    id: 'pv4',
+    title: 'Elena Rose Ft Olivetheboy - You & I [Remix] (Official Lyrics Video)',
+    views: '64K views',
+    timeAgo: '5 months ago',
+    duration: '2:41',
+    img: 'https://images.unsplash.com/photo-1511671782779-c97d3d27a1d4?auto=format&fit=crop&q=80&w=800',
+    isMusic: true,
+  },
+  {
+    id: 'pv5',
+    title: 'Elena Rose - You & I (Official Extended Audio Version)',
+    views: '90K views',
+    timeAgo: '5 months ago',
+    duration: '2:41',
+    img: 'https://images.unsplash.com/photo-1520529277867-dbf8c5e0b340?auto=format&fit=crop&q=80&w=800',
+    isMusic: true,
+  },
+  {
+    id: 'pv6',
+    title: 'Elena Rose - Put It On God ft. AlorG (Exclusive Studio Master)',
+    views: '403K views',
+    timeAgo: '6 months ago',
+    duration: '3:32',
+    img: 'https://images.unsplash.com/photo-1470225620780-dba8ba36b745?auto=format&fit=crop&q=80&w=800',
+    isMusic: true,
+  },
+];
+
+
+
+interface Playlist {
+  id: string;
+  title: string;
+  videoCount: number;
+  views: string;
+  timeAgo: string;
+  img: string;
+}
+
+const playlists: Playlist[] = [
+  {
+    id: 'pl1',
+    title: 'VIP Acoustic Sessions',
+    videoCount: 3,
+    views: '1.2M views',
+    timeAgo: 'Updated 2 days ago',
+    img: 'https://images.unsplash.com/photo-1514525253361-bee8718a74a2?auto=format&fit=crop&q=80&w=800',
+  },
+  {
+    id: 'pl2',
+    title: 'Behind The Scenes & Vlogs',
+    videoCount: 3,
+    views: '250K views',
+    timeAgo: 'Updated 1 week ago',
+    img: 'https://images.unsplash.com/photo-1598488035139-bdbb2231ce04?auto=format&fit=crop&q=80&w=800',
+  },
+];
+
+
+const PlaylistSection = () => {
+  const navigation = useNavigation<any>();
+  const isSubscribed = false;
+
+  return (
+    <View style={styles.container}>
+      <View style={styles.header}>
+        <View style={styles.headerLeft}>
+          <Text style={[styles.title, {
+            // marginVertical: 10,
+                fontSize: fontSize.b2.fontSize + 2,
+                fontFamily: fontSize.b2.fontFamily,
+                lineHeight: fontSize.b2.fontSize + 4,
+                paddingLeft: 16
+          }]}>Playlists</Text>
+
+          <MaterialIcons
+            name="chevron-right"
+            size={22}
+            color="#000000"
+          />
+        </View>
+      </View>
+
+      <ScrollView
+        horizontal
+        showsHorizontalScrollIndicator={false}
+        contentContainerStyle={styles.scrollContent}
+      >
+        {playlists.map(item => (
+          <Pressable
+            key={item.id}
+            style={styles.card}
+            onPress={() => {
+              navigation.navigate('PlaylistPlayer', { id: item.id });
+            }}
+          >
+            <View style={styles.thumbnailContainer}>
+              <Image
+                source={{ uri: item.img }}
+                style={styles.thumbnail}
+              />
+
+              <View style={styles.playlistOverlay}>
+                <MaterialIcons
+                  name="playlist-play"
+                  size={24}
+                  color="#d4d4d8"
+                />
+
+                <Text style={styles.videoCount}>
+                  {item.videoCount} VIDEOS
+                </Text>
+              </View>
+
+              {!isSubscribed && (
+                <View style={styles.lockOverlay}>
+                  <View style={styles.lockCircle}>
+                    <MaterialIcons
+                      name="lock"
+                      size={16}
+                      color={PRIMARY_COLOR}
+                    />
+                  </View>
+                </View>
+              )}
+            </View>
+
+            <View style={styles.info}>
+              <Text
+                numberOfLines={2}
+                style={[styles.playlistTitle, {...fontSize.b4}]}
+              >
+                {item.title}
+              </Text>
+
+              <Text style={[styles.meta, {...fontSize.b5}]}>
+                {item.views} • {item.timeAgo}
+              </Text>
+
+              {/* {isSubscribed ? (
+                <View style={styles.unlockedBadge}>
+                  <View style={styles.dot} />
+
+                  <Text style={styles.unlockedText}>
+                    Unlocked
+                  </Text>
+                </View>
+              ) : (
+                <View style={styles.vaultBadge}>
+                  <MaterialIcons
+                    name="stars"
+                    size={10}
+                    color="#cca514"
+                  />
+
+                  <Text style={styles.vaultText}>
+                    Studio Vault
+                  </Text>
+                </View>
+              )} */}
+            </View>
+
+            <Pressable
+              style={styles.shareButton}
+              onPress={() => {
+                console.log('share');
+              }}
+            >
+              <MaterialIcons
+                name="share"
+                size={18}
+                color="#71717a"
+              />
+            </Pressable>
+          </Pressable>
+        ))}
+      </ScrollView>
+    </View>
+  );
+};
 
   const renderGrid = (
     items: Array<{ id: string; title: string; views?: string; img?: string }>,
@@ -356,8 +556,8 @@ const  ArtistProfile: React.FC = () => {
                   <Text
                       style = {{
                         color: "rgb(34 197 94)",
-                        fontSize: FontSize.eight,
-                        fontFamily: FontFamily.extraBold,
+                        ...fontSize.b5,
+                        lineHeight: fontSize.b5.fontSize + 1,
                         textTransform: 'uppercase'
                       }}>-15%</Text>
                 </View>
@@ -367,7 +567,7 @@ const  ArtistProfile: React.FC = () => {
 
 
           <Pressable style={[s.card, { backgroundColor: isDark ? '#ffffff0d' : theme.card, borderColor: theme.border, shadowColor: theme.shadow, shadowOpacity: isDark ? 0 : 0.08, shadowRadius: 16, elevation: isDark ? 0 : 2 }]} onPress={openSubscription}>
-            <Text style={[s.cardTitle, { color: theme.textSecondary, fontFamily: FontFamily.medium }]}>{INITIAL_SUBSCRIPTION.name}</Text>
+            <Text style={[s.cardTitle, { color: theme.textSecondary }]}>{INITIAL_SUBSCRIPTION.name}</Text>
             <View style={s.priceLine}>
               <Text style={[s.cardPrice, { color: theme.text }]}>${calculatePrice(INITIAL_SUBSCRIPTION.price)}</Text>
               <Text style={[s.priceSuffix, { color: theme.textSecondary }]}>/{billingCycle === 'monthly' ? 'mo' : 'yr'}</Text>
@@ -394,8 +594,8 @@ const  ArtistProfile: React.FC = () => {
                 <Text style = {{
                   color: theme.text,
                   // fontWeight: 'bold',
-                  fontFamily: FontFamily.bold,
-                  fontSize: mediumScreen? FontSize.twelve:FontSize.eight,
+                  ...fontSize.b5,
+                  lineHeight: fontSize.b5.fontSize + 1,
                 }}>
                   {billingCycle === 'monthly' ? 'SUBSCRIBE MONTHLY': 'SUBSCRIBE ANNUALLY'}
                 </Text>
@@ -424,14 +624,293 @@ const  ArtistProfile: React.FC = () => {
         <View style={s.body}>
           {activeTab === 'Videos' ? renderGrid(videos) : null}
           {activeTab === 'Premium' || activeTab === 'Public'
-            ? renderGrid(premiumVideos, () => {
-                if (isOwner) {
-                  navigation.navigate('CreatorLibrary');
-                } else {
-                  openSubscription();
-                }
-              })
+            ? 
+            // renderGrid(premiumVideos, () => {
+            //     if (isOwner) {
+            //       navigation.navigate('CreatorLibrary');
+            //     } else {
+            //       openSubscription();
+            //     }
+            //   })
+            (<View style={{
+              gap: 20,
+            }}>
+              <Text style={{
+                // marginVertical: 10,
+                fontSize: fontSize.b2.fontSize+ 2,
+                fontFamily: fontSize.b2.fontFamily,
+                lineHeight: fontSize.b2.fontSize + 3,
+                paddingHorizontal: 16
+              }}>
+                Recent Videos
+              </Text>
+
+              {recentVideos.map((video)=>(
+                <View
+                key = {video.id}
+                style = {{
+                borderRadius: 24,
+                // overflow: 'hidden',
+                // alignSelf: 'flex-start',
+                height: 320,
+                backgroundColor: isDark ? 'black': 'white',
+                // backgroundColor: 'blue',
+                gap: 10,
+                shadowColor: isDark ? '#fff':'#000',
+                shadowOffset: {
+                  width: 0,
+                  height: 20,
+                },
+                shadowOpacity: 0.1,
+                shadowRadius: 25,
+                marginHorizontal: 16,
+                elevation: 12,
+              }}>
+                <Image source={{ uri : video.img}} style={{
+                  height: '55%',
+                  borderTopLeftRadius: 24,
+                  borderTopRightRadius: 24,
+                }}/>
+                <View style={{
+                  position: 'absolute',
+                  backgroundColor: 'transparent',
+                  top: 0,
+                  left: 0,
+                  right: 0,
+                  borderTopLeftRadius: 24,
+                  borderTopRightRadius: 24,
+                  height: '55%',
+                  alignItems: 'center',
+                  justifyContent: 'center'
+                }}>
+                  <View
+                    style={{
+                      width: 66,
+                      height: 66,
+                      borderRadius: 33,
+                      backgroundColor: primaryColorAlpha(0.24),
+                      borderWidth: 1,
+                      borderColor: primaryColorAlpha(0.5),
+                      alignItems: 'center',
+                      justifyContent: 'center',
+                    }}
+                  >
+                    <MaterialIcons name="play-arrow" size={38} color="#ffffff" />
+                  </View>
+
+                  <View style={{
+                    flexDirection: 'row',
+                    position: 'absolute',
+                    right: 10,
+                    bottom: 10,
+                    // height: 20,
+                    alignSelf: 'baseline',
+                    backgroundColor: '#00000097',
+                    alignItems: 'center',
+                    paddingHorizontal: 3.5,
+                    paddingVertical: 3,
+                    borderRadius: 999
+                  }}>
+                    <MaterialIcons name="music-note" color="white" size={16}/>
+                    <Text
+                    style={{
+                      ...fontSize.b2,
+                      color: 'white'
+                    }}
+                    >{video.duration}</Text>
+                  </View>
+                </View>
+                <View style={{
+                  flexDirection: 'row',
+                  paddingHorizontal: 15,
+                  gap: 10,
+                  // width: SCREEN_WIDTH
+                }}>
+
+                  <View style={{
+                    borderRadius: 999,
+                    padding: 1,
+                    backgroundColor: isDark ? 'white': 'black',
+                    height: 45,
+                    width: 45,
+                    overflow: 'hidden'
+                  }}>
+                    <Image source={{uri: video.img}} style={{height: '100%', width: '100%', borderRadius: 999}} />
+                  </View>
+                  <View style={{
+                    width: '80%',
+                    gap: 5,
+                    // borderBottomWidth: 0.5,
+                    // borderBottomColor: 'rgba(100, 116, 139, 0.09)'
+                  }}>
+                    <Text
+                  numberOfLines={2}
+                  style={{
+                    fontSize: fontSize.b2.fontSize,
+                    fontFamily: 'Pogonia_700Bold',
+                  }}
+                  >{video.title}</Text>
+
+                  <Text style={{
+                    fontSize: fontSize.b4.fontSize,
+                    fontFamily: 'Inter_600SemiBold',
+                    color: 'rgb(100 116 139)',
+                    marginBottom: 15,
+                  }}>
+                    {`${video.views} • ${video.timeAgo}`}
+                  </Text>
+
+                  <View style={{
+                    height: 0.5,
+                    backgroundColor: 'rgba(100, 116, 139, 0.09)'
+                  }}/>
+
+                  <Text 
+                  numberOfLines = {2}
+                  style={{
+                    marginTop: 10,
+                    color: 'rgb(113 113 122)',
+                    fontSize: fontSize.b4.fontSize,
+                    fontFamily: 'Inter_700Bold',
+                  }}>
+                    Exclusive Master Series
+                  </Text>
+                  </View>
+                </View>
+              </View>))}
+
+              <PlaylistSection />
+
+              <View style={[styles.section, {paddingHorizontal: 16}]}>
+                <View style={styles.sectionHeader}>
+                  <Text style={[styles.sectionTitle, {
+                 fontSize: fontSize.b2.fontSize + 2,
+                fontFamily: fontSize.b2.fontFamily,
+                lineHeight: fontSize.b2.fontSize + 4,}]}>Videos</Text>
+
+                  <MaterialIcons
+                    name="chevron-right"
+                    size={18}
+                    color="#71717a"
+                  />
+                </View>
+
+                <View style={styles.releaseList}>
+                  {musicReleases.map(item => {
+                    const isSubscribed = false;
+
+                    return (
+                      <Pressable
+                        key={item.id}
+                        style={styles.releaseCard}
+                        onPress={() => {
+                          if (isSubscribed) {
+                            console.log('play premium');
+                          } else {
+                            console.log('show subscription');
+                          }
+                        }}
+                      >
+                        {/* Thumbnail */}
+                        <View style={styles.thumbContainer}>
+                          <Image
+                            source={{ uri: item.img }}
+                            style={styles.playListthumbnail}
+                          />
+
+                          {!isSubscribed && (
+                            <View style={styles.playListlockOverlay}>
+                              <View style={styles.lockButton}>
+                                <MaterialIcons
+                                  name="lock"
+                                  size={15}
+                                  color={PRIMARY_COLOR}
+                                />
+                              </View>
+                            </View>
+                          )}
+
+                          <View style={styles.durationBadge}>
+                            {item.isMusic && (
+                              <MaterialIcons
+                                name="music-note"
+                                size={10}
+                                color="#d4d4d8"
+                              />
+                            )}
+
+                            <Text style={styles.durationText}>
+                              {item.duration}
+                            </Text>
+                          </View>
+                        </View>
+
+                        {/* Info */}
+                        <View style={styles.infoContainer}>
+                          <View>
+                            <Text
+                              numberOfLines={4}
+                              style={[styles.videoTitle, {
+                                width: '80%',
+                                ...fontSize.b4,
+                                lineHeight: fontSize.b4.fontSize + 2,
+                              }]}
+                            >
+                              {item.title}
+                            </Text>
+
+                            <Text style={[styles.metaText, {...fontSize.b5, lineHeight: fontSize.b5.fontSize + 1}]}>
+                              {item.views} • {item.timeAgo}
+                            </Text>
+                          </View>
+
+                          {/* {isSubscribed ? (
+                            <View style={styles.unlockedPlayListBadge}>
+                              <View style={styles.greenDot} />
+
+                              <Text style={styles.unlockedText}>
+                                Unlocked
+                              </Text>
+                            </View>
+                          ) : (
+                            <View style={styles.premiumBadge}>
+                              <MaterialIcons
+                                name="stars"
+                                size={10}
+                                color="#cca514"
+                              />
+
+                              <Text style={styles.premiumText}>
+                                Studio Master
+                              </Text>
+                            </View>
+                          )} */}
+                        </View>
+
+                        {/* More Button */}
+                        <Pressable
+                          style={styles.moreButton}
+                          onPress={() => {
+                            console.log('more');
+                          }}
+                        >
+                          <MaterialIcons
+                            name="more-vert"
+                            size={20}
+                            color="#71717a"
+                          />
+                        </Pressable>
+                      </Pressable>
+                    );
+                  })}
+                </View>
+              </View>
+            </View>)
             : null}
+
+
+
+
           {activeTab === 'Tickets' ? (
             <View style={s.stack}>
               {tickets.map((ticket) => (
@@ -497,9 +976,8 @@ const  ArtistProfile: React.FC = () => {
                           >
                             <Text style={{
                           color: PRIMARY_COLOR,
-                          fontFamily: FontFamily.bold,
-                          fontSize: FontSize.twelve,
-                          lineHeight: 15,
+                          ...fontSize.b4,
+                          lineHeight: fontSize.b4.fontSize + 1,
                         }}>
                           {item.price}
                         </Text>
@@ -537,8 +1015,8 @@ const  ArtistProfile: React.FC = () => {
                           <View style={{
                             marginLeft: 5
                           }}>
-                            <Text style={[{ color: '#ffffff66', width: '100%', fontSize: mediumScreen ? FontSize.twelve: FontSize.eight, fontFamily: FontFamily.extraBold}]}>Date</Text>
-                          <Text style={[s.sub, { color: '#dbe4f0', width: '70%', fontSize: mediumScreen ? FontSize.ten: FontSize.six }]}>{item.meta}</Text>
+                            <Text style={[{ color: '#ffffff66', width: '100%', ...fontSize.b5, lineHeight: fontSize.b5.fontSize + 1 }]}>Date</Text>
+                          <Text style={[s.sub, { color: '#dbe4f0', width: '70%' }]}>{item.meta}</Text>
                           </View>
                         </View>
 
@@ -566,8 +1044,8 @@ const  ArtistProfile: React.FC = () => {
                           <View style={{
                             marginLeft: 5
                           }}>
-                            <Text style={[{ color: '#ffffff66', width: '100%', fontSize: mediumScreen ? FontSize.twelve: FontSize.eight, fontFamily: FontFamily.extraBold}]}>Location</Text>
-                          <Text style={[s.sub, { color: '#dbe4f0', width: '60%', fontSize: mediumScreen ? FontSize.ten: FontSize.six }]}>{item.location}</Text>
+                            <Text style={[{ color: '#ffffff66', width: '100%', ...fontSize.b5, lineHeight: fontSize.b5.fontSize + 1 }]}>Location</Text>
+                          <Text style={[s.sub, { color: '#dbe4f0', width: '60%' }]}>{item.location}</Text>
                           </View>
                         </View>
 
@@ -589,9 +1067,9 @@ const  ArtistProfile: React.FC = () => {
                           height: 40,
                         }}>
                           <Text style={{
-                            fontFamily: FontFamily.bold,
+                            ...fontSize.b5,
+                            lineHeight: fontSize.b5.fontSize + 1,
                             textAlign: 'center',
-                            fontSize: mediumScreen ? FontSize.twelve: FontSize.eight,
                           }}>Get{"\n"}Ticket</Text>
                         </Pressable>}
 
@@ -767,29 +1245,29 @@ const  ArtistProfile: React.FC = () => {
 
 const s = StyleSheet.create({
   screen: { flex: 1, backgroundColor: '#060913' },
-  toast: { position: 'absolute', top: 56, alignSelf: 'center', zIndex: 40, backgroundColor: PRIMARY_COLOR, color: '#fff', paddingHorizontal: 16, paddingVertical: 8, borderRadius: 999, fontSize: FontSize.ten, fontFamily: FontFamily.extraBold },
+  toast: { position: 'absolute', top: 56, alignSelf: 'center', zIndex: 40, backgroundColor: PRIMARY_COLOR, color: '#fff', paddingHorizontal: 16, paddingVertical: 8, borderRadius: 999, ...fontSize.b4, lineHeight: fontSize.b4.fontSize + 1 },
   icon: { width: 40, height: 40, borderRadius: 20, alignItems: 'center', justifyContent: 'center', backgroundColor: 'rgba(255,255,255,0.06)' },
   header: { paddingTop: 46, paddingBottom: 7, borderBottomWidth: 1 },
   headerTopRow: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', marginBottom: 20, paddingHorizontal: 20 },
   headerRoundBtn: { height: 40, width: 40, borderRadius: 20, borderWidth: 1, justifyContent: 'center', alignItems: 'center' },
   headerTitleWrap: { flex: 1, alignItems: 'center', paddingHorizontal: 10 },
   headerBtn: { width: 40, height: 40, borderRadius: 20, alignItems: 'center', justifyContent: 'center', backgroundColor: 'rgba(255,255,255,0.06)' },
-  headerTitle: { textAlign: 'center', color: '#fff', fontSize: FontSize.body, fontFamily: FontFamily.displayExtraBold, letterSpacing: 2.2, textTransform: 'uppercase' },
-  headerSubtitle: { color: PRIMARY_COLOR, marginTop: 4, fontFamily: FontFamily.extraBold, fontSize: FontSize.seven, letterSpacing: 1.5, textTransform: 'uppercase' },
-  content: { paddingBottom: 120, }, cover: { height: 180, }, hero: { marginTop: -88, paddingHorizontal: 20, alignItems: 'center' }, avatarWrap: { width: 148, height: 148, borderRadius: 999, borderWidth: 1, borderColor: '#060913', padding: 7}, image: { width: '100%', height: '100%', borderRadius: 999 }, fire: { position: 'absolute', right: 12, bottom: -2, width: 40, height: 40, borderRadius: 999, backgroundColor: '#f97316', borderWidth: 0, borderColor: '#060913', alignItems: 'center', justifyContent: 'center', flexDirection: 'row' }, fireText: { color: '#fff', fontSize: FontSize.eight, fontFamily: FontFamily.extraBold },
-  name: {color: '#fff', fontSize: FontSize.sixteen, fontFamily: FontFamily.bold, textTransform: 'uppercase' }, role: { marginTop: 4, color: PRIMARY_COLOR, fontSize: FontSize.nine, fontFamily: FontFamily.extraBold, textTransform: 'uppercase', letterSpacing: 2 }, stat: { flex: 1, textAlign: 'center', color: '#fff', fontSize: FontSize.eighteen, fontFamily: FontFamily.extraBold }, muted: { color: '#7d859e', fontSize: FontSize.eight, fontFamily: FontFamily.extraBold }, purple: { color: PRIMARY_COLOR, fontFamily: FontFamily.bold, fontSize: mediumScreen ? FontSize.twelve: FontSize.ten },
+  headerTitle: { textAlign: 'center', color: '#fff', ...fontSize.b2, lineHeight: fontSize.b2.fontSize + 1, letterSpacing: 1.2, textTransform: 'uppercase' },
+  headerSubtitle: { color: PRIMARY_COLOR, marginTop: 4, ...fontSize.b5, lineHeight: fontSize.b5.fontSize + 1, letterSpacing: 1.5, textTransform: 'uppercase' },
+  content: { paddingBottom: 120, }, cover: { height: 180, }, hero: { marginTop: -88, paddingHorizontal: 20, alignItems: 'center' }, avatarWrap: { width: 148, height: 148, borderRadius: 999, borderWidth: 1, borderColor: '#060913', padding: 7}, image: { width: '100%', height: '100%', borderRadius: 999 }, fire: { position: 'absolute', right: 12, bottom: -2, width: 40, height: 40, borderRadius: 999, backgroundColor: '#f97316', borderWidth: 0, borderColor: '#060913', alignItems: 'center', justifyContent: 'center', flexDirection: 'row' }, fireText: { color: '#fff', ...fontSize.n5, lineHeight: fontSize.n5.fontSize + 1 },
+  name: {color: '#fff', ...fontSize.b1, lineHeight: fontSize.b1.fontSize + 2, textTransform: 'uppercase' }, role: { marginTop: 4, color: PRIMARY_COLOR, ...fontSize.b5, lineHeight: fontSize.b5.fontSize + 1, textTransform: 'uppercase', letterSpacing: 1.2 }, stat: { flex: 1, textAlign: 'center', color: '#fff', ...fontSize.n5, lineHeight: fontSize.n5.fontSize + 1 }, muted: { color: '#7d859e', ...fontSize.b5, lineHeight: fontSize.b5.fontSize + 1 }, purple: { color: PRIMARY_COLOR, ...fontSize.b5, lineHeight: fontSize.b5.fontSize + 1 },
   actions: { marginTop: 22, flexDirection: 'row', gap: 10, alignItems: 'center', justifyContent: 'center' },
   action: { height: 56, borderRadius: 24, alignItems: 'center', justifyContent: 'center', flexDirection: 'row', gap: 8 },
   primary: { backgroundColor: PRIMARY_COLOR, minHeight: 36, borderRadius: 34, alignItems: 'center', justifyContent: 'center', flexDirection: 'row', },
-  secondary: { height: 36, borderRadius: 34, alignItems: 'center', justifyContent: 'center', backgroundColor: 'rgba(255,255,255,0.06)' }, iconAction: { width: 56, height: 36, borderRadius: 24, alignItems: 'center', justifyContent: 'center', backgroundColor: 'rgba(255,255,255,0.06)' }, btnText: { color: '#fff', fontSize: mediumScreen ? FontSize.fifteen:FontSize.eleven, fontFamily: FontFamily.extraBold, textTransform: 'uppercase', lineHeight: 15}, follow: { flex: 1, height: 56, borderRadius: 24, alignItems: 'center', justifyContent: 'center', backgroundColor: 'rgba(255,255,255,0.06)' }, followOn: { backgroundColor: primaryColorAlpha(0.12) }, followText: { color: '#fff', fontSize: FontSize.eleven, fontFamily: FontFamily.extraBold, textTransform: 'uppercase' }, followTextOn: { color: PRIMARY_COLOR },
-  bio: { paddingHorizontal: 34, marginTop: 18, marginBottom: 18, color: '#8b94ad', fontSize: mediumScreen? FontSize.fourteen:FontSize.twelve, lineHeight: 20, fontStyle: 'italic', textAlign: 'center', fontFamily: FontFamily.medium },
-  membership: { paddingHorizontal: 16, gap: 14 }, membershipHeader: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', paddingHorizontal: 16 }, section: { color: '#fff', fontSize: mediumScreen? FontSize.eighteen: FontSize.fourteen, fontFamily: FontFamily.extraBold, textTransform: 'uppercase' }, toggle: { flexDirection: 'row', gap: 6, padding: 6, borderRadius: 18, backgroundColor: 'rgba(255,255,255,0.05)' }, toggleBtn: { minHeight: 34, paddingHorizontal: 10, borderRadius: 12, alignItems: 'center', justifyContent: 'center' }, toggleOn: { backgroundColor: 'rgba(255,255,255,0.08)' }, toggleText: { color: '#8b94ad', fontSize: FontSize.ten, fontFamily: FontFamily.extraBold, textTransform: 'uppercase' },
- cardLabel: { color: '#8b94ad', fontSize: FontSize.ten, fontFamily: FontFamily.extraBold, textTransform: 'uppercase' }, price: { color: '#fff', fontSize: FontSize.twentyEight, fontFamily: FontFamily.extraBold }, perk: { color: '#d4d8e8', fontSize: FontSize.twelve, fontFamily: FontFamily.medium },
+  secondary: { height: 36, borderRadius: 34, alignItems: 'center', justifyContent: 'center', backgroundColor: 'rgba(255,255,255,0.06)' }, iconAction: { width: 56, height: 36, borderRadius: 24, alignItems: 'center', justifyContent: 'center', backgroundColor: 'rgba(255,255,255,0.06)' }, btnText: { color: '#fff', ...fontSize.b5, lineHeight: fontSize.b5.fontSize + 1, textTransform: 'uppercase'}, follow: { flex: 1, height: 56, borderRadius: 24, alignItems: 'center', justifyContent: 'center', backgroundColor: 'rgba(255,255,255,0.06)' }, followOn: { backgroundColor: primaryColorAlpha(0.12) }, followText: { color: '#fff', ...fontSize.b5, lineHeight: fontSize.b5.fontSize + 1, textTransform: 'uppercase' }, followTextOn: { color: PRIMARY_COLOR },
+  bio: { paddingHorizontal: 34, marginTop: 18, marginBottom: 18, color: '#8b94ad', ...fontSize.b3, lineHeight: fontSize.b3.fontSize + 6, fontStyle: 'italic', textAlign: 'center' },
+  membership: { paddingHorizontal: 16, gap: 14 }, membershipHeader: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', paddingHorizontal: 16 }, section: { color: '#fff', ...fontSize.b2, lineHeight: fontSize.b2.fontSize + 1, textTransform: 'uppercase' }, toggle: { flexDirection: 'row', gap: 6, padding: 6, borderRadius: 18, backgroundColor: 'rgba(255,255,255,0.05)' }, toggleBtn: { minHeight: 34, paddingHorizontal: 10, borderRadius: 12, alignItems: 'center', justifyContent: 'center' }, toggleOn: { backgroundColor: 'rgba(255,255,255,0.08)' }, toggleText: { color: '#8b94ad', ...fontSize.b5, lineHeight: fontSize.b5.fontSize + 1, textTransform: 'uppercase' },
+ cardLabel: { color: '#8b94ad', ...fontSize.b5, lineHeight: fontSize.b5.fontSize + 1, textTransform: 'uppercase' }, price: { color: '#fff', ...fontSize.n1, lineHeight: fontSize.n1.fontSize + 1 }, perk: { color: '#d4d8e8', ...fontSize.b4, lineHeight: fontSize.b4.fontSize + 1 },
   tabs: {
     // backgroundColor: 'white',
-    paddingHorizontal: 16, paddingTop: 18, paddingBottom: 6 }, tab: { minWidth: 74, alignItems: 'center', paddingBottom: 14, marginRight: 14 }, tabText: { marginTop: 4, color: '#69738d', fontSize: FontSize.eight, fontFamily: FontFamily.extraBold, textTransform: 'uppercase' }, tabOn: { color: PRIMARY_COLOR },
+    paddingHorizontal: 16, paddingTop: 18, paddingBottom: 6 }, tab: { minWidth: 74, alignItems: 'center', paddingBottom: 14, marginRight: 14 }, tabText: { marginTop: 4, color: '#69738d', ...fontSize.b5, lineHeight: fontSize.b5.fontSize + 1, textTransform: 'uppercase' }, tabOn: { color: PRIMARY_COLOR },
   body: {
-    paddingHorizontal: 16,
+    // paddingHorizontal: 16,
     paddingTop: 10,
     gap: 18,
     // backgroundColor: 'green',
@@ -803,12 +1281,12 @@ const s = StyleSheet.create({
   videoGridImage: { width: '100%', height: '100%' },
   videoGridOverlay: { ...StyleSheet.absoluteFillObject },
   videoGridMeta: { position: 'absolute', left: 8, bottom: 8, flexDirection: 'row', alignItems: 'center', gap: 2 },
-  videoGridMetaText: { color: '#fff', fontFamily: FontFamily.bold, fontSize: FontSize.eleven },
-  sub: { marginTop: 0, color: '#9ca3af', fontSize: FontSize.eight, fontFamily: FontFamily.extraBold, textTransform: 'uppercase' },
-  stack: { gap: 16 }, banner: { height: 230, borderRadius: 40, overflow: 'hidden', backgroundColor: '#0f172a' }, bannerText: { color: '#fff', fontSize: mediumScreen ? FontSize.sixteen:FontSize.twelve, fontFamily: FontFamily.extraBold, textTransform: 'uppercase', width:'50%' },
-  bannerBottom: { position: 'absolute', left: 18, right: 18, bottom: 18 }, eventCard: { height: 240, borderRadius: 40, overflow: 'hidden', backgroundColor: '#0f172a' }, chip: { position: 'absolute', top: 18, left: 18, flexDirection: 'row', alignItems: 'center', gap: 6, paddingHorizontal: 12, paddingVertical: 8, borderRadius: 999, backgroundColor: primaryColorAlpha(0.14) }, chipText: { color: PRIMARY_COLOR, fontSize: FontSize.nine, fontFamily: FontFamily.extraBold, textTransform: 'uppercase' },
+  videoGridMetaText: { color: '#fff', ...fontSize.b5, lineHeight: fontSize.b5.fontSize + 1 },
+  sub: { marginTop: 0, color: '#9ca3af', ...fontSize.b5, lineHeight: fontSize.b5.fontSize + 1, textTransform: 'uppercase' },
+  stack: { gap: 16 }, banner: { height: 230, borderRadius: 40, overflow: 'hidden', backgroundColor: '#0f172a' }, bannerText: { color: '#fff', ...fontSize.b2, lineHeight: fontSize.b2.fontSize + 2, textTransform: 'uppercase', width:'50%' },
+  bannerBottom: { position: 'absolute', left: 18, right: 18, bottom: 18 }, eventCard: { height: 240, borderRadius: 40, overflow: 'hidden', backgroundColor: '#0f172a' }, chip: { position: 'absolute', top: 18, left: 18, flexDirection: 'row', alignItems: 'center', gap: 6, paddingHorizontal: 12, paddingVertical: 8, borderRadius: 999, backgroundColor: primaryColorAlpha(0.14) }, chipText: { color: PRIMARY_COLOR, ...fontSize.b5, lineHeight: fontSize.b5.fontSize + 1, textTransform: 'uppercase' },
   sound: { flexDirection: 'row', alignItems: 'center', gap: 12, padding: 14, borderRadius: 28, backgroundColor: 'rgba(255,255,255,0.05)' },
-  play: { width: 58, height: 58, borderRadius: 20, backgroundColor: primaryColorAlpha(0.2), alignItems: 'center', justifyContent: 'center' }, playOn: { backgroundColor: PRIMARY_COLOR }, soundTitle: { color: '#fff', fontSize: mediumScreen ? FontSize.fourteen: FontSize.ten, fontFamily: FontFamily.extraBold, textTransform: 'uppercase' }, soundMeta: { marginTop: 4, color: '#8b94ad', fontSize: FontSize.nine, fontFamily: FontFamily.bold, textTransform: 'uppercase' }, soundUsage: { color: PRIMARY_COLOR, fontSize: FontSize.eight, fontFamily: FontFamily.extraBold, textTransform: 'uppercase' },
+  play: { width: 58, height: 58, borderRadius: 20, backgroundColor: primaryColorAlpha(0.2), alignItems: 'center', justifyContent: 'center' }, playOn: { backgroundColor: PRIMARY_COLOR }, soundTitle: { color: '#fff', ...fontSize.b4, lineHeight: fontSize.b4.fontSize + 1, textTransform: 'uppercase' }, soundMeta: { marginTop: 4, color: '#8b94ad', ...fontSize.b5, lineHeight: fontSize.b5.fontSize + 1, textTransform: 'uppercase' }, soundUsage: { color: PRIMARY_COLOR, ...fontSize.b5, lineHeight: fontSize.b5.fontSize + 1, textTransform: 'uppercase' },
   overlay: { flex: 1, backgroundColor: 'rgba(0,0,0,0.8)', justifyContent: 'flex-end' },
   subscriptionModal: {
     borderTopLeftRadius: 40,
@@ -847,24 +1325,24 @@ const s = StyleSheet.create({
   },
   subscriptionHeaderText: { flex: 1 },
   subscriptionTitle: {
-    fontSize: mediumScreen ? FontSize.eighteen : FontSize.fourteen,
-    fontFamily: FontFamily.extraBold,
+    ...fontSize.b1,
+    lineHeight: fontSize.b1.fontSize + 2,
     textTransform: 'uppercase',
   },
   subscriptionMeta: {
     marginTop: 6,
-    fontSize: FontSize.nine,
-    fontFamily: FontFamily.extraBold,
+    ...fontSize.b5,
+    lineHeight: fontSize.b5.fontSize + 1,
     textTransform: 'uppercase',
-    letterSpacing: 2,
+    letterSpacing: 1,
   },
   subscriptionSection: { rowGap: 14 },
   subscriptionLabel: {
     marginLeft: 4,
-    fontSize: FontSize.eight,
-    fontFamily: FontFamily.extraBold,
+    ...fontSize.b5,
+    lineHeight: fontSize.b5.fontSize + 1,
     textTransform: 'uppercase',
-    letterSpacing: 3,
+    letterSpacing: 1.2,
   },
   subscriptionPerkCard: {
     flexDirection: 'row',
@@ -885,8 +1363,8 @@ const s = StyleSheet.create({
   },
   subscriptionPerkText: {
     flex: 1,
-    fontSize: mediumScreen ? FontSize.thirteen : FontSize.eleven,
-    fontFamily: FontFamily.bold,
+    ...fontSize.b4,
+    lineHeight: fontSize.b4.fontSize + 2,
   },
   balanceCard: {
     marginTop: 4,
@@ -906,25 +1384,25 @@ const s = StyleSheet.create({
   },
   balanceLabel: {
     color: '#d97706',
-    fontSize: FontSize.eight,
-    fontFamily: FontFamily.extraBold,
+    ...fontSize.b5,
+    lineHeight: fontSize.b5.fontSize + 1,
     textTransform: 'uppercase',
-    letterSpacing: 2,
+    letterSpacing: 1,
   },
   balanceSubLabel: {
-    fontSize: FontSize.eight,
-    fontFamily: FontFamily.extraBold,
+    ...fontSize.b5,
+    lineHeight: fontSize.b5.fontSize + 1,
     textTransform: 'uppercase',
-    letterSpacing: 1.5,
+    letterSpacing: 1,
   },
   balanceValue: {
-    fontSize: mediumScreen ? FontSize.eighteen : FontSize.fourteen,
-    fontFamily: FontFamily.extraBold,
+    ...fontSize.n5,
+    lineHeight: fontSize.n5.fontSize + 1,
   },
   balanceCost: {
     color: PRIMARY_COLOR,
-    fontSize: mediumScreen ? FontSize.eighteen : FontSize.fourteen,
-    fontFamily: FontFamily.extraBold,
+    ...fontSize.n5,
+    lineHeight: fontSize.n5.fontSize + 1,
   },
   subscriptionPrimary: {
     minHeight: 55,
@@ -941,10 +1419,10 @@ const s = StyleSheet.create({
   },
   subscriptionPrimaryText: {
     color: '#fff',
-    fontSize: mediumScreen ? FontSize.fifteen : FontSize.eleven,
-    fontFamily: FontFamily.extraBold,
+    ...fontSize.b4,
+    lineHeight: fontSize.b4.fontSize + 1,
     textTransform: 'uppercase',
-    letterSpacing: 2,
+    letterSpacing: 1,
   },
   successWrap: {
     paddingVertical: 28,
@@ -963,9 +1441,8 @@ const s = StyleSheet.create({
   },
   successTitle: {
     textAlign: 'center',
-    fontSize: mediumScreen ? FontSize.thirty : FontSize.twentyFour,
-    lineHeight: mediumScreen ? 40 : 30,
-    fontFamily: FontFamily.extraBold,
+    ...fontSize.n1,
+    lineHeight: fontSize.n1.fontSize + 4,
     textTransform: 'uppercase',
   },
   switchBtn: {
@@ -979,14 +1456,14 @@ const s = StyleSheet.create({
     // backgroundColor: '#ffffff14',
   },
   switchBtnOn: { backgroundColor: '#FFFFFF', borderWidth: 0, flexDirection: 'row' },
-  switchText: { color: '#a9a9bd', fontSize: mediumScreen? FontSize.twelve:FontSize.eight, fontWeight: '900', textTransform: 'uppercase' },
+  switchText: { color: '#a9a9bd', ...fontSize.b5, lineHeight: fontSize.b5.fontSize + 1, textTransform: 'uppercase' },
   switchTextOn: { color: PRIMARY_COLOR },
   cardPrice: {
     color: '#fff',
-    fontSize: FontSize.thirty,
-    lineHeight: 42,
+    ...fontSize.n1,
+    lineHeight: fontSize.n1.fontSize + 6,
     // fontWeight: '900',
-    fontFamily: FontFamily.bold },
+  },
   card: {
     backgroundColor: '#ffffff0d',
     borderWidth: 1,
@@ -1000,18 +1477,18 @@ const s = StyleSheet.create({
   },
   cardTitle: {
     color: '#9ea0a5',
-    fontSize: FontSize.nine,
+    ...fontSize.b5,
+    lineHeight: fontSize.b5.fontSize + 1,
     textTransform: 'uppercase',
     // fontWeight: '800',
     letterSpacing: 1.5,
-    fontFamily: FontFamily.medium
   },
   priceLine: { flexDirection: 'row', alignItems: 'flex-end' },
   saveText: {
     color: '#22c55e',
-    fontSize: FontSize.ten,
+    ...fontSize.b5,
+    lineHeight: fontSize.b5.fontSize + 1,
     textTransform: 'uppercase',
-    fontWeight: '900',
     letterSpacing: 0.5,
   },
   switchCreatorButton: {
@@ -1032,8 +1509,8 @@ const s = StyleSheet.create({
   },
   switchCreatorText: {
     color: '#ffffff',
-    fontFamily: FontFamily.extraBold,
-    fontSize: FontSize.eight,
+    ...fontSize.b5,
+    lineHeight: fontSize.b5.fontSize + 1,
     textTransform: 'uppercase',
     letterSpacing: 1.2,
   },
@@ -1068,16 +1545,14 @@ const s = StyleSheet.create({
     gap: 8,
   },
   roleModalTitle: {
-    fontSize: FontSize.twentyTwo,
-    fontFamily: FontFamily.extraBold,
+    ...fontSize.b1,
     textTransform: 'uppercase',
     textAlign: 'center',
-    lineHeight: 28,
+    lineHeight: fontSize.b1.fontSize + 4,
   },
   roleModalBody: {
-    fontSize: FontSize.twelve,
-    fontFamily: FontFamily.medium,
-    lineHeight: 20,
+    ...fontSize.b3,
+    lineHeight: fontSize.b3.fontSize + 5,
     textAlign: 'center',
   },
   roleModalActions: {
@@ -1100,10 +1575,10 @@ const s = StyleSheet.create({
   },
   roleModalPrimaryText: {
     color: '#ffffff',
-    fontSize: FontSize.ten,
-    fontFamily: FontFamily.extraBold,
+    ...fontSize.b4,
+    lineHeight: fontSize.b4.fontSize + 1,
     textTransform: 'uppercase',
-    letterSpacing: 1.8,
+    letterSpacing: 1,
   },
   roleModalSecondary: {
     width: '100%',
@@ -1114,17 +1589,17 @@ const s = StyleSheet.create({
     justifyContent: 'center',
   },
   roleModalSecondaryText: {
-    fontSize: FontSize.ten,
-    fontFamily: FontFamily.extraBold,
+    ...fontSize.b4,
+    lineHeight: fontSize.b4.fontSize + 1,
     textTransform: 'uppercase',
-    letterSpacing: 1.6,
+    letterSpacing: 1,
   },
   priceSuffix: {
     color: '#818398',
-    fontSize: FontSize.twelve,
+    ...fontSize.b4,
+    lineHeight: fontSize.b4.fontSize + 1,
     marginBottom: 8,
     marginLeft: 4,
-    fontFamily: FontFamily.bold
    },
    perkRow: {
     flexDirection: 'row',
@@ -1149,14 +1624,14 @@ const s = StyleSheet.create({
   },
   statsTablet: { paddingHorizontal: 24 },
   statBlock: { flex: 1, alignItems: 'center' },
-  statValue: { color: '#fff', fontSize: mediumScreen? FontSize.sixteen:FontSize.twelve, fontFamily: FontFamily.extraBold },
+  statValue: { color: '#fff', ...fontSize.n5, lineHeight: fontSize.n5.fontSize + 1 },
   statLabel: {
     color: '#9ea0b6',
-    fontSize: mediumScreen? FontSize.twelve:FontSize.eight,
+    ...fontSize.b5,
+    lineHeight: fontSize.b5.fontSize + 1,
     textTransform: 'uppercase',
     letterSpacing: 1.2,
     marginTop: 2,
-    fontFamily: FontFamily.bold
   },
   accent: { color: PRIMARY_COLOR },
   sep: { width: StyleSheet.hairlineWidth, height: 28, backgroundColor: '#ffffff2d' },
@@ -1185,13 +1660,13 @@ const s = StyleSheet.create({
     justifyContent: 'center',
   },
   ticketTitle: {
-    fontSize: FontSize.thirteen,
-    fontFamily: FontFamily.extraBold,
+    ...fontSize.b4,
+    lineHeight: fontSize.b4.fontSize + 1,
   },
   ticketMeta: {
     marginTop: 2,
-    fontSize: FontSize.ten,
-    fontFamily: FontFamily.bold,
+    ...fontSize.b5,
+    lineHeight: fontSize.b5.fontSize + 1,
     textTransform: 'uppercase',
     letterSpacing: 1.1,
   },
@@ -1203,6 +1678,310 @@ const s = StyleSheet.create({
     height: 2,
     borderRadius: 999,
     backgroundColor: PRIMARY_COLOR,
+  },
+});
+
+const styles = StyleSheet.create({
+  container: {
+    // paddingHorizontal: 4,
+    gap: 12,
+  },
+   section: {
+    gap: 12,
+  },
+
+  header: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+  },
+
+  headerLeft: {
+    flexDirection: 'row',
+    alignItems: 'center',
+  },
+
+  title: {
+    // fontSize: 16,
+    // fontWeight: '700',
+    color: '#0f172a',
+  },
+
+  scrollContent: {
+    gap: 16,
+    paddingBottom: 16,
+    paddingHorizontal: 16,
+  },
+
+  card: {
+    width: 260,
+    position: 'relative',
+  },
+
+  thumbnailContainer: {
+    aspectRatio: 16 / 9,
+    borderRadius: 16,
+    overflow: 'hidden',
+    backgroundColor: '#0f172a',
+  },
+
+  thumbnail: {
+    width: '100%',
+    height: '100%',
+  },
+
+  playlistOverlay: {
+    position: 'absolute',
+    right: 0,
+    top: 0,
+    bottom: 0,
+    width: '40%',
+    backgroundColor: 'rgba(0,0,0,0.8)',
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+
+  videoCount: {
+    color: '#fff',
+    fontSize: 10,
+    fontWeight: '800',
+    marginTop: 4,
+  },
+
+  lockOverlay: {
+    position: 'absolute',
+    left: 0,
+    top: 0,
+    bottom: 0,
+    width: '60%',
+    backgroundColor: 'rgba(0,0,0,0.45)',
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+
+  lockCircle: {
+    width: 34,
+    height: 34,
+    borderRadius: 17,
+    backgroundColor: 'rgba(0,0,0,0.75)',
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+
+  info: {
+    marginTop: 8,
+  },
+
+  playlistTitle: {
+    // fontSize: 13,
+    // fontWeight: '700',
+    color: '#18181b',
+  },
+
+  meta: {
+    fontSize: 10,
+    color: '#71717a',
+    marginTop: 4,
+  },
+
+  unlockedBadge: {
+    marginTop: 10,
+    flexDirection: 'row',
+    alignSelf: 'flex-start',
+    alignItems: 'center',
+    paddingHorizontal: 8,
+    paddingVertical: 3,
+    borderRadius: 6,
+    backgroundColor: 'rgba(16,185,129,0.1)',
+  },
+
+  dot: {
+    width: 4,
+    height: 4,
+    borderRadius: 2,
+    backgroundColor: '#10b981',
+    marginRight: 4,
+  },
+
+  unlockedText: {
+    color: '#10b981',
+    fontSize: 9,
+    fontWeight: '800',
+  },
+
+  vaultBadge: {
+    marginTop: 10,
+    flexDirection: 'row',
+    alignSelf: 'flex-start',
+    alignItems: 'center',
+    gap: 4,
+    paddingHorizontal: 8,
+    paddingVertical: 3,
+    borderRadius: 6,
+    backgroundColor: 'rgba(204,165,20,0.1)',
+  },
+
+  vaultText: {
+    color: PRIMARY_COLOR,
+    fontSize: 9,
+    fontWeight: '800',
+  },
+
+  shareButton: {
+    position: 'absolute',
+    right: 8,
+    top: 8,
+    width: 28,
+    height: 28,
+    borderRadius: 14,
+    justifyContent: 'center',
+    alignItems: 'center',
+    backgroundColor: 'rgba(255,255,255,0.85)',
+  },
+   sectionHeader: {
+    flexDirection: 'row',
+    alignItems: 'center',
+  },
+
+  sectionTitle: {
+    fontSize: 16,
+    fontWeight: '700',
+    color: '#18181b',
+  },
+
+  releaseList: {
+    gap: 6,
+  },
+
+  releaseCard: {
+    flexDirection: 'row',
+    paddingVertical: 10,
+    paddingHorizontal: 6,
+    borderRadius: 16,
+    position: 'relative',
+  },
+
+  thumbContainer: {
+    width: 150,
+    aspectRatio: 16 / 9,
+    borderRadius: 18,
+    overflow: 'hidden',
+    backgroundColor: '#0f172a',
+  },
+
+  playListthumbnail: {
+    width: '100%',
+    height: '100%',
+  },
+
+  playListlockOverlay: {
+    ...StyleSheet.absoluteFillObject,
+    backgroundColor: 'rgba(0,0,0,0.45)',
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+
+  lockButton: {
+    width: 30,
+    height: 30,
+    borderRadius: 15,
+    backgroundColor: 'rgba(0,0,0,0.6)',
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+
+  durationBadge: {
+    position: 'absolute',
+    right: 6,
+    bottom: 6,
+    flexDirection: 'row',
+    alignItems: 'center',
+    backgroundColor: 'rgba(0,0,0,0.85)',
+    borderRadius: 6,
+    paddingHorizontal: 6,
+    paddingVertical: 2,
+  },
+
+  durationText: {
+    color: '#fff',
+    fontSize: 10,
+    marginLeft: 2,
+    fontWeight: '700',
+  },
+
+  infoContainer: {
+    flex: 1,
+    marginLeft: 14,
+    justifyContent: 'space-between',
+    paddingVertical: 4,
+  },
+
+  videoTitle: {
+    // fontSize: 13,
+    // fontWeight: '600',
+    color: '#18181b',
+    // lineHeight: 18,
+  },
+
+  metaText: {
+    fontSize: 11,
+    color: '#71717a',
+    marginTop: 4,
+  },
+
+  premiumBadge: {
+    alignSelf: 'flex-start',
+    flexDirection: 'row',
+    alignItems: 'center',
+    backgroundColor: 'rgba(204,165,20,0.10)',
+    borderWidth: 1,
+    borderColor: 'rgba(204,165,20,0.20)',
+    borderRadius: 6,
+    paddingHorizontal: 8,
+    paddingVertical: 3,
+  },
+
+  premiumText: {
+    color: PRIMARY_COLOR,
+    fontSize: 9,
+    fontWeight: '800',
+    marginLeft: 4,
+  },
+
+  unlockedPlayListBadge: {
+    alignSelf: 'flex-start',
+    flexDirection: 'row',
+    alignItems: 'center',
+    backgroundColor: 'rgba(16,185,129,0.10)',
+    borderWidth: 1,
+    borderColor: 'rgba(16,185,129,0.20)',
+    borderRadius: 6,
+    paddingHorizontal: 8,
+    paddingVertical: 3,
+  },
+
+  greenDot: {
+    width: 4,
+    height: 4,
+    borderRadius: 2,
+    backgroundColor: '#10b981',
+    marginRight: 4,
+  },
+
+  unlockedPlyaListText: {
+    color: '#10b981',
+    fontSize: 9,
+    fontWeight: '800',
+  },
+
+  moreButton: {
+    position: 'absolute',
+    right: 4,
+    top: 8,
+    width: 32,
+    height: 32,
+    justifyContent: 'center',
+    alignItems: 'center',
   },
 });
 

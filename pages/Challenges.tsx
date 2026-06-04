@@ -14,9 +14,9 @@ import {
   View,
 } from 'react-native';
 import { SafeAreaView, useSafeAreaInsets } from 'react-native-safe-area-context';
-import { FontFamily, FontSize } from '../fonts';
 import { PRIMARY_COLOR, primaryColorAlpha, useThemeMode } from '../theme';
 import { mediumScreen } from '../types';
+import { fontSize } from './typography';
 
 type ChallengeStatus = 'active' | 'completed';
 type ChallengeTab = 'all' | 'newest' | 'active' | 'completed';
@@ -311,12 +311,11 @@ const createStyles = (isDark: boolean) => {
     headerRoundBtn: { height: 40, width: 40, borderRadius: 20, borderWidth: 1, justifyContent: 'center', alignItems: 'center' },
     headerTitleWrap: { alignItems: 'center' },
     headerTitle: {
-      fontFamily: FontFamily.displayExtraBold,
-      fontSize: FontSize.body,
+      ...fontSize.b1, lineHeight: fontSize.b1.fontSize + 2,
       textTransform: 'uppercase',
       letterSpacing: 2.2,
     },
-    headerSubtitle: { color: PRIMARY_COLOR, marginTop: 4, fontFamily: FontFamily.extraBold, fontSize: FontSize.seven, letterSpacing: 1.5, textTransform: 'uppercase' },
+    headerSubtitle: { color: PRIMARY_COLOR, marginTop: 4, ...fontSize.b5, lineHeight: fontSize.b5.fontSize + 1, letterSpacing: 1.5, textTransform: 'uppercase' },
     headerSpacer: { width: 40 },
     content: { padding: 20, gap: 18 },
     searchBox: {
@@ -335,8 +334,7 @@ const createStyles = (isDark: boolean) => {
     },
     searchInput: {
       flex: 1,
-      fontFamily: FontFamily.bold,
-      fontSize: FontSize.twelve,
+      ...fontSize.b4, lineHeight: fontSize.b4.fontSize + 1,
       paddingVertical: 0,
     },
     tabsWrap: {
@@ -359,8 +357,7 @@ const createStyles = (isDark: boolean) => {
     },
     tabButtonIdle: {},
     tabText: {
-      fontFamily: FontFamily.extraBold,
-      fontSize: mediumScreen ? FontSize.twelve : FontSize.eight,
+      ...fontSize.b4, lineHeight: fontSize.b4.fontSize + 1,
       letterSpacing: 1.2,
       textTransform: 'uppercase',
     },
@@ -372,15 +369,13 @@ const createStyles = (isDark: boolean) => {
       gap: 12,
     },
     sectionTitle: {
-      fontFamily: FontFamily.extraBold,
-      fontSize: FontSize.ten,
+      ...fontSize.b5, lineHeight: fontSize.b5.fontSize + 1,
       letterSpacing: 3,
       textTransform: 'uppercase',
     },
     sectionCount: {
       color: PRIMARY_COLOR,
-      fontFamily: FontFamily.extraBold,
-      fontSize: FontSize.ten,
+      ...fontSize.b5, lineHeight: fontSize.b5.fontSize + 1,
       letterSpacing: 1.4,
       textTransform: 'uppercase',
     },
@@ -410,8 +405,7 @@ const createStyles = (isDark: boolean) => {
       gap: 7,
     },
     statusText: {
-      fontFamily: FontFamily.extraBold,
-      fontSize: FontSize.nine,
+      ...fontSize.b5, lineHeight: fontSize.b5.fontSize + 1,
       letterSpacing: 1.5,
       textTransform: 'uppercase',
     },
@@ -424,23 +418,20 @@ const createStyles = (isDark: boolean) => {
     },
     creatorText: {
       color: PRIMARY_COLOR,
-      fontFamily: FontFamily.extraBold,
-      fontSize: FontSize.ten,
+      ...fontSize.b5, lineHeight: fontSize.b5.fontSize + 1,
       letterSpacing: 2.2,
       textTransform: 'uppercase',
       marginBottom: 4,
     },
     cardTitle: {
       color: '#ffffff',
-      fontFamily: FontFamily.extraBold,
-      fontSize: FontSize.twentyTwo,
+      ...fontSize.b1,
       lineHeight: 28,
       textTransform: 'uppercase',
     },
     cardDescription: {
       color: 'rgba(255,255,255,0.66)',
-      fontFamily: FontFamily.medium,
-      fontSize: FontSize.twelve,
+      ...fontSize.b4,
       lineHeight: 18,
       marginTop: 8,
     },
@@ -457,23 +448,20 @@ const createStyles = (isDark: boolean) => {
     metricDivider: { width: 1, height: 26, backgroundColor: 'rgba(255,255,255,0.12)' },
     metricLabel: {
       color: 'rgba(255,255,255,0.42)',
-      fontFamily: FontFamily.extraBold,
-      fontSize: FontSize.seven,
+      ...fontSize.b5, lineHeight: fontSize.b5.fontSize + 1,
       letterSpacing: 1.1,
       textTransform: 'uppercase',
     },
     metricValue: {
       color: '#ffffff',
-      fontFamily: FontFamily.extraBold,
-      fontSize: FontSize.eleven,
+      ...fontSize.b5, lineHeight: fontSize.b5.fontSize + 1,
       textTransform: 'uppercase',
       marginTop: 3,
     },
     rewardText: {
       maxWidth: 120,
       color: PRIMARY_COLOR,
-      fontFamily: FontFamily.extraBold,
-      fontSize: FontSize.twelve,
+      ...fontSize.b4, lineHeight: fontSize.b4.fontSize + 1,
       textAlign: 'right',
       textTransform: 'uppercase',
       letterSpacing: 0.8,
@@ -491,8 +479,7 @@ const createStyles = (isDark: boolean) => {
     },
     watchButtonText: {
       color: '#ffffff',
-      fontFamily: FontFamily.extraBold,
-      fontSize: FontSize.nine,
+      ...fontSize.b5, lineHeight: fontSize.b5.fontSize + 1,
       letterSpacing: 1.4,
       textTransform: 'uppercase',
     },
@@ -506,8 +493,7 @@ const createStyles = (isDark: boolean) => {
       gap: 12,
     },
     emptyTitle: {
-      fontFamily: FontFamily.bold,
-      fontSize: FontSize.fourteen,
+      ...fontSize.b4, lineHeight: fontSize.b4.fontSize + 1,
       textAlign: 'center',
     },
     clearButton: {
@@ -521,8 +507,7 @@ const createStyles = (isDark: boolean) => {
     },
     clearButtonText: {
       color: PRIMARY_COLOR,
-      fontFamily: FontFamily.extraBold,
-      fontSize: FontSize.nine,
+      ...fontSize.b5, lineHeight: fontSize.b5.fontSize + 1,
       letterSpacing: 1.2,
       textTransform: 'uppercase',
     },

@@ -14,7 +14,7 @@ import {
 } from 'react-native';
 import { MaterialIcons } from '@expo/vector-icons';
 import { useNavigation } from '@react-navigation/native';
-import { FontFamily, FontSize } from '../fonts';
+import { fontSize } from './typography';
 
 const previewImage =
   'https://lh3.googleusercontent.com/aida-public/AB6AXuDhFOftNzhs814shqXm7wsAjhpwgP6vdnALyuid0Wfz-EnNLz-62RACTh85zIywL8WoBz1HuyX-nfeEHJ-I6SrmLZJQvP9lXpMHO1vwvZVjYORCfTKexBTzDZounMgCXAAniKec20F8gMW3jJtkvU2f5DjjLu1GhLyMGomadglNeGEbriDqwCKQkMeBpc3obvTvhuG5cINCuKXP1i6v9u-fGTyWtwo7nGMa3Y9_NNvdnVt8z_U3NJsKZfECzDg6dyvdMqB9bOIfE77E';
@@ -290,8 +290,7 @@ const styles = StyleSheet.create({
     gap: 12,
   },
   headerTitle: {
-    fontFamily: FontFamily.bold,
-    fontSize: FontSize.thirteen,
+    ...fontSize.b4, lineHeight: fontSize.b4.fontSize + 1,
   },
   headerPostButton: {
     paddingHorizontal: 16,
@@ -300,8 +299,7 @@ const styles = StyleSheet.create({
   },
   headerPostText: {
     color: PRIMARY_COLOR,
-    fontFamily: FontFamily.bold,
-    fontSize: FontSize.twelve,
+    ...fontSize.b4, lineHeight: fontSize.b4.fontSize + 1,
   },
   content: {
     paddingTop: 108,
@@ -340,8 +338,7 @@ const styles = StyleSheet.create({
   },
   previewDurationText: {
     color: '#fff',
-    fontFamily: FontFamily.bold,
-    fontSize: FontSize.ten,
+    ...fontSize.b5, lineHeight: fontSize.b5.fontSize + 1,
     letterSpacing: 0.7,
   },
   formColumn: {
@@ -354,8 +351,7 @@ const styles = StyleSheet.create({
   },
   inputLabel: {
     marginLeft: 4,
-    fontFamily: FontFamily.bold,
-    fontSize: FontSize.ten,
+    ...fontSize.b5, lineHeight: fontSize.b5.fontSize + 1,
     textTransform: 'uppercase',
     letterSpacing: 0.8,
   },
@@ -363,8 +359,7 @@ const styles = StyleSheet.create({
     borderRadius: 14,
     paddingHorizontal: 14,
     paddingVertical: 12,
-    fontFamily: FontFamily.medium,
-    fontSize: FontSize.twelve,
+    ...fontSize.b4, lineHeight: fontSize.b4.fontSize + 1,
   },
   textArea: {
     minHeight: 92,
@@ -372,8 +367,7 @@ const styles = StyleSheet.create({
     paddingHorizontal: 14,
     paddingVertical: 12,
     textAlignVertical: 'top',
-    fontFamily: FontFamily.medium,
-    fontSize: FontSize.twelve,
+    ...fontSize.b4, lineHeight: fontSize.b4.fontSize + 1,
   },
   section: {
     gap: 12,
@@ -385,13 +379,11 @@ const styles = StyleSheet.create({
     paddingHorizontal: 2,
   },
   sectionTitle: {
-    fontFamily: FontFamily.bold,
-    fontSize: FontSize.fifteen,
+    ...fontSize.b4, lineHeight: fontSize.b4.fontSize + 1,
   },
   sectionHint: {
     color: PRIMARY_COLOR,
-    fontFamily: FontFamily.bold,
-    fontSize: FontSize.ten,
+    ...fontSize.b5, lineHeight: fontSize.b5.fontSize + 1,
     textTransform: 'uppercase',
     letterSpacing: 0.8,
   },
@@ -419,8 +411,7 @@ const styles = StyleSheet.create({
   },
   activeTagText: {
     color: PRIMARY_COLOR,
-    fontFamily: FontFamily.bold,
-    fontSize: FontSize.thirteen,
+    ...fontSize.b4, lineHeight: fontSize.b4.fontSize + 1,
   },
   addTagButton: {
     flexDirection: 'row',
@@ -431,8 +422,7 @@ const styles = StyleSheet.create({
     borderRadius: 999,
   },
   addTagText: {
-    fontFamily: FontFamily.bold,
-    fontSize: FontSize.ten,
+    ...fontSize.b5, lineHeight: fontSize.b5.fontSize + 1,
     textTransform: 'uppercase',
     letterSpacing: 0.8,
   },
@@ -449,8 +439,7 @@ const styles = StyleSheet.create({
     borderRadius: 10,
   },
   suggestedChipText: {
-    fontFamily: FontFamily.medium,
-    fontSize: FontSize.twelve,
+    ...fontSize.b4, lineHeight: fontSize.b4.fontSize + 1,
   },
   permissionsCard: {
     borderRadius: 20,
@@ -479,13 +468,11 @@ const styles = StyleSheet.create({
     borderWidth: 1,
   },
   permissionTitle: {
-    fontFamily: FontFamily.bold,
-    fontSize: FontSize.eleven,
+    ...fontSize.b5, lineHeight: fontSize.b5.fontSize + 1,
   },
   permissionSubtitle: {
     marginTop: 2,
-    fontFamily: FontFamily.regular,
-    fontSize: FontSize.eleven,
+    ...fontSize.b5, lineHeight: fontSize.b5.fontSize + 1,
   },
   advancedButton: {
     flexDirection: 'row',
@@ -495,8 +482,7 @@ const styles = StyleSheet.create({
     paddingVertical: 4,
   },
   advancedText: {
-    fontFamily: FontFamily.bold,
-    fontSize: FontSize.ten,
+    ...fontSize.b5, lineHeight: fontSize.b5.fontSize + 1,
     textTransform: 'uppercase',
     letterSpacing: 1,
   },
@@ -519,8 +505,7 @@ const styles = StyleSheet.create({
   },
   postVideoText: {
     color: '#fff',
-    fontFamily: FontFamily.extraBold,
-    fontSize: FontSize.twelve,
+    ...fontSize.b4, lineHeight: fontSize.b4.fontSize + 1,
     letterSpacing: 1.1,
   },
 });

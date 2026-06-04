@@ -10,7 +10,7 @@ import CreatorChallenges from './CreatorChallenges';
 
 
 
-import { FontFamily, FontSize } from '../fonts';
+import { fontSize } from '../typography';
 
 const Arena :React.FC = ({route}:any)=>{
     const { isDark, theme } = useThemeMode();
@@ -79,10 +79,10 @@ const Arena :React.FC = ({route}:any)=>{
         }}>
         <Text style={{
             // color: activeTab == item ? theme.accent : theme.textSecondary,
+            ...fontSize.b1,
             color: activeTab === item ? isDark ? '#ffffff': '#000000': isDark ? '#ffffff5d':'#0000005d',
             textTransform: 'capitalize',
-            fontFamily: FontFamily.bold,
-            fontSize: mediumScreen ? FontSize.twenty: FontSize.sixteen,
+            // // fontSize: fontSize.b1.fontSize,
             marginBottom: 5
         }}>
             {item}
@@ -107,16 +107,15 @@ const Arena :React.FC = ({route}:any)=>{
 const createStyles = () => StyleSheet.create({
     header: { paddingBottom: 0, borderBottomWidth: 1 },
     headerTitle: {
-        fontFamily: FontFamily.displayExtraBold,
-        fontSize: FontSize.body,
+        ...fontSize.h1,
         letterSpacing: 2.2,
         textTransform: 'uppercase',
     },
     headerSubtitle: {
+        ...fontSize.h2,
         color: PRIMARY_COLOR,
         marginTop: 4,
-        fontFamily: FontFamily.extraBold,
-        fontSize: FontSize.seven,
+        // // ...fontSize.b5, lineHeight: fontSize.b5.fontSize + 1,
         letterSpacing: 1.5,
         textTransform: 'uppercase',
     },

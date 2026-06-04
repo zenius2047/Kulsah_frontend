@@ -1,5 +1,6 @@
 import { Platform, StyleSheet, useWindowDimensions } from 'react-native';
 import type { TextStyle } from 'react-native';
+import { mediumScreen } from './types';
 
 export type TypographyRole = 'display' | 'title' | 'body' | 'subheadline' | 'micro' | 'button';
 
@@ -70,6 +71,46 @@ export const FontFamily = {
   display: Platform.select({ ios: 'SF Pro Display', android: isAndroidApi31OrNewer ? 'Google Sans' : 'Roboto', default: undefined }),
   displayExtraBold: Platform.select({ ios: 'SF Pro Display', android: isAndroidApi31OrNewer ? 'Google Sans Medium' : 'Roboto', default: undefined }),
 } as const;
+
+export const fontSize= {
+  h1 : {
+    fontFamily: 'Inter_700Bold',
+    fontSize: mediumScreen ? 18:12,
+  },
+  h2: {
+    fontFamily: 'Inter_500Medium',
+    fontSize: mediumScreen ? 16:10,
+  },
+  b1: {
+    fontFamily: 'Inter_700Bold',
+    fontSize: mediumScreen ? 18:14,
+  },
+  b2: {
+    fontFamily: 'Inter_600SemiBold',
+    fontSize: mediumScreen ? 16:12,
+  },
+  b3: {
+    fontFamily: 'Inter_500Medium',
+    fontSize: mediumScreen ? 16:12,
+  },
+  b4: {
+    fontFamily: 'Poppins_500Medium',
+    fontSize: mediumScreen ? 14:10,
+  },
+  b5: {
+    fontFamily: 'Poppins_500Medium',
+    fontSize: mediumScreen ? 12:8,
+  },
+  n1: {
+    fontFamily: 'PlusJakartaSans_800ExtraBold',
+    fontSize: mediumScreen ? 30:26,
+  },
+  n5: {
+    fontFamily: 'PlusJakartaSans_800ExtraBold',
+    fontSize: mediumScreen ? 12:10,
+  },
+
+}
 
 export const getTypographySize = (role: TypographyRole) => {
   const token = TYPOGRAPHY_TOKENS[role];

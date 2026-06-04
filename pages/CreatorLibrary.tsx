@@ -17,9 +17,9 @@ import {
   View,
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
-import { FontFamily, FontSize } from '../fonts';
 import VisibilityIcon from '../assets/icons/visibility-svg.svg';
 import PaymentIcon from '../assets/icons/payments-svg.svg';
+import { fontSize } from './typography';
 
 type ContentType = 'all' | 'public' | 'premium' | 'live' | 'draft';
 
@@ -48,6 +48,7 @@ const TRENDING = [
 
 export default function CreatorLibrary() {
   const navigation = useNavigation<any>();
+  const { isDark } = useThemeMode();
   const [items, setItems] = useState(INITIAL_DATA);
   const [activeTab, setActiveTab] = useState<ContentType>('all');
   const [search, setSearch] = useState('');
@@ -178,9 +179,8 @@ export default function CreatorLibrary() {
           <Text style={s.section}>Trending Sounds</Text>
           <Text style={{
             color: PRIMARY_COLOR,
-            fontSize: FontSize.ten,
+            ...fontSize.b5, lineHeight: fontSize.b5.fontSize + 1,
             textTransform: 'uppercase',
-            fontFamily: FontFamily.extraBold
           }}>Explore All</Text>
         </View>
         <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={s.trendingRow}>
@@ -227,9 +227,8 @@ export default function CreatorLibrary() {
               <Text
               numberOfLines={2}
               style={{
-                fontSize: FontSize.eight,
+                ...fontSize.b5, lineHeight: fontSize.b5.fontSize + 1,
                 color: '#ffffff4d',
-                fontFamily: FontFamily.extraBold,
                 textTransform: 'uppercase',
                 textAlign: 'center'
               }}>{sound.artist}</Text>
@@ -271,8 +270,7 @@ export default function CreatorLibrary() {
                     borderWidth: 1,
                     paddingHorizontal: 6,
                     paddingVertical: 2,
-                    fontSize: FontSize.eight,
-                    fontFamily: FontFamily.bold,
+                    ...fontSize.b5, lineHeight: fontSize.b5.fontSize + 1,
                     borderColor:
                     item.type === 'public' ? '#3b82f64d' :
                     item.type === 'premium' ?'#e5e7eb' :
@@ -283,8 +281,7 @@ export default function CreatorLibrary() {
                     }]}>{item.type.toUpperCase()}</Text>
                 <Text style={{
                   color: '#94a3b8',
-                  fontFamily: FontFamily.bold,
-                  fontSize: FontSize.ten,
+                  ...fontSize.b5, lineHeight: fontSize.b5.fontSize + 1,
                   textTransform: 'uppercase'
                 }}>{item.date}</Text>
               </View>
@@ -315,8 +312,7 @@ export default function CreatorLibrary() {
               </View>}
               {item.type === 'draft' && <Text style={{
                 color: '#ffffff33',
-                fontFamily: FontFamily.extraBold,
-                fontSize: FontSize.ten,
+                ...fontSize.b5, lineHeight: fontSize.b5.fontSize + 1,
                 fontStyle: 'italic',
                 marginTop: 5,
               }}>
@@ -372,26 +368,26 @@ const s = StyleSheet.create({
   row: { flexDirection: 'row', alignItems: 'center', gap: 8 },
   rowBetween: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between' ,paddingHorizontal: 16, },
   iconBtn: { width: 36, height: 36, borderRadius: 18, alignItems: 'center', justifyContent: 'center',  },
-  title: { color: '#fff', fontSize: FontSize.sixteen, fontFamily: FontFamily.extraBold, textTransform: 'uppercase' },
+  title: { color: '#fff', ...fontSize.b4, lineHeight: fontSize.b4.fontSize + 1, textTransform: 'uppercase' },
   searchWrap: { marginTop: 25, height: 48, borderRadius: 16, borderWidth: 1, borderColor: '#ffffff1a', backgroundColor: '#ffffff0a', flexDirection: 'row', alignItems: 'center', paddingHorizontal: 10, gap: 8, marginHorizontal: 16 },
   searchInput: { flex: 1, color: '#94a3b8' },
   tabs: { gap: 14, paddingTop: 10, paddingBottom: 4,  paddingHorizontal: 16, },
   tabBtn: { alignItems: 'center', gap: 6, marginTop: 20 },
-  tabText: { color: '#94a3b8', textTransform: 'uppercase', fontSize: FontSize.ten, fontFamily: FontFamily.extraBold, letterSpacing: 2, },
+  tabText: { color: '#94a3b8', textTransform: 'uppercase', ...fontSize.b5, lineHeight: fontSize.b5.fontSize + 1, letterSpacing: 2, },
   tabTextActive: { color: PRIMARY_COLOR },
   tabDot: { width: '100%', height: 4, borderRadius: 999, backgroundColor: PRIMARY_COLOR },
   content: {gap: 12, paddingBottom: 120 },
   aiCard: { borderRadius: 18, borderWidth: 1, borderColor: primaryColorAlphaHex('3a'), backgroundColor: primaryColorAlphaHex('14'), padding: 12, gap: 10 },
-  aiTitle: { color: PRIMARY_COLOR, textTransform: 'uppercase', fontWeight: '900', fontSize: FontSize.nine },
-  aiText: { color: '#d9dce9', fontStyle: 'italic', fontSize: FontSize.thirteen },
+  aiTitle: { color: PRIMARY_COLOR, textTransform: 'uppercase', fontWeight: '900', ...fontSize.b5, lineHeight: fontSize.b5.fontSize + 1 },
+  aiText: { color: '#d9dce9', fontStyle: 'italic', ...fontSize.b4, lineHeight: fontSize.b4.fontSize + 1 },
   auditBtn: { height: 40, borderRadius: 10, borderWidth: 1, borderColor: primaryColorAlphaHex('50'), alignItems: 'center', justifyContent: 'center' },
-  auditBtnText: { color: PRIMARY_COLOR, textTransform: 'uppercase', fontWeight: '900', fontSize: FontSize.ten },
-  section: { color: '#fff', fontSize: FontSize.sixteen, textTransform: 'uppercase', fontFamily: FontFamily.extraBold },
+  auditBtnText: { color: PRIMARY_COLOR, textTransform: 'uppercase', fontWeight: '900', ...fontSize.b5, lineHeight: fontSize.b5.fontSize + 1 },
+  section: { color: '#fff', ...fontSize.b4, lineHeight: fontSize.b4.fontSize + 1, textTransform: 'uppercase' },
   trendingRow: { gap: 20, },
   soundCard: { width: 104, alignItems: 'center',justifyContent: 'center',},
   soundImg: { width: '100%', height: '100%', borderRadius: 999 },
-  soundTitle: { color: '#fff', fontSize: FontSize.eight, fontFamily: FontFamily.extraBold, textTransform: 'uppercase' },
-  soundMeta: { color: 'white', fontSize: FontSize.five, fontFamily: FontFamily.bold },
+  soundTitle: { color: '#fff', ...fontSize.b5, lineHeight: fontSize.b5.fontSize + 1, textTransform: 'uppercase' },
+  soundMeta: { color: 'white', ...fontSize.b5, lineHeight: fontSize.b5.fontSize + 1 },
   itemCard: {
     borderRadius: 18,
     borderWidth: 1,
@@ -403,21 +399,21 @@ const s = StyleSheet.create({
     marginHorizontal: 16,
   },
   itemImg: { width: 68, height: 68, borderRadius: 12 },
-  itemTitle: { color: '#fff', fontFamily: FontFamily.extraBold, flex: 1, marginRight: 8, lineHeight: 10, fontSize: FontSize.eleven },
-  itemMeta: { color: '#8f95af', fontSize: FontSize.ten, fontFamily: FontFamily.bold, lineHeight: 12 },
+  itemTitle: { color: '#fff', flex: 1, marginRight: 8, ...fontSize.b5, lineHeight: fontSize.b5.fontSize + 1 },
+  itemMeta: { color: '#8f95af', ...fontSize.b5,lineHeight: 12 },
   smallBtn: { width: 30, height: 30, borderRadius: 15, backgroundColor: '#ffffff10', alignItems: 'center', justifyContent: 'center' },
   overlay: { flex: 1, backgroundColor: '#00000080', justifyContent: 'center', paddingHorizontal: 20 },
   menu: { borderRadius: 14, backgroundColor: '#11151f', borderWidth: 1, borderColor: '#ffffff20', overflow: 'hidden' },
   menuRow: { paddingHorizontal: 14, paddingVertical: 12, borderBottomWidth: StyleSheet.hairlineWidth, borderBottomColor: '#ffffff14' },
-  menuText: { color: '#fff', textTransform: 'uppercase', fontSize: FontSize.ten, fontWeight: '900' },
-  deleteText: { color: '#ef4444', textTransform: 'uppercase', fontSize: FontSize.ten, fontWeight: '900' },
+  menuText: { color: '#fff', textTransform: 'uppercase', ...fontSize.b5, lineHeight: fontSize.b5.fontSize + 1, fontWeight: '900' },
+  deleteText: { color: '#ef4444', textTransform: 'uppercase', ...fontSize.b5, lineHeight: fontSize.b5.fontSize + 1, fontWeight: '900' },
   drawerWrap: { flex: 1, justifyContent: 'flex-end', backgroundColor: '#000000b3' },
   drawer: { borderTopLeftRadius: 24, borderTopRightRadius: 24, backgroundColor: '#101522', borderWidth: 1, borderColor: '#ffffff20', padding: 14, gap: 10 },
-  drawerTitle: { color: '#fff', textTransform: 'uppercase', fontWeight: '900', fontSize: FontSize.eighteen },
+  drawerTitle: { color: '#fff', textTransform: 'uppercase', fontWeight: '900', ...fontSize.b5, lineHeight: fontSize.b5.fontSize + 1 },
   drawerImg: { width: '100%', height: 180, borderRadius: 14 },
-  drawerMeta: { color: '#c2c7da', fontSize: FontSize.twelve },
+  drawerMeta: { color: '#c2c7da', ...fontSize.b4, lineHeight: fontSize.b4.fontSize + 1 },
   protocolBtn: { flex: 1, height: 38, borderRadius: 10, borderWidth: 1, borderColor: '#ffffff1f', alignItems: 'center', justifyContent: 'center', backgroundColor: '#ffffff08' },
   protocolBtnActive: { borderColor: primaryColorAlphaHex('80'), backgroundColor: PRIMARY_COLOR },
-  protocolText: { color: '#fff', fontWeight: '900', textTransform: 'uppercase', fontSize: FontSize.ten },
+  protocolText: { color: '#fff', fontWeight: '900', textTransform: 'uppercase', ...fontSize.b5, lineHeight: fontSize.b5.fontSize + 1 },
 });
 

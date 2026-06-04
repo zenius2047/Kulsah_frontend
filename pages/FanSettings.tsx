@@ -16,7 +16,6 @@ import { MaterialIcons } from '@expo/vector-icons';
 import { useNavigation, useRoute } from '@react-navigation/native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { mediumScreen, setDark, setUser, subscribeUser, user } from '../types';
-import { FontFamily, FontSize } from '../fonts';
 import CreatorSettings from './CreatorSettings';
 import DarkIcon from '../assets/icons/dark-mode-svg.svg';
 import AccountIcon from '../assets/icons/account-circle-svg.svg';
@@ -27,6 +26,7 @@ import FireIcon from '../assets/icons/fire-svg.svg';
 import { SvgProps } from 'react-native-svg';
 import CoinsIcon from '../assets/icons/coins-svg.svg';
 import CreatorSwitch from '../assets/icons/switch-creator.svg';
+import { fontSize } from './typography';
 
 type SubView = 'main' | 'profile' | 'identity' | 'gifts' | 'payments' | 'notifications';
 
@@ -787,7 +787,7 @@ const s = StyleSheet.create({
     justifyContent: 'center',
     backgroundColor: '#eef2ff',
   },
-  headerTitle: { fontSize: mediumScreen ? FontSize.sixteen:FontSize.twelve, fontFamily: FontFamily.extraBold, textTransform: 'uppercase', color: '#0f172a' },
+  headerTitle: { ...fontSize.b3, lineHeight: fontSize.b3.fontSize + 2, textTransform: 'uppercase', color: '#0f172a' },
   viewWrap: { flex: 1, backgroundColor: '#f8fafc' },
   formCard: { padding: 16, gap: 18 },
   profileAvatarWrap: { alignItems: 'center', marginBottom: 12 },
@@ -819,7 +819,7 @@ const s = StyleSheet.create({
     justifyContent: 'center',
   },
   formBlock: { gap: 8 },
-  label: { fontSize: mediumScreen ? FontSize.fourteen:FontSize.ten, fontFamily: FontFamily.extraBold, textTransform: 'uppercase', letterSpacing: 2, color: '#94a3b8' },
+  label: { ...fontSize.b4, lineHeight: fontSize.b4.fontSize + 1, textTransform: 'uppercase', letterSpacing: 2, color: '#94a3b8' },
   input: {
     height: 52,
     borderRadius: 18,
@@ -827,15 +827,14 @@ const s = StyleSheet.create({
     borderColor: '#e2e8f0',
     paddingHorizontal: 16,
     backgroundColor: '#fff',
-    fontSize: mediumScreen ? FontSize.fourteen:FontSize.ten,
+    ...fontSize.b4, lineHeight: fontSize.b4.fontSize + 1,
     color: '#0f172a',
-    fontFamily: FontFamily.bold,
   },
   handleWrap: { position: 'relative', justifyContent: 'center' },
-  handlePrefix: { position: 'absolute', left: 16, color: PRIMARY_COLOR, fontFamily: FontFamily.extraBold },
+  handlePrefix: { position: 'absolute', left: 16, color: PRIMARY_COLOR },
   handleInput: { paddingLeft: 34 },
   rowBetween: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between' },
-  counter: { fontSize: mediumScreen ? FontSize.fourteen:FontSize.ten, fontFamily: FontFamily.bold, color: '#94a3b8' },
+  counter: { ...fontSize.b4, lineHeight: fontSize.b4.fontSize + 1, color: '#94a3b8' },
   textArea: {
     minHeight: 120,
     borderRadius: 22,
@@ -845,8 +844,7 @@ const s = StyleSheet.create({
     textAlignVertical: 'top',
     backgroundColor: '#fff',
     color: '#334155',
-    fontFamily: FontFamily.bold,
-    fontSize: mediumScreen ? FontSize.fourteen:FontSize.ten
+    ...fontSize.b4, lineHeight: fontSize.b4.fontSize + 1
   },
   primaryButton: {
     marginTop: 6,
@@ -856,7 +854,7 @@ const s = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'center',
   },
-  primaryButtonText: { color: '#fff', fontSize: FontSize.twelve, fontFamily: FontFamily.extraBold, textTransform: 'uppercase', letterSpacing: 2 },
+  primaryButtonText: { color: '#fff', ...fontSize.b4, lineHeight: fontSize.b4.fontSize + 1, textTransform: 'uppercase', letterSpacing: 2 },
   identityContent: { padding: 16, paddingBottom: 120, gap: 20 },
   carouselWrap: { gap: 12 },
   cardSlide: { width: 360, paddingRight: 12 },
@@ -874,11 +872,11 @@ const s = StyleSheet.create({
   cardFront: { gap: 16 },
   cardBack: { gap: 14, alignItems: 'center' },
   cardRowBetween: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center' },
-  cardTag: { fontSize: FontSize.ten, fontFamily: FontFamily.extraBold, textTransform: 'uppercase', letterSpacing: 3, color: PRIMARY_COLOR },
-  cardName: { fontSize: FontSize.twentyThree, fontFamily: FontFamily.extraBold, color: '#0f172a', textTransform: 'uppercase' },
-  cardSub: { fontSize: FontSize.eleven, fontFamily: FontFamily.bold, color: '#94a3b8', textTransform: 'uppercase' },
-  cardTitle: { fontSize: FontSize.eighteen, fontFamily: FontFamily.extraBold, color: '#0f172a', textTransform: 'uppercase' },
-  cardLabel: { fontSize: FontSize.ten, fontFamily: FontFamily.extraBold, letterSpacing: 3, color: PRIMARY_COLOR, textTransform: 'uppercase' },
+  cardTag: { ...fontSize.b5, lineHeight: fontSize.b5.fontSize + 1, textTransform: 'uppercase', letterSpacing: 3, color: PRIMARY_COLOR },
+  cardName: { ...fontSize.b1, lineHeight: fontSize.b1.fontSize + 2, color: '#0f172a', textTransform: 'uppercase' },
+  cardSub: { ...fontSize.b5, lineHeight: fontSize.b5.fontSize + 1, color: '#94a3b8', textTransform: 'uppercase' },
+  cardTitle: { ...fontSize.b1, lineHeight: fontSize.b1.fontSize + 2, color: '#0f172a', textTransform: 'uppercase' },
+  cardLabel: { ...fontSize.b5, lineHeight: fontSize.b5.fontSize + 1, letterSpacing: 3, color: PRIMARY_COLOR, textTransform: 'uppercase' },
   cardIconBadge: {
     width: 40,
     height: 40,
@@ -903,15 +901,14 @@ const s = StyleSheet.create({
     paddingHorizontal: 14,
     paddingVertical: 6,
     borderRadius: 999,
-    fontSize: FontSize.ten,
-    fontFamily: FontFamily.extraBold,
+    ...fontSize.b5, lineHeight: fontSize.b5.fontSize + 1,
     textTransform: 'uppercase',
   },
-  smallLabel: { fontSize: FontSize.nine, fontFamily: FontFamily.extraBold, color: '#94a3b8', textTransform: 'uppercase', letterSpacing: 2 },
-  monoText: { fontSize: FontSize.eleven, fontFamily: FontFamily.bold, color: '#64748b' },
+  smallLabel: { ...fontSize.b5, lineHeight: fontSize.b5.fontSize + 1, color: '#94a3b8', textTransform: 'uppercase', letterSpacing: 2 },
+  monoText: { ...fontSize.b5, lineHeight: fontSize.b5.fontSize + 1, color: '#64748b' },
   iconRow: { flexDirection: 'row', gap: 8 },
   ticketRow: { flexDirection: 'row', justifyContent: 'space-between' },
-  ticketValue: { fontSize: FontSize.thirteen, fontFamily: FontFamily.bold, color: '#0f172a' },
+  ticketValue: { ...fontSize.b4, lineHeight: fontSize.b4.fontSize + 1, color: '#0f172a' },
   blueText: { color: '#3b82f6' },
   qrBadge: {
     width: 36,
@@ -950,18 +947,18 @@ const s = StyleSheet.create({
     backgroundColor: '#f0fdf4',
   },
   tokenDot: { width: 8, height: 8, borderRadius: 4, backgroundColor: PRIMARY_COLOR },
-  tokenText: { fontSize: FontSize.ten, fontFamily: FontFamily.extraBold, color: '#7c3aed' },
-  tokenTextAlt: { fontSize: FontSize.ten, fontFamily: FontFamily.extraBold, color: '#16a34a' },
-  tokenHint: { fontSize: FontSize.ten, fontFamily: FontFamily.bold, color: '#94a3b8', textAlign: 'center' },
+  tokenText: { ...fontSize.b5, lineHeight: fontSize.b5.fontSize + 1, color: '#7c3aed' },
+  tokenTextAlt: { ...fontSize.b5, lineHeight: fontSize.b5.fontSize + 1, color: '#16a34a' },
+  tokenHint: { ...fontSize.b5, lineHeight: fontSize.b5.fontSize + 1, color: '#94a3b8', textAlign: 'center' },
   progressBarWrap: { gap: 8 },
   progressTrack: { height: 6, borderRadius: 999, backgroundColor: '#e2e8f0' },
   progressFill: { height: '100%', borderRadius: 999, backgroundColor: PRIMARY_COLOR },
   progressLabels: { flexDirection: 'row', justifyContent: 'space-between' },
-  progressText: { fontSize: FontSize.ten, fontFamily: FontFamily.bold, textTransform: 'uppercase', color: '#94a3b8' },
+  progressText: { ...fontSize.b5, lineHeight: fontSize.b5.fontSize + 1, textTransform: 'uppercase', color: '#94a3b8' },
   progressTextActive: { color: PRIMARY_COLOR },
   sectionBlock: { gap: 10 },
-  sectionTitle: { fontSize: FontSize.nine, fontFamily: FontFamily.extraBold, textTransform: 'uppercase', letterSpacing: 2, color: '#94a3b8' },
-  sectionBadge: { fontSize: FontSize.ten, fontFamily: FontFamily.bold, textTransform: 'uppercase', color: PRIMARY_COLOR },
+  sectionTitle: { ...fontSize.b5, lineHeight: fontSize.b5.fontSize + 1, textTransform: 'uppercase', letterSpacing: 2, color: '#94a3b8' },
+  sectionBadge: { ...fontSize.b5, lineHeight: fontSize.b5.fontSize + 1, textTransform: 'uppercase', color: PRIMARY_COLOR },
   rail: { marginTop: 6 },
   railCard: {
     width: 170,
@@ -982,8 +979,8 @@ const s = StyleSheet.create({
     justifyContent: 'center',
   },
   railIconBlue: { backgroundColor: '#eff6ff' },
-  railTitle: { fontSize: FontSize.eleven, fontFamily: FontFamily.extraBold, color: '#0f172a' },
-  railMeta: { fontSize: FontSize.ten, fontFamily: FontFamily.bold, color: '#94a3b8', textTransform: 'uppercase' },
+  railTitle: { ...fontSize.b5, lineHeight: fontSize.b5.fontSize + 1, color: '#0f172a' },
+  railMeta: { ...fontSize.b5, lineHeight: fontSize.b5.fontSize + 1, color: '#94a3b8', textTransform: 'uppercase' },
   statusCard: {
     padding: 14,
     borderRadius: 20,
@@ -1003,10 +1000,9 @@ const s = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'center',
   },
-  statusText: { fontSize: FontSize.twelve, fontFamily: FontFamily.bold, color: '#0f172a' },
+  statusText: { ...fontSize.b4, lineHeight: fontSize.b4.fontSize + 1, color: '#0f172a' },
   statusBadge: {
-    fontSize: FontSize.nine,
-    fontFamily: FontFamily.extraBold,
+    ...fontSize.b5, lineHeight: fontSize.b5.fontSize + 1,
     textTransform: 'uppercase',
     color: PRIMARY_COLOR,
     backgroundColor: '#f5f3ff',
@@ -1028,14 +1024,12 @@ const s = StyleSheet.create({
   },
   walletContent: { gap: 12 },
   walletValue: {
-    fontSize: mediumScreen ? FontSize.thirtyTwo : FontSize.twentyEight,
-    fontFamily: FontFamily.extraBold,
+    ...fontSize.b1, lineHeight: fontSize.b1.fontSize + 2,
     color: '#0f172a',
     marginTop: 4,
   },
   walletUnit: {
-    fontSize: mediumScreen ? FontSize.eighteen : FontSize.fourteen,
-    fontFamily: FontFamily.extraBold,
+    ...fontSize.b1, lineHeight: fontSize.b1.fontSize + 2,
     color: PRIMARY_COLOR,
   },
   walletActions: {
@@ -1053,8 +1047,7 @@ const s = StyleSheet.create({
   },
   walletPrimaryButtonText: {
     color: '#fff',
-    fontSize: FontSize.ten,
-    fontFamily: FontFamily.extraBold,
+    ...fontSize.b5, lineHeight: fontSize.b5.fontSize + 1,
     textTransform: 'uppercase',
     letterSpacing: 1.5,
   },
@@ -1067,8 +1060,7 @@ const s = StyleSheet.create({
     justifyContent: 'center',
   },
   moreItemsMeta: {
-    fontSize: FontSize.nine,
-    fontFamily: FontFamily.extraBold,
+    ...fontSize.b5, lineHeight: fontSize.b5.fontSize + 1,
     textTransform: 'uppercase',
     letterSpacing: 1.5,
   },
@@ -1097,28 +1089,24 @@ const s = StyleSheet.create({
   },
   giftTextWrap: { flex: 1 },
   giftTitle: {
-    fontSize: FontSize.twelve,
-    fontFamily: FontFamily.extraBold,
+    ...fontSize.b4, lineHeight: fontSize.b4.fontSize + 1,
     textTransform: 'uppercase',
   },
   giftDesc: {
     marginTop: 2,
-    fontSize: FontSize.ten,
-    fontFamily: FontFamily.medium,
+    ...fontSize.b5, lineHeight: fontSize.b5.fontSize + 1,
   },
   giftRight: {
     alignItems: 'flex-end',
     minWidth: 48,
   },
   giftCount: {
-    fontSize: FontSize.eighteen,
-    fontFamily: FontFamily.extraBold,
-    lineHeight: FontSize.twenty,
+    ...fontSize.b1,
+    lineHeight: fontSize.b1.fontSize + 2,
   },
   giftMeta: {
     marginTop: 2,
-    fontSize: FontSize.eight,
-    fontFamily: FontFamily.extraBold,
+    ...fontSize.b5, lineHeight: fontSize.b5.fontSize + 1,
     textTransform: 'uppercase',
     letterSpacing: 1.5,
   },
@@ -1143,14 +1131,12 @@ const s = StyleSheet.create({
     gap: 6,
   },
   marketplaceTitle: {
-    fontSize: FontSize.twelve,
-    fontFamily: FontFamily.bold,
+    ...fontSize.b4, lineHeight: fontSize.b4.fontSize + 1,
   },
   marketplaceDesc: {
-    fontSize: FontSize.ten,
-    fontFamily: FontFamily.medium,
+    ...fontSize.b5,
     textAlign: 'center',
-    lineHeight: FontSize.sixteen,
+    lineHeight: fontSize.b3.fontSize + 2,
   },
   methodCard: {
     padding: 14,
@@ -1171,11 +1157,10 @@ const s = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'center',
   },
-  methodTitle: { fontSize: FontSize.twelve, fontFamily: FontFamily.bold, color: '#0f172a' },
-  methodMeta: { fontSize: FontSize.ten, fontFamily: FontFamily.bold, color: '#94a3b8', textTransform: 'uppercase' },
+  methodTitle: { ...fontSize.b4, lineHeight: fontSize.b4.fontSize + 1, color: '#0f172a' },
+  methodMeta: { ...fontSize.b5, lineHeight: fontSize.b5.fontSize + 1, color: '#94a3b8', textTransform: 'uppercase' },
   methodBadge: {
-    fontSize: FontSize.nine,
-    fontFamily: FontFamily.extraBold,
+    ...fontSize.b5, lineHeight: fontSize.b5.fontSize + 1,
     textTransform: 'uppercase',
     color: PRIMARY_COLOR,
     backgroundColor: '#f5f3ff',
@@ -1192,13 +1177,13 @@ const s = StyleSheet.create({
     alignItems: 'center',
     gap: 8,
   },
-  emptyText: { fontSize: FontSize.ten, fontFamily: FontFamily.extraBold, textTransform: 'uppercase', letterSpacing: 2, color: '#94a3b8' },
+  emptyText: { ...fontSize.b5, lineHeight: fontSize.b5.fontSize + 1, textTransform: 'uppercase', letterSpacing: 2, color: '#94a3b8' },
   mainContent: { padding: 16, paddingBottom: 120, gap: 18 },
   profileHeader: { alignItems: 'center', gap: 12 },
   profileTextWrap: { alignItems: 'center' },
   profileNameRow: { flexDirection: 'row', alignItems: 'center', gap: 6 },
-  profileName: { fontSize: FontSize.sixteen, fontFamily: FontFamily.extraBold, color: '#0f172a' },
-  profileHandle: { fontSize: FontSize.ten, fontFamily: FontFamily.bold, letterSpacing: 0.5, color: PRIMARY_COLOR, textTransform: 'uppercase' },
+  profileName: { ...fontSize.b4, lineHeight: fontSize.b4.fontSize + 1, color: '#0f172a' },
+  profileHandle: { ...fontSize.b5, lineHeight: fontSize.b5.fontSize + 1, letterSpacing: 0.5, color: PRIMARY_COLOR, textTransform: 'uppercase' },
   itemRow: {
     marginTop: 8,
     padding: 14,
@@ -1221,8 +1206,8 @@ const s = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'center',
   },
-  itemLabel: { fontSize: FontSize.twelve, fontFamily: FontFamily.extraBold, color: '#0f172a' },
-  itemDesc: { fontSize: FontSize.eleven, fontFamily: FontFamily.medium, color: '#94a3b8' },
+  itemLabel: { ...fontSize.b4, lineHeight: fontSize.b4.fontSize + 1, color: '#0f172a' },
+  itemDesc: { ...fontSize.b5, lineHeight: fontSize.b5.fontSize + 1, color: '#94a3b8' },
   toggle: {
     width: 44,
     height: 24,
@@ -1252,8 +1237,8 @@ const s = StyleSheet.create({
     borderColor: '#fecaca',
     backgroundColor: '#fee2e2',
   },
-  logoutText: { fontSize: FontSize.twelve, fontFamily: FontFamily.bold, color: '#ef4444' },
-  versionText: { fontSize: FontSize.nine, fontFamily: FontFamily.extraBold, textTransform: 'uppercase', color: '#94a3b8', letterSpacing: 2 },
+  logoutText: { ...fontSize.b4, lineHeight: fontSize.b4.fontSize + 1, color: '#ef4444' },
+  versionText: { ...fontSize.b5, lineHeight: fontSize.b5.fontSize + 1, textTransform: 'uppercase', color: '#94a3b8', letterSpacing: 2 },
   roleModalRoot: {
     flex: 1,
     alignItems: 'center',
@@ -1285,15 +1270,13 @@ const s = StyleSheet.create({
     gap: 8,
   },
   roleModalTitle: {
-    fontSize: FontSize.twentyTwo,
-    fontFamily: FontFamily.extraBold,
+    ...fontSize.b1,
     textTransform: 'uppercase',
     textAlign: 'center',
     lineHeight: 28,
   },
   roleModalBody: {
-    fontSize: FontSize.twelve,
-    fontFamily: FontFamily.medium,
+    ...fontSize.b4,
     lineHeight: 20,
     textAlign: 'center',
   },
@@ -1311,8 +1294,7 @@ const s = StyleSheet.create({
     justifyContent: 'center',
   },
   roleModalSecondaryText: {
-    fontSize: FontSize.ten,
-    fontFamily: FontFamily.extraBold,
+    ...fontSize.b5, lineHeight: fontSize.b5.fontSize + 1,
     textTransform: 'uppercase',
     letterSpacing: 1.6,
   },
@@ -1331,8 +1313,7 @@ const s = StyleSheet.create({
   },
   roleModalPrimaryText: {
     color: '#ffffff',
-    fontSize: FontSize.ten,
-    fontFamily: FontFamily.extraBold,
+    ...fontSize.b5, lineHeight: fontSize.b5.fontSize + 1,
     textTransform: 'uppercase',
     letterSpacing: 1.8,
   },

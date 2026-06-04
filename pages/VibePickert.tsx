@@ -12,9 +12,9 @@ import {
   View,
 } from 'react-native';
 import { SafeAreaView, useSafeAreaInsets } from 'react-native-safe-area-context';
-import { FontFamily, FontSize } from '../fonts';
 import { mediumScreen } from '../types';
 import { PRIMARY_COLOR, primaryColorAlpha } from "../theme";
+import { fontSize } from './typography';
 
 interface Vibe {
   id: string;
@@ -178,16 +178,14 @@ const styles = StyleSheet.create({
   },
   title: {
     color: '#fff',
-    fontSize: mediumScreen ? FontSize.thirtyEight : FontSize.thirtyFour,
-    fontFamily: FontFamily.extraBold,
+    ...fontSize.b1, lineHeight: fontSize.b1.fontSize + 2,
     letterSpacing: -1.4,
     textAlign: 'center',
   },
   subtitle: {
     marginTop: 8,
     color: 'rgba(255,255,255,0.5)',
-    fontSize: FontSize.thirteen,
-    fontFamily: FontFamily.medium,
+    ...fontSize.b4, lineHeight: fontSize.b4.fontSize + 1,
     textAlign: 'center',
   },
   scrollContent: {
@@ -249,15 +247,13 @@ const styles = StyleSheet.create({
   },
   cardTitle: {
     color: '#fff',
-    fontSize: mediumScreen ? FontSize.twenty : FontSize.eighteen,
-    fontFamily: FontFamily.extraBold,
-    lineHeight: mediumScreen ? FontSize.twentyFive : FontSize.twentyTwo,
+    ...fontSize.b1,
+    lineHeight: fontSize.b1.fontSize + 2,
   },
   cardDesc: {
     marginTop: 4,
     color: 'rgba(255,255,255,0.6)',
-    fontSize: FontSize.ten,
-    fontFamily: FontFamily.bold,
+    ...fontSize.b5, lineHeight: fontSize.b5.fontSize + 1,
     textTransform: 'uppercase',
     letterSpacing: 2,
   },
@@ -297,8 +293,7 @@ const styles = StyleSheet.create({
   },
   continueText: {
     color: '#fff',
-    fontSize: FontSize.twenty,
-    fontFamily: FontFamily.extraBold,
+    ...fontSize.b1, lineHeight: fontSize.b1.fontSize + 2,
   },
   continueTextDisabled: {
     color: 'rgba(255,255,255,0.22)',

@@ -8,9 +8,9 @@ import {
   View,
   ViewStyle,
 } from 'react-native';
-import { FontFamily, FontSize } from '../fonts';
 import { useThemeMode, primaryColorAlpha } from "../theme";
 import { mediumScreen } from '../types';
+import { fontSize } from './typography';
 
 type KulsahInputBarProps = TextInputProps & {
   containerStyle?: StyleProp<ViewStyle>;
@@ -80,8 +80,7 @@ const styles = StyleSheet.create({
     flex: 1,
     minHeight: 29,
     paddingVertical: 0,
-    fontFamily: FontFamily.medium,
-    fontSize: mediumScreen ? FontSize.twelve : FontSize.nine,
+    ...fontSize.b4, lineHeight: fontSize.b4.fontSize + 1,
   },
 });
 

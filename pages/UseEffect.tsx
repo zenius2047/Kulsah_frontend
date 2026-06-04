@@ -14,8 +14,8 @@ import { SafeAreaView, useSafeAreaInsets } from 'react-native-safe-area-context'
 import { LinearGradient } from 'expo-linear-gradient';
 import { MaterialIcons } from '@expo/vector-icons';
 import { useNavigation } from '@react-navigation/native';
-import { FontFamily, FontSize } from '../fonts';
 import { mediumScreen } from '../types';
+import { fontSize } from './typography';
 
 type Creation = {
   id: string;
@@ -227,8 +227,7 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
   },
   headerTitle: {
-    fontFamily: FontFamily.bold,
-    fontSize: FontSize.fourteen,
+    ...fontSize.b4, lineHeight: fontSize.b4.fontSize + 1,
   },
   scrollContent: {
     paddingBottom: 56,
@@ -278,13 +277,12 @@ const styles = StyleSheet.create({
     gap: 4,
   },
   effectTitle: {
-    fontFamily: FontFamily.bold,
-    fontSize: mediumScreen ? FontSize.sixteen : FontSize.twenty,
+    ...fontSize.b1,
+    lineHeight: fontSize.b1.fontSize + 2,
     textAlign: 'center',
   },
   effectArtist: {
-    fontFamily: FontFamily.medium,
-    fontSize: mediumScreen ? FontSize.fourteen : FontSize.twelve,
+    ...fontSize.b3, lineHeight: fontSize.b3.fontSize + 2,
     textAlign: 'center',
   },
   metaPill: {
@@ -297,8 +295,7 @@ const styles = StyleSheet.create({
     paddingVertical: 6,
   },
   metaPillText: {
-    fontFamily: FontFamily.medium,
-    fontSize: mediumScreen ? FontSize.twelve : FontSize.eight,
+    ...fontSize.b4, lineHeight: fontSize.b4.fontSize + 1,
   },
   actionRow: {
     flexDirection: 'row',
@@ -330,8 +327,7 @@ const styles = StyleSheet.create({
   },
   actionButtonText: {
     color: '#fff',
-    fontFamily: FontFamily.bold,
-    fontSize: mediumScreen ? FontSize.fourteen : FontSize.ten,
+    ...fontSize.b4, lineHeight: fontSize.b4.fontSize + 1,
   },
   sectionHeader: {
     flexDirection: 'row',
@@ -341,8 +337,7 @@ const styles = StyleSheet.create({
     marginBottom: 12,
   },
   sectionTitle: {
-    fontFamily: FontFamily.bold,
-    fontSize: mediumScreen ? FontSize.sixteen : FontSize.twelve,
+    ...fontSize.b3, lineHeight: fontSize.b3.fontSize + 2,
   },
   sortButton: {
     width: 28,
@@ -376,8 +371,7 @@ const styles = StyleSheet.create({
   },
   cardMetaText: {
     color: '#fff',
-    fontFamily: FontFamily.bold,
-    fontSize: FontSize.nine,
+    ...fontSize.b5, lineHeight: fontSize.b5.fontSize + 1,
   },
 });
 

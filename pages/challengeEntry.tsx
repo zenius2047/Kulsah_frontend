@@ -13,7 +13,7 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 import { LinearGradient } from 'expo-linear-gradient';
 import { MaterialIcons } from '@expo/vector-icons';
 import { useNavigation } from '@react-navigation/native';
-import { FontFamily, FontSize } from '../fonts';
+import { fontSize } from './typography';
 
 const HERO_IMAGE =
   'https://lh3.googleusercontent.com/aida-public/AB6AXuAtfTYQLqMJlJJOkz8ywMdhjF-eWbj7INd0yFasAuyZNpzKYjK4P08-YCMEDOCnxcrYLx2kkKwABUJgD4Z0WvCVEv77uMa0we3fuOu1TzAe6eYEhr5AMtAvI4C7F36ui82Kqzmu0xdJdlCumb2rnIzHeNHEjGGjN_sR7ldmEktvp1g9ThgpBc2PK2P5oWZTJNVQf7ZCWvlfAnrGGiy7JY_cOPBEj9IQPFgmdM5Vyow6NxrduDhAJnICPLtROgH-A1nIjRjxk9ZFxBbr';
@@ -187,8 +187,7 @@ const styles = StyleSheet.create({
     flex: 1,
     textAlign: 'center',
     color: '#F8FAFC',
-    fontFamily: FontFamily.bold,
-    fontSize: FontSize.thirteen,
+    ...fontSize.b4, lineHeight: fontSize.b4.fontSize + 1,
   },
   headerRight: {
     width: 40,
@@ -242,20 +241,17 @@ const styles = StyleSheet.create({
   },
   liveBadgeText: {
     color: '#fff',
-    fontFamily: FontFamily.bold,
-    fontSize: FontSize.eight,
+    ...fontSize.b5, lineHeight: fontSize.b5.fontSize + 1,
     textTransform: 'uppercase',
     letterSpacing: 0.6,
   },
   entryCount: {
     color: 'rgba(217, 21, 210, 0.82)',
-    fontFamily: FontFamily.bold,
-    fontSize: FontSize.ten,
+    ...fontSize.b5, lineHeight: fontSize.b5.fontSize + 1,
   },
   heroTitle: {
     color: '#fff',
-    fontFamily: FontFamily.bold,
-    fontSize: FontSize.eighteen,
+    ...fontSize.b1,
     lineHeight: 30,
   },
   descriptionSection: {
@@ -264,13 +260,11 @@ const styles = StyleSheet.create({
   },
   descriptionText: {
     color: '#94A3B8',
-    fontFamily: FontFamily.regular,
-    fontSize: FontSize.twelve,
+    ...fontSize.b4,
     lineHeight: 22,
   },
   hashTag: {
     color: PRIMARY_COLOR,
-    fontFamily: FontFamily.bold,
   },
   audioSection: {
     paddingHorizontal: 16,
@@ -284,13 +278,11 @@ const styles = StyleSheet.create({
   },
   sectionTitle: {
     color: '#F8FAFC',
-    fontFamily: FontFamily.bold,
-    fontSize: FontSize.thirteen,
+    ...fontSize.b4, lineHeight: fontSize.b4.fontSize + 1,
   },
   seeAll: {
     color: PRIMARY_COLOR,
-    fontFamily: FontFamily.bold,
-    fontSize: FontSize.ten,
+    ...fontSize.b5, lineHeight: fontSize.b5.fontSize + 1,
   },
   audioCard: {
     flexDirection: 'row',
@@ -324,14 +316,12 @@ const styles = StyleSheet.create({
   },
   audioTitle: {
     color: '#F8FAFC',
-    fontFamily: FontFamily.bold,
-    fontSize: FontSize.eleven,
+    ...fontSize.b5, lineHeight: fontSize.b5.fontSize + 1,
     marginBottom: 4,
   },
   audioMeta: {
     color: '#94A3B8',
-    fontFamily: FontFamily.regular,
-    fontSize: FontSize.ten,
+    ...fontSize.b5, lineHeight: fontSize.b5.fontSize + 1,
   },
   uploadSection: {
     flexDirection: 'row',
@@ -381,14 +371,12 @@ const styles = StyleSheet.create({
   },
   recordLabel: {
     color: '#fff',
-    fontFamily: FontFamily.bold,
-    fontSize: FontSize.twelve,
+    ...fontSize.b4, lineHeight: fontSize.b4.fontSize + 1,
     textAlign: 'center',
   },
   libraryLabel: {
     color: '#F8FAFC',
-    fontFamily: FontFamily.bold,
-    fontSize: FontSize.twelve,
+    ...fontSize.b4, lineHeight: fontSize.b4.fontSize + 1,
     textAlign: 'center',
   },
 });

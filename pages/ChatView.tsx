@@ -15,10 +15,9 @@ import { useNavigation, useRoute } from '@react-navigation/native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { MaterialIcons } from '@expo/vector-icons';
 import { GoogleGenAI } from '@google/genai';
-import { FontFamily, FontSize } from '../fonts';
-import { mediumScreen } from '../types';
 import KulsahInputBar from '../components/KulsahInputBar';
 import GiftDialog, { GiftSelection } from '../components/GiftDialog';
+import { fontSize } from './typography';
 
 interface Message {
   id: number;
@@ -440,7 +439,7 @@ const ChatView: React.FC = () => {
             <View style={styles.emojiRow}>
               {emojiSet.map((emoji) => (
                 <Pressable key={emoji} onPress={() => addEmoji(emoji)} style={[styles.emojiBtn, { borderColor: border, backgroundColor: isDark ? 'transparent' : theme.card }]}>
-                  <Text style={{ fontSize: FontSize.eighteen }}>{emoji}</Text>
+                  <Text style={styles.emojiText}>{emoji}</Text>
                 </Pressable>
               ))}
             </View>
@@ -518,8 +517,8 @@ const styles = StyleSheet.create({
   },
   callTop: { alignItems: 'center', gap: 10 },
   callAvatar: { width: 132, height: 132, borderRadius: 36, borderWidth: 3, borderColor: primaryColorAlpha(0.35) },
-  callName: { fontSize: FontSize.twentySeven, fontFamily: FontFamily.extraBold },
-  callStatus: { color: PRIMARY_COLOR, fontSize: FontSize.eleven, letterSpacing: 2, fontFamily: FontFamily.extraBold },
+  callName: { ...fontSize.b1, lineHeight: fontSize.b1.fontSize + 2 },
+  callStatus: { color: PRIMARY_COLOR, ...fontSize.b5, lineHeight: fontSize.b5.fontSize + 1, letterSpacing: 2 },
   callActions: { flexDirection: 'row', alignItems: 'center', gap: 24 },
   callBtn: {
     width: 58,
@@ -551,8 +550,8 @@ const styles = StyleSheet.create({
   profileWrap: { position: 'relative' },
   profileAvatar: { width: 42, height: 42, borderRadius: 21, borderWidth: 2, borderColor: primaryColorAlpha(0.5) },
   onlineDot: { position: 'absolute', right: -1, bottom: -1, width: 10, height: 10, borderRadius: 5, backgroundColor: '#22c55e' },
-  userName: { fontSize: FontSize.twelve, fontFamily: FontFamily.extraBold },
-  userSub: { fontSize: FontSize.ten, fontFamily: FontFamily.bold },
+  userName: { ...fontSize.b5, lineHeight: fontSize.b5.fontSize + 1 },
+  userSub: { ...fontSize.b5, lineHeight: fontSize.b5.fontSize + 1 },
   metaCard: {
     marginTop: 10,
     borderRadius: 16,
@@ -564,16 +563,16 @@ const styles = StyleSheet.create({
     justifyContent: 'space-between',
     gap: 8,
   },
-  metaLabel: { fontSize: FontSize.eight, fontFamily: FontFamily.extraBold, letterSpacing: 1 },
-  metaValue: { fontSize: FontSize.eleven, fontFamily: FontFamily.extraBold },
+  metaLabel: { ...fontSize.b5, lineHeight: fontSize.b5.fontSize + 1, letterSpacing: 1 },
+  metaValue: { ...fontSize.b5, lineHeight: fontSize.b5.fontSize + 1 },
   metaDivider: { width: 1, height: 20 },
   messages: { flex: 1, paddingHorizontal: 14, paddingTop: 10 },
   msgRow: { marginBottom: 14 },
   msgBubble: { maxWidth: '86%', borderRadius: 20, paddingHorizontal: 14, paddingVertical: 11 },
   msgMine: { backgroundColor: PRIMARY_COLOR },
   msgOther: { backgroundColor: 'rgba(255,255,255,0.08)', borderWidth: 1, borderColor: 'rgba(255,255,255,0.06)' },
-  msgText: { fontSize: mediumScreen? FontSize.sixteen :FontSize.twelve, lineHeight: 19, fontFamily: FontFamily.medium },
-  msgMeta: { marginTop: 5, fontSize: mediumScreen ? FontSize.twelve:FontSize.eight, fontFamily: FontFamily.bold },
+  msgText: { ...fontSize.b3, lineHeight: 19 },
+  msgMeta: { marginTop: 5, ...fontSize.b5, lineHeight: fontSize.b5.fontSize + 1 },
   dropBubble: {
     maxWidth: '86%',
     borderRadius: 24,
@@ -585,8 +584,8 @@ const styles = StyleSheet.create({
   },
   dropThumb: { borderRadius: 14, backgroundColor: '#000', height: 120, justifyContent: 'center', alignItems: 'center' },
   playButton: { width: 66, height: 66, borderRadius: 33, backgroundColor: primaryColorAlpha(0.24), borderWidth: 1, borderColor: primaryColorAlpha(0.5), alignItems: 'center', justifyContent: 'center' },
-  dropTitle: { color: PRIMARY_COLOR, fontSize: FontSize.nine, fontFamily: FontFamily.extraBold },
-  dropName: { fontSize: FontSize.twelve, fontFamily: FontFamily.bold },
+  dropTitle: { color: PRIMARY_COLOR, ...fontSize.b5, lineHeight: fontSize.b5.fontSize + 1 },
+  dropName: { ...fontSize.b5, lineHeight: fontSize.b5.fontSize + 1 },
   tipBubble: {
     maxWidth: '86%',
     borderRadius: 24,
@@ -598,8 +597,8 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
   },
-  tipLabel: { color: '#22c55e', fontSize: FontSize.ten, fontFamily: FontFamily.extraBold },
-  tipAmount: { fontSize: FontSize.thirteen, fontFamily: FontFamily.bold },
+  tipLabel: { color: '#22c55e', ...fontSize.b5, lineHeight: fontSize.b5.fontSize + 1 },
+  tipAmount: { ...fontSize.b4, lineHeight: fontSize.b4.fontSize + 1 },
   giftBubble: {
     maxWidth: '86%',
     borderRadius: 24,
@@ -625,24 +624,21 @@ const styles = StyleSheet.create({
     height: '100%',
   },
   giftBubbleEmoji: {
-    fontSize: FontSize.twentyFour,
+    ...fontSize.b1, lineHeight: fontSize.b1.fontSize + 2,
   },
   giftBubbleLabel: {
     color: PRIMARY_COLOR,
-    fontSize: FontSize.eight,
-    fontFamily: FontFamily.extraBold,
+    ...fontSize.b5, lineHeight: fontSize.b5.fontSize + 1,
     textTransform: 'uppercase',
     letterSpacing: 1.2,
   },
   giftBubbleName: {
     marginTop: 2,
-    fontSize: FontSize.twelve,
-    fontFamily: FontFamily.extraBold,
+    ...fontSize.b4, lineHeight: fontSize.b4.fontSize + 1,
   },
   giftBubblePrice: {
     marginTop: 2,
-    fontSize: FontSize.eight,
-    fontFamily: FontFamily.bold,
+    ...fontSize.b5, lineHeight: fontSize.b5.fontSize + 1,
     textTransform: 'uppercase',
   },
   stickerBubble: {
@@ -666,8 +662,8 @@ const styles = StyleSheet.create({
     gap: 4,
   },
   toolItem: { flexDirection: 'row', alignItems: 'center', gap: 10, padding: 10, borderRadius: 14 },
-  toolTitle: { fontSize: FontSize.eleven, fontFamily: FontFamily.extraBold },
-  toolSub: { fontSize: FontSize.nine, fontFamily: FontFamily.bold },
+  toolTitle: { ...fontSize.b5, lineHeight: fontSize.b5.fontSize + 1 },
+  toolSub: { ...fontSize.b5, lineHeight: fontSize.b5.fontSize + 1 },
   footer: {
     paddingTop: 6,
     paddingHorizontal: 12,
@@ -676,7 +672,7 @@ const styles = StyleSheet.create({
   },
   repliesRow: { gap: 8, paddingVertical: 6 },
   replyChip: { borderRadius: 999, borderWidth: 1, paddingHorizontal: 12, paddingVertical: 8 },
-  replyText: { color: PRIMARY_COLOR, fontSize: FontSize.ten, fontFamily: FontFamily.extraBold },
+  replyText: { color: PRIMARY_COLOR, ...fontSize.b5, lineHeight: fontSize.b5.fontSize + 1 },
   emojiPanel: {
     borderRadius: 16,
     borderWidth: 1,
@@ -693,6 +689,7 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     alignItems: 'center',
   },
+  emojiText: { ...fontSize.b1, lineHeight: fontSize.b1.fontSize + 2 },
   stickerBtn: { width: 44, height: 44, borderRadius: 12, overflow: 'hidden', borderWidth: 1 },
   stickerBtnImg: { width: '100%', height: '100%' },
   inputRow: { flexDirection: 'row', alignItems: 'center', gap: 8 },
@@ -716,7 +713,7 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     gap: 8,
   },
-  input: { flex: 1, fontSize: mediumScreen? FontSize.twelve: FontSize.eight, fontFamily: FontFamily.bold },
+  input: { flex: 1, ...fontSize.b5, lineHeight: fontSize.b5.fontSize + 1 },
   inputActions: { flexDirection: 'row' },
   inputIcon: { width: 32, height: 32, borderRadius: 16, alignItems: 'center', justifyContent: 'center' },
   inputSendButton: { width: 36, height: 36, borderRadius: 12, backgroundColor: PRIMARY_COLOR, justifyContent: 'center', alignItems: 'center' },

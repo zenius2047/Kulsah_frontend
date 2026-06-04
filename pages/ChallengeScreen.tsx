@@ -14,7 +14,7 @@ import { useNavigation } from '@react-navigation/native';
 
 
 
-import { FontFamily, FontSize } from '../fonts';
+import { fontSize } from './typography';
 
 interface Props {
   videoLink: string;
@@ -165,8 +165,7 @@ const navigation = useNavigation<any>()
             }}>
                 <BadgeIcon height={34} width={34} fill={PRIMARY_COLOR}/>
             <Text style={{
-                fontFamily: FontFamily.bold,
-                fontSize: mediumScreen ? FontSize.twentyTwo: FontSize.sixteen,
+                ...fontSize.b1, lineHeight: fontSize.b1.fontSize + 2,
                 color: !isDark ? 'black': 'white',
             }}>
                 Arena
@@ -200,8 +199,7 @@ const navigation = useNavigation<any>()
                 }}>
                  <Text style={{
                     color: activeTab === tab ? isDark ? '#ffffff': '#000000': isDark ? '#ffffff5d':'#0000005d',
-                    fontFamily: FontFamily.bold,
-                    fontSize: mediumScreen ? FontSize.eighteen: FontSize.fourteen,
+                    ...fontSize.b1, lineHeight: fontSize.b1.fontSize + 2,
                     marginBottom: 10,
                  }}>
                     {tab}
@@ -263,15 +261,13 @@ const navigation = useNavigation<any>()
             </View>
             <View>
                 <Text style={{
-                    fontSize: mediumScreen ? FontSize.eighteen: FontSize.fourteen,
-                    fontFamily: FontFamily.bold,
+                    ...fontSize.b1, lineHeight: fontSize.b1.fontSize + 2,
                     color: isDark ? 'white': 'black',
                 }}>
                     {content.creator}
                 </Text>
                 <Text style={{
-                    fontSize: mediumScreen ? FontSize.fourteen: FontSize.ten,
-                    fontFamily: FontFamily.regular,
+                    ...fontSize.b4, lineHeight: fontSize.b4.fontSize + 1,
                     color: isDark ? 'grey': 'black',
                 }}>
                     by @{content.username}
@@ -291,8 +287,7 @@ const navigation = useNavigation<any>()
                 numberOfLines={1}
                 style={{
                     color: PRIMARY_COLOR,
-                    fontFamily: FontFamily.bold,
-                    fontSize: mediumScreen ? FontSize.sixteen : FontSize.twelve,
+                    ...fontSize.b3, lineHeight: fontSize.b3.fontSize + 2,
                 }}>
                     {content.tag}
                 </Text>
@@ -326,8 +321,7 @@ const navigation = useNavigation<any>()
             }}>
             <Text style={{
                 color: isDark ? 'grey' : 'black',
-                fontFamily: FontFamily.bold,
-                fontSize: mediumScreen ? FontSize.sixteen: FontSize.twelve,
+                ...fontSize.b3, lineHeight: fontSize.b3.fontSize + 2,
                 // paddingHorizontal: 12,
                 // paddingTop: 12,
             }}>
@@ -335,8 +329,7 @@ const navigation = useNavigation<any>()
             </Text>
             <Text style={{
                 color: isDark ? item===3 ? PRIMARY_COLOR:'white' : item===3 ? PRIMARY_COLOR:'black',
-                fontFamily: FontFamily.bold,
-                fontSize: mediumScreen ? FontSize.fourteen: FontSize.ten,
+                ...fontSize.b4, lineHeight: fontSize.b4.fontSize + 1,
                 paddingHorizontal: 12,
             }}>
                 {item === 1 ? content.entries: item===2 ? content.views: content.timeLeft}
@@ -354,8 +347,7 @@ const navigation = useNavigation<any>()
         }}>
             <Text style={{
                 color: isDark ? 'grey': 'black',
-                fontSize: mediumScreen ? FontSize.fourteen : FontSize.ten,
-                fontFamily: FontFamily.bold,
+                ...fontSize.b4, lineHeight: fontSize.b4.fontSize + 1,
             }}>
                 RECENT PARTICIPANTS
             </Text>
@@ -366,8 +358,7 @@ const navigation = useNavigation<any>()
              >
                 <Text style={{
                 color: 'purple',
-                fontSize: mediumScreen ? FontSize.fourteen : FontSize.ten,
-                fontFamily: FontFamily.bold,
+                ...fontSize.b4, lineHeight: fontSize.b4.fontSize + 1,
              }}>
                 VIEW ALL
             </Text>
@@ -416,9 +407,8 @@ const navigation = useNavigation<any>()
         }}>
         <MaterialIcons name='add-circle' size={24} color='white'/>
         <Text style={{
-            fontFamily: FontFamily.bold,
             color: !isDark ? 'white': 'black',
-            fontSize: mediumScreen ? FontSize.twenty: FontSize.sixteen,
+            ...fontSize.b1,
             lineHeight: 35
         }}>
             {'  Join Challenge'}

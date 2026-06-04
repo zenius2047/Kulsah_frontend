@@ -13,7 +13,7 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 import { MaterialIcons } from '@expo/vector-icons';
 import { useNavigation } from '@react-navigation/native';
 import { LinearGradient } from 'expo-linear-gradient';
-import { FontFamily, FontSize } from '../fonts';
+import { fontSize } from './typography';
 
 const CreatePost: React.FC = () => {
   const { isDark, theme } = useThemeMode();
@@ -138,8 +138,7 @@ const styles = StyleSheet.create({
     flex: 1,
     paddingHorizontal: 16,
     color: '#F8FAFC',
-    fontFamily: FontFamily.bold,
-    fontSize: FontSize.sixteen,
+    ...fontSize.b4, lineHeight: fontSize.b4.fontSize + 1,
   },
   postChip: {
     paddingHorizontal: 16,
@@ -149,8 +148,7 @@ const styles = StyleSheet.create({
   },
   postChipText: {
     color: PRIMARY_COLOR,
-    fontFamily: FontFamily.bold,
-    fontSize: FontSize.sixteen,
+    ...fontSize.b4, lineHeight: fontSize.b4.fontSize + 1,
   },
   scroll: {
     flex: 1,
@@ -175,13 +173,11 @@ const styles = StyleSheet.create({
   },
   name: {
     color: '#F8FAFC',
-    fontFamily: FontFamily.bold,
-    fontSize: FontSize.fifteen,
+    ...fontSize.b4, lineHeight: fontSize.b4.fontSize + 1,
   },
   subtitle: {
     color: primaryColorAlpha(0.75),
-    fontFamily: FontFamily.medium,
-    fontSize: FontSize.eleven,
+    ...fontSize.b5, lineHeight: fontSize.b5.fontSize + 1,
     marginTop: 4,
   },
   input: {
@@ -190,8 +186,7 @@ const styles = StyleSheet.create({
     padding: 20,
     marginBottom: 24,
     color: '#F8FAFC',
-    fontFamily: FontFamily.regular,
-    fontSize: FontSize.eighteen,
+    ...fontSize.b1,
     lineHeight: 28,
     backgroundColor: primaryColorAlpha(0.1),
   },
@@ -217,14 +212,12 @@ const styles = StyleSheet.create({
   },
   uploadTitle: {
     color: '#F8FAFC',
-    fontFamily: FontFamily.bold,
-    fontSize: FontSize.twenty,
+    ...fontSize.b1, lineHeight: fontSize.b1.fontSize + 2,
     marginBottom: 8,
   },
   uploadText: {
     color: '#94A3B8',
-    fontFamily: FontFamily.regular,
-    fontSize: FontSize.fourteen,
+    ...fontSize.b4,
     textAlign: 'center',
     lineHeight: 20,
     maxWidth: 280,
@@ -244,8 +237,7 @@ const styles = StyleSheet.create({
   },
   browseButtonText: {
     color: '#fff',
-    fontFamily: FontFamily.bold,
-    fontSize: FontSize.fourteen,
+    ...fontSize.b4, lineHeight: fontSize.b4.fontSize + 1,
     textAlign: 'center',
   },
   bottomActions: {
@@ -280,8 +272,7 @@ const styles = StyleSheet.create({
   },
   publishButtonText: {
     color: '#fff',
-    fontFamily: FontFamily.bold,
-    fontSize: FontSize.eighteen,
+    ...fontSize.b1, lineHeight: fontSize.b1.fontSize + 2,
   },
 });
 

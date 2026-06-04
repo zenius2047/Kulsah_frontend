@@ -10,9 +10,9 @@ import {
   Text,
   View,
 } from 'react-native';
-import { FontFamily, FontSize } from '../fonts';
 import { useThemeMode, PRIMARY_COLOR, primaryColorAlpha } from "../theme";
 import { mediumScreen, setUser, user as globalUser } from '../types';
+import { fontSize } from './typography';
 
 type CoinPackage = {
   id: number;
@@ -152,8 +152,7 @@ const TopUpCoins: React.FC = () => {
         <Text
           style={{
             color: theme.text,
-            fontSize: mediumScreen ? FontSize.eighteen : FontSize.fourteen,
-            fontFamily: FontFamily.extraBold,
+            ...fontSize.b1, lineHeight: fontSize.b1.fontSize + 2,
             textTransform: 'uppercase',
           }}
         >
@@ -179,8 +178,7 @@ const TopUpCoins: React.FC = () => {
           <Text
             style={{
               color: PRIMARY_COLOR,
-              fontSize: FontSize.eight,
-              fontFamily: FontFamily.extraBold,
+              ...fontSize.b5, lineHeight: fontSize.b5.fontSize + 1,
               textTransform: 'uppercase',
               letterSpacing: 3,
             }}
@@ -195,8 +193,7 @@ const TopUpCoins: React.FC = () => {
                 <Text
                   style={{
                     color: theme.text,
-                    fontSize: mediumScreen ? FontSize.forty : FontSize.thirtyTwo,
-                    fontFamily: FontFamily.extraBold,
+                    ...fontSize.b1, lineHeight: fontSize.b1.fontSize + 2,
                   }}
                 >
                   {currentCoins.toLocaleString()}
@@ -209,8 +206,7 @@ const TopUpCoins: React.FC = () => {
             style={{
               marginTop: 8,
               color: subtleText,
-              fontSize: FontSize.ten,
-              fontFamily: FontFamily.bold,
+              ...fontSize.b5, lineHeight: fontSize.b5.fontSize + 1,
             }}
           >
             Kulcoins for Creator Support
@@ -222,8 +218,7 @@ const TopUpCoins: React.FC = () => {
             style={{
               marginLeft: 8,
               color: sectionLabel,
-              fontSize: FontSize.eight,
-              fontFamily: FontFamily.extraBold,
+              ...fontSize.b5, lineHeight: fontSize.b5.fontSize + 1,
               textTransform: 'uppercase',
               letterSpacing: 3,
             }}
@@ -265,8 +260,7 @@ const TopUpCoins: React.FC = () => {
                       <Text
                         style={{
                           color: '#fff',
-                          fontSize: FontSize.sixHalf,
-                          fontFamily: FontFamily.extraBold,
+                          ...fontSize.b5, lineHeight: fontSize.b5.fontSize + 1,
                           textTransform: 'uppercase',
                           letterSpacing: 1.5,
                         }}
@@ -293,8 +287,7 @@ const TopUpCoins: React.FC = () => {
                   <Text
                     style={{
                       color: theme.text,
-                      fontSize: mediumScreen ? FontSize.eighteen : FontSize.fourteen,
-                      fontFamily: FontFamily.extraBold,
+                      ...fontSize.b1, lineHeight: fontSize.b1.fontSize + 2,
                     }}
                   >
                     {pkg.coins.toLocaleString()}
@@ -305,8 +298,7 @@ const TopUpCoins: React.FC = () => {
                       style={{
                         marginTop: 3,
                         color: '#4ade80',
-                        fontSize: FontSize.eight,
-                        fontFamily: FontFamily.extraBold,
+                        ...fontSize.b5, lineHeight: fontSize.b5.fontSize + 1,
                         textTransform: 'uppercase',
                       }}
                     >
@@ -326,8 +318,7 @@ const TopUpCoins: React.FC = () => {
                     <Text
                       style={{
                         color: '#fff',
-                        fontSize: FontSize.ten,
-                        fontFamily: FontFamily.extraBold,
+                        ...fontSize.b5, lineHeight: fontSize.b5.fontSize + 1,
                       }}
                     >
                       {pkg.price} GHS
@@ -357,8 +348,7 @@ const TopUpCoins: React.FC = () => {
             <Text
               style={{
                 color: '#fff',
-                fontSize: mediumScreen ? FontSize.sixteen : FontSize.twelve,
-                fontFamily: FontFamily.extraBold,
+                ...fontSize.b3, lineHeight: fontSize.b3.fontSize + 2,
               }}
             >
               Confirm Purchase
@@ -371,9 +361,8 @@ const TopUpCoins: React.FC = () => {
               marginTop: 14,
               textAlign: 'center',
               color: disclaimer,
-              fontSize: FontSize.eight,
+              ...fontSize.b5,
               lineHeight: 18,
-              fontFamily: FontFamily.bold,
               paddingHorizontal: 24,
             }}
           >
@@ -420,8 +409,7 @@ const TopUpCoins: React.FC = () => {
             <Text
               style={{
                 color: theme.text,
-                fontSize: mediumScreen ? FontSize.twentyTwo : FontSize.eighteen,
-                fontFamily: FontFamily.extraBold,
+                ...fontSize.b1, lineHeight: fontSize.b1.fontSize + 2,
                 textTransform: 'uppercase',
                 textAlign: 'center',
               }}
@@ -441,20 +429,20 @@ const TopUpCoins: React.FC = () => {
                 }}
               >
                 <View style={{ flexDirection: 'row', justifyContent: 'space-between' }}>
-                  <Text style={{ color: theme.textSecondary, fontFamily: FontFamily.bold }}>Package</Text>
-                  <Text style={{ color: theme.text, fontFamily: FontFamily.extraBold }}>
+                  <Text style={{ color: theme.textSecondary }}>Package</Text>
+                  <Text style={{ color: theme.text }}>
                     {selectedPkgData.coins} Kulcoins
                   </Text>
                 </View>
                 <View style={{ flexDirection: 'row', justifyContent: 'space-between' }}>
-                  <Text style={{ color: theme.textSecondary, fontFamily: FontFamily.bold }}>Bonus</Text>
-                  <Text style={{ color: '#4ade80', fontFamily: FontFamily.extraBold }}>
+                  <Text style={{ color: theme.textSecondary }}>Bonus</Text>
+                  <Text style={{ color: '#4ade80' }}>
                     +{selectedPkgData.bonus}
                   </Text>
                 </View>
                 <View style={{ flexDirection: 'row', justifyContent: 'space-between' }}>
-                  <Text style={{ color: theme.textSecondary, fontFamily: FontFamily.bold }}>Amount</Text>
-                  <Text style={{ color: PRIMARY_COLOR, fontFamily: FontFamily.extraBold }}>
+                  <Text style={{ color: theme.textSecondary }}>Amount</Text>
+                  <Text style={{ color: PRIMARY_COLOR }}>
                     {selectedPkgData.price} GHS
                   </Text>
                 </View>
@@ -478,8 +466,7 @@ const TopUpCoins: React.FC = () => {
                 <Text
                   style={{
                     color: '#fff',
-                    fontSize: FontSize.eleven,
-                    fontFamily: FontFamily.extraBold,
+                    ...fontSize.b5, lineHeight: fontSize.b5.fontSize + 1,
                     textTransform: 'uppercase',
                     letterSpacing: 2,
                   }}
@@ -503,8 +490,7 @@ const TopUpCoins: React.FC = () => {
               <Text
                 style={{
                   color: theme.textSecondary,
-                  fontSize: FontSize.ten,
-                  fontFamily: FontFamily.extraBold,
+                  ...fontSize.b5, lineHeight: fontSize.b5.fontSize + 1,
                   textTransform: 'uppercase',
                   letterSpacing: 1.5,
                 }}
@@ -545,8 +531,7 @@ const TopUpCoins: React.FC = () => {
           <Text
             style={{
               color: theme.text,
-              fontSize: mediumScreen ? FontSize.twentyEight : FontSize.twentyTwo,
-              fontFamily: FontFamily.extraBold,
+              ...fontSize.b1, lineHeight: fontSize.b1.fontSize + 2,
               textTransform: 'uppercase',
               marginBottom: 8,
               textAlign: 'center',
@@ -557,8 +542,7 @@ const TopUpCoins: React.FC = () => {
           <Text
             style={{
               color: successBody,
-              fontSize: FontSize.eleven,
-              fontFamily: FontFamily.bold,
+              ...fontSize.b5, lineHeight: fontSize.b5.fontSize + 1,
               textAlign: 'center',
             }}
           >
@@ -583,8 +567,7 @@ const TopUpCoins: React.FC = () => {
             <Text
               style={{
                 color: theme.text,
-                fontSize: FontSize.sixteen,
-                fontFamily: FontFamily.extraBold,
+                ...fontSize.b4, lineHeight: fontSize.b4.fontSize + 1,
               }}
             >
               {currentCoins.toLocaleString()} Coins

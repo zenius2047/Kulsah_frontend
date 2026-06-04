@@ -12,7 +12,7 @@ import {
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { LinearGradient } from 'expo-linear-gradient';
 import { MaterialIcons } from '@expo/vector-icons';
-import { FontFamily, FontSize } from '../fonts';
+import { fontSize } from './typography';
 
 type HistoryStatus = 'Winner' | 'Top 10%' | 'Participated';
 
@@ -220,14 +220,12 @@ const styles = StyleSheet.create({
   },
   pageTitle: {
     color: '#F8FAFC',
-    fontFamily: FontFamily.extraBold,
-    fontSize: FontSize.eighteen,
+    ...fontSize.b1, lineHeight: fontSize.b1.fontSize + 2,
     marginBottom: 8,
   },
   pageSubtitle: {
     color: '#94A3B8',
-    fontFamily: FontFamily.regular,
-    fontSize: FontSize.twelve,
+    ...fontSize.b4, lineHeight: fontSize.b4.fontSize + 1,
   },
   timelineWrap: {
     position: 'relative',
@@ -299,8 +297,7 @@ const styles = StyleSheet.create({
   },
   dateText: {
     color: '#64748B',
-    fontFamily: FontFamily.bold,
-    fontSize: FontSize.eight,
+    ...fontSize.b5, lineHeight: fontSize.b5.fontSize + 1,
     textTransform: 'uppercase',
     letterSpacing: 1.1,
   },
@@ -322,8 +319,7 @@ const styles = StyleSheet.create({
     backgroundColor: 'rgba(255,255,255,0.05)',
   },
   statusPillText: {
-    fontFamily: FontFamily.extraBold,
-    fontSize: FontSize.eight,
+    ...fontSize.b5, lineHeight: fontSize.b5.fontSize + 1,
     textTransform: 'uppercase',
   },
   statusPillTextWinner: {
@@ -337,14 +333,12 @@ const styles = StyleSheet.create({
   },
   cardTitle: {
     color: '#F8FAFC',
-    fontFamily: FontFamily.bold,
-    fontSize: FontSize.sixteen,
+    ...fontSize.b4, lineHeight: fontSize.b4.fontSize + 1,
     marginBottom: 8,
   },
   cardDescription: {
     color: '#94A3B8',
-    fontFamily: FontFamily.regular,
-    fontSize: FontSize.twelve,
+    ...fontSize.b4, lineHeight: fontSize.b4.fontSize + 1,
     marginBottom: 18,
   },
   statsRow: {
@@ -357,16 +351,14 @@ const styles = StyleSheet.create({
   },
   statLabel: {
     color: '#64748B',
-    fontFamily: FontFamily.bold,
-    fontSize: FontSize.eight,
+    ...fontSize.b5, lineHeight: fontSize.b5.fontSize + 1,
     textTransform: 'uppercase',
     letterSpacing: 1,
     marginBottom: 4,
   },
   statValue: {
     color: '#F8FAFC',
-    fontFamily: FontFamily.extraBold,
-    fontSize: FontSize.fourteen,
+    ...fontSize.b4, lineHeight: fontSize.b4.fontSize + 1,
   },
   rewardWinner: {
     color: PRIMARY_COLOR,
@@ -395,8 +387,7 @@ const styles = StyleSheet.create({
   },
   viewEntryText: {
     color: PRIMARY_COLOR,
-    fontFamily: FontFamily.bold,
-    fontSize: FontSize.twelve,
+    ...fontSize.b4, lineHeight: fontSize.b4.fontSize + 1,
     textTransform: 'uppercase',
     letterSpacing: 0.8,
   },

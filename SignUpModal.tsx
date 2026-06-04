@@ -14,8 +14,8 @@ import Facebook from './assets/icons/facebook-svg.svg';
 import Google from './assets/icons/google-svg.svg';
 import Apple from './assets/icons/apple-logo-svg.svg';
 import { mediumScreen, setUser, user } from './types';
-import { FontFamily, FontSize } from './fonts';
 import AsyncStorage from '@react-native-async-storage/async-storage';
+import { fontSize } from './typography';
 
 type SignUpModalProps = {
   visible: boolean;
@@ -180,20 +180,18 @@ const styles = StyleSheet.create({
     alignItems: 'center',
   },
   title: {
-    fontSize: mediumScreen ? FontSize.twenty: FontSize.sixteen,
+    ...fontSize.b1,
     lineHeight: 20,
     // fontWeight: '900',
     textTransform: 'uppercase',
-    fontFamily: FontFamily.extraBold,
     textAlign: 'center',
     letterSpacing: -0.6,
   },
   description: {
-    fontSize: mediumScreen ? FontSize.twenty: FontSize.ten,
+    ...fontSize.b1,
     lineHeight: 15,
     // fontWeight: '600',
     textAlign: 'center',
-    fontFamily: FontFamily.bold
   },
   actions: {
     width: '100%',
@@ -224,15 +222,13 @@ const styles = StyleSheet.create({
   },
   authIconPlaceholderText: {
     color: PRIMARY_COLOR,
-    fontSize: FontSize.eleven,
+    ...fontSize.b5, lineHeight: fontSize.b5.fontSize + 1,
     // fontWeight: '900',
     textTransform: 'uppercase',
-    fontFamily: FontFamily.extraBold
   },
   authButtonText: {
-    fontSize: mediumScreen ? FontSize.fourteen: FontSize.ten,
+    ...fontSize.b4, lineHeight: fontSize.b4.fontSize + 1,
     // fontWeight: '800',
-    fontFamily: FontFamily.bold
   },
   primaryButton: {
     minHeight: 56,
@@ -245,11 +241,10 @@ const styles = StyleSheet.create({
   },
   primaryButtonText: {
     color: '#ffffff',
-    fontSize: mediumScreen ? FontSize.fourteen: FontSize.ten,
+    ...fontSize.b4, lineHeight: fontSize.b4.fontSize + 1,
     // fontWeight: '900',
     textTransform: 'uppercase',
     letterSpacing: 1,
-    fontFamily: FontFamily.bold
   },
   secondaryButton: {
     minHeight: 30,
@@ -258,23 +253,20 @@ const styles = StyleSheet.create({
     paddingHorizontal: 20,
   },
   secondaryButtonText: {
-    fontSize: mediumScreen ? FontSize.fourteen:FontSize.ten,
+    ...fontSize.b4, lineHeight: fontSize.b4.fontSize + 1,
     // fontWeight: '900',
     textTransform: 'uppercase',
     letterSpacing: 1.6,
-    fontFamily: FontFamily.bold
   },
   legalText: {
     marginTop: 18,
-    fontSize: mediumScreen ? FontSize.fourteen:FontSize.ten,
+    ...fontSize.b4,
     lineHeight: 17,
     // fontWeight: '600',
-    fontFamily: FontFamily.bold,
     textAlign: 'center',
   },
   legalLink: {
     textDecorationLine: 'underline',
-    fontFamily: FontFamily.bold
   },
 });
 

@@ -13,8 +13,8 @@ import { MaterialIcons } from '@expo/vector-icons';
 import { BlurView } from 'expo-blur';
 import { LinearGradient } from 'expo-linear-gradient';
 import { SafeAreaView, useSafeAreaInsets } from 'react-native-safe-area-context';
-import { FontFamily, FontSize } from '../fonts';
 import { PRIMARY_COLOR, primaryColorAlpha, useThemeMode } from "../theme";
+import { fontSize } from './typography';
 
 type CoinPack = {
   id: string;
@@ -240,6 +240,9 @@ export const VoteModalContent: React.FC<VoteModalContentProps> = ({
 };
 
 const Vote: React.FC = () => {
+  const { isDark, theme } = useThemeMode();
+  const styles = useMemo(() => createStyles(isDark, theme), [isDark, theme]);
+
   return (
     <SafeAreaView style={styles.screen}>
       <VoteModalContent />
@@ -312,8 +315,7 @@ const createStyles = (isDark: boolean, theme: ReturnType<typeof useThemeMode>['t
     },
     brand: {
       color: theme.text,
-      fontFamily: FontFamily.extraBold,
-      fontSize: FontSize.fourteen,
+      ...fontSize.b4, lineHeight: fontSize.b4.fontSize + 1,
       fontStyle: 'italic',
       letterSpacing: 0.6,
     },
@@ -335,8 +337,7 @@ const createStyles = (isDark: boolean, theme: ReturnType<typeof useThemeMode>['t
     },
     walletChipText: {
       color: theme.text,
-      fontFamily: FontFamily.bold,
-      fontSize: FontSize.nine,
+      ...fontSize.b5, lineHeight: fontSize.b5.fontSize + 1,
       textTransform: 'uppercase',
       letterSpacing: 0.8,
     },
@@ -386,20 +387,17 @@ const createStyles = (isDark: boolean, theme: ReturnType<typeof useThemeMode>['t
     },
     hotBadgeText: {
       color: isDark ? '#d68cef' : theme.accent,
-      fontFamily: FontFamily.extraBold,
-      fontSize: FontSize.seven,
+      ...fontSize.b5, lineHeight: fontSize.b5.fontSize + 1,
       letterSpacing: 1.1,
       fontStyle: 'italic',
     },
     heroTitle: {
       color: theme.text,
-      fontFamily: FontFamily.extraBold,
-      fontSize: FontSize.seventeen,
+      ...fontSize.b4, lineHeight: fontSize.b4.fontSize + 1,
     },
     heroSubtitle: {
       color: theme.textSecondary,
-      fontFamily: FontFamily.medium,
-      fontSize: FontSize.nine,
+      ...fontSize.b5,
       lineHeight: 18,
     },
     sectionHeader: {
@@ -410,14 +408,12 @@ const createStyles = (isDark: boolean, theme: ReturnType<typeof useThemeMode>['t
     },
     modalTitle: {
       color: theme.text,
-      fontFamily: FontFamily.extraBold,
-      fontSize: FontSize.sixteen,
+      ...fontSize.b4, lineHeight: fontSize.b4.fontSize + 1,
     },
     modalSubtitle: {
       marginTop: 4,
       color: theme.textSecondary,
-      fontFamily: FontFamily.medium,
-      fontSize: FontSize.nine,
+      ...fontSize.b5, lineHeight: fontSize.b5.fontSize + 1,
     },
     balancePill: {
       flexDirection: 'row',
@@ -462,8 +458,7 @@ const createStyles = (isDark: boolean, theme: ReturnType<typeof useThemeMode>['t
     },
     balanceText: {
       color: theme.text,
-      fontFamily: FontFamily.bold,
-      fontSize: FontSize.eleven,
+      ...fontSize.b5, lineHeight: fontSize.b5.fontSize + 1,
     },
     voteInputWrap: {
       flex: 1,
@@ -474,15 +469,13 @@ const createStyles = (isDark: boolean, theme: ReturnType<typeof useThemeMode>['t
     voteInput: {
       minWidth: 90,
       color: theme.text,
-      fontFamily: FontFamily.extraBold,
-      fontSize: FontSize.twentyTwo,
+      ...fontSize.b1, lineHeight: fontSize.b1.fontSize + 2,
       paddingVertical: 0,
       includeFontPadding: false,
     },
     voteInputCaption: {
       color: theme.textSecondary,
-      fontFamily: FontFamily.bold,
-      fontSize: FontSize.seven,
+      ...fontSize.b5, lineHeight: fontSize.b5.fontSize + 1,
       textTransform: 'uppercase',
       letterSpacing: 1.2,
     },
@@ -494,8 +487,7 @@ const createStyles = (isDark: boolean, theme: ReturnType<typeof useThemeMode>['t
     packLabel: {
       paddingHorizontal: 6,
       color: theme.textMuted,
-      fontFamily: FontFamily.extraBold,
-      fontSize: FontSize.seven,
+      ...fontSize.b5, lineHeight: fontSize.b5.fontSize + 1,
       textTransform: 'uppercase',
       letterSpacing: 1.5,
     },
@@ -540,16 +532,14 @@ const createStyles = (isDark: boolean, theme: ReturnType<typeof useThemeMode>['t
     },
     packCoins: {
       color: theme.text,
-      fontFamily: FontFamily.bold,
-      fontSize: FontSize.eleven,
+      ...fontSize.b5, lineHeight: fontSize.b5.fontSize + 1,
     },
     packCoinsSelected: {
       color: '#ffffff',
     },
     packPrice: {
       color: theme.textSecondary,
-      fontFamily: FontFamily.bold,
-      fontSize: FontSize.eight,
+      ...fontSize.b5, lineHeight: fontSize.b5.fontSize + 1,
       letterSpacing: 0.4,
       textTransform: 'uppercase',
     },
@@ -568,8 +558,7 @@ const createStyles = (isDark: boolean, theme: ReturnType<typeof useThemeMode>['t
     },
     bestValueText: {
       color: isDark ? '#d68cef' : theme.accent,
-      fontFamily: FontFamily.extraBold,
-      fontSize: FontSize.six,
+      ...fontSize.b5, lineHeight: fontSize.b5.fontSize + 1,
       letterSpacing: 1,
       fontStyle: 'italic',
     },
@@ -591,8 +580,7 @@ const createStyles = (isDark: boolean, theme: ReturnType<typeof useThemeMode>['t
       borderColor: PRIMARY_COLOR,
     },
     packActionText: {
-      fontFamily: FontFamily.extraBold,
-      fontSize: FontSize.eight,
+      ...fontSize.b5, lineHeight: fontSize.b5.fontSize + 1,
       letterSpacing: 0.8,
     },
     packActionTextDefault: {
@@ -619,8 +607,7 @@ const createStyles = (isDark: boolean, theme: ReturnType<typeof useThemeMode>['t
     },
     confirmButtonText: {
       color: '#ffffff',
-      fontFamily: FontFamily.extraBold,
-      fontSize: FontSize.eleven,
+      ...fontSize.b5, lineHeight: fontSize.b5.fontSize + 1,
     },
     cancelButton: {
       alignItems: 'center',
@@ -630,8 +617,7 @@ const createStyles = (isDark: boolean, theme: ReturnType<typeof useThemeMode>['t
     },
     cancelButtonText: {
       color: theme.textMuted,
-      fontFamily: FontFamily.extraBold,
-      fontSize: FontSize.eight,
+      ...fontSize.b5, lineHeight: fontSize.b5.fontSize + 1,
       textTransform: 'uppercase',
       letterSpacing: 1.4,
     },

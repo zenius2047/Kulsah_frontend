@@ -15,9 +15,9 @@ import {
   View,
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
-import { FontFamily, FontSize } from './fonts';
 import { useThemeMode, PRIMARY_COLOR, primaryColorAlpha } from "./theme";
 import { mediumScreen } from './types';
+import { fontSize } from './typography';
 
 interface Product {
   id: string;
@@ -614,8 +614,7 @@ const s = StyleSheet.create({
     paddingHorizontal: 10,
   },
   headerTitle: {
-    fontSize: mediumScreen ? FontSize.eighteen : FontSize.fourteen,
-    fontFamily: FontFamily.extraBold,
+    ...fontSize.b1, lineHeight: fontSize.b1.fontSize + 2,
     textTransform: 'uppercase',
   },
   headerSubRow: {
@@ -632,8 +631,7 @@ const s = StyleSheet.create({
   },
   headerSubText: {
     color: PRIMARY_COLOR,
-    fontSize: mediumScreen ? FontSize.ten:FontSize.six,
-    fontFamily: FontFamily.extraBold,
+    ...fontSize.b5, lineHeight: fontSize.b5.fontSize + 1,
     textTransform: 'uppercase',
     letterSpacing: 1.8,
   },
@@ -658,8 +656,7 @@ const s = StyleSheet.create({
   },
   searchInput: {
     flex: 1,
-    fontSize: mediumScreen ? FontSize.fourteen: FontSize.ten,
-    fontFamily: FontFamily.bold,
+    ...fontSize.b4, lineHeight: fontSize.b4.fontSize + 1,
   },
   categoriesRow: {
     paddingTop: 14,
@@ -679,8 +676,7 @@ const s = StyleSheet.create({
     borderColor: PRIMARY_COLOR,
   },
   categoryText: {
-    fontSize: mediumScreen ? FontSize.twelve:FontSize.eight,
-    fontFamily: FontFamily.extraBold,
+    ...fontSize.b4, lineHeight: fontSize.b4.fontSize + 1,
     textTransform: 'uppercase',
     letterSpacing: 1.4,
   },
@@ -714,15 +710,13 @@ const s = StyleSheet.create({
   },
   productName: {
     color: '#fff',
-    fontSize: mediumScreen ? FontSize.thirteen:FontSize.nine,
-    fontFamily: FontFamily.extraBold,
+    ...fontSize.b4, lineHeight: fontSize.b4.fontSize + 1,
     textTransform: 'uppercase',
   },
   productPrice: {
     marginTop: 3,
     color: PRIMARY_COLOR,
-    fontSize: mediumScreen ? FontSize.twelve:FontSize.eight,
-    fontFamily: FontFamily.extraBold,
+    ...fontSize.b4, lineHeight: fontSize.b4.fontSize + 1,
   },
   buyButton: {
     marginTop: 10,
@@ -733,8 +727,7 @@ const s = StyleSheet.create({
     justifyContent: 'center',
   },
   buyButtonText: {
-    fontSize: mediumScreen ? FontSize.twelve:FontSize.eight,
-    fontFamily: FontFamily.extraBold,
+    ...fontSize.b4, lineHeight: fontSize.b4.fontSize + 1,
     textTransform: 'uppercase',
     letterSpacing: 1.4,
   },
@@ -753,8 +746,7 @@ const s = StyleSheet.create({
   },
   emptyTitle: {
     marginTop: 16,
-    fontSize: FontSize.twelve,
-    fontFamily: FontFamily.extraBold,
+    ...fontSize.b4, lineHeight: fontSize.b4.fontSize + 1,
     textTransform: 'uppercase',
     letterSpacing: 1.4,
     textAlign: 'center',
@@ -770,8 +762,7 @@ const s = StyleSheet.create({
   },
   resetButtonText: {
     color: PRIMARY_COLOR,
-    fontSize: FontSize.ten,
-    fontFamily: FontFamily.extraBold,
+    ...fontSize.b5, lineHeight: fontSize.b5.fontSize + 1,
     textTransform: 'uppercase',
     letterSpacing: 1.4,
   },
@@ -807,14 +798,12 @@ const s = StyleSheet.create({
     gap: 12,
   },
   sheetTitle: {
-    fontSize: mediumScreen ? FontSize.eighteen:FontSize.fourteen,
-    fontFamily: FontFamily.extraBold,
+    ...fontSize.b1, lineHeight: fontSize.b1.fontSize + 2,
     textTransform: 'uppercase',
   },
   sheetCaption: {
     marginTop: 4,
-    fontSize: FontSize.eight,
-    fontFamily: FontFamily.extraBold,
+    ...fontSize.b5, lineHeight: fontSize.b5.fontSize + 1,
     textTransform: 'uppercase',
     letterSpacing: 1.6,
   },
@@ -849,8 +838,7 @@ const s = StyleSheet.create({
   },
   detailPriceTagText: {
     color: PRIMARY_COLOR,
-    fontSize: FontSize.ten,
-    fontFamily: FontFamily.extraBold,
+    ...fontSize.b5, lineHeight: fontSize.b5.fontSize + 1,
   },
   detailBlock: {
     paddingTop: 20,
@@ -863,15 +851,13 @@ const s = StyleSheet.create({
   },
   detailCategory: {
     color: PRIMARY_COLOR,
-    fontSize: mediumScreen ? FontSize.fourteen : FontSize.ten,
-    fontFamily: FontFamily.extraBold,
+    ...fontSize.b4, lineHeight: fontSize.b4.fontSize + 1,
     textTransform: 'uppercase',
     letterSpacing: 2,
   },
   detailName: {
     marginTop: 4,
-    fontSize: mediumScreen ? FontSize.twenty:FontSize.sixteen,
-    fontFamily: FontFamily.extraBold,
+    ...fontSize.b1, lineHeight: fontSize.b1.fontSize + 2,
     textTransform: 'uppercase',
   },
   issuerWrap: {
@@ -879,15 +865,13 @@ const s = StyleSheet.create({
     justifyContent: 'flex-end',
   },
   issuerLabel: {
-    fontSize: mediumScreen ? FontSize.twelve:FontSize.eight,
-    fontFamily: FontFamily.extraBold,
+    ...fontSize.b4, lineHeight: fontSize.b4.fontSize + 1,
     textTransform: 'uppercase',
     letterSpacing: 1.2,
   },
   issuerValue: {
     marginTop: 4,
-    fontSize: mediumScreen ? FontSize.sixteen: FontSize.twelve,
-    fontFamily: FontFamily.bold,
+    ...fontSize.b3, lineHeight: fontSize.b3.fontSize + 2,
   },
   descriptionCard: {
     borderRadius: 24,
@@ -895,8 +879,7 @@ const s = StyleSheet.create({
     padding: 16,
   },
   descriptionText: {
-    fontSize: mediumScreen ? FontSize.sixteen: FontSize.twelve,
-    fontFamily: FontFamily.medium,
+    ...fontSize.b3,
     lineHeight: 17,
   },
   inventoryRow: {
@@ -909,8 +892,7 @@ const s = StyleSheet.create({
     gap: 12,
   },
   inventoryLabel: {
-    fontSize: mediumScreen ? FontSize.fourteen:FontSize.ten,
-    fontFamily: FontFamily.extraBold,
+    ...fontSize.b4, lineHeight: fontSize.b4.fontSize + 1,
     textTransform: 'uppercase',
     letterSpacing: 1.2,
   },
@@ -929,8 +911,7 @@ const s = StyleSheet.create({
   },
   quantityValue: {
     textAlign: 'center',
-    fontSize: mediumScreen ? FontSize.sixteen: FontSize.twelve,
-    fontFamily: FontFamily.extraBold,
+    ...fontSize.b3, lineHeight: fontSize.b3.fontSize + 2,
   },
   detailActions: {
     flexDirection: 'row',
@@ -948,8 +929,7 @@ const s = StyleSheet.create({
   },
   primaryCtaText: {
     color: '#fff',
-    fontSize: mediumScreen ? FontSize.fourteen: FontSize.ten,
-    fontFamily: FontFamily.extraBold,
+    ...fontSize.b4, lineHeight: fontSize.b4.fontSize + 1,
     textTransform: 'uppercase',
     letterSpacing: 1.2,
   },
@@ -966,8 +946,7 @@ const s = StyleSheet.create({
   },
   confirmButtonText: {
     color: '#fff',
-    fontSize:mediumScreen ? FontSize.fourteen:FontSize.ten,
-    fontFamily: FontFamily.extraBold,
+    ...fontSize.b4, lineHeight: fontSize.b4.fontSize + 1,
     textTransform: 'uppercase',
     letterSpacing: 1.4,
   },
@@ -1005,26 +984,22 @@ const s = StyleSheet.create({
     justifyContent: 'space-between',
   },
   reviewName: {
-    fontSize: mediumScreen ? FontSize.twelve:FontSize.eight,
-    fontFamily: FontFamily.extraBold,
+    ...fontSize.b4, lineHeight: fontSize.b4.fontSize + 1,
     textTransform: 'uppercase',
   },
   reviewArtist: {
     marginTop: 4,
-    fontSize: mediumScreen ? FontSize.ten: FontSize.six,
-    fontFamily: FontFamily.bold,
+    ...fontSize.b5, lineHeight: fontSize.b5.fontSize + 1,
     textTransform: 'uppercase',
     letterSpacing: 1.2,
   },
   reviewAmount: {
     color: PRIMARY_COLOR,
-    fontSize: mediumScreen ? FontSize.fourteen:FontSize.ten,
-    fontFamily: FontFamily.extraBold,
+    ...fontSize.b4, lineHeight: fontSize.b4.fontSize + 1,
   },
   removeText: {
     color: '#ef4444',
-    fontSize: FontSize.nine,
-    fontFamily: FontFamily.extraBold,
+    ...fontSize.b5, lineHeight: fontSize.b5.fontSize + 1,
     textTransform: 'uppercase',
   },
   totalBlock: {
@@ -1037,24 +1012,20 @@ const s = StyleSheet.create({
     alignItems: 'center',
   },
   totalLabel: {
-    fontSize: mediumScreen ? FontSize.twelve:FontSize.eight,
-    fontFamily: FontFamily.extraBold,
+    ...fontSize.b4, lineHeight: fontSize.b4.fontSize + 1,
     textTransform: 'uppercase',
     letterSpacing: 1.2,
   },
   totalValue: {
-    fontSize: mediumScreen ? FontSize.fourteen:FontSize.ten,
-    fontFamily: FontFamily.bold,
+    ...fontSize.b4, lineHeight: fontSize.b4.fontSize + 1,
   },
   totalMainLabel: {
-    fontSize: mediumScreen ? FontSize.sixteen:FontSize.twelve,
-    fontFamily: FontFamily.extraBold,
+    ...fontSize.b3, lineHeight: fontSize.b3.fontSize + 2,
     textTransform: 'uppercase',
   },
   totalMainValue: {
     color: PRIMARY_COLOR,
-    fontSize: mediumScreen ? FontSize.eighteen:FontSize.fourteen,
-    fontFamily: FontFamily.extraBold,
+    ...fontSize.b1, lineHeight: fontSize.b1.fontSize + 2,
   },
   divider: {
     height: 1,
@@ -1081,15 +1052,13 @@ const s = StyleSheet.create({
     flex: 1,
   },
   paymentTitle: {
-    fontSize: FontSize.ten,
-    fontFamily: FontFamily.extraBold,
+    ...fontSize.b5, lineHeight: fontSize.b5.fontSize + 1,
     textTransform: 'uppercase',
     letterSpacing: 1.2,
   },
   paymentMeta: {
     marginTop: 4,
-    fontSize: FontSize.twelve,
-    fontFamily: FontFamily.bold,
+    ...fontSize.b4, lineHeight: fontSize.b4.fontSize + 1,
   },
   momoExtras: {
     marginTop: 16,
@@ -1117,18 +1086,15 @@ const s = StyleSheet.create({
   },
   providerBadgeText: {
     color: '#fff',
-    fontSize: FontSize.ten,
-    fontFamily: FontFamily.extraBold,
+    ...fontSize.b5, lineHeight: fontSize.b5.fontSize + 1,
   },
   providerText: {
-    fontSize: FontSize.eight,
-    fontFamily: FontFamily.extraBold,
+    ...fontSize.b5, lineHeight: fontSize.b5.fontSize + 1,
     textTransform: 'uppercase',
     textAlign: 'center',
   },
   inputLabel: {
-    fontSize: FontSize.nine,
-    fontFamily: FontFamily.extraBold,
+    ...fontSize.b5, lineHeight: fontSize.b5.fontSize + 1,
     textTransform: 'uppercase',
     letterSpacing: 1.2,
   },
@@ -1142,8 +1108,7 @@ const s = StyleSheet.create({
   },
   input: {
     flex: 1,
-    fontSize: FontSize.twelve,
-    fontFamily: FontFamily.bold,
+    ...fontSize.b4, lineHeight: fontSize.b4.fontSize + 1,
   },
   verifiedRow: {
     flexDirection: 'row',
@@ -1158,8 +1123,7 @@ const s = StyleSheet.create({
   },
   verifiedText: {
     color: '#22c55e',
-    fontSize: FontSize.eight,
-    fontFamily: FontFamily.extraBold,
+    ...fontSize.b5, lineHeight: fontSize.b5.fontSize + 1,
     textTransform: 'uppercase',
   },
   processingRow: {
@@ -1181,15 +1145,13 @@ const s = StyleSheet.create({
   },
   successTitle: {
     marginTop: 24,
-    fontSize: FontSize.twentyEight,
-    fontFamily: FontFamily.extraBold,
+    ...fontSize.b1, lineHeight: fontSize.b1.fontSize + 2,
     textTransform: 'uppercase',
     textAlign: 'center',
   },
   successCopy: {
     marginTop: 10,
-    fontSize: FontSize.twelve,
-    fontFamily: FontFamily.medium,
+    ...fontSize.b4,
     lineHeight: 21,
     textAlign: 'center',
     maxWidth: 280,
@@ -1203,15 +1165,13 @@ const s = StyleSheet.create({
     alignItems: 'center',
   },
   orderLabel: {
-    fontSize: FontSize.ten,
-    fontFamily: FontFamily.extraBold,
+    ...fontSize.b5, lineHeight: fontSize.b5.fontSize + 1,
     textTransform: 'uppercase',
     letterSpacing: 1.2,
   },
   orderValue: {
     marginTop: 8,
-    fontSize: FontSize.fourteen,
-    fontFamily: FontFamily.extraBold,
+    ...fontSize.b4, lineHeight: fontSize.b4.fontSize + 1,
     textTransform: 'uppercase',
   },
   backOrbitButton: {
@@ -1223,8 +1183,7 @@ const s = StyleSheet.create({
     justifyContent: 'center',
   },
   backOrbitButtonText: {
-    fontSize: FontSize.twelve,
-    fontFamily: FontFamily.extraBold,
+    ...fontSize.b4, lineHeight: fontSize.b4.fontSize + 1,
     textTransform: 'uppercase',
     letterSpacing: 1.4,
   },

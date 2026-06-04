@@ -1,4 +1,6 @@
 import { useEffect, useState } from 'react';
+import { configureFonts, MD3DarkTheme, MD3LightTheme } from 'react-native-paper';
+import type { MD3Type } from 'react-native-paper/lib/typescript/types';
 import { darkMode, subscribeDarkMode } from './types';
 
 export const PRIMARY_COLOR = '#38a9e5';
@@ -50,6 +52,42 @@ const lightTheme = {
 };
 
 export const getTheme = (isDark: boolean) => (isDark ? darkTheme : lightTheme);
+
+const fontConfig: Partial<Record<string, Partial<MD3Type>>> = {
+  displayLarge: { fontFamily: 'Inter_700Bold', },
+  displayMedium: { fontFamily: 'Inter_700Bold' },
+  displaySmall: { fontFamily: 'Inter_600SemiBold' },
+  headlineLarge: { fontFamily: 'Inter_700Bold' },
+  headlineMedium: { fontFamily: 'Inter_600SemiBold' },
+  headlineSmall: { fontFamily: 'Inter_600SemiBold' },
+  titleLarge: { fontFamily: 'Inter_600SemiBold' },
+  titleMedium: { fontFamily: 'Inter_500Medium' },
+  titleSmall: { fontFamily: 'Inter_500Medium' },
+  labelLarge: { fontFamily: 'Inter_500Medium' },
+  labelMedium: { fontFamily: 'Inter_500Medium' },
+  labelSmall: { fontFamily: 'Inter_400Regular' },
+  bodyLarge: { fontFamily: 'DMSans_400Regular' },
+  bodyMedium: { fontFamily: 'DMSans_400Regular' },
+  bodySmall: { fontFamily: 'DMSans_400Regular' },
+};
+
+export const KulsahTheme = {
+  ...MD3LightTheme,
+  colors: {
+    ...MD3LightTheme.colors,
+    primary: PRIMARY_COLOR,
+  },
+  fonts: configureFonts({ config: fontConfig }),
+};
+
+export const KulsahDarkTheme = {
+  ...MD3DarkTheme,
+  colors: {
+    ...MD3DarkTheme.colors,
+    primary: PRIMARY_COLOR,
+  },
+  fonts: configureFonts({ config: fontConfig }),
+};
 
 export const useThemeMode = () => {
   const [isDark, setIsDark] = useState(darkMode);

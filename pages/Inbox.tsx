@@ -11,9 +11,9 @@ import {
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { MaterialIcons } from '@expo/vector-icons';
-import { FontFamily, FontSize } from '../fonts';
-import { mediumScreen, user } from '../types';
+import { user } from '../types';
 import { useNavigation } from '@react-navigation/native';
+import { fontSize } from '../typography';
 
 type Collaborator = {
   id: string;
@@ -247,31 +247,31 @@ const styles = StyleSheet.create({
     backgroundColor: PRIMARY_COLOR,
   },
   sectionHeaderRow: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', marginTop: 8, marginBottom: 12 },
-  sectionTitle: { fontFamily: FontFamily.extraBold, fontSize: FontSize.eight, letterSpacing: 2 },
-  seeAll: { color: PRIMARY_COLOR, fontFamily: FontFamily.bold, fontSize: FontSize.eight, textTransform: 'uppercase' },
+  sectionTitle: { ...fontSize.b4, lineHeight: fontSize.b4.fontSize + 1, letterSpacing: 0.8, textTransform: 'uppercase' },
+  seeAll: { color: PRIMARY_COLOR, ...fontSize.b5, lineHeight: fontSize.b5.fontSize + 1, textTransform: 'uppercase' },
   collabRow: { gap: 14, paddingBottom: 6 },
   collabItem: { alignItems: 'center', width: 74, gap: 6,},
   collabAvatarWrap: { width: 64, height: 64, borderRadius: 32, borderWidth: 2, padding: 2, },
   collabAvatarWrapGradient: { borderColor: PRIMARY_COLOR },
   collabAvatar: { width: '100%', height: '100%', borderRadius: 30 },
   liveDot: { position: 'absolute', right: 2, bottom: 2, width: 12, height: 12, borderRadius: 6, backgroundColor: '#10b981', borderWidth: 2, borderColor: '#0a050d' },
-  collabName: { fontFamily: FontFamily.bold, fontSize: FontSize.seven, textTransform: 'uppercase' },
+  collabName: { ...fontSize.b5, lineHeight: fontSize.b5.fontSize + 1, textTransform: 'uppercase' },
   searchRow: { marginTop: 12, minHeight: 52, borderWidth: 1, borderRadius: 999, flexDirection: 'row', alignItems: 'center', gap: 8, paddingHorizontal: 12 },
-  searchInput: { flex: 1, fontFamily: FontFamily.medium, fontSize: FontSize.ten },
+  searchInput: { flex: 1, ...fontSize.b4, lineHeight: fontSize.b4.fontSize + 1 },
   chatList: { gap: 10 },
   chatCard: { padding: 12, flexDirection: 'row', alignItems: 'center', gap: 12 },
   chatAvatarWrap: { width: 56, height: 56, position: 'relative' },
   chatAvatar: { width: '100%', height: '100%', borderRadius: 28, borderWidth: 1, borderColor: 'rgba(255,255,255,0.1)' },
   chatAvatarUnread: { borderColor: PRIMARY_COLOR, borderWidth: 2 },
   vipBadge: { position: 'absolute', bottom: -2, right: -2, borderRadius: 8, backgroundColor: PRIMARY_COLOR, paddingHorizontal: 4, paddingVertical: 1 },
-  vipText: { color: '#fff', fontFamily: FontFamily.extraBold, fontSize: FontSize.six },
+  vipText: { color: '#fff', ...fontSize.b5, lineHeight: fontSize.b5.fontSize + 1 },
   chatBody: { flex: 1 },
   chatTopRow: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', marginBottom: 4 },
   chatNameRow: { flexDirection: 'row', alignItems: 'center', gap: 6, flex: 1 },
-  chatName: { fontFamily: FontFamily.bold, fontSize: FontSize.ten },
+  chatName: { ...fontSize.b3, lineHeight: fontSize.b3.fontSize + 1 },
   unreadDot: { width: 8, height: 8, borderRadius: 4, backgroundColor: PRIMARY_COLOR },
-  chatTime: { fontFamily: FontFamily.bold, fontSize: FontSize.seven, textTransform: 'uppercase' },
-  chatMessage: { fontFamily: FontFamily.medium, fontSize: FontSize.nine },
+  chatTime: { ...fontSize.b5, lineHeight: fontSize.b5.fontSize + 1, textTransform: 'uppercase' },
+  chatMessage: { ...fontSize.b4, lineHeight: fontSize.b4.fontSize + 2 },
   headerLeft: {
     flexDirection: 'row',
     alignItems: 'center',
@@ -287,7 +287,8 @@ const styles = StyleSheet.create({
   },
   title: {
       // color: '#F8FAFC',
-      fontSize: mediumScreen ? FontSize.twentyOne:FontSize.eighteen,
+      ...fontSize.b1,
+      lineHeight: fontSize.b1.fontSize + 2,
       // fontWeight: '900',
       letterSpacing: 0.5,
     },
@@ -297,7 +298,8 @@ const styles = StyleSheet.create({
   },
     subtitle: {
       // color: '#D946EF',
-      fontSize: mediumScreen ? FontSize.twelve:FontSize.eight,
+      ...fontSize.b5,
+      lineHeight: fontSize.b5.fontSize + 1,
       // fontWeight: '900',
       letterSpacing: 2.5,
       marginTop: 2,

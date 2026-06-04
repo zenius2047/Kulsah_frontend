@@ -33,7 +33,6 @@ import { subscribeUser, user } from '../types';
 import TickIcon from '../assets/icons/ticket-svg.svg';
 import FireIcon from '../assets/icons/fireIcon-svg.svg';
 import BookMarkIcon from '../assets/icons/bookmark-svg.svg';
-import { FontFamily, FontSize } from '../fonts';
 import LiveLogo from '../assets/icons/live-svg.svg';
 import Reactions from './Reactions';
 import ErrorBoundary from '../components/ErrorBoundary';
@@ -43,6 +42,7 @@ import KulCoinPrompt from '../components/KulCoinPrompt';
 import CreatorShareSheet from './CreatorShareSheet';
 import Premium from '../assets/icons/kulsah_premium_icon.svg';
 import DotTrioLoader from '../components/DotTrioLoader';
+import { fontSize } from '../typography';
 
 interface FeedItem {
   id: string;
@@ -180,9 +180,9 @@ const LiveFeedCreatorAvatar: React.FC<{
           >
             <Text
               style={{
-                fontSize: mediumScreen ? FontSize.eight : 4,
+                ...fontSize.b5,
+                lineHeight: fontSize.b5.fontSize + 1,
                 color: 'white',
-                fontFamily: FontFamily.bold,
               }}
             >
               LIVE
@@ -211,7 +211,7 @@ const LiveFeedCreatorAvatar: React.FC<{
 };
 
 const { height: SCREEN_HEIGHT, width: SCREEN_WIDTH } = Dimensions.get('screen');
-const FEED_ITEM_HEIGHT = SCREEN_HEIGHT * (Platform.OS === 'ios'? 0.92: 0.92);
+const FEED_ITEM_HEIGHT = SCREEN_HEIGHT * (Platform.OS === 'ios'? 0.92: 0.93);
 const MONTHLY_KULCOINS = 100;
 const YEARLY_KULCOINS = 1000;
 const INITIAL_TIME_UPDATE = { currentTime: 0 } as const;
@@ -297,8 +297,7 @@ const FeedQuickMenuModal: React.FC<{
                       color: textPrimary,
                       textTransform: 'uppercase',
                       letterSpacing: 1,
-                      fontFamily: FontFamily.bold,
-                      fontSize: FontSize.nine,
+                      ...fontSize.b5, lineHeight: fontSize.b5.fontSize + 1,
                     }}
                   >
                     {action.label}
@@ -325,7 +324,7 @@ const FeedQuickMenuModal: React.FC<{
                   }}
                 >
                   <MaterialIcons name={row.icon as any} size={22} color={iconTone} />
-                  <Text style={{ color: textPrimary, fontSize: FontSize.twelve, fontFamily: FontFamily.medium }}>
+                  <Text style={{ color: textPrimary, ...fontSize.b4, lineHeight: fontSize.b4.fontSize + 1 }}>
                     {row.label}
                   </Text>
                 </Pressable>
@@ -344,7 +343,7 @@ const FeedQuickMenuModal: React.FC<{
               >
                 <View style={{ flexDirection: 'row', alignItems: 'center', gap: 14 }}>
                   <MaterialIcons name={'auto-graph' as any} size={22} color={iconTone} />
-                  <Text style={{ color: textPrimary, fontSize: FontSize.twelve, fontFamily: FontFamily.medium }}>
+                  <Text style={{ color: textPrimary, ...fontSize.b4, lineHeight: fontSize.b4.fontSize + 1 }}>
                     Auto-scroll
                   </Text>
                   <View
@@ -357,7 +356,7 @@ const FeedQuickMenuModal: React.FC<{
                       paddingVertical: 2,
                     }}
                   >
-                    <Text style={{ color: PRIMARY_COLOR, fontSize: FontSize.seven, fontFamily: FontFamily.extraBold }}>NEW</Text>
+                    <Text style={{ color: PRIMARY_COLOR, ...fontSize.b5, lineHeight: fontSize.b5.fontSize + 1 }}>NEW</Text>
                   </View>
                 </View>
                 <View
@@ -387,7 +386,7 @@ const FeedQuickMenuModal: React.FC<{
                 }}
               >
                 <MaterialIcons name={'qr-code' as any} size={22} color={iconTone} />
-                <Text style={{ color: textPrimary, fontSize: FontSize.twelve, fontFamily: FontFamily.medium }}>
+                <Text style={{ color: textPrimary, ...fontSize.b4, lineHeight: fontSize.b4.fontSize + 1 }}>
                   QR code
                 </Text>
               </Pressable>
@@ -412,7 +411,7 @@ const FeedQuickMenuModal: React.FC<{
                   }}
                 >
                   <MaterialIcons name={row.icon as any} size={22} color={row.tint ?? iconTone} />
-                  <Text style={{ color: textPrimary, fontSize: FontSize.twelve, fontFamily: FontFamily.medium }}>
+                  <Text style={{ color: textPrimary, ...fontSize.b4, lineHeight: fontSize.b4.fontSize + 1 }}>
                     {row.label}
                   </Text>
                 </Pressable>
@@ -437,7 +436,7 @@ const FeedQuickMenuModal: React.FC<{
                   }}
                 >
                   <MaterialIcons name={row.icon as any} size={22} color={iconTone} />
-                  <Text style={{ color: textPrimary, fontSize: FontSize.twelve, fontFamily: FontFamily.medium }}>
+                  <Text style={{ color: textPrimary, ...fontSize.b4, lineHeight: fontSize.b4.fontSize + 1 }}>
                     {row.label}
                   </Text>
                 </Pressable>
@@ -521,9 +520,7 @@ const FeedSubscriptionModal: React.FC<{
                   style={{
                     textAlign: 'center',
                     color: theme.text,
-                    fontSize: mediumScreen ? FontSize.thirty : FontSize.twentyFour,
-                    lineHeight: mediumScreen ? 40 : 30,
-                    fontFamily: FontFamily.extraBold,
+                    ...fontSize.b1, lineHeight: fontSize.b1.fontSize + 2,
                     textTransform: 'uppercase',
                   }}
                 >
@@ -544,8 +541,7 @@ const FeedSubscriptionModal: React.FC<{
                   <Text
                     style={{
                       color: '#fff',
-                      fontSize: mediumScreen ? FontSize.fifteen : FontSize.eleven,
-                      fontFamily: FontFamily.extraBold,
+                      ...fontSize.b4, lineHeight: fontSize.b4.fontSize + 1,
                       textTransform: 'uppercase',
                       letterSpacing: 2,
                     }}
@@ -575,8 +571,7 @@ const FeedSubscriptionModal: React.FC<{
                     <Text
                       style={{
                         color: theme.text,
-                        fontSize: mediumScreen ? FontSize.twentyTwo : FontSize.eighteen,
-                        fontFamily: FontFamily.extraBold,
+                        ...fontSize.b1, lineHeight: fontSize.b1.fontSize + 2,
                         textTransform: 'uppercase',
                       }}
                     >
@@ -586,8 +581,7 @@ const FeedSubscriptionModal: React.FC<{
                       style={{
                         marginTop: 6,
                         color: theme.textSecondary,
-                        fontSize: FontSize.nine,
-                        fontFamily: FontFamily.extraBold,
+                        ...fontSize.b5, lineHeight: fontSize.b5.fontSize + 1,
                         textTransform: 'uppercase',
                         letterSpacing: 2,
                       }}
@@ -602,8 +596,7 @@ const FeedSubscriptionModal: React.FC<{
                     style={{
                       marginLeft: 4,
                       color: theme.textSecondary,
-                      fontSize: FontSize.eight,
-                      fontFamily: FontFamily.extraBold,
+                      ...fontSize.b5, lineHeight: fontSize.b5.fontSize + 1,
                       textTransform: 'uppercase',
                       letterSpacing: 3,
                     }}
@@ -641,8 +634,7 @@ const FeedSubscriptionModal: React.FC<{
                         style={{
                           flex: 1,
                           color: theme.text,
-                          fontSize: mediumScreen ? FontSize.thirteen : FontSize.eleven,
-                          fontFamily: FontFamily.bold,
+                          ...fontSize.b4, lineHeight: fontSize.b4.fontSize + 1,
                         }}
                       >
                         {perk.trim()}
@@ -666,8 +658,7 @@ const FeedSubscriptionModal: React.FC<{
                       <Text
                         style={{
                           color: '#d97706',
-                          fontSize: FontSize.eight,
-                          fontFamily: FontFamily.extraBold,
+                          ...fontSize.b5, lineHeight: fontSize.b5.fontSize + 1,
                           textTransform: 'uppercase',
                           letterSpacing: 2,
                         }}
@@ -677,8 +668,7 @@ const FeedSubscriptionModal: React.FC<{
                       <Text
                         style={{
                           color: theme.text,
-                          fontSize: mediumScreen ? FontSize.eighteen : FontSize.fourteen,
-                          fontFamily: FontFamily.extraBold,
+                          ...fontSize.b1, lineHeight: fontSize.b1.fontSize + 2,
                         }}
                       >
                         {coinBalance} KC
@@ -688,8 +678,7 @@ const FeedSubscriptionModal: React.FC<{
                       <Text
                         style={{
                           color: theme.textSecondary,
-                          fontSize: FontSize.eight,
-                          fontFamily: FontFamily.extraBold,
+                          ...fontSize.b5, lineHeight: fontSize.b5.fontSize + 1,
                           textTransform: 'uppercase',
                           letterSpacing: 1.5,
                         }}
@@ -699,8 +688,7 @@ const FeedSubscriptionModal: React.FC<{
                       <Text
                         style={{
                           color: PRIMARY_COLOR,
-                          fontSize: mediumScreen ? FontSize.eighteen : FontSize.fourteen,
-                          fontFamily: FontFamily.extraBold,
+                          ...fontSize.b1, lineHeight: fontSize.b1.fontSize + 2,
                         }}
                       >
                         -{subscriptionCost} KC
@@ -728,8 +716,7 @@ const FeedSubscriptionModal: React.FC<{
                       <Text
                         style={{
                           color: '#fff',
-                          fontSize: mediumScreen ? FontSize.fifteen : FontSize.eleven,
-                          fontFamily: FontFamily.extraBold,
+                          ...fontSize.b4, lineHeight: fontSize.b4.fontSize + 1,
                           textTransform: 'uppercase',
                           letterSpacing: 2,
                         }}
@@ -1097,7 +1084,7 @@ useEffect(() => {
 
         {/* {!item.isSubscribed && (
           <Pressable onPress={() => onSubscribe(item.id)} style={{ marginBottom: 16 }}>
-            <Text style={{ color: 'white', fontSize: FontSize.twelve }}>Add</Text>
+            <Text style={{ color: 'white', ...fontSize.b4, lineHeight: fontSize.b4.fontSize + 1 }}>Add</Text>
           </Pressable>
         )} */}
 
@@ -1113,7 +1100,11 @@ useEffect(() => {
          }}
         >
           <MaterialIcons name='favorite' size={32} color={isLiked ? '#f43f5e' : 'white'} />
-          <Text style={{ color: 'white', fontSize: mediumScreen ? FontSize.fourteen:FontSize.ten, fontFamily: FontFamily.bold }}>{item.likes}</Text>
+          <Text style={{
+            color: 'white', 
+            fontSize: fontSize.b3.fontSize -2,
+            fontFamily: fontSize.b3.fontFamily,
+            }}>{item.likes}</Text>
         </Pressable>
 
         <Pressable onPress={() => setShowComments(true)} style={{
@@ -1124,7 +1115,11 @@ useEffect(() => {
           elevation: 4,
           alignItems: 'center' }}>
           <CommentIcon height={32} width={32} fill="white" />
-          <Text style={{ color: 'white', fontSize: mediumScreen ? FontSize.fourteen:FontSize.ten, fontFamily: FontFamily.bold}}>{item.comments}</Text>
+          <Text style={{
+            color: 'white', 
+            fontSize: fontSize.b3.fontSize -2,
+            fontFamily: fontSize.b3.fontFamily,
+            }}>{item.comments}</Text>
         </Pressable>
 
         {/* <Pressable onPress={() => navigation.navigate('ArtistProfile')} style={{
@@ -1160,7 +1155,7 @@ useEffect(() => {
               <MaterialIcons name="star" size={36} color={item.isSubscribed ? PRIMARY_COLOR : 'white'} />
             </View>
           </View>
-          <Text style={{ color: item.isSubscribed ? PRIMARY_COLOR : 'white', fontSize: mediumScreen ? FontSize.fourteen:FontSize.ten, fontFamily: FontFamily.bold }}>
+          <Text style={{ color: item.isSubscribed ? PRIMARY_COLOR : 'white', ...fontSize.b4, lineHeight: fontSize.b4.fontSize + 1 }}>
             {item.isSubscribed ? 'SUBBED' : 'Sub'}
           </Text>
         </Pressable> */}
@@ -1173,7 +1168,11 @@ useEffect(() => {
           elevation: 4,
           alignItems: 'center' }}>
           <MaterialIcons name="bookmark" size={30} color="white" />
-          <Text style={{ color: 'white', fontSize: mediumScreen ? FontSize.fourteen:FontSize.ten, fontFamily: FontFamily.bold }}>{item.saves}</Text>
+          <Text style={{ 
+            color: 'white', 
+            fontSize: fontSize.b3.fontSize -2,
+            fontFamily: fontSize.b3.fontFamily,
+            }}>{item.saves}</Text>
         </Pressable>
 
         <Pressable onPress={() => {}} style={{
@@ -1184,7 +1183,9 @@ useEffect(() => {
           elevation: 4,
           alignItems: 'center' }}>
           <MaterialIcons name="share" size={28} color="white" />
-          <Text style={{ color: 'white', fontSize: mediumScreen ? FontSize.fourteen:FontSize.ten, fontFamily: FontFamily.bold }}>{item.bookmarks}</Text>
+          <Text style={{ 
+            color: 'white', 
+            }}>{item.bookmarks}</Text>
         </Pressable>
 
         <Pressable onPress={() => setShowMoreMenu(true)} style={{
@@ -1195,7 +1196,7 @@ useEffect(() => {
           elevation: 4,
           alignItems: 'center' }}>
           <MaterialIcons name="more-horiz" size={30} color="white" />
-          {/* <Text style={{ color: 'white', fontSize: mediumScreen ? FontSize.fourteen:FontSize.ten, fontFamily: FontFamily.bold }}>More</Text> */}
+          {/* <Text style={{ color: 'white', ...fontSize.b4, lineHeight: fontSize.b4.fontSize + 1 }}>More</Text> */}
         </Pressable>
 
         <View style={
@@ -1219,17 +1220,20 @@ useEffect(() => {
               gap: 3,
               paddingVertical:2,
               maxWidth: '85%',
-              width: '30%',
+              // minWidth: '50%',
+              justifyContent: 'flex-start',
+              alignItems: 'center',
+              alignSelf: 'baseline',
               // marginBottom:5,
             }}>
               <SparkleIcon height={20} width={20} color='green'/>
             <Text
             numberOfLines={1}
             style={{
+              ...fontSize.b2,
               color: '#ffffffcc',
-              fontSize: mediumScreen ? FontSize.ten: FontSize.eight,
-              lineHeight: 20,
-              fontFamily: FontFamily.medium
+              lineHeight: fontSize.b2.fontSize + 2,
+              // 
             }}>
               Style {" • "}{" Kulsah"}
             </Text>
@@ -1253,9 +1257,8 @@ useEffect(() => {
                 <Text
               numberOfLines={1}
               style={{
+                ...fontSize.b2,
                 color: 'white',
-                fontFamily: FontFamily.bold,
-                fontSize: mediumScreen ? FontSize.sixteen: FontSize.twelve,
                 }}>@{item.handle}</Text>
               </View>
               <View style={{
@@ -1268,9 +1271,9 @@ useEffect(() => {
           </Pressable>
           {item.isPremium && (
             // <View style={{ borderRadius: 6,  borderWidth: 1, paddingHorizontal: 6, justifyContent: 'center', alignItems: 'center', paddingVertical: 3, borderColor: 'white' }}>
-            //   <Text style={{ color: '#fff', fontWeight: 'bold', fontSize: mediumScreen ? FontSize.ten: FontSize.eight }}>Premium</Text>
+            //   <Text style={{ color: '#fff', fontWeight: 'bold', ...fontSize.b5, lineHeight: fontSize.b5.fontSize + 1 }}>Premium</Text>
             // </View>
-            <Premium height={24} width={24}/>
+            <Premium height={20} width={20}/>
           )}
           <Pressable
             onPress={() => {
@@ -1289,7 +1292,7 @@ useEffect(() => {
               paddingVertical: 3,
             }}
           >
-            <Text style={{ color: '#fff', fontWeight: 'bold', fontSize: mediumScreen ? FontSize.ten: FontSize.eight }}>
+            <Text style={{fontSize: fontSize.b3.fontSize - 3, fontFamily: 'DMSans_600SemiBold',  color: '#fff',  }}>
               {item.isSubscribed ? 'Subscribed' : 'Subscribe'}
             </Text>
           </Pressable>
@@ -1305,7 +1308,11 @@ useEffect(() => {
           }}>
             <Text
           numberOfLines={lineNumber}
-          style={{ color: 'white', marginTop: 4, fontFamily: FontFamily.regular, fontSize: mediumScreen ? FontSize.fourteen: FontSize.ten }}>
+          style={{
+            color: 'white', 
+            marginTop: 4, 
+            ...fontSize.b3,
+            }}>
           {item.caption}
         </Text>
           </View>
@@ -1316,7 +1323,7 @@ useEffect(() => {
         }}
         >
           <Text style={{
-            color: 'white', marginTop: 4, fontFamily: FontFamily.extraBold, fontSize: mediumScreen ? FontSize.fourteen: FontSize.ten
+            color: 'white', marginTop: 4, 
           }}>
           more
           </Text></Pressable>}
@@ -1359,17 +1366,16 @@ useEffect(() => {
           numberOfLines={1}
           style={{
             color: '#ffffffcc',
-            fontSize: mediumScreen ? FontSize.ten: FontSize.eight,
-            lineHeight: 20,
-            fontFamily: FontFamily.medium,
+            fontSize: fontSize.b3.fontSize-2,
+            fontFamily: fontSize.b3.fontFamily,
+           
           }}>
             {"  "}{item.originalSound ? "Original Sound" : item.soundTitle}
           </Text>
           <Text style={{
             color: '#ffffffcc',
-            fontSize: mediumScreen ? FontSize.ten: FontSize.eight,
-            lineHeight: 20,
-            fontFamily: FontFamily.medium
+            fontSize: fontSize.b3.fontSize-2,
+            fontFamily: fontSize.b3.fontFamily,
           }}>
             {" • "}{item.originalSound ? item.artist : item.soundArtist}
           </Text>
@@ -1397,8 +1403,12 @@ useEffect(() => {
              }}
             // onPress={() => navigation.navigate('Video')}
           >
-            <TickIcon height={14} width={14}/>
-            <Text style={{ color: 'black', fontFamily: FontFamily.bold, fontSize: mediumScreen ? FontSize.ten: FontSize.eight, textTransform: 'uppercase' }}>  Tickets • {item.ticketLocation}</Text>
+            <TickIcon height={18} width={18}/>
+            <Text style={{
+              color: 'black',
+              fontSize: fontSize.b3.fontSize-3, 
+              fontFamily: fontSize.b3.fontFamily,
+              textTransform: 'uppercase' }}>  Tickets • {item.ticketLocation}</Text>
           </Pressable>
         )}
 
@@ -1469,16 +1479,16 @@ useEffect(() => {
           </View>
 
           {/* <View style={{ flexDirection: 'row', justifyContent: 'space-between', marginTop: 3 }}>
-            <Text style={{ color: '#cbd5e1', fontSize: mediumScreen ? FontSize.ten : FontSize.eight, fontFamily: FontFamily.bold }}>
+            <Text style={{ color: '#cbd5e1', ...fontSize.b5, lineHeight: fontSize.b5.fontSize + 1 }}>
               {formatTime(effectiveCurrentTime)}
             </Text>
-            <Text style={{ color: '#cbd5e1', fontSize: mediumScreen ? FontSize.ten : FontSize.eight, fontFamily: FontFamily.bold }}>
+            <Text style={{ color: '#cbd5e1', ...fontSize.b5, lineHeight: fontSize.b5.fontSize + 1 }}>
               {formatTime(duration)}
             </Text>
           </View> */}
         </View>
 
-        {/* <Text style={{ color: '#cbd5e1', marginTop: 6, fontSize: mediumScreen ? FontSize.eight: FontSize.eight }}>{isPlaying ? 'Playing' : 'Paused'} preview</Text> */}
+        {/* <Text style={{ color: '#cbd5e1', marginTop: 6, ...fontSize.b5, lineHeight: fontSize.b5.fontSize + 1 }}>{isPlaying ? 'Playing' : 'Paused'} preview</Text> */}
       </View>
 
       {/* Comments modal */}
@@ -2449,10 +2459,10 @@ const Feed: React.FC = () => {
       <ErrorBoundary
         fallback={
           <View style={{ flex: 1, alignItems: 'center', justifyContent: 'center', paddingHorizontal: 24, backgroundColor: 'black' }}>
-            <Text style={{ color: 'white', fontSize: FontSize.eighteen, fontFamily: FontFamily.bold, textAlign: 'center' }}>
+            <Text style={{ color: 'white', ...fontSize.b1, lineHeight: fontSize.b1.fontSize + 2, textAlign: 'center' }}>
               This post could not be loaded
             </Text>
-            <Text style={{ color: '#94a3b8', marginTop: 8, textAlign: 'center', fontFamily: FontFamily.regular }}>
+            <Text style={{ color: '#94a3b8', marginTop: 8, textAlign: 'center' }}>
               Swipe to continue browsing the feed.
             </Text>
           </View>
@@ -2518,13 +2528,16 @@ const Feed: React.FC = () => {
           <MaterialIcons name="search" size={18} color="white" />
         </Pressable>
         </View>
+
+
+
         <View style={{
           flexDirection: "row",
               height: 44,
               width: SCREEN_WIDTH * 0.7,
               alignItems: "center",
               paddingHorizontal: 2,
-              paddingVertical: 2,
+              // paddingVertical: 2,
               // backgroundColor: 'red',
               justifyContent: 'center',
               gap: 10
@@ -2534,11 +2547,21 @@ const Feed: React.FC = () => {
                 navigation.navigate('Livefeed')
               }}
               >
-                <LiveLogo height={54} width={54}/>
+                <View style={{
+                  // backgroundColor: 'blue',
+                  paddingBottom: 5
+                }}>
+                  <LiveLogo height={54} width={54}/>
+                </View>
               </Pressable>
                   <Pressable onPress={() => setActiveTab("foryou")} style={{ justifyContent: 'center', alignItems: 'center',  }}>
                     <View style={{justifyContent: 'center', alignItems: 'center'}}>
-                      <Text style={[{ color: "#94a3b8", fontSize: smallWidth ? FontSize.eightHalf : mediumScreen ? FontSize.twelve:FontSize.eight, fontFamily: FontFamily.bold, letterSpacing: -0.2, marginBottom: 5 }, activeTab === "foryou" && {color: 'white', letterSpacing: 1, fontFamily: FontFamily.extraBold}]}>
+                      <Text style={[{ 
+                        color: "#94a3b8", 
+                        fontSize: smallWidth ? fontSize.b3.fontSize : fontSize.b2.fontSize-(2),
+                        fontFamily: 'DMSans_600SemiBold',
+                        letterSpacing: -0.2, marginBottom: 5 }, 
+                        activeTab === "foryou" && {color: 'white', letterSpacing: 1, fontFamily: 'DMSans_700Bold'}]}>
                         FOR YOU
                       </Text>
                       {activeTab === "foryou" && <View style={{
@@ -2551,7 +2574,12 @@ const Feed: React.FC = () => {
                   </Pressable>
                   <Pressable onPress={() => setActiveTab("following")} style={{ justifyContent: 'center', alignItems: 'center',}}>
                     <View style={{alignItems: 'center', justifyContent: 'center'}}>
-                      <Text style={[{ color: "#94a3b8", fontSize: smallWidth ? FontSize.eightHalf : mediumScreen ? FontSize.twelve:FontSize.eight, fontFamily: FontFamily.bold, marginBottom: 5 }, activeTab === "following" && {color: 'white', letterSpacing: 1, fontFamily: FontFamily.extraBold}]}>
+                      <Text style={[{
+                        color: "#94a3b8", 
+                        fontSize: smallWidth ? fontSize.b3.fontSize : fontSize.b2.fontSize-(2),
+                        fontFamily: 'DMSans_600SemiBold',
+                        marginBottom: 5 }, 
+                        activeTab === "following" && {color: 'white', letterSpacing: 1, fontFamily: 'DMSans_700Bold'}]}>
                         FOLLOWING
                       </Text>
                       {activeTab === "following" && <View style={{
@@ -2564,7 +2592,7 @@ const Feed: React.FC = () => {
                   </Pressable>
                   {/* <Pressable onPress={() => setActiveTab("challenges")} style={{ justifyContent: 'center', alignItems: 'center',}}>
                     <View style={{ justifyContent: 'center', alignItems: 'center',}}>
-                      <Text style={[{ color: "#94a3b8", fontSize: smallWidth ? FontSize.tenHalf : mediumScreen ? FontSize.thirteenHalf:FontSize.eightHalf, fontFamily: FontFamily.bold, marginBottom: 5 }, activeTab === "challenges" && {color: 'white', letterSpacing: 1, fontFamily: FontFamily.extraBold, marginBottom: 5}]}>
+                      <Text style={[{ color: "#94a3b8", ...fontSize.b5, lineHeight: fontSize.b5.fontSize + 1, marginBottom: 5 }, activeTab === "challenges" && {color: 'white', letterSpacing: 1, marginBottom: 5}]}>
                         CHALLENGES
                       </Text>
                       {activeTab === "challenges" && <View style={{
@@ -2577,7 +2605,12 @@ const Feed: React.FC = () => {
                   </Pressable> */}
                   <Pressable onPress={() => setActiveTab("premium")} style={{ justifyContent: 'center', alignItems: 'center',}}>
                     <View style={{ justifyContent: 'center', alignItems: 'center',}}>
-                      <Text style={[{ color: "#94a3b8", fontSize: smallWidth ? FontSize.eightHalf : mediumScreen ? FontSize.twelve:FontSize.eight, fontFamily: FontFamily.bold, marginBottom: 5 }, activeTab === "premium" && {color: 'white', letterSpacing: 1, fontFamily: FontFamily.extraBold, marginBottom: 5}]}>
+                      <Text style={[{
+                        color: "#94a3b8",
+                        fontSize: smallWidth ? fontSize.b3.fontSize : fontSize.b2.fontSize-(2),
+                        fontFamily: 'DMSans_600SemiBold',
+                        marginBottom: 5 },
+                        activeTab === "premium" && {color: 'white', letterSpacing: 1, fontFamily: 'DMSans_700Bold', marginBottom: 5}]}>
                         PREMIUM
                       </Text>
                       {activeTab === "premium" && <View style={{
@@ -2606,17 +2639,18 @@ const Feed: React.FC = () => {
               alignItems: 'center',
               flexDirection: 'row',
               paddingHorizontal: 5,
-              paddingVertical: 2.5,
+              marginBottom: 5
+              // paddingVertical: 2.5,
               // marginRight: 5,
             }}
             >
-              <FireIcon fill='#f97316' height={15} width={15}/>
+              <FireIcon fill='#f97316' height={20} width={20}/>
               <Text
               numberOfLines={1}
               style={{
                 color: '#f97316',
-                fontFamily: FontFamily.bold,
-                fontSize: mediumScreen ? FontSize.fourteen: FontSize.ten,
+                fontSize: smallWidth ? fontSize.b3.fontSize+2 : fontSize.b2.fontSize+2,
+                fontFamily: 'DMSans_600SemiBold',
               }}>
                 3
               </Text>
@@ -2642,7 +2676,7 @@ const Feed: React.FC = () => {
           disableIntervalMomentum
           ListFooterComponent={() => (
             <View style={{ height: SCREEN_HEIGHT * 0.08, justifyContent: 'center', alignItems: 'center', backgroundColor: 'gold' }}>
-              <Text style={{ color: '#94a3b8', fontSize: FontSize.eleven }}>Syncing more galaxy feed...</Text>
+              <Text style={{ color: '#94a3b8', ...fontSize.b5, lineHeight: fontSize.b5.fontSize + 1 }}>Syncing more galaxy feed...</Text>
             </View>
           )}
           getItemLayout={(_, index) => ({
@@ -2660,12 +2694,12 @@ const Feed: React.FC = () => {
         </View>
       ) : (
         <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center', paddingHorizontal: 24 }}>
-          <Text style={{ color: 'white', fontSize: FontSize.eighteen, fontWeight: '800' }}>Your Orbit is Empty</Text>
-          <Text style={{ color: '#94a3b8', marginTop: 8, textAlign: 'center' }}>
+          <Text style={{ color: 'white', ...fontSize.b1, lineHeight: fontSize.b1.fontSize + 2, fontWeight: '800' }}>Your Orbit is Empty</Text>
+          <Text style={{...fontSize.b1, color: '#94a3b8', marginTop: 8, textAlign: 'center',  }}>
             Follow creators in the galaxy to see their latest transmissions.
           </Text>
           <Pressable onPress={() => setActiveTab('foryou')} style={{ marginTop: 18 }}>
-            <Text style={{ color: PRIMARY_COLOR, fontWeight: '700' }}>Discover Creators</Text>
+            <Text style={{...fontSize.b2, color: PRIMARY_COLOR, }}>Discover Creators</Text>
           </Pressable>
         </View>
       )}
@@ -2691,9 +2725,8 @@ const Feed: React.FC = () => {
           <ActivityIndicator size="small" color={PRIMARY_COLOR} />
           <Text
             style={{
+              ...fontSize.b2,
               color: '#ffffff',
-              fontFamily: FontFamily.extraBold,
-              fontSize: FontSize.eight,
               textTransform: 'uppercase',
               letterSpacing: 1.4,
             }}

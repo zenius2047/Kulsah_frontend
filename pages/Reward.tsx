@@ -14,8 +14,8 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 import { LinearGradient } from 'expo-linear-gradient';
 import { MaterialIcons } from '@expo/vector-icons';
 import { useNavigation } from '@react-navigation/native';
-import { FontFamily, FontSize } from '../fonts';
 import { mediumScreen } from '../types';
+import { fontSize } from './typography';
 
 const HERO_IMAGE =
   'https://lh3.googleusercontent.com/aida-public/AB6AXuB8GiYxO2nbbxNd0t2ZkcvWKoXv1xF3Xa9VUs42Utz-0cBhpcL8NAI8lOGbwvElE_wGSrxRF9uWsCyaAnJSffqEkCCItTwdWRP-IwEXfSS6EOFnEbltfVSinp19SfcrrigBDVJu5ZhME0XX0GFtOVlJSbSpNAjL0zM-EbGyFZk1D0jhLeDjW3X1XaeIuKvCZyeem87spk61ObdMLF6_vtZWiloFk-1vLwEo63u8IhjIx14Sqdfso3pakgqIsjlb_1fYZC64ehugvpsY';
@@ -47,7 +47,7 @@ const Reward: React.FC = () => {
     <SafeAreaView style={[styles.safeArea, { backgroundColor: theme.background }]} edges={['top', 'left', 'right']}>
       <View style={[styles.screen, { backgroundColor: theme.screen }]}>
         <LinearGradient
-          colors={bgGradient}
+          colors={bgGradient as any}
           locations={[0, 0.45, 1]}
           style={StyleSheet.absoluteFill}
         />
@@ -243,14 +243,12 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
   },
   headerTitle: {
-    fontFamily: FontFamily.bold,
-    fontSize: FontSize.eleven,
+    ...fontSize.b5, lineHeight: fontSize.b5.fontSize + 1,
     textTransform: 'uppercase',
   },
   headerBrand: {
     color: PRIMARY_COLOR,
-    fontFamily: FontFamily.extraBold,
-    fontSize: FontSize.fourteen,
+    ...fontSize.b4, lineHeight: fontSize.b4.fontSize + 1,
     letterSpacing: -0.4,
   },
   scroll: {
@@ -291,15 +289,13 @@ const styles = StyleSheet.create({
   },
   heroTag: {
     color: PRIMARY_COLOR,
-    fontFamily: FontFamily.bold,
-    fontSize: FontSize.eleven,
+    ...fontSize.b5, lineHeight: fontSize.b5.fontSize + 1,
     textTransform: 'uppercase',
     letterSpacing: 1.1,
   },
   heroTitle: {
     color: '#ffffff',
-    fontFamily: FontFamily.extraBold,
-    fontSize: FontSize.sixteen,
+    ...fontSize.b4,
     lineHeight: 20,
     textTransform: 'uppercase',
   },
@@ -331,14 +327,12 @@ const styles = StyleSheet.create({
     elevation: 4,
   },
   criteriaLabel: {
-    fontFamily: FontFamily.bold,
-    fontSize: FontSize.ten,
+    ...fontSize.b5, lineHeight: fontSize.b5.fontSize + 1,
     letterSpacing: 1.1,
     textTransform: 'uppercase',
   },
   criteriaTitle: {
-    fontFamily: FontFamily.bold,
-    fontSize: FontSize.eleven,
+    ...fontSize.b5, lineHeight: fontSize.b5.fontSize + 1,
     marginTop: 4,
   },
   criteriaPill: {
@@ -348,8 +342,7 @@ const styles = StyleSheet.create({
     borderWidth: 1,
   },
   criteriaPillText: {
-    fontFamily: FontFamily.bold,
-    fontSize: FontSize.six,
+    ...fontSize.b5, lineHeight: fontSize.b5.fontSize + 1,
   },
   formSection: {
     gap: 18,
@@ -367,12 +360,10 @@ const styles = StyleSheet.create({
     paddingRight: 16,
   },
   cardTitle: {
-    fontFamily: FontFamily.bold,
-    fontSize: FontSize.thirteen,
+    ...fontSize.b4, lineHeight: fontSize.b4.fontSize + 1,
   },
   cardMeta: {
-    fontFamily: FontFamily.medium,
-    fontSize: FontSize.twelve,
+    ...fontSize.b4, lineHeight: fontSize.b4.fontSize + 1,
     marginTop: 4,
   },
   detailsCard: {
@@ -385,8 +376,7 @@ const styles = StyleSheet.create({
     gap: 8,
   },
   fieldLabel: {
-    fontFamily: FontFamily.bold,
-    fontSize: FontSize.ten,
+    ...fontSize.b5, lineHeight: fontSize.b5.fontSize + 1,
     letterSpacing: 1.2,
     textTransform: 'uppercase',
   },
@@ -395,8 +385,7 @@ const styles = StyleSheet.create({
     paddingHorizontal: 16,
     paddingVertical: 14,
     borderWidth: 1,
-    fontFamily: FontFamily.medium,
-    fontSize: FontSize.twelve,
+    ...fontSize.b4, lineHeight: fontSize.b4.fontSize + 1,
   },
   textarea: {
     minHeight: 150,
@@ -404,16 +393,14 @@ const styles = StyleSheet.create({
     paddingHorizontal: 16,
     paddingVertical: 14,
     borderWidth: 1,
-    fontFamily: FontFamily.medium,
-    fontSize: FontSize.twelve,
+    ...fontSize.b4,
     lineHeight: 22,
   },
   previewSection: {
     gap: 14,
   },
   previewHeading: {
-    fontFamily: FontFamily.bold,
-    fontSize: FontSize.thirteen,
+    ...fontSize.b4, lineHeight: fontSize.b4.fontSize + 1,
     paddingHorizontal: 4,
   },
   previewCard: {
@@ -480,8 +467,7 @@ const styles = StyleSheet.create({
   },
   rankPillText: {
     color: '#0a050d',
-    fontFamily: FontFamily.extraBold,
-    fontSize: FontSize.ten,
+    ...fontSize.b5, lineHeight: fontSize.b5.fontSize + 1,
     letterSpacing: 0.8,
   },
   previewTextBlock: {
@@ -490,18 +476,15 @@ const styles = StyleSheet.create({
     marginBottom: 18,
   },
   previewTitle: {
-    fontFamily: FontFamily.extraBold,
-    fontSize: FontSize.fifteen,
+    ...fontSize.b4, lineHeight: fontSize.b4.fontSize + 1,
     letterSpacing: 0.2,
   },
   previewSubtitle: {
-    fontFamily: FontFamily.medium,
-    fontSize: FontSize.nine,
+    ...fontSize.b5, lineHeight: fontSize.b5.fontSize + 1,
   },
   previewLink: {
     color: PRIMARY_COLOR,
-    fontFamily: FontFamily.bold,
-    fontSize: FontSize.ten,
+    ...fontSize.b5, lineHeight: fontSize.b5.fontSize + 1,
     textTransform: 'uppercase',
     letterSpacing: 1.2,
   },
@@ -519,8 +502,7 @@ const styles = StyleSheet.create({
   },
   saveButtonText: {
     color: '#ffffff',
-    fontFamily: FontFamily.bold,
-    fontSize: mediumScreen ? FontSize.fourteen: FontSize.ten,
+    ...fontSize.b4, lineHeight: fontSize.b4.fontSize + 1,
     textTransform: 'uppercase',
     letterSpacing: 0.2,
   },

@@ -14,12 +14,12 @@ import {
   View,
 } from 'react-native';
 import { SafeAreaView, useSafeAreaInsets } from 'react-native-safe-area-context';
-import { FontFamily, FontSize } from '../fonts';
 import { mediumScreen } from '../types';
 import GradientText from '../components/GradientText';
 import KulsahBlack from '../assets/icons/kulsah-black-svg.svg';
 import KulsahWhite from '../assets/icons/kulsah-white-svg.svg';
 import { useThemeMode, PRIMARY_COLOR, primaryColorAlpha } from "../theme";
+import { fontSize } from './typography';
 
 
 const heroImage =
@@ -233,17 +233,15 @@ const s = StyleSheet.create({
   },
   badgeText: {
     color: PRIMARY_COLOR,
-    fontSize: mediumScreen ? FontSize.twelve:FontSize.eight,
-    fontFamily: FontFamily.extraBold,
+    ...fontSize.b4, lineHeight: fontSize.b4.fontSize + 1,
     letterSpacing: 2,
     textTransform: 'uppercase',
   },
   title: {
     color: '#f8fafc',
-    fontSize: mediumScreen ? FontSize.thirtyTwo : FontSize.twentyEight,
-    lineHeight: mediumScreen ? FontSize.thirtySix : FontSize.thirtyTwo,
+    ...fontSize.b1,
+    lineHeight: fontSize.b1.fontSize + 2,
     textAlign: 'center',
-    fontFamily: FontFamily.extraBold,
     letterSpacing: -1.2,
     maxWidth: 300,
   },
@@ -252,17 +250,15 @@ const s = StyleSheet.create({
     gap: 2,
   },
   titleAccent: {
-    fontSize: mediumScreen ? FontSize.thirtyTwo : FontSize.twentyEight,
-    lineHeight: mediumScreen ? FontSize.thirtySix : FontSize.thirtyTwo,
+    ...fontSize.b1,
+    lineHeight: fontSize.b1.fontSize + 2,
     textAlign: 'center',
-    fontFamily: FontFamily.extraBold,
     letterSpacing: -1.2,
     fontStyle: 'italic',
   },
   subtitle: {
     marginTop: 5,
-    fontSize: mediumScreen ? FontSize.sixteen:FontSize.twelve,
-    fontFamily: FontFamily.medium,
+    ...fontSize.b3, lineHeight: fontSize.b3.fontSize + 2,
     textAlign: 'center',
   },
   cardStack: {
@@ -290,15 +286,13 @@ const s = StyleSheet.create({
   },
   featureTitle: {
     color: '#f8fafc',
-    fontSize: mediumScreen ? FontSize.sixteen:FontSize.twelve,
-    fontFamily: FontFamily.extraBold,
+    ...fontSize.b3, lineHeight: fontSize.b3.fontSize + 2,
   },
   featureBody: {
     marginTop: 3,
     color: '#d0c1d8',
-    fontSize: mediumScreen ? FontSize.fourteen:FontSize.ten,
-    lineHeight: FontSize.sixteen,
-    fontFamily: FontFamily.medium,
+    ...fontSize.b4,
+    lineHeight: fontSize.b3.fontSize + 2,
   },
   footerBlock: {
     marginTop: 14,
@@ -328,13 +322,11 @@ const s = StyleSheet.create({
   },
   avatarMoreText: {
     color: '#f8fafc',
-    fontSize: mediumScreen ? FontSize.twelve:FontSize.eight,
-    fontFamily: FontFamily.extraBold,
+    ...fontSize.b4, lineHeight: fontSize.b4.fontSize + 1,
   },
   communityText: {
     color: '#94a3b8',
-    fontSize: mediumScreen ? FontSize.twelve:FontSize.eight,
-    fontFamily: FontFamily.extraBold,
+    ...fontSize.b4, lineHeight: fontSize.b4.fontSize + 1,
     textTransform: 'uppercase',
     letterSpacing: 1.7,
   },
@@ -358,17 +350,15 @@ const s = StyleSheet.create({
   },
   ctaText: {
     color: '#ffffff',
-    fontSize: mediumScreen ? FontSize.sixteen:FontSize.twelve,
-    fontFamily: FontFamily.extraBold,
+    ...fontSize.b3, lineHeight: fontSize.b3.fontSize + 2,
     textTransform: 'uppercase',
     letterSpacing: 1,
   },
   disclaimer: {
     color: 'rgba(208,193,216,0.65)',
     textAlign: 'center',
-    fontSize: mediumScreen ? FontSize.ten:FontSize.eight,
-    lineHeight: FontSize.twelve,
-    fontFamily: FontFamily.bold,
+    ...fontSize.b5,
+    lineHeight: fontSize.b3.fontSize + 2,
     paddingHorizontal: 8,
   },
 });

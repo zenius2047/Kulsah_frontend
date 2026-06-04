@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { useThemeMode, PRIMARY_COLOR, primaryColorAlpha } from './theme';
+import { useThemeMode, PRIMARY_COLOR, primaryColorAlpha, KulsahDarkTheme, KulsahTheme } from './theme';
 import { View, StyleSheet, ActivityIndicator, Text, TextInput, Pressable, StatusBar, Dimensions , Image, useWindowDimensions, Platform} from 'react-native';
 import { NavigationContainer, createNavigationContainerRef } from '@react-navigation/native';
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
@@ -7,6 +7,32 @@ import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { MaterialIcons,} from '@expo/vector-icons';
 import { useFonts } from 'expo-font';
+import {
+  Inter_400Regular,
+  Inter_500Medium,
+  Inter_600SemiBold,
+  Inter_700Bold,
+} from '@expo-google-fonts/inter';
+import {
+  DMSans_400Regular,
+  DMSans_500Medium,
+  DMSans_600SemiBold,
+  DMSans_700Bold,
+} from '@expo-google-fonts/dm-sans';
+import {
+  Poppins_500Medium,
+  Poppins_600SemiBold,
+  Poppins_700Bold,
+  Poppins_800ExtraBold
+} from '@expo-google-fonts/poppins';
+import {
+  PlusJakartaSans_500Medium,
+  PlusJakartaSans_600SemiBold,
+  PlusJakartaSans_700Bold,
+  PlusJakartaSans_800ExtraBold
+} from '@expo-google-fonts/plus-jakarta-sans'
+import * as ExpoSplashScreen from 'expo-splash-screen';
+import { PaperProvider } from 'react-native-paper';
 import { LinearGradient } from 'expo-linear-gradient';
 import ExploreIcon from './assets/icons/explore-svg.svg';
 // import LocalLibraryIcon from './assets/icons/local_library-svg.svg';
@@ -95,27 +121,39 @@ import Events from './pages/Events';
 import TrendingVideos from './pages/TrendingVideos';
 import Search from './pages/Search';
 import Submissions from './pages/Submissions';
+import Premium from './pages/Premium';
+import PlaylistPlayer from './pages/PlaylistPlayer';
 
 
 
-import { FontFamily, FontSize, typographyStyles } from './fonts';
+import { typographyStyles } from './fonts';
+import { fontSize } from './typography';
+import VideoPlayer from './pages/VideoPlayer';
 
 const Stack = createNativeStackNavigator();
 const Tab = createBottomTabNavigator();
 const { height: SCREEN_HEIGHT, width: SCREEN_WIDTH } = Dimensions.get('screen');
 const navigationRef = createNavigationContainerRef();
 
+void ExpoSplashScreen.preventAutoHideAsync();
 
-const TextWithDefaults = Text as unknown as { defaultProps?: { style?: unknown } };
+const TextWithDefaults = Text as unknown as { defaultProps?: { allowFontScaling?: boolean; style?: unknown } };
 TextWithDefaults.defaultProps = TextWithDefaults.defaultProps || {};
+TextWithDefaults.defaultProps.allowFontScaling = false;
 // Regression: unstyled text default -> body role, iOS 15pt / Android 14sp, native.
-TextWithDefaults.defaultProps.style = [typographyStyles.body, TextWithDefaults.defaultProps.style];
+TextWithDefaults.defaultProps.style = [
+  typographyStyles.body,
+  { fontFamily: 'DMSans_400Regular' },
+  TextWithDefaults.defaultProps.style,
+];
 
-const TextInputWithDefaults = TextInput as unknown as { defaultProps?: { style?: unknown } };
+const TextInputWithDefaults = TextInput as unknown as { defaultProps?: { includeFontPadding?: boolean; style?: unknown } };
 TextInputWithDefaults.defaultProps = TextInputWithDefaults.defaultProps || {};
+TextInputWithDefaults.defaultProps.includeFontPadding = false;
 TextInputWithDefaults.defaultProps.style = [
   // Regression: unstyled input text default -> body role, iOS 15pt / Android 14sp, native.
   typographyStyles.body,
+  { fontFamily: 'DMSans_400Regular' },
   TextInputWithDefaults.defaultProps.style,
 ];
 
@@ -162,7 +200,6 @@ const CreatorTabs = ({ isDarkMode }: TabsProps) => {
         tabBarInactiveTintColor: '#8E8E93',
         sceneStyle: { backgroundColor: '#000' },
         tabBarLabelStyle:{
-          fontFamily: FontFamily.bold
         },
         tabBarStyle: [
           styles.tabBar,
@@ -401,6 +438,7 @@ const FanTabs = ({isDarkMode, user, onTap}: TabsProps) => {
 
 const App: React.FC = () => {
   const { isDark } = useThemeMode();
+  const paperTheme = isDark ? KulsahDarkTheme : KulsahTheme;
   const [currentUser, setCurrentUser] = useState<User | null>(user);
   const [isBooting, setIsBooting] = useState(true);
   const { height: vh, width:vw } = useWindowDimensions();
@@ -412,15 +450,34 @@ const App: React.FC = () => {
   }
 
 
-  const [fontsLoaded] = useFonts({
+  const [fontsLoaded, fontError] = useFonts({
       ...MaterialIcons.font,
-      PlusJakartaSans:require('./assets/fonts/PlusJakartaSans-Regular.ttf'),
-      PlusJakartaSansBold:require('./assets/fonts/PlusJakartaSans-Bold.ttf'),
-      PlusJakartaSansExtraBold:require('./assets/fonts/PlusJakartaSans-ExtraBold.ttf'),
-      PlusJakartaSansMedium:require('./assets/fonts/PlusJakartaSans-Medium.ttf'),
-      GudlaRegular:require('./assets/fonts/GCGudlakDemo-Regular.ttf'),
-      GudlaExtraBold:require('./assets/fonts/GCGudlakDemo-ExtraBold.ttf'),
+      Inter_400Regular,
+      Inter_500Medium,
+      Inter_600SemiBold,
+      Inter_700Bold,
+      DMSans_400Regular,
+      DMSans_500Medium,
+      DMSans_600SemiBold,
+      DMSans_700Bold,
+      Poppins_500Medium,
+      Poppins_600SemiBold,
+      Poppins_700Bold,
+      Poppins_800ExtraBold,
+      PlusJakartaSans_500Medium,      
+      PlusJakartaSans_600SemiBold,
+      PlusJakartaSans_700Bold,
+      PlusJakartaSans_800ExtraBold,
+      'Pogonia_500Medium': require('./assets/fonts/pogonia-medium.ttf'),
+      'Pogonia_600SemiBold': require('./assets/fonts/pogonia-semibold.ttf'),
+      'Pogonia_700Bold': require('./assets/fonts/pogonia-bold.ttf'),
     });
+
+  useEffect(() => {
+    if (fontsLoaded || fontError) {
+      void ExpoSplashScreen.hideAsync();
+    }
+  }, [fontsLoaded, fontError]);
 
   useEffect(() => {
     setHeight(vh);
@@ -480,18 +537,19 @@ const App: React.FC = () => {
     await AsyncStorage.setItem('pulsar_user', JSON.stringify(mockUser));
   };
 
-  if(!fontsLoaded){
+  if(!fontsLoaded && !fontError){
     return null;
   }
 
   return (
-    <SafeAreaProvider>
-      <ErrorBoundary
-        fallbackTitle="App error"
-        fallbackMessage="An unexpected error occurred. Retry to reload the app."
-      >
-        <NavigationContainer ref={navigationRef}>
-          <SafeAreaView edges={Platform.OS === 'ios'? []: []} style={{ flex: 1 }}>
+    <PaperProvider theme={paperTheme}>
+      <SafeAreaProvider>
+        <ErrorBoundary
+          fallbackTitle="App error"
+          fallbackMessage="An unexpected error occurred. Retry to reload the app."
+        >
+          <NavigationContainer ref={navigationRef}>
+            <SafeAreaView edges={Platform.OS === 'ios'? []: []} style={{ flex: 1 }}>
 
             <StatusBar barStyle={isDark ? 'light-content' : 'dark-content'} backgroundColor="transparent" translucent = {true} />
             <Stack.Navigator id="root-stack" screenOptions={{ headerShown: false }}>
@@ -558,6 +616,9 @@ const App: React.FC = () => {
                   <Stack.Screen name="TrendingVideos" component={TrendingVideos}/>
                   <Stack.Screen name="Search" component={Search}/>
                   <Stack.Screen name="Submissions" component={Submissions}/>
+                  <Stack.Screen name="Premium" component={Premium}/>
+                  <Stack.Screen name="VideoPlayer" component={VideoPlayer}/>
+                  <Stack.Screen name="PlaylistPlayer" component={PlaylistPlayer}/>
                 </>
               ) : (
                 <>
@@ -583,10 +644,11 @@ const App: React.FC = () => {
                 });
               }}
             />
-          </SafeAreaView>
-        </NavigationContainer>
-      </ErrorBoundary>
-    </SafeAreaProvider>
+            </SafeAreaView>
+          </NavigationContainer>
+        </ErrorBoundary>
+      </SafeAreaProvider>
+    </PaperProvider>
   );
 };
 
@@ -623,8 +685,7 @@ const styles = StyleSheet.create({
     borderTopWidth: 0,
     height: SCREEN_HEIGHT * 0.08,
     paddingBottom: 0,
-    fontSize: mediumScreen ? FontSize.twelve: FontSize.eight,
-    fontFamily: FontFamily.regular,
+    ...fontSize.b4, lineHeight: fontSize.b4.fontSize + 1,
     // backgroundColor: 'blue'
   },
   creatorCreateTabOuter: {

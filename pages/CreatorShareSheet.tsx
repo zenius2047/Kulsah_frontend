@@ -10,8 +10,8 @@ import {
   View,
 } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
-import { FontFamily, FontSize } from '../fonts';
 import { useThemeMode, PRIMARY_COLOR } from "../theme";
+import { fontSize } from './typography';
 
 type ShareFriend = {
   id: string;
@@ -244,15 +244,13 @@ const styles = StyleSheet.create({
     paddingHorizontal: 16,
   },
   sectionTitle: {
-    fontFamily: FontFamily.extraBold,
-    fontSize: FontSize.fourteen,
+    ...fontSize.b4, lineHeight: fontSize.b4.fontSize + 1,
     paddingHorizontal: 16,
 
   },
   sectionAccent: {
     color: '#d915d2',
-    fontFamily: FontFamily.extraBold,
-    fontSize: FontSize.seven,
+    ...fontSize.b5, lineHeight: fontSize.b5.fontSize + 1,
     textTransform: 'uppercase',
     letterSpacing: 1.4,
   },
@@ -295,8 +293,7 @@ const styles = StyleSheet.create({
     borderColor: '#0a050d',
   },
   friendName: {
-    fontFamily: FontFamily.bold,
-    fontSize: FontSize.eight,
+    ...fontSize.b5, lineHeight: fontSize.b5.fontSize + 1,
   },
   platformRow: {
     gap: 16,
@@ -317,8 +314,7 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
   },
   platformLabel: {
-    fontFamily: FontFamily.extraBold,
-    fontSize: FontSize.sixPointEight,
+    ...fontSize.b5, lineHeight: fontSize.b5.fontSize + 1,
     textTransform: 'uppercase',
     letterSpacing: 0.7,
     textAlign: 'center',
@@ -340,8 +336,7 @@ const styles = StyleSheet.create({
     gap: 10,
   },
   actionText: {
-    fontFamily: FontFamily.medium,
-    fontSize: FontSize.eight,
+    ...fontSize.b5,
     textAlign: 'center',
     lineHeight: 14,
   },

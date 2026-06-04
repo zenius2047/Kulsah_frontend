@@ -10,7 +10,7 @@ import {
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { MaterialIcons } from '@expo/vector-icons';
 import { useNavigation } from '@react-navigation/native';
-import { FontFamily, FontSize } from '../fonts';
+import { fontSize } from './typography';
 
 type StreakData = {
   count: number;
@@ -189,8 +189,7 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
   },
   headerTitle: {
-    fontFamily: FontFamily.extraBold,
-    fontSize: FontSize.twelve,
+    ...fontSize.b4, lineHeight: fontSize.b4.fontSize + 1,
     textTransform: 'uppercase',
     letterSpacing: 0.4,
   },
@@ -224,30 +223,25 @@ const styles = StyleSheet.create({
     marginBottom: 14,
   },
   streakCount: {
-    fontFamily: FontFamily.extraBold,
-    fontSize: FontSize.thirtySix,
-    lineHeight: FontSize.forty,
+    ...fontSize.b1, lineHeight: fontSize.b1.fontSize + 2,
   },
   streakLabel: {
     marginTop: 2,
     color: '#f97316',
-    fontFamily: FontFamily.extraBold,
-    fontSize: FontSize.eight,
+    ...fontSize.b5, lineHeight: fontSize.b5.fontSize + 1,
     letterSpacing: 3.5,
   },
   streakDesc: {
     marginTop: 12,
     textAlign: 'center',
-    fontFamily: FontFamily.medium,
-    fontSize: FontSize.nine,
-    lineHeight: FontSize.fourteen,
+    ...fontSize.b5,
+    lineHeight: fontSize.b3.fontSize + 2,
     maxWidth: 220,
   },
   sectionTitle: {
     marginBottom: 12,
     marginLeft: 2,
-    fontFamily: FontFamily.extraBold,
-    fontSize: FontSize.eight,
+    ...fontSize.b5, lineHeight: fontSize.b5.fontSize + 1,
     letterSpacing: 2.5,
   },
   list: { gap: 10 },
@@ -266,14 +260,12 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
   },
   rewardName: {
-    fontFamily: FontFamily.extraBold,
-    fontSize: FontSize.twelve,
+    ...fontSize.b4, lineHeight: fontSize.b4.fontSize + 1,
     textTransform: 'uppercase',
   },
   rewardDays: {
     marginTop: 2,
-    fontFamily: FontFamily.bold,
-    fontSize: FontSize.seven,
+    ...fontSize.b5, lineHeight: fontSize.b5.fontSize + 1,
     letterSpacing: 1.2,
   },
   unlockedPill: {
@@ -288,12 +280,10 @@ const styles = StyleSheet.create({
   },
   daysLeftWrap: { alignItems: 'flex-end' },
   daysLeftValue: {
-    fontFamily: FontFamily.extraBold,
-    fontSize: FontSize.twelve,
+    ...fontSize.b4, lineHeight: fontSize.b4.fontSize + 1,
   },
   daysLeftLabel: {
-    fontFamily: FontFamily.bold,
-    fontSize: FontSize.sixHalf,
+    ...fontSize.b5, lineHeight: fontSize.b5.fontSize + 1,
     letterSpacing: 1.2,
   },
   progressTrack: {
@@ -317,16 +307,14 @@ const styles = StyleSheet.create({
     gap: 8,
   },
   infoTitle: {
-    fontFamily: FontFamily.extraBold,
-    fontSize: FontSize.ten,
+    ...fontSize.b5, lineHeight: fontSize.b5.fontSize + 1,
     letterSpacing: 1.6,
     textTransform: 'uppercase',
   },
   infoBody: {
     textAlign: 'center',
-    fontFamily: FontFamily.medium,
-    fontSize: FontSize.nine,
-    lineHeight: FontSize.fourteen,
+    ...fontSize.b5,
+    lineHeight: fontSize.b3.fontSize + 2,
   },
 });
 

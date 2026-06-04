@@ -4,13 +4,13 @@ import { MaterialIcons } from '@expo/vector-icons';
 import { BlurView } from 'expo-blur';
 import { LinearGradient } from 'expo-linear-gradient';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
-import { FontFamily, FontSize } from '../fonts';
 import { useThemeMode, PRIMARY_COLOR, primaryColorAlpha } from "../theme";
 import { mediumScreen } from '../types';
 import EmojiStickerPicker from '../components/EmojiStickerPicker';
 import GiftDialog, { GiftSelection } from '../components/GiftDialog';
 import KulsahInputBar from '../components/KulsahInputBar';
 import EmptyStateComment from '../assets/icons/Comment VECTOR.svg';
+import { fontSize } from './typography';
 
 
 // type ReactionTab =  'Gifts'| null;
@@ -304,7 +304,7 @@ const Reactions: React.FC<ReactionsProps> = ({
                             <Text style={[styles.replyTime, { color: muted }]}>{comment.reply.time}</Text>
                           </View>
                           <Text style={[styles.replyBody, { color: commentText }]}>
-                            <Text style={{ color: PRIMARY_COLOR, fontFamily: FontFamily.bold }}>{comment.handle} </Text>
+                            <Text style={{ color: PRIMARY_COLOR }}>{comment.handle} </Text>
                             {comment.reply.text}
                           </Text>
                           <View style={styles.replyActions}>
@@ -349,7 +349,7 @@ const Reactions: React.FC<ReactionsProps> = ({
               <View style={styles.replyingInfo}>
                 <MaterialIcons name="reply" size={16} color={PRIMARY_COLOR} />
                 <Text style={[styles.replyingText, { color: secondary }]}>
-                  Replying to <Text style={{ color: theme.text, fontFamily: FontFamily.bold }}>{replyingTo}</Text>
+                  Replying to <Text style={{ color: theme.text }}>{replyingTo}</Text>
                 </Text>
               </View>
               <Pressable onPress={() => setReplyingTo(null)}>
@@ -436,10 +436,10 @@ const styles = StyleSheet.create({
   },
   header: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', paddingHorizontal: 24, paddingVertical: 18 },
   iconButton: { width: 40, height: 40, borderRadius: 20, alignItems: 'center', justifyContent: 'center' },
-  headerTitle: { fontFamily: FontFamily.extraBold, fontSize: mediumScreen ? FontSize.fourteen:FontSize.ten, textTransform: 'uppercase', letterSpacing: 0.8 },
+  headerTitle: { ...fontSize.b4, lineHeight: fontSize.b4.fontSize + 1, textTransform: 'uppercase', letterSpacing: 0.8 },
   tabsRow: { flexDirection: 'row', paddingHorizontal: 16, paddingBottom: 8, gap: 8 },
   tabButton: { flex: 1, minHeight: 46, borderRadius: 18, flexDirection: 'row', alignItems: 'center', justifyContent: 'center', gap: 8 },
-  tabText: { fontFamily: FontFamily.extraBold, fontSize: FontSize.eight, textTransform: 'uppercase', letterSpacing: 0.2 },
+  tabText: { ...fontSize.b5, lineHeight: fontSize.b5.fontSize + 1, textTransform: 'uppercase', letterSpacing: 0.2 },
   content: { paddingHorizontal: 24, paddingTop: 10, paddingBottom: 18, gap: 22 },
   emptyContent: {
     flexGrow: 1,
@@ -454,16 +454,14 @@ const styles = StyleSheet.create({
   },
   emptyTitle: {
     marginTop: 4,
-    fontFamily: FontFamily.extraBold,
-    fontSize: mediumScreen ? FontSize.sixteen : FontSize.twelve,
+    ...fontSize.b3, lineHeight: fontSize.b3.fontSize + 2,
     textTransform: 'uppercase',
     letterSpacing: 1.2,
     textAlign: 'center',
   },
   emptyBody: {
     maxWidth: 260,
-    fontFamily: FontFamily.medium,
-    fontSize: mediumScreen ? FontSize.twelve : FontSize.nine,
+    ...fontSize.b4,
     lineHeight: 18,
     textAlign: 'center',
   },
@@ -473,9 +471,9 @@ const styles = StyleSheet.create({
   commentMain: { flex: 1 },
   commentMetaRow: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', gap: 8, marginBottom: 2 },
   commentNameRow: { flexDirection: 'row', alignItems: 'center', gap: 4 },
-  commentHandle: { fontFamily: FontFamily.bold, fontSize: mediumScreen ? FontSize.fifteen : FontSize.eleven, marginBottom: 5 },
-  commentTime: { fontFamily: FontFamily.medium, fontSize: mediumScreen ? FontSize.ten:FontSize.seven },
-  commentBody: { fontFamily: FontFamily.medium, fontSize: mediumScreen ? FontSize.thirteen: FontSize.ten, lineHeight: 16 },
+  commentHandle: { ...fontSize.b4, lineHeight: fontSize.b4.fontSize + 1, marginBottom: 5 },
+  commentTime: { ...fontSize.b5, lineHeight: fontSize.b5.fontSize + 1 },
+  commentBody: { ...fontSize.b4,lineHeight: 16 },
   commentSticker: { width: 120, height: 120, borderRadius: 22, marginTop: 4 },
   giftMessageCard: {
     marginTop: 4,
@@ -500,44 +498,42 @@ const styles = StyleSheet.create({
     height: '100%',
   },
   giftMessageEmoji: {
-    fontSize: FontSize.twentySix,
+    ...fontSize.b1, lineHeight: fontSize.b1.fontSize + 2,
   },
   giftMessageCopy: {
     flex: 1,
     gap: 3,
   },
   giftMessageTitle: {
-    fontFamily: FontFamily.bold,
-    fontSize: mediumScreen ? FontSize.twelve : FontSize.nine,
+    ...fontSize.b4, lineHeight: fontSize.b4.fontSize + 1,
   },
   giftMessagePrice: {
-    fontFamily: FontFamily.medium,
-    fontSize: mediumScreen ? FontSize.ten : FontSize.seven,
+    ...fontSize.b5, lineHeight: fontSize.b5.fontSize + 1,
     textTransform: 'uppercase',
     letterSpacing: 0.8,
   },
   actionRow: { flexDirection: 'row', alignItems: 'center', gap: 18, marginTop: 8 },
   metaAction: { flexDirection: 'row', alignItems: 'center', gap: 4 },
-  metaActionText: { fontFamily: FontFamily.bold, fontSize: mediumScreen ? FontSize.twelve:FontSize.eight },
+  metaActionText: { ...fontSize.b4, lineHeight: fontSize.b4.fontSize + 1 },
   replyWrap: { marginLeft: 34, paddingLeft: 18, position: 'relative', gap: 10 },
   replyLine: { position: 'absolute', left: 0, top: -6, bottom: 6, width: 2, borderRadius: 999 },
   replyRow: { flexDirection: 'row', gap: 10 },
   replyAvatar: { width: 32, height: 32, borderRadius: 16 },
   replyMain: { flex: 1 },
-  replyHandle: { fontFamily: FontFamily.bold, fontSize: mediumScreen ? FontSize.eleven:FontSize.eight },
-  replyTime: { fontFamily: FontFamily.medium, fontSize: mediumScreen ? FontSize.nine: FontSize.six },
-  replyBody: { fontFamily: FontFamily.medium, fontSize: mediumScreen ? FontSize.eleven: FontSize.eight, lineHeight: 15 },
+  replyHandle: { ...fontSize.b5, lineHeight: fontSize.b5.fontSize + 1 },
+  replyTime: { ...fontSize.b5, lineHeight: fontSize.b5.fontSize + 1 },
+  replyBody: { ...fontSize.b5,lineHeight: 15 },
   replyActions: { flexDirection: 'row', gap: 16, marginTop: 6 },
-  replyActionText: { fontFamily: FontFamily.bold, fontSize: mediumScreen ? FontSize.ten: FontSize.eight },
+  replyActionText: { ...fontSize.b5, lineHeight: fontSize.b5.fontSize + 1 },
   giftCard: { flexDirection: 'row', gap: 12, borderRadius: 20, padding: 14, overflow: 'hidden', borderWidth: 1 },
   giftHeaderRow: { flexDirection: 'row', alignItems: 'center', gap: 8 },
-  giftLabel: { color: PRIMARY_COLOR, fontFamily: FontFamily.extraBold, fontSize: mediumScreen ? FontSize.nine: FontSize.six, letterSpacing: 0.6, textTransform: 'uppercase' },
+  giftLabel: { color: PRIMARY_COLOR, ...fontSize.b5, lineHeight: fontSize.b5.fontSize + 1, letterSpacing: 0.6, textTransform: 'uppercase' },
   giftMetaRow: { flexDirection: 'row', alignItems: 'center', gap: 8, marginTop: 6 },
-  giftText: { fontFamily: FontFamily.medium, fontSize: mediumScreen ? FontSize.eleven:FontSize.eight },
+  giftText: { ...fontSize.b5, lineHeight: fontSize.b5.fontSize + 1 },
   inputShell: { borderTopWidth: 1, paddingHorizontal: 16, paddingTop: 12 },
   replyingBanner: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', borderWidth: 1, borderRadius: 14, paddingHorizontal: 12, paddingVertical: 8, marginBottom: 10 },
   replyingInfo: { flexDirection: 'row', alignItems: 'center', gap: 8 },
-  replyingText: { fontFamily: FontFamily.medium, fontSize: mediumScreen ? FontSize.ten: FontSize.seven },
+  replyingText: { ...fontSize.b5, lineHeight: fontSize.b5.fontSize + 1 },
   inputActions: { flexDirection: 'row' },
   inputIcon: { width: 32, height: 32, borderRadius: 16, alignItems: 'center', justifyContent: 'center' },
   sendButton: { width: 36, height: 36, borderRadius: 12, alignItems: 'center', justifyContent: 'center', backgroundColor: PRIMARY_COLOR },

@@ -10,11 +10,11 @@ import {
   View,
 } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
-import { FontFamily, FontSize } from '../fonts';
 import { useThemeMode, PRIMARY_COLOR, primaryColorAlpha } from "../theme";
 import { mediumScreen } from '../types';
 import KulcoinTopUpDrawer from './KulcoinTopUpDrawer';
 import KulsahInputBar from './KulsahInputBar';
+import { fontSize } from './typography';
 
 type GiftCategory = 'general' | 'food' | 'fashion';
 
@@ -341,8 +341,7 @@ const styles = StyleSheet.create({
     paddingHorizontal: 16,
   },
   fakeInputText: {
-    fontFamily: FontFamily.medium,
-    fontSize: FontSize.ten,
+    ...fontSize.b5, lineHeight: fontSize.b5.fontSize + 1,
   },
   toolbar: {
     flexDirection: 'row',
@@ -404,8 +403,7 @@ const styles = StyleSheet.create({
     backgroundColor: PRIMARY_COLOR,
   },
   categoryChipText: {
-    fontFamily: FontFamily.extraBold,
-    fontSize: FontSize.seven,
+    ...fontSize.b5, lineHeight: fontSize.b5.fontSize + 1,
     textTransform: 'uppercase',
     letterSpacing: 1.4,
   },
@@ -441,15 +439,14 @@ const styles = StyleSheet.create({
     height: '100%',
   },
   giftEmoji: {
-    fontSize: FontSize.thirty,
+    ...fontSize.b1, lineHeight: fontSize.b1.fontSize + 2,
   },
   giftCopy: {
     alignItems: 'center',
     gap: 2,
   },
   giftName: {
-    fontFamily: FontFamily.bold,
-    fontSize: FontSize.seven,
+    ...fontSize.b5, lineHeight: fontSize.b5.fontSize + 1,
     textAlign: 'center',
   },
   giftPriceRow: {
@@ -458,8 +455,7 @@ const styles = StyleSheet.create({
     gap: 2,
   },
   giftPrice: {
-    fontFamily: FontFamily.extraBold,
-    fontSize: FontSize.sixHalf,
+    ...fontSize.b5, lineHeight: fontSize.b5.fontSize + 1,
     textTransform: 'uppercase',
   },
   footer: {
@@ -471,8 +467,7 @@ const styles = StyleSheet.create({
   },
   rechargeLabel: {
     color: '#f43f5e',
-    fontFamily: FontFamily.bold,
-    fontSize: mediumScreen ? FontSize.fourteen: FontSize.ten,
+    ...fontSize.b4, lineHeight: fontSize.b4.fontSize + 1,
     textTransform: 'uppercase',
     letterSpacing: 1.3,
     // marginBottom: 8,
@@ -497,12 +492,10 @@ const styles = StyleSheet.create({
   },
   balanceCoinText: {
     color: '#78350f',
-    fontFamily: FontFamily.extraBold,
-    fontSize: FontSize.seven,
+    ...fontSize.b5, lineHeight: fontSize.b5.fontSize + 1,
   },
   balanceValue: {
-    fontFamily: FontFamily.extraBold,
-    fontSize: mediumScreen ? FontSize.fourteen:FontSize.ten,
+    ...fontSize.b4,
     lineHeight: 14
   },
   sendButton: {
@@ -520,8 +513,7 @@ const styles = StyleSheet.create({
     backgroundColor: 'rgba(148,163,184,0.18)',
   },
   sendButtonText: {
-    fontFamily: FontFamily.extraBold,
-    fontSize: FontSize.nine,
+    ...fontSize.b5, lineHeight: fontSize.b5.fontSize + 1,
     textTransform: 'uppercase',
     letterSpacing: 1.5,
   },

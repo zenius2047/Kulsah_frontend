@@ -11,9 +11,9 @@ import {
   View,
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
-import { FontFamily, FontSize } from '../fonts';
 import { useThemeMode, PRIMARY_COLOR, primaryColorAlpha } from "../theme";
 import { mediumScreen } from '../types';
+import { fontSize } from './typography';
 
 type TrendingRange = 'day' | 'week' | 'month';
 
@@ -338,16 +338,14 @@ const styles = StyleSheet.create({
     alignItems: 'center',
   },
   headerTitle: {
-    fontFamily: FontFamily.extraBold,
-    fontSize: mediumScreen ? FontSize.sixteen : FontSize.thirteen,
+    ...fontSize.b3, lineHeight: fontSize.b3.fontSize + 2,
     textTransform: 'uppercase',
     letterSpacing: 2,
   },
   headerSubtitle: {
     color: PRIMARY_COLOR,
     marginTop: 4,
-    fontFamily: FontFamily.extraBold,
-    fontSize: FontSize.seven,
+    ...fontSize.b5, lineHeight: fontSize.b5.fontSize + 1,
     textTransform: 'uppercase',
     letterSpacing: 1.5,
   },
@@ -369,8 +367,7 @@ const styles = StyleSheet.create({
   },
   searchInput: {
     flex: 1,
-    fontFamily: FontFamily.bold,
-    fontSize: FontSize.ten,
+    ...fontSize.b5, lineHeight: fontSize.b5.fontSize + 1,
   },
   filterScroll: {
     gap: 10,
@@ -392,8 +389,7 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
   },
   filterChipText: {
-    fontFamily: FontFamily.extraBold,
-    fontSize: FontSize.seven,
+    ...fontSize.b5, lineHeight: fontSize.b5.fontSize + 1,
     textTransform: 'uppercase',
     letterSpacing: 1.2,
   },
@@ -432,14 +428,12 @@ const styles = StyleSheet.create({
   },
   rankLabel: {
     color: '#64748b',
-    fontFamily: FontFamily.extraBold,
-    fontSize: FontSize.sixHalf,
+    ...fontSize.b5, lineHeight: fontSize.b5.fontSize + 1,
     textTransform: 'uppercase',
     letterSpacing: 1.2,
   },
   rankValue: {
-    fontFamily: FontFamily.extraBold,
-    fontSize: FontSize.sixteen,
+    ...fontSize.b4, lineHeight: fontSize.b4.fontSize + 1,
   },
   playOverlay: {
     ...StyleSheet.absoluteFillObject,
@@ -477,15 +471,13 @@ const styles = StyleSheet.create({
   },
   tagText: {
     color: '#ffffff',
-    fontFamily: FontFamily.extraBold,
-    fontSize: FontSize.sixHalf,
+    ...fontSize.b5, lineHeight: fontSize.b5.fontSize + 1,
     textTransform: 'uppercase',
     letterSpacing: 1.1,
   },
   videoTitle: {
     color: '#ffffff',
-    fontFamily: FontFamily.extraBold,
-    fontSize: mediumScreen ? FontSize.sixteen : FontSize.twelve,
+    ...fontSize.b3, lineHeight: fontSize.b3.fontSize + 2,
     textTransform: 'uppercase',
     width: '86%',
   },
@@ -528,15 +520,13 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
   },
   metaLabel: {
-    fontFamily: FontFamily.extraBold,
-    fontSize: FontSize.sixHalf,
+    ...fontSize.b5, lineHeight: fontSize.b5.fontSize + 1,
     textTransform: 'uppercase',
     letterSpacing: 1.2,
     marginBottom: 4,
   },
   creatorName: {
-    fontFamily: FontFamily.extraBold,
-    fontSize: FontSize.nineHalf,
+    ...fontSize.b5, lineHeight: fontSize.b5.fontSize + 1,
     textTransform: 'uppercase',
   },
   impactWrap: {
@@ -544,8 +534,7 @@ const styles = StyleSheet.create({
   },
   impactValue: {
     color: PRIMARY_COLOR,
-    fontFamily: FontFamily.extraBold,
-    fontSize: FontSize.twelve,
+    ...fontSize.b4, lineHeight: fontSize.b4.fontSize + 1,
     textTransform: 'uppercase',
   },
   emptyState: {
@@ -562,19 +551,16 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
   },
   emptyTitle: {
-    fontFamily: FontFamily.extraBold,
-    fontSize: FontSize.fifteen,
+    ...fontSize.b4, lineHeight: fontSize.b4.fontSize + 1,
     textTransform: 'uppercase',
   },
   emptyBody: {
-    fontFamily: FontFamily.bold,
-    fontSize: FontSize.nine,
+    ...fontSize.b5, lineHeight: fontSize.b5.fontSize + 1,
     textAlign: 'center',
   },
   resetText: {
     color: PRIMARY_COLOR,
-    fontFamily: FontFamily.extraBold,
-    fontSize: FontSize.eight,
+    ...fontSize.b5, lineHeight: fontSize.b5.fontSize + 1,
     textTransform: 'uppercase',
     letterSpacing: 1.2,
     marginTop: 8,

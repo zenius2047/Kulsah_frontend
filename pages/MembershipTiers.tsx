@@ -17,8 +17,7 @@ import {
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { GoogleGenAI } from '@google/genai';
 import { useThemeMode, PRIMARY_COLOR, primaryColorAlphaHex } from "../theme";
-import { FontFamily, FontSize } from '../fonts';
-import { mediumScreen } from '../types';
+import { fontSize } from './typography';
 
 type SubscriptionTier = {
   name: string;
@@ -337,8 +336,7 @@ const s = StyleSheet.create({
     justifyContent: 'center',
   },
   headerTitle: {
-    fontSize: mediumScreen ? FontSize.fourteen : FontSize.twelve,
-    fontFamily: FontFamily.extraBold,
+    ...fontSize.b3, lineHeight: fontSize.b3.fontSize + 2,
     textTransform: 'uppercase',
   },
   aiButton: {
@@ -372,15 +370,13 @@ const s = StyleSheet.create({
   heroMetrics: { flexDirection: 'row', justifyContent: 'space-between', gap: 12 },
   metricRight: { alignItems: 'flex-end' },
   metricLabel: {
-    fontSize: mediumScreen ? FontSize.twelve:FontSize.eight,
-    fontFamily: FontFamily.extraBold,
+    ...fontSize.b4, lineHeight: fontSize.b4.fontSize + 1,
     letterSpacing: 2,
     textTransform: 'uppercase',
   },
   metricValue: {
     marginTop: 4,
-    fontSize: mediumScreen ? FontSize.eighteen : FontSize.fourteen,
-    fontFamily: FontFamily.extraBold,
+    ...fontSize.b1, lineHeight: fontSize.b1.fontSize + 2,
   },
   progressTrack: {
     marginTop: 18,
@@ -397,16 +393,14 @@ const s = StyleSheet.create({
   metaRow: { marginTop: 14, flexDirection: 'row', justifyContent: 'space-between', gap: 12 },
   microText: {
     flex: 1,
-    fontSize: mediumScreen ? FontSize.eleven:FontSize.seven,
-    fontFamily: FontFamily.bold,
+    ...fontSize.b5, lineHeight: fontSize.b5.fontSize + 1,
     textTransform: 'uppercase',
     letterSpacing: 1,
   },
   sectionBlock: { gap: 10 },
   sectionTitle: {
     paddingHorizontal: 4,
-    fontSize: mediumScreen ? FontSize.twelve:FontSize.eight,
-    fontFamily: FontFamily.extraBold,
+    ...fontSize.b4, lineHeight: fontSize.b4.fontSize + 1,
     textTransform: 'uppercase',
     letterSpacing: 3,
   },
@@ -418,13 +412,11 @@ const s = StyleSheet.create({
   },
   rowBetween: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', gap: 12 },
   tierName: {
-    fontSize: mediumScreen ? FontSize.twenty : FontSize.sixteen,
-    fontFamily: FontFamily.extraBold,
+    ...fontSize.b1, lineHeight: fontSize.b1.fontSize + 2,
   },
   tierCaption: {
     marginTop: 4,
-    fontSize: FontSize.eight,
-    fontFamily: FontFamily.extraBold,
+    ...fontSize.b5, lineHeight: fontSize.b5.fontSize + 1,
     textTransform: 'uppercase',
     letterSpacing: 2,
   },
@@ -440,19 +432,16 @@ const s = StyleSheet.create({
     gap: 4,
   },
   priceDollar: {
-    fontSize: mediumScreen ? FontSize.sixteen:FontSize.twelve,
-    fontFamily: FontFamily.extraBold,
+    ...fontSize.b3, lineHeight: fontSize.b3.fontSize + 2,
   },
   priceInput: {
     minWidth: 54,
-    fontSize: FontSize.fourteen,
-    fontFamily: FontFamily.extraBold,
+    ...fontSize.b4, lineHeight: fontSize.b4.fontSize + 1,
     padding: 0,
   },
   perksSection: { gap: 10 },
   perksLabel: {
-    fontSize: FontSize.eight,
-    fontFamily: FontFamily.extraBold,
+    ...fontSize.b5, lineHeight: fontSize.b5.fontSize + 1,
     textTransform: 'uppercase',
     letterSpacing: 2,
   },
@@ -464,8 +453,7 @@ const s = StyleSheet.create({
     paddingVertical: 8,
   },
   perkText: {
-    fontSize: FontSize.ten,
-    fontFamily: FontFamily.bold,
+    ...fontSize.b5, lineHeight: fontSize.b5.fontSize + 1,
   },
   editChip: {
     width: 34,
@@ -486,12 +474,10 @@ const s = StyleSheet.create({
   },
   statsRow: { flexDirection: 'row', alignItems: 'center', gap: 16, flex: 1 },
   statValue: {
-    fontSize: FontSize.eighteen,
-    fontFamily: FontFamily.extraBold,
+    ...fontSize.b1, lineHeight: fontSize.b1.fontSize + 2,
   },
   statLabel: {
-    fontSize: mediumScreen ? FontSize.twelve:FontSize.eight,
-    fontFamily: FontFamily.bold,
+    ...fontSize.b4, lineHeight: fontSize.b4.fontSize + 1,
     textTransform: 'uppercase',
   },
   divider: { width: 1, height: 34 },
@@ -525,8 +511,7 @@ const s = StyleSheet.create({
   publishButtonDisabled: { opacity: 0.8 },
   publishText: {
     color: '#fff',
-    fontSize: mediumScreen ? FontSize.sixteen:FontSize.twelve,
-    fontFamily: FontFamily.extraBold,
+    ...fontSize.b3, lineHeight: fontSize.b3.fontSize + 2,
     textTransform: 'uppercase',
     letterSpacing: 2,
   },
@@ -557,8 +542,7 @@ const s = StyleSheet.create({
   },
   modalHeader: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', marginBottom: 18 },
   modalTitle: {
-    fontSize: mediumScreen ? FontSize.twenty:FontSize.sixteen,
-    fontFamily: FontFamily.extraBold,
+    ...fontSize.b1, lineHeight: fontSize.b1.fontSize + 2,
   },
   modalClose: {
     width: 38,
@@ -571,8 +555,7 @@ const s = StyleSheet.create({
   modalContent: { paddingBottom: 8, gap: 18 },
   fieldBlock: { gap: 10 },
   fieldLabel: {
-    fontSize: mediumScreen ? FontSize.twelve:FontSize.eight,
-    fontFamily: FontFamily.extraBold,
+    ...fontSize.b4, lineHeight: fontSize.b4.fontSize + 1,
     textTransform: 'uppercase',
     letterSpacing: 2,
     marginLeft: 4,
@@ -582,8 +565,7 @@ const s = StyleSheet.create({
     borderRadius: 18,
     borderWidth: 1,
     paddingHorizontal: 16,
-    fontSize: FontSize.thirteen,
-    fontFamily: FontFamily.bold,
+    ...fontSize.b4, lineHeight: fontSize.b4.fontSize + 1,
   },
   priceEditorWrap: {
     height: 60,
@@ -595,13 +577,11 @@ const s = StyleSheet.create({
     gap: 6,
   },
   editorDollar: {
-    fontSize: mediumScreen ? FontSize.eighteen:FontSize.fourteen,
-    fontFamily: FontFamily.extraBold,
+    ...fontSize.b1, lineHeight: fontSize.b1.fontSize + 2,
   },
   priceEditorInput: {
     flex: 1,
-    fontSize: mediumScreen ? FontSize.twenty: FontSize.sixteen,
-    fontFamily: FontFamily.extraBold,
+    ...fontSize.b1, lineHeight: fontSize.b1.fontSize + 2,
     padding: 0,
   },
   listWrap: { gap: 10 },
@@ -617,8 +597,7 @@ const s = StyleSheet.create({
   },
   listItemText: {
     flex: 1,
-    fontSize: FontSize.twelve,
-    fontFamily: FontFamily.bold,
+    ...fontSize.b4, lineHeight: fontSize.b4.fontSize + 1,
   },
   addRow: { flexDirection: 'row', gap: 10 },
   addInput: {
@@ -627,8 +606,7 @@ const s = StyleSheet.create({
     borderRadius: 18,
     borderWidth: 1,
     paddingHorizontal: 16,
-    fontSize: FontSize.twelve,
-    fontFamily: FontFamily.regular,
+    ...fontSize.b4, lineHeight: fontSize.b4.fontSize + 1,
   },
   addButton: {
     width: 54,
@@ -648,8 +626,7 @@ const s = StyleSheet.create({
   },
   syncButtonText: {
     color: '#fff',
-    fontSize: mediumScreen ? FontSize.fourteen:FontSize.ten,
-    fontFamily: FontFamily.extraBold,
+    ...fontSize.b4, lineHeight: fontSize.b4.fontSize + 1,
     textTransform: 'uppercase',
     letterSpacing: 1.4,
   },

@@ -14,7 +14,7 @@ import {
 import { MaterialIcons } from '@expo/vector-icons';
 import { useNavigation } from '@react-navigation/native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
-import { FontFamily, FontSize } from '../fonts';
+import { fontSize } from './typography';
 
 type FilterKey = 'Recents' | 'Videos' | 'Favourites' | 'WhatsApp';
 
@@ -250,8 +250,7 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
   },
   headerTitle: {
-    fontFamily: FontFamily.bold,
-    fontSize: FontSize.fifteen,
+    ...fontSize.b4, lineHeight: fontSize.b4.fontSize + 1,
   },
   selectButton: {
     backgroundColor: PRIMARY_COLOR,
@@ -266,8 +265,7 @@ const styles = StyleSheet.create({
   },
   selectButtonText: {
     color: '#fff',
-    fontFamily: FontFamily.bold,
-    fontSize: FontSize.ten,
+    ...fontSize.b5, lineHeight: fontSize.b5.fontSize + 1,
   },
   content: {
     paddingTop: 124,
@@ -291,8 +289,7 @@ const styles = StyleSheet.create({
     borderColor: primaryColorAlpha(0.3),
   },
   filterChipText: {
-    fontFamily: FontFamily.bold,
-    fontSize: FontSize.eight,
+    ...fontSize.b5, lineHeight: fontSize.b5.fontSize + 1,
     textTransform: 'uppercase',
     letterSpacing: 0.8,
   },
@@ -330,8 +327,7 @@ const styles = StyleSheet.create({
   },
   durationText: {
     color: '#fff',
-    fontFamily: FontFamily.bold,
-    fontSize: FontSize.ten,
+    ...fontSize.b5, lineHeight: fontSize.b5.fontSize + 1,
   },
   selectedBadge: {
     position: 'absolute',

@@ -7,7 +7,7 @@ import { MaterialIcons } from '@expo/vector-icons';
 import { LinearGradient } from 'expo-linear-gradient';
 import Svg, { Circle } from 'react-native-svg';
 import { mediumScreen } from '../types';
-import { FontFamily, FontSize } from '../fonts';
+import { fontSize } from './typography';
 
 const CREATOR_RATIO = 0.2;
 const WINNER_RATIO = 0.3;
@@ -51,7 +51,7 @@ const RevenueSplit: React.FC = () => {
     <SafeAreaView style={[styles.safeArea, { backgroundColor: theme.background }]} edges={['top', 'left', 'right']}>
       <View style={[styles.screen, { backgroundColor: theme.screen }]}>
         <LinearGradient
-          colors={bgGradient}
+          colors={bgGradient as any}
           locations={[0, 0.45, 1]}
           style={StyleSheet.absoluteFill}
         />
@@ -237,7 +237,7 @@ const RevenueSplit: React.FC = () => {
 
         <View style={styles.footer}>
           <LinearGradient
-            colors={footerFade}
+            colors={footerFade as any}
             locations={[0, 0.35, 1]}
             style={StyleSheet.absoluteFill}
           />
@@ -296,8 +296,7 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
   },
   headerTitle: {
-    fontFamily: FontFamily.bold,
-    fontSize: mediumScreen ? FontSize.eighteen:FontSize.fifteen,
+    ...fontSize.b1, lineHeight: fontSize.b1.fontSize + 2,
   },
   scroll: {
     flex: 1,
@@ -323,12 +322,10 @@ const styles = StyleSheet.create({
     alignItems: 'center',
   },
   chartValue: {
-    fontFamily: FontFamily.extraBold,
-    fontSize: mediumScreen ? FontSize.twentyNine:FontSize.twentyFive,
+    ...fontSize.b1, lineHeight: fontSize.b1.fontSize + 2,
   },
   chartLabel: {
-    fontFamily: FontFamily.bold,
-    fontSize: mediumScreen ? FontSize.fourteen:FontSize.ten,
+    ...fontSize.b4, lineHeight: fontSize.b4.fontSize + 1,
     textTransform: 'uppercase',
     letterSpacing: 1.2,
   },
@@ -359,14 +356,12 @@ const styles = StyleSheet.create({
     backgroundColor: PRIMARY_COLOR,
   },
   legendLabel: {
-    fontFamily: FontFamily.bold,
-    fontSize: FontSize.ten,
+    ...fontSize.b5, lineHeight: fontSize.b5.fontSize + 1,
     textTransform: 'uppercase',
     letterSpacing: 0.9,
   },
   legendValue: {
-    fontFamily: FontFamily.bold,
-    fontSize: mediumScreen? FontSize.nineteen:FontSize.fifteen,
+    ...fontSize.b1, lineHeight: fontSize.b1.fontSize + 2,
   },
   glassCard: {
     borderRadius: 22,
@@ -383,16 +378,14 @@ const styles = StyleSheet.create({
   },
   estimateLabel: {
     color: PRIMARY_COLOR,
-    fontFamily: FontFamily.bold,
-    fontSize: FontSize.ten,
+    ...fontSize.b5, lineHeight: fontSize.b5.fontSize + 1,
     textTransform: 'uppercase',
     letterSpacing: 1.2,
     marginBottom: 4,
   },
   estimateValue: {
     color: '#ffffff',
-    fontFamily: FontFamily.extraBold,
-    fontSize: FontSize.thirtyFour,
+    ...fontSize.b1, lineHeight: fontSize.b1.fontSize + 2,
   },
   editButton: {
     width: 36,
@@ -452,8 +445,7 @@ const styles = StyleSheet.create({
   },
   sliderScaleText: {
     color: '#64748b',
-    fontFamily: FontFamily.bold,
-    fontSize: FontSize.ten,
+    ...fontSize.b5, lineHeight: fontSize.b5.fontSize + 1,
     textTransform: 'uppercase',
     letterSpacing: 1.1,
   },
@@ -461,8 +453,7 @@ const styles = StyleSheet.create({
     gap: 14,
   },
   breakdownHeading: {
-    fontFamily: FontFamily.bold,
-    fontSize: mediumScreen? FontSize.thirteen:FontSize.nine,
+    ...fontSize.b4, lineHeight: fontSize.b4.fontSize + 1,
     textTransform: 'uppercase',
     letterSpacing: 2,
     paddingHorizontal: 4,
@@ -502,18 +493,15 @@ const styles = StyleSheet.create({
     gap: 12,
   },
   breakdownTitle: {
-    fontFamily: FontFamily.bold,
-    fontSize: FontSize.thirteen,
+    ...fontSize.b4, lineHeight: fontSize.b4.fontSize + 1,
     flex: 1,
   },
   breakdownAmount: {
     color: '#ffffff',
-    fontFamily: FontFamily.extraBold,
-    fontSize: FontSize.twentyFour,
+    ...fontSize.b1, lineHeight: fontSize.b1.fontSize + 2,
   },
   breakdownText: {
-    fontFamily: FontFamily.medium,
-    fontSize: mediumScreen? FontSize.sixteen:FontSize.twelve,
+    ...fontSize.b3,
     lineHeight: 18,
   },
   footer: {
@@ -539,8 +527,7 @@ const styles = StyleSheet.create({
   },
   footerButtonText: {
     color: '#ffffff',
-    fontFamily: FontFamily.bold,
-    fontSize: mediumScreen? FontSize.fourteen:FontSize.ten,
+    ...fontSize.b4, lineHeight: fontSize.b4.fontSize + 1,
     textTransform: 'uppercase',
     letterSpacing: 1.5,
   },

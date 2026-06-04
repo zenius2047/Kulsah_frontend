@@ -15,7 +15,7 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 import { LinearGradient } from 'expo-linear-gradient';
 import { MaterialIcons } from '@expo/vector-icons';
 import { useNavigation } from '@react-navigation/native';
-import { FontFamily, FontSize } from '../fonts';
+import { fontSize } from './typography';
 
 type FilterKey = 'Trending' | 'Recent' | 'Most Voted' | 'Featured';
 
@@ -290,8 +290,7 @@ const styles = StyleSheet.create({
     flex: 1,
     textAlign: 'center',
     color: '#ffffff',
-    fontFamily: FontFamily.bold,
-    fontSize: FontSize.fifteen,
+    ...fontSize.b4, lineHeight: fontSize.b4.fontSize + 1,
   },
   searchWrap: {
     position: 'relative',
@@ -310,8 +309,7 @@ const styles = StyleSheet.create({
     borderRadius: 18,
     color: '#ffffff',
     backgroundColor: '#121212',
-    fontFamily: FontFamily.regular,
-    fontSize: FontSize.twelve,
+    ...fontSize.b4, lineHeight: fontSize.b4.fontSize + 1,
   },
   filterRow: {
     gap: 8,
@@ -331,8 +329,7 @@ const styles = StyleSheet.create({
     borderColor: 'rgba(255,255,255,0.1)',
   },
   filterText: {
-    fontFamily: FontFamily.bold,
-    fontSize: FontSize.ten,
+    ...fontSize.b5, lineHeight: fontSize.b5.fontSize + 1,
   },
   filterTextActive: {
     color: '#ffffff',
@@ -383,8 +380,7 @@ const styles = StyleSheet.create({
   },
   voteText: {
     color: '#ffffff',
-    fontFamily: FontFamily.extraBold,
-    fontSize: FontSize.ten,
+    ...fontSize.b5, lineHeight: fontSize.b5.fontSize + 1,
   },
   cardFooter: {
     position: 'absolute',
@@ -395,8 +391,7 @@ const styles = StyleSheet.create({
   handle: {
     color: '#ffffff',
     opacity: 0.92,
-    fontFamily: FontFamily.medium,
-    fontSize: FontSize.ten,
+    ...fontSize.b5, lineHeight: fontSize.b5.fontSize + 1,
   },
   emptyState: {
     alignItems: 'center',
@@ -406,13 +401,11 @@ const styles = StyleSheet.create({
   },
   emptyTitle: {
     color: '#ffffff',
-    fontFamily: FontFamily.bold,
-    fontSize: FontSize.sixteen,
+    ...fontSize.b4, lineHeight: fontSize.b4.fontSize + 1,
   },
   emptyText: {
     color: '#94a3b8',
-    fontFamily: FontFamily.regular,
-    fontSize: FontSize.thirteen,
+    ...fontSize.b4, lineHeight: fontSize.b4.fontSize + 1,
   },
 });
 

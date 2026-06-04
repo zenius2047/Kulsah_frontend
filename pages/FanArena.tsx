@@ -5,7 +5,7 @@ import { mediumScreen } from '../types';
 import Discover from './Discover';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
-import { FontFamily, FontSize } from '../fonts';
+import { fontSize } from './typography';
 
 const FanArena: React.FC = () => {
   const { isDark, theme } = useThemeMode();

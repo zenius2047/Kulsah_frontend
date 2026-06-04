@@ -11,7 +11,7 @@ import {
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { LinearGradient } from 'expo-linear-gradient';
 import { MaterialIcons } from '@expo/vector-icons';
-import { FontFamily, FontSize } from '../fonts';
+import { fontSize } from './typography';
 
 const completedChallenges = [
   'https://lh3.googleusercontent.com/aida-public/AB6AXuBxZ1KLLhqU68Nxsc2iwdJRQhOJu0SSiYWV6cAGJ_lMmLaenC2imrnOCB6FqJWkZR_alkNRc-fwLRg0dlxqKhnSZitQThNRHWLdZkYncgXoe47MZOQemMm79hGT1MVLxJD6kVjsQaLRoMtZCn60FCRiw3jataJhfItAeyHRrQbynHUU4Bu-SsxtsQOV0xea1-fxdaOeTdG4N5FWds94Tlm7D91OQbvkQo5GhXQ-RDv2y35iLWztd2JHmS5Cqzu7GhC78Z8N9AAGXJps',
@@ -171,8 +171,7 @@ const styles = StyleSheet.create({
   },
   topTitle: {
     color: '#F8FAFC',
-    fontFamily: FontFamily.extraBold,
-    fontSize: FontSize.eighteen,
+    ...fontSize.b1, lineHeight: fontSize.b1.fontSize + 2,
     letterSpacing: -0.5,
   },
   backgroundLeaks: {
@@ -222,14 +221,12 @@ const styles = StyleSheet.create({
   },
   congratsText: {
     color: PRIMARY_COLOR,
-    fontFamily: FontFamily.extraBold,
-    fontSize: FontSize.twelve,
+    ...fontSize.b4, lineHeight: fontSize.b4.fontSize + 1,
     letterSpacing: 1.5,
   },
   heroTitle: {
     color: '#F8FAFC',
-    fontFamily: FontFamily.extraBold,
-    fontSize: FontSize.thirtyNine,
+    ...fontSize.b1,
     lineHeight: 40,
     textAlign: 'center',
   },
@@ -315,14 +312,12 @@ const styles = StyleSheet.create({
   },
   name: {
     color: '#F8FAFC',
-    fontFamily: FontFamily.bold,
-    fontSize: FontSize.twentyFive,
+    ...fontSize.b1, lineHeight: fontSize.b1.fontSize + 2,
     marginBottom: 4,
   },
   handle: {
     color: PRIMARY_COLOR,
-    fontFamily: FontFamily.medium,
-    fontSize: FontSize.sixteen,
+    ...fontSize.b4, lineHeight: fontSize.b4.fontSize + 1,
     marginBottom: 20,
   },
   divider: {
@@ -337,15 +332,13 @@ const styles = StyleSheet.create({
   },
   challengeLabel: {
     color: '#94A3B8',
-    fontFamily: FontFamily.extraBold,
-    fontSize: FontSize.ten,
+    ...fontSize.b5, lineHeight: fontSize.b5.fontSize + 1,
     letterSpacing: 1.8,
     marginBottom: 6,
   },
   challengeTitle: {
     color: '#F8FAFC',
-    fontFamily: FontFamily.bold,
-    fontSize: FontSize.twenty,
+    ...fontSize.b1, lineHeight: fontSize.b1.fontSize + 2,
     textAlign: 'center',
   },
   rewardGrid: {
@@ -363,16 +356,14 @@ const styles = StyleSheet.create({
   },
   rewardLabel: {
     color: '#94A3B8',
-    fontFamily: FontFamily.extraBold,
-    fontSize: FontSize.ten,
+    ...fontSize.b5, lineHeight: fontSize.b5.fontSize + 1,
     letterSpacing: 1.2,
     marginTop: 8,
     marginBottom: 6,
   },
   rewardValue: {
     color: '#F8FAFC',
-    fontFamily: FontFamily.extraBold,
-    fontSize: FontSize.twenty,
+    ...fontSize.b1, lineHeight: fontSize.b1.fontSize + 2,
   },
   primaryButton: {
     width: '100%',
@@ -393,8 +384,7 @@ const styles = StyleSheet.create({
   },
   primaryButtonText: {
     color: '#fff',
-    fontFamily: FontFamily.extraBold,
-    fontSize: FontSize.eighteen,
+    ...fontSize.b1, lineHeight: fontSize.b1.fontSize + 2,
     letterSpacing: 1.4,
   },
   secondaryButton: {
@@ -412,8 +402,7 @@ const styles = StyleSheet.create({
   },
   secondaryButtonText: {
     color: '#CBD5E1',
-    fontFamily: FontFamily.bold,
-    fontSize: FontSize.fourteen,
+    ...fontSize.b4, lineHeight: fontSize.b4.fontSize + 1,
     letterSpacing: 0.8,
     textTransform: 'uppercase',
   },
@@ -425,8 +414,7 @@ const styles = StyleSheet.create({
   },
   completedLabel: {
     color: '#64748B',
-    fontFamily: FontFamily.extraBold,
-    fontSize: FontSize.ten,
+    ...fontSize.b5, lineHeight: fontSize.b5.fontSize + 1,
     letterSpacing: 2.2,
     textAlign: 'center',
     marginBottom: 16,

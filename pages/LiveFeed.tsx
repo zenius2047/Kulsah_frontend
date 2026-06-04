@@ -8,8 +8,8 @@ import { useNavigation } from '@react-navigation/native';
 import { useEvent } from 'expo';
 import { useVideoPlayer, VideoView } from 'expo-video';
 import { useThemeMode, PRIMARY_COLOR, primaryColorAlpha } from "../theme";
-import { FontFamily, FontSize } from '../fonts';
 import GiftDialog, { GiftSelection } from '../components/GiftDialog';
+import { fontSize } from './typography';
 
 interface Creator {
   id: string;
@@ -568,15 +568,13 @@ const LiveFeed: React.FC = () => {
             </View>
             <Text style={{
               color: isDark ? '#ffffff' : theme.text,
-              fontSize: FontSize.fifteen,
-              fontFamily: FontFamily.extraBold,
+              ...fontSize.b4, lineHeight: fontSize.b4.fontSize + 1,
             }}>
               Join this live?
             </Text>
             <Text style={{
               color: isDark ? '#cbd5e1' : theme.textSecondary,
-              fontSize: FontSize.twelve,
-              fontFamily: FontFamily.medium,
+              ...fontSize.b4,
               lineHeight: 18,
               marginTop: 8,
             }}>
@@ -604,8 +602,7 @@ const LiveFeed: React.FC = () => {
               >
                 <Text style={{
                   color: isDark ? '#ffffff' : theme.text,
-                  fontSize: FontSize.nine,
-                  fontFamily: FontFamily.extraBold,
+                  ...fontSize.b5, lineHeight: fontSize.b5.fontSize + 1,
                   textTransform: 'uppercase',
                   letterSpacing: 1.2,
                 }}>
@@ -640,8 +637,7 @@ const styles = StyleSheet.create({
     marginBottom: 14,
   },
   sectionTitle: {
-    fontSize: FontSize.six,
-    fontFamily: FontFamily.extraBold,
+    ...fontSize.b5, lineHeight: fontSize.b5.fontSize + 1,
     letterSpacing: 2.6,
     textTransform: 'uppercase',
   },
@@ -678,8 +674,7 @@ const styles = StyleSheet.create({
   },
   creatorHandle: {
     marginTop: 10,
-    fontSize: FontSize.sevenHalf,
-    fontFamily: FontFamily.bold,
+    ...fontSize.b5, lineHeight: fontSize.b5.fontSize + 1,
   },
   feedStack: {
     backgroundColor: 'black',
@@ -731,8 +726,7 @@ const styles = StyleSheet.create({
   },
   liveBadgeText: {
     color: '#ffdad6',
-    fontSize: FontSize.seven,
-    fontFamily: FontFamily.extraBold,
+    ...fontSize.b5, lineHeight: fontSize.b5.fontSize + 1,
     letterSpacing: 2.2,
   },
   viewerBadge: {
@@ -748,8 +742,7 @@ const styles = StyleSheet.create({
   },
   viewerBadgeText: {
     color: '#f8fafc',
-    fontSize: FontSize.seven,
-    fontFamily: FontFamily.bold,
+    ...fontSize.b5, lineHeight: fontSize.b5.fontSize + 1,
   },
   bottomOverlay: {
     paddingHorizontal: 20,
@@ -799,8 +792,7 @@ const styles = StyleSheet.create({
   },
   chatUser: {
     color: primaryColorAlpha(0.76),
-    fontFamily: FontFamily.extraBold,
-    fontSize: FontSize.eightHalf,
+    ...fontSize.b5, lineHeight: fontSize.b5.fontSize + 1,
     letterSpacing: 1.1,
     textTransform: 'uppercase',
   },
@@ -812,9 +804,7 @@ const styles = StyleSheet.create({
   },
   chatText: {
     color: '#fff',
-    fontFamily: FontFamily.medium,
-    fontSize: FontSize.tenHalf,
-    lineHeight: 15,
+    ...fontSize.b5, lineHeight: fontSize.b5.fontSize + 1,
     marginTop: 2,
   },
   hostRow: {
@@ -835,13 +825,11 @@ const styles = StyleSheet.create({
   },
   hostName: {
     color: '#ffffff',
-    fontSize: FontSize.fourteen,
-    fontFamily: FontFamily.extraBold,
+    ...fontSize.b4, lineHeight: fontSize.b4.fontSize + 1,
   },
   hostSubtitle: {
     color: '#d1d5db',
-    fontSize: FontSize.seven,
-    fontFamily: FontFamily.medium,
+    ...fontSize.b5, lineHeight: fontSize.b5.fontSize + 1,
     marginTop: 2,
   },
   commentComposer: {
@@ -858,8 +846,7 @@ const styles = StyleSheet.create({
   commentInput: {
     flex: 1,
     color: '#fff',
-    fontFamily: FontFamily.medium,
-    fontSize: FontSize.eleven,
+    ...fontSize.b5, lineHeight: fontSize.b5.fontSize + 1,
   },
   joinButton: {
     alignSelf: 'flex-start',
@@ -875,8 +862,7 @@ const styles = StyleSheet.create({
   },
   joinButtonText: {
     color: '#ffffff',
-    fontSize: FontSize.nine,
-    fontFamily: FontFamily.extraBold,
+    ...fontSize.b5, lineHeight: fontSize.b5.fontSize + 1,
     letterSpacing: 1.8,
     textTransform: 'uppercase',
   },
@@ -901,8 +887,7 @@ const styles = StyleSheet.create({
   },
   metricText: {
     color: '#ffffff',
-    fontSize: FontSize.sevenHalf,
-    fontFamily: FontFamily.bold,
+    ...fontSize.b5, lineHeight: fontSize.b5.fontSize + 1,
   },
   bottomNav: {
     position: 'absolute',
@@ -936,8 +921,7 @@ const styles = StyleSheet.create({
   },
   navLabel: {
     marginTop: 4,
-    fontSize: FontSize.sixHalf,
-    fontFamily: FontFamily.bold,
+    ...fontSize.b5, lineHeight: fontSize.b5.fontSize + 1,
     letterSpacing: 0.8,
     textTransform: 'uppercase',
   },

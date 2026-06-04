@@ -14,8 +14,8 @@ import { MaterialIcons } from '@expo/vector-icons';
 import { BlurView } from 'expo-blur';
 import { useNavigation, useRoute } from '@react-navigation/native';
 import { useThemeMode, PRIMARY_COLOR, primaryColorAlpha } from "./theme";
-import { FontFamily, FontSize } from './fonts';
 import { mediumScreen } from './types';
+import { fontSize } from './typography';
 
 const BRAND_GRADIENT = [PRIMARY_COLOR, PRIMARY_COLOR] as const;
 const SHEEN_GRADIENT = ['rgba(255,255,255,0.1)', 'rgba(255,255,255,0)'] as const;
@@ -203,13 +203,11 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
   },
   brandText: {
-    fontFamily: FontFamily.extraBold,
-    fontSize: mediumScreen ? FontSize.twenty : FontSize.seventeen,
+    ...fontSize.b1, lineHeight: fontSize.b1.fontSize + 2,
     letterSpacing: -0.8,
   },
   headerTitle: {
-    fontFamily: FontFamily.bold,
-    fontSize: mediumScreen ? FontSize.fourteen : FontSize.twelve,
+    ...fontSize.b3, lineHeight: fontSize.b3.fontSize + 2,
     letterSpacing: -0.3,
   },
   content: {
@@ -258,22 +256,19 @@ const styles = StyleSheet.create({
     marginBottom: 34,
   },
   title: {
-    fontFamily: FontFamily.extraBold,
-    fontSize: mediumScreen ? FontSize.thirtyOne : FontSize.twentySeven,
+    ...fontSize.b1, lineHeight: fontSize.b1.fontSize + 2,
     letterSpacing: -1,
     textAlign: 'center',
     marginBottom: 12,
   },
   subtitle: {
-    fontFamily: FontFamily.medium,
-    fontSize: mediumScreen ? FontSize.seventeen : FontSize.fourteen,
+    ...fontSize.b3, lineHeight: fontSize.b3.fontSize + 2,
     textAlign: 'center',
     marginBottom: 4,
   },
   emailText: {
     color: PRIMARY_COLOR,
-    fontFamily: FontFamily.bold,
-    fontSize: mediumScreen ? FontSize.seventeen : FontSize.fourteen,
+    ...fontSize.b3, lineHeight: fontSize.b3.fontSize + 2,
     textAlign: 'center',
   },
   actionBlock: {
@@ -296,8 +291,7 @@ const styles = StyleSheet.create({
   },
   primaryText: {
     color: '#ffffff',
-    fontFamily: FontFamily.extraBold,
-    fontSize: mediumScreen ? FontSize.fifteen : FontSize.thirteen,
+    ...fontSize.b3, lineHeight: fontSize.b3.fontSize + 2,
     letterSpacing: 1.1,
     textTransform: 'uppercase',
   },
@@ -316,8 +310,7 @@ const styles = StyleSheet.create({
     height: 1,
   },
   dividerText: {
-    fontFamily: FontFamily.bold,
-    fontSize: mediumScreen ? FontSize.eightHalf : FontSize.sevenHalf,
+    ...fontSize.b5, lineHeight: fontSize.b5.fontSize + 1,
     textTransform: 'uppercase',
     letterSpacing: 1.5,
   },
@@ -328,8 +321,7 @@ const styles = StyleSheet.create({
   },
   resendText: {
     color: PRIMARY_COLOR,
-    fontFamily: FontFamily.extraBold,
-    fontSize: mediumScreen ? FontSize.fourteen : FontSize.twelve,
+    ...fontSize.b3, lineHeight: fontSize.b3.fontSize + 2,
   },
   infoCard: {
     marginTop: 36,
@@ -349,16 +341,14 @@ const styles = StyleSheet.create({
     flex: 1,
   },
   infoTitle: {
-    fontFamily: FontFamily.extraBold,
-    fontSize: mediumScreen ? FontSize.ten : FontSize.nine,
+    ...fontSize.b5, lineHeight: fontSize.b5.fontSize + 1,
     textTransform: 'uppercase',
     letterSpacing: 1.6,
     marginBottom: 6,
   },
   infoText: {
-    fontFamily: FontFamily.medium,
-    fontSize: mediumScreen ? FontSize.twelve : FontSize.ten,
-    lineHeight: mediumScreen ? FontSize.eighteen : FontSize.fifteen,
+    ...fontSize.b4,
+    lineHeight: fontSize.b4.fontSize + 1,
   },
 });
 

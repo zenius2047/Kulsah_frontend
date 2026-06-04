@@ -204,8 +204,8 @@ const NowPlaying: React.FC = () => {
               type="range"
               min="0"
               max={duration || 100}
-              value={currentTime}
-              onChange={handleSeek}
+              value={String(currentTime)}
+              onChange={handleSeek as any}
              
             />
             <View>

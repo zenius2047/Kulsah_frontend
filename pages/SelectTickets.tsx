@@ -2,7 +2,6 @@ import React, { useMemo, useState } from 'react';
 import { GoogleGenAI } from '@google/genai';
 import { useNavigation, useRoute } from '@react-navigation/native';
 import { MaterialIcons } from '@expo/vector-icons';
-import { FontFamily, FontSize } from '../fonts';
 import { useThemeMode, PRIMARY_COLOR, primaryColorAlpha, primaryColorAlphaHex } from "../theme";
 import {
   ActivityIndicator,
@@ -17,6 +16,7 @@ import {
 import { SafeAreaView, useSafeAreaInsets } from 'react-native-safe-area-context';
 import { mediumScreen } from '../types';
 import PaymentSuccess from '../assets/icons/payment-success.svg'
+import { fontSize } from './typography';
 
 interface TicketTier {
   id: string;
@@ -385,21 +385,18 @@ const styles = StyleSheet.create({
   },
   headerText: { marginLeft: 12, flex: 1 },
   headerTitle: {
-    fontSize: mediumScreen ? FontSize.sixteen : FontSize.twelve,
-    fontFamily: FontFamily.extraBold,
+    ...fontSize.b3, lineHeight: fontSize.b3.fontSize + 2,
     textTransform: 'uppercase',
   },
   headerSubtitle: {
-    fontSize: FontSize.seven,
-    fontFamily: FontFamily.extraBold,
+    ...fontSize.b5, lineHeight: fontSize.b5.fontSize + 1,
     textTransform: 'uppercase',
     letterSpacing: 1.8,
     marginTop: 2,
   },
   stepBlock: { alignItems: 'flex-end', marginLeft: 8 },
   stepLabel: {
-    fontSize: FontSize.eight,
-    fontFamily: FontFamily.extraBold,
+    ...fontSize.b5, lineHeight: fontSize.b5.fontSize + 1,
     textTransform: 'uppercase',
     letterSpacing: 1.4,
   },
@@ -408,8 +405,7 @@ const styles = StyleSheet.create({
   content: { padding: 16, paddingBottom: 180, gap: 16 },
   sectionHeader: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between' },
   sectionEyebrow: {
-    fontSize: FontSize.eight,
-    fontFamily: FontFamily.extraBold,
+    ...fontSize.b5, lineHeight: fontSize.b5.fontSize + 1,
     textTransform: 'uppercase',
     letterSpacing: 2.2,
   },
@@ -424,8 +420,7 @@ const styles = StyleSheet.create({
   },
   liveDot: { width: 6, height: 6, borderRadius: 3 },
   venueBadgeText: {
-    fontSize: FontSize.eight,
-    fontFamily: FontFamily.extraBold,
+    ...fontSize.b5, lineHeight: fontSize.b5.fontSize + 1,
     textTransform: 'uppercase',
   },
   mapCard: {
@@ -445,8 +440,7 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
   },
   stageText: {
-    fontSize: FontSize.eight,
-    fontFamily: FontFamily.extraBold,
+    ...fontSize.b5, lineHeight: fontSize.b5.fontSize + 1,
     textTransform: 'uppercase',
     letterSpacing: 3,
   },
@@ -475,8 +469,7 @@ const styles = StyleSheet.create({
   zoneMezz: { borderColor: '#22c55e24' },
   zoneMezzActive: { backgroundColor: '#22c55e22', borderColor: '#22c55e88' },
   zoneText: {
-    fontSize: FontSize.ten,
-    fontFamily: FontFamily.extraBold,
+    ...fontSize.b5, lineHeight: fontSize.b5.fontSize + 1,
     textTransform: 'uppercase',
     letterSpacing: 1.8,
   },
@@ -490,19 +483,16 @@ const styles = StyleSheet.create({
   },
   aiHeader: { flexDirection: 'row', alignItems: 'center', gap: 8 },
   aiTitle: {
-    fontSize: FontSize.nine,
-    fontFamily: FontFamily.extraBold,
+    ...fontSize.b5, lineHeight: fontSize.b5.fontSize + 1,
     textTransform: 'uppercase',
     letterSpacing: 1.8,
   },
   aiDescription: {
-    fontSize: FontSize.ten,
-    fontFamily: FontFamily.medium,
+    ...fontSize.b5,
     lineHeight: 18,
   },
   aiSuggestion: {
-    fontSize: FontSize.twelve,
-    fontFamily: FontFamily.medium,
+    ...fontSize.b4,
     lineHeight: 20,
     fontStyle: 'italic',
   },
@@ -514,8 +504,7 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
   },
   aiButtonText: {
-    fontSize: FontSize.nine,
-    fontFamily: FontFamily.extraBold,
+    ...fontSize.b5, lineHeight: fontSize.b5.fontSize + 1,
     textTransform: 'uppercase',
     letterSpacing: 1.2,
   },
@@ -536,25 +525,21 @@ const styles = StyleSheet.create({
   tierTitleRow: { flexDirection: 'row', alignItems: 'center', gap: 8 },
   tierDot: { width: 10, height: 10, borderRadius: 5 },
   tierName: {
-    fontSize: mediumScreen ? FontSize.fourteen:FontSize.ten,
-    fontFamily: FontFamily.extraBold,
+    ...fontSize.b4, lineHeight: fontSize.b4.fontSize + 1,
     textTransform: 'uppercase',
   },
   tierDescription: {
-    fontSize: FontSize.nine,
-    fontFamily: FontFamily.medium,
+    ...fontSize.b5,
     lineHeight: 16,
     marginTop: 6,
   },
   tierPrice: {
-    fontSize: mediumScreen ? FontSize.sixteen:FontSize.twelve,
-    fontFamily: FontFamily.extraBold,
+    ...fontSize.b3, lineHeight: fontSize.b3.fontSize + 2,
   },
   tierBottomRow: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', gap: 12 },
   verifiedRow: { flexDirection: 'row', alignItems: 'center', gap: 6 },
   verifiedText: {
-    fontSize: FontSize.seven,
-    fontFamily: FontFamily.extraBold,
+    ...fontSize.b5, lineHeight: fontSize.b5.fontSize + 1,
     textTransform: 'uppercase',
     letterSpacing: 1.4,
   },
@@ -571,8 +556,7 @@ const styles = StyleSheet.create({
   quantityText: {
     minWidth: 20,
     textAlign: 'center',
-    fontSize: mediumScreen ? FontSize.fourteen:FontSize.ten,
-    fontFamily: FontFamily.extraBold,
+    ...fontSize.b4, lineHeight: fontSize.b4.fontSize + 1,
   },
   footer: {
     position: 'absolute',
@@ -588,19 +572,16 @@ const styles = StyleSheet.create({
   footerHidden: { opacity: 0 },
   footerTopRow: { flexDirection: 'row', alignItems: 'flex-end', justifyContent: 'space-between', gap: 12 },
   totalLabel: {
-    fontSize: FontSize.eight,
-    fontFamily: FontFamily.extraBold,
+    ...fontSize.b5, lineHeight: fontSize.b5.fontSize + 1,
     textTransform: 'uppercase',
     letterSpacing: 1.6,
   },
   totalPrice: {
-    fontSize: mediumScreen ? FontSize.twenty: FontSize.twentyFour,
-    fontFamily: FontFamily.extraBold,
+    ...fontSize.b1, lineHeight: fontSize.b1.fontSize + 2,
     marginTop: 4,
   },
   totalTickets: {
-    fontSize: FontSize.ten,
-    fontFamily: FontFamily.bold,
+    ...fontSize.b5, lineHeight: fontSize.b5.fontSize + 1,
     textTransform: 'uppercase',
   },
   socialProof: { flexDirection: 'row', marginLeft: 8 },
@@ -621,9 +602,8 @@ const styles = StyleSheet.create({
   },
   purchaseButtonText: {
     color: '#ffffff',
-    fontSize: mediumScreen ? FontSize.fourteen : FontSize.ten,
+    ...fontSize.b4,
     lineHeight: 14,
-    fontFamily: FontFamily.extraBold,
     textTransform: 'uppercase',
     letterSpacing: 1.3,
   },
@@ -643,14 +623,12 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
   },
   successTitle: {
-    fontSize: FontSize.twentyFive,
-    fontFamily: FontFamily.extraBold,
+    ...fontSize.b1, lineHeight: fontSize.b1.fontSize + 2,
     textTransform: 'uppercase',
     textAlign: 'center',
   },
   successBody: {
-    fontSize: FontSize.twelve,
-    fontFamily: FontFamily.medium,
+    ...fontSize.b4,
     lineHeight: 20,
     textAlign: 'center',
     maxWidth: 280,
@@ -668,8 +646,7 @@ const styles = StyleSheet.create({
   },
   primaryButtonText: {
     color: '#ffffff',
-    fontSize: FontSize.twelve,
-    fontFamily: FontFamily.extraBold,
+    ...fontSize.b4, lineHeight: fontSize.b4.fontSize + 1,
     textTransform: 'uppercase',
     letterSpacing: 1.2,
   },

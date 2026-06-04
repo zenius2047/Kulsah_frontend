@@ -12,8 +12,8 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 import { LinearGradient } from 'expo-linear-gradient';
 import { MaterialIcons } from '@expo/vector-icons';
 import { useNavigation } from '@react-navigation/native';
-import { FontFamily, FontSize } from '../fonts';
 import { mediumScreen } from '../types';
+import { fontSize } from './typography';
 
 const PREVIEW_IMAGE =
   'https://lh3.googleusercontent.com/aida-public/AB6AXuD4p7h11bg5U9Z6RSsPsIfQk-rlU3SruP7pi_FImXVehBiQsAwlOuVbyN142vLLex2bMPo6nnXl3vH53AZcipo_URsznvwCtv41wCTYP9RB4vvJMkuvoRMiiJ8XexsgadolwG-XWhAbTtvYnHWgiRB8C159wxZB3iXLdeOKxMfaF_NqvzxB3_F7B5GVjO5RgJmOhaPPy2ojQu109ZNEFr2nFpJiYhPuKbpRTzu4nVAoh5GhAjWJTOcWwC3sFCkcuFBMGTSlvdTnNth9';
@@ -58,7 +58,7 @@ const FinalStep: React.FC = () => {
     <SafeAreaView style={[styles.safeArea, { backgroundColor: theme.background }]} edges={['top', 'left', 'right']}>
       <View style={[styles.screen, { backgroundColor: theme.screen }]}>
         <LinearGradient
-          colors={bgGradient}
+          colors={bgGradient as any}
           locations={[0, 0.45, 1]}
           style={StyleSheet.absoluteFill}
         />
@@ -292,8 +292,7 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
   },
   headerTitle: {
-    fontFamily: FontFamily.extraBold,
-    fontSize: mediumScreen? FontSize.sixteen:FontSize.twelve,
+    ...fontSize.b3, lineHeight: fontSize.b3.fontSize + 2,
     letterSpacing: -0.3,
   },
   scroll: {
@@ -319,19 +318,16 @@ const styles = StyleSheet.create({
   },
   stepBadgeText: {
     color: PRIMARY_COLOR,
-    fontFamily: FontFamily.bold,
-    fontSize: mediumScreen? FontSize.twelve:FontSize.eight,
+    ...fontSize.b4, lineHeight: fontSize.b4.fontSize + 1,
     textTransform: 'uppercase',
     letterSpacing: 1,
   },
   heroTitle: {
-    fontFamily: FontFamily.extraBold,
-    fontSize: mediumScreen ? FontSize.fourteen:FontSize.fourteen,
+    ...fontSize.b3,
     lineHeight: 40,
   },
   heroSubtitle: {
-    fontFamily: FontFamily.medium,
-    fontSize: mediumScreen? FontSize.sixteen:FontSize.twelve,
+    ...fontSize.b3,
     lineHeight: 22,
     maxWidth: 420,
   },
@@ -349,8 +345,7 @@ const styles = StyleSheet.create({
   },
   sectionEyebrow: {
     color: PRIMARY_COLOR,
-    fontFamily: FontFamily.bold,
-    fontSize: mediumScreen? FontSize.fourteen:FontSize.ten,
+    ...fontSize.b4, lineHeight: fontSize.b4.fontSize + 1,
     letterSpacing: 1.4,
     textTransform: 'uppercase',
   },
@@ -391,8 +386,7 @@ const styles = StyleSheet.create({
   },
   hotPillText: {
     color: '#ffffff',
-    fontFamily: FontFamily.extraBold,
-    fontSize: mediumScreen? FontSize.twelve:FontSize.eight,
+    ...fontSize.b4, lineHeight: fontSize.b4.fontSize + 1,
   },
   enteredPill: {
     paddingHorizontal: 12,
@@ -404,21 +398,18 @@ const styles = StyleSheet.create({
   },
   enteredPillText: {
     color: '#ffffff',
-    fontFamily: FontFamily.extraBold,
-    fontSize: mediumScreen? FontSize.twelve:FontSize.eight,
+    ...fontSize.b4, lineHeight: fontSize.b4.fontSize + 1,
   },
   previewBody: {
     padding: 20,
     gap: 10,
   },
   previewTitle: {
-    fontFamily: FontFamily.bold,
-    fontSize: mediumScreen? FontSize.sixteen:FontSize.twelve,
+    ...fontSize.b3,
     lineHeight: 32,
   },
   previewDescription: {
-    fontFamily: FontFamily.medium,
-    fontSize: mediumScreen? FontSize.sixteen:FontSize.twelve,
+    ...fontSize.b3,
     lineHeight: 20,
   },
   joiningRow: {
@@ -451,13 +442,11 @@ const styles = StyleSheet.create({
   },
   avatarCountText: {
     color: '#ffffff',
-    fontFamily: FontFamily.bold,
-    fontSize: FontSize.ten,
+    ...fontSize.b5, lineHeight: fontSize.b5.fontSize + 1,
   },
   joiningText: {
     color: PRIMARY_COLOR,
-    fontFamily: FontFamily.bold,
-    fontSize: FontSize.twelve,
+    ...fontSize.b4, lineHeight: fontSize.b4.fontSize + 1,
   },
   bentoGrid: {
     gap: 14,
@@ -487,25 +476,21 @@ const styles = StyleSheet.create({
     backgroundColor: primaryColorAlpha(0.12),
   },
   infoLabel: {
-    fontFamily: FontFamily.bold,
-    fontSize: mediumScreen? FontSize.sixteen:FontSize.twelve,
+    ...fontSize.b3, lineHeight: fontSize.b3.fontSize + 2,
     textTransform: 'uppercase',
     letterSpacing: 1.1,
   },
   infoTitle: {
-    fontFamily: FontFamily.bold,
-    fontSize: mediumScreen? FontSize.eighteen:FontSize.fourteen,
+    ...fontSize.b1,
     lineHeight: 26,
   },
   infoText: {
-    fontFamily: FontFamily.medium,
-    fontSize: mediumScreen? FontSize.sixteen:FontSize.twelve,
+    ...fontSize.b3,
     lineHeight: 18,
   },
   rewardValue: {
     color: '#ffade8',
-    fontFamily: FontFamily.extraBold,
-    fontSize: mediumScreen? FontSize.sixteen:FontSize.twelve,
+    ...fontSize.b3, lineHeight: fontSize.b3.fontSize + 2,
   },
   rewardChip: {
     alignSelf: 'flex-start',
@@ -519,8 +504,7 @@ const styles = StyleSheet.create({
   },
   rewardChipText: {
     color: '#cbd5e1',
-    fontFamily: FontFamily.bold,
-    fontSize: mediumScreen? FontSize.fourteen:FontSize.ten,
+    ...fontSize.b4, lineHeight: fontSize.b4.fontSize + 1,
   },
   checklistCard: {
     position: 'relative',
@@ -545,8 +529,7 @@ const styles = StyleSheet.create({
     gap: 10,
   },
   checklistTitle: {
-    fontFamily: FontFamily.bold,
-    fontSize: mediumScreen? FontSize.eighteen:FontSize.fourteen,
+    ...fontSize.b1, lineHeight: fontSize.b1.fontSize + 2,
   },
   checklistList: {
     gap: 20,
@@ -566,12 +549,10 @@ const styles = StyleSheet.create({
   },
   checklistItemTitle: {
     color: '#ffffff',
-    fontFamily: FontFamily.bold,
-    fontSize: mediumScreen? FontSize.sixteen:FontSize.twelve,
+    ...fontSize.b3, lineHeight: fontSize.b3.fontSize + 2,
   },
   checklistItemSubtitle: {
-    fontFamily: FontFamily.medium,
-    fontSize: mediumScreen? FontSize.fourteen:FontSize.ten,
+    ...fontSize.b4, lineHeight: fontSize.b4.fontSize + 1,
   },
   costSection: {
     paddingTop: 20,
@@ -584,12 +565,10 @@ const styles = StyleSheet.create({
     justifyContent: 'space-between',
   },
   costLabel: {
-    fontFamily: FontFamily.medium,
-    fontSize: mediumScreen? FontSize.fourteen:FontSize.twelve,
+    ...fontSize.b3, lineHeight: fontSize.b3.fontSize + 2,
   },
   costValue: {
-    fontFamily: FontFamily.bold,
-    fontSize: mediumScreen? FontSize.fourteen:FontSize.ten,
+    ...fontSize.b4, lineHeight: fontSize.b4.fontSize + 1,
   },
   totalRow: {
     flexDirection: 'row',
@@ -597,13 +576,11 @@ const styles = StyleSheet.create({
     justifyContent: 'space-between',
   },
   totalLabel: {
-    fontFamily: FontFamily.bold,
-    fontSize: mediumScreen? FontSize.sixteen:FontSize.twelve,
+    ...fontSize.b3, lineHeight: fontSize.b3.fontSize + 2,
   },
   totalValue: {
     color: PRIMARY_COLOR,
-    fontFamily: FontFamily.extraBold,
-    fontSize: mediumScreen? FontSize.sixteen:FontSize.twelve,
+    ...fontSize.b3, lineHeight: fontSize.b3.fontSize + 2,
   },
   launchButton: {
     flexDirection: 'row',
@@ -621,12 +598,10 @@ const styles = StyleSheet.create({
   },
   launchButtonText: {
     color: '#ffffff',
-    fontFamily: FontFamily.bold,
-    fontSize: mediumScreen? FontSize.fourteen:FontSize.ten,
+    ...fontSize.b4, lineHeight: fontSize.b4.fontSize + 1,
   },
   disclaimer: {
-    fontFamily: FontFamily.bold,
-    fontSize: mediumScreen? FontSize.twelve:FontSize.eight,
+    ...fontSize.b4,
     lineHeight: 16,
     textAlign: 'center',
     textTransform: 'uppercase',
@@ -645,8 +620,7 @@ const styles = StyleSheet.create({
     borderWidth: 1,
   },
   editButtonText: {
-    fontFamily: FontFamily.bold,
-    fontSize: mediumScreen? FontSize.sixteen:FontSize.twelve,
+    ...fontSize.b3, lineHeight: fontSize.b3.fontSize + 2,
   },
   draftButton: {
     alignItems: 'center',
@@ -654,8 +628,7 @@ const styles = StyleSheet.create({
     paddingVertical: 16,
   },
   draftButtonText: {
-    fontFamily: FontFamily.bold,
-    fontSize: mediumScreen? FontSize.sixteen:FontSize.twelve,
+    ...fontSize.b3, lineHeight: fontSize.b3.fontSize + 2,
   },
 });
 

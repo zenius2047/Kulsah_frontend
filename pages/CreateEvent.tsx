@@ -13,7 +13,7 @@ import { LinearGradient } from 'expo-linear-gradient';
 import { MaterialIcons } from '@expo/vector-icons';
 import { mediumScreen } from '../types';
 import { useNavigation } from '@react-navigation/native';
-import { FontFamily, FontSize } from '../fonts';
+import { fontSize } from './typography';
 
 const toolItems = [
   { label: 'Editor', icon: 'photo-camera' as const },
@@ -108,7 +108,7 @@ const CreateEvent: React.FC = () => {
     <SafeAreaView style={[styles.safeArea, { backgroundColor: theme.background }]} edges={['top', 'left', 'right']}>
       <View style={[styles.screen, { backgroundColor: theme.screen }]}>
         <LinearGradient
-          colors={bgGradient}
+          colors={bgGradient as any}
           locations={[0, 0.4, 1]}
           style={StyleSheet.absoluteFill}
         />
@@ -326,8 +326,7 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
   },
   headerTitle: {
-    fontFamily: FontFamily.extraBold,
-    fontSize: mediumScreen ? FontSize.sixteen: FontSize.thirteen,
+    ...fontSize.b3, lineHeight: fontSize.b3.fontSize + 2,
     letterSpacing: 3.2,
   },
   headerSpacer: {
@@ -356,8 +355,7 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
   },
   toolLabel: {
-    fontFamily: FontFamily.bold,
-    fontSize: mediumScreen ? FontSize.twelve: FontSize.eight,
+    ...fontSize.b4,
     lineHeight: 13,
     letterSpacing: 1,
     textAlign: 'center',
@@ -389,8 +387,7 @@ const styles = StyleSheet.create({
   },
   newVideoTitle: {
     color: '#000000',
-    fontFamily: FontFamily.extraBold,
-    fontSize: mediumScreen ? FontSize.sixteen: FontSize.thirteen,
+    ...fontSize.b3, lineHeight: fontSize.b3.fontSize + 2,
   },
   draftCard: {
     flex: 1,
@@ -411,13 +408,11 @@ const styles = StyleSheet.create({
   },
   draftCount: {
     color: '#ffffff',
-    fontFamily: FontFamily.extraBold,
-    fontSize: FontSize.twentyEight,
+    ...fontSize.b1, lineHeight: fontSize.b1.fontSize + 2,
   },
   draftLabel: {
     color: '#ffffff',
-    fontFamily: FontFamily.bold,
-    fontSize: mediumScreen ? FontSize.fourteen: FontSize.ten,
+    ...fontSize.b4, lineHeight: fontSize.b4.fontSize + 1,
     letterSpacing: 1.2,
   },
   actionsColumn: {
@@ -443,13 +438,11 @@ const styles = StyleSheet.create({
     flex: 1,
   },
   actionTitle: {
-    fontFamily: FontFamily.extraBold,
-    fontSize: mediumScreen ? FontSize.sixteen: FontSize.thirteen,
+    ...fontSize.b3, lineHeight: fontSize.b3.fontSize + 2,
     marginBottom: 4,
   },
   actionDescription: {
-    fontFamily: FontFamily.medium,
-    fontSize: mediumScreen ? FontSize.sixteen: FontSize.twelve,
+    ...fontSize.b3,
     lineHeight: 20,
   },
   section: {
@@ -462,8 +455,7 @@ const styles = StyleSheet.create({
     marginBottom: 18,
   },
   templatesTitle: {
-    fontFamily: FontFamily.extraBold,
-    fontSize: mediumScreen ? FontSize.twentyOne: FontSize.eighteen,
+    ...fontSize.b1, lineHeight: fontSize.b1.fontSize + 2,
     letterSpacing: -0.6,
   },
   searchButton: {
@@ -482,8 +474,7 @@ const styles = StyleSheet.create({
     alignItems: 'center',
   },
   tabText: {
-    fontFamily: FontFamily.bold,
-    fontSize: mediumScreen ? FontSize.eighteen:FontSize.fourteen,
+    ...fontSize.b1, lineHeight: fontSize.b1.fontSize + 2,
     marginBottom: 12,
   },
   tabTextActive: {
@@ -542,23 +533,19 @@ const styles = StyleSheet.create({
   },
   templateName: {
     color: '#ffffff',
-    fontFamily: FontFamily.extraBold,
-    fontSize: mediumScreen ? FontSize.fifteen:FontSize.eleven,
+    ...fontSize.b4, lineHeight: fontSize.b4.fontSize + 1,
     letterSpacing: 0.6,
   },
   templateMeta: {
-    fontFamily: FontFamily.medium,
-    fontSize: mediumScreen ? FontSize.fourteen:FontSize.ten,
+    ...fontSize.b4, lineHeight: fontSize.b4.fontSize + 1,
     marginTop: 3,
   },
   soundSectionTitle: {
-    fontFamily: FontFamily.extraBold,
-    fontSize: mediumScreen ? FontSize.twenty:FontSize.sixteen,
+    ...fontSize.b1, lineHeight: fontSize.b1.fontSize + 2,
   },
   seeAllText: {
     color: PRIMARY_COLOR,
-    fontFamily: FontFamily.bold,
-    fontSize: mediumScreen ? FontSize.sixteen:FontSize.twelve,
+    ...fontSize.b3, lineHeight: fontSize.b3.fontSize + 2,
     letterSpacing: 1,
     textTransform: 'uppercase',
   },
@@ -579,13 +566,11 @@ const styles = StyleSheet.create({
     flex: 1,
   },
   soundTitle: {
-    fontFamily: FontFamily.bold,
-    fontSize: mediumScreen ? FontSize.sixteen:FontSize.thirteen,
+    ...fontSize.b3, lineHeight: fontSize.b3.fontSize + 2,
     marginBottom: 4,
   },
   soundMeta: {
-    fontFamily: FontFamily.medium,
-    fontSize: mediumScreen ? FontSize.sixteen:FontSize.twelve,
+    ...fontSize.b3, lineHeight: fontSize.b3.fontSize + 2,
   },
   soundAddButton: {
     width: 32,

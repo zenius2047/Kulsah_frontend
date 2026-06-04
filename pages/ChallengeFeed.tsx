@@ -17,9 +17,9 @@ import { LinearGradient } from 'expo-linear-gradient';
 import { MaterialIcons } from '@expo/vector-icons';
 import { useNavigation } from '@react-navigation/native';
 import { useVideoPlayer, VideoView } from 'expo-video';
-import { FontFamily, FontSize } from '../fonts';
 import { VoteModalContent } from './Vote';
 import Reactions from './Reactions';
+import { fontSize } from './typography';
 
 type ChallengeFeedItem = {
   id: string;
@@ -434,8 +434,7 @@ const styles = StyleSheet.create({
   },
   actionLabel: {
     color: '#ffffff',
-    fontFamily: FontFamily.bold,
-    fontSize: FontSize.eleven,
+    ...fontSize.b5, lineHeight: fontSize.b5.fontSize + 1,
     textTransform: 'uppercase',
     letterSpacing: 0.8,
   },
@@ -471,18 +470,15 @@ const styles = StyleSheet.create({
   },
   creatorHandle: {
     color: '#ffffff',
-    fontFamily: FontFamily.bold,
-    fontSize: FontSize.twentyTwo,
+    ...fontSize.b1, lineHeight: fontSize.b1.fontSize + 2,
   },
   caption: {
     color: '#e2e8f0',
-    fontFamily: FontFamily.medium,
-    fontSize: FontSize.sixteen,
+    ...fontSize.b4,
     lineHeight: 22,
   },
   captionAccent: {
     color: PRIMARY_COLOR,
-    fontFamily: FontFamily.bold,
   },
   audioRow: {
     flexDirection: 'row',
@@ -493,8 +489,7 @@ const styles = StyleSheet.create({
   audioText: {
     flex: 1,
     color: '#ffffff',
-    fontFamily: FontFamily.medium,
-    fontSize: FontSize.fourteen,
+    ...fontSize.b4, lineHeight: fontSize.b4.fontSize + 1,
   },
   progressWrap: {
     position: 'absolute',

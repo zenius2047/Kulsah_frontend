@@ -5,7 +5,7 @@ import { useThemeMode } from '../theme';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import K from '../assets/icons/k.svg'
 import { mediumScreen } from '../types';
-import { FontFamily, FontSize } from '../fonts';
+import { fontSize } from './typography';
 
 
 const { height: SCREEN_HEIGHT, width: SCREEN_WIDTH } = Dimensions.get('screen');
@@ -44,16 +44,14 @@ const {isDark, theme} = useThemeMode();
             alignItems: 'flex-end'
         }}>
             <Text style={{
-            fontSize: mediumScreen ? FontSize.thirtyFour: FontSize.thirty,
-            fontFamily: FontFamily.displayExtraBold,
+            ...fontSize.b1, lineHeight: fontSize.b1.fontSize + 2,
             letterSpacing: 0.5,
             color: isDark ? 'white': 'black'
                 }}>
                 ulsah
             </Text>
             <Text style={{
-            fontSize: mediumScreen ? FontSize.six: FontSize.six,
-            fontFamily: FontFamily.display,
+            ...fontSize.b5, lineHeight: fontSize.b5.fontSize + 1,
             color: isDark ? 'white': 'black',
             letterSpacing: 0.4
                 }}>

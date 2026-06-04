@@ -21,12 +21,12 @@ import {
   ViewToken,
 } from 'react-native';
 import { SafeAreaView, useSafeAreaInsets } from 'react-native-safe-area-context';
-import { FontFamily, FontSize } from '../fonts';
 import { useThemeMode, PRIMARY_COLOR, primaryColorAlpha } from "../theme";
 import KulcoinTopUpDrawer from '../components/KulcoinTopUpDrawer';
 import Reactions from './Reactions';
 import CommentIcon from '../assets/icons/comment-svg.svg';
 import { VoteModalContent } from './Vote';
+import { fontSize } from './typography';
 
 type ChallengeEntry = {
   id: string;
@@ -614,7 +614,7 @@ const FeedChallenge: React.FC = () => {
           })}
           // ListFooterComponent={() => (
           //             <View style={{ height: SCREEN_HEIGHT * 0.08, justifyContent: 'center', alignItems: 'center', backgroundColor: 'gold' }}>
-          //               <Text style={{ color: '#94a3b8', fontSize: FontSize.eleven }}>Syncing more galaxy feed...</Text>
+          //               <Text style={{ color: '#94a3b8', ...fontSize.b5, lineHeight: fontSize.b5.fontSize + 1 }}>Syncing more galaxy feed...</Text>
           //             </View>
           //           )}
           onViewableItemsChanged={onViewRef.current}
@@ -793,8 +793,7 @@ const styles = StyleSheet.create({
   },
   voteActionLabel: {
     color: '#ffffff',
-    fontFamily: FontFamily.extraBold,
-    fontSize: FontSize.seven,
+    ...fontSize.b5, lineHeight: fontSize.b5.fontSize + 1,
     textTransform: 'uppercase',
   },
   voteMeta: {
@@ -813,13 +812,11 @@ const styles = StyleSheet.create({
   },
   voteCostText: {
     color: PRIMARY_COLOR,
-    fontFamily: FontFamily.extraBold,
-    fontSize: FontSize.sixHalf,
+    ...fontSize.b5, lineHeight: fontSize.b5.fontSize + 1,
   },
   railCount: {
     color: '#ffffff',
-    fontFamily: FontFamily.bold,
-    fontSize: FontSize.ten,
+    ...fontSize.b5, lineHeight: fontSize.b5.fontSize + 1,
   },
   bottomInfo: {
     position: 'absolute',
@@ -840,20 +837,17 @@ const styles = StyleSheet.create({
   captionWrap: {},
   handleText: {
     color: '#ffffff',
-    fontFamily: FontFamily.extraBold,
-    fontSize: FontSize.eighteen,
+    ...fontSize.b1, lineHeight: fontSize.b1.fontSize + 2,
   },
   captionText: {
     color: 'rgba(255,255,255,0.92)',
-    fontFamily: FontFamily.medium,
-    fontSize: FontSize.eleven,
+    ...fontSize.b5,
     lineHeight: 20,
   },
   moreLessText: {
     color: '#ffffff',
     marginTop: 1,
-    fontFamily: FontFamily.extraBold,
-    fontSize: FontSize.ten,
+    ...fontSize.b5, lineHeight: fontSize.b5.fontSize + 1,
   },
   soundRow: {
     flexDirection: 'row',
@@ -877,9 +871,8 @@ const styles = StyleSheet.create({
   },
   soundText: {
     color: '#ffffffcc',
-    fontSize: FontSize.eight,
+    ...fontSize.b5,
     lineHeight: 20,
-    fontFamily: FontFamily.medium,
   },
   entryBadge: {
     alignSelf: 'flex-start',
@@ -895,8 +888,7 @@ const styles = StyleSheet.create({
   },
   entryBadgeText: {
     color: PRIMARY_COLOR,
-    fontFamily: FontFamily.extraBold,
-    fontSize: FontSize.seven,
+    ...fontSize.b5, lineHeight: fontSize.b5.fontSize + 1,
     textTransform: 'uppercase',
     letterSpacing: 1.2,
   },
@@ -926,14 +918,12 @@ const styles = StyleSheet.create({
   },
   voteSuccessTitle: {
     color: '#ffffff',
-    fontFamily: FontFamily.extraBold,
-    fontSize: FontSize.eighteen,
+    ...fontSize.b1, lineHeight: fontSize.b1.fontSize + 2,
     textTransform: 'uppercase',
   },
   voteSuccessSubtitle: {
     color: '#6ee7b7',
-    fontFamily: FontFamily.extraBold,
-    fontSize: FontSize.eight,
+    ...fontSize.b5, lineHeight: fontSize.b5.fontSize + 1,
     textTransform: 'uppercase',
     letterSpacing: 2,
   },
@@ -978,8 +968,7 @@ const styles = StyleSheet.create({
   },
   balancePillText: {
     color: '#ffffff',
-    fontFamily: FontFamily.extraBold,
-    fontSize: FontSize.nine,
+    ...fontSize.b5, lineHeight: fontSize.b5.fontSize + 1,
   },
   addCoinButton: {
     width: 20,
@@ -1002,8 +991,7 @@ const styles = StyleSheet.create({
   },
   feedLabel: {
     color: '#ffffff',
-    fontFamily: FontFamily.extraBold,
-    fontSize: FontSize.eight,
+    ...fontSize.b5, lineHeight: fontSize.b5.fontSize + 1,
     textTransform: 'uppercase',
     letterSpacing: 1,
   },
@@ -1028,8 +1016,7 @@ const styles = StyleSheet.create({
   },
   backToOrbitText: {
     color: '#ffffff',
-    fontFamily: FontFamily.extraBold,
-    fontSize: FontSize.ten,
+    ...fontSize.b5, lineHeight: fontSize.b5.fontSize + 1,
     textTransform: 'uppercase',
     letterSpacing: 1.8,
   },

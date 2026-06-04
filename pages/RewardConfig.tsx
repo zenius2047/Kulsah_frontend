@@ -15,7 +15,7 @@ import { useNavigation } from '@react-navigation/native';
 import { mediumScreen } from '../types';
 
 
-import { FontFamily, FontSize } from '../fonts';
+import { fontSize } from './typography';
 
 const strategyOptions = [
   {
@@ -82,7 +82,7 @@ const RewardConfig: React.FC = () => {
     <SafeAreaView style={[styles.safeArea, { backgroundColor: theme.background }]} edges={['top', 'left', 'right']}>
       <View style={[styles.screen, { backgroundColor: theme.screen }]}>
         <LinearGradient
-          colors={bgGradient}
+          colors={bgGradient as any}
           locations={[0, 0.48, 1]}
           style={StyleSheet.absoluteFill}
         />
@@ -300,14 +300,12 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
   },
   headerTitle: {
-    fontFamily: FontFamily.bold,
-    fontSize: mediumScreen ? FontSize.sixteen : FontSize.thirteen,
+    ...fontSize.b3, lineHeight: fontSize.b3.fontSize + 2,
     letterSpacing: 0.8,
   },
   headerBrand: {
     color: PRIMARY_COLOR,
-    fontFamily: FontFamily.extraBold,
-    fontSize: mediumScreen ? FontSize.twentyTwo : FontSize.eighteen,
+    ...fontSize.b1, lineHeight: fontSize.b1.fontSize + 2,
     letterSpacing: -0.4,
   },
   scroll: {
@@ -333,19 +331,16 @@ const styles = StyleSheet.create({
   },
   challengeBadgeText: {
     color: PRIMARY_COLOR,
-    fontFamily: FontFamily.bold,
-    fontSize: mediumScreen ? FontSize.fourteen : FontSize.ten,
+    ...fontSize.b4, lineHeight: fontSize.b4.fontSize + 1,
     textTransform: 'uppercase',
     letterSpacing: 0.9,
   },
   heroTitle: {
-    fontFamily: FontFamily.extraBold,
-    fontSize: mediumScreen ? FontSize.twentyOne : FontSize.eighteen,
+    ...fontSize.b1,
     lineHeight: mediumScreen ? 34 : 30,
   },
   heroDescription: {
-    fontFamily: FontFamily.medium,
-    fontSize: mediumScreen ? FontSize.sixteen : FontSize.twelve,
+    ...fontSize.b3,
     lineHeight: mediumScreen ? 24 : 18,
     maxWidth: 340,
   },
@@ -385,16 +380,14 @@ const styles = StyleSheet.create({
     marginBottom: 14,
   },
   strategyTitle: {
-    fontFamily: FontFamily.bold,
-    fontSize: mediumScreen ? FontSize.seventeen : FontSize.fourteen,
+    ...fontSize.b3, lineHeight: fontSize.b3.fontSize + 2,
     marginBottom: 4,
   },
   strategyTitleMuted: {
     color: '#94a3b8',
   },
   strategyMeta: {
-    fontFamily: FontFamily.bold,
-    fontSize: mediumScreen ? FontSize.fourteen : FontSize.ten,
+    ...fontSize.b4, lineHeight: fontSize.b4.fontSize + 1,
     letterSpacing: 1.2,
     textTransform: 'uppercase',
   },
@@ -407,15 +400,13 @@ const styles = StyleSheet.create({
     justifyContent: 'space-between',
   },
   sectionTitle: {
-    fontFamily: FontFamily.bold,
-    fontSize: mediumScreen ? FontSize.thirteen : FontSize.nine,
+    ...fontSize.b4, lineHeight: fontSize.b4.fontSize + 1,
     letterSpacing: 1.4,
     textTransform: 'uppercase',
   },
   sectionHint: {
     color: PRIMARY_COLOR,
-    fontFamily: FontFamily.bold,
-    fontSize: mediumScreen ? FontSize.fourteen : FontSize.ten,
+    ...fontSize.b4, lineHeight: fontSize.b4.fontSize + 1,
     letterSpacing: 1.1,
   },
   rewardList: {
@@ -453,8 +444,7 @@ const styles = StyleSheet.create({
     gap: 8,
   },
   rewardTitle: {
-    fontFamily: FontFamily.bold,
-    fontSize: mediumScreen ? FontSize.sixteen : FontSize.thirteen,
+    ...fontSize.b3, lineHeight: fontSize.b3.fontSize + 2,
     flex: 1,
   },
   hotBadge: {
@@ -465,13 +455,11 @@ const styles = StyleSheet.create({
   },
   hotBadgeText: {
     color: '#deb7ff',
-    fontFamily: FontFamily.extraBold,
-    fontSize: mediumScreen ? FontSize.twelve : FontSize.eight,
+    ...fontSize.b4, lineHeight: fontSize.b4.fontSize + 1,
     letterSpacing: 0.5,
   },
   rewardDescription: {
-    fontFamily: FontFamily.medium,
-    fontSize: mediumScreen ? FontSize.sixteen : FontSize.twelve,
+    ...fontSize.b3,
     lineHeight: mediumScreen ? 22 : 18,
   },
   customCard: {
@@ -487,14 +475,12 @@ const styles = StyleSheet.create({
     marginBottom: 8,
   },
   customLabel: {
-    fontFamily: FontFamily.bold,
-    fontSize: mediumScreen ? FontSize.fourteen : FontSize.ten,
+    ...fontSize.b4, lineHeight: fontSize.b4.fontSize + 1,
     letterSpacing: 1.1,
     textTransform: 'uppercase',
   },
   customInput: {
-    fontFamily: FontFamily.medium,
-    fontSize: mediumScreen ? FontSize.sixteen : FontSize.twelve,
+    ...fontSize.b3, lineHeight: fontSize.b3.fontSize + 2,
     padding: 0,
   },
   tipCard: {
@@ -507,16 +493,13 @@ const styles = StyleSheet.create({
   },
   tipText: {
     flex: 1,
-    fontFamily: FontFamily.medium,
-    fontSize: mediumScreen ? FontSize.sixteen : FontSize.twelve,
+    ...fontSize.b3,
     lineHeight: mediumScreen ? 22 : 18,
   },
   tipStrong: {
-    fontFamily: FontFamily.extraBold,
   },
   tipAccent: {
     color: PRIMARY_COLOR,
-    fontFamily: FontFamily.bold,
   },
   bottomShell: {
     position: 'absolute',
@@ -544,8 +527,7 @@ const styles = StyleSheet.create({
   },
   ctaText: {
     color: '#fff',
-    fontFamily: FontFamily.bold,
-    fontSize: mediumScreen ? FontSize.fourteen : FontSize.ten,
+    ...fontSize.b4, lineHeight: fontSize.b4.fontSize + 1,
     letterSpacing: 2,
     textTransform: 'uppercase',
   },

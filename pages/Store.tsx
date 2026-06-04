@@ -14,8 +14,8 @@ import { SafeAreaView, useSafeAreaInsets } from 'react-native-safe-area-context'
 import { MaterialIcons } from '@expo/vector-icons';
 import { LinearGradient } from 'expo-linear-gradient';
 import { useThemeMode, PRIMARY_COLOR, primaryColorAlpha } from "../theme";
-import { FontFamily, FontSize, fontScale } from '../fonts';
 import { mediumScreen } from '../types';
+import { fontSize } from './typography';
 
 type CoinPack = {
   id: string;
@@ -356,8 +356,7 @@ const styles = StyleSheet.create({
     minWidth: 68,
   },
   walletText: {
-    fontFamily: FontFamily.bold,
-    fontSize: mediumScreen ? FontSize.ten : FontSize.eightHalf,
+    ...fontSize.b5, lineHeight: fontSize.b5.fontSize + 1,
     letterSpacing: 0.6,
   },
   logoWrap: {
@@ -367,8 +366,7 @@ const styles = StyleSheet.create({
   },
   logoText: {
     color: '#ffffff',
-    fontFamily: FontFamily.displayExtraBold,
-    fontSize: mediumScreen ? FontSize.fifteen : FontSize.twelveHalf,
+    ...fontSize.b3, lineHeight: fontSize.b3.fontSize + 2,
     letterSpacing: 1.4,
   },
   profileButton: {
@@ -410,23 +408,19 @@ const styles = StyleSheet.create({
   },
   flashPillText: {
     color: '#f0abfc',
-    fontFamily: FontFamily.extraBold,
-    fontSize: mediumScreen ? FontSize.eightHalf : FontSize.seven,
+    ...fontSize.b5, lineHeight: fontSize.b5.fontSize + 1,
     letterSpacing: 1,
     textTransform: 'uppercase',
   },
   heroTitle: {
     color: '#ffffff',
-    fontFamily: FontFamily.extraBold,
-    fontSize: mediumScreen ? FontSize.twentyFour : FontSize.twenty,
-    lineHeight: mediumScreen ? FontSize.twentySix : FontSize.twentyTwo,
+    ...fontSize.b1,
+    lineHeight: fontSize.b1.fontSize + 2,
     letterSpacing: -0.8,
   },
   heroSubtitle: {
     color: '#d1d5db',
-    fontFamily: FontFamily.medium,
-    fontSize: mediumScreen ? FontSize.tenHalf : FontSize.nine,
-    lineHeight: mediumScreen ? FontSize.fourteen : FontSize.twelve,
+    ...fontSize.b5, lineHeight: fontSize.b5.fontSize + 1,
     maxWidth: '72%',
   },
   heroButton: {
@@ -441,8 +435,7 @@ const styles = StyleSheet.create({
   },
   heroButtonText: {
     color: '#ffffff',
-    fontFamily: FontFamily.extraBold,
-    fontSize: mediumScreen ? FontSize.nine : FontSize.sevenHalf,
+    ...fontSize.b5, lineHeight: fontSize.b5.fontSize + 1,
     letterSpacing: 0.8,
   },
   section: {
@@ -454,14 +447,12 @@ const styles = StyleSheet.create({
     justifyContent: 'space-between',
   },
   sectionTitle: {
-    fontFamily: FontFamily.bold,
-    fontSize: mediumScreen ? FontSize.sixteen : FontSize.thirteenHalf,
+    ...fontSize.b3, lineHeight: fontSize.b3.fontSize + 2,
     letterSpacing: -0.4,
   },
   sectionLink: {
     color: '#c084fc',
-    fontFamily: FontFamily.extraBold,
-    fontSize: mediumScreen ? FontSize.eightHalf : FontSize.seven,
+    ...fontSize.b5, lineHeight: fontSize.b5.fontSize + 1,
     textTransform: 'uppercase',
     letterSpacing: 1,
   },
@@ -495,13 +486,11 @@ const styles = StyleSheet.create({
     borderWidth: 1,
   },
   packTitle: {
-    fontFamily: FontFamily.bold,
-    fontSize: mediumScreen ? FontSize.twelve : FontSize.ten,
+    ...fontSize.b4, lineHeight: fontSize.b4.fontSize + 1,
   },
   packSubtitle: {
     marginTop: 2,
-    fontFamily: FontFamily.medium,
-    fontSize: mediumScreen ? FontSize.nineHalf : FontSize.eight,
+    ...fontSize.b5, lineHeight: fontSize.b5.fontSize + 1,
   },
   priceButton: {
     borderWidth: 1,
@@ -514,8 +503,7 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
   },
   priceText: {
-    fontFamily: FontFamily.bold,
-    fontSize: mediumScreen ? FontSize.eleven : FontSize.eight,
+    ...fontSize.b5, lineHeight: fontSize.b5.fontSize + 1,
   },
   featuredPriceButton: {
     borderRadius: 999,
@@ -532,8 +520,7 @@ const styles = StyleSheet.create({
   },
   featuredPriceText: {
     color: '#ffffff',
-    fontFamily: FontFamily.extraBold,
-    fontSize: mediumScreen ? FontSize.eleven : FontSize.nineHalf,
+    ...fontSize.b5, lineHeight: fontSize.b5.fontSize + 1,
   },
   popularTag: {
     position: 'absolute',
@@ -546,8 +533,7 @@ const styles = StyleSheet.create({
   },
   popularTagText: {
     color: '#ffffff',
-    fontFamily: FontFamily.extraBold,
-    fontSize: mediumScreen ? FontSize.sixHalf : FontSize.fiveHalf,
+    ...fontSize.b5, lineHeight: fontSize.b5.fontSize + 1,
     textTransform: 'uppercase',
     letterSpacing: 0.8,
   },
@@ -556,14 +542,12 @@ const styles = StyleSheet.create({
     gap: 10,
   },
   filterText: {
-    fontFamily: FontFamily.bold,
-    fontSize: mediumScreen ? FontSize.eight : FontSize.sixPointEight,
+    ...fontSize.b5, lineHeight: fontSize.b5.fontSize + 1,
     textTransform: 'uppercase',
     letterSpacing: 0.8,
   },
   filterTextActive: {
-    fontFamily: FontFamily.extraBold,
-    fontSize: mediumScreen ? FontSize.eight : FontSize.sixPointEight,
+    ...fontSize.b5, lineHeight: fontSize.b5.fontSize + 1,
     textTransform: 'uppercase',
     letterSpacing: 0.8,
   },
@@ -602,8 +586,7 @@ const styles = StyleSheet.create({
   },
   hotTagText: {
     color: '#ffffff',
-    fontFamily: FontFamily.extraBold,
-    fontSize: mediumScreen ? FontSize.sixHalf : FontSize.fiveHalf,
+    ...fontSize.b5, lineHeight: fontSize.b5.fontSize + 1,
     letterSpacing: 0.6,
   },
   giftMeta: {
@@ -612,8 +595,7 @@ const styles = StyleSheet.create({
     gap: 4,
   },
   giftName: {
-    fontFamily: FontFamily.bold,
-    fontSize: mediumScreen ? FontSize.eleven : FontSize.ninePointTwo,
+    ...fontSize.b5, lineHeight: fontSize.b5.fontSize + 1,
     textAlign: 'center',
   },
   giftPriceRow: {
@@ -623,8 +605,7 @@ const styles = StyleSheet.create({
   },
   giftPrice: {
     color: '#c084fc',
-    fontFamily: FontFamily.bold,
-    fontSize: mediumScreen ? FontSize.nineHalf : FontSize.eight,
+    ...fontSize.b5, lineHeight: fontSize.b5.fontSize + 1,
   },
   giftButton: {
     width: '100%',
@@ -635,8 +616,7 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
   },
   giftButtonText: {
-    fontFamily: FontFamily.extraBold,
-    fontSize: mediumScreen ? FontSize.eight : FontSize.sixPointEight,
+    ...fontSize.b5, lineHeight: fontSize.b5.fontSize + 1,
     textTransform: 'uppercase',
     letterSpacing: 1,
   },
@@ -653,8 +633,7 @@ const styles = StyleSheet.create({
   },
   giftButtonPrimaryText: {
     color: '#ffffff',
-    fontFamily: FontFamily.extraBold,
-    fontSize: mediumScreen ? FontSize.eight : FontSize.sixPointEight,
+    ...fontSize.b5, lineHeight: fontSize.b5.fontSize + 1,
     textTransform: 'uppercase',
     letterSpacing: 1,
   },

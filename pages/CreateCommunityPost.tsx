@@ -17,9 +17,9 @@ import { useNavigation } from '@react-navigation/native';
 import { MaterialIcons } from '@expo/vector-icons';
 import { LinearGradient } from 'expo-linear-gradient';
 import { GoogleGenAI } from '@google/genai';
-import { FontFamily, FontSize } from '../fonts';
 import { mediumScreen } from '../types';
 import { useThemeMode, primaryColorAlpha } from "../theme";
+import { fontSize } from './typography';
 
 type Audience = 'all' | 'subs';
 
@@ -468,8 +468,7 @@ const styles = StyleSheet.create({
   },
   toastText: {
     color: '#fff',
-    fontFamily: FontFamily.extraBold,
-    fontSize: FontSize.ten,
+    ...fontSize.b5, lineHeight: fontSize.b5.fontSize + 1,
     letterSpacing: 2.6,
   },
   header: {
@@ -495,8 +494,7 @@ const styles = StyleSheet.create({
   },
   headerTitle: {
     color: '#F8FAFC',
-    fontFamily: FontFamily.extraBold,
-    fontSize: mediumScreen? FontSize.sixteen: FontSize.twelve,
+    ...fontSize.b3, lineHeight: fontSize.b3.fontSize + 2,
     letterSpacing: 0.5,
   },
   headerPostButton: {
@@ -508,8 +506,7 @@ const styles = StyleSheet.create({
   },
   headerPostText: {
     color: '#d900c7',
-    fontFamily: FontFamily.extraBold,
-    fontSize: mediumScreen? FontSize.sixteen: FontSize.twelve,
+    ...fontSize.b3, lineHeight: fontSize.b3.fontSize + 2,
     letterSpacing: 0.3,
   },
   scroll: {
@@ -554,8 +551,7 @@ const styles = StyleSheet.create({
   },
   profileName: {
     color: '#F8FAFC',
-    fontFamily: FontFamily.extraBold,
-    fontSize: mediumScreen? FontSize.eighteen: FontSize.fourteen,
+    ...fontSize.b1, lineHeight: fontSize.b1.fontSize + 2,
   },
   profileSubRow: {
     flexDirection: 'row',
@@ -571,8 +567,7 @@ const styles = StyleSheet.create({
   },
   profileSubText: {
     color: '#d900c7',
-    fontFamily: FontFamily.extraBold,
-    fontSize: mediumScreen? FontSize.twelve: FontSize.eight,
+    ...fontSize.b4, lineHeight: fontSize.b4.fontSize + 1,
     letterSpacing: 2.5,
   },
   editorCard: {
@@ -586,8 +581,7 @@ const styles = StyleSheet.create({
   textArea: {
     minHeight: 210,
     color: '#F8FAFC',
-    fontFamily: FontFamily.medium,
-    fontSize: mediumScreen? FontSize.eighteen: FontSize.fourteen,
+    ...fontSize.b1,
     lineHeight: 28,
     textAlignVertical: 'top',
   },
@@ -647,8 +641,7 @@ const styles = StyleSheet.create({
   },
   aiButtonText: {
     color: '#d900c7',
-    fontFamily: FontFamily.extraBold,
-    fontSize: FontSize.ten,
+    ...fontSize.b5, lineHeight: fontSize.b5.fontSize + 1,
     letterSpacing: 1.8,
   },
   spinIcon: {
@@ -674,8 +667,7 @@ const styles = StyleSheet.create({
   },
   pollTitle: {
     color: '#d900c7',
-    fontFamily: FontFamily.extraBold,
-    fontSize: FontSize.ten,
+    ...fontSize.b5, lineHeight: fontSize.b5.fontSize + 1,
     letterSpacing: 2,
   },
   pollOptionsWrap: {
@@ -691,8 +683,7 @@ const styles = StyleSheet.create({
     borderRadius: 14,
     paddingHorizontal: 16,
     color: '#F8FAFC',
-    fontFamily: FontFamily.medium,
-    fontSize: FontSize.fourteen,
+    ...fontSize.b4, lineHeight: fontSize.b4.fontSize + 1,
     backgroundColor: 'rgba(255,255,255,0.05)',
     borderWidth: 1,
     borderColor: 'rgba(255,255,255,0.08)',
@@ -716,8 +707,7 @@ const styles = StyleSheet.create({
   },
   addPollText: {
     color: '#d900c7',
-    fontFamily: FontFamily.extraBold,
-    fontSize: FontSize.ten,
+    ...fontSize.b5, lineHeight: fontSize.b5.fontSize + 1,
     letterSpacing: 1.8,
   },
   footer: {
@@ -765,8 +755,7 @@ const styles = StyleSheet.create({
   },
   audienceText: {
     color: '#94A3B8',
-    fontFamily: FontFamily.bold,
-    fontSize: mediumScreen? FontSize.twelve: FontSize.eight,
+    ...fontSize.b4, lineHeight: fontSize.b4.fontSize + 1,
     letterSpacing: 1.6,
   },
   audienceTextActive: {
@@ -789,8 +778,7 @@ const styles = StyleSheet.create({
   },
   publishButtonText: {
     color: '#fff',
-    fontFamily: FontFamily.bold,
-    fontSize: mediumScreen? FontSize.sixteen: FontSize.twelve,
+    ...fontSize.b3, lineHeight: fontSize.b3.fontSize + 2,
   },
   modalRoot: {
     flex: 1,
@@ -826,13 +814,11 @@ const styles = StyleSheet.create({
   },
   modalTitle: {
     color: '#F8FAFC',
-    fontFamily: FontFamily.extraBold,
-    fontSize: FontSize.eighteen,
+    ...fontSize.b1, lineHeight: fontSize.b1.fontSize + 2,
   },
   modalSectionTitle: {
     color: '#94A3B8',
-    fontFamily: FontFamily.extraBold,
-    fontSize: FontSize.ten,
+    ...fontSize.b5, lineHeight: fontSize.b5.fontSize + 1,
     letterSpacing: 2,
     marginBottom: 12,
   },
@@ -853,7 +839,7 @@ const styles = StyleSheet.create({
     borderColor: 'rgba(255,255,255,0.08)',
   },
   emojiText: {
-    fontSize: mediumScreen ? FontSize.twentyFour : FontSize.twenty,
+    ...fontSize.b1, lineHeight: fontSize.b1.fontSize + 2,
   },
   stickerRow: {
     gap: 12,

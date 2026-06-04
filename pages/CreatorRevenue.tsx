@@ -14,9 +14,9 @@ import {
   View,
 } from 'react-native';
 import { SafeAreaView, useSafeAreaInsets } from 'react-native-safe-area-context';
-import { FontFamily, FontSize } from '../fonts';
 import { useThemeMode, PRIMARY_COLOR, primaryColorAlpha } from "../theme";
 import { mediumScreen } from '../types';
+import { fontSize } from './typography';
 
 interface Transaction {
   id: string;
@@ -93,7 +93,7 @@ const CreatorRevenue: React.FC = () => {
   const titleColor = isDark ? '#fff' : theme.text;
   const subtle = isDark ? '#94a3b8' : theme.textSecondary;
   const muted = isDark ? '#6b7280' : theme.textMuted;
-  const accent ={PRIMARY_COLOR};
+  const accent = PRIMARY_COLOR;
 
   useEffect(() => {
     if (route.params?.openWithdraw) {
@@ -457,8 +457,7 @@ const s = StyleSheet.create({
     borderWidth: 1,
   },
   headerTitle: {
-    fontFamily: FontFamily.extraBold,
-    fontSize: mediumScreen ? FontSize.eighteen : FontSize.fourteen,
+    ...fontSize.b1, lineHeight: fontSize.b1.fontSize + 2,
     textTransform: 'uppercase',
   },
   content: {
@@ -487,8 +486,7 @@ const s = StyleSheet.create({
     gap: 16,
   },
   microLabel: {
-    fontFamily: FontFamily.extraBold,
-    fontSize: mediumScreen ? FontSize.ten : FontSize.eight,
+    ...fontSize.b5, lineHeight: fontSize.b5.fontSize + 1,
     textTransform: 'uppercase',
     letterSpacing: 2,
   },
@@ -500,12 +498,10 @@ const s = StyleSheet.create({
   },
   balanceValue: {
     color: '#22c55e',
-    fontFamily: FontFamily.extraBold,
-    fontSize: mediumScreen ? FontSize.twentyFour : FontSize.twenty,
+    ...fontSize.b1, lineHeight: fontSize.b1.fontSize + 2,
   },
   balanceUnit: {
-    fontFamily: FontFamily.bold,
-    fontSize: mediumScreen ? FontSize.twelve : FontSize.ten,
+    ...fontSize.b4, lineHeight: fontSize.b4.fontSize + 1,
     marginBottom: 6,
   },
   balanceRight: {
@@ -513,8 +509,7 @@ const s = StyleSheet.create({
   },
   balanceSmallValue: {
     marginTop: 6,
-    fontFamily: FontFamily.extraBold,
-    fontSize: mediumScreen ? FontSize.twenty : FontSize.sixteen,
+    ...fontSize.b1, lineHeight: fontSize.b1.fontSize + 2,
   },
   summaryGrid: {
     flexDirection: 'row',
@@ -527,15 +522,13 @@ const s = StyleSheet.create({
     padding: 14,
   },
   summaryLabel: {
-    fontFamily: FontFamily.extraBold,
-    fontSize: mediumScreen ? FontSize.nine : FontSize.seven,
+    ...fontSize.b5, lineHeight: fontSize.b5.fontSize + 1,
     textTransform: 'uppercase',
     letterSpacing: 1.2,
   },
   summaryValue: {
     marginTop: 6,
-    fontFamily: FontFamily.extraBold,
-    fontSize: mediumScreen ? FontSize.twenty : FontSize.sixteen,
+    ...fontSize.b1, lineHeight: fontSize.b1.fontSize + 2,
   },
   requestButton: {
     height: 58,
@@ -546,8 +539,7 @@ const s = StyleSheet.create({
   },
   requestButtonText: {
     color: '#fff',
-    fontFamily: FontFamily.extraBold,
-    fontSize: mediumScreen ? FontSize.twelve : FontSize.ten,
+    ...fontSize.b4, lineHeight: fontSize.b4.fontSize + 1,
     textTransform: 'uppercase',
     letterSpacing: 2,
   },
@@ -591,8 +583,7 @@ const s = StyleSheet.create({
   },
   barLabel: {
     marginTop: 8,
-    fontFamily: FontFamily.bold,
-    fontSize: mediumScreen ? FontSize.ten : FontSize.eight,
+    ...fontSize.b5, lineHeight: fontSize.b5.fontSize + 1,
   },
   distributionCenter: {
     alignItems: 'center',
@@ -616,13 +607,11 @@ const s = StyleSheet.create({
     justifyContent: 'center',
   },
   donutValue: {
-    fontFamily: FontFamily.extraBold,
-    fontSize: mediumScreen ? FontSize.twentyTwo : FontSize.eighteen,
+    ...fontSize.b1, lineHeight: fontSize.b1.fontSize + 2,
   },
   donutLabel: {
     marginTop: 4,
-    fontFamily: FontFamily.extraBold,
-    fontSize: mediumScreen ? FontSize.eight : FontSize.seven,
+    ...fontSize.b5, lineHeight: fontSize.b5.fontSize + 1,
     textTransform: 'uppercase',
     letterSpacing: 1.4,
   },
@@ -641,13 +630,11 @@ const s = StyleSheet.create({
   },
   distributionName: {
     flex: 1,
-    fontFamily: FontFamily.extraBold,
-    fontSize: mediumScreen ? FontSize.ten : FontSize.eight,
+    ...fontSize.b5, lineHeight: fontSize.b5.fontSize + 1,
     textTransform: 'uppercase',
   },
   distributionPercent: {
-    fontFamily: FontFamily.extraBold,
-    fontSize: mediumScreen ? FontSize.twelve : FontSize.ten,
+    ...fontSize.b4, lineHeight: fontSize.b4.fontSize + 1,
   },
   aiCard: {
     borderRadius: 30,
@@ -676,16 +663,14 @@ const s = StyleSheet.create({
   },
   aiTitle: {
     color: PRIMARY_COLOR,
-    fontFamily: FontFamily.extraBold,
-    fontSize: mediumScreen ? FontSize.twelve : FontSize.ten,
+    ...fontSize.b4, lineHeight: fontSize.b4.fontSize + 1,
     textTransform: 'uppercase',
     letterSpacing: 2,
   },
   aiMeta: {
     marginTop: 3,
     color: primaryColorAlpha(0.7),
-    fontFamily: FontFamily.extraBold,
-    fontSize: mediumScreen ? FontSize.eight : FontSize.seven,
+    ...fontSize.b5, lineHeight: fontSize.b5.fontSize + 1,
     textTransform: 'uppercase',
     letterSpacing: 1.2,
   },
@@ -701,8 +686,7 @@ const s = StyleSheet.create({
     opacity: 0.8,
   },
   aiBody: {
-    fontFamily: FontFamily.medium,
-    fontSize: mediumScreen ? FontSize.fourteen : FontSize.eleven,
+    ...fontSize.b4,
     lineHeight: mediumScreen ? 24 : 20,
     fontStyle: 'italic',
   },
@@ -717,16 +701,14 @@ const s = StyleSheet.create({
     padding: 12,
   },
   aiMetaLabel: {
-    fontFamily: FontFamily.extraBold,
-    fontSize: mediumScreen ? FontSize.eight : FontSize.seven,
+    ...fontSize.b5, lineHeight: fontSize.b5.fontSize + 1,
     textTransform: 'uppercase',
     letterSpacing: 1.2,
   },
   aiMetaValue: {
     marginTop: 5,
     color: PRIMARY_COLOR,
-    fontFamily: FontFamily.extraBold,
-    fontSize: mediumScreen ? FontSize.twelve : FontSize.ten,
+    ...fontSize.b4, lineHeight: fontSize.b4.fontSize + 1,
   },
   transactionsSection: {
     gap: 12,
@@ -739,8 +721,7 @@ const s = StyleSheet.create({
   },
   filterText: {
     color: PRIMARY_COLOR,
-    fontFamily: FontFamily.extraBold,
-    fontSize: mediumScreen ? FontSize.ten : FontSize.eight,
+    ...fontSize.b5, lineHeight: fontSize.b5.fontSize + 1,
     textTransform: 'uppercase',
     letterSpacing: 1.4,
   },
@@ -774,8 +755,7 @@ const s = StyleSheet.create({
     flexWrap: 'wrap',
   },
   transactionName: {
-    fontFamily: FontFamily.bold,
-    fontSize: mediumScreen ? FontSize.thirteen : FontSize.eleven,
+    ...fontSize.b4, lineHeight: fontSize.b4.fontSize + 1,
   },
   statusBadge: {
     borderRadius: 999,
@@ -783,20 +763,17 @@ const s = StyleSheet.create({
     paddingVertical: 3,
   },
   statusBadgeText: {
-    fontFamily: FontFamily.extraBold,
-    fontSize: mediumScreen ? FontSize.eight : FontSize.seven,
+    ...fontSize.b5, lineHeight: fontSize.b5.fontSize + 1,
     textTransform: 'uppercase',
   },
   transactionDate: {
     marginTop: 4,
-    fontFamily: FontFamily.bold,
-    fontSize: mediumScreen ? FontSize.nine : FontSize.eight,
+    ...fontSize.b5, lineHeight: fontSize.b5.fontSize + 1,
     textTransform: 'uppercase',
     letterSpacing: 1.1,
   },
   transactionAmount: {
-    fontFamily: FontFamily.extraBold,
-    fontSize: mediumScreen ? FontSize.fourteen : FontSize.twelve,
+    ...fontSize.b3, lineHeight: fontSize.b3.fontSize + 2,
   },
   modalRoot: {
     flex: 1,
@@ -827,13 +804,11 @@ const s = StyleSheet.create({
     marginBottom: 16,
   },
   modalTitle: {
-    fontFamily: FontFamily.extraBold,
-    fontSize: mediumScreen ? FontSize.twentyTwo : FontSize.eighteen,
+    ...fontSize.b1, lineHeight: fontSize.b1.fontSize + 2,
     textTransform: 'uppercase',
   },
   modalMeta: {
-    fontFamily: FontFamily.extraBold,
-    fontSize: mediumScreen ? FontSize.nine : FontSize.eight,
+    ...fontSize.b5, lineHeight: fontSize.b5.fontSize + 1,
     textTransform: 'uppercase',
     letterSpacing: 1.6,
   },
@@ -844,8 +819,7 @@ const s = StyleSheet.create({
     gap: 10,
   },
   inputLabel: {
-    fontFamily: FontFamily.extraBold,
-    fontSize: mediumScreen ? FontSize.nine : FontSize.eight,
+    ...fontSize.b5, lineHeight: fontSize.b5.fontSize + 1,
     textTransform: 'uppercase',
     letterSpacing: 1.6,
   },
@@ -858,14 +832,12 @@ const s = StyleSheet.create({
     paddingHorizontal: 16,
   },
   amountPrefix: {
-    fontFamily: FontFamily.extraBold,
-    fontSize: mediumScreen ? FontSize.twentyFour : FontSize.twenty,
+    ...fontSize.b1, lineHeight: fontSize.b1.fontSize + 2,
     marginRight: 8,
   },
   amountInput: {
     flex: 1,
-    fontFamily: FontFamily.extraBold,
-    fontSize: mediumScreen ? FontSize.twentyFour : FontSize.twenty,
+    ...fontSize.b1, lineHeight: fontSize.b1.fontSize + 2,
   },
   amountFooter: {
     flexDirection: 'row',
@@ -873,13 +845,11 @@ const s = StyleSheet.create({
     alignItems: 'center',
   },
   amountHint: {
-    fontFamily: FontFamily.bold,
-    fontSize: mediumScreen ? FontSize.ten : FontSize.eight,
+    ...fontSize.b5, lineHeight: fontSize.b5.fontSize + 1,
   },
   useMaxText: {
     color: PRIMARY_COLOR,
-    fontFamily: FontFamily.extraBold,
-    fontSize: mediumScreen ? FontSize.ten : FontSize.eight,
+    ...fontSize.b5, lineHeight: fontSize.b5.fontSize + 1,
     textTransform: 'uppercase',
     letterSpacing: 1.2,
   },
@@ -910,15 +880,13 @@ const s = StyleSheet.create({
     marginBottom: 10,
   },
   gatewayLabel: {
-    fontFamily: FontFamily.extraBold,
-    fontSize: mediumScreen ? FontSize.ten : FontSize.nine,
+    ...fontSize.b5, lineHeight: fontSize.b5.fontSize + 1,
     textAlign: 'center',
     textTransform: 'uppercase',
   },
   gatewaySub: {
     marginTop: 4,
-    fontFamily: FontFamily.bold,
-    fontSize: mediumScreen ? FontSize.eight : FontSize.seven,
+    ...fontSize.b5, lineHeight: fontSize.b5.fontSize + 1,
     textAlign: 'center',
   },
   momoCard: {
@@ -933,8 +901,7 @@ const s = StyleSheet.create({
     borderRadius: 14,
     borderWidth: 1,
     paddingHorizontal: 14,
-    fontFamily: FontFamily.bold,
-    fontSize: mediumScreen ? FontSize.twelve : FontSize.ten,
+    ...fontSize.b4, lineHeight: fontSize.b4.fontSize + 1,
   },
   progressSection: {
     marginTop: 18,
@@ -948,15 +915,13 @@ const s = StyleSheet.create({
   },
   progressLabel: {
     color: PRIMARY_COLOR,
-    fontFamily: FontFamily.extraBold,
-    fontSize: mediumScreen ? FontSize.ten : FontSize.eight,
+    ...fontSize.b5, lineHeight: fontSize.b5.fontSize + 1,
     textTransform: 'uppercase',
     letterSpacing: 1.2,
     flex: 1,
   },
   progressPercent: {
-    fontFamily: FontFamily.extraBold,
-    fontSize: mediumScreen ? FontSize.twelve : FontSize.ten,
+    ...fontSize.b4, lineHeight: fontSize.b4.fontSize + 1,
   },
   progressTrack: {
     height: 8,
@@ -982,8 +947,7 @@ const s = StyleSheet.create({
     justifyContent: 'center',
   },
   cancelBtnText: {
-    fontFamily: FontFamily.extraBold,
-    fontSize: mediumScreen ? FontSize.ten : FontSize.eight,
+    ...fontSize.b5, lineHeight: fontSize.b5.fontSize + 1,
     textTransform: 'uppercase',
     letterSpacing: 1.2,
   },
@@ -997,8 +961,7 @@ const s = StyleSheet.create({
   },
   withdrawBtnText: {
     color: '#fff',
-    fontFamily: FontFamily.extraBold,
-    fontSize: mediumScreen ? FontSize.ten : FontSize.eight,
+    ...fontSize.b5, lineHeight: fontSize.b5.fontSize + 1,
     textTransform: 'uppercase',
     letterSpacing: 1.2,
     textAlign: 'center',
@@ -1007,8 +970,7 @@ const s = StyleSheet.create({
     marginTop: 18,
     marginBottom: 12,
     textAlign: 'center',
-    fontFamily: FontFamily.extraBold,
-    fontSize: mediumScreen ? FontSize.eight : FontSize.seven,
+    ...fontSize.b5, lineHeight: fontSize.b5.fontSize + 1,
     textTransform: 'uppercase',
     letterSpacing: 1.1,
   },

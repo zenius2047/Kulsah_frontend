@@ -17,8 +17,8 @@ import {
 } from 'react-native';
 import { useNavigation, useRoute } from '@react-navigation/native';
 import { MaterialIcons } from '@expo/vector-icons';
-import { FontFamily, FontSize } from '../fonts';
 import { mediumScreen } from '../types';
+import { fontSize } from './typography';
 
 interface EventTicketTier {
   name: string;
@@ -476,7 +476,7 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     alignItems: 'center',
   },
-  headerTitle: { fontSize: mediumScreen ? FontSize.sixteen: FontSize.fourteen, fontFamily: FontFamily.extraBold },
+  headerTitle: { ...fontSize.b3, lineHeight: fontSize.b3.fontSize + 2 },
   addBtn: {
     width: 36,
     height: 36,
@@ -494,10 +494,10 @@ const styles = StyleSheet.create({
     padding: 14,
   },
   statPrimary: { borderColor: primaryColorAlpha(0.35), backgroundColor: primaryColorAlpha(0.12) },
-  statLabel: { fontSize: mediumScreen ?  FontSize.thirteen:FontSize.nine, letterSpacing: 1.1, fontFamily: FontFamily.extraBold },
-  statValue: { fontSize: mediumScreen ? FontSize.twentyFour: FontSize.twenty, fontFamily: FontFamily.extraBold, marginTop: 2 },
-  statSub: { color: '#22c55e', fontSize: mediumScreen ? FontSize.fourteen:FontSize.ten, marginTop: 2, fontFamily: FontFamily.bold },
-  sectionTitle: { fontSize: mediumScreen ? FontSize.thirteen:FontSize.nine, letterSpacing: 2, fontFamily: FontFamily.extraBold, marginTop: 6 },
+  statLabel: { ...fontSize.b4, lineHeight: fontSize.b4.fontSize + 1, letterSpacing: 1.1 },
+  statValue: { ...fontSize.b1, lineHeight: fontSize.b1.fontSize + 2, marginTop: 2 },
+  statSub: { color: '#22c55e', ...fontSize.b4, lineHeight: fontSize.b4.fontSize + 1, marginTop: 2 },
+  sectionTitle: { ...fontSize.b4, lineHeight: fontSize.b4.fontSize + 1, letterSpacing: 2, marginTop: 6 },
   eventCard: {
     borderRadius: 24,
     borderWidth: 1,
@@ -505,17 +505,17 @@ const styles = StyleSheet.create({
     gap: 10,
   },
   eventTop: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'flex-start' },
-  eventTitle: { fontSize: mediumScreen ? FontSize.eighteen: FontSize.fourteen, fontFamily: FontFamily.extraBold },
-  eventVenue: { fontSize: mediumScreen? FontSize.fourteen:FontSize.ten, marginTop: 2, fontFamily: FontFamily.bold },
+  eventTitle: { ...fontSize.b1, lineHeight: fontSize.b1.fontSize + 2 },
+  eventVenue: { ...fontSize.b4, lineHeight: fontSize.b4.fontSize + 1, marginTop: 2 },
   statusPill: { borderRadius: 999, borderWidth: 1, paddingHorizontal: 8, paddingVertical: 3 },
   statusLive: { borderColor: 'rgba(34,197,94,0.35)', backgroundColor: 'rgba(34,197,94,0.12)' },
   statusDraft: { borderColor: 'rgba(255,255,255,0.15)', backgroundColor: 'rgba(255,255,255,0.06)' },
-  statusText: { fontSize: mediumScreen ? FontSize.twelve: FontSize.eight, letterSpacing: 1, fontFamily: FontFamily.extraBold },
+  statusText: { ...fontSize.b4, lineHeight: fontSize.b4.fontSize + 1, letterSpacing: 1 },
   typePill: { alignSelf: 'flex-start', borderRadius: 8, paddingHorizontal: 8, paddingVertical: 4, backgroundColor: primaryColorAlpha(0.15) },
-  typeText: { color: PRIMARY_COLOR, fontSize: mediumScreen ? FontSize.twelve: FontSize.eight, letterSpacing: 1, fontFamily: FontFamily.extraBold },
+  typeText: { color: PRIMARY_COLOR, ...fontSize.b4, lineHeight: fontSize.b4.fontSize + 1, letterSpacing: 1 },
   occupancyRow: { flexDirection: 'row', justifyContent: 'space-between', marginBottom: 6 },
-  occupancyText: { fontSize: mediumScreen ? FontSize.thirteen: FontSize.nine, fontFamily: FontFamily.extraBold },
-  occupancyValue: { color: PRIMARY_COLOR, fontSize: mediumScreen ? FontSize.fourteen: FontSize.ten, fontFamily: FontFamily.extraBold },
+  occupancyText: { ...fontSize.b4, lineHeight: fontSize.b4.fontSize + 1 },
+  occupancyValue: { color: PRIMARY_COLOR, ...fontSize.b4, lineHeight: fontSize.b4.fontSize + 1 },
   progressTrack: { height: 7, borderRadius: 5, overflow: 'hidden' },
   progressFill: { height: '100%', backgroundColor: PRIMARY_COLOR },
   eventBottom: {
@@ -527,7 +527,7 @@ const styles = StyleSheet.create({
     alignItems: 'center',
   },
   revenueWrap: { flexDirection: 'row', alignItems: 'center', gap: 6 },
-  revenueText: { fontSize: mediumScreen ? FontSize.sixteen:FontSize.twelve, fontFamily: FontFamily.extraBold },
+  revenueText: { ...fontSize.b3, lineHeight: fontSize.b3.fontSize + 2 },
   eventActions: { flexDirection: 'row', alignItems: 'center', gap: 6 },
   scanBtn: {
     height: 28,
@@ -540,7 +540,7 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     gap: 4,
   },
-  scanText: { color: PRIMARY_COLOR, fontSize: FontSize.nine, fontFamily: FontFamily.extraBold },
+  scanText: { color: PRIMARY_COLOR, ...fontSize.b5, lineHeight: fontSize.b5.fontSize + 1 },
   menuBtn: { width: 28, height: 28, borderRadius: 14, justifyContent: 'center', alignItems: 'center' },
   archiveCard: {
     borderRadius: 16,
@@ -551,8 +551,8 @@ const styles = StyleSheet.create({
     alignItems: 'center',
   },
   archiveLeft: { flexDirection: 'row', alignItems: 'center', gap: 8 },
-  archiveText: { fontSize: mediumScreen ? FontSize.fourteen:FontSize.ten, fontFamily: FontFamily.bold },
-  archiveStatus: { fontSize: mediumScreen ? FontSize.thirteen:FontSize.nine, fontFamily: FontFamily.extraBold },
+  archiveText: { ...fontSize.b4, lineHeight: fontSize.b4.fontSize + 1 },
+  archiveStatus: { ...fontSize.b4, lineHeight: fontSize.b4.fontSize + 1 },
   modalRoot: { flex: 1, justifyContent: 'flex-end' },
   modalBackdrop: { ...StyleSheet.absoluteFillObject },
   modalCard: {
@@ -565,12 +565,12 @@ const styles = StyleSheet.create({
   },
   grabber: { alignSelf: 'center', width: 40, height: 5, borderRadius: 3, marginBottom: 10 },
   modalHeader: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', marginBottom: 8 },
-  modalTitle: { fontSize: mediumScreen ? FontSize.eighteen: FontSize.fourteen, fontFamily: FontFamily.extraBold },
-  inputLabel: { fontSize: mediumScreen ? FontSize.ten: FontSize.eight, letterSpacing: 1.4, fontFamily: FontFamily.extraBold },
+  modalTitle: { ...fontSize.b1, lineHeight: fontSize.b1.fontSize + 2 },
+  inputLabel: { ...fontSize.b5, lineHeight: fontSize.b5.fontSize + 1, letterSpacing: 1.4 },
   coverBox: { height: 160, borderRadius: 22, borderWidth: 1, overflow: 'hidden' },
   coverImg: { width: '100%', height: '100%' },
   coverPlaceholder: { flex: 1, justifyContent: 'center', alignItems: 'center', gap: 6 },
-  coverText: { fontSize: FontSize.ten, fontFamily: FontFamily.bold },
+  coverText: { ...fontSize.b5, lineHeight: fontSize.b5.fontSize + 1 },
   typeRow: { flexDirection: 'row', gap: 6 },
   typeBtn: {
     flex: 1,
@@ -581,19 +581,18 @@ const styles = StyleSheet.create({
     alignItems: 'center',
   },
   typeBtnActive: { backgroundColor: PRIMARY_COLOR, borderColor: PRIMARY_COLOR },
-  typeBtnText: { fontSize: mediumScreen ? FontSize.twelve:FontSize.eight, fontFamily: FontFamily.extraBold },
+  typeBtnText: { ...fontSize.b4, lineHeight: fontSize.b4.fontSize + 1 },
   typeBtnTextActive: { color: '#fff' },
   input: {
     height: 48,
     borderRadius: 14,
     borderWidth: 1,
     paddingHorizontal: 12,
-    fontSize: FontSize.ten,
-    fontFamily: FontFamily.bold,
+    ...fontSize.b5, lineHeight: fontSize.b5.fontSize + 1,
   },
   locationHeader: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between' },
   verifiedTag: { flexDirection: 'row', alignItems: 'center', gap: 4 },
-  verifiedText: { color: '#22c55e', fontSize: FontSize.eight, fontFamily: FontFamily.extraBold },
+  verifiedText: { color: '#22c55e', ...fontSize.b5, lineHeight: fontSize.b5.fontSize + 1 },
   locationRow: { flexDirection: 'row', gap: 6, alignItems: 'center' },
   mapBtn: {
     width: 48,
@@ -615,10 +614,10 @@ const styles = StyleSheet.create({
     gap: 6,
     alignSelf: 'flex-start',
   },
-  mapsLinkText: { color: PRIMARY_COLOR, fontSize: FontSize.ten, fontFamily: FontFamily.bold },
+  mapsLinkText: { color: PRIMARY_COLOR, ...fontSize.b5, lineHeight: fontSize.b5.fontSize + 1 },
   descInput: { minHeight: 100, textAlignVertical: 'top', paddingTop: 12 },
   tierHeader: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center' },
-  addTierText: { color: PRIMARY_COLOR, fontSize: FontSize.ten, fontFamily: FontFamily.extraBold },
+  addTierText: { color: PRIMARY_COLOR, ...fontSize.b5, lineHeight: fontSize.b5.fontSize + 1 },
   tierCard: {
     borderRadius: 18,
     borderWidth: 1,
@@ -631,7 +630,7 @@ const styles = StyleSheet.create({
     borderRadius: 10,
     borderWidth: 1,
     paddingHorizontal: 10,
-    fontSize: FontSize.twelve,
+    ...fontSize.b4, lineHeight: fontSize.b4.fontSize + 1,
   },
   tierRow: { flexDirection: 'row', gap: 6 },
   modalFooter: {
@@ -654,9 +653,9 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     alignItems: 'center',
   },
-  draftText: { fontSize: mediumScreen ? FontSize.twelve: FontSize.eight, letterSpacing: 1, fontFamily: FontFamily.extraBold },
+  draftText: { ...fontSize.b4, lineHeight: fontSize.b4.fontSize + 1, letterSpacing: 1 },
   launchBtn: { flex: 2, height: 50, borderRadius: 14, backgroundColor: PRIMARY_COLOR, justifyContent: 'center', alignItems: 'center' },
-  launchText: { color: '#fff', fontSize: mediumScreen ? FontSize.twelve: FontSize.eight, letterSpacing: 1.1, fontFamily: FontFamily.extraBold },
+  launchText: { color: '#fff', ...fontSize.b4, lineHeight: fontSize.b4.fontSize + 1, letterSpacing: 1.1 },
 });
 
 export default CreatorEvents;

@@ -3,10 +3,10 @@ import { useNavigation } from '@react-navigation/native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import React, { useState } from 'react';
 import { Pressable, ScrollView, Text, View } from 'react-native';
-import { FontSize } from '../fonts';
 import { setUser, User } from '../types';
 import { SignupVibesStep } from './Signup';
 import { PRIMARY_COLOR } from "../theme";
+import { fontSize } from './typography';
 
 const SignupVibes: React.FC = () => {
   const navigation = useNavigation<any>();
@@ -62,7 +62,7 @@ const SignupVibes: React.FC = () => {
         >
           <MaterialIcons name="chevron-left" color="white" size={24} />
         </Pressable>
-        <Text style={{ color: 'white', fontWeight: '900', fontSize: FontSize.twenty }}>KULSAH</Text>
+        <Text style={{ color: 'white', fontWeight: '900', ...fontSize.b1, lineHeight: fontSize.b1.fontSize + 2 }}>KULSAH</Text>
         <View style={{ width: 24 }} />
       </View>
 

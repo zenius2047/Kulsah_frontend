@@ -14,8 +14,8 @@ import { MaterialIcons } from '@expo/vector-icons';
 import { useNavigation, useRoute } from '@react-navigation/native';
 import { BlurView } from 'expo-blur';
 import { useThemeMode, PRIMARY_COLOR, primaryColorAlpha } from "./theme";
-import { FontFamily, FontSize } from './fonts';
 import { mediumScreen } from './types';
+import { fontSize } from './typography';
 
 const OTP_LENGTH = 4;
 const BRAND_GRADIENT = [PRIMARY_COLOR, PRIMARY_COLOR] as const;
@@ -283,8 +283,7 @@ const styles = StyleSheet.create({
   },
   brandText: {
     color: '#ffffff',
-    fontFamily: FontFamily.extraBold,
-    fontSize: mediumScreen ? FontSize.twenty : FontSize.seventeen,
+    ...fontSize.b1, lineHeight: fontSize.b1.fontSize + 2,
     letterSpacing: -0.8,
     paddingVertical: 2,
   },
@@ -320,21 +319,18 @@ const styles = StyleSheet.create({
     marginBottom: 36,
   },
   title: {
-    fontFamily: FontFamily.extraBold,
-    fontSize: mediumScreen ? FontSize.twentyEight : FontSize.twentyFour,
+    ...fontSize.b1, lineHeight: fontSize.b1.fontSize + 2,
     letterSpacing: -1,
     marginBottom: 10,
   },
   subtitle: {
-    fontFamily: FontFamily.medium,
-    fontSize: mediumScreen ? FontSize.thirteen : FontSize.eleven,
-    lineHeight: mediumScreen ? FontSize.twentyOne : FontSize.eighteen,
+    ...fontSize.b4,
+    lineHeight: fontSize.b1.fontSize + 2,
     textAlign: 'center',
     paddingHorizontal: 8,
   },
   highlightText: {
     color: PRIMARY_COLOR,
-    fontFamily: FontFamily.bold,
   },
   otpRow: {
     flexDirection: 'row',
@@ -356,12 +352,10 @@ const styles = StyleSheet.create({
     overflow: 'hidden',
   },
   otpDigit: {
-    fontFamily: FontFamily.extraBold,
-    fontSize: mediumScreen ? FontSize.twentyFour : FontSize.twentyOne,
+    ...fontSize.b1, lineHeight: fontSize.b1.fontSize + 2,
   },
   otpPlaceholder: {
-    fontFamily: FontFamily.bold,
-    fontSize: mediumScreen ? FontSize.twentyThree : FontSize.twenty,
+    ...fontSize.b1, lineHeight: fontSize.b1.fontSize + 2,
   },
   cursor: {
     width: 2,
@@ -378,13 +372,11 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
   },
   resendText: {
-    fontFamily: FontFamily.medium,
-    fontSize: mediumScreen ? FontSize.thirteen : FontSize.eleven,
+    ...fontSize.b4, lineHeight: fontSize.b4.fontSize + 1,
   },
   resendAction: {
     color: PRIMARY_COLOR,
-    fontFamily: FontFamily.extraBold,
-    fontSize: mediumScreen ? FontSize.thirteen : FontSize.eleven,
+    ...fontSize.b4, lineHeight: fontSize.b4.fontSize + 1,
   },
   primaryButton: {
     width: '100%',
@@ -408,8 +400,7 @@ const styles = StyleSheet.create({
   },
   primaryButtonText: {
     color: '#ffffff',
-    fontFamily: FontFamily.extraBold,
-    fontSize: mediumScreen ? FontSize.fifteen : FontSize.thirteen,
+    ...fontSize.b3, lineHeight: fontSize.b3.fontSize + 2,
   },
   keypadWrap: {
     borderTopWidth: 1,
@@ -437,8 +428,7 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
   },
   keyText: {
-    fontFamily: FontFamily.extraBold,
-    fontSize: mediumScreen ? FontSize.twentyFour : FontSize.twentyOne,
+    ...fontSize.b1, lineHeight: fontSize.b1.fontSize + 2,
   },
 });
 

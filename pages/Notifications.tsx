@@ -10,8 +10,8 @@ import {
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { MaterialIcons } from '@expo/vector-icons';
 import { useThemeMode, PRIMARY_COLOR, primaryColorAlpha } from "../theme";
-import { FontFamily, FontSize, fontScale } from '../fonts';
 import { mediumScreen } from '../types';
+import { fontSize } from './typography';
 
 const Notifications: React.FC = () => {
   const { isDark, theme } = useThemeMode();
@@ -162,8 +162,7 @@ const styles = StyleSheet.create({
   content: { paddingHorizontal: 16, paddingBottom: 28, paddingTop: 10 },
   section: { marginBottom: 24 },
   sectionTitle: {
-    fontFamily: FontFamily.extraBold,
-    fontSize: mediumScreen ? FontSize.twelve:FontSize.eight,
+    ...fontSize.b4, lineHeight: fontSize.b4.fontSize + 1,
     letterSpacing: 2,
     marginBottom: 14,
   },
@@ -180,8 +179,7 @@ const styles = StyleSheet.create({
   hotBadge: {
     backgroundColor: primaryColorAlpha(0.2),
     color: PRIMARY_COLOR,
-    fontFamily: FontFamily.extraBold,
-    fontSize: FontSize.six,
+    ...fontSize.b5, lineHeight: fontSize.b5.fontSize + 1,
     paddingHorizontal: 8,
     paddingVertical: 4,
     borderRadius: 999,
@@ -197,32 +195,27 @@ const styles = StyleSheet.create({
     marginTop: 2,
   },
   titleText: {
-    fontFamily: FontFamily.bold,
-    fontSize: FontSize.ten,
+    ...fontSize.b5, lineHeight: fontSize.b5.fontSize + 1,
     marginBottom: 6,
     paddingRight: 70,
   },
   titleSmall: {
-    fontFamily: FontFamily.bold,
-    fontSize: FontSize.ten,
+    ...fontSize.b5, lineHeight: fontSize.b5.fontSize + 1,
     marginBottom: 4,
   },
   accentText: { color: PRIMARY_COLOR },
   bodyText: {
-    fontFamily: FontFamily.medium,
-    fontSize: FontSize.nine,
-    lineHeight: FontSize.thirteen,
+    ...fontSize.b5,
+    lineHeight: fontSize.b3.fontSize + 2,
     marginBottom: 10,
   },
   inlineText: {
-    fontFamily: FontFamily.medium,
-    fontSize: FontSize.nine,
+    ...fontSize.b5, lineHeight: fontSize.b5.fontSize + 1,
     marginBottom: 4,
   },
-  strongText: { fontFamily: FontFamily.bold },
+  strongText: {  },
   timeText: {
-    fontFamily: FontFamily.medium,
-    fontSize: FontSize.seven,
+    ...fontSize.b5, lineHeight: fontSize.b5.fontSize + 1,
     textTransform: 'uppercase',
   },
   joinButton: {
@@ -239,8 +232,7 @@ const styles = StyleSheet.create({
   },
   joinButtonText: {
     color: '#ffffff',
-    fontFamily: FontFamily.extraBold,
-    fontSize: FontSize.seven,
+    ...fontSize.b5, lineHeight: fontSize.b5.fontSize + 1,
     textTransform: 'uppercase',
     letterSpacing: 1.3,
   },
@@ -274,16 +266,14 @@ const styles = StyleSheet.create({
     paddingVertical: 10,
   },
   quoteText: {
-    fontFamily: FontFamily.medium,
-    fontSize: FontSize.eightHalf,
+    ...fontSize.b5,
     fontStyle: 'italic',
-    lineHeight: FontSize.thirteen,
+    lineHeight: fontSize.b3.fontSize + 2,
   },
   replyText: {
     marginTop: 8,
     color: PRIMARY_COLOR,
-    fontFamily: FontFamily.bold,
-    fontSize: FontSize.seven,
+    ...fontSize.b5, lineHeight: fontSize.b5.fontSize + 1,
     textTransform: 'uppercase',
     letterSpacing: 1,
   },
@@ -295,8 +285,7 @@ const styles = StyleSheet.create({
   },
   followButtonText: {
     color: PRIMARY_COLOR,
-    fontFamily: FontFamily.bold,
-    fontSize: mediumScreen ? FontSize.sixHalf:FontSize.fourHalf,
+    ...fontSize.b5, lineHeight: fontSize.b5.fontSize + 1,
     textTransform: 'uppercase',
     letterSpacing: 1,
   },

@@ -13,7 +13,7 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 import { LinearGradient } from 'expo-linear-gradient';
 import { MaterialIcons } from '@expo/vector-icons';
 import { mediumScreen } from '../types';
-import { FontFamily, FontSize } from '../fonts';
+import { fontSize } from './typography';
 
 type CreatorCard = {
   id: string;
@@ -349,8 +349,7 @@ const styles = StyleSheet.create({
   },
   brandName: {
     color: '#fff',
-    fontFamily: FontFamily.extraBold,
-    fontSize: FontSize.eighteen,
+    ...fontSize.b1, lineHeight: fontSize.b1.fontSize + 2,
     textTransform: 'uppercase',
     letterSpacing: -0.6,
   },
@@ -378,8 +377,7 @@ const styles = StyleSheet.create({
   },
   sidebarTitle: {
     color: PRIMARY_COLOR,
-    fontFamily: FontFamily.extraBold,
-    fontSize: FontSize.twenty,
+    ...fontSize.b1, lineHeight: fontSize.b1.fontSize + 2,
     marginBottom: 24,
     paddingHorizontal: 12,
   },
@@ -399,12 +397,10 @@ const styles = StyleSheet.create({
   },
   sidebarText: {
     color: '#94A3B8',
-    fontFamily: FontFamily.medium,
-    fontSize: FontSize.fifteen,
+    ...fontSize.b4, lineHeight: fontSize.b4.fontSize + 1,
   },
   sidebarTextActive: {
     color: '#fff',
-    fontFamily: FontFamily.bold,
   },
   mainScroll: {
     flex: 1,
@@ -430,8 +426,7 @@ const styles = StyleSheet.create({
   },
   mobileTabText: {
     color: '#94A3B8',
-    fontFamily: FontFamily.bold,
-    fontSize: FontSize.twelve,
+    ...fontSize.b4, lineHeight: fontSize.b4.fontSize + 1,
     textTransform: 'uppercase',
     letterSpacing: 0.7,
   },
@@ -489,8 +484,7 @@ const styles = StyleSheet.create({
   },
   hotBadgeText: {
     color: PRIMARY_COLOR,
-    fontFamily: FontFamily.extraBold,
-    fontSize: mediumScreen ? FontSize.fourteen:FontSize.ten,
+    ...fontSize.b4, lineHeight: fontSize.b4.fontSize + 1,
     letterSpacing: 1.2,
   },
   verifiedWrap: {
@@ -500,20 +494,17 @@ const styles = StyleSheet.create({
   },
   verifiedText: {
     color: 'rgba(248,250,252,0.82)',
-    fontFamily: FontFamily.bold,
-    fontSize: mediumScreen ? FontSize.sixteen:FontSize.twelve,
+    ...fontSize.b3, lineHeight: fontSize.b3.fontSize + 2,
   },
   heroTitle: {
     color: '#fff',
-    fontFamily: FontFamily.extraBold,
-    fontSize: mediumScreen ? FontSize.sixteen: FontSize.thirteen,
+    ...fontSize.b3, lineHeight: fontSize.b3.fontSize + 2,
     // lineHeight: 34,
     marginBottom: 12,
   },
   heroDescription: {
     color: '#CBD5E1',
-    fontFamily: FontFamily.medium,
-    fontSize: mediumScreen? FontSize.fourteen: FontSize.twelve,
+    ...fontSize.b3, lineHeight: fontSize.b3.fontSize + 2,
     // lineHeight: 22,
     // maxWidth: '95%',
   },
@@ -527,23 +518,20 @@ const styles = StyleSheet.create({
   },
   prizeLabel: {
     color: '#94A3B8',
-    fontFamily: FontFamily.extraBold,
-    fontSize: mediumScreen ? FontSize.fourteen:FontSize.ten,
+    ...fontSize.b4, lineHeight: fontSize.b4.fontSize + 1,
     textTransform: 'uppercase',
     letterSpacing: 1.2,
     marginBottom: 6,
   },
   prizeValue: {
     color: '#fff',
-    fontFamily: FontFamily.extraBold,
-    fontSize: mediumScreen ? FontSize.twentySix:FontSize.twentyTwo,
+    ...fontSize.b1, lineHeight: fontSize.b1.fontSize + 2,
     marginBottom: 6,
     letterSpacing: -1
   },
   prizeTime: {
     color: PRIMARY_COLOR,
-    fontFamily: FontFamily.bold,
-    fontSize: FontSize.twelve,
+    ...fontSize.b4, lineHeight: fontSize.b4.fontSize + 1,
     textTransform: 'uppercase',
     marginBottom: 16,
     textAlign: 'center'
@@ -561,8 +549,7 @@ const styles = StyleSheet.create({
   },
   joinButtonText: {
     color: '#fff',
-    fontFamily: FontFamily.bold,
-    fontSize: FontSize.thirteen,
+    ...fontSize.b4, lineHeight: fontSize.b4.fontSize + 1,
     letterSpacing: 0.6,
   },
   sectionHeader: {
@@ -573,13 +560,11 @@ const styles = StyleSheet.create({
   },
   sectionTitle: {
     color: '#fff',
-    fontFamily: FontFamily.extraBold,
-    fontSize: mediumScreen ? FontSize.twentyOne: FontSize.eighteen,
+    ...fontSize.b1, lineHeight: fontSize.b1.fontSize + 2,
   },
   sectionLink: {
     color: PRIMARY_COLOR,
-    fontFamily: FontFamily.extraBold,
-    fontSize: mediumScreen ?FontSize.fourteen: FontSize.ten,
+    ...fontSize.b4, lineHeight: fontSize.b4.fontSize + 1,
     textTransform: 'uppercase',
     letterSpacing: 1.4,
   },
@@ -616,22 +601,19 @@ const styles = StyleSheet.create({
   },
   exclusiveLabel: {
     color: PRIMARY_COLOR,
-    fontFamily: FontFamily.extraBold,
-    fontSize: mediumScreen ? FontSize.fifteen:FontSize.eleven,
+    ...fontSize.b4, lineHeight: fontSize.b4.fontSize + 1,
     textTransform: 'uppercase',
     letterSpacing: 1.6,
     marginBottom: 8,
   },
   largeCardTitle: {
     color: '#fff',
-    fontFamily: FontFamily.extraBold,
-    fontSize: mediumScreen? FontSize.twentyOne:FontSize.eighteen,
+    ...fontSize.b1, lineHeight: fontSize.b1.fontSize + 2,
     marginBottom: 8,
   },
   largeCardDescription: {
     color: '#CBD5E1',
-    fontFamily: FontFamily.medium,
-    fontSize: mediumScreen ? FontSize.sixteen:FontSize.twelve,
+    ...fontSize.b3,
     lineHeight: 18,
     maxWidth: 360,
     marginBottom: 18,
@@ -661,13 +643,11 @@ const styles = StyleSheet.create({
   },
   stackAvatarCountText: {
     color: '#fff',
-    fontFamily: FontFamily.extraBold,
-    fontSize: FontSize.six,
+    ...fontSize.b5, lineHeight: fontSize.b5.fontSize + 1,
   },
   activeCreatorsText: {
     color: '#94A3B8',
-    fontFamily: FontFamily.extraBold,
-    fontSize: mediumScreen ? FontSize.fourteen:FontSize.ten,
+    ...fontSize.b4, lineHeight: fontSize.b4.fontSize + 1,
     textTransform: 'uppercase',
     letterSpacing: 1.4,
   },
@@ -697,15 +677,13 @@ const styles = StyleSheet.create({
   },
   progressCardTitle: {
     color: '#fff',
-    fontFamily: FontFamily.bold,
-    fontSize: mediumScreen ? FontSize.twentyOne: FontSize.eighteen,
+    ...fontSize.b1,
     lineHeight: 28,
     marginBottom: 10,
   },
   progressCardDescription: {
     color: '#94A3B8',
-    fontFamily: FontFamily.regular,
-    fontSize: FontSize.fourteen,
+    ...fontSize.b4,
     lineHeight: 21,
     marginBottom: 24,
   },
@@ -730,15 +708,13 @@ const styles = StyleSheet.create({
   },
   progressLabel: {
     color: '#64748B',
-    fontFamily: FontFamily.extraBold,
-    fontSize: FontSize.ten,
+    ...fontSize.b5, lineHeight: fontSize.b5.fontSize + 1,
     textTransform: 'uppercase',
     letterSpacing: 1.2,
   },
   progressValue: {
     color: '#fff',
-    fontFamily: FontFamily.extraBold,
-    fontSize: FontSize.twelve,
+    ...fontSize.b4, lineHeight: fontSize.b4.fontSize + 1,
   },
   creatorRail: {
     gap: 14,
@@ -767,16 +743,14 @@ const styles = StyleSheet.create({
   },
   creatorTitle: {
     color: '#fff',
-    fontFamily: FontFamily.extraBold,
-    fontSize: FontSize.ten,
+    ...fontSize.b5, lineHeight: fontSize.b5.fontSize + 1,
     textTransform: 'uppercase',
     letterSpacing: 0.6,
     marginBottom: 4,
   },
   creatorHandle: {
     color: '#CBD5E1',
-    fontFamily: FontFamily.bold,
-    fontSize: FontSize.twelve,
+    ...fontSize.b4, lineHeight: fontSize.b4.fontSize + 1,
   },
   submitCard: {
     width: 160,
@@ -791,8 +765,7 @@ const styles = StyleSheet.create({
   submitCardText: {
     marginTop: 10,
     color: '#64748B',
-    fontFamily: FontFamily.extraBold,
-    fontSize: FontSize.eleven,
+    ...fontSize.b5,
     textTransform: 'uppercase',
     letterSpacing: 1.2,
     textAlign: 'center',
