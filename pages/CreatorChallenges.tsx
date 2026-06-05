@@ -367,12 +367,12 @@ const CreatorChallenges: React.FC = () => {
                       <Text style={[styles.smallText, { color: muted, ...fontSize.b5, lineHeight: fontSize.b5.fontSize + 1 }]}>Last edited 2d ago</Text>
                     </View>
                   </View>
-                  <Pressable onPress={() => go('CreateChallenge')} style={[styles.resumeBtn, { backgroundColor: surface, borderColor: border }]}>
+                  <Pressable onPress={() => go('ChallengeDrafts', { draft })} style={[styles.resumeBtn, { backgroundColor: surface, borderColor: border }]}>
                     <Text style={[styles.resumeBtnText, { color: titleTone, ...fontSize.b5 }]}>Resume</Text>
                   </Pressable>
                 </View>
               ))}
-              <Pressable onPress={() => go('CreateChallenge')} style={[styles.dashedBtn, { borderColor: primaryColorAlpha(0.3) }]}>
+              <Pressable onPress={() => go('ChallengeDrafts')} style={[styles.dashedBtn, { borderColor: primaryColorAlpha(0.3) }]}>
                 <Text style={[styles.dashedBtnText, {...fontSize.b4}]}>View All Drafts</Text>
               </Pressable>
             </View>

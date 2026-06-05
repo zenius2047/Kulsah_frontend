@@ -78,6 +78,7 @@ import Arena from './pages/Arena';
 import CreateEvent from './pages/CreateEvent';
 import CreatorLiveStream from './pages/CreatorLiveStream';
 import CreateChallenge from './pages/CreateChallenge';
+import ChallengeDrafts from './pages/ChallengeDrafts';
 import RevenueSplit from './pages/RevenueSplit';
 import NoReward from './pages/NoReward';
 import RewardConfig from './pages/RewardConfig';
@@ -584,6 +585,7 @@ const App: React.FC = () => {
                   <Stack.Screen name="CreateContent" component={CreateEvent}/>
                   <Stack.Screen name="CreatorLiveStream" component={CreatorLiveStream}/>
                   <Stack.Screen name="CreateChallenge" component={CreateChallenge}/>
+                  <Stack.Screen name="ChallengeDrafts" component={ChallengeDrafts}/>
                   <Stack.Screen name="RevenueSplit" component={RevenueSplit}/>
                   <Stack.Screen name="NoReward" component={NoReward}/>
                   <Stack.Screen name="RewardConfig" component={RewardConfig}/>

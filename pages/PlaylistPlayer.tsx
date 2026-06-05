@@ -229,7 +229,7 @@ const PlaylistPlayer: React.FC = () => {
             <VideoView player={player} nativeControls style={styles.video} contentFit="contain" />
           ) : (
             <LinearGradient colors={['#020617', '#111827']} style={styles.lockedStage}>
-              <View style={styles.lockIcon}><MaterialIcons name="stars" size={34} color="#f59e0b" /></View>
+              <View style={styles.lockIcon}><MaterialIcons name="stars" size={34} color={PRIMARY_COLOR} /></View>
               <Text style={styles.lockTitle}>Galaxy Member Exclusive</Text>
               <Text style={styles.lockCopy}>Join Elena Rose's Galaxy tier to unlock this playlist and studio masters.</Text>
               <Pressable onPress={() => navigation.navigate('ArtistProfile', { id: 'Elena Rose', isOwner: false })} style={styles.joinButton}><Text style={styles.joinText}>Join Galaxy Tier</Text></Pressable>
@@ -289,7 +289,7 @@ const PlaylistPlayer: React.FC = () => {
                   <View style={styles.trackIndex}>{isActive ? <MaterialIcons name="volume-up" size={19} color={PRIMARY_COLOR} /> : <Text style={[styles.indexText, { color: muted }]}>{String(index + 1).padStart(2, '0')}</Text>}</View>
                   <View style={styles.thumbWrap}>
                     <Image source={{ uri: track.img }} style={styles.thumb} />
-                    {!isSubscribed ? <View style={styles.thumbLock}><MaterialIcons name="lock" size={13} color="#f59e0b" /></View> : null}
+                    {!isSubscribed ? <View style={styles.thumbLock}><MaterialIcons name="lock" size={13} color={PRIMARY_COLOR} /></View> : null}
                   </View>
                   <View style={{ flex: 1 }}>
                     <Text numberOfLines={1} style={[styles.trackTitle, { color: isActive ? PRIMARY_COLOR : theme.text }]}>{track.title}</Text>
@@ -342,7 +342,7 @@ const styles = StyleSheet.create({
   header: { position: 'absolute', top: 0, left: 0, right: 0, zIndex: 30, paddingHorizontal: 16, paddingBottom: 10, borderBottomWidth: 1, flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between' },
   iconButton: { width: 42, height: 42, borderRadius: 21, alignItems: 'center', justifyContent: 'center', borderWidth: 1 },
   headerCenter: { flex: 1, minWidth: 0, paddingHorizontal: 14, alignItems: 'center' },
-  headerEyebrow: { color: '#f59e0b', ...fontSize.b5, lineHeight: fontSize.b5.fontSize + 1, textTransform: 'uppercase', letterSpacing: 2 },
+  headerEyebrow: { color: PRIMARY_COLOR, ...fontSize.b5, lineHeight: fontSize.b5.fontSize + 1, textTransform: 'uppercase', letterSpacing: 2 },
   headerTitle: { ...fontSize.b4, lineHeight: fontSize.b4.fontSize + 1, textTransform: 'uppercase' },
   videoStage: { width: '100%', aspectRatio: 16 / 9, backgroundColor: '#000', borderBottomWidth: 1, borderBottomColor: 'rgba(255,255,255,0.06)' },
   video: { width: '100%', height: '100%' },
@@ -350,7 +350,7 @@ const styles = StyleSheet.create({
   lockIcon: { width: 58, height: 58, borderRadius: 29, backgroundColor: 'rgba(245,158,11,0.1)', borderWidth: 1, borderColor: 'rgba(245,158,11,0.24)', alignItems: 'center', justifyContent: 'center' },
   lockTitle: { color: '#fff', ...fontSize.b2, lineHeight: fontSize.b2.fontSize + 2, textTransform: 'uppercase', textAlign: 'center' },
   lockCopy: { color: '#a1a1aa', ...fontSize.b5, lineHeight: 18, textAlign: 'center', maxWidth: 300 },
-  joinButton: { marginTop: 4, backgroundColor: '#cca514', borderRadius: 18, paddingHorizontal: 18, paddingVertical: 10 },
+  joinButton: { marginTop: 4, backgroundColor: PRIMARY_COLOR, borderRadius: 18, paddingHorizontal: 18, paddingVertical: 10 },
   joinText: { color: '#000', ...fontSize.b5, lineHeight: fontSize.b5.fontSize + 1, textTransform: 'uppercase', letterSpacing: 1.2 },
   content: { padding: 16, gap: 18 },
   titleBlock: { gap: 8 },

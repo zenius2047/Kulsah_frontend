@@ -117,13 +117,21 @@ const ChallengeParticipants: React.FC = () => {
   const { width } = useWindowDimensions();
   const [query, setQuery] = useState('');
   const [activeFilter, setActiveFilter] = useState<FilterKey>('Trending');
-
   const numColumns = width >= 900 ? 5 : width >= 600 ? 4 : 3;
-  const cardGap = 10;
-  const horizontalPadding = 12;
+  const cardGap = 1;
+  const horizontalPadding = 0;
   const totalGapWidth = cardGap * (numColumns - 1);
   const itemWidth = Math.floor((width - horizontalPadding * 2 - totalGapWidth) / numColumns);
   const itemHeight = Math.floor(itemWidth * 1.34);
+  const gradientColors = isDark
+    ? (['#0f0712', '#0a0a0a', '#060507'] as const)
+    : (['#f8fafc', '#ffffff', '#eef6ff'] as const);
+  const headerBackground = isDark ? 'rgba(10,10,10,0.94)' : 'rgba(255,255,255,0.96)';
+  const inputBackground = isDark ? '#121212' : theme.surface;
+  const chipIdleBackground = isDark ? '#121212' : theme.card;
+  const cardBackground = isDark ? 'rgba(255,255,255,0.03)' : '#ffffff';
+  const cardBorder = isDark ? 'rgba(255,255,255,0.08)' : theme.border;
+  const mutedText = isDark ? '#9ca3af' : theme.textSecondary;
 
   const filteredParticipants = useMemo(() => {
     const normalized = query.trim().toLowerCase();
@@ -146,32 +154,32 @@ const ChallengeParticipants: React.FC = () => {
       <StatusBar barStyle={isDark ? 'light-content' : 'dark-content'} backgroundColor="transparent" translucent />
       <View style={[styles.screen, { backgroundColor: theme.screen }]}>
         <LinearGradient
-          colors={['#0f0712', '#0a0a0a', '#060507']}
+          colors={gradientColors}
           locations={[0, 0.45, 1]}
           style={StyleSheet.absoluteFill}
         />
 
-        <View style={styles.header}>
+        <View style={[styles.header, { backgroundColor: headerBackground, borderBottomColor: theme.border }]}>
           <View style={styles.headerTop}>
             <Pressable
               accessibilityLabel="Back"
-              style={styles.headerButton}
+              style={[styles.headerButton, { backgroundColor: theme.surface, borderColor: theme.border }]}
               onPress={() => navigation.goBack()}
             >
-              <MaterialIcons name="chevron-left" size={20} color="#ffffff" />
+              <MaterialIcons name="chevron-left" size={20} color={theme.text} />
             </Pressable>
-            <Text style={styles.headerTitle}>Challenge Participants</Text>
+            <Text style={[styles.headerTitle, { color: theme.text }]}>Challenge Participants</Text>
             <View style={styles.headerSpacer} />
           </View>
 
           <View style={styles.searchWrap}>
-            <MaterialIcons name="search" size={18} color="#9ca3af" style={styles.searchIcon} />
+            <MaterialIcons name="search" size={18} color={mutedText} style={styles.searchIcon} />
             <TextInput
               value={query}
               onChangeText={setQuery}
               placeholder="Search for participants..."
-              placeholderTextColor="#6b7280"
-              style={styles.searchInput}
+              placeholderTextColor={theme.textMuted}
+              style={[styles.searchInput, { backgroundColor: inputBackground, color: theme.text, borderColor: theme.border }]}
             />
           </View>
 
@@ -186,10 +194,15 @@ const ChallengeParticipants: React.FC = () => {
               return (
                 <Pressable
                   key={filter}
-                  style={[styles.filterChip, active ? styles.filterChipActive : styles.filterChipIdle]}
+                  style={[
+                    styles.filterChip,
+                    active
+                      ? styles.filterChipActive
+                      : [styles.filterChipIdle, { backgroundColor: chipIdleBackground, borderColor: theme.border }],
+                  ]}
                   onPress={() => setActiveFilter(filter)}
                 >
-                  <Text style={[styles.filterText, active ? styles.filterTextActive : styles.filterTextIdle]}>
+                  <Text style={[styles.filterText, active ? styles.filterTextActive : { color: mutedText }]}>
                     {filter}
                   </Text>
                 </Pressable>
@@ -211,7 +224,7 @@ const ChallengeParticipants: React.FC = () => {
                   navigation.navigate("ChallengeFeed")
                 )}
                 key={participant.id}
-                style={[styles.card, { width: itemWidth, height: itemHeight }]}
+                style={[styles.card, { width: itemWidth, height: itemHeight, backgroundColor: cardBackground, borderColor: cardBorder }]}
               >
                 <Image source={{ uri: participant.image }} style={styles.cardImage} />
                 <LinearGradient
@@ -243,8 +256,8 @@ const ChallengeParticipants: React.FC = () => {
           {filteredParticipants.length === 0 ? (
             <View style={styles.emptyState}>
               <MaterialIcons name="person-search" size={34} color={PRIMARY_COLOR} />
-              <Text style={styles.emptyTitle}>No participants found</Text>
-              <Text style={styles.emptyText}>Try another search or switch filters.</Text>
+              <Text style={[styles.emptyTitle, { color: theme.text }]}>No participants found</Text>
+              <Text style={[styles.emptyText, { color: theme.textSecondary }]}>Try another search or switch filters.</Text>
             </View>
           ) : null}
         </ScrollView>
@@ -282,6 +295,7 @@ const styles = StyleSheet.create({
     borderRadius: 20,
     alignItems: 'center',
     justifyContent: 'center',
+    borderWidth: 1,
   },
   headerSpacer: {
     width: 40,
@@ -306,7 +320,8 @@ const styles = StyleSheet.create({
     height: 52,
     paddingLeft: 42,
     paddingRight: 14,
-    borderRadius: 18,
+    borderRadius: 999,
+    borderWidth: 1,
     color: '#ffffff',
     backgroundColor: '#121212',
     ...fontSize.b4, lineHeight: fontSize.b4.fontSize + 1,
@@ -341,18 +356,19 @@ const styles = StyleSheet.create({
     flex: 1,
   },
   bodyContent: {
-    paddingHorizontal: 12,
+    // paddingHorizontal: 12,
     paddingTop: 16,
     paddingBottom: 24,
   },
   grid: {
     flexDirection: 'row',
     flexWrap: 'wrap',
+    // backgroundColor: 'red'
   },
   card: {
     position: 'relative',
     overflow: 'hidden',
-    borderRadius: 16,
+    borderRadius: 0,
     backgroundColor: 'rgba(255,255,255,0.03)',
     borderWidth: 1,
     borderColor: 'rgba(255,255,255,0.08)',

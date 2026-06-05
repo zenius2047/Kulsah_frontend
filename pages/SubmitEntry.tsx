@@ -25,6 +25,7 @@ const SubmitEntry: React.FC = () => {
   const { isDark, theme } = useThemeMode();
   const navigation = useNavigation<any>();
   const [hashtags, setHashtags] = useState(['#neonvibes', '#digitalart']);
+  const [hashtagInput, setHashtagInput] = useState('');
   const [subscribersOnly, setSubscribersOnly] = useState(true);
   const [allowDuets, setAllowDuets] = useState(true);
   const [allowComments, setAllowComments] = useState(false);
@@ -39,9 +40,22 @@ const SubmitEntry: React.FC = () => {
   };
 
   const addHashtag = (tag: string) => {
-    if (!hashtags.includes(tag)) {
-      setHashtags((current) => [...current, tag]);
+    const normalizedTag = tag.trim().replace(/\s+/g, '').replace(/^#+/, '');
+
+    if (!normalizedTag) {
+      return;
     }
+
+    const formattedTag = `#${normalizedTag}`;
+
+    if (!hashtags.includes(formattedTag)) {
+      setHashtags((current) => [...current, formattedTag]);
+    }
+  };
+
+  const submitTypedHashtag = () => {
+    addHashtag(hashtagInput);
+    setHashtagInput('');
   };
 
   return (
@@ -133,10 +147,31 @@ const SubmitEntry: React.FC = () => {
                 </View>
               ))}
 
-              <Pressable style={[styles.addTagButton, { backgroundColor: subtleSurface }]} onPress={() => addHashtag('#newtag')}>
-                <MaterialIcons name="add" size={16} color={theme.textSecondary} />
-                <Text style={[styles.addTagText, { color: theme.textSecondary }]}>Add Hashtag</Text>
-              </Pressable>
+              <View style={[styles.addTagInputWrap, { backgroundColor: subtleSurface, borderColor: theme.border }]}>
+                <TextInput
+                  value={hashtagInput}
+                  onChangeText={setHashtagInput}
+                  onSubmitEditing={submitTypedHashtag}
+                  placeholder="#addhashtag"
+                  placeholderTextColor={softText}
+                  returnKeyType="done"
+                  autoCapitalize="none"
+                  autoCorrect={false}
+                  style={[styles.addTagInput, { color: theme.text }]}
+                />
+                <Pressable
+                  onPress={submitTypedHashtag}
+                  disabled={!hashtagInput.trim()}
+                  style={({ pressed }) => [
+                    styles.addTagIconButton,
+                    {
+                      opacity: !hashtagInput.trim() ? 0.45 : pressed ? 0.75 : 1,
+                    },
+                  ]}
+                >
+                  <MaterialIcons name="add" size={18} color={theme.textSecondary} />
+                </Pressable>
+              </View>
             </View>
 
             <View style={[styles.suggestedRow, { borderTopColor: theme.border }]}>
@@ -413,18 +448,28 @@ const styles = StyleSheet.create({
     color: PRIMARY_COLOR,
     ...fontSize.b4, lineHeight: fontSize.b4.fontSize + 1,
   },
-  addTagButton: {
+  addTagInputWrap: {
     flexDirection: 'row',
     alignItems: 'center',
-    gap: 6,
-    paddingHorizontal: 12,
-    paddingVertical: 8,
+    minHeight: 38,
+    minWidth: 150,
+    flexGrow: 1,
     borderRadius: 999,
+    borderWidth: 1,
+    overflow: 'hidden',
   },
-  addTagText: {
-    ...fontSize.b5, lineHeight: fontSize.b5.fontSize + 1,
-    textTransform: 'uppercase',
-    letterSpacing: 0.8,
+  addTagInput: {
+    flex: 1,
+    minWidth: 0,
+    paddingLeft: 12,
+    paddingVertical: 8,
+    ...fontSize.b4, lineHeight: fontSize.b4.fontSize + 1,
+  },
+  addTagIconButton: {
+    width: 38,
+    height: 38,
+    alignItems: 'center',
+    justifyContent: 'center',
   },
   suggestedRow: {
     flexDirection: 'row',

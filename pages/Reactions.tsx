@@ -9,6 +9,7 @@ import { mediumScreen } from '../types';
 import EmojiStickerPicker from '../components/EmojiStickerPicker';
 import GiftDialog, { GiftSelection } from '../components/GiftDialog';
 import KulsahInputBar from '../components/KulsahInputBar';
+import KulcoinTopUpDrawer from '../components/KulcoinTopUpDrawer';
 import EmptyStateComment from '../assets/icons/Comment VECTOR.svg';
 import { fontSize } from './typography';
 
@@ -87,6 +88,7 @@ const Reactions: React.FC<ReactionsProps> = ({
   const [pickerOpen, setIsPickerOpen] = useState(false);
   const [pickerTab, setPickerTab] = useState<PickerTab>('emoji');
   const [giftDialogOpen, setGiftDialogOpen] = useState(false);
+  const [topUpOpen, setTopUpOpen] = useState(false);
   const [localCoinBalance, setLocalCoinBalance] = useState(1250);
 
   const shellBackground = isDark ? 'rgba(10,5,13,0.92)' : 'rgba(255,255,255,0.96)';
@@ -410,6 +412,20 @@ const Reactions: React.FC<ReactionsProps> = ({
           setGiftDialogOpen(false);
         }}
         onTopUpSuccess={handleTopUpSuccess}
+        onRecharge={() => {
+          setGiftDialogOpen(false);
+          setTopUpOpen(true);
+        }}
+      />
+      <KulcoinTopUpDrawer
+        currentBalance={coinBalance}
+        isOpen={topUpOpen}
+        onClose={() => setTopUpOpen(false)}
+        onSuccess={(amount) => {
+          handleTopUpSuccess(amount);
+          setTopUpOpen(false);
+        }}
+        warningText="Insufficient Balance to Send Gift"
       />
     </View>
   );

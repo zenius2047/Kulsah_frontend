@@ -1,47 +1,109 @@
-import React, { useEffect, useMemo, useState } from 'react';
+import React, { useCallback, useEffect, useMemo, useState } from 'react';
 import { useThemeMode, PRIMARY_COLOR, primaryColorAlpha } from "../theme";
 import AsyncStorage from '@react-native-async-storage/async-storage';
-import { Image, Modal, Pressable, ScrollView, StyleSheet, Text, View } from 'react-native';
+import { Image, Modal, Pressable, ScrollView, Share, StyleSheet, Text, useWindowDimensions, View } from 'react-native';
 import { SafeAreaView, useSafeAreaInsets } from 'react-native-safe-area-context';
 import { MaterialIcons } from '@expo/vector-icons';
 import { LinearGradient } from 'expo-linear-gradient';
 import { useNavigation, useRoute } from '@react-navigation/native';
+import { useEvent } from 'expo';
 import { useVideoPlayer, VideoView } from 'expo-video';
 import KulsahInputBar from '../components/KulsahInputBar';
 import { fontSize } from './typography';
 
 const SPEEDS = [0.5, 1, 1.5, 2] as const;
 
-type VideoItem = { id: string; title: string; artist: string; handle: string; views: string; duration: string; img: string; url: string; date: string; description: string };
+type VideoItem = {
+  id: string;
+  title: string;
+  artist: string;
+  handle: string;
+  views: string;
+  duration: string;
+  img: string;
+  url: string;
+  date: string;
+  description: string;
+  avatar?: string;
+  likes?: string;
+  comments?: string;
+};
 type CommentItem = { id: string; user: string; avatar: string; text: string; time: string };
-
-const videos: Record<string, VideoItem> = {
-  v1: { id: 'v1', title: 'Digital Dreams Rehearsal', artist: 'Elena Rose', handle: '@elena_rose', views: '1.2M', duration: '6:24', img: 'https://images.unsplash.com/photo-1493225457124-a3eb161ffa5f?auto=format&fit=crop&q=80&w=900', url: 'https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/ElephantsDream.mp4', date: 'Aug 24, 2024', description: 'A polished rehearsal cut with cinematic transitions and replay-friendly pacing.' },
-  v2: { id: 'v2', title: 'Moonlight Symphony', artist: 'Elena Rose', handle: '@elena_rose', views: '450K', duration: '4:20', img: 'https://images.unsplash.com/photo-1493225255756-d9584f8606e9?auto=format&fit=crop&q=80&w=900', url: 'https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/BigBuckBunny.mp4', date: 'Aug 18, 2024', description: 'A softer performance pass with layered vocals and slow-build atmosphere.' },
-  v3: { id: 'v3', title: 'Lagos Energy Live', artist: 'Zion King', handle: '@zion_afro', views: '890K', duration: '12:15', img: 'https://images.unsplash.com/photo-1514525253361-bee8718a74a2?auto=format&fit=crop&q=80&w=900', url: 'https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/Sintel.mp4', date: 'Aug 12, 2024', description: 'A high-energy crowd capture driven by percussion, chants, and arena pacing.' },
-  v4: { id: 'v4', title: 'Synth Soul Sessions', artist: 'Luna Ray', handle: '@luna_ray', views: '120K', duration: '8:45', img: 'https://images.unsplash.com/photo-1520529277867-dbf8c5e0b340?auto=format&fit=crop&q=80&w=900', url: 'https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/TearsOfSteel.mp4', date: 'Aug 06, 2024', description: 'A polished studio-room set with neon grading and soulful synths.' },
+type FeedRouteItem = {
+  id?: string;
+  artist?: string;
+  handle?: string;
+  avatar?: string;
+  caption?: string;
+  background?: string;
+  video?: string;
+  likes?: string;
+  comments?: string;
 };
 
-const related = [videos.v2, videos.v3, videos.v4];
+const videos: Record<string, VideoItem> = {
+  v1: { id: 'v1', title: 'Private Drop: Neon Session', artist: 'Elena Rose', handle: '@elena_rose', views: '2.4M', duration: '0:15', img: 'https://images.unsplash.com/photo-1598488035139-bdbb2231ce04?auto=format&fit=crop&q=80&w=900', url: 'https://res.cloudinary.com/dh0dywpzm/video/upload/v1779790256/K53234_snaapi.mp4', date: 'From Feed', description: "PRIVATE DROP: Working on 'Nebula' vocal layers. This is the raw studio session for my supporters only. #BTS #KulsahExclusive" },
+  v2: { id: 'v2', title: 'Kulsah Studio Cut', artist: 'Elena Rose', handle: '@elena_rose', views: '2.4M', duration: '0:15', img: 'https://images.unsplash.com/photo-1511671782779-c97d3d27a1d4?auto=format&fit=crop&q=80&w=900', url: 'https://res.cloudinary.com/dh0dywpzm/video/upload/v1779790223/K12242_wmlewi.mp4', date: 'From Feed', description: "A feed video from Elena Rose's private studio run." },
+  v3: { id: 'v3', title: 'Kulsah Live Energy', artist: 'Zion King', handle: '@zion_afro', views: '2.4M', duration: '0:15', img: 'https://images.unsplash.com/photo-1514525253361-bee8718a74a2?auto=format&fit=crop&q=80&w=900', url: 'https://res.cloudinary.com/dh0dywpzm/video/upload/v1779790193/K0526_ocu8xt.mp4', date: 'From Feed', description: 'A high-energy feed clip with crowd-ready pacing.' },
+  v4: { id: 'v4', title: 'Dance Challenge Feed Cut', artist: 'Luna Ray', handle: '@luna_ray', views: '890K', duration: '0:15', img: 'https://images.unsplash.com/photo-1516450360452-9312f5e86fc7?auto=format&fit=crop&q=80&w=900', url: 'https://res.cloudinary.com/dh0dywpzm/video/upload/v1779795517/dance_cha_001_p1flkl.mp4', date: 'From Feed', description: 'A dance challenge clip pulled from the feed video source list.' },
+};
+
 const seedComments: CommentItem[] = [
   { id: '1', user: 'GalaxyFan_1', avatar: 'https://picsum.photos/seed/fan1/120', text: 'This visual is absolute fire.', time: '2h' },
   { id: '2', user: 'GalaxyFan_2', avatar: 'https://picsum.photos/seed/fan2/120', text: 'The bridge replay moment is strong.', time: '1h' },
 ];
+
+const getTitleFromCaption = (caption?: string) => {
+  const trimmed = caption?.trim();
+  if (!trimmed) return 'Kulsah Video';
+  const withoutTags = trimmed.replace(/\s+#\S+/g, '').trim();
+  return (withoutTags || trimmed).slice(0, 72);
+};
+
+const normalizeFeedVideo = (item?: FeedRouteItem | null): VideoItem | null => {
+  if (!item?.video) return null;
+
+  return {
+    id: item.id ?? item.video,
+    title: getTitleFromCaption(item.caption),
+    artist: item.artist ?? 'Kulsah Creator',
+    handle: item.handle ?? '@kulsah',
+    views: item.likes ? `${item.likes} likes` : 'Now playing',
+    duration: '',
+    img: item.background ?? item.avatar ?? 'https://picsum.photos/seed/kulsah-video/900',
+    url: item.video,
+    date: 'From Feed',
+    description: item.caption ?? 'Opened from your feed.',
+    avatar: item.avatar,
+    likes: item.likes,
+    comments: item.comments,
+  };
+};
 
 const VideoPlayer: React.FC = () => {
   const { isDark, theme } = useThemeMode();
   const navigation = useNavigation<any>();
   const route = useRoute<any>();
   const insets = useSafeAreaInsets();
-  const [activeId, setActiveId] = useState(route.params?.id ?? 'v1');
+  const { width: windowWidth } = useWindowDimensions();
+  const routeFeedVideo = useMemo(() => normalizeFeedVideo(route.params?.item), [route.params?.item]);
+  const allVideos = useMemo(() => {
+    const catalog = Object.values(videos);
+    if (!routeFeedVideo) return catalog;
+    return [routeFeedVideo, ...catalog.filter((item) => item.id !== routeFeedVideo.id)];
+  }, [routeFeedVideo]);
+  const [activeId, setActiveId] = useState(routeFeedVideo?.id ?? route.params?.id ?? 'v1');
   const [role, setRole] = useState<'fan' | 'creator'>('fan');
   const [studioMode, setStudioMode] = useState(false);
-  const [muted, setMuted] = useState(true);
+  const [muted, setMuted] = useState(false);
   const [playing, setPlaying] = useState(false);
   const [speed, setSpeed] = useState<(typeof SPEEDS)[number]>(1);
   const [current, setCurrent] = useState(0);
   const [duration, setDuration] = useState(0);
+  const [progressWidth, setProgressWidth] = useState(0);
+  const [videoDimensions, setVideoDimensions] = useState({ width: 0, height: 0 });
   const [liked, setLiked] = useState(false);
+  const [followed, setFollowed] = useState(false);
   const [showControls, setShowControls] = useState(true);
   const [protocol, setProtocol] = useState<'public' | 'premium'>('public');
   const [audit, setAudit] = useState<string | null>(null);
@@ -53,9 +115,16 @@ const VideoPlayer: React.FC = () => {
   const [queueOpen, setQueueOpen] = useState(false);
   const [toast, setToast] = useState<string | null>(null);
 
-  const video = videos[activeId] ?? videos.v1;
+  const video = allVideos.find((item) => item.id === activeId) ?? allVideos[0] ?? videos.v1;
+  const activeIndex = allVideos.findIndex((item) => item.id === video.id);
+  const related = allVideos.filter((item) => item.id !== video.id).slice(0, 3);
   const heatmap = useMemo(() => Array.from({ length: 24 }, (_, i) => 25 + ((i * 13) % 52)), []);
-  const player = useVideoPlayer(video.url, (instance) => { instance.loop = false; instance.muted = true; });
+  const player = useVideoPlayer(video.url, (instance) => {
+    instance.loop = false;
+    instance.muted = false;
+    instance.timeUpdateEventInterval = 0.25;
+  });
+  const loadedMetadata = useEvent(player, 'sourceLoad');
   const accent = PRIMARY_COLOR;
   const border = isDark ? 'rgba(255,255,255,0.08)' : theme.border;
   const card = isDark ? 'rgba(255,255,255,0.05)' : '#ffffff';
@@ -63,6 +132,17 @@ const VideoPlayer: React.FC = () => {
   const subtle = isDark ? '#94a3b8' : theme.textSecondary;
   const faint = isDark ? 'rgba(255,255,255,0.45)' : theme.textMuted;
   const progress = duration > 0 ? Math.min(1, current / duration) : 0;
+  const isPortraitVideo = videoDimensions.height > videoDimensions.width && videoDimensions.width > 0;
+  const videoPlayerHeight = isPortraitVideo
+    ? (windowWidth - 24) * (videoDimensions.height / videoDimensions.width)
+    : 250;
+
+  useEffect(() => {
+    const nextId = routeFeedVideo?.id ?? route.params?.id;
+    if (nextId) {
+      setActiveId(nextId);
+    }
+  }, [route.params?.id, routeFeedVideo?.id]);
 
   useEffect(() => {
     AsyncStorage.getItem('pulsar_user').then((saved) => {
@@ -78,11 +158,35 @@ const VideoPlayer: React.FC = () => {
 
   useEffect(() => {
     player.playbackRate = speed;
+  }, [player, speed]);
+
+  useEffect(() => {
     player.muted = muted;
+  }, [player, muted]);
+
+  useEffect(() => {
+    setCurrent(0);
+    setDuration(0);
+    setVideoDimensions({ width: 0, height: 0 });
+    player.muted = muted;
+    player.playbackRate = speed;
     player.play();
     setPlaying(true);
-    setCurrent(0);
-  }, [player, speed, muted, activeId]);
+  }, [activeId, player]);
+
+  useEffect(() => {
+    const loadedTrack = loadedMetadata?.availableVideoTracks?.[0];
+    const nextWidth = loadedTrack?.size?.width ?? 0;
+    const nextHeight = loadedTrack?.size?.height ?? 0;
+
+    if (nextWidth > 0 && nextHeight > 0) {
+      setVideoDimensions((currentDimensions) => (
+        currentDimensions.width === nextWidth && currentDimensions.height === nextHeight
+          ? currentDimensions
+          : { width: nextWidth, height: nextHeight }
+      ));
+    }
+  }, [loadedMetadata]);
 
   useEffect(() => {
     const interval = setInterval(() => {
@@ -104,6 +208,30 @@ const VideoPlayer: React.FC = () => {
     const timeout = setTimeout(() => setToast(null), 2200);
     return () => clearTimeout(timeout);
   }, [toast]);
+
+  useEffect(() => {
+    const interval = setInterval(() => {
+      const total = Number(player.duration ?? 0);
+      const elapsed = Number(player.currentTime ?? 0);
+      if (total > 0 && elapsed >= total - 0.35) {
+        if (queue.length > 0) {
+          const [next, ...rest] = queue;
+          setQueue(rest);
+          playById(next.id);
+          setToast(`Playing next: ${next.title}`);
+          return;
+        }
+
+        if (activeIndex !== -1 && activeIndex < allVideos.length - 1) {
+          const next = allVideos[activeIndex + 1];
+          playById(next.id);
+          setToast(`Playing next: ${next.title}`);
+        }
+      }
+    }, 700);
+
+    return () => clearInterval(interval);
+  }, [activeIndex, allVideos, player, queue]);
 
   const formatTime = (value: number) => {
     if (!Number.isFinite(value) || value <= 0) return '0:00';
@@ -127,6 +255,16 @@ const VideoPlayer: React.FC = () => {
   const jumpBy = (seconds: number) => {
     const total = Number(player.duration ?? 0);
     player.currentTime = Math.max(0, Math.min(Number(player.currentTime ?? 0) + seconds, total || 0));
+    setShowControls(true);
+  };
+
+  const seekFromProgress = (locationX: number) => {
+    const total = Number(player.duration ?? 0);
+    if (progressWidth <= 0 || total <= 0) return;
+    const nextTime = Math.max(0, Math.min((locationX / progressWidth) * total, total));
+    player.currentTime = nextTime;
+    setCurrent(nextTime);
+    setShowControls(true);
   };
 
   const postComment = () => {
@@ -141,10 +279,21 @@ const VideoPlayer: React.FC = () => {
     setToast('Added to queue');
   };
 
-  const playById = (id: string) => {
+  const playById = useCallback((id: string) => {
     setActiveId(id);
     setQueueOpen(false);
     setShowControls(true);
+  }, []);
+
+  const shareVideo = async () => {
+    await Share.share({
+      message: `${video.title} by ${video.artist}\n${video.url}`,
+    });
+    setToast('Share sheet opened');
+  };
+
+  const saveToLibrary = () => {
+    setToast('Saved to library');
   };
 
   const runAudit = () => {
@@ -172,65 +321,78 @@ const VideoPlayer: React.FC = () => {
       <View style={[styles.header, { paddingTop: insets.top + 8 }]}>
         <Pressable onPress={() => navigation.goBack()} style={[styles.iconBtn, { backgroundColor: soft, borderColor: border }]}><MaterialIcons name="chevron-left" size={22} color={theme.text} /></Pressable>
         <View style={styles.headerActions}>
-          {role === 'creator' ? <Pressable onPress={() => setStudioMode((v) => !v)} style={[styles.pill, { backgroundColor: studioMode ? accent : soft, borderColor: studioMode ? accent : border }]}><MaterialIcons name="analytics" size={18} color={studioMode ? '#fff' : theme.text} /><Text style={[styles.pillText, { color: studioMode ? '#fff' : theme.text }]}>Studio Mode</Text></Pressable> : null}
+          {/* {role === 'creator' ? <Pressable onPress={() => setStudioMode((v) => !v)} style={[styles.pill, { backgroundColor: studioMode ? accent : soft, borderColor: studioMode ? accent : border }]}><MaterialIcons name="analytics" size={18} color={studioMode ? '#fff' : theme.text} /><Text style={[styles.pillText, { color: studioMode ? '#fff' : theme.text }]}>Studio Mode</Text></Pressable> : null} */}
           <Pressable onPress={cycleSpeed} style={[styles.pillSmall, { backgroundColor: soft, borderColor: border }]}><Text style={[styles.pillText, { color: theme.text }]}>{speed}x</Text></Pressable>
         </View>
       </View>
 
-      <ScrollView showsVerticalScrollIndicator={false} contentContainerStyle={{ paddingBottom: 120 }} keyboardShouldPersistTaps="handled">
-        <Pressable onPress={() => setShowControls(true)} style={[styles.videoShell, { marginTop: 86, borderColor: border }]}>
-          <VideoView player={player} nativeControls={false} style={styles.video} />
+      <ScrollView 
+      style={{
+        marginTop: 20,
+      }}
+      showsVerticalScrollIndicator={false} contentContainerStyle={{ paddingBottom: 120, }} keyboardShouldPersistTaps="handled">
+        <Pressable onPress={() => setShowControls(true)} style={[styles.videoShell, { marginTop: 0, height: videoPlayerHeight }]}>
+          <VideoView
+            player={player}
+            nativeControls={false}
+            // allowsFullscreen
+            allowsPictureInPicture
+            contentFit="contain"
+            style={styles.video}
+          />
           <LinearGradient colors={['rgba(0,0,0,0.25)', 'rgba(0,0,0,0)', 'rgba(0,0,0,0.82)']} style={StyleSheet.absoluteFillObject} />
-          {studioMode ? <View style={styles.heatmap}>{heatmap.map((h, i) => <View key={`${i}-${h}`} style={[styles.heatBar, { height: `${h}%`, backgroundColor: isDark ? primaryColorAlpha(0.4) : 'rgba(162,28,175,0.28)' }]} />)}</View> : null}
+          {/* {studioMode ? <View style={styles.heatmap}>{heatmap.map((h, i) => <View key={`${i}-${h}`} style={[styles.heatBar, { height: `${h}%`, backgroundColor: isDark ? primaryColorAlpha(0.4) : 'rgba(162,28,175,0.28)' }]} />)}</View> : null} */}
           {showControls ? <View style={styles.controls}><View style={styles.controlsRow}><Pressable style={styles.ghostBtn} onPress={() => jumpBy(-10)}><MaterialIcons name="replay-10" size={34} color="#fff" /></Pressable><Pressable style={styles.playBtn} onPress={togglePlay}><MaterialIcons name={playing ? 'pause' : 'play-arrow'} size={44} color="#fff" /></Pressable><Pressable style={styles.ghostBtn} onPress={() => jumpBy(10)}><MaterialIcons name="forward-10" size={34} color="#fff" /></Pressable></View><Pressable style={styles.muteBtn} onPress={() => setMuted((v) => !v)}><MaterialIcons name={muted ? 'volume-off' : 'volume-up'} size={18} color="#fff" /></Pressable></View> : null}
-          <View style={styles.videoFooter}><View style={styles.track}><View style={[styles.fill, { width: `${progress * 100}%` }]} /></View><View style={styles.metaRow}><Text style={styles.metaText}>{formatTime(current)} / {formatTime(duration)}</Text><Text style={styles.metaText}>{video.date}</Text></View></View>
+          <View style={styles.videoFooter}><Pressable onLayout={(event) => setProgressWidth(event.nativeEvent.layout.width)} onPress={(event) => seekFromProgress(event.nativeEvent.locationX)} style={styles.track}><View style={[styles.fill, { width: `${progress * 100}%` }]} /></Pressable><View style={styles.metaRow}><Text style={styles.metaText}>{formatTime(current)} / {formatTime(duration)}</Text><Text style={styles.metaText}>{video.date}</Text></View></View>
         </Pressable>
 
         <View style={styles.sectionStack}>
-          {studioMode ? (
-            <>
-              <View style={styles.statGrid}>
-                {[{ label: 'Watch Time', value: '8.2k hrs', icon: 'schedule', color: '#60a5fa' }, { label: 'Retention', value: '72%', icon: 'auto-graph', color: '#34d399' }, { label: 'Revenue', value: '$4,120', icon: 'payments', color: accent }].map((stat) => (
-                  <View key={stat.label} style={[styles.statCard, { backgroundColor: card, borderColor: border }]}>
-                    <MaterialIcons name={stat.icon as any} size={20} color={stat.color} />
-                    <Text style={[styles.statValue, { color: theme.text }]}>{stat.value}</Text>
-                    <Text style={[styles.statLabel, { color: faint }]}>{stat.label}</Text>
-                  </View>
-                ))}
-              </View>
+          {
+          // studioMode ? (
+          //   <>
+          //     <View style={styles.statGrid}>
+          //       {[{ label: 'Watch Time', value: '8.2k hrs', icon: 'schedule', color: '#60a5fa' }, { label: 'Retention', value: '72%', icon: 'auto-graph', color: '#34d399' }, { label: 'Revenue', value: '$4,120', icon: 'payments', color: accent }].map((stat) => (
+          //         <View key={stat.label} style={[styles.statCard, { backgroundColor: card, borderColor: border }]}>
+          //           <MaterialIcons name={stat.icon as any} size={20} color={stat.color} />
+          //           <Text style={[styles.statValue, { color: theme.text }]}>{stat.value}</Text>
+          //           <Text style={[styles.statLabel, { color: faint }]}>{stat.label}</Text>
+          //         </View>
+          //       ))}
+          //     </View>
 
-              <View style={[styles.panel, { backgroundColor: card, borderColor: border }]}>
-                <View style={styles.rowBetween}>
-                  <Text style={[styles.eyebrow, { color: faint }]}>Uplink Protocols</Text>
-                  {syncing ? <View style={[styles.syncDot, { borderColor: accent, borderTopColor: 'transparent' }]} /> : null}
-                </View>
-                <View style={styles.protocolRow}>
-                  {(['public', 'premium'] as const).map((item) => (
-                    <Pressable key={item} onPress={() => syncProtocol(item)} style={[styles.protocolCard, { backgroundColor: protocol === item ? theme.accentSoft : soft, borderColor: protocol === item ? accent : border }]}>
-                      <MaterialIcons name={item === 'public' ? 'public' : 'stars'} size={22} color={protocol === item ? accent : theme.text} />
-                      <Text style={[styles.protocolTitle, { color: theme.text }]}>{item === 'public' ? 'Public Feed' : 'Premium Locked'}</Text>
-                      <Text style={[styles.protocolCopy, { color: subtle }]}>{item === 'public' ? 'Visible to all' : 'Members only'}</Text>
-                    </Pressable>
-                  ))}
-                </View>
-              </View>
+          //     <View style={[styles.panel, { backgroundColor: card, borderColor: border }]}>
+          //       <View style={styles.rowBetween}>
+          //         <Text style={[styles.eyebrow, { color: faint }]}>Uplink Protocols</Text>
+          //         {syncing ? <View style={[styles.syncDot, { borderColor: accent, borderTopColor: 'transparent' }]} /> : null}
+          //       </View>
+          //       <View style={styles.protocolRow}>
+          //         {(['public', 'premium'] as const).map((item) => (
+          //           <Pressable key={item} onPress={() => syncProtocol(item)} style={[styles.protocolCard, { backgroundColor: protocol === item ? theme.accentSoft : soft, borderColor: protocol === item ? accent : border }]}>
+          //             <MaterialIcons name={item === 'public' ? 'public' : 'stars'} size={22} color={protocol === item ? accent : theme.text} />
+          //             <Text style={[styles.protocolTitle, { color: theme.text }]}>{item === 'public' ? 'Public Feed' : 'Premium Locked'}</Text>
+          //             <Text style={[styles.protocolCopy, { color: subtle }]}>{item === 'public' ? 'Visible to all' : 'Members only'}</Text>
+          //           </Pressable>
+          //         ))}
+          //       </View>
+          //     </View>
 
-              <View style={[styles.auditPanel, { backgroundColor: isDark ? primaryColorAlpha(0.10) : 'rgba(162,28,175,0.08)', borderColor: isDark ? primaryColorAlpha(0.24) : 'rgba(162,28,175,0.18)' }]}>
-                <View style={styles.rowBetween}>
-                  <View style={styles.auditHead}>
-                    <View style={styles.auditIcon}><MaterialIcons name="psychology" size={22} color={accent} /></View>
-                    <View>
-                      <Text style={[styles.auditTitle, { color: accent }]}>Engagement Auditor</Text>
-                      <Text style={[styles.auditSub, { color: faint }]}>Retention Analysis Engine</Text>
-                    </View>
-                  </View>
-                  {loadingAudit ? <View style={[styles.syncDot, { borderColor: accent, borderTopColor: 'transparent' }]} /> : null}
-                </View>
-                <Text style={[styles.body, { color: theme.text }]}>{audit ?? 'Insight mode is ready to review your watch-time curve and surface stronger replay hooks.'}</Text>
-                {!audit ? <Pressable onPress={runAudit} style={[styles.auditButton, { backgroundColor: theme.accentSoft, borderColor: accent }]}><Text style={[styles.auditButtonText, { color: accent }]}>Run Engagement Audit</Text></Pressable> : null}
-              </View>
-            </>
-          ) : (
+          //     <View style={[styles.auditPanel, { backgroundColor: isDark ? primaryColorAlpha(0.10) : 'rgba(162,28,175,0.08)', borderColor: isDark ? primaryColorAlpha(0.24) : 'rgba(162,28,175,0.18)' }]}>
+          //       <View style={styles.rowBetween}>
+          //         <View style={styles.auditHead}>
+          //           <View style={styles.auditIcon}><MaterialIcons name="psychology" size={22} color={accent} /></View>
+          //           <View>
+          //             <Text style={[styles.auditTitle, { color: accent }]}>Engagement Auditor</Text>
+          //             <Text style={[styles.auditSub, { color: faint }]}>Retention Analysis Engine</Text>
+          //           </View>
+          //         </View>
+          //         {loadingAudit ? <View style={[styles.syncDot, { borderColor: accent, borderTopColor: 'transparent' }]} /> : null}
+          //       </View>
+          //       <Text style={[styles.body, { color: theme.text }]}>{audit ?? 'Insight mode is ready to review your watch-time curve and surface stronger replay hooks.'}</Text>
+          //       {!audit ? <Pressable onPress={runAudit} style={[styles.auditButton, { backgroundColor: theme.accentSoft, borderColor: accent }]}><Text style={[styles.auditButtonText, { color: accent }]}>Run Engagement Audit</Text></Pressable> : null}
+          //     </View>
+          //   </>
+          // ) : 
+          (
             <>
               <View style={styles.titleBlock}>
                 <Text style={[styles.title, { color: theme.text }]}>{video.title}</Text>
@@ -238,21 +400,21 @@ const VideoPlayer: React.FC = () => {
               </View>
 
               <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={styles.actionRow}>
-                <Pressable onPress={() => setLiked((v) => !v)} style={[styles.actionChip, { backgroundColor: liked ? theme.accentSoft : soft, borderColor: liked ? accent : border }]}><MaterialIcons name={liked ? 'favorite' : 'favorite-border'} size={18} color={liked ? accent : theme.text} /><Text style={[styles.actionText, { color: liked ? accent : theme.text }]}>12k</Text></Pressable>
-                <Pressable style={[styles.actionChip, { backgroundColor: soft, borderColor: border }]}><MaterialIcons name="share" size={18} color={theme.text} /><Text style={[styles.actionText, { color: theme.text }]}>Share</Text></Pressable>
-                <Pressable style={[styles.actionChip, { backgroundColor: soft, borderColor: border }]}><MaterialIcons name="video-library" size={18} color={theme.text} /><Text style={[styles.actionText, { color: theme.text }]}>Library</Text></Pressable>
+                <Pressable onPress={() => setLiked((v) => !v)} style={[styles.actionChip, { backgroundColor: liked ? theme.accentSoft : soft, borderColor: liked ? accent : border }]}><MaterialIcons name={liked ? 'favorite' : 'favorite-border'} size={18} color={liked ? accent : theme.text} /><Text style={[styles.actionText, { color: liked ? accent : theme.text }]}>{video.likes ?? '12k'}</Text></Pressable>
+                <Pressable onPress={shareVideo} style={[styles.actionChip, { backgroundColor: soft, borderColor: border }]}><MaterialIcons name="share" size={18} color={theme.text} /><Text style={[styles.actionText, { color: theme.text }]}>Share</Text></Pressable>
+                <Pressable onPress={saveToLibrary} style={[styles.actionChip, { backgroundColor: soft, borderColor: border }]}><MaterialIcons name="video-library" size={18} color={theme.text} /><Text style={[styles.actionText, { color: theme.text }]}>Library</Text></Pressable>
               </ScrollView>
 
               <View style={[styles.panel, { backgroundColor: card, borderColor: border }]}>
                 <View style={styles.rowBetween}>
                   <Pressable style={styles.artistMain} onPress={() => navigation.navigate('ArtistProfile', { isOwner: false, id: video.artist })}>
-                    <Image source={{ uri: 'https://picsum.photos/seed/elena/150' }} style={styles.artistAvatar} />
+                    <Image source={{ uri: video.avatar ?? 'https://picsum.photos/seed/elena/150' }} style={styles.artistAvatar} />
                     <View>
                       <View style={styles.artistRow}><Text style={[styles.artistName, { color: theme.text }]}>{video.artist}</Text><MaterialIcons name="verified" size={16} color={accent} /></View>
                       <Text style={[styles.artistHandle, { color: accent }]}>{video.handle}</Text>
                     </View>
                   </Pressable>
-                  <Pressable style={[styles.followButton, { backgroundColor: accent }]}><Text style={styles.followText}>Follow</Text></Pressable>
+                  <Pressable onPress={() => { setFollowed((value) => !value); setToast(followed ? 'Unfollowed' : 'Following'); }} style={[styles.followButton, { backgroundColor: followed ? soft : accent, borderWidth: followed ? 1 : 0, borderColor: followed ? border : accent }]}><Text style={[styles.followText, followed && { color: theme.text }]}> {followed ? 'Following' : 'Follow'} </Text></Pressable>
                 </View>
               </View>
 
@@ -262,7 +424,7 @@ const VideoPlayer: React.FC = () => {
               </View>
 
               <View style={styles.commentsBlock}>
-                <View style={styles.rowBetween}><Text style={[styles.sectionTitle, { color: theme.text }]}>Comments</Text><Text style={[styles.eyebrow, { color: faint }]}>{comments.length} Responses</Text></View>
+                <View style={styles.rowBetween}><Text style={[styles.sectionTitle, { color: theme.text }]}>Comments</Text><Text style={[styles.eyebrow, { color: faint }]}>{video.comments ?? comments.length} Responses</Text></View>
                 <KulsahInputBar
                   value={commentText}
                   onChangeText={setCommentText}
@@ -339,8 +501,8 @@ const VideoPlayer: React.FC = () => {
 
 const styles = StyleSheet.create({
   safeArea: { flex: 1 }, toast: { position: 'absolute', left: 24, right: 24, zIndex: 40, alignItems: 'center' }, toastText: { color: '#fff', ...fontSize.b5, lineHeight: fontSize.b5.fontSize + 1, textTransform: 'uppercase', letterSpacing: 1.6, backgroundColor: PRIMARY_COLOR, paddingHorizontal: 18, paddingVertical: 10, borderRadius: 999 },
-  header: { position: 'absolute', top: 0, left: 0, right: 0, zIndex: 20, paddingHorizontal: 16, flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between' }, headerActions: { flexDirection: 'row', alignItems: 'center', gap: 10 }, iconBtn: { width: 42, height: 42, borderRadius: 21, alignItems: 'center', justifyContent: 'center', borderWidth: 1 }, pill: { flexDirection: 'row', alignItems: 'center', gap: 8, height: 42, paddingHorizontal: 14, borderRadius: 999, borderWidth: 1 }, pillSmall: { height: 42, minWidth: 62, borderRadius: 999, borderWidth: 1, alignItems: 'center', justifyContent: 'center', paddingHorizontal: 14 }, pillText: { ...fontSize.b5, lineHeight: fontSize.b5.fontSize + 1, textTransform: 'uppercase', letterSpacing: 0.8 },
-  videoShell: { marginHorizontal: 12, borderRadius: 30, overflow: 'hidden', borderWidth: 1, aspectRatio: 16 / 9, backgroundColor: '#000' }, video: { ...StyleSheet.absoluteFillObject }, heatmap: { position: 'absolute', bottom: 60, left: 16, right: 16, height: 52, flexDirection: 'row', alignItems: 'flex-end', gap: 2 }, heatBar: { flex: 1, borderTopLeftRadius: 4, borderTopRightRadius: 4 }, controls: { ...StyleSheet.absoluteFillObject, justifyContent: 'center', alignItems: 'center' }, controlsRow: { flexDirection: 'row', alignItems: 'center', gap: 20 }, ghostBtn: { width: 52, height: 52, borderRadius: 26, backgroundColor: 'rgba(255,255,255,0.12)', alignItems: 'center', justifyContent: 'center' }, playBtn: { width: 82, height: 82, borderRadius: 41, backgroundColor: primaryColorAlpha(0.22), borderWidth: 1, borderColor: primaryColorAlpha(0.4), alignItems: 'center', justifyContent: 'center' }, muteBtn: { position: 'absolute', right: 18, bottom: 72, width: 38, height: 38, borderRadius: 19, backgroundColor: 'rgba(0,0,0,0.45)', alignItems: 'center', justifyContent: 'center' }, videoFooter: { position: 'absolute', left: 16, right: 16, bottom: 16 }, track: { height: 4, borderRadius: 999, backgroundColor: 'rgba(255,255,255,0.24)', overflow: 'hidden' }, fill: { height: '100%', borderRadius: 999, backgroundColor: PRIMARY_COLOR }, metaRow: { marginTop: 10, flexDirection: 'row', justifyContent: 'space-between' }, metaText: { color: 'rgba(255,255,255,0.8)', ...fontSize.b5, lineHeight: fontSize.b5.fontSize + 1, textTransform: 'uppercase', letterSpacing: 0.8 },
+  header: { paddingHorizontal: 16, flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between' }, headerActions: { flexDirection: 'row', alignItems: 'center', gap: 10 }, iconBtn: { width: 42, height: 42, borderRadius: 21, alignItems: 'center', justifyContent: 'center', borderWidth: 1 }, pill: { flexDirection: 'row', alignItems: 'center', gap: 8, height: 42, paddingHorizontal: 14, borderRadius: 999, borderWidth: 1 }, pillSmall: { height: 42, minWidth: 62, borderRadius: 999, borderWidth: 1, alignItems: 'center', justifyContent: 'center', paddingHorizontal: 14 }, pillText: { ...fontSize.b5, lineHeight: fontSize.b5.fontSize + 1, textTransform: 'uppercase', letterSpacing: 0.8 },
+  videoShell: { overflow: 'hidden', borderWidth: 1, backgroundColor: '#000', height: 250}, video: { ...StyleSheet.absoluteFillObject }, heatmap: { position: 'absolute', bottom: 60, left: 16, right: 16, height: 52, flexDirection: 'row', alignItems: 'flex-end', gap: 2 }, heatBar: { flex: 1, borderTopLeftRadius: 4, borderTopRightRadius: 4 }, controls: { ...StyleSheet.absoluteFillObject, justifyContent: 'center', alignItems: 'center' }, controlsRow: { flexDirection: 'row', alignItems: 'center', gap: 20 }, ghostBtn: { width: 52, height: 52, borderRadius: 26, backgroundColor: 'rgba(255,255,255,0.12)', alignItems: 'center', justifyContent: 'center' }, playBtn: { width: 82, height: 82, borderRadius: 41, backgroundColor: primaryColorAlpha(0.22), borderWidth: 1, borderColor: primaryColorAlpha(0.4), alignItems: 'center', justifyContent: 'center' }, muteBtn: { position: 'absolute', right: 18, bottom: 72, width: 38, height: 38, borderRadius: 19, backgroundColor: 'rgba(0,0,0,0.45)', alignItems: 'center', justifyContent: 'center' }, videoFooter: { position: 'absolute', left: 16, right: 16, bottom: 16 }, track: { height: 4, borderRadius: 999, backgroundColor: 'rgba(255,255,255,0.24)', overflow: 'hidden' }, fill: { height: '100%', borderRadius: 999, backgroundColor: PRIMARY_COLOR }, metaRow: { marginTop: 10, flexDirection: 'row', justifyContent: 'space-between' }, metaText: { color: 'rgba(255,255,255,0.8)', ...fontSize.b5, lineHeight: fontSize.b5.fontSize + 1, textTransform: 'uppercase', letterSpacing: 0.8 },
   sectionStack: { paddingHorizontal: 16, paddingTop: 22, gap: 22 }, statGrid: { flexDirection: 'row', gap: 10 }, statCard: { flex: 1, borderRadius: 24, borderWidth: 1, paddingHorizontal: 12, paddingVertical: 16, alignItems: 'center', gap: 6 }, statValue: { ...fontSize.b5, lineHeight: fontSize.b5.fontSize + 1 }, statLabel: { ...fontSize.b5, lineHeight: fontSize.b5.fontSize + 1, textTransform: 'uppercase', letterSpacing: 1.1 },
   rowBetween: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', gap: 12 }, panel: { borderRadius: 28, borderWidth: 1, padding: 18, gap: 16 }, eyebrow: { ...fontSize.b5, lineHeight: fontSize.b5.fontSize + 1, textTransform: 'uppercase', letterSpacing: 1.5 }, syncDot: { width: 16, height: 16, borderRadius: 8, borderWidth: 2 }, protocolRow: { flexDirection: 'row', gap: 12 }, protocolCard: { flex: 1, borderRadius: 22, borderWidth: 1, padding: 16, gap: 10 }, protocolTitle: { ...fontSize.b5, lineHeight: fontSize.b5.fontSize + 1 }, protocolCopy: { ...fontSize.b5, lineHeight: fontSize.b5.fontSize + 1, textTransform: 'uppercase' },
   auditPanel: { borderRadius: 30, borderWidth: 1, padding: 18, gap: 14 }, auditHead: { flexDirection: 'row', alignItems: 'center', gap: 12 }, auditIcon: { width: 42, height: 42, borderRadius: 14, alignItems: 'center', justifyContent: 'center', backgroundColor: primaryColorAlpha(0.10) }, auditTitle: { ...fontSize.b5, lineHeight: fontSize.b5.fontSize + 1, textTransform: 'uppercase', letterSpacing: 1.3 }, auditSub: { ...fontSize.b5, lineHeight: fontSize.b5.fontSize + 1, textTransform: 'uppercase' }, auditButton: { height: 46, borderRadius: 18, borderWidth: 1, alignItems: 'center', justifyContent: 'center' }, auditButtonText: { ...fontSize.b5, lineHeight: fontSize.b5.fontSize + 1, textTransform: 'uppercase' },

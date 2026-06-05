@@ -41,6 +41,7 @@ interface GiftDialogProps {
   currentBalance: number;
   onSendGift: (gift: GiftSelection) => void;
   onTopUpSuccess: (amount: number) => void;
+  onRecharge?: () => void;
 }
 
 const generalGifts: GiftItem[] = [
@@ -85,6 +86,7 @@ const GiftDialog: React.FC<GiftDialogProps> = ({
   currentBalance,
   onSendGift,
   onTopUpSuccess,
+  onRecharge,
 }) => {
   const insets = useSafeAreaInsets();
   const { isDark, theme } = useThemeMode();
@@ -115,6 +117,10 @@ const GiftDialog: React.FC<GiftDialogProps> = ({
     if (!selectedItem) return;
 
     if (hasInsufficientBalance) {
+      if (onRecharge) {
+        onRecharge();
+        return;
+      }
       setTopUpOpen(true);
       return;
     }

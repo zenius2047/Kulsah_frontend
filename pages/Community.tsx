@@ -23,6 +23,7 @@ import { mediumScreen, user } from '../types';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import DotTrioLoader from '../components/DotTrioLoader';
 import { fontSize } from '../typography';
+import Reactions from './Reactions';
 
 interface Comment {
   id: string;
@@ -546,6 +547,13 @@ const Community: React.FC<{ embedded?: boolean }> = ({ embedded = false }) => {
       </ScrollView>
 
       <Modal visible={!!activeCommentPost} transparent animationType="slide" statusBarTranslucent onRequestClose={() => setActiveCommentPost(null)}>
+        <Reactions
+          onClose={() => setActiveCommentPost(null)}
+          title={`${activeCommentTarget?.comments.toLocaleString() ?? 0} Reactions`}
+        />
+      </Modal>
+
+      <Modal visible={false} transparent animationType="slide" statusBarTranslucent onRequestClose={() => setActiveCommentPost(null)}>
         <KeyboardAvoidingView
           style={styles.modalRoot}
           behavior={Platform.OS === 'ios' ? 'padding' : 'height'}

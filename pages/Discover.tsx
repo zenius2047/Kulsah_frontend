@@ -145,7 +145,7 @@ const tabs: { id: DiscoverTab; label: string }[] = [
   { id: 'creators', label: 'Top Creators' },
   { id: 'tickets', label: 'Event' },
   { id: 'videos', label: 'Trending Reels' },
-  { id: 'challenges', label: 'Creator Challenges' },
+  { id: 'challenges', label: 'Creators Challenges' },
 ];
 
 const LiveCreatorAvatar = ({
@@ -227,7 +227,6 @@ const Discover: React.FC<{ embedded?: boolean }> = ({ embedded = false }) => {
   const [followedCreators, setFollowedCreators] = useState<string[]>(['sarah_vfx']);
   const [likedVideos, setLikedVideos] = useState<string[]>(['cl3', 'cl4']);
   const [ticketCart, setTicketCart] = useState<string[]>([]);
-  const [joinedChallenges, setJoinedChallenges] = useState<string[]>([]);
   const [selectedTicket, setSelectedTicket] = useState<TicketItem | null>(null);
   const [isSuccessModalOpen, setIsSuccessModalOpen] = useState(false);
   const query = searchQuery.trim().toLowerCase();
@@ -249,15 +248,9 @@ const Discover: React.FC<{ embedded?: boolean }> = ({ embedded = false }) => {
     setLikedVideos((prev) => (prev.includes(videoId) ? prev.filter((id) => id !== videoId) : [...prev, videoId]));
   };
 
-  const handleJoinChallenge = (challengeId: string, event: GestureResponderEvent) => {
+  const handleViewChallenge = (challengeId: string, event: GestureResponderEvent) => {
     stop(event);
-    if (joinedChallenges.includes(challengeId)) {
-      setJoinedChallenges((prev) => prev.filter((id) => id !== challengeId));
-      return;
-    }
-
-    setJoinedChallenges((prev) => [...prev, challengeId]);
-    navigation.navigate('SubmitEntry', { challengeId });
+    navigation.navigate('ChallengeFeed', { challengeId });
   };
 
   const handleConfirmTicketPurchase = () => {
@@ -427,7 +420,6 @@ const Discover: React.FC<{ embedded?: boolean }> = ({ embedded = false }) => {
               {filteredChallenges.length === 0 ? renderEmpty('No creator challenges matching your query.') : (
                 <View style={styles.twoColumnGrid}>
                   {filteredChallenges.map((challenge) => {
-                    const isJoined = joinedChallenges.includes(challenge.id);
                     const matchedCreator = topCreators.find((creator) => creator.name === challenge.creator);
                     return (
                       <Pressable key={challenge.id} onPress={() => navigation.navigate('ChallengeFeed', { challengeId: challenge.id })} style={styles.challengeCard}>
@@ -450,9 +442,9 @@ const Discover: React.FC<{ embedded?: boolean }> = ({ embedded = false }) => {
                           <View style={styles.dashedLine} />
                           <View style={styles.challengeFooter}>
                             <Text numberOfLines={1} style={styles.joinedText}>+{(challenge.participants - 110).toLocaleString()} joined</Text>
-                            <Pressable onPress={(event) => handleJoinChallenge(challenge.id, event)} style={[styles.joinButton, isJoined ? styles.joinedButton : null]}>
-                              <MaterialIcons name={isJoined ? 'verified' : 'bolt'} size={11} color={isJoined ? '#10b981' : '#fff'} />
-                              <Text style={[styles.joinText, { color: isJoined ? '#10b981' : '#fff' }]}>{isJoined ? 'Joined' : 'Join'}</Text>
+                            <Pressable onPress={(event) => handleViewChallenge(challenge.id, event)} style={styles.joinButton}>
+                              <MaterialIcons name="visibility" size={11} color="#fff" />
+                              <Text style={[styles.joinText, { color: '#fff' }]}>View</Text>
                             </Pressable>
                           </View>
                         </View>

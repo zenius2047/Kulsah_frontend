@@ -255,6 +255,122 @@ const FanProfile: React.FC<FanProfileProps> = ({ onToggleRole }) => {
     </View>
   );
 
+  const renderPremiumVaultContent = (creatorId: string) => {
+    const creator = subscribedCreators.find((item) => item.id === creatorId);
+    const vault = premiumContent[creatorId];
+    if (!vault) return null;
+
+    const recentVideos = vault.videos.slice(0, 1).map((video) => ({
+      ...video,
+      views: `${video.views ?? '0'} views`,
+      timeAgo: '1 month ago',
+      duration: '2:36',
+    }));
+    const musicReleases = vault.videos.map((video, index) => ({
+      ...video,
+      views: `${video.views ?? '0'} views`,
+      timeAgo: index === 0 ? '5 months ago' : '6 months ago',
+      duration: index === 0 ? '2:41' : '3:32',
+      isMusic: true,
+    }));
+
+    return (
+      <View style={s.artistPremiumWrap}>
+        <Text style={[s.artistPremiumHeading, { color: theme.text }]}>Recent Videos</Text>
+
+        {recentVideos.map((video) => (
+          <Pressable
+            key={video.id}
+            onPress={() => navigation.navigate('VideoPlayer')}
+            style={[s.artistRecentCard, { backgroundColor: isDark ? '#000' : '#fff', shadowColor: isDark ? '#fff' : '#000' }]}
+          >
+            <Image source={{ uri: video.img }} style={s.artistRecentImage} />
+            <View style={s.artistRecentOverlay}>
+              <View style={s.artistPlayCircle}>
+                <MaterialIcons name="play-arrow" size={38} color="#ffffff" />
+              </View>
+              <View style={s.artistDurationPill}>
+                <MaterialIcons name="music-note" color="white" size={16} />
+                <Text style={s.artistDurationText}>{video.duration}</Text>
+              </View>
+            </View>
+
+            <View style={s.artistRecentInfo}>
+              <Image source={{ uri: creator?.img || video.img }} style={[s.artistRecentAvatar, { backgroundColor: isDark ? '#fff' : '#000' }]} />
+              <View style={s.artistRecentCopy}>
+                <Text numberOfLines={2} style={[s.artistRecentTitle, { color: theme.text }]}>{`${creator?.name || 'Creator'} - ${video.title}`}</Text>
+                <Text style={s.artistRecentMeta}>{`${video.views} • ${video.timeAgo}`}</Text>
+                <View style={s.artistRecentDivider} />
+                <Text numberOfLines={2} style={s.artistRecentSeries}>Exclusive Master Series</Text>
+              </View>
+            </View>
+          </Pressable>
+        ))}
+
+        <View style={s.artistPlaylistSection}>
+          <View style={s.artistSectionHeader}>
+            <Text style={[s.artistPremiumHeading, { color: theme.text }]}>Playlists</Text>
+            <MaterialIcons name="chevron-right" size={22} color={theme.textSecondary} />
+          </View>
+          <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={s.artistPlaylistScroll}>
+            {vault.playlists.map((playlist) => (
+              <Pressable key={playlist.id} onPress={() => navigation.navigate('PlaylistPlayer', { id: playlist.id })} style={s.artistPlaylistCard}>
+                <View style={s.artistPlaylistThumb}>
+                  <Image source={{ uri: playlist.img }} style={s.thumbImage} />
+                  <View style={s.artistPlaylistShade} />
+                  <View style={s.artistPlaylistBadge}>
+                    <MaterialIcons name="playlist-play" size={22} color="#d4d4d8" />
+                    <Text style={s.artistPlaylistCount}>{playlist.count ?? 0} Videos</Text>
+                  </View>
+                  <View style={s.artistPlaylistLock}>
+                    <MaterialIcons name="lock" size={16} color={PRIMARY_COLOR} />
+                  </View>
+                </View>
+                <Text numberOfLines={2} style={[s.artistPlaylistTitle, { color: theme.text }]}>{playlist.title}</Text>
+                <Text style={s.artistPlaylistMeta}>{playlist.views ?? 'Premium drop'} • Updated 2 days ago</Text>
+              </Pressable>
+            ))}
+          </ScrollView>
+        </View>
+
+        <View style={s.artistReleaseSection}>
+          <View style={s.artistSectionHeader}>
+            <Text style={[s.artistPremiumHeading, { color: theme.text }]}>Videos</Text>
+            <MaterialIcons name="chevron-right" size={18} color="#71717a" />
+          </View>
+
+          <View style={s.artistReleaseList}>
+            {musicReleases.map((item) => (
+              <Pressable key={item.id} onPress={() => navigation.navigate('VideoPlayer')} style={[s.artistReleaseCard, { backgroundColor: isDark ? '#0f172a' : theme.surface }]}>
+                <View style={s.artistReleaseThumb}>
+                  <Image source={{ uri: item.img }} style={s.thumbImage} />
+                  <View style={s.artistReleaseLockOverlay}>
+                    <View style={s.artistReleaseLockButton}>
+                      <MaterialIcons name="lock" size={15} color={PRIMARY_COLOR} />
+                    </View>
+                  </View>
+                  <View style={s.artistReleaseDuration}>
+                    <MaterialIcons name="music-note" size={10} color="#d4d4d8" />
+                    <Text style={s.artistReleaseDurationText}>{item.duration}</Text>
+                  </View>
+                </View>
+
+                <View style={s.artistReleaseInfo}>
+                  <Text numberOfLines={4} style={[s.artistReleaseTitle, { color: theme.text }]}>{item.title}</Text>
+                  <Text style={s.artistReleaseMeta}>{item.views} • {item.timeAgo}</Text>
+                </View>
+
+                <Pressable style={s.artistMoreButton}>
+                  <MaterialIcons name="more-vert" size={20} color="#71717a" />
+                </Pressable>
+              </Pressable>
+            ))}
+          </View>
+        </View>
+      </View>
+    );
+  };
+
 
   return (
     <View style={[s.screen, { backgroundColor: theme.screen }]}>
@@ -410,7 +526,7 @@ const FanProfile: React.FC<FanProfileProps> = ({ onToggleRole }) => {
                       </View>
                     </View>
                   ) : (
-                    <View style={s.sectionGroup}>
+                    <View style={[s.sectionGroup, {paddingHorizontal: 0}]}>
                       <View style={s.vaultHeader}>
                         <Pressable onPress={() => setSelectedCreator(null)} style={s.backRow}>
                           <MaterialIcons name="chevron-left" size={14} color={PRIMARY_COLOR} />
@@ -421,46 +537,7 @@ const FanProfile: React.FC<FanProfileProps> = ({ onToggleRole }) => {
                         </Text>
                       </View>
 
-                      <View style={s.sectionBlock}>
-                        <Text style={s.sectionMini}>Premium Videos</Text>
-                        <View style={s.twoColGrid}>
-                          {premiumContent[selectedCreator].videos.map((vid) => (
-                            <Pressable key={vid.id} style={s.gridCard} onPress={() => navigation.navigate('VideoPlayer')}>
-                              <View style={s.videoThumbWrap}>
-                                <Image source={{ uri: vid.img }} style={s.thumbImage} />
-                                <View style={s.thumbDark} />
-                                <View style={s.premiumTag}>
-                                  <Text style={s.premiumTagText}>Premium</Text>
-                                </View>
-                              </View>
-                          <Text style={[s.gridTitle, { color: theme.text }]} numberOfLines={1}>{vid.title}</Text>
-                        </Pressable>
-                      ))}
-                        </View>
-                      </View>
-
-                      <View style={s.sectionBlock}>
-                        <Text style={s.sectionMini}>Playlists</Text>
-                        <View style={s.twoColGrid}>
-                          {premiumContent[selectedCreator].playlists.map((playlist) => (
-                            <Pressable key={playlist.id} style={s.gridCard} onPress={() => navigation.navigate("MainTabs")}>
-                              <View style={s.squareThumbWrap}>
-                                <Image source={{ uri: playlist.img }} style={s.thumbImage} />
-                                <View style={s.squareDark} />
-                                <View style={s.playCenter}>
-                                  <View style={s.playButton}>
-                                    <MaterialIcons name="playlist-play" size={22} color="#fff" />
-                                  </View>
-                                </View>
-                                <View style={s.playlistCount}>
-                                  <Text style={s.playlistCountText}>{playlist.count} Items</Text>
-                                </View>
-                              </View>
-                          <Text style={[s.gridTitle, { color: theme.text }]} numberOfLines={1}>{playlist.title}</Text>
-                        </Pressable>
-                      ))}
-                        </View>
-                      </View>
+                      {renderPremiumVaultContent(selectedCreator)}
                     </View>
                   )}
                 </View>
@@ -786,7 +863,7 @@ const s = StyleSheet.create({
   },
   sectionGroup: {
     gap: 24,
-    paddingHorizontal: 18,
+    paddingHorizontal: 16,
   },
   sectionBlock: {
     gap: 12,
@@ -805,7 +882,7 @@ const s = StyleSheet.create({
   },
   listWrap: {
     gap: 12,
-    paddingHorizontal: 18,
+    // paddingHorizontal: 18,
   },
   listCard: {
     flexDirection: 'row',
@@ -1003,6 +1080,245 @@ const s = StyleSheet.create({
     ...fontSize.b5, lineHeight: fontSize.b5.fontSize + 1,
     textTransform: 'uppercase',
     letterSpacing: 1,
+  },
+  artistPremiumWrap: {
+    gap: 20,
+  },
+  artistPremiumHeading: {
+    fontSize: fontSize.b2.fontSize + 2,
+    fontFamily: fontSize.b2.fontFamily,
+    lineHeight: fontSize.b2.fontSize + 4,
+    // paddingHorizontal: 16,
+  },
+  artistRecentCard: {
+    borderRadius: 24,
+    minHeight: 320,
+    gap: 10,
+    shadowOffset: { width: 0, height: 20 },
+    shadowOpacity: 0.1,
+    shadowRadius: 25,
+    // marginHorizontal: 16,
+    elevation: 12,
+    overflow: 'hidden',
+  },
+  artistRecentImage: {
+    height: 176,
+    width: '100%',
+  },
+  artistRecentOverlay: {
+    position: 'absolute',
+    top: 0,
+    left: 0,
+    right: 0,
+    height: 176,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  artistPlayCircle: {
+    width: 66,
+    height: 66,
+    borderRadius: 33,
+    backgroundColor: primaryColorAlpha(0.24),
+    borderWidth: 1,
+    borderColor: primaryColorAlpha(0.5),
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  artistDurationPill: {
+    flexDirection: 'row',
+    position: 'absolute',
+    right: 10,
+    bottom: 10,
+    backgroundColor: '#00000097',
+    alignItems: 'center',
+    paddingHorizontal: 5,
+    paddingVertical: 3,
+    borderRadius: 999,
+    gap: 2,
+  },
+  artistDurationText: {
+    color: '#fff',
+    ...fontSize.b2,
+    lineHeight: fontSize.b2.fontSize + 1,
+  },
+  artistRecentInfo: {
+    flexDirection: 'row',
+    paddingHorizontal: 15,
+    gap: 10,
+    paddingBottom: 16,
+  },
+  artistRecentAvatar: {
+    height: 45,
+    width: 45,
+    borderRadius: 999,
+  },
+  artistRecentCopy: {
+    flex: 1,
+    gap: 5,
+  },
+  artistRecentTitle: {
+    fontSize: fontSize.b2.fontSize,
+    fontFamily: 'Pogonia_700Bold',
+    lineHeight: fontSize.b2.fontSize + 4,
+  },
+  artistRecentMeta: {
+    fontSize: fontSize.b4.fontSize,
+    fontFamily: 'Inter_600SemiBold',
+    color: 'rgb(100,116,139)',
+  },
+  artistRecentDivider: {
+    height: StyleSheet.hairlineWidth,
+    backgroundColor: 'rgba(100,116,139,0.12)',
+    marginTop: 6,
+  },
+  artistRecentSeries: {
+    marginTop: 6,
+    color: 'rgb(113,113,122)',
+    fontSize: fontSize.b4.fontSize,
+    fontFamily: 'Inter_700Bold',
+  },
+  artistPlaylistSection: {
+    gap: 10,
+  },
+  artistSectionHeader: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    paddingRight: 16,
+  },
+  artistPlaylistScroll: {
+    // paddingHorizontal: 16,
+    gap: 14,
+  },
+  artistPlaylistCard: {
+    width: 220,
+    gap: 10,
+  },
+  artistPlaylistThumb: {
+    height: 124,
+    borderRadius: 18,
+    overflow: 'hidden',
+    backgroundColor: '#0f172a',
+  },
+  artistPlaylistShade: {
+    ...StyleSheet.absoluteFillObject,
+    backgroundColor: 'rgba(0,0,0,0.34)',
+  },
+  artistPlaylistBadge: {
+    position: 'absolute',
+    right: 12,
+    top: 12,
+    bottom: 12,
+    width: 68,
+    borderRadius: 14,
+    backgroundColor: 'rgba(0,0,0,0.5)',
+    alignItems: 'center',
+    justifyContent: 'center',
+    gap: 4,
+  },
+  artistPlaylistCount: {
+    color: '#d4d4d8',
+    ...fontSize.b5,
+    lineHeight: fontSize.b5.fontSize + 1,
+    textTransform: 'uppercase',
+    textAlign: 'center',
+  },
+  artistPlaylistLock: {
+    position: 'absolute',
+    left: 10,
+    bottom: 10,
+    width: 30,
+    height: 30,
+    borderRadius: 15,
+    backgroundColor: 'rgba(0,0,0,0.65)',
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  artistPlaylistTitle: {
+    ...fontSize.b4,
+    lineHeight: fontSize.b4.fontSize + 3,
+  },
+  artistPlaylistMeta: {
+    color: '#71717a',
+    ...fontSize.b5,
+    lineHeight: fontSize.b5.fontSize + 1,
+  },
+  artistReleaseSection: {
+    gap: 10,
+    // paddingHorizontal: 16,
+  },
+  artistReleaseList: {
+    gap: 12,
+  },
+  artistReleaseCard: {
+    minHeight: 112,
+    borderRadius: 18,
+    flexDirection: 'row',
+    padding: 10,
+    gap: 12,
+    position: 'relative',
+  },
+  artistReleaseThumb: {
+    width: 96,
+    height: 92,
+    borderRadius: 14,
+    overflow: 'hidden',
+    backgroundColor: '#0f172a',
+  },
+  artistReleaseLockOverlay: {
+    ...StyleSheet.absoluteFillObject,
+    backgroundColor: 'rgba(0,0,0,0.45)',
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  artistReleaseLockButton: {
+    width: 30,
+    height: 30,
+    borderRadius: 15,
+    backgroundColor: 'rgba(0,0,0,0.6)',
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  artistReleaseDuration: {
+    position: 'absolute',
+    right: 6,
+    bottom: 6,
+    flexDirection: 'row',
+    alignItems: 'center',
+    backgroundColor: 'rgba(0,0,0,0.85)',
+    borderRadius: 6,
+    paddingHorizontal: 6,
+    paddingVertical: 2,
+    gap: 2,
+  },
+  artistReleaseDurationText: {
+    color: '#fff',
+    fontSize: 10,
+    fontWeight: '700',
+  },
+  artistReleaseInfo: {
+    flex: 1,
+    paddingVertical: 4,
+    justifyContent: 'space-between',
+  },
+  artistReleaseTitle: {
+    ...fontSize.b4,
+    lineHeight: fontSize.b4.fontSize + 2,
+    width: '86%',
+  },
+  artistReleaseMeta: {
+    color: '#71717a',
+    ...fontSize.b5,
+    lineHeight: fontSize.b5.fontSize + 1,
+  },
+  artistMoreButton: {
+    position: 'absolute',
+    right: 4,
+    top: 8,
+    width: 32,
+    height: 32,
+    justifyContent: 'center',
+    alignItems: 'center',
   },
   verticalMeta: {
     position: 'absolute',

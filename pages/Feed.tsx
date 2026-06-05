@@ -85,7 +85,8 @@ const LiveFeedCreatorAvatar: React.FC<{
   isLive: boolean;
   showLiveBadge: boolean;
   showFollowBadge: boolean;
-}> = ({ avatar, isLive, showLiveBadge, showFollowBadge }) => {
+  onFollow: () => void;
+}> = ({ avatar, isLive, showLiveBadge, showFollowBadge, onFollow }) => {
   const pulse = useRef(new Animated.Value(0)).current;
 
   useEffect(() => {
@@ -190,7 +191,9 @@ const LiveFeedCreatorAvatar: React.FC<{
           </View>
         )}
         {showFollowBadge && (
-          <View
+          <Pressable
+            onPress={onFollow}
+            hitSlop={8}
             style={{
               borderRadius: 999,
               alignItems: 'center',
@@ -203,7 +206,7 @@ const LiveFeedCreatorAvatar: React.FC<{
             }}
           >
             <MaterialIcons name="add" size={15} color="white" />
-          </View>
+          </Pressable>
         )}
       </View>
     </View>
@@ -741,6 +744,7 @@ const VideoFeedItem: React.FC<{
   item: FeedItem;
   isPlaying: boolean;
   onSubscribe: (item: FeedItem) => void;
+  onFollow: (item: FeedItem) => void;
   isGlobalMuted: boolean;
   isLive?: boolean;
   onToggleMute: () => void;
@@ -750,6 +754,7 @@ const VideoFeedItem: React.FC<{
 }> = ({
   item,
   onSubscribe,
+  onFollow,
   isGlobalMuted,
   onToggleMute,
   isPlaying,
@@ -1079,6 +1084,7 @@ useEffect(() => {
             isLive={Boolean(isLive)}
             showLiveBadge={Boolean(isLive && !item.isSubscribed)}
             showFollowBadge={!item.following}
+            onFollow={() => onFollow(item)}
           />
         </Pressable>
 
@@ -1532,6 +1538,7 @@ const Feed: React.FC = () => {
   const feedListRef = useRef<FlatList<FeedItem> | null>(null);
   const lastShakeRefreshRef = useRef(0);
   const lastShakeForceRef = useRef(1);
+  const followToastTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   const insets= useSafeAreaInsets();
   const [items, setItems] = useState<FeedItem[]>([
     // {
@@ -1634,7 +1641,7 @@ const Feed: React.FC = () => {
       likes: '2.4M',
       comments: '88.1K',
       isLiked: false,
-      isSubscribed: true,
+      isSubscribed: false,
       isPremium: true,
       ticketsAvailable: true,
       ticketLocation: 'London, UK',
@@ -2281,6 +2288,7 @@ const Feed: React.FC = () => {
   const [isCreatorViewer, setIsCreatorViewer] = useState(user?.role === 'creator');
   const [shakeToRefreshEnabled, setShakeToRefreshEnabled] = useState(false);
   const [isShakeRefreshing, setIsShakeRefreshing] = useState(false);
+  const [followToast, setFollowToast] = useState<string | null>(null);
 
 
   useEffect(() => {
@@ -2292,6 +2300,14 @@ const Feed: React.FC = () => {
     return subscribeUser((nextUser) => {
       setIsCreatorViewer(nextUser?.role === 'creator');
     });
+  }, []);
+
+  useEffect(() => {
+    return () => {
+      if (followToastTimeoutRef.current) {
+        clearTimeout(followToastTimeoutRef.current);
+      }
+    };
   }, []);
 
   useEffect(() => {
@@ -2330,6 +2346,24 @@ const Feed: React.FC = () => {
       tier: INITIAL_SUBSCRIPTION,
     });
     setShowSubscriptionSuccess(false);
+  }, []);
+
+  const handleFollow = useCallback((feedItem: FeedItem) => {
+    setItems((prev) =>
+      prev.map((item) =>
+        item.id === feedItem.id ? { ...item, following: true } : item
+      )
+    );
+    setFollowToast(`Following @${feedItem.handle}`);
+
+    if (followToastTimeoutRef.current) {
+      clearTimeout(followToastTimeoutRef.current);
+    }
+
+    followToastTimeoutRef.current = setTimeout(() => {
+      setFollowToast(null);
+      followToastTimeoutRef.current = null;
+    }, 1700);
   }, []);
 
   const closeSubscriptionModal = useCallback(() => {
@@ -2472,6 +2506,7 @@ const Feed: React.FC = () => {
           item={item}
           isPlaying={index === activeIndex}
           onSubscribe={handleSubscribe}
+          onFollow={handleFollow}
           isGlobalMuted={isGlobalMuted}
           onToggleMute={handleToggleMute}
           isLive={item.isLive}
@@ -2481,7 +2516,7 @@ const Feed: React.FC = () => {
         />
       </ErrorBoundary>
     </View>
-  ), [activeIndex, coinBalance, feedItemHeight, handleSubscribe, handleToggleMute, isCreatorViewer, isGlobalMuted]);
+  ), [activeIndex, coinBalance, feedItemHeight, handleFollow, handleSubscribe, handleToggleMute, isCreatorViewer, isGlobalMuted]);
 
   return (
     <SafeAreaView
@@ -2732,6 +2767,38 @@ const Feed: React.FC = () => {
             }}
           >
             Refreshing Feed
+          </Text>
+        </View>
+      ) : null}
+      {followToast ? (
+        <View
+          pointerEvents="none"
+          style={{
+            position: 'absolute',
+            bottom: Math.max(insets.bottom + 88, 112),
+            alignSelf: 'center',
+            zIndex: 95,
+            minHeight: 44,
+            borderRadius: 999,
+            paddingHorizontal: 18,
+            flexDirection: 'row',
+            alignItems: 'center',
+            gap: 8,
+            backgroundColor: 'rgba(0,0,0,0.78)',
+            borderWidth: 1,
+            borderColor: primaryColorAlpha(0.45),
+          }}
+        >
+          <MaterialIcons name="check-circle" size={18} color={PRIMARY_COLOR} />
+          <Text
+            style={{
+              ...fontSize.b3,
+              lineHeight: fontSize.b3.fontSize + 2,
+              color: '#ffffff',
+              fontFamily: 'DMSans_700Bold',
+            }}
+          >
+            {followToast}
           </Text>
         </View>
       ) : null}

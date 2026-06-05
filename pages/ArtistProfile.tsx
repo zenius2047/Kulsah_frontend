@@ -2,7 +2,7 @@ import { MaterialIcons } from '@expo/vector-icons';
 import { useNavigation, useRoute } from '@react-navigation/native';
 import React, { useEffect, useMemo, useState } from 'react';
 import { useThemeMode, PRIMARY_COLOR, primaryColorAlpha, primaryColorAlphaHex } from "../theme";
-import { ActivityIndicator, Dimensions, Image, ImageBackground, Modal, Pressable, ScrollView, Share, StyleSheet, Text, useWindowDimensions, View } from 'react-native';
+import { ActivityIndicator, Alert, Dimensions, Image, ImageBackground, Modal, Pressable, ScrollView, Share, StyleSheet, Text, TextInput, useWindowDimensions, View } from 'react-native';
 import { LinearGradient } from 'expo-linear-gradient';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import PlayIcon from '../assets/icons/play-circle-svg.svg';
@@ -15,12 +15,12 @@ import { mediumScreen, setUser, subscribeUser, user, User } from '../types';
 import { BlurView } from 'expo-blur';
 import VerifiedIcon from '../assets/icons/verified-svg.svg';
 import FireIcon from '../assets/icons/fireIcon-svg.svg';
-import PublicIcon from '../assets/icons/public-svg.svg';
 import KulCoinPrompt from '../components/KulCoinPrompt';
 import { fontSize } from '../typography';
 
 
-type Tab = 'Videos' | 'Public' | 'Premium'  | 'Tickets' | 'Events' | 'Challenges' | 'Favorites' | 'Saved';
+type Tab = 'Videos' | 'Library' | 'Premium'  | 'Tickets' | 'Events' | 'Challenges' | 'Favorites' | 'Saved';
+type LibrarySubTab = 'All' | 'Public' | 'Premium' | 'Drafts';
 type Billing = 'monthly' | 'annually';
 const { height: SCREEN_HEIGHT, width: SCREEN_WIDTH } = Dimensions.get('screen');
 
@@ -29,6 +29,19 @@ interface SubscriptionTier {
   price: string;
   perks: string[];
 }
+
+type LibraryVideo = {
+  id: string;
+  title: string;
+  views: string;
+  date: string;
+  duration: string;
+  category: string;
+  img: string;
+  likes: string;
+  premium?: boolean;
+  draft?: boolean;
+};
 
 const INITIAL_SUBSCRIPTION: SubscriptionTier = {
   name: 'Kulsah Access',
@@ -80,6 +93,19 @@ const sounds = [
   { id: 's1', title: 'Midnight Echoes (Stem)', meta: 'Kulsah Beats - 0:30', usage: '1.2K uses' },
   { id: 's2', title: 'Synthwave Pulse', meta: 'Retro Wave - 0:15', usage: '850 uses' },
 ];
+const initialLibraryVideos: LibraryVideo[] = [
+  { id: 'v1', title: 'Moonlight Symphony (Official Track)', views: '1.2M', date: 'Aug 24, 2024', duration: '4:20', category: 'Music Videos', img: 'https://images.unsplash.com/photo-1598488035139-bdbb2231ce04?auto=format&fit=crop&q=80&w=600', likes: '142K' },
+  { id: 'v2', title: 'Summer Tour Highlights Vlog', views: '450K', date: 'Aug 22, 2024', duration: '12:15', category: 'Vlogs', img: 'https://images.unsplash.com/photo-1514525253361-bee8718a74a2?auto=format&fit=crop&q=80&w=600', likes: '54K' },
+  { id: 'v3', title: 'Studio Rehearsal Session #4 (Behind the Scenes)', views: '120K', date: 'Aug 20, 2024', duration: '45:00', category: 'Sessions', img: 'https://images.unsplash.com/photo-1520529277867-dbf8c5e0b340?auto=format&fit=crop&q=80&w=600', likes: '12K' },
+  { id: 'v4', title: 'Late Night Synth Production & Sound Layering', views: '89K', date: 'Aug 18, 2024', duration: '3:45', category: 'Tutorials', img: 'https://images.unsplash.com/photo-1511671782779-c97d3d27a1d4?auto=format&fit=crop&q=80&w=600', likes: '9.8K' },
+  { id: 'pv1', title: 'Odo Pa feat. Kweku Flick (Official Video)', views: '849K', date: 'Jul 15, 2024', duration: '2:36', category: 'Music Videos', img: 'https://images.unsplash.com/photo-1598488035139-bdbb2231ce04?auto=format&fit=crop&q=80&w=800', likes: '98K', premium: true },
+  { id: 'pv4', title: 'You & I [Remix] (Official Lyric Video)', views: '64K', date: 'Jun 10, 2024', duration: '2:41', category: 'Sessions', img: 'https://images.unsplash.com/photo-1511671782779-c97d3d27a1d4?auto=format&fit=crop&q=80&w=800', likes: '8K', premium: true },
+  { id: 'pv6', title: 'Put It On God ft. AlorG (Exclusive Raw Tape)', views: '403K', date: 'May 05, 2024', duration: '3:32', category: 'Sessions', img: 'https://images.unsplash.com/photo-1470225620780-dba8ba36b745?auto=format&fit=crop&q=80&w=800', likes: '42K', premium: true },
+  { id: 'v5', title: 'Acoustic Soul Session (Direct Studio Feed)', views: '210K', date: 'Apr 28, 2024', duration: '3:10', category: 'Sessions', img: 'https://images.unsplash.com/photo-1508700115892-45ecd05ae2ad?auto=format&fit=crop&q=80&w=600', likes: '19K' },
+  { id: 'v6', title: 'In-Ear Focus & Audio Monitor Setup Guide', views: '73K', date: 'Mar 15, 2024', duration: '8:45', category: 'Tutorials', img: 'https://images.unsplash.com/photo-1470225620780-dba8ba36b745?auto=format&fit=crop&q=80&w=600', likes: '6.7K' },
+  { id: '4', title: 'Secret Project 24 (Visual Album Outline)', views: '0', date: 'Just now', duration: '9:15', category: 'Drafts', img: 'https://images.unsplash.com/photo-1514525253361-bee8718a74a2?auto=format&fit=crop&q=80&w=400', likes: '0', draft: true },
+  { id: 'dv2', title: 'Cyberpunk Beats Jam [WIP Raw Take]', views: '0', date: 'Just now', duration: '5:40', category: 'Drafts', img: 'https://images.unsplash.com/photo-1511671782779-c97d3d27a1d4?auto=format&fit=crop&q=80&w=400', likes: '0', draft: true },
+];
 
 
 
@@ -103,11 +129,12 @@ const  ArtistProfile: React.FC = () => {
   // const isOwner = !route.params?.id || route.params?.id === 'Me';
   const tabs = useMemo(() => {
     if (isOwner) {
-      return ['Videos', 'Public', 'Premium',  'Tickets', 'Events', 'Challenges', 'Favorites', 'Saved'] as Tab[];
+      return ['Videos', 'Library', 'Premium',  'Tickets', 'Events', 'Challenges', 'Favorites', 'Saved'] as Tab[];
     }
-    return ['Videos', 'Public', 'Premium',  'Events', 'Challenges'] as Tab[];
+    return ['Videos', 'Library', 'Premium',  'Events', 'Challenges'] as Tab[];
   }, [isOwner]);
   const [activeTab, setActiveTab] = useState<Tab>('Videos');
+  const [librarySubTab, setLibrarySubTab] = useState<LibrarySubTab>('All');
   const [selectedSub, setSelectedSub] = useState<SubscriptionTier | null>(null);
   const [isProcessing, setIsProcessing] = useState(false);
   const [showSuccess, setShowSuccess] = useState(false);
@@ -118,15 +145,61 @@ const  ArtistProfile: React.FC = () => {
   const [playingSoundId, setPlayingSoundId] = useState<string | null>(null);
   const [billingCycle, setBillingCycle] = useState<Billing>('monthly');
   const [isRoleSwitchModalOpen, setIsRoleSwitchModalOpen] = useState(false);
+  const [libraryVideos, setLibraryVideos] = useState<LibraryVideo[]>(initialLibraryVideos);
+  const [activeMenuId, setActiveMenuId] = useState<string | null>(null);
+  const [editingVideo, setEditingVideo] = useState<LibraryVideo | null>(null);
+  const [editTitleValue, setEditTitleValue] = useState('');
   const ping = (m: string) => { setToast(m); setTimeout(() => setToast(''), 2200); };
   const share = async () => { try { await Share.share({ title: `${name} on Kulsah`, message: `Check out ${name}'s creative universe on Kulsah!` }); } catch { ping('Share failed'); } };
 
   useEffect(() => subscribeUser(setCurrentUser), []);
   useEffect(() => {
+    let mounted = true;
+    AsyncStorage.getItem('pulsar_library_videos')
+      .then((stored) => {
+        if (stored && mounted) {
+          setLibraryVideos(JSON.parse(stored));
+        }
+      })
+      .catch(() => undefined);
+    return () => {
+      mounted = false;
+    };
+  }, []);
+  useEffect(() => {
     if (!tabs.includes(activeTab)) {
       setActiveTab('Videos');
     }
   }, [activeTab, tabs]);
+  useEffect(() => {
+    if (librarySubTab === 'Drafts' && !isOwner) {
+      setLibrarySubTab('All');
+    }
+  }, [isOwner, librarySubTab]);
+
+  const persistLibraryVideos = (videosToPersist: LibraryVideo[]) => {
+    setLibraryVideos(videosToPersist);
+    void AsyncStorage.setItem('pulsar_library_videos', JSON.stringify(videosToPersist));
+  };
+
+  const updateLibraryVideo = (videoId: string, patch: Partial<LibraryVideo>) => {
+    persistLibraryVideos(libraryVideos.map((video) => (video.id === videoId ? { ...video, ...patch } : video)));
+  };
+
+  const deleteLibraryVideo = (videoId: string) => {
+    Alert.alert('Delete Video', 'Are you sure you want to delete this video from your catalog?', [
+      { text: 'Cancel', style: 'cancel', onPress: () => setActiveMenuId(null) },
+      {
+        text: 'Delete',
+        style: 'destructive',
+        onPress: () => {
+          persistLibraryVideos(libraryVideos.filter((video) => video.id !== videoId));
+          ping('Video has been deleted successfully');
+          setActiveMenuId(null);
+        },
+      },
+    ]);
+  };
 
 
   const recentVideos = [
@@ -369,6 +442,228 @@ const PlaylistSection = () => {
     </View>
   );
 
+  const renderLibrary = () => {
+    const isSubscribed = Boolean((currentUser as any)?.subscribedTo?.includes(name)) || isOwner;
+    const canManageLibrary = isOwner || currentUser?.role === 'creator';
+    const subTabs = (isOwner ? ['All', 'Public', 'Premium', 'Drafts'] : ['All', 'Public', 'Premium']) as LibrarySubTab[];
+    const filteredLibrary = libraryVideos.filter((item) => {
+      if (librarySubTab === 'Drafts') return Boolean(item.draft);
+      if (item.draft) return false;
+      if (librarySubTab === 'All') return true;
+      if (librarySubTab === 'Premium') return Boolean(item.premium);
+      return !item.premium;
+    });
+
+    return (
+      <View style={s.librarySection}>
+        <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={s.librarySubTabs}>
+          {subTabs.map((subTab) => {
+            const active = librarySubTab === subTab;
+            return (
+              <Pressable
+                key={subTab}
+                onPress={() => setLibrarySubTab(subTab)}
+                style={[s.librarySubTab, { backgroundColor: active ? PRIMARY_COLOR : faintSurface }]}
+              >
+                <Text style={[s.librarySubTabText, { color: active ? '#fff' : theme.textSecondary }]}>{subTab}</Text>
+              </Pressable>
+            );
+          })}
+        </ScrollView>
+
+        <View style={s.libraryGrid}>
+          {filteredLibrary.map((item) => {
+            const isLocked = Boolean(item.premium) && !isSubscribed;
+            return (
+              <Pressable
+                key={item.id}
+                onPress={() => {
+                  setActiveMenuId(null);
+                  if (isLocked) {
+                    ping('Unlock the exclusive Galaxy tier to access this library video!');
+                    openSubscription();
+                    return;
+                  }
+                  ping(`Loading Video: ${item.title}`);
+                  navigation.navigate('VideoPlayer');
+                }}
+                style={[s.libraryCard, { backgroundColor: isDark ? '#0f172a' : theme.surface, borderColor: isDark ? 'rgba(255,255,255,0.1)' : theme.border }]}
+              >
+                <Image source={{ uri: item.img }} style={s.libraryImage} />
+                <LinearGradient colors={['transparent', 'rgba(0,0,0,0.3)', 'rgba(0,0,0,0.95)']} style={StyleSheet.absoluteFillObject} />
+
+                <View style={[s.libraryBadge, { backgroundColor: item.draft ? 'rgba(82,82,91,0.92)' : item.premium ? 'rgba(245,158,11,0.88)' : 'rgba(37,99,235,0.88)', borderStyle: item.draft ? 'dashed' : 'solid' }]}>
+                  <MaterialIcons name={item.draft ? 'drafts' : item.premium ? 'stars' : 'public'} size={10} color="#fff" />
+                  <Text style={s.libraryBadgeText}>{item.draft ? 'Draft' : item.premium ? 'Premium' : 'Public'}</Text>
+                </View>
+
+                {canManageLibrary ? (
+                  <View style={s.libraryMenuWrap}>
+                    <Pressable
+                      onPress={(event) => {
+                        event.stopPropagation();
+                        setActiveMenuId(activeMenuId === item.id ? null : item.id);
+                      }}
+                      style={s.libraryMenuTrigger}
+                    >
+                      <MaterialIcons name="more-vert" size={20} color="#fff" />
+                    </Pressable>
+
+                    {activeMenuId === item.id ? (
+                      <View style={[s.libraryMenu, { backgroundColor: isDark ? '#09090b' : '#fff', borderColor: isDark ? 'rgba(255,255,255,0.08)' : theme.border }]}>
+                        <Pressable
+                          onPress={(event) => {
+                            event.stopPropagation();
+                            setEditingVideo(item);
+                            setEditTitleValue(item.title);
+                            setActiveMenuId(null);
+                          }}
+                          style={s.libraryMenuItem}
+                        >
+                          <MaterialIcons name="edit" size={15} color={theme.textSecondary} />
+                          <Text style={[s.libraryMenuText, { color: theme.text }]}>Edit Title</Text>
+                        </Pressable>
+
+                        {item.draft ? (
+                          <>
+                            <Pressable
+                              onPress={(event) => {
+                                event.stopPropagation();
+                                updateLibraryVideo(item.id, { draft: false, premium: false });
+                                ping('Video published to Public!');
+                                setActiveMenuId(null);
+                              }}
+                              style={s.libraryMenuItem}
+                            >
+                              <MaterialIcons name="public" size={15} color="#2563eb" />
+                              <Text style={[s.libraryMenuText, { color: theme.text }]}>Publish to Public</Text>
+                            </Pressable>
+                            <Pressable
+                              onPress={(event) => {
+                                event.stopPropagation();
+                                updateLibraryVideo(item.id, { draft: false, premium: true });
+                                ping('Video published to Premium!');
+                                setActiveMenuId(null);
+                              }}
+                              style={s.libraryMenuItem}
+                            >
+                              <MaterialIcons name="stars" size={15} color="#f59e0b" />
+                              <Text style={[s.libraryMenuText, { color: theme.text }]}>Publish as Premium</Text>
+                            </Pressable>
+                          </>
+                        ) : (
+                          <>
+                            <Pressable
+                              onPress={(event) => {
+                                event.stopPropagation();
+                                updateLibraryVideo(item.id, { premium: !item.premium });
+                                ping(`Video moved to ${item.premium ? 'Public' : 'Premium'}`);
+                                setActiveMenuId(null);
+                              }}
+                              style={s.libraryMenuItem}
+                            >
+                              <MaterialIcons name={item.premium ? 'public' : 'stars'} size={15} color={theme.textSecondary} />
+                              <Text style={[s.libraryMenuText, { color: theme.text }]}>Move to {item.premium ? 'Public' : 'Premium'}</Text>
+                            </Pressable>
+                            <Pressable
+                              onPress={(event) => {
+                                event.stopPropagation();
+                                updateLibraryVideo(item.id, { draft: true });
+                                ping('Video has been moved to Drafts!');
+                                setActiveMenuId(null);
+                              }}
+                              style={s.libraryMenuItem}
+                            >
+                              <MaterialIcons name="drafts" size={15} color="#71717a" />
+                              <Text style={[s.libraryMenuText, { color: theme.text }]}>Revert to Draft</Text>
+                            </Pressable>
+                          </>
+                        )}
+
+                        <View style={[s.libraryMenuDivider, { backgroundColor: isDark ? 'rgba(255,255,255,0.06)' : 'rgba(15,23,42,0.08)' }]} />
+                        <Pressable
+                          onPress={(event) => {
+                            event.stopPropagation();
+                            deleteLibraryVideo(item.id);
+                          }}
+                          style={s.libraryMenuItem}
+                        >
+                          <MaterialIcons name="delete" size={15} color="#f43f5e" />
+                          <Text style={[s.libraryMenuText, { color: '#e11d48' }]}>Delete Video</Text>
+                        </Pressable>
+                      </View>
+                    ) : null}
+                  </View>
+                ) : null}
+
+                <View style={s.libraryDuration}>
+                  <Text style={s.libraryDurationText}>{item.duration}</Text>
+                </View>
+
+                {!isLocked ? (
+                  <View style={s.libraryPlay}>
+                    <MaterialIcons name="play-arrow" size={25} color="#fff" />
+                  </View>
+                ) : null}
+
+                {isLocked ? (
+                  <View style={s.libraryLockOverlay}>
+                    <View style={s.libraryLockIcon}>
+                      <MaterialIcons name="lock" size={22} color="#cca514" />
+                    </View>
+                    <Text style={s.libraryLockText}>VIP Subscribers Only</Text>
+                  </View>
+                ) : null}
+
+                <View style={s.libraryCardText}>
+                  <Text numberOfLines={1} style={s.libraryMeta}>{item.category || 'Sessions'}</Text>
+                  <Text numberOfLines={1} style={s.libraryTitle}>{item.title}</Text>
+                </View>
+              </Pressable>
+            );
+          })}
+        </View>
+
+        <Modal visible={Boolean(editingVideo)} transparent animationType="fade" statusBarTranslucent onRequestClose={() => setEditingVideo(null)}>
+          <View style={s.libraryEditOverlay}>
+            <Pressable style={StyleSheet.absoluteFillObject} onPress={() => setEditingVideo(null)} />
+            <View style={[s.libraryEditCard, { backgroundColor: isDark ? '#09090b' : theme.card, borderColor: theme.border }]}>
+              <Text style={[s.libraryEditTitle, { color: theme.text }]}>Edit Title</Text>
+              <TextInput
+                value={editTitleValue}
+                onChangeText={setEditTitleValue}
+                placeholder="Video title"
+                placeholderTextColor={theme.textSecondary}
+                style={[s.libraryEditInput, { color: theme.text, borderColor: theme.border, backgroundColor: isDark ? 'rgba(255,255,255,0.05)' : 'rgba(15,23,42,0.04)' }]}
+              />
+              <View style={s.libraryEditActions}>
+                <Pressable onPress={() => setEditingVideo(null)} style={[s.libraryEditButton, { backgroundColor: faintSurface }]}>
+                  <Text style={[s.libraryEditButtonText, { color: theme.text }]}>Cancel</Text>
+                </Pressable>
+                <Pressable
+                  onPress={() => {
+                    if (!editingVideo) return;
+                    const nextTitle = editTitleValue.trim();
+                    if (!nextTitle) {
+                      ping('Title cannot be empty');
+                      return;
+                    }
+                    updateLibraryVideo(editingVideo.id, { title: nextTitle });
+                    setEditingVideo(null);
+                    ping('Video title updated');
+                  }}
+                  style={[s.libraryEditButton, s.libraryEditPrimary]}
+                >
+                  <Text style={[s.libraryEditButtonText, { color: '#fff' }]}>Save</Text>
+                </Pressable>
+              </View>
+            </View>
+          </View>
+        </Modal>
+      </View>
+    );
+  };
+
   const calculatePrice = (basePrice: string) => {
     const price = parseFloat(basePrice);
     if (billingCycle === 'monthly') return price.toFixed(2);
@@ -609,7 +904,7 @@ const PlaylistSection = () => {
           {
             tab === 'Videos' ? <PlayIcon height={22} width={22} fill={activeTab === tab ? PRIMARY_COLOR : '#69738d'}/>:
             tab === 'Premium' ? <StarsIcon height={22} width={22} fill={activeTab === tab ? PRIMARY_COLOR : '#69738d'}/>:
-            tab === 'Public' ? <PublicIcon height={22} width={22} fill={activeTab === tab ? PRIMARY_COLOR : '#69738d'}/>:
+            tab === 'Library' ? <MaterialIcons name="library-music" size={22} color={activeTab === tab ? PRIMARY_COLOR : '#69738d'}/>:
             tab === 'Tickets'? <MaterialIcons name="local-activity" size={22} color={activeTab === tab ? PRIMARY_COLOR : '#69738d'}/>:
             tab === 'Events'? <CalenderIcon height={22} width={22} fill={activeTab === tab ? PRIMARY_COLOR : '#69738d'}/>:
             tab === 'Challenges'?<TrophyIcon height={22} width={22} fill={activeTab === tab ? PRIMARY_COLOR : '#69738d'}/>:
@@ -623,7 +918,7 @@ const PlaylistSection = () => {
 
         <View style={s.body}>
           {activeTab === 'Videos' ? renderGrid(videos) : null}
-          {activeTab === 'Premium' || activeTab === 'Public'
+          {activeTab === 'Premium'
             ? 
             // renderGrid(premiumVideos, () => {
             //     if (isOwner) {
@@ -905,8 +1200,9 @@ const PlaylistSection = () => {
                   })}
                 </View>
               </View>
-            </View>)
-            : null}
+              </View>)
+              : null}
+          {activeTab === 'Library' ? renderLibrary() : null}
 
 
 
@@ -1669,6 +1965,250 @@ const s = StyleSheet.create({
     lineHeight: fontSize.b5.fontSize + 1,
     textTransform: 'uppercase',
     letterSpacing: 1.1,
+  },
+  librarySection: {
+    gap: 12,
+  },
+  librarySubTabs: {
+    gap: 8,
+    paddingHorizontal: 16,
+    paddingVertical: 2,
+  },
+  librarySubTab: {
+    minHeight: 34,
+    borderRadius: 999,
+    paddingHorizontal: 18,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  librarySubTabText: {
+    ...fontSize.b5,
+    lineHeight: fontSize.b5.fontSize + 1,
+    textTransform: 'uppercase',
+    letterSpacing: 1.4,
+  },
+  libraryGrid: {
+    flexDirection: 'row',
+    flexWrap: 'wrap',
+    gap: 6,
+    paddingHorizontal: 3,
+    overflow: 'visible',
+  },
+  libraryCard: {
+    width: '49.1%',
+    aspectRatio: 9 / 16,
+    overflow: 'hidden',
+    borderWidth: 1,
+    position: 'relative',
+    marginTop: 4,
+  },
+  libraryImage: {
+    width: '100%',
+    height: '100%',
+  },
+  libraryBadge: {
+    position: 'absolute',
+    top: 10,
+    left: 10,
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 3,
+    borderRadius: 999,
+    paddingHorizontal: 8,
+    paddingVertical: 4,
+    borderWidth: 1,
+    borderColor: 'rgba(255,255,255,0.18)',
+    zIndex: 8,
+  },
+  libraryBadgeText: {
+    color: '#fff',
+    ...fontSize.b5,
+    lineHeight: fontSize.b5.fontSize + 1,
+    textTransform: 'uppercase',
+    letterSpacing: 1,
+  },
+  libraryDuration: {
+    position: 'absolute',
+    right: 10,
+    bottom: 10,
+    borderRadius: 8,
+    backgroundColor: 'rgba(0,0,0,0.76)',
+    paddingHorizontal: 7,
+    paddingVertical: 3,
+    zIndex: 7,
+  },
+  libraryDurationText: {
+    color: '#fff',
+    ...fontSize.b5,
+    lineHeight: fontSize.b5.fontSize + 1,
+  },
+  libraryPlay: {
+    position: 'absolute',
+    alignSelf: 'center',
+    top: '42%',
+    width: 48,
+    height: 48,
+    borderRadius: 24,
+    backgroundColor: 'rgba(255,255,255,0.24)',
+    borderWidth: 1,
+    borderColor: 'rgba(255,255,255,0.3)',
+    alignItems: 'center',
+    justifyContent: 'center',
+    zIndex: 5,
+  },
+  libraryLockOverlay: {
+    ...StyleSheet.absoluteFillObject,
+    backgroundColor: 'rgba(0,0,0,0.62)',
+    alignItems: 'center',
+    justifyContent: 'center',
+    gap: 8,
+    paddingHorizontal: 12,
+    zIndex: 12,
+  },
+  libraryLockIcon: {
+    width: 46,
+    height: 46,
+    borderRadius: 23,
+    backgroundColor: 'rgba(0,0,0,0.84)',
+    borderWidth: 1,
+    borderColor: 'rgba(204,165,20,0.35)',
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  libraryLockText: {
+    color: '#cca514',
+    textAlign: 'center',
+    ...fontSize.b5,
+    lineHeight: fontSize.b5.fontSize + 1,
+    textTransform: 'uppercase',
+    letterSpacing: 1.2,
+  },
+  libraryCardText: {
+    position: 'absolute',
+    left: 10,
+    right: 48,
+    bottom: 10,
+    gap: 3,
+    zIndex: 7,
+  },
+  libraryTitle: {
+    color: '#fff',
+    ...fontSize.b5,
+    lineHeight: fontSize.b5.fontSize + 2,
+    textTransform: 'uppercase',
+  },
+  libraryMeta: {
+    color: '#fb7185',
+    ...fontSize.b5,
+    lineHeight: fontSize.b5.fontSize + 1,
+    textTransform: 'uppercase',
+    letterSpacing: 0.8,
+  },
+  libraryLikesRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 4,
+  },
+  libraryLikes: {
+    color: 'rgba(255,255,255,0.72)',
+    ...fontSize.b5,
+    lineHeight: fontSize.b5.fontSize + 1,
+    textTransform: 'uppercase',
+  },
+  libraryMenuWrap: {
+    position: 'absolute',
+    top: 10,
+    right: 10,
+    zIndex: 30,
+    alignItems: 'flex-end',
+  },
+  libraryMenuTrigger: {
+    width: 32,
+    height: 32,
+    borderRadius: 16,
+    backgroundColor: 'rgba(0,0,0,0.6)',
+    borderWidth: 1,
+    borderColor: 'rgba(255,255,255,0.1)',
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  libraryMenu: {
+    width: 176,
+    borderRadius: 18,
+    borderWidth: 1,
+    paddingVertical: 8,
+    marginTop: 8,
+    shadowColor: '#000',
+    shadowOpacity: 0.24,
+    shadowRadius: 18,
+    elevation: 12,
+  },
+  libraryMenuItem: {
+    minHeight: 38,
+    paddingHorizontal: 14,
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 9,
+  },
+  libraryMenuText: {
+    ...fontSize.b5,
+    lineHeight: fontSize.b5.fontSize + 2,
+    textTransform: 'uppercase',
+    letterSpacing: 0.8,
+    flexShrink: 1,
+  },
+  libraryMenuDivider: {
+    height: 1,
+    marginVertical: 4,
+  },
+  libraryEditOverlay: {
+    flex: 1,
+    backgroundColor: 'rgba(0,0,0,0.62)',
+    alignItems: 'center',
+    justifyContent: 'center',
+    padding: 20,
+  },
+  libraryEditCard: {
+    width: '100%',
+    maxWidth: 360,
+    borderRadius: 24,
+    borderWidth: 1,
+    padding: 18,
+    gap: 14,
+  },
+  libraryEditTitle: {
+    ...fontSize.b3,
+    lineHeight: fontSize.b3.fontSize + 3,
+    textTransform: 'uppercase',
+    letterSpacing: 1,
+  },
+  libraryEditInput: {
+    minHeight: 48,
+    borderRadius: 14,
+    borderWidth: 1,
+    paddingHorizontal: 14,
+    ...fontSize.b4,
+    lineHeight: fontSize.b4.fontSize + 4,
+  },
+  libraryEditActions: {
+    flexDirection: 'row',
+    gap: 10,
+  },
+  libraryEditButton: {
+    flex: 1,
+    minHeight: 46,
+    borderRadius: 14,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  libraryEditPrimary: {
+    backgroundColor: PRIMARY_COLOR,
+  },
+  libraryEditButtonText: {
+    ...fontSize.b5,
+    lineHeight: fontSize.b5.fontSize + 2,
+    textTransform: 'uppercase',
+    letterSpacing: 1,
   },
   tabIndicator: {
     position: 'absolute',
