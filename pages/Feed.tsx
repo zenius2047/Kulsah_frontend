@@ -223,7 +223,7 @@ const SHAKE_FORCE_THRESHOLD = 2.05;
 const SHAKE_DELTA_THRESHOLD = 1.15;
 const SHAKE_REFRESH_COOLDOWN_MS = 1400;
 const INITIAL_SUBSCRIPTION: SubscriptionTier = {
-  name: 'Kulsah Access',
+  name: 'Kulsah',
   price: '9.99',
   perks: [
     'Exclusive Feed Access',
@@ -1191,6 +1191,8 @@ useEffect(() => {
           <MaterialIcons name="share" size={28} color="white" />
           <Text style={{ 
             color: 'white', 
+            fontSize: fontSize.b3.fontSize -2,
+            fontFamily: fontSize.b3.fontFamily,
             }}>{item.bookmarks}</Text>
         </Pressable>
 

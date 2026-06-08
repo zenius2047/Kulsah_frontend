@@ -2,15 +2,18 @@ import { MaterialIcons } from '@expo/vector-icons';
 import { useNavigation } from '@react-navigation/native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import React, { useState } from 'react';
-import { Pressable, ScrollView, Text, View } from 'react-native';
+import { Platform, Pressable, ScrollView, Text, View } from 'react-native';
 import { setUser, User } from '../types';
 import { SignupVibesStep } from './Signup';
-import { PRIMARY_COLOR } from "../theme";
+import { useThemeMode } from "../theme";
 import { fontSize } from './typography';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 const SignupVibes: React.FC = () => {
   const navigation = useNavigation<any>();
   const [selectedVibes, setSelectedVibes] = useState<Set<string>>(new Set());
+  const insets = useSafeAreaInsets();
+  const { isDark, theme } = useThemeMode();
 
   const toggleVibe = (id: string) => {
     setSelectedVibes((prev) => {
@@ -35,10 +38,10 @@ const SignupVibes: React.FC = () => {
   };
 
   return (
-    <View style={{ flex: 1, backgroundColor: '#000', paddingTop: 50 }}>
-      <View style={{ height: 4, backgroundColor: 'rgba(255,255,255,0.1)' }}>
+    <View style={{ flex: 1, backgroundColor: theme.screen, paddingTop: Platform.OS === 'ios' ? 54: insets.top }}>
+      {/* <View style={{ height: 4, backgroundColor: 'rgba(255,255,255,0.1)' }}>
         <View style={{ height: '100%', width: '50%', backgroundColor: PRIMARY_COLOR }} />
-      </View>
+      </View> */}
 
       <View
         style={{
@@ -46,7 +49,7 @@ const SignupVibes: React.FC = () => {
           alignItems: 'center',
           justifyContent: 'space-between',
           paddingHorizontal: 20,
-          paddingTop: 46,
+          // paddingTop: 16,
           paddingBottom: 14,
         }}
       >
@@ -55,14 +58,14 @@ const SignupVibes: React.FC = () => {
           style={{
             borderRadius: 999,
             padding: 10,
-            borderColor: '#ffffff1a',
+            borderColor: theme.border,
             borderWidth: 1,
-            backgroundColor: '#1f1022bf',
+            backgroundColor: isDark ? 'rgba(31,16,34,0.75)' : 'rgba(15,23,42,0.04)',
           }}
         >
-          <MaterialIcons name="chevron-left" color="white" size={24} />
+          <MaterialIcons name="chevron-left" color={theme.text} size={24} />
         </Pressable>
-        <Text style={{ color: 'white', fontWeight: '900', ...fontSize.b1, lineHeight: fontSize.b1.fontSize + 2 }}>KULSAH</Text>
+        <Text style={{ color: theme.text, fontWeight: '900', ...fontSize.b1, lineHeight: fontSize.b1.fontSize + 2 }}>KULSAH</Text>
         <View style={{ width: 24 }} />
       </View>
 

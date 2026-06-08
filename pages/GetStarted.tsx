@@ -20,6 +20,9 @@ import KulsahBlack from '../assets/icons/kulsah-black-svg.svg';
 import KulsahWhite from '../assets/icons/kulsah-white-svg.svg';
 import { useThemeMode, PRIMARY_COLOR, primaryColorAlpha } from "../theme";
 import { fontSize } from './typography';
+import TicketIcon from '../assets/icons/Ticket1.svg';
+import Discover from '../assets/icons/Discover1.svg';
+import LiveChat from '../assets/icons/live-chat1.svg';
 
 
 const heroImage =
@@ -94,7 +97,7 @@ const GetStarted: React.FC = () => {
           </ImageBackground>
         </View> */}
 
-        <View style={s.topContent}>
+        <View style={[s.topContent, {}]}>
           {/* <View style={s.badgeWrap}>
             <View style={s.badge}>
               <Text style={s.badgeText}>Join the pulse</Text>
@@ -108,19 +111,24 @@ const GetStarted: React.FC = () => {
           <View style={{
             // backgroundColor: 'red',
           }}>
-            {isDark ? <KulsahWhite height={60} width='100%'/> : <KulsahBlack height={60} width='100%'/>}
+            {isDark ? <KulsahWhite height={mediumScreen ? 70:60} width='100%'/> : <KulsahBlack height={mediumScreen ? 70:60} width='100%'/>}
           </View>
-          <Text style={[s.subtitle, { color: subtitleColor }]}>
+          <View style={{}}>
+            <Text style={[s.subtitle, { color: subtitleColor, marginTop: 25 }]}>
             The cosmic infrastructure for the next generation of African stars.
             One unified universe for content, commerce, and community.
           </Text>
+          </View>
         </View>
 
-        <View style={s.cardStack}>
+        <View style={[s.cardStack, {}]}>
           {featureCards.map((item) => (
             <View key={item.title} style={[s.featureCard, { backgroundColor: cardBackground, borderColor: cardBorder }]}>
               <View style={[s.featureIcon, { backgroundColor: item.soft }]}>
-                <MaterialIcons name={item.icon} size={22} color={item.tint} />
+                {/* <MaterialIcons name={item.icon} size={22} color={item.tint} /> */}
+                {item.icon === 'explore' && <Discover height={24} width={24}/>}
+                {item.icon === 'confirmation-number' && <TicketIcon height={24} width={24}/>}
+                {item.icon === 'forum' && <LiveChat height={24} width={24}/>}
               </View>
               <View style={s.featureCopy}>
                 <Text style={[s.featureTitle, { color: theme.text }]}>{item.title}</Text>
@@ -198,6 +206,8 @@ const s = StyleSheet.create({
     paddingTop: 12,
     paddingBottom: 28,
     justifyContent: 'space-between',
+    // backgroundColor: 'blue',
+    gap: 25,
   },
   heroWrap: {
     position: 'absolute',
@@ -258,11 +268,13 @@ const s = StyleSheet.create({
   },
   subtitle: {
     marginTop: 5,
-    ...fontSize.b3, lineHeight: fontSize.b3.fontSize + 2,
+    fontSize: fontSize.b3.fontSize + (mediumScreen ? 3: 0),
+    fontFamily: fontSize.b3.fontFamily,
+    lineHeight: fontSize.b3.fontSize + (mediumScreen ? 3: 0) + 2,
     textAlign: 'center',
   },
   cardStack: {
-    marginTop: 40,
+    marginTop: 15,
     gap: 14,
   },
   featureCard: {
@@ -322,7 +334,7 @@ const s = StyleSheet.create({
   },
   avatarMoreText: {
     color: '#f8fafc',
-    ...fontSize.b4, lineHeight: fontSize.b4.fontSize + 1,
+    ...fontSize.b5, lineHeight: fontSize.b5.fontSize + 1,
   },
   communityText: {
     color: '#94a3b8',
@@ -357,7 +369,7 @@ const s = StyleSheet.create({
   disclaimer: {
     color: 'rgba(208,193,216,0.65)',
     textAlign: 'center',
-    ...fontSize.b5,
+    ...fontSize.b4,
     lineHeight: fontSize.b3.fontSize + 2,
     paddingHorizontal: 8,
   },

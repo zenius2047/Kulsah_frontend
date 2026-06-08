@@ -10,6 +10,7 @@ import {
   Text,
   View,
   Image,
+  ImageBackground,
 } from 'react-native';
 import { useNavigation, useRoute } from '@react-navigation/native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
@@ -18,6 +19,7 @@ import { GoogleGenAI } from '@google/genai';
 import KulsahInputBar from '../components/KulsahInputBar';
 import GiftDialog, { GiftSelection } from '../components/GiftDialog';
 import { fontSize } from './typography';
+import { LinearGradient } from 'expo-linear-gradient';
 
 interface Message {
   id: number;
@@ -241,16 +243,32 @@ const ChatView: React.FC = () => {
   const softSurface = isDark ? 'rgba(255,255,255,0.05)' : theme.surface;
   const chipBg = isDark ? primaryColorAlpha(0.15) : theme.accentSoft;
   const chipBorder = isDark ? primaryColorAlpha(0.35) : primaryColorAlpha(0.25);
-  const bubbleOther = isDark ? 'rgba(255,255,255,0.08)' : theme.surface;
+  const bubbleOther = isDark ? 'rgba(255,255,255,0.08)' : 'rgb(255, 255, 255)';
   const callOverlayBg = isDark ? '#000' : 'rgba(15,23,42,0.94)';
   const iconBtnBg = isDark ? 'rgba(255,255,255,0.06)' : 'rgba(15,23,42,0.06)';
   const iconBtnBorder = isDark ? 'rgba(255,255,255,0.12)' : border;
+  const chatBackground = isDark
+  ? require('../assets/Chat dark.png')
+  : require('../assets/Chat white.png');
+  
 
   return (
+    <ImageBackground
+      source={chatBackground}
+      resizeMode="cover"
+      style={{ flex: 1, backgroundColor: theme.screen }}
+    >
+      <LinearGradient
+          colors={[
+            'rgba(0,0,0,0.0)',
+            'rgba(0,0,0,0.0)',
+          ]}
+          style={{ flex: 1 }}
+        >
     <KeyboardAvoidingView style={{ flex: 1 }} behavior={Platform.OS === 'ios' ? 'padding' : undefined} keyboardVerticalOffset={0}>
-    <View style={[styles.screen, { backgroundColor: theme.screen }]}>
+    <View style={styles.screen}>
       <Modal visible={callStatus !== 'idle'} transparent animationType="fade" statusBarTranslucent>
-        <View style={[styles.callOverlay, { backgroundColor: callOverlayBg }]}>
+        <View style={[styles.callOverlay, {}]}>
           <View style={styles.callTop}>
             <Image source={{ uri: `https://picsum.photos/seed/${id}/300` }} style={styles.callAvatar} />
             <Text style={[styles.callName, { color: primaryText }]}>{id.replace('_', ' ')}</Text>
@@ -502,11 +520,13 @@ const ChatView: React.FC = () => {
       />
     </View>
     </KeyboardAvoidingView>
+    </LinearGradient>
+    </ImageBackground>
   );
 };
 
 const styles = StyleSheet.create({
-  screen: { flex: 1, backgroundColor: '#09090b' },
+  screen: { flex: 1 },
   callOverlay: {
     flex: 1,
     justifyContent: 'space-between',
@@ -570,7 +590,7 @@ const styles = StyleSheet.create({
   msgRow: { marginBottom: 14 },
   msgBubble: { maxWidth: '86%', borderRadius: 20, paddingHorizontal: 14, paddingVertical: 11 },
   msgMine: { backgroundColor: PRIMARY_COLOR },
-  msgOther: { backgroundColor: 'rgba(255,255,255,0.08)', borderWidth: 1, borderColor: 'rgba(255,255,255,0.06)' },
+  msgOther: { backgroundColor: 'rgba(255, 255, 255, 0.08)', borderWidth: 1, borderColor: 'rgba(255,255,255,0.06)' },
   msgText: { ...fontSize.b3, lineHeight: 19 },
   msgMeta: { marginTop: 5, ...fontSize.b5, lineHeight: fontSize.b5.fontSize + 1 },
   dropBubble: {

@@ -1,4 +1,4 @@
-import React, { useEffect, useMemo, useState } from 'react';
+import React, { useEffect, useMemo, useRef, useState } from 'react';
 import { Image, Keyboard, KeyboardAvoidingView, Platform, Pressable, ScrollView, StyleSheet, Text, View } from 'react-native';
 import { MaterialIcons } from '@expo/vector-icons';
 import { BlurView } from 'expo-blur';
@@ -90,6 +90,7 @@ const Reactions: React.FC<ReactionsProps> = ({
   const [giftDialogOpen, setGiftDialogOpen] = useState(false);
   const [topUpOpen, setTopUpOpen] = useState(false);
   const [localCoinBalance, setLocalCoinBalance] = useState(1250);
+  const sendingMessageRef = useRef(false);
 
   const shellBackground = isDark ? 'rgba(10,5,13,0.92)' : 'rgba(255,255,255,0.96)';
   const cardBackground = isDark ? 'rgba(255,255,255,0.04)' : 'rgba(15,23,42,0.04)';
@@ -105,6 +106,7 @@ const Reactions: React.FC<ReactionsProps> = ({
     const showSubscription = Keyboard.addListener(
       'keyboardDidShow',
       (e) => {
+        console.log("it's showing the keyboard");
         setKeyboardHeight(e.endCoordinates.height);
       }
     );
@@ -112,6 +114,7 @@ const Reactions: React.FC<ReactionsProps> = ({
     const hideSubscription = Keyboard.addListener(
       'keyboardDidHide',
       () => {
+        console.log("Keyboard disappears")
         setKeyboardHeight(0);
       }
     );
@@ -133,17 +136,25 @@ const Reactions: React.FC<ReactionsProps> = ({
   });
 
   const handleSendMessage = () => {
+    if (sendingMessageRef.current) {
+      return;
+    }
+
     const nextMessage = message.trim();
     if (!nextMessage) {
       return;
     }
 
+    sendingMessageRef.current = true;
     setComments((prev) => [
       ...prev,
       createComment({ text: nextMessage }),
     ]);
     setMessage('');
     setReplyingTo(null);
+    requestAnimationFrame(() => {
+      sendingMessageRef.current = false;
+    });
   };
 
   const handleEmojiSelect = (emoji: string) => {
@@ -240,7 +251,12 @@ const Reactions: React.FC<ReactionsProps> = ({
           })}
         </View> */}
 
-        <ScrollView showsVerticalScrollIndicator={false} contentContainerStyle={[styles.content, comments.length === 0 && styles.emptyContent]} keyboardShouldPersistTaps="handled">
+        <ScrollView
+          showsVerticalScrollIndicator={false}
+          contentContainerStyle={[styles.content, comments.length === 0 && styles.emptyContent]}
+          keyboardShouldPersistTaps="always"
+          keyboardDismissMode="none"
+        >
           {comments.length === 0 ? (
             <View style={styles.emptyState}>
               <EmptyStateComment width={180} height={180} />
@@ -387,11 +403,19 @@ const Reactions: React.FC<ReactionsProps> = ({
                       <MaterialIcons name="mood" size={26} color={pickerOpen ? PRIMARY_COLOR : secondary} />
                     </Pressable>
                   </View>
-                  {message ? (
-                    <Pressable onPress={handleSendMessage} style={styles.sendButton}>
+                  <View>
+                    {message ? (
+                    <Pressable
+                      accessibilityRole="button"
+                      accessibilityLabel="Send message"
+                      onTouchStart={handleSendMessage}
+                      onPress={handleSendMessage}
+                      style={styles.sendButton}
+                    >
                       <MaterialIcons name="send" size={18} color="#fff" />
                     </Pressable>
                   ) : null}
+                  </View>
                 </>
               )}
             />

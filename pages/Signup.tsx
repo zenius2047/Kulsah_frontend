@@ -52,10 +52,13 @@ export const SignupVibesStep: React.FC<SignupVibesStepProps> = ({
   selectedVibes,
   onToggleVibe,
   onContinue,
-}) => (
+}) => {
+  const { isDark, theme } = useThemeMode();
+
+  return (
   <View style={{ gap: 14 }}>
-    <Text style={{ color: 'white', ...fontSize.b1, lineHeight: fontSize.b1.fontSize + 2 }}>Inspirations</Text>
-    <Text style={{ color: '#cbd5e1', ...fontSize.b5, lineHeight: fontSize.b5.fontSize + 1 }}>Select your preferred creative orbits.</Text>
+    <Text style={{ color: theme.text, ...fontSize.b1, lineHeight: fontSize.b1.fontSize + 2 }}>Inspirations</Text>
+    <Text style={{ color: theme.textSecondary, ...fontSize.b5, lineHeight: fontSize.b5.fontSize + 1 }}>Select your preferred creative orbits.</Text>
     <View style={{ flexDirection: 'row', flexWrap: 'wrap', gap: 10 }}>
       {INSPIRATIONS.map((tag) => {
         const isSelected = selectedVibes.has(tag.id);
@@ -68,7 +71,8 @@ export const SignupVibesStep: React.FC<SignupVibesStepProps> = ({
               borderRadius: 16,
               overflow: 'hidden',
               borderWidth: 2,
-              borderColor: isSelected ? PRIMARY_COLOR : 'rgba(255,255,255,0.1)',
+              borderColor: isSelected ? PRIMARY_COLOR : theme.border,
+              backgroundColor: theme.card,
             }}
           >
             <Image source={{ uri: tag.img }} style={{ width: '100%', height: 140 }} />
@@ -92,7 +96,7 @@ export const SignupVibesStep: React.FC<SignupVibesStepProps> = ({
       disabled={selectedVibes.size === 0}
       onPress={onContinue}
       style={{
-        backgroundColor: selectedVibes.size > 0 ? PRIMARY_COLOR : 'rgba(255,255,255,0.25)',
+        backgroundColor: selectedVibes.size > 0 ? PRIMARY_COLOR : isDark ? 'rgba(255,255,255,0.25)' : 'rgba(15,23,42,0.16)',
         borderRadius: 20,
         height: 56,
         alignItems: 'center',
@@ -102,7 +106,8 @@ export const SignupVibesStep: React.FC<SignupVibesStepProps> = ({
       <Text style={{ color: 'white' }}>Secure Orbits</Text>
     </Pressable>
   </View>
-);
+  );
+};
 
 const Signup: React.FC<SignupProps> = ({ onLogin }) => {
   const { isDark, theme } = useThemeMode();
@@ -171,9 +176,9 @@ const Signup: React.FC<SignupProps> = ({ onLogin }) => {
   return (
     <KeyboardAvoidingView style={{ flex: 1 }} behavior={Platform.OS === 'ios' ? 'padding' : undefined} keyboardVerticalOffset={0}>
     <View style={{ flex: 1, backgroundColor: '#000', paddingTop: 50}}>
-      <View style={{ height: 4, backgroundColor: 'rgba(255,255,255,0.1)' }}>
+      {/* <View style={{ height: 4, backgroundColor: 'rgba(255,255,255,0.1)' }}>
         <View style={{ height: '100%', width: `${progress}%`, backgroundColor: PRIMARY_COLOR }} />
-      </View>
+      </View> */}
 
       <View
         style={{

@@ -6,7 +6,8 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 import K from '../assets/icons/k.svg'
 import { mediumScreen } from '../types';
 import { fontSize } from './typography';
-
+import KulsahBlack from '../assets/icons/kulsah-black-svg.svg';
+import KulsahWhite from '../assets/icons/kulsah-white-svg.svg';
 
 const { height: SCREEN_HEIGHT, width: SCREEN_WIDTH } = Dimensions.get('screen');
 
@@ -33,8 +34,7 @@ const {isDark, theme} = useThemeMode();
         alignItems: 'center'
 
     }}>
-    <K height={70} width={70}/>
-    <View style={{
+    {isDark ? <KulsahWhite height={mediumScreen ? 100:90} width='100%'/> : <KulsahBlack height={mediumScreen ? 100:90} width='100%'/>}    {/* <View style={{
         // position: 'relative',
         // top: '35%',
         left: -19,
@@ -58,7 +58,7 @@ const {isDark, theme} = useThemeMode();
                 ...the creator galaxy
             </Text>
         </View>
-    </View>
+    </View> */}
     </View>
     </SafeAreaView>
   )

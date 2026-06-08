@@ -71,14 +71,27 @@ interface CurrentUser {
 const STORAGE_KEY = 'pulsar_community_posts';
 const USER_KEY = 'pulsar_user';
 
+const FEED_VIDEO_LINKS = {
+  liveStudio: 'https://res.cloudinary.com/dh0dywpzm/video/upload/v1779790256/K53234_snaapi.mp4',
+};
+
+const ARTIST_PROFILE_IMAGE_LINKS = {
+  profile: 'https://res.cloudinary.com/dh0dywpzm/image/upload/v1779792408/profile_image_001_utl9qa.jpg',
+  banner: 'https://res.cloudinary.com/dh0dywpzm/image/upload/v1779792408/banner_image_001_ewjudx.jpg',
+  concert: 'https://images.unsplash.com/photo-1470225620780-dba8ba36b745?auto=format&fit=crop&q=80&w=800',
+  studio: 'https://images.unsplash.com/photo-1598488035139-bdbb2231ce04?auto=format&fit=crop&q=80&w=800',
+  stage: 'https://images.unsplash.com/photo-1514525253361-bee8718a74a2?auto=format&fit=crop&q=80&w=800',
+  session: 'https://images.unsplash.com/photo-1520529277867-dbf8c5e0b340?auto=format&fit=crop&q=80&w=800',
+};
+
 const seedPosts: CommunityPost[] = [
   {
     id: 'live-1',
     artist: 'Mila Ray',
     handle: 'milaray',
-    avatar: 'https://picsum.photos/seed/mila/150/150',
+    avatar: ARTIST_PROFILE_IMAGE_LINKS.profile,
     content: 'Live Studio Session! Come hang out while I work on some new tracks. 🎹✨',
-    videoUrl: 'https://assets.mixkit.co/videos/preview/mixkit-girl-in-neon-light-dancing-40102-large.mp4',
+    videoUrl: FEED_VIDEO_LINKS.liveStudio,
     isLive: true,
     viewerCount: 1240,
     likes: 3200,
@@ -93,13 +106,13 @@ const seedPosts: CommunityPost[] = [
     id: '1',
     artist: 'Elena Rose',
     handle: 'elena_rose',
-    avatar: 'https://picsum.photos/seed/elena/150/150',
+    avatar: ARTIST_PROFILE_IMAGE_LINKS.profile,
     content: "Just finished the final mix for 'Nebula'. Can't wait for you all to hear it! Which version should I drop first? 🌌✨",
     likes: 1240,
     comments: 2,
     commentList: [
-      { id: 'c1', user: 'Alex Rivera', handle: 'alexvibes', avatar: 'https://picsum.photos/seed/fan1/100/100', text: "Can't wait for Nebula! 🔥", time: '1h ago' },
-      { id: 'c2', user: 'Sarah J', handle: 'sarah_j', avatar: 'https://picsum.photos/seed/fan2/100/100', text: 'Acoustic version please! ✨', time: '30m ago' },
+      { id: 'c1', user: 'Alex Rivera', handle: 'alexvibes', avatar: ARTIST_PROFILE_IMAGE_LINKS.studio, text: "Can't wait for Nebula! 🔥", time: '1h ago' },
+      { id: 'c2', user: 'Sarah J', handle: 'sarah_j', avatar: ARTIST_PROFILE_IMAGE_LINKS.stage, text: 'Acoustic version please! ✨', time: '30m ago' },
     ],
     time: '2h ago',
     isLiked: false,
@@ -116,13 +129,13 @@ const seedPosts: CommunityPost[] = [
     id: '2',
     artist: 'Zion King',
     handle: 'zionking_afro',
-    avatar: 'https://picsum.photos/seed/zion/150/150',
+    avatar: ARTIST_PROFILE_IMAGE_LINKS.banner,
     content: 'Behind the scenes at the O2 Arena. The energy is already building up! See you tonight. 🔥🌍',
-    images: ['https://images.unsplash.com/photo-1470225620780-dba8ba36b745?auto=format&fit=crop&q=80&w=800'],
+    images: [ARTIST_PROFILE_IMAGE_LINKS.concert],
     likes: 8500,
     comments: 1,
     commentList: [
-      { id: 'c3', user: 'Mike D', handle: 'miked_beats', avatar: 'https://picsum.photos/seed/fan3/100/100', text: 'See you there Zion! 🌍🔥', time: '2h ago' },
+      { id: 'c3', user: 'Mike D', handle: 'miked_beats', avatar: ARTIST_PROFILE_IMAGE_LINKS.session, text: 'See you there Zion! 🌍🔥', time: '2h ago' },
     ],
     time: '5h ago',
     isLiked: true,
@@ -134,7 +147,7 @@ const seedPosts: CommunityPost[] = [
     id: '3',
     artist: 'Amara',
     handle: 'amara_official',
-    avatar: 'https://picsum.photos/seed/amara/150/150',
+    avatar: ARTIST_PROFILE_IMAGE_LINKS.stage,
     content: 'New merch drop coming this Friday. Galaxy hoodies are back in stock! 💃✨',
     likes: 3200,
     comments: 0,
@@ -149,11 +162,54 @@ const seedPosts: CommunityPost[] = [
 ];
 
 const stickers = [
-  { id: 'st1', img: 'https://images.unsplash.com/photo-1621416894569-0f39ed31d247?auto=format&fit=crop&q=80&w=100' },
-  { id: 'st2', img: 'https://images.unsplash.com/photo-1572375927902-e60e87bb7385?auto=format&fit=crop&q=80&w=100' },
-  { id: 'st3', img: 'https://images.unsplash.com/photo-1509042239860-f550ce710b93?auto=format&fit=crop&q=80&w=100' },
-  { id: 'st4', img: 'https://images.unsplash.com/photo-1534438327276-14e5300c3a48?auto=format&fit=crop&q=80&w=100' },
+  { id: 'st1', img: ARTIST_PROFILE_IMAGE_LINKS.profile },
+  { id: 'st2', img: ARTIST_PROFILE_IMAGE_LINKS.banner },
+  { id: 'st3', img: ARTIST_PROFILE_IMAGE_LINKS.studio },
+  { id: 'st4', img: ARTIST_PROFILE_IMAGE_LINKS.stage },
 ];
+
+const normalizeCommunityMedia = (posts: CommunityPost[]) =>
+  posts.map((post) => {
+    if (post.id === 'live-1') {
+      return {
+        ...post,
+        avatar: ARTIST_PROFILE_IMAGE_LINKS.profile,
+        videoUrl: FEED_VIDEO_LINKS.liveStudio,
+      };
+    }
+
+    if (post.id === '1') {
+      return {
+        ...post,
+        avatar: ARTIST_PROFILE_IMAGE_LINKS.profile,
+        commentList: post.commentList?.map((comment, index) => ({
+          ...comment,
+          avatar: index === 0 ? ARTIST_PROFILE_IMAGE_LINKS.studio : ARTIST_PROFILE_IMAGE_LINKS.stage,
+        })),
+      };
+    }
+
+    if (post.id === '2') {
+      return {
+        ...post,
+        avatar: ARTIST_PROFILE_IMAGE_LINKS.banner,
+        images: [ARTIST_PROFILE_IMAGE_LINKS.concert],
+        commentList: post.commentList?.map((comment) => ({
+          ...comment,
+          avatar: ARTIST_PROFILE_IMAGE_LINKS.session,
+        })),
+      };
+    }
+
+    if (post.id === '3') {
+      return {
+        ...post,
+        avatar: ARTIST_PROFILE_IMAGE_LINKS.stage,
+      };
+    }
+
+    return post;
+  });
 
 const LivePreview: React.FC<{ videoUrl: string; viewerCount?: number; isCreator: boolean }> = ({ videoUrl, viewerCount, isCreator }) => {
   const { isDark, theme } = useThemeMode();
@@ -231,10 +287,13 @@ const Community: React.FC<{ embedded?: boolean }> = ({ embedded = false }) => {
         if (savedUser) setCurrentUser(JSON.parse(savedUser) as CurrentUser);
 
         if (storedPosts) {
-          setPosts(JSON.parse(storedPosts) as CommunityPost[]);
+          const normalizedPosts = normalizeCommunityMedia(JSON.parse(storedPosts) as CommunityPost[]);
+          setPosts(normalizedPosts);
+          await AsyncStorage.setItem(STORAGE_KEY, JSON.stringify(normalizedPosts));
         } else {
-          setPosts(seedPosts);
-          await AsyncStorage.setItem(STORAGE_KEY, JSON.stringify(seedPosts));
+          const normalizedPosts = normalizeCommunityMedia(seedPosts);
+          setPosts(normalizedPosts);
+          await AsyncStorage.setItem(STORAGE_KEY, JSON.stringify(normalizedPosts));
         }
       } finally {
         setLoading(false);
@@ -297,7 +356,7 @@ const Community: React.FC<{ embedded?: boolean }> = ({ embedded = false }) => {
       id: `${Date.now()}-${Math.random().toString(36).slice(2, 8)}`,
       user: currentUser.name || 'Anonymous',
       handle: normalizedHandle || 'user',
-      avatar: currentUser.avatar || 'https://picsum.photos/seed/user/100/100',
+      avatar: currentUser.avatar || ARTIST_PROFILE_IMAGE_LINKS.profile,
       text: finalText,
       time: 'Just now',
     };

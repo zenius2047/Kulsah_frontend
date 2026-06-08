@@ -28,7 +28,7 @@ type SubscriptionTier = {
 };
 
 const INITIAL_SUBSCRIPTION: SubscriptionTier = {
-  name: 'Kulsah Access',
+  name: 'Kulsah',
   price: '9.99',
   perks: ['Exclusive feed access', 'Direct messaging', 'Badge of honor'],
   currentMembers: 1248,
