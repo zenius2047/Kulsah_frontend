@@ -1,6 +1,6 @@
-import React, { useEffect, useMemo, useState } from 'react';
+import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { useThemeMode, PRIMARY_COLOR } from "../theme";
-import { View, Text, Pressable, Platform, StyleSheet } from 'react-native';
+import { View, Text, Pressable, Platform, StyleSheet, PanResponder } from 'react-native';
 import { mediumScreen } from '../types';
 import { MaterialIcons } from '@expo/vector-icons';
 import Community from './Community';
@@ -19,6 +19,7 @@ const Arena :React.FC = ({route}:any)=>{
     const insets = useSafeAreaInsets();
     const styles = useMemo(() => createStyles(), []);
     const faintSurface = isDark ? 'rgba(255,255,255,0.04)' : theme.surface;
+    const swipeHandledRef = useRef(false);
 
     useEffect(()=>{
         const tabToRoute = route?.params?.tabToRoute;
@@ -27,8 +28,54 @@ const Arena :React.FC = ({route}:any)=>{
         }
     }, [route?.params?.tabToRoute])
 
+
+     const handleTabSwipe = useCallback((direction: 'left' | 'right') => {
+        const tabOrder: Array<'community' | 'challenges' | string> = ['community','challenges'];
+    
+        setActiveTab((currentTab) => {
+          const currentIndex = tabOrder.indexOf(currentTab);
+          if (currentIndex === -1) return currentTab;
+    
+          if (direction === 'left') {
+            return tabOrder[Math.min(currentIndex + 1, tabOrder.length - 1)];
+          }
+    
+          return tabOrder[Math.max(currentIndex - 1, 0)];
+        });
+      }, []);
+    
+      const panResponder = useMemo(
+        () =>
+          PanResponder.create({
+            onMoveShouldSetPanResponder: (_, gestureState) =>
+              Math.abs(gestureState.dx) > 24 &&
+              Math.abs(gestureState.dx) > Math.abs(gestureState.dy) * 1.2,
+            onPanResponderGrant: () => {
+              swipeHandledRef.current = false;
+            },
+            onPanResponderMove: (_, gestureState) => {
+              if (swipeHandledRef.current || Math.abs(gestureState.dx) < 48) {
+                return;
+              }
+    
+              swipeHandledRef.current = true;
+              handleTabSwipe(gestureState.dx < 0 ? 'left' : 'right');
+            },
+            onPanResponderRelease: () => {
+              swipeHandledRef.current = false;
+            },
+            onPanResponderTerminate: () => {
+              swipeHandledRef.current = false;
+            },
+          }),
+        [handleTabSwipe]
+      );
+    
+
     return (
-    <View style={{
+    <View
+        {...panResponder.panHandlers}
+        style={{
         backgroundColor: theme.background,
         flex: 1,
         paddingTop: Platform.OS == 'ios' ? 54: insets.top,

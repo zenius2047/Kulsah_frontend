@@ -1,10 +1,11 @@
 import React, { useMemo, useState } from 'react';
 import { useThemeMode, PRIMARY_COLOR, primaryColorAlpha } from "../theme";
-import { Image, Pressable, ScrollView, StyleSheet, Text, View } from 'react-native';
+import { Image, Modal, Pressable, ScrollView, StyleSheet, Text, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { MaterialIcons } from '@expo/vector-icons';
 import { LinearGradient } from 'expo-linear-gradient';
 import { useNavigation } from '@react-navigation/native';
+import Svg, { Circle } from 'react-native-svg';
 import { mediumScreen, user } from '../types';
 import TrophyIcon from '../assets/icons/trophy-svg.svg';
 import SubmissionIcon from '../assets/icons/upload-svg.svg';
@@ -46,6 +47,12 @@ type Invite = {
   reward: string;
   status: 'pending' | 'accepted';
   image: string;
+  role?: string;
+  longMessage?: string;
+  split?: string;
+  timeline?: string;
+  synergyScore?: number;
+  requirements?: string[];
 };
 
 const CHALLENGES: Challenge[] = [
@@ -119,6 +126,12 @@ const INVITES: Invite[] = [
     reward: '50/50 Royalty Split + Feature',
     status: 'pending',
     image: 'https://images.unsplash.com/photo-1550745165-9bc0b252726f?auto=format&fit=crop&q=80&w=800',
+    role: 'Featured Vocal Collaborator',
+    longMessage: 'I want to build a high-voltage remix around your vocal tone. The concept is a neon club version of the hook with your bridge becoming the emotional lift before the final drop.',
+    split: '50% / 50%',
+    timeline: '10 Day Sprint',
+    synergyScore: 92,
+    requirements: ['Record a 16-bar vocal bridge', 'Approve final synth arrangement', 'Co-promote the launch teaser'],
   },
   {
     id: 'i2',
@@ -129,6 +142,11 @@ const INVITES: Invite[] = [
     reward: 'Cross-Promotion to 50k Fans',
     status: 'accepted',
     image: 'https://images.unsplash.com/photo-1514525253361-bee8718a74a2?auto=format&fit=crop&q=80&w=800',
+    role: 'Guest Judge & Performer',
+    split: 'Promo Exchange',
+    timeline: 'Live Friday',
+    synergyScore: 84,
+    requirements: ['Join pre-show soundcheck', 'Select top 3 entries', 'Perform one live chorus'],
   },
 ];
 
@@ -136,6 +154,11 @@ const CreatorChallenges: React.FC = () => {
   const navigation = useNavigation<any>();
   const { isDark, theme } = useThemeMode();
   const [activeTab, setActiveTab] = useState<Tab>('challenges');
+  const [invites, setInvites] = useState<Invite[]>(INVITES);
+  const [selectedInvite, setSelectedInvite] = useState<Invite | null>(null);
+  const [showCounterBox, setShowCounterBox] = useState(false);
+  const [collabSplitVal, setCollabSplitVal] = useState(50);
+  const [toast, setToast] = useState<string | null>(null);
 
   const shell = isDark ? '#050207' : theme.background;
   const card = isDark ? 'rgba(255,255,255,0.05)' : theme.card;
@@ -150,10 +173,43 @@ const CreatorChallenges: React.FC = () => {
     [],
   );
 
+  const pendingInviteCount = invites.filter((invite) => invite.status === 'pending').length;
+
   const go = (screen: string, params?: Record<string, unknown>) => {
     try {
       navigation.navigate(screen, params);
     } catch {}
+  };
+
+  const triggerToast = (message: string) => {
+    setToast(message);
+    setTimeout(() => setToast(null), 2600);
+  };
+
+  const openInviteDetails = (invite: Invite) => {
+    setSelectedInvite(invite);
+    setShowCounterBox(false);
+    setCollabSplitVal(50);
+  };
+
+  const handleAcceptInvite = (id: string) => {
+    setInvites((current) => current.map((invite) => invite.id === id ? { ...invite, status: 'accepted' } : invite));
+    setSelectedInvite((current) => current?.id === id ? { ...current, status: 'accepted' } : current);
+    setShowCounterBox(false);
+    triggerToast('Partnership contract accepted.');
+  };
+
+  const handleDeclineInvite = (id: string) => {
+    setInvites((current) => current.filter((invite) => invite.id !== id));
+    setSelectedInvite(null);
+    setShowCounterBox(false);
+    triggerToast('Partnership proposal declined.');
+  };
+
+  const handleCounterSplitSubmit = (id: string) => {
+    setShowCounterBox(false);
+    setSelectedInvite(null);
+    triggerToast(`Counter split sent for invite ${id}: ${collabSplitVal}% / ${100 - collabSplitVal}%.`);
   };
 
   const renderTab = (id: Tab, label: string, dot?: boolean) => {
@@ -239,7 +295,7 @@ const CreatorChallenges: React.FC = () => {
             {renderTab('challenges', 'Challenges')}
             {renderTab('submissions', 'Submissions')}
             {renderTab('drafts', 'Drafts')}
-            {renderTab('invites', 'Invites', true)}
+            {renderTab('invites', 'Invites', pendingInviteCount > 0)}
           </View>
 
           {activeTab === 'challenges' ? (
@@ -382,10 +438,10 @@ const CreatorChallenges: React.FC = () => {
             <View style={styles.section}>
               <View style={styles.sectionRow}>
                 <Text style={[styles.sectionTitle, { color: muted, fontSize: fontSize.b2.fontSize - (mediumScreen ? 0 : 2), fontFamily: fontSize.b2.fontFamily, lineHeight: fontSize.b2.fontSize + 1 }]}>Creator Invites</Text>
-                <Text style={[styles.sectionAccent, { fontSize: fontSize.b2.fontSize - (mediumScreen ? 0 : 2), fontFamily: fontSize.b2.fontFamily, lineHeight: fontSize.b2.fontSize + 1 }]}>{INVITES.length} Pending</Text>
+                <Text style={[styles.sectionAccent, { fontSize: fontSize.b2.fontSize - (mediumScreen ? 0 : 2), fontFamily: fontSize.b2.fontFamily, lineHeight: fontSize.b2.fontSize + 1 }]}>{pendingInviteCount} Pending</Text>
               </View>
-              {INVITES.map((invite) => (
-                <View key={invite.id} style={[styles.inviteCard, { borderColor: border }]}>
+              {invites.map((invite) => (
+                <Pressable onPress={() => openInviteDetails(invite)} key={invite.id} style={[styles.inviteCard, { borderColor: border }]}>
                   <Image source={{ uri: invite.image }} style={styles.fillImage} />
                   <LinearGradient colors={['transparent', 'rgba(0,0,0,0.4)', 'rgba(0,0,0,0.95)']} style={StyleSheet.absoluteFillObject} />
                   <View style={styles.inviteTop}>
@@ -412,8 +468,8 @@ const CreatorChallenges: React.FC = () => {
                       <View style={styles.inviteActions}>
                         {invite.status === 'pending' ? (
                           <>
-                            <Pressable style={styles.acceptBtn}><Text style={[styles.acceptBtnText, { ...fontSize.b4, lineHeight: fontSize.b4.fontSize + 1 }]}>Accept</Text></Pressable>
-                            <Pressable style={styles.declineBtn}><Text style={[styles.declineBtnText, { ...fontSize.b4, lineHeight: fontSize.b4.fontSize + 1 }]}>Decline</Text></Pressable>
+                            <Pressable onPress={() => openInviteDetails(invite)} style={styles.acceptBtn}><Text style={[styles.acceptBtnText, { ...fontSize.b4, lineHeight: fontSize.b4.fontSize + 1 }]}>Review</Text></Pressable>
+                            <Pressable onPress={() => handleDeclineInvite(invite.id)} style={styles.declineBtn}><Text style={[styles.declineBtnText, { ...fontSize.b4, lineHeight: fontSize.b4.fontSize + 1 }]}>Decline</Text></Pressable>
                           </>
                         ) : (
                           <Pressable style={styles.collabBtn}>
@@ -424,7 +480,7 @@ const CreatorChallenges: React.FC = () => {
                       </View>
                     </View>
                   </View>
-                </View>
+                </Pressable>
               ))}
               <View style={[styles.tipCard, { backgroundColor: isDark ? primaryColorAlpha(0.08) : theme.accentSoft, borderColor: primaryColorAlpha(0.24) }]}>
                 <Text style={[styles.tipTitle, { ...fontSize.b4, lineHeight: fontSize.b4.fontSize + 1 }]}>Collaboration Tip</Text>
@@ -438,6 +494,179 @@ const CreatorChallenges: React.FC = () => {
         </ScrollView>
 
 
+
+        {toast ? (
+          <View style={styles.toast}>
+            <MaterialIcons name="cloud-done" size={15} color="#ffffff" />
+            <Text style={styles.toastText}>{toast}</Text>
+          </View>
+        ) : null}
+
+        <Modal visible={!!selectedInvite} transparent animationType="fade" statusBarTranslucent onRequestClose={() => setSelectedInvite(null)}>
+          <View style={styles.modalRoot}>
+            <Pressable style={styles.modalBackdrop} onPress={() => setSelectedInvite(null)} />
+            {selectedInvite ? (
+              <View style={[styles.collabModal, { backgroundColor: isDark ? '#09090c' : '#ffffff', borderColor: isDark ? 'rgba(255,255,255,0.1)' : border }]}>
+                <LinearGradient colors={[primaryColorAlpha(0.16), 'rgba(9,9,12,0)']} style={styles.modalGlow} />
+                <ScrollView showsVerticalScrollIndicator={false} contentContainerStyle={styles.modalContent}>
+                  <View style={styles.modalHeader}>
+                    <Text style={styles.modalChip}>Incoming Partnership Proposal</Text>
+                    <Pressable onPress={() => setSelectedInvite(null)} style={[styles.modalClose, { backgroundColor: isDark ? 'rgba(255,255,255,0.06)' : 'rgba(15,23,42,0.06)', borderColor: isDark ? 'rgba(255,255,255,0.1)' : border }]}>
+                      <MaterialIcons name="close" size={20} color={isDark ? 'rgba(255,255,255,0.78)' : titleTone} />
+                    </Pressable>
+                  </View>
+
+                  <View style={styles.coverCard}>
+                    <Image source={{ uri: selectedInvite.image }} style={styles.fillImage} />
+                    <LinearGradient colors={['rgba(0,0,0,0.08)', 'rgba(0,0,0,0.42)', 'rgba(0,0,0,0.94)']} style={StyleSheet.absoluteFillObject} />
+                    <View style={styles.coverCopy}>
+                      <Text style={styles.modalTitle}>{selectedInvite.title}</Text>
+                      <Text style={styles.modalRole}>{selectedInvite.role || 'Guest Collaborator'}</Text>
+                    </View>
+                    {selectedInvite.synergyScore ? (
+                      <View style={styles.scoreCard}>
+                        <View style={styles.scoreRing}>
+                          <Svg width={48} height={48}>
+                            <Circle cx={24} cy={24} r={20} stroke="rgba(255,255,255,0.08)" strokeWidth={4} fill="none" />
+                            <Circle
+                              cx={24}
+                              cy={24}
+                              r={20}
+                              stroke={PRIMARY_COLOR}
+                              strokeWidth={4}
+                              fill="none"
+                              strokeDasharray={125.6}
+                              strokeDashoffset={125.6 * (1 - selectedInvite.synergyScore / 100)}
+                              strokeLinecap="round"
+                              rotation="-90"
+                              origin="24,24"
+                            />
+                          </Svg>
+                          <Text style={styles.scoreText}>{selectedInvite.synergyScore}%</Text>
+                        </View>
+                        <View>
+                          <Text style={styles.scoreLabel}>Acoustic Synergy</Text>
+                          <Text style={styles.scoreTitle}>Vibe Match</Text>
+                        </View>
+                      </View>
+                    ) : null}
+                  </View>
+
+                  <View style={[styles.partnerCard, { backgroundColor: isDark ? 'rgba(255,255,255,0.05)' : theme.surface, borderColor: isDark ? 'rgba(255,255,255,0.06)' : border }]}>
+                    <Image source={{ uri: selectedInvite.inviterAvatar }} style={styles.partnerAvatar} />
+                    <View style={{ flex: 1 }}>
+                      <Text style={[styles.partnerLabel, { color: isDark ? 'rgba(255,255,255,0.42)' : muted }]}>Proposed by</Text>
+                      <Text style={[styles.partnerName, { color: titleTone }]}>{selectedInvite.inviterName}</Text>
+                      <View style={styles.verifiedRow}>
+                        <MaterialIcons name="verified" size={12} color={PRIMARY_COLOR} />
+                        <Text style={styles.verifiedText}>Verified Creator</Text>
+                      </View>
+                    </View>
+                    <Pressable onPress={() => { setSelectedInvite(null); navigation.navigate('Messages'); }} style={[styles.chatButton, { backgroundColor: isDark ? primaryColorAlpha(0.12) : theme.accentSoft, borderColor: primaryColorAlpha(0.24) }]}>
+                      <MaterialIcons name="chat" size={13} color={isDark ? '#ffffff' : PRIMARY_COLOR} />
+                      <Text style={[styles.chatButtonText, { color: isDark ? '#ffffff' : PRIMARY_COLOR }]}>Open Chat</Text>
+                    </Pressable>
+                  </View>
+
+                  <View style={styles.pitchBlock}>
+                    <Text style={[styles.modalSectionLabel, { color: isDark ? 'rgba(255,255,255,0.42)' : muted }]}>Proposed Pitch & Concept</Text>
+                    <Text style={[styles.pitchText, { color: isDark ? 'rgba(255,255,255,0.72)' : subtle, backgroundColor: isDark ? 'rgba(15,23,42,0.42)' : theme.surface, borderColor: isDark ? 'rgba(255,255,255,0.06)' : border }]}>{selectedInvite.longMessage || selectedInvite.description}</Text>
+                  </View>
+
+                  <View style={styles.detailGrid}>
+                    <View style={[styles.detailCard, { backgroundColor: isDark ? 'rgba(255,255,255,0.05)' : theme.surface, borderColor: isDark ? 'rgba(255,255,255,0.06)' : border }]}>
+                      <Text style={[styles.detailLabel, { color: isDark ? 'rgba(255,255,255,0.42)' : muted }]}>Contract Split Structure</Text>
+                      <View style={styles.detailValueRow}>
+                        <MaterialIcons name="payments" size={15} color="#38a9e5" />
+                        <Text style={[styles.detailValue, { color: '#38a9e5' }]}>{selectedInvite.split || selectedInvite.reward}</Text>
+                      </View>
+                    </View>
+                    <View style={[styles.detailCard, { backgroundColor: isDark ? 'rgba(255,255,255,0.05)' : theme.surface, borderColor: isDark ? 'rgba(255,255,255,0.06)' : border }]}>
+                      <Text style={[styles.detailLabel, { color: isDark ? 'rgba(255,255,255,0.42)' : muted }]}>Timeline & Deadlines</Text>
+                      <View style={styles.detailValueRow}>
+                        <MaterialIcons name="schedule" size={15} color={titleTone} />
+                        <Text style={[styles.detailValue, { color: titleTone }]}>{selectedInvite.timeline || 'Launch Scheduled'}</Text>
+                      </View>
+                    </View>
+                  </View>
+
+                  {selectedInvite.requirements?.length ? (
+                    <View style={styles.checklistBlock}>
+                      <Text style={[styles.modalSectionLabel, { color: isDark ? 'rgba(255,255,255,0.42)' : muted }]}>Co-Creation Objectives Checklist</Text>
+                      {selectedInvite.requirements.map((requirement) => (
+                        <View key={requirement} style={[styles.requirementRow, { backgroundColor: isDark ? 'rgba(255,255,255,0.05)' : theme.surface, borderColor: isDark ? 'rgba(255,255,255,0.06)' : border }]}>
+                          <MaterialIcons name="check-circle" size={16} color="#34d399" />
+                          <Text style={[styles.requirementText, { color: isDark ? 'rgba(255,255,255,0.82)' : subtle }]}>{requirement}</Text>
+                        </View>
+                      ))}
+                    </View>
+                  ) : null}
+
+                  {showCounterBox ? (
+                    <View style={[styles.counterBox, { backgroundColor: primaryColorAlpha(isDark ? 0.08 : 0.06), borderColor: primaryColorAlpha(0.24) }]}>
+                      <View style={styles.counterTop}>
+                        <View>
+                          <Text style={styles.counterTitle}>Propose Custom Split</Text>
+                          <Text style={[styles.counterSubtitle, { color: isDark ? 'rgba(255,255,255,0.42)' : muted }]}>Adjust revenue split shares dynamically</Text>
+                        </View>
+                        <Text style={styles.counterPill}>{collabSplitVal}% / {100 - collabSplitVal}%</Text>
+                      </View>
+                      <View style={styles.stepperRow}>
+                        <Text style={[styles.stepperLabel, { color: isDark ? 'rgba(255,255,255,0.42)' : muted }]}>My Share</Text>
+                        <Pressable onPress={() => setCollabSplitVal((value) => Math.max(10, value - 5))} style={[styles.stepperButton, { backgroundColor: isDark ? 'rgba(255,255,255,0.08)' : 'rgba(15,23,42,0.08)', borderColor: isDark ? 'rgba(255,255,255,0.1)' : border }]}>
+                          <MaterialIcons name="remove" size={18} color={titleTone} />
+                        </Pressable>
+                        <View style={[styles.splitMeter, { backgroundColor: isDark ? 'rgba(255,255,255,0.1)' : 'rgba(15,23,42,0.12)' }]}>
+                          <View style={[styles.splitFill, { width: `${collabSplitVal}%` }]} />
+                        </View>
+                        <Pressable onPress={() => setCollabSplitVal((value) => Math.min(90, value + 5))} style={[styles.stepperButton, { backgroundColor: isDark ? 'rgba(255,255,255,0.08)' : 'rgba(15,23,42,0.08)', borderColor: isDark ? 'rgba(255,255,255,0.1)' : border }]}>
+                          <MaterialIcons name="add" size={18} color={titleTone} />
+                        </Pressable>
+                        <Text style={[styles.stepperLabel, { color: isDark ? 'rgba(255,255,255,0.42)' : muted }]}>Partner</Text>
+                      </View>
+                      <View style={styles.counterActions}>
+                        <Pressable onPress={() => handleCounterSplitSubmit(selectedInvite.id)} style={styles.counterSubmit}>
+                          <Text style={styles.counterSubmitText}>Propose Split Terms</Text>
+                        </Pressable>
+                        <Pressable onPress={() => setShowCounterBox(false)} style={[styles.counterCancel, { backgroundColor: isDark ? 'rgba(255,255,255,0.06)' : 'rgba(15,23,42,0.06)' }]}>
+                          <Text style={[styles.counterCancelText, { color: isDark ? 'rgba(255,255,255,0.64)' : subtle }]}>Cancel</Text>
+                        </Pressable>
+                      </View>
+                    </View>
+                  ) : null}
+
+                  <View style={[styles.modalActions, { borderTopColor: isDark ? 'rgba(255,255,255,0.06)' : border }]}>
+                    {selectedInvite.status === 'pending' ? (
+                      <>
+                        <Pressable onPress={() => handleAcceptInvite(selectedInvite.id)} style={styles.modalPrimaryAction}>
+                          <Text style={styles.modalPrimaryText}>Accept Partnership Contract</Text>
+                        </Pressable>
+                        {!showCounterBox ? (
+                          <Pressable onPress={() => setShowCounterBox(true)} style={[styles.modalSecondaryAction, { backgroundColor: isDark ? 'rgba(255,255,255,0.06)' : 'rgba(15,23,42,0.06)', borderColor: isDark ? 'rgba(255,255,255,0.1)' : border }]}>
+                            <Text style={[styles.modalSecondaryText, { color: isDark ? 'rgba(255,255,255,0.8)' : titleTone }]}>Negotiate</Text>
+                          </Pressable>
+                        ) : null}
+                        <Pressable onPress={() => handleDeclineInvite(selectedInvite.id)} style={styles.modalDangerAction}>
+                          <Text style={styles.modalDangerText}>Decline</Text>
+                        </Pressable>
+                      </>
+                    ) : (
+                      <>
+                        <Pressable onPress={() => { setSelectedInvite(null); triggerToast('Collaboration Workspace initialized successfully!'); }} style={styles.launchButton}>
+                          <MaterialIcons name="rocket-launch" size={15} color="#ffffff" />
+                          <Text style={styles.modalPrimaryText}>Launch Joint Studio</Text>
+                        </Pressable>
+                        <Pressable onPress={() => { setSelectedInvite(null); triggerToast('Contract terms shared cleanly.'); }} style={[styles.modalSecondaryAction, { backgroundColor: isDark ? 'rgba(255,255,255,0.06)' : 'rgba(15,23,42,0.06)', borderColor: isDark ? 'rgba(255,255,255,0.1)' : border }]}>
+                          <Text style={[styles.modalSecondaryText, { color: isDark ? 'rgba(255,255,255,0.8)' : titleTone }]}>Print Deal Sheet</Text>
+                        </Pressable>
+                      </>
+                    )}
+                  </View>
+                </ScrollView>
+              </View>
+            ) : null}
+          </View>
+        </Modal>
 
 
 
@@ -558,6 +787,67 @@ const styles = StyleSheet.create({
   tipCard: { borderRadius: 32, borderWidth: 1, padding: 20, alignItems: 'center', gap: 8 },
   tipTitle: { color: PRIMARY_COLOR, ...fontSize.b5, lineHeight: fontSize.b5.fontSize + 1, textTransform: 'uppercase', letterSpacing: 1.8 },
   tipBody: { textAlign: 'center', ...fontSize.b5, lineHeight: fontSize.b5.fontSize + 1,},
+  toast: { position: 'absolute', left: 20, right: 20, bottom: 96, zIndex: 20, minHeight: 46, borderRadius: 999, backgroundColor: 'rgba(0,0,0,0.9)', borderWidth: 1, borderColor: 'rgba(255,255,255,0.18)', flexDirection: 'row', alignItems: 'center', justifyContent: 'center', gap: 8, paddingHorizontal: 16 },
+  toastText: { color: '#ffffff', ...fontSize.b5, lineHeight: fontSize.b5.fontSize + 2, textTransform: 'uppercase', letterSpacing: 1, textAlign: 'center' },
+  modalRoot: { flex: 1, alignItems: 'center', justifyContent: 'center', padding: 16 },
+  modalBackdrop: { ...StyleSheet.absoluteFillObject, backgroundColor: 'rgba(2,6,23,0.84)' },
+  collabModal: { width: '100%', maxWidth: 560, maxHeight: '90%', borderRadius: 36, overflow: 'hidden', backgroundColor: '#09090c', borderWidth: 1, borderColor: 'rgba(255,255,255,0.1)' },
+  modalGlow: { position: 'absolute', top: 0, left: 0, right: 0, height: 160 },
+  modalContent: { padding: 20, gap: 18 },
+  modalHeader: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', gap: 12 },
+  modalChip: { flexShrink: 1, color: PRIMARY_COLOR, ...fontSize.b5, lineHeight: fontSize.b5.fontSize + 1, textTransform: 'uppercase', letterSpacing: 2, backgroundColor: primaryColorAlpha(0.1), borderWidth: 1, borderColor: primaryColorAlpha(0.22), borderRadius: 999, paddingHorizontal: 12, paddingVertical: 7 },
+  modalClose: { width: 38, height: 38, borderRadius: 19, backgroundColor: 'rgba(255,255,255,0.06)', borderWidth: 1, borderColor: 'rgba(255,255,255,0.1)', alignItems: 'center', justifyContent: 'center' },
+  coverCard: { aspectRatio: 16 / 9, borderRadius: 24, overflow: 'hidden', borderWidth: 1, borderColor: 'rgba(255,255,255,0.1)', backgroundColor: '#111827' },
+  coverCopy: { position: 'absolute', left: 18, right: 18, bottom: 18 },
+  modalTitle: { color: '#ffffff', ...fontSize.b1, lineHeight: fontSize.b1.fontSize + 3, textTransform: 'uppercase' },
+  modalRole: { color: PRIMARY_COLOR, marginTop: 4, ...fontSize.b5, lineHeight: fontSize.b5.fontSize + 1, textTransform: 'uppercase', letterSpacing: 1.4 },
+  scoreCard: { position: 'absolute', top: 14, right: 14, borderRadius: 18, padding: 10, backgroundColor: 'rgba(0,0,0,0.62)', borderWidth: 1, borderColor: 'rgba(52,211,153,0.22)', flexDirection: 'row', alignItems: 'center', gap: 9 },
+  scoreRing: { width: 48, height: 48, alignItems: 'center', justifyContent: 'center' },
+  scoreText: { position: 'absolute', color: '#ffffff', ...fontSize.b5, lineHeight: fontSize.b5.fontSize + 1 },
+  scoreLabel: { color: '#34d399', ...fontSize.b5, lineHeight: fontSize.b5.fontSize + 1, textTransform: 'uppercase', letterSpacing: 1 },
+  scoreTitle: { color: '#ffffff', marginTop: 2, ...fontSize.b5, lineHeight: fontSize.b5.fontSize + 1, textTransform: 'uppercase' },
+  partnerCard: { flexDirection: 'row', alignItems: 'center', gap: 12, padding: 14, borderRadius: 18, backgroundColor: 'rgba(255,255,255,0.05)', borderWidth: 1, borderColor: 'rgba(255,255,255,0.06)' },
+  partnerAvatar: { width: 50, height: 50, borderRadius: 25, borderWidth: 1, borderColor: primaryColorAlpha(0.3) },
+  partnerLabel: { color: 'rgba(255,255,255,0.42)', ...fontSize.b5, lineHeight: fontSize.b5.fontSize + 1, textTransform: 'uppercase', letterSpacing: 1.2 },
+  partnerName: { color: '#ffffff', marginTop: 2, ...fontSize.b4, lineHeight: fontSize.b4.fontSize + 1, textTransform: 'uppercase' },
+  verifiedRow: { flexDirection: 'row', alignItems: 'center', gap: 4, marginTop: 3 },
+  verifiedText: { color: PRIMARY_COLOR, ...fontSize.b5, lineHeight: fontSize.b5.fontSize + 1, textTransform: 'uppercase', letterSpacing: 0.8 },
+  chatButton: { minHeight: 38, borderRadius: 12, paddingHorizontal: 12, backgroundColor: primaryColorAlpha(0.12), borderWidth: 1, borderColor: primaryColorAlpha(0.24), flexDirection: 'row', alignItems: 'center', justifyContent: 'center', gap: 5 },
+  chatButtonText: { color: '#ffffff', ...fontSize.b5, lineHeight: fontSize.b5.fontSize + 1, textTransform: 'uppercase', letterSpacing: 1 },
+  pitchBlock: { gap: 8 },
+  modalSectionLabel: { color: 'rgba(255,255,255,0.42)', ...fontSize.b5, lineHeight: fontSize.b5.fontSize + 1, textTransform: 'uppercase', letterSpacing: 1.6 },
+  pitchText: { color: 'rgba(255,255,255,0.72)', backgroundColor: 'rgba(15,23,42,0.42)', borderWidth: 1, borderColor: 'rgba(255,255,255,0.06)', borderRadius: 18, padding: 16, ...fontSize.b5, lineHeight: fontSize.b5.fontSize + 7, fontStyle: 'italic' },
+  detailGrid: { flexDirection: 'row', gap: 12 },
+  detailCard: { flex: 1, borderRadius: 18, padding: 14, backgroundColor: 'rgba(255,255,255,0.05)', borderWidth: 1, borderColor: 'rgba(255,255,255,0.06)' },
+  detailLabel: { color: 'rgba(255,255,255,0.42)', ...fontSize.b5, lineHeight: fontSize.b5.fontSize + 1, textTransform: 'uppercase', letterSpacing: 1 },
+  detailValueRow: { flexDirection: 'row', alignItems: 'center', gap: 6, marginTop: 8 },
+  detailValue: { color: '#ffffff', flex: 1, ...fontSize.b5, lineHeight: fontSize.b5.fontSize + 3, textTransform: 'uppercase' },
+  checklistBlock: { gap: 10 },
+  requirementRow: { flexDirection: 'row', alignItems: 'center', gap: 10, padding: 12, borderRadius: 14, backgroundColor: 'rgba(255,255,255,0.05)', borderWidth: 1, borderColor: 'rgba(255,255,255,0.06)' },
+  requirementText: { color: 'rgba(255,255,255,0.82)', flex: 1, ...fontSize.b5, lineHeight: fontSize.b5.fontSize + 5 },
+  counterBox: { borderRadius: 24, borderWidth: 1, borderColor: primaryColorAlpha(0.24), backgroundColor: primaryColorAlpha(0.08), padding: 16, gap: 14 },
+  counterTop: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', gap: 10 },
+  counterTitle: { color: PRIMARY_COLOR, ...fontSize.b5, lineHeight: fontSize.b5.fontSize + 1, textTransform: 'uppercase', letterSpacing: 1.4 },
+  counterSubtitle: { color: 'rgba(255,255,255,0.42)', marginTop: 3, ...fontSize.b5, lineHeight: fontSize.b5.fontSize + 1, textTransform: 'uppercase' },
+  counterPill: { color: PRIMARY_COLOR, backgroundColor: primaryColorAlpha(0.16), borderWidth: 1, borderColor: primaryColorAlpha(0.34), borderRadius: 999, paddingHorizontal: 10, paddingVertical: 6, ...fontSize.b5, lineHeight: fontSize.b5.fontSize + 1 },
+  stepperRow: { flexDirection: 'row', alignItems: 'center', gap: 8 },
+  stepperLabel: { color: 'rgba(255,255,255,0.42)', ...fontSize.b5, lineHeight: fontSize.b5.fontSize + 1, textTransform: 'uppercase' },
+  stepperButton: { width: 34, height: 34, borderRadius: 12, backgroundColor: 'rgba(255,255,255,0.08)', borderWidth: 1, borderColor: 'rgba(255,255,255,0.1)', alignItems: 'center', justifyContent: 'center' },
+  splitMeter: { flex: 1, height: 7, borderRadius: 999, overflow: 'hidden', backgroundColor: 'rgba(255,255,255,0.1)' },
+  splitFill: { height: '100%', borderRadius: 999, backgroundColor: PRIMARY_COLOR },
+  counterActions: { flexDirection: 'row', gap: 8 },
+  counterSubmit: { flex: 1, height: 42, borderRadius: 14, backgroundColor: PRIMARY_COLOR, alignItems: 'center', justifyContent: 'center' },
+  counterSubmitText: { color: '#ffffff', ...fontSize.b5, lineHeight: fontSize.b5.fontSize + 1, textTransform: 'uppercase', letterSpacing: 1 },
+  counterCancel: { height: 42, borderRadius: 14, paddingHorizontal: 14, backgroundColor: 'rgba(255,255,255,0.06)', alignItems: 'center', justifyContent: 'center' },
+  counterCancelText: { color: 'rgba(255,255,255,0.64)', ...fontSize.b5, lineHeight: fontSize.b5.fontSize + 1, textTransform: 'uppercase', letterSpacing: 1 },
+  modalActions: { flexDirection: 'row', flexWrap: 'wrap', gap: 10, paddingTop: 16, borderTopWidth: 1, borderTopColor: 'rgba(255,255,255,0.06)' },
+  modalPrimaryAction: { flex: 1, minWidth: 160, minHeight: 48, borderRadius: 18, backgroundColor: PRIMARY_COLOR, alignItems: 'center', justifyContent: 'center', paddingHorizontal: 14 },
+  modalPrimaryText: { color: '#ffffff', ...fontSize.b5, lineHeight: fontSize.b5.fontSize + 1, textTransform: 'uppercase', letterSpacing: 1.2, textAlign: 'center' },
+  modalSecondaryAction: { minHeight: 48, borderRadius: 18, paddingHorizontal: 16, backgroundColor: 'rgba(255,255,255,0.06)', borderWidth: 1, borderColor: 'rgba(255,255,255,0.1)', alignItems: 'center', justifyContent: 'center' },
+  modalSecondaryText: { color: 'rgba(255,255,255,0.8)', ...fontSize.b5, lineHeight: fontSize.b5.fontSize + 1, textTransform: 'uppercase', letterSpacing: 1 },
+  modalDangerAction: { minHeight: 48, borderRadius: 18, paddingHorizontal: 16, backgroundColor: 'rgba(239,68,68,0.12)', alignItems: 'center', justifyContent: 'center' },
+  modalDangerText: { color: '#f87171', ...fontSize.b5, lineHeight: fontSize.b5.fontSize + 1, textTransform: 'uppercase', letterSpacing: 1 },
+  launchButton: { flex: 1, minWidth: 160, minHeight: 48, borderRadius: 18, backgroundColor: '#10b981', flexDirection: 'row', alignItems: 'center', justifyContent: 'center', gap: 6, paddingHorizontal: 14 },
 });
 
 export default CreatorChallenges;

@@ -1,7 +1,7 @@
-import React, { useCallback, useEffect, useMemo, useState } from 'react';
+import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { useThemeMode, PRIMARY_COLOR, primaryColorAlpha } from "../theme";
 import AsyncStorage from '@react-native-async-storage/async-storage';
-import { Image, Modal, Pressable, ScrollView, Share, StyleSheet, Text, useWindowDimensions, View } from 'react-native';
+import { Image, Modal, NativeScrollEvent, NativeSyntheticEvent, Pressable, ScrollView, Share, StyleSheet, Text, useWindowDimensions, View } from 'react-native';
 import { SafeAreaView, useSafeAreaInsets } from 'react-native-safe-area-context';
 import { MaterialIcons } from '@expo/vector-icons';
 import { LinearGradient } from 'expo-linear-gradient';
@@ -12,6 +12,7 @@ import KulsahInputBar from '../components/KulsahInputBar';
 import { fontSize } from './typography';
 
 const SPEEDS = [0.5, 1, 1.5, 2] as const;
+const VIDEO_PAUSE_OUT_OF_VIEW_RATIO = 0.6;
 
 type VideoItem = {
   id: string;
@@ -40,9 +41,10 @@ type FeedRouteItem = {
   likes?: string;
   comments?: string;
 };
+type FullscreenOrientationMode = 'portrait' | 'landscape';
 
 const videos: Record<string, VideoItem> = {
-  v1: { id: 'v1', title: 'Private Drop: Neon Session', artist: 'Elena Rose', handle: '@elena_rose', views: '2.4M', duration: '0:15', img: 'https://images.unsplash.com/photo-1598488035139-bdbb2231ce04?auto=format&fit=crop&q=80&w=900', url: 'https://res.cloudinary.com/dh0dywpzm/video/upload/v1779790256/K53234_snaapi.mp4', date: 'From Feed', description: "PRIVATE DROP: Working on 'Nebula' vocal layers. This is the raw studio session for my supporters only. #BTS #KulsahExclusive" },
+  v1: { id: 'v1', title: 'Private Drop: Neon Session', artist: 'Elena Rose', handle: '@elena_rose', views: '2.4M', duration: '0:15', img: 'https://images.unsplash.com/photo-1598488035139-bdbb2231ce04?auto=format&fit=crop&q=80&w=900', url: 'https://res.cloudinary.com/dh0dywpzm/video/upload/v1781016938/land00_r2ovpo.mp4', date: 'From Feed', description: "PRIVATE DROP: Working on 'Nebula' vocal layers. This is the raw studio session for my supporters only. #BTS #KulsahExclusive" },
   v2: { id: 'v2', title: 'Kulsah Studio Cut', artist: 'Elena Rose', handle: '@elena_rose', views: '2.4M', duration: '0:15', img: 'https://images.unsplash.com/photo-1511671782779-c97d3d27a1d4?auto=format&fit=crop&q=80&w=900', url: 'https://res.cloudinary.com/dh0dywpzm/video/upload/v1779790223/K12242_wmlewi.mp4', date: 'From Feed', description: "A feed video from Elena Rose's private studio run." },
   v3: { id: 'v3', title: 'Kulsah Live Energy', artist: 'Zion King', handle: '@zion_afro', views: '2.4M', duration: '0:15', img: 'https://images.unsplash.com/photo-1514525253361-bee8718a74a2?auto=format&fit=crop&q=80&w=900', url: 'https://res.cloudinary.com/dh0dywpzm/video/upload/v1779790193/K0526_ocu8xt.mp4', date: 'From Feed', description: 'A high-energy feed clip with crowd-ready pacing.' },
   v4: { id: 'v4', title: 'Dance Challenge Feed Cut', artist: 'Luna Ray', handle: '@luna_ray', views: '890K', duration: '0:15', img: 'https://images.unsplash.com/photo-1516450360452-9312f5e86fc7?auto=format&fit=crop&q=80&w=900', url: 'https://res.cloudinary.com/dh0dywpzm/video/upload/v1779795517/dance_cha_001_p1flkl.mp4', date: 'From Feed', description: 'A dance challenge clip pulled from the feed video source list.' },
@@ -86,6 +88,9 @@ const VideoPlayer: React.FC = () => {
   const route = useRoute<any>();
   const insets = useSafeAreaInsets();
   const { width: windowWidth } = useWindowDimensions();
+  const videoViewRef = useRef<VideoView>(null);
+  const videoLayoutRef = useRef({ y: 0, height: 0 });
+  const scrollViewportRef = useRef({ y: 0, height: 0 });
   const routeFeedVideo = useMemo(() => normalizeFeedVideo(route.params?.item), [route.params?.item]);
   const allVideos = useMemo(() => {
     const catalog = Object.values(videos);
@@ -102,6 +107,9 @@ const VideoPlayer: React.FC = () => {
   const [duration, setDuration] = useState(0);
   const [progressWidth, setProgressWidth] = useState(0);
   const [videoDimensions, setVideoDimensions] = useState({ width: 0, height: 0 });
+  const [isFullscreen, setIsFullscreen] = useState(false);
+  const [useFullscreenNativeControls, setUseFullscreenNativeControls] = useState(false);
+  const [fullscreenOrientationMode, setFullscreenOrientationMode] = useState<FullscreenOrientationMode | null>(null);
   const [liked, setLiked] = useState(false);
   const [followed, setFollowed] = useState(false);
   const [showControls, setShowControls] = useState(true);
@@ -133,9 +141,13 @@ const VideoPlayer: React.FC = () => {
   const faint = isDark ? 'rgba(255,255,255,0.45)' : theme.textMuted;
   const progress = duration > 0 ? Math.min(1, current / duration) : 0;
   const isPortraitVideo = videoDimensions.height > videoDimensions.width && videoDimensions.width > 0;
+  const isLandscapeVideo = videoDimensions.width > videoDimensions.height && videoDimensions.height > 0;
   const videoPlayerHeight = isPortraitVideo
     ? (windowWidth - 24) * (videoDimensions.height / videoDimensions.width)
     : 250;
+  const naturalFullscreenOrientation = isLandscapeVideo ? 'landscape' : isPortraitVideo ? 'portrait' : 'default';
+  const fullscreenOrientation = fullscreenOrientationMode ?? naturalFullscreenOrientation;
+  const nextFullscreenOrientationLabel = fullscreenOrientation === 'landscape' ? 'Portrait' : 'Landscape';
 
   useEffect(() => {
     const nextId = routeFeedVideo?.id ?? route.params?.id;
@@ -168,6 +180,7 @@ const VideoPlayer: React.FC = () => {
     setCurrent(0);
     setDuration(0);
     setVideoDimensions({ width: 0, height: 0 });
+    setFullscreenOrientationMode(null);
     player.muted = muted;
     player.playbackRate = speed;
     player.play();
@@ -252,6 +265,30 @@ const VideoPlayer: React.FC = () => {
     setShowControls(true);
   };
 
+  const pauseIfVideoMostlyOutOfView = useCallback((scrollY: number, viewportHeight: number) => {
+    const { y: videoY, height: videoHeight } = videoLayoutRef.current;
+    if (isFullscreen || videoHeight <= 0 || viewportHeight <= 0) return;
+
+    const viewportTop = scrollY;
+    const viewportBottom = scrollY + viewportHeight;
+    const videoTop = videoY;
+    const videoBottom = videoY + videoHeight;
+    const visibleHeight = Math.max(0, Math.min(videoBottom, viewportBottom) - Math.max(videoTop, viewportTop));
+    const outOfViewRatio = 1 - visibleHeight / videoHeight;
+
+    if (outOfViewRatio >= VIDEO_PAUSE_OUT_OF_VIEW_RATIO && player.playing) {
+      player.pause();
+      setPlaying(false);
+      setShowControls(true);
+    }
+  }, [isFullscreen, player]);
+
+  const handleMainScroll = useCallback((event: NativeSyntheticEvent<NativeScrollEvent>) => {
+    const { contentOffset, layoutMeasurement } = event.nativeEvent;
+    scrollViewportRef.current = { y: contentOffset.y, height: layoutMeasurement.height };
+    pauseIfVideoMostlyOutOfView(contentOffset.y, layoutMeasurement.height);
+  }, [pauseIfVideoMostlyOutOfView]);
+
   const jumpBy = (seconds: number) => {
     const total = Number(player.duration ?? 0);
     player.currentTime = Math.max(0, Math.min(Number(player.currentTime ?? 0) + seconds, total || 0));
@@ -265,6 +302,42 @@ const VideoPlayer: React.FC = () => {
     player.currentTime = nextTime;
     setCurrent(nextTime);
     setShowControls(true);
+  };
+
+  const enterFullscreen = async () => {
+    try {
+      setUseFullscreenNativeControls(true);
+      await videoViewRef.current?.enterFullscreen();
+      setShowControls(true);
+    } catch {
+      setUseFullscreenNativeControls(false);
+      setToast('Fullscreen unavailable');
+    }
+  };
+
+  const exitFullscreen = async () => {
+    try {
+      await videoViewRef.current?.exitFullscreen();
+      setShowControls(true);
+    } catch {
+      setToast('Could not exit fullscreen');
+    }
+  };
+
+  const toggleFullscreen = () => {
+    if (isFullscreen) {
+      void exitFullscreen();
+      return;
+    }
+
+    void enterFullscreen();
+  };
+
+  const toggleFullscreenOrientation = () => {
+    const nextMode: FullscreenOrientationMode = fullscreenOrientation === 'landscape' ? 'portrait' : 'landscape';
+    setFullscreenOrientationMode(nextMode);
+    setShowControls(true);
+    setToast(`${nextMode === 'landscape' ? 'Landscape' : 'Portrait'} fullscreen`);
   };
 
   const postComment = () => {
@@ -330,19 +403,45 @@ const VideoPlayer: React.FC = () => {
       style={{
         marginTop: 20,
       }}
+      onScroll={handleMainScroll}
+      scrollEventThrottle={16}
       showsVerticalScrollIndicator={false} contentContainerStyle={{ paddingBottom: 120, }} keyboardShouldPersistTaps="handled">
-        <Pressable onPress={() => setShowControls(true)} style={[styles.videoShell, { marginTop: 0, height: videoPlayerHeight }]}>
+        <Pressable
+          onLayout={(event) => {
+            videoLayoutRef.current = {
+              y: event.nativeEvent.layout.y,
+              height: event.nativeEvent.layout.height,
+            };
+            pauseIfVideoMostlyOutOfView(scrollViewportRef.current.y, scrollViewportRef.current.height);
+          }}
+          onPress={() => setShowControls(true)}
+          style={[styles.videoShell, { marginTop: 0, height: videoPlayerHeight }]}
+        >
           <VideoView
+            ref={videoViewRef}
             player={player}
-            nativeControls={false}
-            // allowsFullscreen
+            nativeControls={useFullscreenNativeControls}
+            fullscreenOptions={{
+              enable: true,
+              orientation: fullscreenOrientation,
+              autoExitOnRotate: fullscreenOrientationMode ? false : isLandscapeVideo,
+            }}
             allowsPictureInPicture
+            onFullscreenEnter={() => {
+              setIsFullscreen(true);
+              setUseFullscreenNativeControls(true);
+            }}
+            onFullscreenExit={() => {
+              setIsFullscreen(false);
+              setUseFullscreenNativeControls(false);
+              setShowControls(true);
+            }}
             contentFit="contain"
             style={styles.video}
           />
           <LinearGradient colors={['rgba(0,0,0,0.25)', 'rgba(0,0,0,0)', 'rgba(0,0,0,0.82)']} style={StyleSheet.absoluteFillObject} />
           {/* {studioMode ? <View style={styles.heatmap}>{heatmap.map((h, i) => <View key={`${i}-${h}`} style={[styles.heatBar, { height: `${h}%`, backgroundColor: isDark ? primaryColorAlpha(0.4) : 'rgba(162,28,175,0.28)' }]} />)}</View> : null} */}
-          {showControls ? <View style={styles.controls}><View style={styles.controlsRow}><Pressable style={styles.ghostBtn} onPress={() => jumpBy(-10)}><MaterialIcons name="replay-10" size={34} color="#fff" /></Pressable><Pressable style={styles.playBtn} onPress={togglePlay}><MaterialIcons name={playing ? 'pause' : 'play-arrow'} size={44} color="#fff" /></Pressable><Pressable style={styles.ghostBtn} onPress={() => jumpBy(10)}><MaterialIcons name="forward-10" size={34} color="#fff" /></Pressable></View><Pressable style={styles.muteBtn} onPress={() => setMuted((v) => !v)}><MaterialIcons name={muted ? 'volume-off' : 'volume-up'} size={18} color="#fff" /></Pressable></View> : null}
+          {showControls ? <View style={styles.controls}><View style={styles.controlsRow}><Pressable style={styles.ghostBtn} onPress={() => jumpBy(-10)}><MaterialIcons name="replay-10" size={34} color="#fff" /></Pressable><Pressable style={styles.playBtn} onPress={togglePlay}><MaterialIcons name={playing ? 'pause' : 'play-arrow'} size={44} color="#fff" /></Pressable><Pressable style={styles.ghostBtn} onPress={() => jumpBy(10)}><MaterialIcons name="forward-10" size={34} color="#fff" /></Pressable></View><Pressable style={styles.muteBtn} onPress={() => setMuted((v) => !v)}><MaterialIcons name={muted ? 'volume-off' : 'volume-up'} size={18} color="#fff" /></Pressable>{isFullscreen ? <Pressable accessibilityRole="button" accessibilityLabel={`Switch fullscreen to ${nextFullscreenOrientationLabel}`} style={styles.orientationToggleBtn} onPress={toggleFullscreenOrientation}><MaterialIcons name="screen-rotation" size={18} color="#fff" /><Text style={styles.orientationToggleText}>{nextFullscreenOrientationLabel}</Text></Pressable> : null}<Pressable style={styles.fullscreenBtn} onPress={toggleFullscreen}><MaterialIcons name={isFullscreen ? 'fullscreen-exit' : 'fullscreen'} size={20} color="#fff" /></Pressable>{isLandscapeVideo ? <View style={styles.landscapeBadge}><MaterialIcons name="screen-rotation" size={13} color="#fff" /><Text style={styles.landscapeBadgeText}>Landscape</Text></View> : null}</View> : null}
           <View style={styles.videoFooter}><Pressable onLayout={(event) => setProgressWidth(event.nativeEvent.layout.width)} onPress={(event) => seekFromProgress(event.nativeEvent.locationX)} style={styles.track}><View style={[styles.fill, { width: `${progress * 100}%` }]} /></Pressable><View style={styles.metaRow}><Text style={styles.metaText}>{formatTime(current)} / {formatTime(duration)}</Text><Text style={styles.metaText}>{video.date}</Text></View></View>
         </Pressable>
 
@@ -502,7 +601,7 @@ const VideoPlayer: React.FC = () => {
 const styles = StyleSheet.create({
   safeArea: { flex: 1 }, toast: { position: 'absolute', left: 24, right: 24, zIndex: 40, alignItems: 'center' }, toastText: { color: '#fff', ...fontSize.b5, lineHeight: fontSize.b5.fontSize + 1, textTransform: 'uppercase', letterSpacing: 1.6, backgroundColor: PRIMARY_COLOR, paddingHorizontal: 18, paddingVertical: 10, borderRadius: 999 },
   header: { paddingHorizontal: 16, flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between' }, headerActions: { flexDirection: 'row', alignItems: 'center', gap: 10 }, iconBtn: { width: 42, height: 42, borderRadius: 21, alignItems: 'center', justifyContent: 'center', borderWidth: 1 }, pill: { flexDirection: 'row', alignItems: 'center', gap: 8, height: 42, paddingHorizontal: 14, borderRadius: 999, borderWidth: 1 }, pillSmall: { height: 42, minWidth: 62, borderRadius: 999, borderWidth: 1, alignItems: 'center', justifyContent: 'center', paddingHorizontal: 14 }, pillText: { ...fontSize.b5, lineHeight: fontSize.b5.fontSize + 1, textTransform: 'uppercase', letterSpacing: 0.8 },
-  videoShell: { overflow: 'hidden', borderWidth: 1, backgroundColor: '#000', height: 250}, video: { ...StyleSheet.absoluteFillObject }, heatmap: { position: 'absolute', bottom: 60, left: 16, right: 16, height: 52, flexDirection: 'row', alignItems: 'flex-end', gap: 2 }, heatBar: { flex: 1, borderTopLeftRadius: 4, borderTopRightRadius: 4 }, controls: { ...StyleSheet.absoluteFillObject, justifyContent: 'center', alignItems: 'center' }, controlsRow: { flexDirection: 'row', alignItems: 'center', gap: 20 }, ghostBtn: { width: 52, height: 52, borderRadius: 26, backgroundColor: 'rgba(255,255,255,0.12)', alignItems: 'center', justifyContent: 'center' }, playBtn: { width: 82, height: 82, borderRadius: 41, backgroundColor: primaryColorAlpha(0.22), borderWidth: 1, borderColor: primaryColorAlpha(0.4), alignItems: 'center', justifyContent: 'center' }, muteBtn: { position: 'absolute', right: 18, top: 18, width: 38, height: 38, borderRadius: 19, backgroundColor: 'rgba(0,0,0,0.45)', alignItems: 'center', justifyContent: 'center' }, videoFooter: { position: 'absolute', left: 16, right: 16, bottom: 16 }, track: { height: 4, borderRadius: 999, backgroundColor: 'rgba(255,255,255,0.24)', overflow: 'hidden' }, fill: { height: '100%', borderRadius: 999, backgroundColor: PRIMARY_COLOR }, metaRow: { marginTop: 10, flexDirection: 'row', justifyContent: 'space-between' }, metaText: { color: 'rgba(255,255,255,0.8)', ...fontSize.b5, lineHeight: fontSize.b5.fontSize + 1, textTransform: 'uppercase', letterSpacing: 0.8 },
+  videoShell: { overflow: 'hidden', borderWidth: 1, backgroundColor: '#000', height: 250}, video: { ...StyleSheet.absoluteFillObject }, heatmap: { position: 'absolute', bottom: 60, left: 16, right: 16, height: 52, flexDirection: 'row', alignItems: 'flex-end', gap: 2 }, heatBar: { flex: 1, borderTopLeftRadius: 4, borderTopRightRadius: 4 }, controls: { ...StyleSheet.absoluteFillObject, justifyContent: 'center', alignItems: 'center' }, controlsRow: { flexDirection: 'row', alignItems: 'center', gap: 20 }, ghostBtn: { width: 52, height: 52, borderRadius: 26, backgroundColor: 'rgba(255,255,255,0.12)', alignItems: 'center', justifyContent: 'center' }, playBtn: { width: 82, height: 82, borderRadius: 41, backgroundColor: primaryColorAlpha(0.22), borderWidth: 1, borderColor: primaryColorAlpha(0.4), alignItems: 'center', justifyContent: 'center' }, muteBtn: { position: 'absolute', right: 18, top: 18, width: 38, height: 38, borderRadius: 19, backgroundColor: 'rgba(0,0,0,0.45)', alignItems: 'center', justifyContent: 'center' }, fullscreenBtn: { position: 'absolute', right: 18, bottom: 72, width: 38, height: 38, borderRadius: 19, backgroundColor: 'rgba(0,0,0,0.45)', alignItems: 'center', justifyContent: 'center' }, orientationToggleBtn: { position: 'absolute', right: 64, bottom: 72, height: 38, borderRadius: 19, paddingHorizontal: 12, backgroundColor: 'rgba(0,0,0,0.45)', flexDirection: 'row', alignItems: 'center', justifyContent: 'center', gap: 6 }, orientationToggleText: { color: '#fff', ...fontSize.b5, lineHeight: fontSize.b5.fontSize + 1, textTransform: 'uppercase', letterSpacing: 0.8 }, landscapeBadge: { position: 'absolute', left: 18, top: 18, height: 30, borderRadius: 999, paddingHorizontal: 10, backgroundColor: 'rgba(0,0,0,0.45)', flexDirection: 'row', alignItems: 'center', gap: 5 }, landscapeBadgeText: { color: '#fff', ...fontSize.b5, lineHeight: fontSize.b5.fontSize + 1, textTransform: 'uppercase', letterSpacing: 0.8 }, videoFooter: { position: 'absolute', left: 16, right: 16, bottom: 16 }, track: { height: 4, borderRadius: 999, backgroundColor: 'rgba(255,255,255,0.24)', overflow: 'hidden' }, fill: { height: '100%', borderRadius: 999, backgroundColor: PRIMARY_COLOR }, metaRow: { marginTop: 10, flexDirection: 'row', justifyContent: 'space-between' }, metaText: { color: 'rgba(255,255,255,0.8)', ...fontSize.b5, lineHeight: fontSize.b5.fontSize + 1, textTransform: 'uppercase', letterSpacing: 0.8 },
   sectionStack: { paddingHorizontal: 16, paddingTop: 22, gap: 22 }, statGrid: { flexDirection: 'row', gap: 10 }, statCard: { flex: 1, borderRadius: 24, borderWidth: 1, paddingHorizontal: 12, paddingVertical: 16, alignItems: 'center', gap: 6 }, statValue: { ...fontSize.b5, lineHeight: fontSize.b5.fontSize + 1 }, statLabel: { ...fontSize.b5, lineHeight: fontSize.b5.fontSize + 1, textTransform: 'uppercase', letterSpacing: 1.1 },
   rowBetween: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', gap: 12 }, panel: { borderRadius: 28, borderWidth: 1, padding: 18, gap: 16 }, eyebrow: { ...fontSize.b5, lineHeight: fontSize.b5.fontSize + 1, textTransform: 'uppercase', letterSpacing: 1.5 }, syncDot: { width: 16, height: 16, borderRadius: 8, borderWidth: 2 }, protocolRow: { flexDirection: 'row', gap: 12 }, protocolCard: { flex: 1, borderRadius: 22, borderWidth: 1, padding: 16, gap: 10 }, protocolTitle: { ...fontSize.b5, lineHeight: fontSize.b5.fontSize + 1 }, protocolCopy: { ...fontSize.b5, lineHeight: fontSize.b5.fontSize + 1, textTransform: 'uppercase' },
   auditPanel: { borderRadius: 30, borderWidth: 1, padding: 18, gap: 14 }, auditHead: { flexDirection: 'row', alignItems: 'center', gap: 12 }, auditIcon: { width: 42, height: 42, borderRadius: 14, alignItems: 'center', justifyContent: 'center', backgroundColor: primaryColorAlpha(0.10) }, auditTitle: { ...fontSize.b5, lineHeight: fontSize.b5.fontSize + 1, textTransform: 'uppercase', letterSpacing: 1.3 }, auditSub: { ...fontSize.b5, lineHeight: fontSize.b5.fontSize + 1, textTransform: 'uppercase' }, auditButton: { height: 46, borderRadius: 18, borderWidth: 1, alignItems: 'center', justifyContent: 'center' }, auditButtonText: { ...fontSize.b5, lineHeight: fontSize.b5.fontSize + 1, textTransform: 'uppercase' },

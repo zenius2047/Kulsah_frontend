@@ -27,6 +27,7 @@ import SwitchIcon from './assets/icons/switch.svg';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import CreatorSwitch from './assets/icons/switch-creator.svg';
 import { fontSize } from './typography';
+import TicketIcon from './assets/icons/Ticket1.svg';
 
 interface FanProfileProps {
   onLogout?: () => void;
@@ -553,7 +554,7 @@ const FanProfile: React.FC<FanProfileProps> = ({ onToggleRole }) => {
                     <Pressable key={item} onPress={() => navigation.navigate('FanTicket')} style={s.ticketCard}>
                       <View style={s.ticketLeft}>
                         <View style={s.ticketIconWrap}>
-                          <MaterialIcons name="local-activity" size={24} color={PRIMARY_COLOR} />
+                          <TicketIcon height={24} width={24}/>
                         </View>
                         <View>
                           <Text style={[s.ticketTitle, { color: theme.text }]}>Summer Festival 2024</Text>

@@ -17,6 +17,7 @@ import VerifiedIcon from '../assets/icons/verified-svg.svg';
 import FireIcon from '../assets/icons/fireIcon-svg.svg';
 import KulCoinPrompt from '../components/KulCoinPrompt';
 import { fontSize } from '../typography';
+import TicketIcon from '../assets/icons/Ticket1.svg'
 
 
 type Tab = 'Videos' | 'Library' | 'Premium'  | 'Tickets' | 'Events' | 'Challenges' | 'Favorites' | 'Saved';
@@ -1224,7 +1225,7 @@ const PlaylistSection = () => {
                 >
                   <View style={s.ticketLeft}>
                     <View style={s.ticketIconWrap}>
-                      <MaterialIcons name="local-activity" size={24} color={PRIMARY_COLOR} />
+                      <TicketIcon height={24} width={24}/>
                     </View>
                     <View style={{ flex: 1 }}>
                       <Text style={[s.ticketTitle, { color: theme.text }]}>{ticket.title}</Text>
@@ -1991,17 +1992,17 @@ const s = StyleSheet.create({
   libraryGrid: {
     flexDirection: 'row',
     flexWrap: 'wrap',
-    gap: 6,
-    paddingHorizontal: 3,
+    // gap: 1,
+    // paddingHorizontal: 3,
     overflow: 'visible',
   },
   libraryCard: {
-    width: '49.1%',
+    width: '49.9%',
     aspectRatio: 9 / 16,
     overflow: 'hidden',
     borderWidth: 1,
     position: 'relative',
-    marginTop: 4,
+    // marginTop: 4,
   },
   libraryImage: {
     width: '100%',
