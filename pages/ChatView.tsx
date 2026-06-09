@@ -260,8 +260,8 @@ const ChatView: React.FC = () => {
     >
       <LinearGradient
           colors={[
-            'rgba(0,0,0,0.0)',
-            'rgba(0,0,0,0.0)',
+            isDark ?  'rgba(0,0,0,0.1)':'rgba(0,0,0,0.0)',
+            isDark ?  'rgba(0,0,0,0.1)':'rgba(0,0,0,0.0)',
           ]}
           style={{ flex: 1 }}
         >

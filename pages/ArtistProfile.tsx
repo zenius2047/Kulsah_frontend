@@ -23,6 +23,7 @@ type Tab = 'Videos' | 'Library' | 'Premium'  | 'Tickets' | 'Events' | 'Challenge
 type LibrarySubTab = 'All' | 'Public' | 'Premium' | 'Drafts';
 type Billing = 'monthly' | 'annually';
 const { height: SCREEN_HEIGHT, width: SCREEN_WIDTH } = Dimensions.get('screen');
+const KULCOIN_ICON = require('../assets/coin.png');
 
 interface SubscriptionTier {
   name: string;
@@ -1208,7 +1209,7 @@ const PlaylistSection = () => {
 
 
           {activeTab === 'Tickets' ? (
-            <View style={s.stack}>
+            <View style={[s.stack, {marginHorizontal: 18}]}>
               {tickets.map((ticket) => (
                 <Pressable
                   key={ticket.id}
@@ -1235,7 +1236,7 @@ const PlaylistSection = () => {
               ))}
             </View>
           ) : null}
-          {activeTab === 'Events' ? <View style={s.stack}>{events.map((item) =>
+          {activeTab === 'Events' ? <View style={[s.stack, {marginHorizontal: 18}]}>{events.map((item) =>
             <Pressable key={item.id} onPress={() => navigation.navigate('EventDetail')} style={[s.banner, { backgroundColor: isDark ? '#0f172a' : theme.surface }]}>
               <Image source={{ uri: item.img }} style={[s.image, {borderRadius: 0}]} />
                 <LinearGradient colors={['transparent', 'rgba(0,0,0,0.9)']} style={StyleSheet.absoluteFillObject} />
@@ -1465,7 +1466,7 @@ const PlaylistSection = () => {
                 <ScrollView showsVerticalScrollIndicator={false} contentContainerStyle={s.subscriptionContent}>
                   <View style={s.subscriptionHeader}>
                     <View style={s.subscriptionIconWrap}>
-                      <MaterialIcons name="monetization-on" size={34} color="#f59e0b" />
+                      <Image source={KULCOIN_ICON} style={{ width: 34, height: 34, resizeMode: 'contain' }} />
                     </View>
                     <View style={s.subscriptionHeaderText}>
                       <Text style={[s.subscriptionTitle, { color: theme.text }]}>{selectedSub.name}</Text>

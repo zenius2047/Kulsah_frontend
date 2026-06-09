@@ -22,7 +22,8 @@ type CoinPack = {
   name: string;
   coins: string;
   price: string;
-  icon: keyof typeof MaterialIcons.glyphMap;
+  icon?: keyof typeof MaterialIcons.glyphMap;
+  usesCoinImage?: boolean;
   iconColor: string;
   iconBg: string;
   ringColor: string;
@@ -41,6 +42,7 @@ type GiftItem = {
 
 const HERO_IMAGE =
   'https://lh3.googleusercontent.com/aida-public/AB6AXuDEC8m2v0wLYGn3bDDJZPaZqiRrKLS6aaZVOzJ7OvekIrzkKrSZgg_92tmJLf3bRfqGUht4RxV0Sx75A6W2X2pM-vnTsFXnWj96usaAEWpOKHmEcxia6IlsP_lTAV3w8sPDm44c0PXUFQRArOXh9yv2x7tpPZVgba1MMPDrLTcEULgVAr_O58pglxLPil8xaKCBs-_UpzNw2GYvzxoD7cpXLSamuGVf97M3-BDT0wFw_SgrpV1bXi6mfORmyGQ59Ok_Tw-ZRH_kDG0f';
+const KULCOIN_ICON = require('../assets/coin.png');
 
 const coinPacks: CoinPack[] = [
   {
@@ -48,7 +50,7 @@ const coinPacks: CoinPack[] = [
     name: 'Bronze Pack',
     coins: '100 Pulse Coins',
     price: '$0.99',
-    icon: 'monetization-on',
+    usesCoinImage: true,
     iconColor: '#fb923c',
     iconBg: 'rgba(124,45,18,0.28)',
     ringColor: 'rgba(249,115,22,0.42)',
@@ -58,7 +60,7 @@ const coinPacks: CoinPack[] = [
     name: 'Silver Pack',
     coins: '500 Pulse Coins',
     price: '$4.99',
-    icon: 'monetization-on',
+    usesCoinImage: true,
     iconColor: '#cbd5e1',
     iconBg: 'rgba(100,116,139,0.22)',
     ringColor: 'rgba(148,163,184,0.35)',
@@ -243,7 +245,11 @@ const Store: React.FC = () => {
                       { backgroundColor: pack.iconBg, borderColor: pack.ringColor },
                     ]}
                   >
-                    <MaterialIcons name={pack.icon} size={24} color={pack.iconColor} />
+                    {pack.usesCoinImage ? (
+                      <Image source={KULCOIN_ICON} style={styles.packCoinImage} />
+                    ) : pack.icon ? (
+                      <MaterialIcons name={pack.icon} size={24} color={pack.iconColor} />
+                    ) : null}
                   </View>
                   <View>
                     <Text style={[styles.packTitle, { color: title }]}>{pack.name}</Text>
@@ -303,7 +309,7 @@ const Store: React.FC = () => {
                   <View style={styles.giftMeta}>
                     <Text style={[styles.giftName, { color: title }]}>{gift.name}</Text>
                     <View style={styles.giftPriceRow}>
-                      <MaterialIcons name="monetization-on" size={13} color="#a855f7" />
+                      <Image source={KULCOIN_ICON} style={styles.giftPriceCoinImage} />
                       <Text style={styles.giftPrice}>{gift.price}</Text>
                     </View>
                   </View>
@@ -485,6 +491,11 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     borderWidth: 1,
   },
+  packCoinImage: {
+    width: 24,
+    height: 24,
+    resizeMode: 'contain',
+  },
   packTitle: {
     ...fontSize.b4, lineHeight: fontSize.b4.fontSize + 1,
   },
@@ -602,6 +613,11 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     gap: 4,
+  },
+  giftPriceCoinImage: {
+    width: 13,
+    height: 13,
+    resizeMode: 'contain',
   },
   giftPrice: {
     color: '#c084fc',

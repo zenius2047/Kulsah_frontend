@@ -18,7 +18,7 @@ import { MaterialIcons } from '@expo/vector-icons';
 import { LinearGradient } from 'expo-linear-gradient';
 import { GoogleGenAI } from '@google/genai';
 import { mediumScreen } from '../types';
-import { useThemeMode, primaryColorAlpha } from "../theme";
+import { useThemeMode, primaryColorAlpha, PRIMARY_COLOR } from "../theme";
 import { fontSize } from './typography';
 
 type Audience = 'all' | 'subs';
@@ -505,7 +505,7 @@ const styles = StyleSheet.create({
     opacity: 0.35,
   },
   headerPostText: {
-    color: '#d900c7',
+    color: PRIMARY_COLOR,
     ...fontSize.b3, lineHeight: fontSize.b3.fontSize + 2,
     letterSpacing: 0.3,
   },
@@ -562,11 +562,11 @@ const styles = StyleSheet.create({
     width: 6,
     height: 6,
     borderRadius: 3,
-    backgroundColor: '#d900c7',
+    backgroundColor: PRIMARY_COLOR,
     marginRight: 8,
   },
   profileSubText: {
-    color: '#d900c7',
+    color: PRIMARY_COLOR,
     ...fontSize.b4, lineHeight: fontSize.b4.fontSize + 1,
     letterSpacing: 2.5,
   },
@@ -640,7 +640,7 @@ const styles = StyleSheet.create({
     borderColor: 'rgba(217,0,199,0.2)',
   },
   aiButtonText: {
-    color: '#d900c7',
+    color: PRIMARY_COLOR,
     ...fontSize.b5, lineHeight: fontSize.b5.fontSize + 1,
     letterSpacing: 1.8,
   },
@@ -666,7 +666,7 @@ const styles = StyleSheet.create({
     gap: 8,
   },
   pollTitle: {
-    color: '#d900c7',
+    color: PRIMARY_COLOR,
     ...fontSize.b5, lineHeight: fontSize.b5.fontSize + 1,
     letterSpacing: 2,
   },
@@ -706,7 +706,7 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
   },
   addPollText: {
-    color: '#d900c7',
+    color: PRIMARY_COLOR,
     ...fontSize.b5, lineHeight: fontSize.b5.fontSize + 1,
     letterSpacing: 1.8,
   },
@@ -751,7 +751,7 @@ const styles = StyleSheet.create({
     borderRadius: 12,
   },
   audienceButtonActive: {
-    backgroundColor: '#d900c7',
+    backgroundColor: PRIMARY_COLOR,
   },
   audienceText: {
     color: '#94A3B8',
@@ -766,8 +766,8 @@ const styles = StyleSheet.create({
     borderRadius: 999,
     alignItems: 'center',
     justifyContent: 'center',
-    backgroundColor: '#d900c7',
-    shadowColor: '#d900c7',
+    backgroundColor: PRIMARY_COLOR,
+    shadowColor: PRIMARY_COLOR,
     shadowOffset: { width: 0, height: 8 },
     shadowOpacity: 0.25,
     shadowRadius: 18,

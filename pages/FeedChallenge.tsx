@@ -58,6 +58,7 @@ type ChallengeVideoItemProps = {
 
 const VOTE_COST = 5;
 const KULCOIN_STORAGE_KEY = 'kulcoins';
+const KULCOIN_ICON = require('../assets/coin.png');
 const SING_CHALLENGE_VIDEO_URL = 'https://res.cloudinary.com/dh0dywpzm/video/upload/v1779794760/kulsah_sing_vgqxne.mp4';
 const DANCE_CHALLENGE_VIDEO_URL = 'https://res.cloudinary.com/dh0dywpzm/video/upload/v1779795517/dance_cha_001_p1flkl.mp4';
 
@@ -642,7 +643,7 @@ const FeedChallenge: React.FC = () => {
 
           <View style={styles.balancePill}>
             <View style={styles.balanceLeft}>
-              <MaterialIcons name="monetization-on" size={16} color={PRIMARY_COLOR} />
+              <Image source={KULCOIN_ICON} style={styles.balanceCoinImage} />
               <Text style={styles.balancePillText}>{kulcoins} KC</Text>
               <Pressable onPress={() => setIsTopUpOpen(true)} style={styles.addCoinButton}>
                 <MaterialIcons name="add" size={14} color="#ffffff" />
@@ -965,6 +966,11 @@ const styles = StyleSheet.create({
     paddingRight: 12,
     borderRightWidth: 1,
     borderRightColor: 'rgba(255,255,255,0.12)',
+  },
+  balanceCoinImage: {
+    width: 16,
+    height: 16,
+    resizeMode: 'contain',
   },
   balancePillText: {
     color: '#ffffff',

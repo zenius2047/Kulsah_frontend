@@ -1,6 +1,6 @@
 import { MaterialIcons } from '@expo/vector-icons';
 import React, { useEffect, useMemo, useState } from 'react';
-import { KeyboardAvoidingView, Modal, Platform, Pressable, ScrollView, StyleSheet, Text, View } from 'react-native';
+import { Image, KeyboardAvoidingView, Modal, Platform, Pressable, ScrollView, StyleSheet, Text, View } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useThemeMode, PRIMARY_COLOR, primaryColorAlpha } from "../theme";
 import { mediumScreen } from '../types';
@@ -23,6 +23,7 @@ const coinPackages = [
 ];
 const CUSTOM_PACKAGE_ID = -1;
 const BASE_COINS_PER_GHS = 50;
+const KULCOIN_ICON = require('../assets/coin.png');
 
 const KulcoinTopUpDrawer: React.FC<KulcoinTopUpDrawerProps> = ({
   currentBalance,
@@ -132,7 +133,7 @@ const KulcoinTopUpDrawer: React.FC<KulcoinTopUpDrawerProps> = ({
                         </View>
                       ) : null}
                       <View style={styles.packageIcon}>
-                        <MaterialIcons name="monetization-on" size={24} color={PRIMARY_COLOR} />
+                        <Image source={KULCOIN_ICON} style={styles.packageCoinImage} />
                       </View>
                       <Text style={[styles.packageCoins, { color: titleColor }]}>{pkg.coins}</Text>
                       <Text style={[styles.packageLabel, { color: tertiaryText }]}>{pkg.label}</Text>
@@ -402,6 +403,11 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'center',
     backgroundColor: primaryColorAlpha(0.12),
+  },
+  packageCoinImage: {
+    width: 24,
+    height: 24,
+    resizeMode: 'contain',
   },
   packageCoins: {
     color: '#ffffff',

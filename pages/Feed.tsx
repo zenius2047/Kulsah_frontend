@@ -44,6 +44,8 @@ import Premium from '../assets/icons/kulsah_premium_icon.svg';
 import DotTrioLoader from '../components/DotTrioLoader';
 import { fontSize } from '../typography';
 
+const KULCOIN_ICON = require('../assets/coin.png');
+
 interface FeedItem {
   id: string;
   artist: string;
@@ -560,15 +562,15 @@ const FeedSubscriptionModal: React.FC<{
                     style={{
                       width: 78,
                       height: 78,
-                      borderRadius: 28,
-                      backgroundColor: 'rgba(245,158,11,0.18)',
-                      borderWidth: 1,
-                      borderColor: 'rgba(245,158,11,0.35)',
+                      // borderRadius: 28,
+                      // backgroundColor: 'rgba(245,158,11,0.18)',
+                      // borderWidth: 1,
+                      // borderColor: 'rgba(245,158,11,0.35)',
                       alignItems: 'center',
                       justifyContent: 'center',
                     }}
                   >
-                    <MaterialIcons name="monetization-on" size={34} color="#f59e0b" />
+                    <Image source={KULCOIN_ICON} style={{ width: '100%', height: '100%', resizeMode: 'contain' }} />
                   </View>
                   <View style={{ flex: 1 }}>
                     <Text

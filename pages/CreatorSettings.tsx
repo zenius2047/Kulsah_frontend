@@ -35,6 +35,9 @@ import HandShakeIcon from '../assets/icons/handshake-svg.svg';
 import FireIcon from '../assets/icons/fire-svg.svg';
 import { mediumScreen, setDark, setUser, user } from '../types';
 import { fontSize } from './typography';
+import HelpCentre from '../assets/icons/help_center.svg';
+import PrivacyCentre from '../assets/icons/admin_panel.svg';
+import Terms from '../assets/icons/gravel.svg';
 
 
 type SettingsSubView = 'main' | 'tags' | 'identity';
@@ -249,6 +252,14 @@ const CreatorSettings: React.FC<CreatorSettingsProps> = ({ onLogout, isDarkMode,
         items: [
           { label: 'Payout Settings', icon: PaymentsIcon, desc: 'Bank account and withdrawal methods', path: 'CreatorRevenue' },
           { label: 'Financial Insights', icon: MonitoringIcon, desc: 'Revenue, withdrawals, and transaction analytics', path: 'CreatorAnalytics' },
+        ] as SettingItem[],
+      },
+      {
+        title: 'Support & Legal',
+        items: [
+          { label: 'Help Centre', icon: HelpCentre, desc: 'FAQs and support tickets', path: 'HelpCentre' },
+          { label: 'Privacy Centre', icon: PrivacyCentre, desc: 'Manage your data and permissions', path: 'PrivacyCentre' },
+          { label: 'Terms & Policies', icon: Terms, desc: 'Ecosystem rules and agreements', path: 'TermsPolicies' },
         ] as SettingItem[],
       },
     ],

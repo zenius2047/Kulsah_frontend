@@ -124,6 +124,9 @@ import Search from './pages/Search';
 import Submissions from './pages/Submissions';
 import Premium from './pages/Premium';
 import PlaylistPlayer from './pages/PlaylistPlayer';
+import HelpCentre from './pages/HelpCentre';
+import TermsPolicies from './pages/TermsPolicies';
+import PrivacyCentre from './pages/PrivacyCentre';
 
 
 
@@ -621,6 +624,9 @@ const App: React.FC = () => {
                   <Stack.Screen name="Premium" component={Premium}/>
                   <Stack.Screen name="VideoPlayer" component={VideoPlayer}/>
                   <Stack.Screen name="PlaylistPlayer" component={PlaylistPlayer}/>
+                  <Stack.Screen name="HelpCentre" component={HelpCentre}/>
+                  <Stack.Screen name="TermsPolicies" component={TermsPolicies}/>
+                  <Stack.Screen name="PrivacyCentre" component={PrivacyCentre}/>
                 </>
               ) : (
                 <>

@@ -1,10 +1,12 @@
 import React from 'react';
 import { MaterialIcons } from '@expo/vector-icons';
-import { Modal, Pressable, Text, View } from 'react-native';
+import { Image, Modal, Pressable, Text, View } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
 import { useThemeMode, PRIMARY_COLOR } from "../theme";
 import { mediumScreen } from '../types';
 import { fontSize } from './typography';
+
+const KULCOIN_ICON = require('../assets/coin.png');
 
 interface KulCoinPromptProps {
   isOpen: boolean;
@@ -70,7 +72,7 @@ const KulCoinPrompt: React.FC<KulCoinPromptProps> = ({
                 marginBottom: 24,
               }}
             >
-              <MaterialIcons name="monetization-on" size={40} color="#f59e0b" />
+              <Image source={KULCOIN_ICON} style={{ width: 40, height: 40, resizeMode: 'contain' }} />
             </View>
 
             <Text

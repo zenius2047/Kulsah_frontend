@@ -4,6 +4,7 @@ import { useNavigation } from '@react-navigation/native';
 import React, { useEffect, useMemo, useState } from 'react';
 import {
   ActivityIndicator,
+  Image,
   Modal,
   Pressable,
   ScrollView,
@@ -23,6 +24,7 @@ type CoinPackage = {
 };
 
 const USER_KEY = 'pulsar_user';
+const KULCOIN_ICON = require('../assets/coin.png');
 
 const coinPackages: CoinPackage[] = [
   { id: 1, coins: 10, price: 1, bonus: 0, popular: false },
@@ -198,7 +200,7 @@ const TopUpCoins: React.FC = () => {
                 >
                   {currentCoins.toLocaleString()}
                 </Text>
-                <MaterialIcons name="monetization-on" size={32} color={PRIMARY_COLOR} />
+                <Image source={KULCOIN_ICON} style={{ width: 32, height: 32, resizeMode: 'contain' }} />
               </>
             )}
           </View>
@@ -281,7 +283,7 @@ const TopUpCoins: React.FC = () => {
                       marginBottom: 10,
                     }}
                   >
-                    <MaterialIcons name="monetization-on" size={24} color={PRIMARY_COLOR} />
+                    <Image source={KULCOIN_ICON} style={{ width: 24, height: 24, resizeMode: 'contain' }} />
                   </View>
 
                   <Text
@@ -563,7 +565,7 @@ const TopUpCoins: React.FC = () => {
               borderColor: primaryColorAlpha(0.3),
             }}
           >
-            <MaterialIcons name="monetization-on" size={20} color={PRIMARY_COLOR} />
+            <Image source={KULCOIN_ICON} style={{ width: 20, height: 20, resizeMode: 'contain' }} />
             <Text
               style={{
                 color: theme.text,
