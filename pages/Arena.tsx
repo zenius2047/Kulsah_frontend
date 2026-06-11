@@ -7,14 +7,19 @@ import Community from './Community';
 import { useNavigation } from '@react-navigation/native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import CreatorChallenges from './CreatorChallenges';
+import Discover from './Discover';
 
 
 
 import { fontSize } from '../typography';
 
+type ArenaTab = 'community' | 'discover' | 'challenges';
+const ARENA_TABS: ArenaTab[] = ['community', 'discover', 'challenges'];
+
 const Arena :React.FC = ({route}:any)=>{
     const { isDark, theme } = useThemeMode();
-    const [activeTab, setActiveTab] = useState<string | "challenges" | "community">('community');
+    const [activeTab, setActiveTab] = useState<ArenaTab>('community');
+    const [isDiscoverSwipeAreaActive, setIsDiscoverSwipeAreaActive] = useState(false);
     const navigation = useNavigation<any>();
     const insets = useSafeAreaInsets();
     const styles = useMemo(() => createStyles(), []);
@@ -22,25 +27,27 @@ const Arena :React.FC = ({route}:any)=>{
     const swipeHandledRef = useRef(false);
 
     useEffect(()=>{
-        const tabToRoute = route?.params?.tabToRoute;
-        if(tabToRoute){
+        const tabToRoute = route?.params?.tabToRoute as ArenaTab | undefined;
+        if(tabToRoute && ARENA_TABS.includes(tabToRoute)){
             setActiveTab(tabToRoute)
         }
     }, [route?.params?.tabToRoute])
 
+    useEffect(() => {
+      setIsDiscoverSwipeAreaActive(false);
+    }, [activeTab]);
+
 
      const handleTabSwipe = useCallback((direction: 'left' | 'right') => {
-        const tabOrder: Array<'community' | 'challenges' | string> = ['community','challenges'];
-    
         setActiveTab((currentTab) => {
-          const currentIndex = tabOrder.indexOf(currentTab);
+          const currentIndex = ARENA_TABS.indexOf(currentTab);
           if (currentIndex === -1) return currentTab;
     
           if (direction === 'left') {
-            return tabOrder[Math.min(currentIndex + 1, tabOrder.length - 1)];
+            return ARENA_TABS[Math.min(currentIndex + 1, ARENA_TABS.length - 1)];
           }
     
-          return tabOrder[Math.max(currentIndex - 1, 0)];
+          return ARENA_TABS[Math.max(currentIndex - 1, 0)];
         });
       }, []);
     
@@ -48,7 +55,8 @@ const Arena :React.FC = ({route}:any)=>{
         () =>
           PanResponder.create({
             onMoveShouldSetPanResponder: (_, gestureState) =>
-              Math.abs(gestureState.dx) > 24 &&
+              !(activeTab === 'discover' && isDiscoverSwipeAreaActive) &&
+              Math.abs(gestureState.dx) > 44 &&
               Math.abs(gestureState.dx) > Math.abs(gestureState.dy) * 1.2,
             onPanResponderGrant: () => {
               swipeHandledRef.current = false;
@@ -68,7 +76,7 @@ const Arena :React.FC = ({route}:any)=>{
               swipeHandledRef.current = false;
             },
           }),
-        [handleTabSwipe]
+        [activeTab, handleTabSwipe, isDiscoverSwipeAreaActive]
       );
     
 
@@ -110,15 +118,15 @@ const Arena :React.FC = ({route}:any)=>{
    
              
            </View>
-    {/*Main Tabs........... "Community" & Challenges */}
+    {/*Main Tabs........... "Community", Discover & Challenges */}
     <View style={{
         flexDirection: 'row',
         justifyContent: 'space-around',
-        paddingTop: 30,
+        paddingTop: 0,
         backgroundColor: 'transparent',
-        paddingBottom: 30,
+        paddingBottom: 20,
     }}>
-    {["community","challenges"].map((item)=>(
+    {ARENA_TABS.map((item)=>(
         <Pressable
         key={item}
         onPress={()=>setActiveTab(item)}
@@ -149,6 +157,7 @@ const Arena :React.FC = ({route}:any)=>{
     </View>
 
     {activeTab == 'community' && <Community/>}
+    {activeTab == 'discover' && <Discover embedded onHorizontalSwipeAreaTouchChange={setIsDiscoverSwipeAreaActive}/>}
     {activeTab == 'challenges' && <CreatorChallenges/>}
     </View>);
 }

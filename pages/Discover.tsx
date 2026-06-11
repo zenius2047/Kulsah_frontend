@@ -217,7 +217,15 @@ const LiveCreatorAvatar = ({
   );
 };
 
-const Discover: React.FC<{ embedded?: boolean }> = ({ embedded = false }) => {
+type DiscoverProps = {
+  embedded?: boolean;
+  onHorizontalSwipeAreaTouchChange?: (isTouching: boolean) => void;
+};
+
+const Discover: React.FC<DiscoverProps> = ({
+  embedded = false,
+  onHorizontalSwipeAreaTouchChange,
+}) => {
   const { isDark, theme } = useThemeMode();
   const navigation = useNavigation<any>();
   const insets = useSafeAreaInsets();
@@ -235,6 +243,14 @@ const Discover: React.FC<{ embedded?: boolean }> = ({ embedded = false }) => {
   const filteredTickets = useMemo(() => ticketShows.filter((ticket) => [ticket.eventTitle, ticket.creator, ticket.venue].some((value) => value.toLowerCase().includes(query))), [query]);
   const filteredVideos = useMemo(() => trendingVideos.filter((video) => [video.title, video.creator, video.category].some((value) => value.toLowerCase().includes(query))), [query]);
   const filteredChallenges = useMemo(() => activeChallenges.filter((challenge) => [challenge.tag, challenge.creator, challenge.type].some((value) => value.toLowerCase().includes(query))), [query]);
+  const horizontalSwipeAreaHandlers = {
+    onTouchStart: () => onHorizontalSwipeAreaTouchChange?.(true),
+    onTouchEnd: () => onHorizontalSwipeAreaTouchChange?.(false),
+    onTouchCancel: () => onHorizontalSwipeAreaTouchChange?.(false),
+    onScrollBeginDrag: () => onHorizontalSwipeAreaTouchChange?.(true),
+    onScrollEndDrag: () => onHorizontalSwipeAreaTouchChange?.(false),
+    onMomentumScrollEnd: () => onHorizontalSwipeAreaTouchChange?.(false),
+  };
 
   const stop = (event: GestureResponderEvent) => event.stopPropagation();
 
@@ -268,28 +284,37 @@ const Discover: React.FC<{ embedded?: boolean }> = ({ embedded = false }) => {
 
   return (
     <SafeAreaView edges={[]} style={[styles.safeArea, { backgroundColor: theme.background }]}>
-      <View style={[styles.header, { backgroundColor: isDark ? 'rgb(0, 0, 0)' : 'rgb(255, 255, 255)', borderBottomColor: isDark ? '#27272a' : '#e2e8f0' }]}> 
-          <View style={{
-            // backgroundColor: 'blue',
-            flexDirection: 'row',
-            justifyContent: 'space-between',
-            marginBottom: 20,
-            paddingHorizontal: 20,
-          }}>
-                    <Pressable onPress={() => navigation.goBack()} style={[styles.headerRoundBtn, { backgroundColor: faintSurface, borderColor: theme.border }]}>
-                      <MaterialIcons name="chevron-left" size={22} color={theme.text} />
-                    </Pressable>
-            
-                    <View style={styles.headerTitleWrap}>
-                      <Text style={[styles.headerTitle, { color: theme.text }]}>Discover</Text>
-                      <Text style={styles.headerSubtitle}>Galaxy Universe</Text>
+      <View
+        style={[
+          styles.header,
+          embedded
+            ? { backgroundColor: 'transparent', borderBottomWidth: 0, paddingTop: 0 }
+            : { backgroundColor: isDark ? 'rgb(0, 0, 0)' : 'rgb(255, 255, 255)', borderBottomColor: isDark ? '#27272a' : '#e2e8f0' },
+        ]}
+      >
+          {!embedded ? (
+            <View style={{
+              // backgroundColor: 'blue',
+              flexDirection: 'row',
+              justifyContent: 'space-between',
+              marginBottom: 20,
+              paddingHorizontal: 20,
+            }}>
+                      <Pressable onPress={() => navigation.goBack()} style={[styles.headerRoundBtn, { backgroundColor: faintSurface, borderColor: theme.border }]}>
+                        <MaterialIcons name="chevron-left" size={22} color={theme.text} />
+                      </Pressable>
+              
+                      <View style={styles.headerTitleWrap}>
+                        <Text style={[styles.headerTitle, { color: theme.text }]}>Discover</Text>
+                        <Text style={styles.headerSubtitle}>Galaxy Universe</Text>
+                      </View>
+              
+                      <View style={styles.headerSpacer} />
+                      {/* <Pressable onPress={() => navigation.navigate('Inbox')} style={[styles.headerRoundBtn, { backgroundColor: faintSurface, borderColor: softBorder }]}>
+                        <MaterialIcons name="notifications-none" size={22} color={theme.text} />
+                      </Pressable> */}
                     </View>
-            
-                    <View style={styles.headerSpacer} />
-                    {/* <Pressable onPress={() => navigation.navigate('Inbox')} style={[styles.headerRoundBtn, { backgroundColor: faintSurface, borderColor: softBorder }]}>
-                      <MaterialIcons name="notifications-none" size={22} color={theme.text} />
-                    </Pressable> */}
-                  </View>
+          ) : null}
           <View/>
 
           <View style={[styles.searchWrap, { backgroundColor: isDark ? '#18181b' : '#fff', borderColor: isDark ? '#27272a' : '#e2e8f0', marginHorizontal: 20 }]}> 
@@ -308,7 +333,7 @@ const Discover: React.FC<{ embedded?: boolean }> = ({ embedded = false }) => {
             ) : null}
           </View>
 
-          <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={styles.tabList}>
+          <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={styles.tabList} {...horizontalSwipeAreaHandlers}>
             {tabs.map((tab) => {
               const isSelected = activeTab === tab.id;
               return (
@@ -330,7 +355,7 @@ const Discover: React.FC<{ embedded?: boolean }> = ({ embedded = false }) => {
             <View style={styles.section}>
               <SectionHeader icon="movie-creation" title="Top creators" color={PRIMARY_COLOR} />
               {filteredCreators.length === 0 ? renderEmpty('No creators matching your query.') : (
-                <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={styles.creatorList}>
+                <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={styles.creatorList} {...horizontalSwipeAreaHandlers}>
                   {filteredCreators.map((creator) => {
                     const isFollowed = followedCreators.includes(creator.id);
                     return (
@@ -460,7 +485,7 @@ const Discover: React.FC<{ embedded?: boolean }> = ({ embedded = false }) => {
             <View style={styles.section}>
               <SectionHeader icon="play-circle-outline" title="Trending Now" color={PRIMARY_COLOR} action="see full trend" onAction={() => navigation.navigate('TrendingVideos')} />
               {filteredVideos.length === 0 ? renderEmpty('No reels or clips matching your query.') : (
-                <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={styles.videoList}>
+                <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={styles.videoList} {...horizontalSwipeAreaHandlers}>
                   {filteredVideos.map((video) => {
                     const isLiked = likedVideos.includes(video.id);
                     return (

@@ -20,7 +20,7 @@ const FanArena: React.FC = () => {
       }}
     >
 
-      <Discover embedded />
+      <Discover />
     </View>
   );
 };

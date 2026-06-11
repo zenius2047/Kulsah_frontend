@@ -432,7 +432,7 @@ const PlaylistSection = () => {
             s.videoGridCard,
             {
               width: gridItemWidth,
-              aspectRatio: 9 / 16,
+              height: 180,
               marginBottom: gridGap,
               backgroundColor: isDark ? '#0f172a' : theme.surface,
             },
@@ -802,7 +802,7 @@ const PlaylistSection = () => {
             <Pressable onPress={share}
             style={[s.secondary, { width: '30%', backgroundColor: isDark ? 'rgba(255,255,255,0.06)' : theme.surface, flexDirection: 'row' , alignItems: 'center', justifyContent: 'center'}]}>
             <MaterialIcons name='share' size={20} color= {theme.text}/>
-            <Text style={[s.btnText, { color: theme.text }]}>{" "}Share</Text></Pressable></> :
+            <Text style={[s.btnText, { color: theme.text, }]}>{" "}Share</Text></Pressable></> :
             <><Pressable onPress={() => navigation.navigate('Chat')}
             style={[s.iconAction, { backgroundColor: isDark ? 'rgba(255,255,255,0.06)' : theme.surface }]}>
               <MaterialIcons name="mail" size={20} color={theme.text} /></Pressable>
@@ -1503,7 +1503,7 @@ const PlaylistSection = () => {
                 <ScrollView showsVerticalScrollIndicator={false} contentContainerStyle={s.subscriptionContent}>
                   <View style={s.subscriptionHeader}>
                     <View style={s.subscriptionIconWrap}>
-                      <Image source={KULCOIN_ICON} style={{ width: 34, height: 34, resizeMode: 'contain' }} />
+                      <Image source={KULCOIN_ICON} style={{ width: '100%', height: '100%', resizeMode: 'contain' }} />
                     </View>
                     <View style={s.subscriptionHeaderText}>
                       <Text style={[s.subscriptionTitle, { color: theme.text }]}>{selectedSub.name}</Text>
@@ -1593,7 +1593,7 @@ const s = StyleSheet.create({
   actions: { marginTop: 22, flexDirection: 'row', gap: 10, alignItems: 'center', justifyContent: 'center' },
   action: { height: 56, borderRadius: 24, alignItems: 'center', justifyContent: 'center', flexDirection: 'row', gap: 8 },
   primary: { backgroundColor: PRIMARY_COLOR, minHeight: 36, borderRadius: 34, alignItems: 'center', justifyContent: 'center', flexDirection: 'row', },
-  secondary: { height: 36, borderRadius: 34, alignItems: 'center', justifyContent: 'center', backgroundColor: 'rgba(255,255,255,0.06)' }, iconAction: { width: 56, height: 36, borderRadius: 24, alignItems: 'center', justifyContent: 'center', backgroundColor: 'rgba(255,255,255,0.06)' }, btnText: { color: '#fff', ...fontSize.b5, lineHeight: fontSize.b5.fontSize + 1, textTransform: 'uppercase'}, follow: { flex: 1, height: 56, borderRadius: 24, alignItems: 'center', justifyContent: 'center', backgroundColor: 'rgba(255,255,255,0.06)' }, followOn: { backgroundColor: primaryColorAlpha(0.12) }, followText: { color: '#fff', ...fontSize.b5, lineHeight: fontSize.b5.fontSize + 1, textTransform: 'uppercase' }, followTextOn: { color: PRIMARY_COLOR },
+  secondary: { height: 36, borderRadius: 34, alignItems: 'center', justifyContent: 'center', backgroundColor: 'rgba(255,255,255,0.06)' }, iconAction: { width: 56, height: 36, borderRadius: 24, alignItems: 'center', justifyContent: 'center', backgroundColor: 'rgba(255,255,255,0.06)' }, btnText: { color: '#fff', ...fontSize.b4, lineHeight: fontSize.b4.fontSize + 4, textTransform: 'uppercase'}, follow: { flex: 1, height: 56, borderRadius: 24, alignItems: 'center', justifyContent: 'center', backgroundColor: 'rgba(255,255,255,0.06)' }, followOn: { backgroundColor: primaryColorAlpha(0.12) }, followText: { color: '#fff', ...fontSize.b5, lineHeight: fontSize.b5.fontSize + 1, textTransform: 'uppercase' }, followTextOn: { color: PRIMARY_COLOR },
   bio: { paddingHorizontal: 34, marginTop: 18, marginBottom: 18, color: '#8b94ad', ...fontSize.b3, lineHeight: fontSize.b3.fontSize + 6, fontStyle: 'italic', textAlign: 'center' },
   membership: { paddingHorizontal: 16, gap: 14 }, membershipHeader: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', paddingHorizontal: 16 }, section: { color: '#fff', ...fontSize.b2, lineHeight: fontSize.b2.fontSize + 1, textTransform: 'uppercase' }, toggle: { flexDirection: 'row', gap: 6, padding: 6, borderRadius: 18, backgroundColor: 'rgba(255,255,255,0.05)' }, toggleBtn: { minHeight: 34, paddingHorizontal: 10, borderRadius: 12, alignItems: 'center', justifyContent: 'center' }, toggleOn: { backgroundColor: 'rgba(255,255,255,0.08)' }, toggleText: { color: '#8b94ad', ...fontSize.b5, lineHeight: fontSize.b5.fontSize + 1, textTransform: 'uppercase' },
  cardLabel: { color: '#8b94ad', ...fontSize.b5, lineHeight: fontSize.b5.fontSize + 1, textTransform: 'uppercase' }, price: { color: '#fff', ...fontSize.n1, lineHeight: fontSize.n1.fontSize + 1 }, perk: { color: '#d4d8e8', ...fontSize.b4, lineHeight: fontSize.b4.fontSize + 1 },
@@ -1650,10 +1650,10 @@ const s = StyleSheet.create({
   subscriptionIconWrap: {
     width: 78,
     height: 78,
-    borderRadius: 28,
-    backgroundColor: 'rgba(245,158,11,0.18)',
-    borderWidth: 1,
-    borderColor: 'rgba(245,158,11,0.35)',
+    // borderRadius: 28,
+    // backgroundColor: 'rgba(245,158,11,0.18)',
+    // borderWidth: 1,
+    // borderColor: 'rgba(245,158,11,0.35)',
     alignItems: 'center',
     justifyContent: 'center',
   },
@@ -1955,14 +1955,15 @@ const s = StyleSheet.create({
     // borderRadius: 20,
     paddingVertical: 12,
     paddingHorizontal: 12,
+    marginTop: 15
   },
   statsTablet: { paddingHorizontal: 24, marginTop: 10 },
   statBlock: { flex: 1, alignItems: 'center' },
-  statValue: { color: '#fff', ...fontSize.n3, lineHeight: fontSize.n3.fontSize + 1 },
+  statValue: { color: '#fff', ...fontSize.n3, lineHeight: fontSize.n3.fontSize + 2 },
   statLabel: {
     color: '#9ea0b6',
     ...fontSize.b4,
-    lineHeight: fontSize.b4.fontSize + 1,
+    lineHeight: fontSize.b5.fontSize + 6,
     textTransform: 'uppercase',
     letterSpacing: 1.2,
     marginTop: 2,
@@ -2034,7 +2035,7 @@ const s = StyleSheet.create({
   },
   libraryCard: {
     width: '49.9%',
-    aspectRatio: 9 / 16,
+    height: 210,
     overflow: 'hidden',
     borderWidth: 1,
     position: 'relative',

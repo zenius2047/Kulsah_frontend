@@ -15,6 +15,9 @@ type KulcoinTopUpDrawerProps = {
   warningText?: string;
 };
 
+type PaymentMethod = 'momo' | 'card';
+type MomoProvider = 'mtn' | 'telecel' | 'airteltigo';
+
 const coinPackages = [
   { id: 1, coins: 50, price: 1, label: '1 GHS' },
   { id: 2, coins: 250, price: 5, label: '5 GHS', popular: true },
@@ -37,12 +40,26 @@ const KulcoinTopUpDrawer: React.FC<KulcoinTopUpDrawerProps> = ({
   const [selectedPackage, setSelectedPackage] = useState<number | null>(null);
   const [isPaymentOpen, setIsPaymentOpen] = useState(false);
   const [customAmount, setCustomAmount] = useState('');
+  const [paymentMethod, setPaymentMethod] = useState<PaymentMethod>('momo');
+  const [momoProvider, setMomoProvider] = useState<MomoProvider>('mtn');
+  const [phoneNumber, setPhoneNumber] = useState('');
+  const [cardNumber, setCardNumber] = useState('');
+  const [cardExpiry, setCardExpiry] = useState('');
+  const [cardCvv, setCardCvv] = useState('');
+  const [paymentError, setPaymentError] = useState('');
 
   useEffect(() => {
     if (!isOpen) {
       setSelectedPackage(null);
       setIsPaymentOpen(false);
       setCustomAmount('');
+      setPaymentMethod('momo');
+      setMomoProvider('mtn');
+      setPhoneNumber('');
+      setCardNumber('');
+      setCardExpiry('');
+      setCardCvv('');
+      setPaymentError('');
     }
   }, [isOpen]);
 
@@ -68,6 +85,18 @@ const KulcoinTopUpDrawer: React.FC<KulcoinTopUpDrawerProps> = ({
 
   const handlePaymentSuccess = () => {
     if (!selectedPkgData) return;
+
+    if (paymentMethod === 'momo' && phoneNumber.trim().length < 9) {
+      setPaymentError('Enter your Mobile Money phone number.');
+      return;
+    }
+
+    if (paymentMethod === 'card' && (!cardNumber.trim() || !cardExpiry.trim() || !cardCvv.trim())) {
+      setPaymentError('Enter all card details.');
+      return;
+    }
+
+    setPaymentError('');
     onSuccess(selectedPkgData.coins);
     setIsPaymentOpen(false);
     onClose();
@@ -90,7 +119,7 @@ const KulcoinTopUpDrawer: React.FC<KulcoinTopUpDrawerProps> = ({
 
   return (
     <>
-      <Modal visible={isOpen} transparent animationType="slide" statusBarTranslucent onRequestClose={onClose}>
+      <Modal visible={isOpen && !isPaymentOpen} transparent animationType="slide" statusBarTranslucent onRequestClose={onClose}>
         <KeyboardAvoidingView
           behavior={Platform.OS === 'ios' ? 'padding' : undefined}
           keyboardVerticalOffset={0}
@@ -187,7 +216,10 @@ const KulcoinTopUpDrawer: React.FC<KulcoinTopUpDrawerProps> = ({
               <View style={styles.drawerActions}>
                 <Pressable
                   onPress={() => {
-                    if (selectedPkgData) setIsPaymentOpen(true);
+                    if (selectedPkgData) {
+                      setPaymentError('');
+                      setIsPaymentOpen(true);
+                    }
                   }}
                   disabled={!selectedPkgData}
                   style={[styles.purchaseButton, !selectedPkgData ? styles.buttonDisabled : null]}
@@ -206,7 +238,7 @@ const KulcoinTopUpDrawer: React.FC<KulcoinTopUpDrawerProps> = ({
       </Modal>
 
       <Modal
-        visible={isPaymentOpen}
+        visible={isOpen && isPaymentOpen}
         transparent
         animationType="slide"
         statusBarTranslucent
@@ -233,8 +265,131 @@ const KulcoinTopUpDrawer: React.FC<KulcoinTopUpDrawerProps> = ({
                 </View>
               </View>
             ) : null}
+
+            <View style={styles.paymentMethodRow}>
+              {[
+                { key: 'momo', label: 'Mobile Money', icon: 'phone-iphone' },
+                { key: 'card', label: 'Card', icon: 'credit-card' },
+              ].map((method) => {
+                const selected = paymentMethod === method.key;
+                return (
+                  <Pressable
+                    key={method.key}
+                    onPress={() => {
+                      setPaymentMethod(method.key as PaymentMethod);
+                      setPaymentError('');
+                    }}
+                    style={[
+                      styles.paymentMethod,
+                      {
+                        backgroundColor: selected ? primaryColorAlpha(0.12) : cardBg,
+                        borderColor: selected ? PRIMARY_COLOR : borderColor,
+                      },
+                    ]}
+                  >
+                    <MaterialIcons name={method.icon as keyof typeof MaterialIcons.glyphMap} size={20} color={selected ? PRIMARY_COLOR : secondaryText} />
+                    <Text style={[styles.paymentMethodText, { color: selected ? PRIMARY_COLOR : secondaryText }]}>{method.label}</Text>
+                  </Pressable>
+                );
+              })}
+            </View>
+
+            {paymentMethod === 'momo' ? (
+              <View style={styles.paymentDetails}>
+                <View style={styles.providerRow}>
+                  {[
+                    { key: 'mtn', label: 'MTN MoMo', color: '#fbbf24' },
+                    { key: 'telecel', label: 'Telecel', color: '#ef4444' },
+                    { key: 'airteltigo', label: 'AirtelTigo', color: '#2563eb' },
+                  ].map((provider) => {
+                    const selected = momoProvider === provider.key;
+                    return (
+                      <Pressable
+                        key={provider.key}
+                        onPress={() => {
+                          setMomoProvider(provider.key as MomoProvider);
+                          setPaymentError('');
+                        }}
+                        style={[
+                          styles.providerChip,
+                          {
+                            backgroundColor: selected ? provider.color : cardBg,
+                            borderColor: selected ? provider.color : borderColor,
+                          },
+                        ]}
+                      >
+                        <Text style={[styles.providerText, { color: selected ? '#ffffff' : secondaryText }]}>{provider.label}</Text>
+                      </Pressable>
+                    );
+                  })}
+                </View>
+
+                <Text style={[styles.paymentInputLabel, { color: secondaryText }]}>Mobile Money Number</Text>
+                <KulsahInputBar
+                  value={phoneNumber}
+                  onChangeText={(value) => {
+                    setPhoneNumber(value.replace(/[^0-9+]/g, ''));
+                    setPaymentError('');
+                  }}
+                  keyboardType="phone-pad"
+                  placeholder="024XXXXXXX"
+                  placeholderTextColor={tertiaryText}
+                  containerStyle={[styles.paymentInputWrap, { backgroundColor: customInputBg, borderColor: customInputBorder }]}
+                  inputStyle={[styles.paymentInput, { color: titleColor }]}
+                />
+              </View>
+            ) : null}
+
+            {paymentMethod === 'card' ? (
+              <View style={styles.paymentDetails}>
+                <Text style={[styles.paymentInputLabel, { color: secondaryText }]}>Card Number</Text>
+                <KulsahInputBar
+                  value={cardNumber}
+                  onChangeText={(value) => {
+                    setCardNumber(value.replace(/[^0-9 ]/g, ''));
+                    setPaymentError('');
+                  }}
+                  keyboardType="number-pad"
+                  placeholder="4111 2222 3333 4444"
+                  placeholderTextColor={tertiaryText}
+                  containerStyle={[styles.paymentInputWrap, { backgroundColor: customInputBg, borderColor: customInputBorder }]}
+                  inputStyle={[styles.paymentInput, { color: titleColor }]}
+                />
+                <View style={styles.cardFieldRow}>
+                  <KulsahInputBar
+                    value={cardExpiry}
+                    onChangeText={(value) => {
+                      setCardExpiry(value.replace(/[^0-9/]/g, ''));
+                      setPaymentError('');
+                    }}
+                    maxLength={5}
+                    placeholder="MM/YY"
+                    placeholderTextColor={tertiaryText}
+                    containerStyle={[styles.cardSmallInputWrap, { backgroundColor: customInputBg, borderColor: customInputBorder }]}
+                    inputStyle={[styles.paymentInput, styles.centeredPaymentInput, { color: titleColor }]}
+                  />
+                  <KulsahInputBar
+                    value={cardCvv}
+                    onChangeText={(value) => {
+                      setCardCvv(value.replace(/[^0-9]/g, ''));
+                      setPaymentError('');
+                    }}
+                    keyboardType="number-pad"
+                    maxLength={3}
+                    secureTextEntry
+                    placeholder="CVV"
+                    placeholderTextColor={tertiaryText}
+                    containerStyle={[styles.cardSmallInputWrap, { backgroundColor: customInputBg, borderColor: customInputBorder }]}
+                    inputStyle={[styles.paymentInput, styles.centeredPaymentInput, { color: titleColor }]}
+                  />
+                </View>
+              </View>
+            ) : null}
+
+            {paymentError ? <Text style={styles.paymentError}>{paymentError}</Text> : null}
+
             <Pressable onPress={handlePaymentSuccess} style={styles.purchaseButton}>
-              <Text style={styles.purchaseButtonText}>Pay Now</Text>
+              <Text style={styles.purchaseButtonText}>Pay {selectedPkgData ? selectedPkgData.price : 0} GHS</Text>
               <MaterialIcons name="arrow-forward" size={20} color="#ffffff" />
             </Pressable>
             <Pressable
@@ -399,14 +554,14 @@ const styles = StyleSheet.create({
   packageIcon: {
     width: 48,
     height: 48,
-    borderRadius: 24,
+    // borderRadius: 24,
     alignItems: 'center',
     justifyContent: 'center',
-    backgroundColor: primaryColorAlpha(0.12),
+    // backgroundColor: primaryColorAlpha(0.12),
   },
   packageCoinImage: {
-    width: 24,
-    height: 24,
+    width: '100%',
+    height: '100%',
     resizeMode: 'contain',
   },
   packageCoins: {
@@ -491,6 +646,83 @@ const styles = StyleSheet.create({
   paymentAccent: {
     color: PRIMARY_COLOR,
     ...fontSize.b5, lineHeight: fontSize.b5.fontSize + 1,
+  },
+  paymentMethodRow: {
+    flexDirection: 'row',
+    gap: 10,
+    marginBottom: 16,
+  },
+  paymentMethod: {
+    flex: 1,
+    minHeight: 58,
+    borderRadius: 18,
+    borderWidth: 1,
+    alignItems: 'center',
+    justifyContent: 'center',
+    gap: 6,
+  },
+  paymentMethodText: {
+    ...fontSize.b5, lineHeight: fontSize.b5.fontSize + 1,
+    textTransform: 'uppercase',
+    letterSpacing: 1,
+  },
+  paymentDetails: {
+    gap: 10,
+    marginBottom: 16,
+  },
+  providerRow: {
+    flexDirection: 'row',
+    gap: 8,
+  },
+  providerChip: {
+    flex: 1,
+    minHeight: 42,
+    borderRadius: 14,
+    borderWidth: 1,
+    alignItems: 'center',
+    justifyContent: 'center',
+    paddingHorizontal: 6,
+  },
+  providerText: {
+    ...fontSize.b5, lineHeight: fontSize.b5.fontSize + 1,
+    textAlign: 'center',
+    textTransform: 'uppercase',
+  },
+  paymentInputLabel: {
+    ...fontSize.b5, lineHeight: fontSize.b5.fontSize + 1,
+    textTransform: 'uppercase',
+    letterSpacing: 1.2,
+  },
+  paymentInputWrap: {
+    minHeight: 52,
+    borderRadius: 16,
+    borderWidth: 1,
+    paddingHorizontal: 14,
+  },
+  paymentInput: {
+    flex: 1,
+    ...fontSize.b4, lineHeight: fontSize.b4.fontSize + 1,
+    paddingVertical: 0,
+  },
+  cardFieldRow: {
+    flexDirection: 'row',
+    gap: 10,
+  },
+  cardSmallInputWrap: {
+    flex: 1,
+    minHeight: 52,
+    borderRadius: 16,
+    borderWidth: 1,
+    paddingHorizontal: 14,
+  },
+  centeredPaymentInput: {
+    textAlign: 'center',
+  },
+  paymentError: {
+    color: '#ef4444',
+    ...fontSize.b5, lineHeight: fontSize.b5.fontSize + 1,
+    marginBottom: 10,
+    textAlign: 'center',
   },
   cancelPaymentButton: {
     alignItems: 'center',

@@ -586,7 +586,7 @@ const s = StyleSheet.create({
     borderWidth: 1,
     borderColor: 'rgba(0 0 0 / 0.05)',
   },
-  itemCopy: { flex: 1 },
+  itemCopy: { flex: 1, gap: 4 },
   itemLabel: { color: '#fff', ...fontSize.b3, lineHeight: fontSize.b3.fontSize + 2 },
   itemDesc: { color: '#8e91a6', marginTop: 0, ...fontSize.b5, lineHeight: fontSize.b5.fontSize + 1 },
   footerActions: { paddingHorizontal: 16, marginTop: 22, gap: 10 },

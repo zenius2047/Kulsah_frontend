@@ -495,7 +495,7 @@ const FanProfile: React.FC<FanProfileProps> = ({ onToggleRole }) => {
 
         <View style={s.tabContent}>
               {activeTab === 'Favorite' && (
-                <View style={s.sectionGroup}>
+                <View style={[s.sectionGroup, {paddingHorizontal: -16}]}>
                   <View style={s.sectionBlock}>
                     {/* <Text style={[s.sectionEyebrow, { color: theme.textSecondary }]}>Favorite Videos</Text> */}
                     {renderVideoGrid(favoriteVideos)}
@@ -889,7 +889,7 @@ const s = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'space-between',
-    padding: 14,
+    padding: 0,
     borderRadius: 28,
     backgroundColor: 'rgba(255,255,255,0.05)',
     borderWidth: 1,
@@ -933,7 +933,7 @@ const s = StyleSheet.create({
     letterSpacing: 1.1,
   },
   videoGridWrap: {
-    marginHorizontal: -20,
+    marginHorizontal: -5,
     // paddingBottom: 120
   },
   videoGrid: {
@@ -947,7 +947,7 @@ const s = StyleSheet.create({
     borderRadius: 2,
     position: 'relative',
     width: '33%',
-    height: 250,
+    height: 210,
     // aspectRatio: 16 / 9,
   },
   videoGridImage: {
@@ -983,11 +983,12 @@ const s = StyleSheet.create({
     flexDirection: 'row',
     flexWrap: 'wrap',
     justifyContent: 'space-between',
-    rowGap: 3,
+    rowGap: 1,
     // paddingHorizontal: 5,
   },
   savedCard: {
-    width: '49.5%',
+    width: '33.2%',
+    height: 210,
     // gap: 8,
   },
   videoThumbWrap: {
@@ -1006,7 +1007,7 @@ const s = StyleSheet.create({
     backgroundColor: '#111827',
   },
   squareThumbWrap: {
-    aspectRatio: 1,
+    // aspectRatio: 1,
     borderRadius: 0,
     overflow: 'hidden',
     position: 'relative',

@@ -304,7 +304,7 @@ const styles = StyleSheet.create({
     flex: 1,
     textAlign: 'center',
     color: '#ffffff',
-    ...fontSize.b4, lineHeight: fontSize.b4.fontSize + 1,
+    ...fontSize.h1, lineHeight: fontSize.h1.fontSize + 1,
   },
   searchWrap: {
     position: 'relative',

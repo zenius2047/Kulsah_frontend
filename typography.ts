@@ -107,7 +107,7 @@ export const fontSize= {
   },
   n3: {
     fontFamily: 'PlusJakartaSans_800ExtraBold',
-    fontSize: mediumScreen ? 18:16,
+    fontSize: mediumScreen ? 18:14,
   },
   n5: {
     fontFamily: 'PlusJakartaSans_800ExtraBold',

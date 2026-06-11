@@ -669,7 +669,7 @@ const FanSettings: React.FC<FanSettingsProps> = ({ onLogout, isDarkMode, onToggl
           <View style={s.profileTextWrap}>
             <View style={s.profileNameRow}>
               <Text style={[s.profileName, { color: theme.text }]}>{profile.name}</Text>
-              <VerifiedIcon width={18} height={18} fill={theme.accent} />
+              <VerifiedIcon width={16} height={16} fill={theme.accent} />
             </View>
             <Text style={[s.profileHandle, { color: theme.accent }]}>@{profile.handle}</Text>
           </View>
@@ -696,7 +696,9 @@ const FanSettings: React.FC<FanSettingsProps> = ({ onLogout, isDarkMode, onToggl
                       <item.icon width={18} height={18} fill={isDark ? '#fff' : theme.accent} />
                     )}
                   </View>
-                  <View>
+                  <View style={{
+                    gap: 4,
+                  }}>
                     <Text style={[s.itemLabel, { color: theme.text }]}>{item.label}</Text>
                     <Text style={[s.itemDesc, { color: theme.textSecondary }]}>{item.desc}</Text>
                   </View>
@@ -1179,8 +1181,8 @@ const s = StyleSheet.create({
   mainContent: { padding: 16, paddingBottom: 120, gap: 18 },
   profileHeader: { alignItems: 'center', gap: 12 },
   profileTextWrap: { alignItems: 'center' },
-  profileNameRow: { flexDirection: 'row', alignItems: 'center', gap: 6 },
-  profileName: { ...fontSize.b4, lineHeight: fontSize.b4.fontSize + 1, color: '#0f172a' },
+  profileNameRow: { flexDirection: 'row', alignItems: 'center', gap: 2 },
+  profileName: { fontSize: fontSize.b2.fontSize + (mediumScreen? 4:2), fontFamily: fontSize.b2.fontFamily, lineHeight: fontSize.b2.fontSize + (mediumScreen ? 5: 3), color: '#0f172a' },
   profileHandle: { ...fontSize.b5, lineHeight: fontSize.b5.fontSize + 1, letterSpacing: 0.5, color: PRIMARY_COLOR, textTransform: 'uppercase' },
   itemRow: {
     marginTop: 8,
