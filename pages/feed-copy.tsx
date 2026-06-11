@@ -214,7 +214,7 @@ const VideoFeedItem: React.FC<{
       <View style={styles.rightRail}>
         <Image source={{ uri: item.avatar }} style={styles.avatar} />
         <Pressable style={styles.railBtn} onPress={toggleLike}>
-          <MaterialIcons name={isLiked ? 'favorite' : 'favorite-border'} size={28} color={isLiked ? PRIMARY_COLOR : '#fff'} />
+          <MaterialIcons name={isLiked ? 'favorite' : 'favorite-border'} size={28} color={isLiked ? '#f43f5e' : '#fff'} />
           <Text style={styles.railLabel}>{formatCount(likesCount)}</Text>
         </Pressable>
         <Pressable style={styles.railBtn} onPress={() => requireAuthOr(() => setShowComments(true))}>

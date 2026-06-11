@@ -311,7 +311,7 @@ const CreateCommunityPost: React.FC = () => {
 
           {renderAttachmentGrid()}
 
-          <View style={styles.aiRow}>
+          {/* <View style={styles.aiRow}>
             <Pressable
               onPress={() => void generateAiSpark()}
               disabled={isAiDrafting}
@@ -323,9 +323,9 @@ const CreateCommunityPost: React.FC = () => {
                 color={theme.accent}
                 style={isAiDrafting ? styles.spinIcon : undefined}
               />
-              {/* <Text style={styles.aiButtonText}>{isAiDrafting ? 'DRAFTING' : 'AI SPARK'}</Text> */}
+              <Text style={styles.aiButtonText}>{isAiDrafting ? 'DRAFTING' : 'AI SPARK'}</Text>
             </Pressable>
-          </View>
+          </View> */}
 
           {showPollEditor && (
             <View style={[styles.pollCard, { backgroundColor: pollCardBackground, borderColor: pollCardBorder }]}>

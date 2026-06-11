@@ -140,6 +140,9 @@ const activeChallenges: ChallengeItem[] = [
     }
   ];
 
+export const DISCOVER_UPDATE_COUNT =
+  topCreators.length + ticketShows.length + trendingVideos.length + activeChallenges.length;
+
 const tabs: { id: DiscoverTab; label: string }[] = [
   { id: 'all', label: 'All Spotlights' },
   { id: 'creators', label: 'Top Creators' },

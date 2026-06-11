@@ -161,6 +161,8 @@ const seedPosts: CommunityPost[] = [
 
 ];
 
+export const COMMUNITY_UPDATE_COUNT = seedPosts.length;
+
 const stickers = [
   { id: 'st1', img: ARTIST_PROFILE_IMAGE_LINKS.profile },
   { id: 'st2', img: ARTIST_PROFILE_IMAGE_LINKS.banner },
@@ -582,8 +584,8 @@ const Community: React.FC<{ embedded?: boolean }> = ({ embedded = false }) => {
 
               <View style={[styles.actionBar, ]}>
                 <Pressable style={styles.actionItem} onPress={() => toggleLike(post.id)}>
-                  <MaterialIcons name={post.isLiked ? 'favorite' : 'favorite-border'} size={23} color={post.isLiked ? PRIMARY_COLOR : dimIcon} />
-                  <Text style={[styles.actionText, { color: post.isLiked ? PRIMARY_COLOR : mutedText }]}>{post.likes.toLocaleString()}</Text>
+                  <MaterialIcons name={post.isLiked ? 'favorite' : 'favorite-border'} size={23} color={post.isLiked ? '#f43f5e' : dimIcon} />
+                  <Text style={[styles.actionText, { color: post.isLiked ? '#f43f5e' : mutedText }]}>{post.likes.toLocaleString()}</Text>
                 </Pressable>
                 <Pressable style={styles.actionItem} onPress={() => openCommentModal(post.id)}>
                   <MaterialIcons name="chat-bubble-outline" size={22} color={dimIcon} />

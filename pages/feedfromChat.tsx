@@ -109,7 +109,7 @@ const VideoFeedItem: React.FC<{
           <MaterialIcons
             name={isLiked ? "favorite" : "favorite-border"}
             size={28}
-            color={isLiked ? "#22c55e" : "white"}
+            color={isLiked ? "#f43f5e" : "white"}
           />
           <Text style={styles.railText}>{item.likes}</Text>
         </Pressable>

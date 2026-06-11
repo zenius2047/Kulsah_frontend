@@ -140,7 +140,9 @@ const KulcoinTopUpDrawer: React.FC<KulcoinTopUpDrawerProps> = ({
                   <Text style={styles.warningText}>{warningText}</Text>
                 </View>
                 <Text style={[styles.drawerTitle, { color: titleColor }]}>Top Up Kulcoins</Text>
-                <Text style={[styles.drawerBalance, { color: mutedText }]}>Current Balance: {currentBalance} KC</Text>
+                <Text style={[styles.drawerBalance, { color: mutedText }]}>
+                  Fuel your galaxy wallet. Current Balance: {currentBalance} KC
+                </Text>
               </View>
 
               <View style={styles.packageGrid}>
@@ -186,7 +188,7 @@ const KulcoinTopUpDrawer: React.FC<KulcoinTopUpDrawerProps> = ({
                     <View style={styles.customCopy}>
                       <Text style={[styles.customTitle, { color: titleColor }]}>Custom Amount</Text>
                       <Text style={[styles.customSubtitle, { color: mutedText }]}>
-                        Enter any GHS amount to buy Kulcoins
+                        Set your own orbit boost for the Kulcoin universe
                       </Text>
                     </View>
                   </View>
@@ -250,9 +252,14 @@ const KulcoinTopUpDrawer: React.FC<KulcoinTopUpDrawerProps> = ({
           style={styles.modalRoot}
         >
           <Pressable style={[styles.modalBackdrop, { backgroundColor: overlayColor }]} onPress={() => setIsPaymentOpen(false)} />
-          <View style={[styles.paymentCard, { paddingBottom: Math.max(insets.bottom, 20), backgroundColor: surfaceColor, borderColor }]}>
+            <View style={[styles.paymentCard, { paddingBottom: Math.max(insets.bottom, 20), backgroundColor: surfaceColor, borderColor }]}>
             <View style={[styles.drawerHandle, { backgroundColor: handleColor }]} />
-            <Text style={[styles.paymentTitle, { color: titleColor }]}>Payment Gateway</Text>
+            <View style={styles.paymentHeader}>
+              <Text style={[styles.paymentTitle, { color: titleColor }]}>Payment Gateway</Text>
+              <Text style={[styles.paymentSubtitle, { color: mutedText }]}>
+                Choose a launch path for your galaxy top-up
+              </Text>
+            </View>
             {selectedPkgData ? (
               <View style={[styles.paymentSummary, { backgroundColor: cardBg, borderColor }]}>
                 <View style={styles.paymentRow}>
@@ -446,18 +453,21 @@ const styles = StyleSheet.create({
   },
   warningText: {
     color: PRIMARY_COLOR,
-    ...fontSize.b5, lineHeight: fontSize.b5.fontSize + 1,
+    ...fontSize.h2, lineHeight: fontSize.h2.fontSize + 1,
+    textAlign: 'center',
     textTransform: 'uppercase',
     letterSpacing: 1.2,
   },
   drawerTitle: {
     color: '#ffffff',
-    ...fontSize.b1, lineHeight: fontSize.b1.fontSize + 2,
+    ...fontSize.h1, lineHeight: fontSize.h1.fontSize + 2,
+    textAlign: 'center',
     textTransform: 'uppercase',
   },
   drawerBalance: {
     color: 'rgba(255,255,255,0.45)',
-    ...fontSize.b5, lineHeight: fontSize.b5.fontSize + 1,
+    ...fontSize.h2, lineHeight: fontSize.h2.fontSize + 2,
+    textAlign: 'center',
     textTransform: 'uppercase',
     letterSpacing: 2,
   },
@@ -500,15 +510,18 @@ const styles = StyleSheet.create({
   customCopy: {
     flex: 1,
     gap: 4,
+    alignItems: 'center',
   },
   customTitle: {
     color: '#ffffff',
-    ...fontSize.b4, lineHeight: fontSize.b4.fontSize + 1,
+    ...fontSize.h1, lineHeight: fontSize.h1.fontSize + 2,
+    textAlign: 'center',
     textTransform: 'uppercase',
   },
   customSubtitle: {
     color: 'rgba(255,255,255,0.48)',
-    ...fontSize.b5, lineHeight: fontSize.b5.fontSize + 1,
+    ...fontSize.h2, lineHeight: fontSize.h2.fontSize + 2,
+    textAlign: 'center',
   },
   customInputWrap: {
     minHeight: 54,
@@ -614,12 +627,22 @@ const styles = StyleSheet.create({
     borderTopWidth: 1,
     borderColor: 'rgba(255,255,255,0.08)',
   },
+  paymentHeader: {
+    alignItems: 'center',
+    marginBottom: 18,
+    gap: 6,
+  },
   paymentTitle: {
     color: '#ffffff',
     textAlign: 'center',
-    ...fontSize.b1, lineHeight: fontSize.b1.fontSize + 2,
+    ...fontSize.h1, lineHeight: fontSize.h1.fontSize + 2,
     textTransform: 'uppercase',
-    marginBottom: 18,
+  },
+  paymentSubtitle: {
+    textAlign: 'center',
+    ...fontSize.h2, lineHeight: fontSize.h2.fontSize + 2,
+    textTransform: 'uppercase',
+    letterSpacing: 1.4,
   },
   paymentSummary: {
     borderRadius: 22,

@@ -16,6 +16,8 @@ import KulcoinTopUpDrawer from './KulcoinTopUpDrawer';
 import KulsahInputBar from './KulsahInputBar';
 import { fontSize } from './typography';
 
+const KULCOIN_ICON = require('../assets/coin.png');
+
 type GiftCategory = 'general' | 'food' | 'fashion';
 
 export type GiftSelection = {
@@ -271,9 +273,7 @@ const GiftDialog: React.FC<GiftDialogProps> = ({
                   gap: 5,
                 }}>
                   <View style={[styles.balancePill, { backgroundColor: isDark ? 'rgba(255,255,255,0.05)' : '#f8fafc', borderColor: theme.border }]}>
-                    <View style={styles.balanceCoin}>
-                      <Text style={styles.balanceCoinText}>$</Text>
-                    </View>
+                    <Image source={KULCOIN_ICON} style={{ width: 25, height: 25, resizeMode: 'contain' }} />
                     <Text style={[styles.balanceValue, { color: theme.text }]}>{currentBalance}</Text>
                   </View>
                 </View>
@@ -483,8 +483,9 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     gap: 8,
+    height: 30,
     paddingHorizontal: 12,
-    paddingVertical: 8,
+    // paddingVertical: 8,
     borderRadius: 999,
     borderWidth: 1,
   },
@@ -502,7 +503,7 @@ const styles = StyleSheet.create({
   },
   balanceValue: {
     ...fontSize.b4,
-    lineHeight: 14
+    lineHeight: fontSize.b4.fontSize + 10
   },
   sendButton: {
     minHeight: 48,

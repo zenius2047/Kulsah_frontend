@@ -499,7 +499,7 @@ const VideoPlayer: React.FC = () => {
               </View>
 
               <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={styles.actionRow}>
-                <Pressable onPress={() => setLiked((v) => !v)} style={[styles.actionChip, { backgroundColor: liked ? theme.accentSoft : soft, borderColor: liked ? accent : border }]}><MaterialIcons name={liked ? 'favorite' : 'favorite-border'} size={18} color={liked ? accent : theme.text} /><Text style={[styles.actionText, { color: liked ? accent : theme.text }]}>{video.likes ?? '12k'}</Text></Pressable>
+                <Pressable onPress={() => setLiked((v) => !v)} style={[styles.actionChip, { backgroundColor: liked ? 'rgba(244,63,94,0.14)' : soft, borderColor: liked ? '#f43f5e' : border }]}><MaterialIcons name={liked ? 'favorite' : 'favorite-border'} size={18} color={liked ? '#f43f5e' : theme.text} /><Text style={[styles.actionText, { color: liked ? '#f43f5e' : theme.text }]}>{video.likes ?? '12k'}</Text></Pressable>
                 <Pressable onPress={shareVideo} style={[styles.actionChip, { backgroundColor: soft, borderColor: border }]}><MaterialIcons name="share" size={18} color={theme.text} /><Text style={[styles.actionText, { color: theme.text }]}>Share</Text></Pressable>
                 <Pressable onPress={saveToLibrary} style={[styles.actionChip, { backgroundColor: soft, borderColor: border }]}><MaterialIcons name="video-library" size={18} color={theme.text} /><Text style={[styles.actionText, { color: theme.text }]}>Library</Text></Pressable>
               </ScrollView>

@@ -150,6 +150,9 @@ const INVITES: Invite[] = [
   },
 ];
 
+export const CREATOR_CHALLENGE_UPDATE_COUNT =
+  CHALLENGES.length + SUBMISSIONS.length + DRAFTS.length + INVITES.length;
+
 const CreatorChallenges: React.FC = () => {
   const navigation = useNavigation<any>();
   const { isDark, theme } = useThemeMode();

@@ -3,11 +3,11 @@ import { useThemeMode, PRIMARY_COLOR } from "../theme";
 import { View, Text, Pressable, Platform, StyleSheet, PanResponder } from 'react-native';
 import { mediumScreen } from '../types';
 import { MaterialIcons } from '@expo/vector-icons';
-import Community from './Community';
+import Community, { COMMUNITY_UPDATE_COUNT } from './Community';
 import { useNavigation } from '@react-navigation/native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
-import CreatorChallenges from './CreatorChallenges';
-import Discover from './Discover';
+import CreatorChallenges, { CREATOR_CHALLENGE_UPDATE_COUNT } from './CreatorChallenges';
+import Discover, { DISCOVER_UPDATE_COUNT } from './Discover';
 
 
 
@@ -15,6 +15,11 @@ import { fontSize } from '../typography';
 
 type ArenaTab = 'community' | 'discover' | 'challenges';
 const ARENA_TABS: ArenaTab[] = ['community', 'discover', 'challenges'];
+const ARENA_UPDATE_COUNTS: Record<ArenaTab, number> = {
+  community: COMMUNITY_UPDATE_COUNT,
+  discover: DISCOVER_UPDATE_COUNT,
+  challenges: CREATOR_CHALLENGE_UPDATE_COUNT,
+};
 
 const Arena :React.FC = ({route}:any)=>{
     const { isDark, theme } = useThemeMode();
@@ -126,25 +131,45 @@ const Arena :React.FC = ({route}:any)=>{
         backgroundColor: 'transparent',
         paddingBottom: 20,
     }}>
-    {ARENA_TABS.map((item)=>(
+    {ARENA_TABS.map((item)=>{
+      const isActive = activeTab === item;
+      const updateCount = ARENA_UPDATE_COUNTS[item];
+
+      return (
         <Pressable
         key={item}
         onPress={()=>setActiveTab(item)}
-        style={{
-            justifyContent: 'center',
-            alignItems: 'center'
-        }}>
+        style={styles.tabButton}>
         <Text style={{
             // color: activeTab == item ? theme.accent : theme.textSecondary,
             ...fontSize.b1,
-            color: activeTab === item ? isDark ? '#ffffff': '#000000': isDark ? '#ffffff5d':'#0000005d',
+            color: isActive ? isDark ? '#ffffff': '#000000': isDark ? '#ffffff5d':'#0000005d',
             textTransform: 'capitalize',
             // // fontSize: fontSize.b1.fontSize,
             marginBottom: 5
         }}>
             {item}
         </Text>
-        {activeTab === item && <View
+        <View
+          style={[
+            styles.updateBadge,
+            {
+              backgroundColor: isActive ? PRIMARY_COLOR : isDark ? 'rgba(255,255,255,0.08)' : 'rgba(15,23,42,0.08)',
+              borderColor: isActive ? PRIMARY_COLOR : theme.border,
+              right: item === 'discover' ? -10 : -20,
+            },
+          ]}
+        >
+          <Text
+            style={[
+              styles.updateBadgeText,
+              { color: isActive ? '#ffffff' : isDark ? '#ffffff99' : '#00000099' },
+            ]}
+          >
+            {updateCount}
+          </Text>
+        </View>
+        {isActive && <View
         style={{
             height: 2,
             width: 50,
@@ -153,7 +178,8 @@ const Arena :React.FC = ({route}:any)=>{
         }}
         />}
         </Pressable>
-    ))}
+      );
+    })}
     </View>
 
     {activeTab == 'community' && <Community/>}
@@ -190,6 +216,29 @@ const createStyles = () => StyleSheet.create({
         borderWidth: 1,
         justifyContent: 'center',
         alignItems: 'center',
+    },
+    tabButton: {
+        justifyContent: 'center',
+        alignItems: 'center',
+        minWidth: 92,
+        paddingTop: 8,
+        position: 'relative',
+    },
+    updateBadge: {
+        position: 'absolute',
+        top: 0,
+        
+        minWidth: 20,
+        height: 20,
+        borderRadius: 999,
+        // borderWidth: 1,
+        paddingHorizontal: 3,
+        alignItems: 'center',
+        justifyContent: 'center',
+    },
+    updateBadgeText: {
+        ...fontSize.h2,
+        lineHeight: fontSize.h2.fontSize + 1,
     },
 });
 

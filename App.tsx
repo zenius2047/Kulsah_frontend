@@ -99,6 +99,7 @@ import CollaborationHub from './pages/CollaborationHub';
 import Inbox from './pages/Inbox';
 import Notifications from './pages/Notifications';
 import StreakReward from './pages/StreakReward';
+import ClaimPrize from './pages/ClaimPrize';
 import ErrorBoundary from './components/ErrorBoundary';
 import CreateCommunityPost from './pages/CreateCommunityPost';
 import CommunityPostDetail from './pages/CommunityPostDetail';
@@ -608,6 +609,7 @@ const App: React.FC = () => {
                   <Stack.Screen name= "ConnectHub" component={CollaborationHub}/>
                   <Stack.Screen name= "Notification" component={Notifications}/>
                   <Stack.Screen name= "StreakReward" component={StreakReward}/>
+                  <Stack.Screen name= "ClaimPrize" component={ClaimPrize}/>
                   <Stack.Screen name= "CommunityPost" component={CreateCommunityPost}/>
                   <Stack.Screen name= "CommunityPostDetail" component={CommunityPostDetail}/>
                   <Stack.Screen name= "MarketPlace" component={MarketPlace}/>

@@ -1,6 +1,7 @@
 import React, { useMemo, useState } from 'react';
 import {
   ImageBackground,
+  KeyboardAvoidingView,
   Platform,
   Pressable,
   ScrollView,
@@ -59,7 +60,11 @@ export const VoteModalContent: React.FC<VoteModalContentProps> = ({
   };
 
   return (
-    <View style={[styles.overlayRoot, sheetMode && styles.overlaySheet]}>
+    <KeyboardAvoidingView
+      behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
+      keyboardVerticalOffset={sheetMode ? 0 : Platform.OS === 'ios' ? 12 : 0}
+      style={[styles.overlayRoot, sheetMode && styles.overlaySheet]}
+    >
       <Pressable style={styles.backdrop} onPress={onClose} />
 
       <View
@@ -77,6 +82,8 @@ export const VoteModalContent: React.FC<VoteModalContentProps> = ({
           <ScrollView
             bounces={false}
             showsVerticalScrollIndicator={false}
+            keyboardShouldPersistTaps="handled"
+            keyboardDismissMode="interactive"
             contentContainerStyle={styles.scrollContent}
           >
             {/* <View style={styles.topBar}>
@@ -235,7 +242,7 @@ export const VoteModalContent: React.FC<VoteModalContentProps> = ({
           </ScrollView>
         </BlurView>
       </View>
-    </View>
+    </KeyboardAvoidingView>
   );
 };
 
@@ -288,7 +295,7 @@ const createStyles = (isDark: boolean, theme: ReturnType<typeof useThemeMode>['t
       height: '85%',
     },
     scrollContent: {
-      paddingBottom: 14,
+      paddingBottom: 110,
       paddingTop: 60,
     },
     closeButton: {

@@ -17,6 +17,7 @@ import {
 } from 'react-native';
 import { useNavigation, useRoute } from '@react-navigation/native';
 import { MaterialIcons } from '@expo/vector-icons';
+import { LinearGradient } from 'expo-linear-gradient';
 import { mediumScreen } from '../types';
 import { fontSize } from './typography';
 
@@ -36,6 +37,7 @@ interface CreatorEvent {
   revenue: string;
   status: 'published' | 'draft' | 'completed';
   type: 'Live Stream' | 'Workshop' | 'Physical';
+  img?: string;
 }
 
 const EVENT_TYPES: Array<CreatorEvent['type']> = ['Physical', 'Live Stream', 'Workshop'];
@@ -46,7 +48,9 @@ const CreatorEvents: React.FC = () => {
   const route = useRoute<any>();
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [editingEventId, setEditingEventId] = useState<string | null>(null);
+  const [loading, setLoading] = useState(false);
   const [verifyingVenue, setVerifyingVenue] = useState(false);
+  const [aiHelperText, setAiHelperText] = useState('');
   const [venueMapUri, setVenueMapUri] = useState<string | null>(null);
 
   const [coverImg, setCoverImg] = useState<string | null>(null);
@@ -83,6 +87,7 @@ const CreatorEvents: React.FC = () => {
       revenue: '$2.3M',
       status: 'published',
       type: 'Physical',
+      img: 'https://images.unsplash.com/photo-1501281668745-f7f57925c3b4?auto=format&fit=crop&q=80&w=800',
     },
     {
       id: '2',
@@ -94,6 +99,7 @@ const CreatorEvents: React.FC = () => {
       revenue: '$45K',
       status: 'published',
       type: 'Workshop',
+      img: 'https://images.unsplash.com/photo-1514525253361-bee8718a74a2?auto=format&fit=crop&q=80&w=800',
     },
     {
       id: '3',
@@ -105,6 +111,7 @@ const CreatorEvents: React.FC = () => {
       revenue: '$0',
       status: 'draft',
       type: 'Live Stream',
+      img: 'https://images.unsplash.com/photo-1470225620780-dba8ba36b745?auto=format&fit=crop&q=80&w=800',
     },
   ]);
 
@@ -132,6 +139,8 @@ const CreatorEvents: React.FC = () => {
     setCoverImg(null);
     setTicketTiers([{ name: 'General Admission', price: '45.00', capacity: '1000' }]);
     setVenueMapUri(null);
+    setAiHelperText('');
+    setLoading(false);
   };
 
   const openEditor = (event?: CreatorEvent) => {
@@ -142,6 +151,8 @@ const CreatorEvents: React.FC = () => {
       setEventType(event.type);
       setEventDate('2026-12-01');
       setEventDesc('');
+      setCoverImg(event.img ?? null);
+      setAiHelperText('');
       setTicketTiers([{ name: 'General Admission', price: '45.00', capacity: String(event.totalTickets) }]);
     } else {
       resetForm();
@@ -180,6 +191,7 @@ const CreatorEvents: React.FC = () => {
                 totalTickets: totalCapacity,
                 status,
                 type: eventType,
+                img: coverImg ?? e.img,
               }
             : e,
         ),
@@ -195,6 +207,7 @@ const CreatorEvents: React.FC = () => {
         revenue: '$0',
         status,
         type: eventType,
+        img: coverImg ?? 'https://images.unsplash.com/photo-1492684223066-81342ee5ff30?auto=format&fit=crop&q=80&w=800',
       };
       setCurrentEvents((prev) => [newEvent, ...prev]);
     }
@@ -211,6 +224,20 @@ const CreatorEvents: React.FC = () => {
     } finally {
       setVerifyingVenue(false);
     }
+  };
+
+  const useAiArchitect = () => {
+    setLoading(true);
+    setAiHelperText('');
+
+    setTimeout(() => {
+      const title = eventTitle.trim() || 'Your event';
+      const location = eventLocation.trim() || 'a stellar venue';
+      setAiHelperText(
+        `${title} at ${location} can feel like a galaxy-lit fan rendezvous: open with an immersive visual intro, keep the crowd close with a creator Q&A, and offer General, VIP, and Meet & Greet tiers for different fan orbits.`,
+      );
+      setLoading(false);
+    }, 650);
   };
 
   React.useEffect(() => {
@@ -250,54 +277,102 @@ const CreatorEvents: React.FC = () => {
         </View>
 
         <Text style={[styles.sectionTitle, { color: textMuted }]}>ACTIVE ENGAGEMENTS</Text>
-        <View style={{ gap: 12 }}>
+        <View style={{ gap: 16 }}>
           {currentEvents.map((event) => {
             const occupancyPct = Math.round((event.ticketsSold / Math.max(event.totalTickets, 1)) * 100);
+            const isNearlySoldOut = occupancyPct >= 90;
             return (
               <Pressable key={event.id} onPress={() => openEditor(event)} style={[styles.eventCard, { borderColor: border, backgroundColor: cardBg }]}>
-                <View style={styles.eventTop}>
-                  <View style={{ flex: 1, paddingRight: 8 }}>
-                    <Text style={[styles.eventTitle, { color: textPrimary }]}>{event.title}</Text>
-                    <Text style={[styles.eventVenue, { color: textSecondary }]}>{event.venue}</Text>
+                <View style={styles.eventVisual}>
+                  <Image
+                    source={{ uri: event.img ?? 'https://images.unsplash.com/photo-1492684223066-81342ee5ff30?auto=format&fit=crop&q=80&w=800' }}
+                    style={styles.eventImage}
+                  />
+                  <LinearGradient colors={['rgba(0,0,0,0.04)', 'rgba(0,0,0,0.32)', 'rgba(0,0,0,0.88)']} style={StyleSheet.absoluteFillObject} />
+                  <View style={styles.badgeRow}>
+                    <View style={[styles.statusPill, event.status === 'published' ? styles.statusLiveVisual : styles.statusDraftVisual]}>
+                      <Text style={styles.statusTextVisual}>{event.status.toUpperCase()}</Text>
+                    </View>
+                    <View style={styles.eventTypeBadge}>
+                      <Text style={styles.statusTextVisual}>{event.type.toUpperCase()}</Text>
+                    </View>
                   </View>
-                  <View style={[styles.statusPill, event.status === 'published' ? styles.statusLive : styles.statusDraft, event.status !== 'published' && { borderColor: border, backgroundColor: inputBg }]}>
-                    <Text style={[styles.statusText, event.status === 'published' ? { color: '#22c55e' } : { color: textSecondary }]}>
-                      {event.status.toUpperCase()}
-                    </Text>
-                  </View>
-                </View>
-
-                <View style={styles.typePill}>
-                  <Text style={styles.typeText}>{event.type.toUpperCase()}</Text>
-                </View>
-
-                <View style={{ marginTop: 10 }}>
-                  <View style={styles.occupancyRow}>
-                    <Text style={[styles.occupancyText, { color: textSecondary }]}>
-                      Occupancy: {event.ticketsSold} / {event.totalTickets}
-                    </Text>
-                    <Text style={styles.occupancyValue}>{occupancyPct}%</Text>
-                  </View>
-                  <View style={[styles.progressTrack, { backgroundColor: trackBg }]}>
-                    <View style={[styles.progressFill, { width: `${occupancyPct}%` as `${number}%` }]} />
+                  <View style={styles.visualTitleWrap}>
+                    <Text style={styles.visualTitle}>{event.title}</Text>
+                    <View style={styles.visualDateRow}>
+                      <MaterialIcons name="calendar-month" size={14} color={PRIMARY_COLOR} />
+                      <Text style={styles.visualDate}>{event.date}</Text>
+                    </View>
                   </View>
                 </View>
 
-                <View style={[styles.eventBottom, { borderTopColor: border }]}>
-                  <View style={styles.revenueWrap}>
-                    <MaterialIcons name="payments" size={16} color={PRIMARY_COLOR} />
-                    <Text style={[styles.revenueText, { color: textPrimary }]}>{event.revenue}</Text>
+                <View style={styles.eventBody}>
+                  <View style={styles.eventMetaRow}>
+                    <View style={styles.eventLocationWrap}>
+                      <View style={styles.eventLocationLine}>
+                        <MaterialIcons name="location-on" size={14} color={textSecondary} />
+                        <Text style={[styles.eventVenue, { color: textSecondary }]} numberOfLines={1}>
+                          {event.venue}
+                        </Text>
+                      </View>
+                    </View>
+                    <View style={styles.eventRevenueWrap}>
+                      <Text style={styles.revenueAccent}>{event.revenue}</Text>
+                      <Text style={[styles.revenueLabel, { color: textMuted }]}>GROSS REV</Text>
+                    </View>
                   </View>
-                  <View style={styles.eventActions}>
-                    {/* {event.status === 'published' && (
-                      <Pressable style={styles.scanBtn} onPress={() => navigation.navigate('MainTabs')}>
-                        <MaterialIcons name="qr-code-scanner" size={14} color={PRIMARY_COLOR} />
-                        <Text style={styles.scanText}>SCAN</Text>
+
+                  <View style={styles.ticketBlock}>
+                    <View style={styles.ticketSalesRow}>
+                      <View>
+                        <Text style={[styles.ticketSalesTitle, { color: textPrimary }]}>TICKET SALES</Text>
+                        <Text style={[styles.ticketSalesMeta, { color: textMuted }]}>
+                          {event.ticketsSold.toLocaleString()} / {event.totalTickets.toLocaleString()} SOLD
+                        </Text>
+                      </View>
+                      <Text style={[styles.ticketSalesPercent, { color: isNearlySoldOut ? '#22c55e' : PRIMARY_COLOR }]}>
+                        {occupancyPct}%
+                      </Text>
+                    </View>
+                    <View style={[styles.progressTrack, { backgroundColor: trackBg }]}>
+                      <View style={[styles.progressFill, { width: `${occupancyPct}%` as `${number}%`, backgroundColor: isNearlySoldOut ? '#22c55e' : PRIMARY_COLOR }]} />
+                    </View>
+                  </View>
+
+                  <View style={[styles.eventFooter, { borderTopColor: border }]}>
+                    <View style={styles.activeTicketChip}>
+                      <MaterialIcons name="confirmation-number" size={13} color={PRIMARY_COLOR} />
+                      <Text style={styles.activeTicketText}>ACTIVE TICKETS</Text>
+                    </View>
+                    <View style={styles.actionRow}>
+                      <Pressable
+                        style={[styles.eventActionButton, { backgroundColor: inputBg }]}
+                        onPress={(pressEvent) => {
+                          pressEvent.stopPropagation();
+                          openEditor(event);
+                        }}
+                      >
+                        <MaterialIcons name="edit" size={16} color={textSecondary} />
                       </Pressable>
-                    )} */}
-                    <Pressable style={styles.menuBtn} onPress={() => deleteEvent(event.id)}>
-                      <MaterialIcons name="delete" size={16} color="#ef4444" />
-                    </Pressable>
+                      <Pressable
+                        style={[styles.eventActionButton, { backgroundColor: inputBg }]}
+                        onPress={(pressEvent) => {
+                          pressEvent.stopPropagation();
+                          navigation.navigate('/creator/analytics', { event: event.id });
+                        }}
+                      >
+                        <MaterialIcons name="insert-chart" size={16} color={textSecondary} />
+                      </Pressable>
+                      <Pressable
+                        style={[styles.eventActionButton, { backgroundColor: inputBg }]}
+                        onPress={(pressEvent) => {
+                          pressEvent.stopPropagation();
+                          deleteEvent(event.id);
+                        }}
+                      >
+                        <MaterialIcons name="delete" size={16} color="#ef4444" />
+                      </Pressable>
+                    </View>
                   </View>
                 </View>
               </Pressable>
@@ -320,6 +395,11 @@ const CreatorEvents: React.FC = () => {
       statusBarTranslucent
       transparent animationType="slide"
       onRequestClose={() => setIsModalOpen(false)}>
+        <KeyboardAvoidingView
+          style={styles.modalKeyboardAvoiding}
+          behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
+          keyboardVerticalOffset={Platform.OS === 'ios' ? 24 : 0}
+        >
         <View style={styles.modalRoot}>
           <Pressable style={[styles.modalBackdrop, { backgroundColor: modalBackdrop }]} onPress={() => setIsModalOpen(false)} />
           <View style={[styles.modalCard, { backgroundColor: shellBg, borderColor: border }]}>
@@ -407,6 +487,23 @@ const CreatorEvents: React.FC = () => {
                 </Pressable>
               )}
 
+              <View style={[styles.aiCard, { borderColor: primaryColorAlpha(0.25), backgroundColor: primaryColorAlpha(isDark ? 0.12 : 0.08) }]}>
+                <View style={styles.aiHeader}>
+                  <View style={styles.aiTitleRow}>
+                    <MaterialIcons name="auto-awesome" size={22} color={PRIMARY_COLOR} />
+                    <Text style={styles.aiTitle}>AI EVENT ARCHITECT</Text>
+                  </View>
+                  {loading && <ActivityIndicator color={PRIMARY_COLOR} />}
+                </View>
+                <Text style={[styles.aiBody, { color: aiHelperText ? textPrimary : textSecondary }]}>
+                  {aiHelperText ||
+                    'Generate a galaxy-ready event description and ticket tier direction based on the title, venue, and fan experience.'}
+                </Text>
+                <Pressable disabled={loading} onPress={useAiArchitect} style={[styles.aiButton, { opacity: loading ? 0.7 : 1 }]}>
+                  <Text style={styles.aiButtonText}>{loading ? 'CONSULTING STARS...' : 'GENERATE DESCRIPTION & TIERS'}</Text>
+                </Pressable>
+              </View>
+
               <Text style={[styles.inputLabel, { color: textMuted }]}>EVENT DESCRIPTION</Text>
               <TextInput
                 value={eventDesc}
@@ -448,6 +545,7 @@ const CreatorEvents: React.FC = () => {
             </View>
           </View>
         </View>
+        </KeyboardAvoidingView>
       </Modal>
     </View>
     </KeyboardAvoidingView>
@@ -499,11 +597,70 @@ const styles = StyleSheet.create({
   statSub: { color: '#22c55e', ...fontSize.b4, lineHeight: fontSize.b4.fontSize + 1, marginTop: 2 },
   sectionTitle: { ...fontSize.b4, lineHeight: fontSize.b4.fontSize + 1, letterSpacing: 2, marginTop: 6 },
   eventCard: {
-    borderRadius: 24,
+    borderRadius: 28,
     borderWidth: 1,
-    padding: 14,
+    overflow: 'hidden',
+  },
+  eventVisual: { height: 190, overflow: 'hidden', backgroundColor: '#020617' },
+  eventImage: { width: '100%', height: '100%' },
+  badgeRow: {
+    position: 'absolute',
+    top: 14,
+    left: 14,
+    right: 14,
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 8,
+  },
+  statusLiveVisual: { borderColor: 'rgba(34,197,94,0.45)', backgroundColor: 'rgba(34,197,94,0.35)' },
+  statusDraftVisual: { borderColor: 'rgba(255,255,255,0.24)', backgroundColor: 'rgba(0,0,0,0.38)' },
+  eventTypeBadge: {
+    borderRadius: 999,
+    borderWidth: 1,
+    borderColor: 'rgba(255,255,255,0.24)',
+    backgroundColor: 'rgba(0,0,0,0.38)',
+    paddingHorizontal: 10,
+    paddingVertical: 4,
+  },
+  statusTextVisual: { color: '#fff', ...fontSize.b5, lineHeight: fontSize.b5.fontSize + 1, letterSpacing: 1 },
+  visualTitleWrap: { position: 'absolute', left: 16, right: 16, bottom: 14 },
+  visualTitle: { color: '#fff', ...fontSize.h2, lineHeight: fontSize.h2.fontSize + 2 },
+  visualDateRow: { flexDirection: 'row', alignItems: 'center', gap: 6, marginTop: 4 },
+  visualDate: { color: 'rgba(255,255,255,0.82)', ...fontSize.b5, lineHeight: fontSize.b5.fontSize + 1, letterSpacing: 1 },
+  eventBody: { padding: 16, gap: 16 },
+  eventMetaRow: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'flex-start', gap: 12 },
+  eventLocationWrap: { flex: 1, minWidth: 0 },
+  eventLocationLine: { flexDirection: 'row', alignItems: 'center', gap: 4 },
+  eventRevenueWrap: { alignItems: 'flex-end' },
+  revenueAccent: { color: PRIMARY_COLOR, ...fontSize.b3, lineHeight: fontSize.b3.fontSize + 2 },
+  revenueLabel: { ...fontSize.b5, lineHeight: fontSize.b5.fontSize + 1, letterSpacing: 0.5 },
+  ticketBlock: { gap: 8 },
+  ticketSalesRow: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'flex-end', gap: 12 },
+  ticketSalesTitle: { ...fontSize.b4, lineHeight: fontSize.b4.fontSize + 1, letterSpacing: 1 },
+  ticketSalesMeta: { ...fontSize.b5, lineHeight: fontSize.b5.fontSize + 1, letterSpacing: 0.6, marginTop: 2 },
+  ticketSalesPercent: { ...fontSize.b2, lineHeight: fontSize.b2.fontSize + 2 },
+  eventFooter: {
+    paddingTop: 12,
+    borderTopWidth: 1,
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
     gap: 10,
   },
+  activeTicketChip: {
+    borderRadius: 999,
+    paddingHorizontal: 10,
+    paddingVertical: 6,
+    backgroundColor: primaryColorAlpha(0.12),
+    borderWidth: 1,
+    borderColor: primaryColorAlpha(0.28),
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 5,
+  },
+  activeTicketText: { color: PRIMARY_COLOR, ...fontSize.b5, lineHeight: fontSize.b5.fontSize + 1, letterSpacing: 0.8 },
+  actionRow: { flexDirection: 'row', alignItems: 'center', gap: 6 },
+  eventActionButton: { width: 34, height: 34, borderRadius: 12, alignItems: 'center', justifyContent: 'center' },
   eventTop: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'flex-start' },
   eventTitle: { ...fontSize.b1, lineHeight: fontSize.b1.fontSize + 2 },
   eventVenue: { ...fontSize.b4, lineHeight: fontSize.b4.fontSize + 1, marginTop: 2 },
@@ -553,6 +710,7 @@ const styles = StyleSheet.create({
   archiveLeft: { flexDirection: 'row', alignItems: 'center', gap: 8 },
   archiveText: { ...fontSize.b4, lineHeight: fontSize.b4.fontSize + 1 },
   archiveStatus: { ...fontSize.b4, lineHeight: fontSize.b4.fontSize + 1 },
+  modalKeyboardAvoiding: { flex: 1 },
   modalRoot: { flex: 1, justifyContent: 'flex-end' },
   modalBackdrop: { ...StyleSheet.absoluteFillObject },
   modalCard: {
@@ -615,6 +773,26 @@ const styles = StyleSheet.create({
     alignSelf: 'flex-start',
   },
   mapsLinkText: { color: PRIMARY_COLOR, ...fontSize.b5, lineHeight: fontSize.b5.fontSize + 1 },
+  aiCard: {
+    borderRadius: 24,
+    borderWidth: 1,
+    padding: 16,
+    gap: 12,
+  },
+  aiHeader: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center' },
+  aiTitleRow: { flexDirection: 'row', alignItems: 'center', gap: 8 },
+  aiTitle: { color: PRIMARY_COLOR, ...fontSize.b5, lineHeight: fontSize.b5.fontSize + 1, letterSpacing: 1.2 },
+  aiBody: { ...fontSize.b4, lineHeight: fontSize.b4.fontSize + 6 },
+  aiButton: {
+    height: 44,
+    borderRadius: 14,
+    backgroundColor: primaryColorAlpha(0.12),
+    borderWidth: 1,
+    borderColor: primaryColorAlpha(0.3),
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  aiButtonText: { color: PRIMARY_COLOR, ...fontSize.b5, lineHeight: fontSize.b5.fontSize + 1, letterSpacing: 1 },
   descInput: { minHeight: 100, textAlignVertical: 'top', paddingTop: 12 },
   tierHeader: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center' },
   addTierText: { color: PRIMARY_COLOR, ...fontSize.b5, lineHeight: fontSize.b5.fontSize + 1 },

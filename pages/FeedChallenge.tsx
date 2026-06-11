@@ -354,7 +354,7 @@ const ChallengeVideoItem: React.FC<ChallengeVideoItemProps> = ({
             <MaterialIcons
               name="favorite"
               size={36}
-              color={isLiked ? PRIMARY_COLOR : '#ffffff'}
+              color={isLiked ? '#f43f5e' : '#ffffff'}
             />
           </Pressable>
           <Text style={styles.railCount}>{formatCount(likesCount)}</Text>
@@ -555,6 +555,8 @@ const FeedChallenge: React.FC = () => {
   const [activeIndex, setActiveIndex] = useState(0);
   const [kulcoins, setKulcoins] = useState(10);
   const [isTopUpOpen, setIsTopUpOpen] = useState(false);
+  const [topUpSuccessMessage, setTopUpSuccessMessage] = useState('');
+  const topUpSuccessTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
   useEffect(() => {
     const loadKulcoins = async () => {
@@ -572,6 +574,14 @@ const FeedChallenge: React.FC = () => {
   useEffect(() => {
     void AsyncStorage.setItem(KULCOIN_STORAGE_KEY, `${kulcoins}`);
   }, [kulcoins]);
+
+  useEffect(() => {
+    return () => {
+      if (topUpSuccessTimerRef.current) {
+        clearTimeout(topUpSuccessTimerRef.current);
+      }
+    };
+  }, []);
 
   const onViewRef = useRef(({ viewableItems }: { viewableItems: ViewToken[] }) => {
     if (viewableItems.length > 0) {
@@ -591,6 +601,20 @@ const FeedChallenge: React.FC = () => {
 
     setKulcoins((prev) => prev - VOTE_COST);
     return true;
+  };
+
+  const handleTopUpSuccess = (amount: number) => {
+    setKulcoins((prev) => prev + amount);
+    setTopUpSuccessMessage(`${amount} KC added to your wallet`);
+
+    if (topUpSuccessTimerRef.current) {
+      clearTimeout(topUpSuccessTimerRef.current);
+    }
+
+    topUpSuccessTimerRef.current = setTimeout(() => {
+      setTopUpSuccessMessage('');
+      topUpSuccessTimerRef.current = null;
+    }, 2600);
   };
 
   const feedItemHeight = pageHeight;
@@ -677,9 +701,19 @@ const FeedChallenge: React.FC = () => {
           currentBalance={kulcoins}
           isOpen={isTopUpOpen}
           onClose={() => setIsTopUpOpen(false)}
-          onSuccess={(amount) => setKulcoins((prev) => prev + amount)}
+          onSuccess={handleTopUpSuccess}
           warningText="Insufficient Balance to Vote"
         />
+
+        {topUpSuccessMessage ? (
+          <View style={[styles.topUpSuccessToast, { top: insets.top + 72 }]}>
+            <MaterialIcons name="check-circle" size={18} color="#ffffff" />
+            <View>
+              <Text style={styles.topUpSuccessTitle}>Top Up Successful</Text>
+              <Text style={styles.topUpSuccessSubtitle}>{topUpSuccessMessage}</Text>
+            </View>
+          </View>
+        ) : null}
       </View>
     </SafeAreaView>
   );
@@ -983,6 +1017,40 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'center',
     backgroundColor: PRIMARY_COLOR,
+  },
+  topUpSuccessToast: {
+    position: 'absolute',
+    left: 18,
+    right: 18,
+    zIndex: 80,
+    minHeight: 58,
+    borderRadius: 22,
+    paddingHorizontal: 16,
+    paddingVertical: 12,
+    backgroundColor: 'rgba(16,185,129,0.94)',
+    borderWidth: 1,
+    borderColor: 'rgba(255,255,255,0.24)',
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 10,
+    shadowColor: '#10b981',
+    shadowOffset: { width: 0, height: 10 },
+    shadowOpacity: 0.35,
+    shadowRadius: 20,
+    elevation: 12,
+  },
+  topUpSuccessTitle: {
+    color: '#ffffff',
+    ...fontSize.b5,
+    lineHeight: fontSize.b5.fontSize + 1,
+    textTransform: 'uppercase',
+    letterSpacing: 1.2,
+  },
+  topUpSuccessSubtitle: {
+    marginTop: 2,
+    color: 'rgba(255,255,255,0.82)',
+    ...fontSize.b5,
+    lineHeight: fontSize.b5.fontSize + 1,
   },
   feedLiveWrap: {
     flexDirection: 'row',

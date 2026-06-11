@@ -38,7 +38,8 @@ import { fontSize } from './typography';
 import HelpCentre from '../assets/icons/help_center.svg';
 import PrivacyCentre from '../assets/icons/admin_panel.svg';
 import Terms from '../assets/icons/gravel.svg';
-
+import TrophyIcon from '../assets/icons/trophy-svg.svg';
+import CalenderIcon from '../assets/icons/calendar-svg.svg';
 
 type SettingsSubView = 'main' | 'tags' | 'identity';
 
@@ -180,6 +181,8 @@ const CreatorSettings: React.FC<CreatorSettingsProps> = ({ onLogout, isDarkMode,
         title: 'Monetization Hub',
         items: [
           { label: 'Membership Tiers', icon: StarsIcon, desc: 'Manage pricing and exclusive perks', path: 'MembershipTiers' },
+          { label: 'Claim Prize', icon: TrophyIcon, desc: 'Claim challenge rewards & prizes', path: 'ClaimPrize' },
+          { label: 'Manage Events', icon: CalenderIcon, desc: 'Create and edit your events', path: 'CreatorEvents' },
         ] as SettingItem[],
       },
       {

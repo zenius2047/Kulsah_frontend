@@ -736,7 +736,7 @@ const FanSettings: React.FC<FanSettingsProps> = ({ onLogout, isDarkMode, onToggl
             style={s.roleModalBackdrop}
             onPress={() => setIsRoleSwitchModalOpen(false)}
           />
-          <View style={[s.roleModalCard, { backgroundColor: elevatedSurface, borderColor: theme.border }]}>
+          <View style={[s.roleModalCard, { backgroundColor: theme.background, borderColor: theme.border }]}>
             <CreatorSwitch height={88} width={88} color={theme.accent} />
             <View style={s.roleModalCopy}>
               <Text style={[s.roleModalTitle, { color: theme.text }]}>Switch to Creator?</Text>

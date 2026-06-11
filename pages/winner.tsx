@@ -12,6 +12,7 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 import { LinearGradient } from 'expo-linear-gradient';
 import { MaterialIcons } from '@expo/vector-icons';
 import { fontSize } from './typography';
+import { useNavigation } from '@react-navigation/native';
 
 const completedChallenges = [
   'https://lh3.googleusercontent.com/aida-public/AB6AXuBxZ1KLLhqU68Nxsc2iwdJRQhOJu0SSiYWV6cAGJ_lMmLaenC2imrnOCB6FqJWkZR_alkNRc-fwLRg0dlxqKhnSZitQThNRHWLdZkYncgXoe47MZOQemMm79hGT1MVLxJD6kVjsQaLRoMtZCn60FCRiw3jataJhfItAeyHRrQbynHUU4Bu-SsxtsQOV0xea1-fxdaOeTdG4N5FWds94Tlm7D91OQbvkQo5GhXQ-RDv2y35iLWztd2JHmS5Cqzu7GhC78Z8N9AAGXJps',
@@ -21,6 +22,9 @@ const completedChallenges = [
 ];
 
 const winner: React.FC = () => {
+  const { theme } = useThemeMode();
+  const navigation = useNavigation<any>();
+
   return (
     <SafeAreaView style={[styles.safeArea, { backgroundColor: theme.background }]} edges={['top', 'left', 'right']}>
       <View style={[styles.screen, { backgroundColor: theme.screen }]}>
@@ -108,7 +112,7 @@ const winner: React.FC = () => {
               </View>
             </View>
 
-            <Pressable style={styles.primaryButton}>
+            <Pressable style={styles.primaryButton} onPress={() => navigation.navigate('ClaimPrize')}>
               <Text style={styles.primaryButtonText}>CLAIM YOUR PRIZE</Text>
               <MaterialIcons name="celebration" size={20} color="#fff" />
             </Pressable>

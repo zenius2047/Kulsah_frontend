@@ -919,7 +919,7 @@ const PlaylistSection = () => {
             tab === 'Tickets'? <LocalActivity height={22} width={24} fill={activeTab === tab ? PRIMARY_COLOR : '#69738d'}/>:
             tab === 'Events'? <CalenderIcon height={22} width={22} fill={activeTab === tab ? PRIMARY_COLOR : '#69738d'}/>:
             tab === 'Challenges'?<TrophyIcon height={22} width={22} fill={activeTab === tab ? PRIMARY_COLOR : '#69738d'}/>:
-            tab === 'Favorites'? <MaterialIcons name="favorite-border" size={22} color={activeTab === tab ? PRIMARY_COLOR : '#69738d'}/>: <BookmarkIcon height={22} width={22} fill={activeTab === tab ? PRIMARY_COLOR : '#69738d'}/>
+            tab === 'Favorites'? <MaterialIcons name="favorite-border" size={22} color={activeTab === tab ? '#f43f5e' : '#69738d'}/>: <BookmarkIcon height={22} width={22} fill={activeTab === tab ? PRIMARY_COLOR : '#69738d'}/>
           }
           {/* <MaterialIcons name={{ Videos: 'play-circle', Premium: 'stars', Events: 'calendar-month', Challenges: 'emoji-events', Favorites: 'favorite', Saved: 'bookmark' }[tab]}
           size={22} color={activeTab === tab ? PRIMARY_COLOR : '#69738d'} /> */}
@@ -2035,7 +2035,7 @@ const s = StyleSheet.create({
   },
   libraryCard: {
     width: '49.9%',
-    height: 210,
+    height: 300,
     overflow: 'hidden',
     borderWidth: 1,
     position: 'relative',
