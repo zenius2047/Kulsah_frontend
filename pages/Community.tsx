@@ -462,7 +462,7 @@ const Community: React.FC<{ embedded?: boolean }> = ({ embedded = false }) => {
               }}>
                 
                 <Pressable style={styles.followMetaAction} onPress={() => void toggleFollow(post.id)} hitSlop={8}>
-                        <Text style={[styles.followStateText, { color: post.isFollowing ? mutedText : '#1877f2' }]}>
+                        <Text style={[styles.followStateText, { color: post.isFollowing ? mutedText : '#1877f2', fontFamily: 'Inter_700Bold', fontSize: fontSize.b4.fontSize }]}>
                           {post.isFollowing ? 'Following' : 'Follow'}
                         </Text>
                       </Pressable>
@@ -755,8 +755,6 @@ const styles = StyleSheet.create({
     marginTop: 40,
     paddingHorizontal: 16,
     paddingBottom: 14,
-    borderBottomWidth: 1,
-    borderBottomColor: 'rgba(255,255,255,0.08)',
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'space-between',
@@ -776,21 +774,21 @@ const styles = StyleSheet.create({
   },
   headerTitle: {
     color: '#fff',
-    ...fontSize.b3, lineHeight: fontSize.b3.fontSize + 2,
+    ...fontSize.h1, lineHeight: fontSize.b3.fontSize + 2,
     letterSpacing: 2,
     textTransform: 'uppercase',
   },
   headerSubtitle: {
     color: PRIMARY_COLOR,
     marginTop: 4,
-    ...fontSize.b5, lineHeight: fontSize.b5.fontSize + 1,
+    ...fontSize.h2, lineHeight: fontSize.h2.fontSize + 1,
     letterSpacing: 1.5,
     textTransform: 'uppercase',
   },
   headerSpacer: {
     width: 40,
   },
-  scrollBody: { paddingVertical: 14, paddingBottom: 130, gap: 14 },
+  scrollBody: { paddingBottom: 130, gap: 14, },
   postCard: {
     backgroundColor: '#121219',
     // borderColor: 'rgba(255,255,255,0.08)',

@@ -183,7 +183,7 @@ const FanSettings: React.FC<FanSettingsProps> = ({ onLogout, isDarkMode, onToggl
   };
 
   const surfaceColor = isDark ? '#111827' : theme.card;
-  const elevatedSurface = isDark ? 'rgba(31, 16, 34, 0.75)' : theme.card;
+  const elevatedSurface = 'transparent';
   const subtleSurface = isDark ? 'rgba(255,255,255,0.06)' : theme.surface;
   const secondaryText = isDark ? '#94a3b8' : theme.textSecondary;
   const mutedText = isDark ? '#6b7280' : theme.textMuted;
@@ -192,7 +192,7 @@ const FanSettings: React.FC<FanSettingsProps> = ({ onLogout, isDarkMode, onToggl
   const softSurface = isDark ? 'rgba(255,255,255,0.05)' : '#f1f5f9';
 
   const renderHeader = (title: string, backToMain = true) => (
-    <View style={[s.header, { backgroundColor: isDark ? 'rgba(31, 16, 34, 0.75)' : theme.card, borderBottomColor: theme.border }]}>
+    <View style={[s.header, { backgroundColor: 'transparent' }]}>
       <Pressable
         onPress={() => (backToMain ? setActiveView('main') : navigation.goBack())}
         style={[s.backButton, { backgroundColor: isDark ? '#ffffff14' : theme.surface }]}
@@ -775,8 +775,6 @@ const s = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     gap: 12,
-    borderBottomWidth: StyleSheet.hairlineWidth,
-    borderBottomColor: '#e2e8f0',
     backgroundColor: '#f8fafc',
   },
   backButton: {
@@ -787,7 +785,7 @@ const s = StyleSheet.create({
     justifyContent: 'center',
     backgroundColor: '#eef2ff',
   },
-  headerTitle: { ...fontSize.b3, lineHeight: fontSize.b3.fontSize + 2, textTransform: 'uppercase', color: '#0f172a' },
+  headerTitle: { ...fontSize.h1, lineHeight: fontSize.h1.fontSize + 2, textTransform: 'uppercase', color: '#0f172a', letterSpacing: 2 },
   viewWrap: { flex: 1, backgroundColor: '#f8fafc' },
   formCard: { padding: 16, gap: 18 },
   profileAvatarWrap: { alignItems: 'center', marginBottom: 12 },

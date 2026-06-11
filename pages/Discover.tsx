@@ -384,7 +384,7 @@ const Discover: React.FC<{ embedded?: boolean }> = ({ embedded = false }) => {
                             flexDirection: 'row',
                             gap: 2
                           }}>
-                            <CalenderIcon fill={"#cd2bee"} height={10} width={10}/>
+                            <CalenderIcon fill={PRIMARY_COLOR} height={10} width={10}/>
                             <Text numberOfLines={1} style={styles.ticketMeta}>{ticket.date}</Text>
                           </View>
                           <View style={{
@@ -394,7 +394,7 @@ const Discover: React.FC<{ embedded?: boolean }> = ({ embedded = false }) => {
                             <LocationIcon fill={"#00000076"} height={10} width={10}/>
                             <Text numberOfLines={1} style={styles.ticketVenue}>{ticket.venue}</Text>
                           </View>
-                          <Text style={[styles.ticketVenue, {color: '#cd2bee'}]}>{ticket.duration}</Text>
+                          <Text style={[styles.ticketVenue, {color: PRIMARY_COLOR}]}>{ticket.duration}</Text>
                           <View style={styles.dashedLine} />
                           <View style={styles.ticketFooter}>
                             <View>
@@ -416,7 +416,7 @@ const Discover: React.FC<{ embedded?: boolean }> = ({ embedded = false }) => {
 
           {(activeTab === 'all' || activeTab === 'challenges') && (
             <View style={styles.section}>
-              <SectionHeader icon="emoji-events" title="Creator Challenges" color="#cd2bee" action="view more" onAction={() => navigation.navigate('Challenges')} />
+              <SectionHeader icon="emoji-events" title="Creator Challenges" color={PRIMARY_COLOR} action="view more" onAction={() => navigation.navigate('Challenges')} />
               {filteredChallenges.length === 0 ? renderEmpty('No creator challenges matching your query.') : (
                 <View style={styles.twoColumnGrid}>
                   {filteredChallenges.map((challenge) => {
@@ -436,7 +436,7 @@ const Discover: React.FC<{ embedded?: boolean }> = ({ embedded = false }) => {
                           <Text numberOfLines={2} style={styles.challengeTitle}>#{challenge.tag}</Text>
                           <Text style={styles.challengePrize}>{challenge.prizePool}</Text>
                           <View style={styles.metricPill}>
-                            <MaterialIcons name="groups" size={11} color="#cd2bee" />
+                            <MaterialIcons name="groups" size={11} color={PRIMARY_COLOR} />
                             <Text style={styles.metricText}>{(challenge.participants / 1000).toFixed(1)}K entries</Text>
                           </View>
                           <View style={styles.dashedLine} />
@@ -588,7 +588,7 @@ const SuccessModal = ({ visible, styles, onClose }: { visible: boolean; styles: 
 const sectionHeaderStyles = StyleSheet.create({
   row: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', paddingHorizontal: 20 },
   titleRow: { flexDirection: 'row', alignItems: 'center', gap: 8 },
-  title: { color: '#71717a', ...fontSize.b5, lineHeight: fontSize.b5.fontSize + 1, letterSpacing: 3, textTransform: 'uppercase' },
+  title: { color: '#71717a', ...fontSize.b5, lineHeight: fontSize.b5.fontSize + 2, letterSpacing: 3, textTransform: 'uppercase' },
   actionButton: { minHeight: 32, justifyContent: 'center', paddingHorizontal: 10, borderRadius: 12, },
   actionText: { color: PRIMARY_COLOR, ...fontSize.b5, lineHeight: fontSize.b5.fontSize + 1, letterSpacing: 1.2, textTransform: 'uppercase' },
 });
@@ -610,10 +610,10 @@ const createStyles = (isDark: boolean) => {
     header: {  paddingBottom: 14, borderBottomWidth: 1,},
     headerRow: { minHeight: 58, flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between',},
     iconButton: { width: 44, height: 44, borderRadius: 22, alignItems: 'center', justifyContent: 'center', backgroundColor: card, borderWidth: 1, borderColor: border },
-    headerTitle: { ...fontSize.b1, lineHeight: fontSize.b1.fontSize + 2, letterSpacing: 2.2, textTransform: 'uppercase' },
+    headerTitle: { ...fontSize.h1, lineHeight: fontSize.h1.fontSize + 2, letterSpacing: 2.2, textTransform: 'uppercase' },
     notificationDot: { position: 'absolute', top: 11, right: 11, width: 8, height: 8, borderRadius: 4, backgroundColor: PRIMARY_COLOR, borderWidth: 2, borderColor: background },
     searchWrap: { height: 48, borderRadius: 999, paddingHorizontal: 14, flexDirection: 'row', alignItems: 'center', borderWidth: 1, gap: 10 },
-    searchInput: { flex: 1, ...fontSize.b4, lineHeight: fontSize.b4.fontSize + 1, paddingVertical: 0 },
+    searchInput: { flex: 1, ...fontSize.b3, lineHeight: fontSize.b3.fontSize + 2, paddingVertical: 0 },
     tabList: { gap: 8, paddingTop: 12, paddingHorizontal: 20 },
     tab: { minHeight: 34, paddingHorizontal: 14, borderRadius: 999, alignItems: 'center', justifyContent: 'center', borderWidth: 1 },
     tabSelected: { backgroundColor: PRIMARY_COLOR, borderColor: 'transparent' },
@@ -753,7 +753,7 @@ const createStyles = (isDark: boolean) => {
       headerSubtitle: {
         color: PRIMARY_COLOR,
         marginTop: 4,
-        ...fontSize.b5, lineHeight: fontSize.b5.fontSize + 1,
+        ...fontSize.h2, lineHeight: fontSize.h2.fontSize + 1,
         letterSpacing: 1.5,
         textTransform: 'uppercase',
       },

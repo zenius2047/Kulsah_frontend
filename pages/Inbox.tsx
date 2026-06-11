@@ -2,6 +2,7 @@ import React from 'react';
 import { useThemeMode, PRIMARY_COLOR } from "../theme";
 import {
   Image,
+  Platform,
   Pressable,
   ScrollView,
   StyleSheet,
@@ -9,7 +10,7 @@ import {
   TextInput,
   View,
 } from 'react-native';
-import { SafeAreaView } from 'react-native-safe-area-context';
+import { SafeAreaView, useSafeAreaInsets } from 'react-native-safe-area-context';
 import { MaterialIcons } from '@expo/vector-icons';
 import { user } from '../types';
 import { useNavigation } from '@react-navigation/native';
@@ -112,12 +113,13 @@ const Inbox: React.FC = () => {
   const border = isDark ? 'rgba(255,255,255,0.1)' : theme.border;
   const subtle = isDark ? '#64748b' : theme.textMuted;
   const textSecondary = isDark ? '#94a3b8' : theme.textSecondary;
+  const insets = useSafeAreaInsets();
 
   return (
-    <SafeAreaView style={[styles.safeArea, { backgroundColor: shell }]} edges={['top', 'left', 'right']}>
+    <SafeAreaView style={[styles.safeArea, { backgroundColor: shell }]} edges={['left', 'right']}>
       <View style={[styles.screen, { backgroundColor: shell }]}>
         <ScrollView contentContainerStyle={styles.content} showsVerticalScrollIndicator={false} keyboardShouldPersistTaps="handled">
-          <View style={styles.topUtilityRow}>
+          <View style={[styles.topUtilityRow, {backgroundColor: 'transparent', paddingTop: Platform.OS == 'ios' ? 54: insets.top,}]}>
             {/* <View style={styles.headerLeft}>
                           
                         </View> */}
@@ -146,7 +148,7 @@ const Inbox: React.FC = () => {
             </Pressable>
           </View>
 
-          {user?.role === "creator" && <>
+          {/* {user?.role === "creator" && <>
           <View style={styles.sectionHeaderRow}>
             <Text style={[styles.sectionTitle, { color: subtle }]}>COLLABORATORS</Text>
             <Pressable>
@@ -165,7 +167,7 @@ const Inbox: React.FC = () => {
               </View>
             ))}
           </ScrollView>
-          </>}
+          </>} */}
 
           
 
@@ -212,13 +214,13 @@ const Inbox: React.FC = () => {
           <MaterialIcons name="edit" size={28} color="#fff" />
         </Pressable> */}
 
-        <View style={[styles.bottomNav, { backgroundColor: isDark ? 'rgba(0,0,0,0.9)' : theme.card, borderColor: border }]}>
+        {/* <View style={[styles.bottomNav, { backgroundColor: isDark ? 'rgba(0,0,0,0.9)' : theme.card, borderColor: border }]}>
           <MaterialIcons name="home" size={24} color={subtle} />
           <MaterialIcons name="explore" size={24} color={subtle} />
           <MaterialIcons name="add-circle" size={38} color={PRIMARY_COLOR} />
           <MaterialIcons name="mail" size={24} color={PRIMARY_COLOR} />
           <MaterialIcons name="person" size={24} color={subtle} />
-        </View>
+        </View> */}
       </View>
     </SafeAreaView>
   );
@@ -228,7 +230,7 @@ const styles = StyleSheet.create({
   safeArea: { flex: 1 },
   screen: { flex: 1 },
   content: { paddingHorizontal: 16, paddingBottom: 120 },
-  topUtilityRow: { alignItems: 'flex-end', marginTop: 8, marginBottom: 24, flexDirection: 'row', justifyContent: 'space-between', },
+  topUtilityRow: { alignItems: 'flex-end', marginBottom: 24, paddingBottom: 24, flexDirection: 'row', justifyContent: 'space-between', marginHorizontal: -16, paddingHorizontal: 16, },
   notificationButton: {
     width: 42,
     height: 42,
@@ -257,7 +259,7 @@ const styles = StyleSheet.create({
   liveDot: { position: 'absolute', right: 2, bottom: 2, width: 12, height: 12, borderRadius: 6, backgroundColor: '#10b981', borderWidth: 2, borderColor: '#0a050d' },
   collabName: { ...fontSize.b5, lineHeight: fontSize.b5.fontSize + 1, textTransform: 'uppercase' },
   searchRow: { marginTop: 12, minHeight: 52, borderWidth: 1, borderRadius: 999, flexDirection: 'row', alignItems: 'center', gap: 8, paddingHorizontal: 12 },
-  searchInput: { flex: 1, ...fontSize.b4, lineHeight: fontSize.b4.fontSize + 1 },
+  searchInput: { flex: 1, ...fontSize.b3, lineHeight: fontSize.b3.fontSize + 2 },
   chatList: { gap: 10 },
   chatCard: { padding: 12, flexDirection: 'row', alignItems: 'center', gap: 12 },
   chatAvatarWrap: { width: 56, height: 56, position: 'relative' },
@@ -287,10 +289,10 @@ const styles = StyleSheet.create({
   },
   title: {
       // color: '#F8FAFC',
-      ...fontSize.b1,
-      lineHeight: fontSize.b1.fontSize + 2,
+      ...fontSize.h1,
+      lineHeight: fontSize.h1.fontSize + 2,
       // fontWeight: '900',
-      letterSpacing: 0.5,
+      letterSpacing: 2,
     },
   avatar: {
     width: '100%',
@@ -298,10 +300,10 @@ const styles = StyleSheet.create({
   },
     subtitle: {
       // color: '#D946EF',
-      ...fontSize.b5,
-      lineHeight: fontSize.b5.fontSize + 1,
+      ...fontSize.h2,
+      lineHeight: fontSize.h2.fontSize + 1,
       // fontWeight: '900',
-      letterSpacing: 2.5,
+      letterSpacing: 1.5,
       marginTop: 2,
     },
   fab: {

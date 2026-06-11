@@ -85,7 +85,7 @@ const GoLiveSetup: React.FC = () => {
 
   return (
     <View style={[styles.screen, { backgroundColor: theme.screen }]}>
-      <View style={[styles.header, { backgroundColor: shellBg, borderBottomColor: border }]}>
+      <View style={[styles.header, { backgroundColor: 'transparent'}]}>
         <View style={styles.headerTop}>
           <View style={styles.headerLeft}>
             <Pressable onPress={handleBack} style={[styles.backBtn, { borderColor: inputBorder, backgroundColor: softSurface }]}>
@@ -251,7 +251,7 @@ const GoLiveSetup: React.FC = () => {
                 <Switch
                   value={notifyFollowers}
                   onValueChange={setNotifyFollowers}
-                  trackColor={{ false: isDark ? '#334155' : '#94a3b8', true: '#a21caf' }}
+                  trackColor={{ false: isDark ? '#334155' : '#94a3b8', true: PRIMARY_COLOR }}
                   thumbColor="#fff"
                 />
               </View>
@@ -260,7 +260,7 @@ const GoLiveSetup: React.FC = () => {
         )}
       </ScrollView>
 
-      <View style={[styles.footer, { backgroundColor: shellBg, borderTopColor: border }]}>
+      <View style={[styles.footer, { backgroundColor: 'transparent', }]}>
         <View style={styles.progressMeta}>
           <Text style={[styles.progressText, { color: subtle }]}>Syncing broadcast data...</Text>
           <Text style={styles.progressValue}>{progressValue}%</Text>
@@ -294,8 +294,6 @@ const styles = StyleSheet.create({
     paddingTop: 48,
     paddingHorizontal: 14,
     paddingBottom: 14,
-    borderBottomWidth: 1,
-    borderBottomColor: 'rgba(255,255,255,0.08)',
   },
   headerTop: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center' },
   headerLeft: { flexDirection: 'row', alignItems: 'center', gap: 10 },
@@ -463,8 +461,6 @@ const styles = StyleSheet.create({
     paddingTop: 12,
     paddingBottom: 24,
     backgroundColor: '#111218',
-    borderTopWidth: 1,
-    borderTopColor: 'rgba(255,255,255,0.08)',
   },
   progressMeta: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', marginBottom: 8 },
   progressText: { ...fontSize.b5, lineHeight: fontSize.b5.fontSize + 1 },

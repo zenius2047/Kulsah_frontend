@@ -345,7 +345,7 @@ const FanTabs = ({isDarkMode, user, onTap}: TabsProps) => {
         tabBarStyle: [
           styles.tabBar,
           {
-            backgroundColor: route.name === 'Galaxy' ? '#000' : isDarkMode ? '#1f1022' : '#ffffff',
+            backgroundColor: route.name === 'Galaxy' ? '#000' : isDarkMode ? '#0a050d' : '#ffffff',
             height: tabBarHeight,
           },
           getTabBarShadow(isDarkMode, route.name === 'Galaxy'),

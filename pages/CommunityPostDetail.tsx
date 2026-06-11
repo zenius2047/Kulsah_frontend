@@ -342,7 +342,7 @@ const CommunityPostDetail: React.FC = () => {
       behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
       keyboardVerticalOffset={Platform.OS === 'ios' ? 20 : 0}
     >
-      <View style={[styles.header, {backgroundColor: headerBg }]}>
+      <View style={[styles.header, {backgroundColor: 'transparent', marginBottom: 15 }]}>
         <Pressable onPress={() => navigation.goBack()} style={[styles.headerRoundBtn, { backgroundColor: screenBg, borderColor: softBorder }]}>
           <MaterialIcons name="chevron-left" size={22} color={theme.text} />
         </Pressable>
@@ -377,7 +377,7 @@ const CommunityPostDetail: React.FC = () => {
 
             <View style={styles.headerActions}>
               <Pressable style={[styles.followBtn,]} onPress={() => void toggleFollow()}>
-                <Text style={[styles.followBtnText, { color: post.isFollowing ? mutedText : '#1877f2' }]}>
+                <Text style={[styles.followBtnText, { color: post.isFollowing ? mutedText : '#1877f2' , fontFamily: 'Inter_700Bold'}]}>
                   {post.isFollowing ? 'Following' : 'Follow'}
                 </Text>
               </Pressable>
@@ -626,8 +626,8 @@ const styles = StyleSheet.create({
     alignItems: 'center',
   },
   headerCopy: { flex: 1 },
-  headerTitle: { ...fontSize.b3, lineHeight: fontSize.b3.fontSize + 2 },
-  headerSubtitle: { ...fontSize.b5, lineHeight: fontSize.b5.fontSize + 1 },
+  headerTitle: { ...fontSize.h1, lineHeight: fontSize.h1.fontSize + 2 },
+  headerSubtitle: { ...fontSize.h2, lineHeight: fontSize.h2.fontSize + 1 },
   scrollBody: { paddingBottom: 96 },
   feedCard: {overflow: 'hidden'},
   postHeader: {

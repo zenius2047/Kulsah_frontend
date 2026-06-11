@@ -401,7 +401,7 @@ const CreatorChallenges: React.FC = () => {
                 </View>
               ))}
               <Pressable onPress={() => go('Submissions')} style={[styles.dashedBtn, { borderColor: primaryColorAlpha(0.3) }]}>
-                <Text style={[styles.dashedBtnText, {...fontSize.b4}]}>View All Submissions</Text>
+                <Text style={[styles.dashedBtnText, {...fontSize.b4, lineHeight: fontSize.b4.fontSize + 1}]}>View All Submissions</Text>
               </Pressable>
             </View>
           ) : null}
@@ -429,7 +429,7 @@ const CreatorChallenges: React.FC = () => {
                 </View>
               ))}
               <Pressable onPress={() => go('ChallengeDrafts')} style={[styles.dashedBtn, { borderColor: primaryColorAlpha(0.3) }]}>
-                <Text style={[styles.dashedBtnText, {...fontSize.b4}]}>View All Drafts</Text>
+                <Text style={[styles.dashedBtnText, {...fontSize.b4, lineHeight: fontSize.b4.fontSize + 1}]}>View All Drafts</Text>
               </Pressable>
             </View>
           ) : null}
@@ -453,7 +453,7 @@ const CreatorChallenges: React.FC = () => {
                       </View>
                     </View>
                     <View style={[styles.statusPill, invite.status === 'pending' ? styles.pending : styles.accepted]}>
-                      <Text style={[styles.statusText, { ...fontSize.b5, lineHeight: fontSize.b5.fontSize + 1 }]}>{invite.status}</Text>
+                      <Text style={[styles.statusText, { ...fontSize.b5, lineHeight: fontSize.b5.fontSize }]}>{invite.status}</Text>
                     </View>
                   </View>
                   <View style={styles.featureBottom}>
@@ -590,7 +590,7 @@ const CreatorChallenges: React.FC = () => {
                     </View>
                   </View>
 
-                  {selectedInvite.requirements?.length ? (
+                  {/* {selectedInvite.requirements?.length ? (
                     <View style={styles.checklistBlock}>
                       <Text style={[styles.modalSectionLabel, { color: isDark ? 'rgba(255,255,255,0.42)' : muted }]}>Co-Creation Objectives Checklist</Text>
                       {selectedInvite.requirements.map((requirement) => (
@@ -600,7 +600,7 @@ const CreatorChallenges: React.FC = () => {
                         </View>
                       ))}
                     </View>
-                  ) : null}
+                  ) : null} */}
 
                   {showCounterBox ? (
                     <View style={[styles.counterBox, { backgroundColor: primaryColorAlpha(isDark ? 0.08 : 0.06), borderColor: primaryColorAlpha(0.24) }]}>
@@ -639,7 +639,7 @@ const CreatorChallenges: React.FC = () => {
                     {selectedInvite.status === 'pending' ? (
                       <>
                         <Pressable onPress={() => handleAcceptInvite(selectedInvite.id)} style={styles.modalPrimaryAction}>
-                          <Text style={styles.modalPrimaryText}>Accept Partnership Contract</Text>
+                          <Text style={styles.modalPrimaryText}>Accept</Text>
                         </Pressable>
                         {!showCounterBox ? (
                           <Pressable onPress={() => setShowCounterBox(true)} style={[styles.modalSecondaryAction, { backgroundColor: isDark ? 'rgba(255,255,255,0.06)' : 'rgba(15,23,42,0.06)', borderColor: isDark ? 'rgba(255,255,255,0.1)' : border }]}>
@@ -773,10 +773,10 @@ const styles = StyleSheet.create({
   inviterAvatar: { width: 32, height: 32, borderRadius: 16, borderWidth: 1, borderColor: primaryColorAlpha(0.4) },
   inviteTag: { color: 'rgba(255,255,255,0.45)', ...fontSize.b5, lineHeight: fontSize.b5.fontSize + 1, textTransform: 'uppercase', letterSpacing: 1.4 },
   inviterName: { color: '#fff', ...fontSize.b5, lineHeight: fontSize.b5.fontSize + 1, textTransform: 'uppercase', marginTop: 2 },
-  statusPill: { paddingHorizontal: 12, paddingVertical: 6, borderRadius: 999, borderWidth: 1, alignItems: 'center' },
+  statusPill: { height:25, paddingHorizontal: 12, borderRadius: 999, paddingTop: 5, borderWidth: 1, alignItems: 'center', justifyContent: 'center' },
   pending: { backgroundColor: 'rgba(249,115,22,0.16)', borderColor: 'rgba(249,115,22,0.35)' },
   accepted: { backgroundColor: 'rgba(16,185,129,0.16)', borderColor: 'rgba(16,185,129,0.35)' },
-  statusText: { ...fontSize.b5, lineHeight: fontSize.b5.fontSize + 1, color: '#fff', textTransform: 'uppercase', letterSpacing: 1.4 },
+  statusText: { ...fontSize.b5, lineHeight: fontSize.b5.fontSize + 2, color: '#fff', textTransform: 'uppercase', letterSpacing: 1.4 },
   inviteFooter: { justifyContent: 'space-between', alignItems: 'flex-start', gap: 12 },
   inviteActions: { flexDirection: 'row', gap: 8, flexWrap: 'wrap', justifyContent: 'flex-end' },
   acceptBtn: { minHeight: 40, paddingHorizontal: 20, borderRadius: 12, backgroundColor: PRIMARY_COLOR, alignItems: 'center', justifyContent: 'center' },
@@ -841,7 +841,7 @@ const styles = StyleSheet.create({
   counterCancel: { height: 42, borderRadius: 14, paddingHorizontal: 14, backgroundColor: 'rgba(255,255,255,0.06)', alignItems: 'center', justifyContent: 'center' },
   counterCancelText: { color: 'rgba(255,255,255,0.64)', ...fontSize.b5, lineHeight: fontSize.b5.fontSize + 1, textTransform: 'uppercase', letterSpacing: 1 },
   modalActions: { flexDirection: 'row', flexWrap: 'wrap', gap: 10, paddingTop: 16, borderTopWidth: 1, borderTopColor: 'rgba(255,255,255,0.06)' },
-  modalPrimaryAction: { flex: 1, minWidth: 160, minHeight: 48, borderRadius: 18, backgroundColor: PRIMARY_COLOR, alignItems: 'center', justifyContent: 'center', paddingHorizontal: 14 },
+  modalPrimaryAction: { flex: 1, width: 30, minHeight: 48, borderRadius: 18, backgroundColor: PRIMARY_COLOR, alignItems: 'center', justifyContent: 'center', paddingHorizontal: 6 },
   modalPrimaryText: { color: '#ffffff', ...fontSize.b5, lineHeight: fontSize.b5.fontSize + 1, textTransform: 'uppercase', letterSpacing: 1.2, textAlign: 'center' },
   modalSecondaryAction: { minHeight: 48, borderRadius: 18, paddingHorizontal: 16, backgroundColor: 'rgba(255,255,255,0.06)', borderWidth: 1, borderColor: 'rgba(255,255,255,0.1)', alignItems: 'center', justifyContent: 'center' },
   modalSecondaryText: { color: 'rgba(255,255,255,0.8)', ...fontSize.b5, lineHeight: fontSize.b5.fontSize + 1, textTransform: 'uppercase', letterSpacing: 1 },

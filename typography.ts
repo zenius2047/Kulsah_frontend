@@ -75,11 +75,11 @@ export const FontFamily = {
 export const fontSize= {
   h1 : {
     fontFamily: 'Inter_700Bold',
-    fontSize: mediumScreen ? 18:12,
+    fontSize: mediumScreen ? 16:10,
   },
   h2: {
     fontFamily: 'Inter_500Medium',
-    fontSize: mediumScreen ? 16:10,
+    fontSize: mediumScreen ? 12:8,
   },
   b1: {
     fontFamily: 'Inter_700Bold',
@@ -104,6 +104,10 @@ export const fontSize= {
   n1: {
     fontFamily: 'PlusJakartaSans_800ExtraBold',
     fontSize: mediumScreen ? 30:26,
+  },
+  n3: {
+    fontFamily: 'PlusJakartaSans_800ExtraBold',
+    fontSize: mediumScreen ? 18:16,
   },
   n5: {
     fontFamily: 'PlusJakartaSans_800ExtraBold',

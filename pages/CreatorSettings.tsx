@@ -267,7 +267,9 @@ const CreatorSettings: React.FC<CreatorSettingsProps> = ({ onLogout, isDarkMode,
   );
 
   const renderHeader = (title: string, onBack: () => void) => (
-    <View style={[s.header, { backgroundColor: isDark ? 'rgba(31, 16, 34, 0.75)' : theme.card, borderBottomColor: theme.border }]}>
+    <View style={[s.header, {
+       backgroundColor: 'transparent',
+        }]}>
       <View style={s.headerLeft}>
         <Pressable onPress={onBack} style={[s.iconButton, { backgroundColor: isDark ? '#ffffff14' : theme.surface }]}>
           <MaterialIcons name="chevron-left" size={20} color={theme.text} />
@@ -384,9 +386,9 @@ const CreatorSettings: React.FC<CreatorSettingsProps> = ({ onLogout, isDarkMode,
         </ImageBackground> */}
 
         <View style={s.profileTop}>
-          <Pressable onPress={() => pickImageStub('avatar')} style={[s.avatarWrap, { backgroundColor: theme.screen }]}>
+          <Pressable onPress={() => pickImageStub('avatar')} style={[s.avatarWrap, {backgroundColor: theme.screen }]}>
             <Image source={{ uri: avatarImage }} style={s.avatar} />
-            <View style={s.avatarEdit}>
+            <View style={[s.avatarEdit, {borderColor: theme.screen}]}>
               <MaterialIcons name="edit" size={13} color="#fff" />
             </View>
           </Pressable>
@@ -394,7 +396,7 @@ const CreatorSettings: React.FC<CreatorSettingsProps> = ({ onLogout, isDarkMode,
             <View style={s.nameRow}>
               <Text style={[s.profileName, { color: theme.text }]}>{name}</Text>
               {/* <MaterialIcons name="verified" size={18} color={PRIMARY_COLOR} /> */}
-              <VerifiedIcon width={18} height={18} fill ={PRIMARY_COLOR}/>
+              <VerifiedIcon width={16} height={16} fill ={PRIMARY_COLOR}/>
             </View>
             <Text style={s.profileHandle}>{handle}</Text>
           </View>
@@ -408,7 +410,7 @@ const CreatorSettings: React.FC<CreatorSettingsProps> = ({ onLogout, isDarkMode,
               {section.items.map((item) => (
                 <Pressable
                   key={item.label}
-                  style={[s.itemRow, { borderColor: theme.border, backgroundColor: isDark ? 'rgba(31, 16, 34, 0.75)' : theme.card }]}
+                  style={[s.itemRow, { borderColor: theme.border, backgroundColor: isDark ? 'transparent' : theme.card }]}
                   onPress={() => {
                     if (item.action) item.action();
                     else if (item.path) navigation.navigate(item.path);
@@ -473,10 +475,10 @@ const s = StyleSheet.create({
     paddingBottom: 12,
     flexDirection: 'row',
     alignItems: 'center',
-    backgroundColor: 'rgba(31, 16, 34, 0.75)',
+    // backgroundColor: 'rgba(31, 16, 34, 0.75)',
     justifyContent: 'space-between',
-    borderBottomWidth: StyleSheet.hairlineWidth,
-    borderBottomColor: '#ffffff1a',
+    // borderBottomWidth: StyleSheet.hairlineWidth,
+    // borderBottomColor: '#ffffff1a',
   },
   headerLeft: { flexDirection: 'row', alignItems: 'center', gap: 10 },
   iconButton: {
@@ -487,7 +489,7 @@ const s = StyleSheet.create({
     justifyContent: 'center',
     backgroundColor: '#ffffff14',
   },
-  headerTitle: { color: '#fff', ...fontSize.b3, lineHeight: fontSize.b3.fontSize + 2, textTransform: 'uppercase' },
+  headerTitle: { color: '#fff', ...fontSize.h1, lineHeight: fontSize.h1.fontSize + 2, textTransform: 'uppercase', letterSpacing: 2 },
   donePill: {
     paddingHorizontal: 10,
     paddingVertical: 6,
@@ -544,8 +546,8 @@ const s = StyleSheet.create({
     backgroundColor: PRIMARY_COLOR,
   },
   profileNameBlock: { paddingBottom: 10 },
-  nameRow: { flexDirection: 'row', alignItems: 'center', gap: 6, justifyContent: 'center',},
-  profileName: { color: '#fff', ...fontSize.b5, lineHeight: fontSize.b5.fontSize + 1 },
+  nameRow: { flexDirection: 'row', alignItems: 'center', gap: 2, justifyContent: 'center', marginBottom: 5},
+  profileName: { color: '#fff', fontSize: fontSize.b2.fontSize + (mediumScreen? 4:2), fontFamily: fontSize.b2.fontFamily, lineHeight: fontSize.b2.fontSize + (mediumScreen ? 5: 3)},
   profileHandle: {
     color: PRIMARY_COLOR,
     ...fontSize.b5, lineHeight: fontSize.b5.fontSize + 1,
@@ -567,7 +569,7 @@ const s = StyleSheet.create({
     borderRadius: 20,
     borderWidth: 1,
     borderColor: 'rgb(255 255 255 / 0.05)',
-    backgroundColor: 'rgba(31, 16, 34, 0.75)',
+    // backgroundColor: 'rgba(31, 16, 34, 0.75)',
     padding: 12,
     flexDirection: 'row',
     alignItems: 'center',

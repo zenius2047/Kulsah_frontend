@@ -2,6 +2,8 @@ import React, { useState } from 'react';
 import { useThemeMode, PRIMARY_COLOR, primaryColorAlpha } from "../theme";
 import {
   Image,
+  KeyboardAvoidingView,
+  Platform,
   Pressable,
   SafeAreaView,
   ScrollView,
@@ -66,33 +68,39 @@ const SubmitEntry: React.FC = () => {
         translucent
       />
 
-      <View
-        style={[
-          styles.header,
-          {
-            backgroundColor: isDark ? 'rgba(255,255,255,0.05)' : 'rgba(255,255,255,0.82)',
-            borderBottomColor: theme.border,
-          },
-        ]}
+      <KeyboardAvoidingView
+        style={styles.keyboardAvoidingView}
+        behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
+        keyboardVerticalOffset={Platform.OS === 'ios' ? 0 : 24}
       >
-        <View style={styles.headerLeft}>
-          <Pressable onPress={() => navigation.goBack()}>
-            <MaterialIcons name="close" size={22} color={theme.textSecondary} />
-          </Pressable>
-          <Text style={[styles.headerTitle, { color: theme.text }]}>Create Pulse</Text>
+        <View
+          style={[
+            styles.header,
+            {
+              backgroundColor: isDark ? 'rgba(255,255,255,0.05)' : 'rgba(255,255,255,0.82)',
+              borderBottomColor: theme.border,
+            },
+          ]}
+        >
+          <View style={styles.headerLeft}>
+            <Pressable onPress={() => navigation.goBack()}>
+              <MaterialIcons name="close" size={22} color={theme.textSecondary} />
+            </Pressable>
+            <Text style={[styles.headerTitle, { color: theme.text }]}>Create Pulse</Text>
+          </View>
+
+          {/* <Pressable style={styles.headerPostButton}>
+            <Text style={styles.headerPostText}>Post</Text>
+          </Pressable> */}
         </View>
 
-        {/* <Pressable style={styles.headerPostButton}>
-          <Text style={styles.headerPostText}>Post</Text>
-        </Pressable> */}
-      </View>
-
-      <ScrollView
-        keyboardShouldPersistTaps="handled"
-        style={{ flex: 1, backgroundColor: theme.background }}
-        contentContainerStyle={styles.content}
-        showsVerticalScrollIndicator={false}
-      >
+        <ScrollView
+          keyboardShouldPersistTaps="handled"
+          keyboardDismissMode="interactive"
+          style={{ flex: 1, backgroundColor: theme.background }}
+          contentContainerStyle={styles.content}
+          showsVerticalScrollIndicator={false}
+        >
         <View style={styles.previewSection}>
           <View style={styles.previewCard}>
             <Image source={{ uri: previewImage }} style={styles.previewImage} />
@@ -244,7 +252,8 @@ const SubmitEntry: React.FC = () => {
             <MaterialIcons name="send" size={18} color="#fff" />
           </Pressable>
         </View>
-      </ScrollView>
+        </ScrollView>
+      </KeyboardAvoidingView>
     </SafeAreaView>
   );
 };
@@ -305,6 +314,9 @@ const styles = StyleSheet.create({
   safeArea: {
     flex: 1,
   },
+  keyboardAvoidingView: {
+    flex: 1,
+  },
   header: {
     position: 'absolute',
     top: 0,
@@ -339,7 +351,7 @@ const styles = StyleSheet.create({
   content: {
     paddingTop: 108,
     paddingHorizontal: 20,
-    paddingBottom: 36,
+    paddingBottom: 120,
     gap: 28,
   },
   previewSection: {

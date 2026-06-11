@@ -17,7 +17,9 @@ import VerifiedIcon from '../assets/icons/verified-svg.svg';
 import FireIcon from '../assets/icons/fireIcon-svg.svg';
 import KulCoinPrompt from '../components/KulCoinPrompt';
 import { fontSize } from '../typography';
-import TicketIcon from '../assets/icons/Ticket1.svg'
+import TicketIcon from '../assets/icons/Ticket1.svg';
+import LocalActivity from '../assets/icons/local_activity.svg';
+import LibraryMusic from '../assets/icons/library_music.svg';
 
 
 type Tab = 'Videos' | 'Library' | 'Premium'  | 'Tickets' | 'Events' | 'Challenges' | 'Favorites' | 'Saved';
@@ -281,6 +283,7 @@ const playlists: Playlist[] = [
 
 const PlaylistSection = () => {
   const navigation = useNavigation<any>();
+  const { isDark, theme } = useThemeMode();
   const isSubscribed = false;
 
   return (
@@ -292,13 +295,14 @@ const PlaylistSection = () => {
                 fontSize: fontSize.b2.fontSize + 2,
                 fontFamily: fontSize.b2.fontFamily,
                 lineHeight: fontSize.b2.fontSize + 4,
-                paddingLeft: 16
+                paddingLeft: 16,
+                color: theme.text,
           }]}>Playlists</Text>
 
           <MaterialIcons
             name="chevron-right"
             size={22}
-            color="#000000"
+            color={theme.textSecondary}
           />
         </View>
       </View>
@@ -350,12 +354,12 @@ const PlaylistSection = () => {
             <View style={styles.info}>
               <Text
                 numberOfLines={2}
-                style={[styles.playlistTitle, {...fontSize.b4}]}
+                style={[styles.playlistTitle, {...fontSize.b4, color: theme.text}]}
               >
                 {item.title}
               </Text>
 
-              <Text style={[styles.meta, {...fontSize.b5}]}>
+              <Text style={[styles.meta, {...fontSize.b5, color: theme.textSecondary}]}>
                 {item.views} • {item.timeAgo}
               </Text>
 
@@ -383,7 +387,12 @@ const PlaylistSection = () => {
             </View>
 
             <Pressable
-              style={styles.shareButton}
+              style={[
+                styles.shareButton,
+                {
+                  backgroundColor: isDark ? 'rgba(255,255,255,0.10)' : 'rgba(15,23,42,0.08)',
+                },
+              ]}
               onPress={() => {
                 console.log('share');
               }}
@@ -391,7 +400,7 @@ const PlaylistSection = () => {
               <MaterialIcons
                 name="share"
                 size={18}
-                color="#71717a"
+                color={theme.textSecondary}
               />
             </Pressable>
           </Pressable>
@@ -721,7 +730,7 @@ const PlaylistSection = () => {
   return (
     <View style={[s.screen, { backgroundColor: theme.screen }]}>
       {toast ? <Text style={s.toast}>{toast}</Text> : null}
-      <View style={[s.header, { backgroundColor: isDark ? 'rgb(0, 0, 0)' : 'rgb(255, 255, 255)', borderBottomColor: isDark ? '#27272a' : '#e2e8f0' }]}>
+      <View style={[s.header, { backgroundColor: 'transparent', }]}>
         <View style={s.headerTopRow}>
           <Pressable onPress={() => navigation.goBack()} style={[s.headerRoundBtn, { backgroundColor: faintSurface, borderColor: theme.border }]}>
             <MaterialIcons name="chevron-left" size={22} color={theme.text} />
@@ -906,8 +915,8 @@ const PlaylistSection = () => {
           {
             tab === 'Videos' ? <PlayIcon height={22} width={22} fill={activeTab === tab ? PRIMARY_COLOR : '#69738d'}/>:
             tab === 'Premium' ? <StarsIcon height={22} width={22} fill={activeTab === tab ? PRIMARY_COLOR : '#69738d'}/>:
-            tab === 'Library' ? <MaterialIcons name="library-music" size={22} color={activeTab === tab ? PRIMARY_COLOR : '#69738d'}/>:
-            tab === 'Tickets'? <MaterialIcons name="local-activity" size={22} color={activeTab === tab ? PRIMARY_COLOR : '#69738d'}/>:
+            tab === 'Library' ? <LibraryMusic height={22} width={24} fill={activeTab === tab ? PRIMARY_COLOR : '#69738d'}/>:
+            tab === 'Tickets'? <LocalActivity height={22} width={24} fill={activeTab === tab ? PRIMARY_COLOR : '#69738d'}/>:
             tab === 'Events'? <CalenderIcon height={22} width={22} fill={activeTab === tab ? PRIMARY_COLOR : '#69738d'}/>:
             tab === 'Challenges'?<TrophyIcon height={22} width={22} fill={activeTab === tab ? PRIMARY_COLOR : '#69738d'}/>:
             tab === 'Favorites'? <MaterialIcons name="favorite-border" size={22} color={activeTab === tab ? PRIMARY_COLOR : '#69738d'}/>: <BookmarkIcon height={22} width={22} fill={activeTab === tab ? PRIMARY_COLOR : '#69738d'}/>
@@ -937,7 +946,8 @@ const PlaylistSection = () => {
                 fontSize: fontSize.b2.fontSize+ 2,
                 fontFamily: fontSize.b2.fontFamily,
                 lineHeight: fontSize.b2.fontSize + 3,
-                paddingHorizontal: 16
+                paddingHorizontal: 16,
+                color: theme.text,
               }}>
                 Recent Videos
               </Text>
@@ -950,10 +960,12 @@ const PlaylistSection = () => {
                 // overflow: 'hidden',
                 // alignSelf: 'flex-start',
                 height: 320,
-                backgroundColor: isDark ? 'black': 'white',
+                backgroundColor: isDark ? 'rgba(255,255,255,0.05)': theme.card,
+                borderWidth: 1,
+                borderColor: theme.border,
                 // backgroundColor: 'blue',
                 gap: 10,
-                shadowColor: isDark ? '#fff':'#000',
+                shadowColor: theme.shadow,
                 shadowOffset: {
                   width: 0,
                   height: 20,
@@ -1027,7 +1039,9 @@ const PlaylistSection = () => {
                   <View style={{
                     borderRadius: 999,
                     padding: 1,
-                    backgroundColor: isDark ? 'white': 'black',
+                    backgroundColor: isDark ? 'rgba(255,255,255,0.28)' : 'rgba(15,23,42,0.18)',
+                    borderWidth: 1,
+                    borderColor: isDark ? 'rgba(255,255,255,0.22)' : 'rgba(15,23,42,0.10)',
                     height: 45,
                     width: 45,
                     overflow: 'hidden'
@@ -1045,13 +1059,14 @@ const PlaylistSection = () => {
                   style={{
                     fontSize: fontSize.b2.fontSize,
                     fontFamily: 'Pogonia_700Bold',
+                    color: theme.text,
                   }}
                   >{video.title}</Text>
 
                   <Text style={{
                     fontSize: fontSize.b4.fontSize,
                     fontFamily: 'Inter_600SemiBold',
-                    color: 'rgb(100 116 139)',
+                    color: theme.textSecondary,
                     marginBottom: 15,
                   }}>
                     {`${video.views} • ${video.timeAgo}`}
@@ -1059,14 +1074,14 @@ const PlaylistSection = () => {
 
                   <View style={{
                     height: 0.5,
-                    backgroundColor: 'rgba(100, 116, 139, 0.09)'
+                    backgroundColor: theme.border,
                   }}/>
 
                   <Text 
                   numberOfLines = {2}
                   style={{
                     marginTop: 10,
-                    color: 'rgb(113 113 122)',
+                    color: theme.textSecondary,
                     fontSize: fontSize.b4.fontSize,
                     fontFamily: 'Inter_700Bold',
                   }}>
@@ -1083,12 +1098,14 @@ const PlaylistSection = () => {
                   <Text style={[styles.sectionTitle, {
                  fontSize: fontSize.b2.fontSize + 2,
                 fontFamily: fontSize.b2.fontFamily,
-                lineHeight: fontSize.b2.fontSize + 4,}]}>Videos</Text>
+                lineHeight: fontSize.b2.fontSize + 4,
+                color: theme.text,
+              }]}>Videos</Text>
 
                   <MaterialIcons
                     name="chevron-right"
                     size={18}
-                    color="#71717a"
+                    color={theme.textSecondary}
                   />
                 </View>
 
@@ -1099,7 +1116,12 @@ const PlaylistSection = () => {
                     return (
                       <Pressable
                         key={item.id}
-                        style={styles.releaseCard}
+                        style={[
+                          styles.releaseCard,
+                          {
+                            backgroundColor: isDark ? 'rgba(255,255,255,0.03)' : 'rgba(15,23,42,0.02)',
+                          },
+                        ]}
                         onPress={() => {
                           if (isSubscribed) {
                             console.log('play premium');
@@ -1151,12 +1173,13 @@ const PlaylistSection = () => {
                                 width: '80%',
                                 ...fontSize.b4,
                                 lineHeight: fontSize.b4.fontSize + 2,
+                                color: theme.text,
                               }]}
                             >
                               {item.title}
                             </Text>
 
-                            <Text style={[styles.metaText, {...fontSize.b5, lineHeight: fontSize.b5.fontSize + 1}]}>
+                            <Text style={[styles.metaText, {...fontSize.b5, lineHeight: fontSize.b5.fontSize + 1, color: theme.textSecondary}]}>
                               {item.views} • {item.timeAgo}
                             </Text>
                           </View>
@@ -1194,7 +1217,7 @@ const PlaylistSection = () => {
                           <MaterialIcons
                             name="more-vert"
                             size={20}
-                            color="#71717a"
+                            color={theme.textSecondary}
                           />
                         </Pressable>
                       </Pressable>
@@ -1243,55 +1266,21 @@ const PlaylistSection = () => {
                 <LinearGradient colors={['transparent', 'rgba(0,0,0,0.9)']} style={StyleSheet.absoluteFillObject} />
                   <View style={s.bannerBottom}>
                     <View style={{
-                      flexDirection: 'row',
-                      justifyContent: 'space-between',
-                      alignItems: 'center',
+                      // flexDirection: 'row',
+                      // justifyContent: 'space-between',
+                      // alignItems: 'center',
                       // backgroundColor: 'red',
+                      justifyContent: 'flex-end',
+                      // backgroundColor: 'green',
+                      gap: 10
                     }}>
                       <Text style={s.bannerText}>{item.title}</Text>
-                      <View style={{
-                        borderWidth: 2,
-                        borderColor: '#ffffff1a',
-                        borderRadius: 16,
-                        height: 40,
-                        width: 80,
-                        justifyContent: 'center',
-                        alignItems: 'center',
-                        overflow: 'hidden',
-                      }}>
-                         <BlurView
-                            intensity={50} // controls blur strength
-                            tint="light"
-                            style={{
-                              // position: 'absolute',
-                              // bottom: 0,
-                              width: 80,
-                              height: 40,
-                              justifyContent: 'center',
-                              alignItems: 'center',
-                              // padding: 20,
-                            }}
-                          >
-                            <Text style={{
-                          color: PRIMARY_COLOR,
-                          ...fontSize.b4,
-                          lineHeight: fontSize.b4.fontSize + 1,
-                        }}>
-                          {item.price}
-                        </Text>
-                          </BlurView>
+                      
 
-                      </View>
-                    </View>
-                      <View style={{
-                        flexDirection: 'row',
-                        marginTop: 5,
-                        gap: 10
-                      }}>
-
-
-
-                        <View style={{
+                     <View style={{
+                      flexDirection: 'row'
+                     }}>
+                       <View style={{
                           flexDirection: 'row',
                           // backgroundColor: 'blue',
                           alignItems: 'center'
@@ -1346,6 +1335,53 @@ const PlaylistSection = () => {
                           <Text style={[s.sub, { color: '#dbe4f0', width: '60%' }]}>{item.location}</Text>
                           </View>
                         </View>
+                     </View>
+                    </View>
+                      <View style={{
+                        // flexDirection: 'row',
+                        // backgroundColor: 'blue',
+                        // height: '100%',
+
+                        // alignItems: 'center',
+                        justifyContent: isOwner ? 'center' : 'space-between',
+                        // gap: 10
+                      }}>
+                        <View style={{
+                        borderWidth: 2,
+                        borderColor: '#ffffff1a',
+                        borderRadius: 999,
+                        width: isOwner ? 90: 80,
+                        height:isOwner ? 50: 40,
+                        justifyContent: 'center',
+                        alignItems: 'center',
+                        overflow: 'hidden',
+                      }}>
+                         <BlurView
+                            intensity={50} // controls blur strength
+                            tint="light"
+                            style={{
+                              // position: 'absolute',
+                              // bottom: 0,
+                              width: isOwner ? 90: 80,
+                              height:isOwner ? 50: 40,
+                              justifyContent: 'center',
+                              alignItems: 'center',
+                              // padding: 20,
+                            }}
+                          >
+                            <Text style={{
+                          color: PRIMARY_COLOR,
+                          ...fontSize.b4,
+                          lineHeight: fontSize.b4.fontSize + 1,
+                        }}>
+                          {item.price}
+                        </Text>
+                          </BlurView>
+
+                      </View>
+
+
+                        
 
 
                         {!isOwner && <Pressable
@@ -1361,7 +1397,7 @@ const PlaylistSection = () => {
                           // paddingHorizontal: 5,
                           justifyContent: 'center',
                           alignItems: 'center',
-                          width: '30%',
+                          width: '100%',
                           height: 40,
                         }}>
                           <Text style={{
@@ -1384,7 +1420,7 @@ const PlaylistSection = () => {
             : null}
           {activeTab === 'Favorites' ? renderGrid(favorites) : null}
           {activeTab === 'Saved' ?
-          <View style={s.stack}>{sounds.map((sound) =>
+          <View style={[s.stack, {marginHorizontal: 18}]}>{sounds.map((sound) =>
             <Pressable key={sound.id} onPress={() => navigation.navigate('RecordContent', { sound: {sound}})}
                 style={[s.sound, { backgroundColor: isDark ? 'rgba(255,255,255,0.05)' : theme.surface, borderWidth: isDark ? 0 : 1,
                     borderColor: theme.border }]}>
@@ -1545,15 +1581,15 @@ const s = StyleSheet.create({
   screen: { flex: 1, backgroundColor: '#060913' },
   toast: { position: 'absolute', top: 56, alignSelf: 'center', zIndex: 40, backgroundColor: PRIMARY_COLOR, color: '#fff', paddingHorizontal: 16, paddingVertical: 8, borderRadius: 999, ...fontSize.b4, lineHeight: fontSize.b4.fontSize + 1 },
   icon: { width: 40, height: 40, borderRadius: 20, alignItems: 'center', justifyContent: 'center', backgroundColor: 'rgba(255,255,255,0.06)' },
-  header: { paddingTop: 46, paddingBottom: 7, borderBottomWidth: 1 },
+  header: { paddingTop: 46, paddingBottom: 7, },
   headerTopRow: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', marginBottom: 20, paddingHorizontal: 20 },
   headerRoundBtn: { height: 40, width: 40, borderRadius: 20, borderWidth: 1, justifyContent: 'center', alignItems: 'center' },
   headerTitleWrap: { flex: 1, alignItems: 'center', paddingHorizontal: 10 },
   headerBtn: { width: 40, height: 40, borderRadius: 20, alignItems: 'center', justifyContent: 'center', backgroundColor: 'rgba(255,255,255,0.06)' },
-  headerTitle: { textAlign: 'center', color: '#fff', ...fontSize.b2, lineHeight: fontSize.b2.fontSize + 1, letterSpacing: 1.2, textTransform: 'uppercase' },
-  headerSubtitle: { color: PRIMARY_COLOR, marginTop: 4, ...fontSize.b5, lineHeight: fontSize.b5.fontSize + 1, letterSpacing: 1.5, textTransform: 'uppercase' },
+  headerTitle: { textAlign: 'center', color: '#fff', ...fontSize.h1, lineHeight: fontSize.h1.fontSize + 1, letterSpacing: 2, textTransform: 'uppercase' },
+  headerSubtitle: { color: PRIMARY_COLOR, marginTop: 4, ...fontSize.h2, lineHeight: fontSize.h2.fontSize + 1, letterSpacing: 1.5, textTransform: 'uppercase' },
   content: { paddingBottom: 120, }, cover: { height: 180, }, hero: { marginTop: -88, paddingHorizontal: 20, alignItems: 'center' }, avatarWrap: { width: 148, height: 148, borderRadius: 999, borderWidth: 1, borderColor: '#060913', padding: 7}, image: { width: '100%', height: '100%', borderRadius: 999 }, fire: { position: 'absolute', right: 12, bottom: -2, width: 40, height: 40, borderRadius: 999, backgroundColor: '#f97316', borderWidth: 0, borderColor: '#060913', alignItems: 'center', justifyContent: 'center', flexDirection: 'row' }, fireText: { color: '#fff', ...fontSize.n5, lineHeight: fontSize.n5.fontSize + 1 },
-  name: {color: '#fff', ...fontSize.b1, lineHeight: fontSize.b1.fontSize + 2, textTransform: 'uppercase' }, role: { marginTop: 4, color: PRIMARY_COLOR, ...fontSize.b5, lineHeight: fontSize.b5.fontSize + 1, textTransform: 'uppercase', letterSpacing: 1.2 }, stat: { flex: 1, textAlign: 'center', color: '#fff', ...fontSize.n5, lineHeight: fontSize.n5.fontSize + 1 }, muted: { color: '#7d859e', ...fontSize.b5, lineHeight: fontSize.b5.fontSize + 1 }, purple: { color: PRIMARY_COLOR, ...fontSize.b5, lineHeight: fontSize.b5.fontSize + 1 },
+  name: {color: '#fff', ...fontSize.b1, lineHeight: fontSize.b1.fontSize + 2, textTransform: 'uppercase' }, role: { marginTop: 4, color: PRIMARY_COLOR, ...fontSize.b3, lineHeight: fontSize.b3.fontSize + 1, textTransform: 'uppercase', letterSpacing: 1.2 }, stat: { flex: 1, textAlign: 'center', color: '#fff', ...fontSize.n5, lineHeight: fontSize.n5.fontSize + 1 }, muted: { color: '#7d859e', ...fontSize.b5, lineHeight: fontSize.b5.fontSize + 1 }, purple: { color: PRIMARY_COLOR, ...fontSize.b5, lineHeight: fontSize.b5.fontSize + 1 },
   actions: { marginTop: 22, flexDirection: 'row', gap: 10, alignItems: 'center', justifyContent: 'center' },
   action: { height: 56, borderRadius: 24, alignItems: 'center', justifyContent: 'center', flexDirection: 'row', gap: 8 },
   primary: { backgroundColor: PRIMARY_COLOR, minHeight: 36, borderRadius: 34, alignItems: 'center', justifyContent: 'center', flexDirection: 'row', },
@@ -1581,8 +1617,8 @@ const s = StyleSheet.create({
   videoGridMeta: { position: 'absolute', left: 8, bottom: 8, flexDirection: 'row', alignItems: 'center', gap: 2 },
   videoGridMetaText: { color: '#fff', ...fontSize.b5, lineHeight: fontSize.b5.fontSize + 1 },
   sub: { marginTop: 0, color: '#9ca3af', ...fontSize.b5, lineHeight: fontSize.b5.fontSize + 1, textTransform: 'uppercase' },
-  stack: { gap: 16 }, banner: { height: 230, borderRadius: 40, overflow: 'hidden', backgroundColor: '#0f172a' }, bannerText: { color: '#fff', ...fontSize.b2, lineHeight: fontSize.b2.fontSize + 2, textTransform: 'uppercase', width:'50%' },
-  bannerBottom: { position: 'absolute', left: 18, right: 18, bottom: 18 }, eventCard: { height: 240, borderRadius: 40, overflow: 'hidden', backgroundColor: '#0f172a' }, chip: { position: 'absolute', top: 18, left: 18, flexDirection: 'row', alignItems: 'center', gap: 6, paddingHorizontal: 12, paddingVertical: 8, borderRadius: 999, backgroundColor: primaryColorAlpha(0.14) }, chipText: { color: PRIMARY_COLOR, ...fontSize.b5, lineHeight: fontSize.b5.fontSize + 1, textTransform: 'uppercase' },
+  stack: { gap: 16 }, banner: { height: 230, borderRadius: 40, overflow: 'hidden', backgroundColor: '#0f172a' }, bannerText: { color: '#fff', ...fontSize.b2, lineHeight: fontSize.b2.fontSize + 2, textTransform: 'uppercase', width:'100%' },
+  bannerBottom: { position: 'absolute', left: 18, right: 18, bottom: 18, flexDirection: 'row', justifyContent: 'space-between', height: 90,  }, eventCard: { height: 240, borderRadius: 40, overflow: 'hidden', backgroundColor: '#0f172a' }, chip: { position: 'absolute', top: 18, left: 18, flexDirection: 'row', alignItems: 'center', gap: 6, paddingHorizontal: 12, paddingVertical: 8, borderRadius: 999, backgroundColor: primaryColorAlpha(0.14) }, chipText: { color: PRIMARY_COLOR, ...fontSize.b5, lineHeight: fontSize.b5.fontSize + 1, textTransform: 'uppercase' },
   sound: { flexDirection: 'row', alignItems: 'center', gap: 12, padding: 14, borderRadius: 28, backgroundColor: 'rgba(255,255,255,0.05)' },
   play: { width: 58, height: 58, borderRadius: 20, backgroundColor: primaryColorAlpha(0.2), alignItems: 'center', justifyContent: 'center' }, playOn: { backgroundColor: PRIMARY_COLOR }, soundTitle: { color: '#fff', ...fontSize.b4, lineHeight: fontSize.b4.fontSize + 1, textTransform: 'uppercase' }, soundMeta: { marginTop: 4, color: '#8b94ad', ...fontSize.b5, lineHeight: fontSize.b5.fontSize + 1, textTransform: 'uppercase' }, soundUsage: { color: PRIMARY_COLOR, ...fontSize.b5, lineHeight: fontSize.b5.fontSize + 1, textTransform: 'uppercase' },
   overlay: { flex: 1, backgroundColor: 'rgba(0,0,0,0.8)', justifyContent: 'flex-end' },
@@ -1920,13 +1956,13 @@ const s = StyleSheet.create({
     paddingVertical: 12,
     paddingHorizontal: 12,
   },
-  statsTablet: { paddingHorizontal: 24 },
+  statsTablet: { paddingHorizontal: 24, marginTop: 10 },
   statBlock: { flex: 1, alignItems: 'center' },
-  statValue: { color: '#fff', ...fontSize.n5, lineHeight: fontSize.n5.fontSize + 1 },
+  statValue: { color: '#fff', ...fontSize.n3, lineHeight: fontSize.n3.fontSize + 1 },
   statLabel: {
     color: '#9ea0b6',
-    ...fontSize.b5,
-    lineHeight: fontSize.b5.fontSize + 1,
+    ...fontSize.b4,
+    lineHeight: fontSize.b4.fontSize + 1,
     textTransform: 'uppercase',
     letterSpacing: 1.2,
     marginTop: 2,
@@ -1950,10 +1986,10 @@ const s = StyleSheet.create({
   ticketIconWrap: {
     width: 56,
     height: 56,
-    borderRadius: 18,
-    backgroundColor: primaryColorAlpha(0.1),
-    borderWidth: 1,
-    borderColor: primaryColorAlpha(0.24),
+    // borderRadius: 18,
+    // backgroundColor: primaryColorAlpha(0.1),
+    // borderWidth: 1,
+    // borderColor: primaryColorAlpha(0.24),
     alignItems: 'center',
     justifyContent: 'center',
   },

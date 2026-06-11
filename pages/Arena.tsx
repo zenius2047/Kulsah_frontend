@@ -78,16 +78,17 @@ const Arena :React.FC = ({route}:any)=>{
         style={{
         backgroundColor: theme.background,
         flex: 1,
-        paddingTop: Platform.OS == 'ios' ? 54: insets.top,
+        
     }}>
 
-   <View style={[styles.header, { backgroundColor: isDark ? 'rgb(0, 0, 0)' : 'rgb(255, 255, 255)', borderBottomColor: isDark ? '#27272a' : '#e2e8f0' }]}> 
+   <View style={[styles.header, { backgroundColor: 'transparent', paddingTop: Platform.OS == 'ios' ? 54: insets.top,}]}> 
              <View style={{
                // backgroundColor: 'blue',
                flexDirection: 'row',
                justifyContent: 'space-between',
-               marginBottom: 15,
+              //  marginBottom: 15,
                paddingHorizontal: 20,
+               paddingBottom: 24,
              }}>
                        <Pressable onPress={() => navigation.goBack()} style={[styles.headerRoundBtn, { backgroundColor: faintSurface, borderColor: theme.border }]}>
                          <MaterialIcons name="chevron-left" size={22} color={theme.text} />
@@ -113,8 +114,9 @@ const Arena :React.FC = ({route}:any)=>{
     <View style={{
         flexDirection: 'row',
         justifyContent: 'space-around',
-        marginTop: 15,
-        backgroundColor: theme.screen,
+        paddingTop: 30,
+        backgroundColor: 'transparent',
+        paddingBottom: 30,
     }}>
     {["community","challenges"].map((item)=>(
         <Pressable
@@ -152,10 +154,10 @@ const Arena :React.FC = ({route}:any)=>{
 }
 
 const createStyles = () => StyleSheet.create({
-    header: { paddingBottom: 0, borderBottomWidth: 1 },
+    header: { paddingBottom: 0, },
     headerTitle: {
         ...fontSize.h1,
-        letterSpacing: 2.2,
+        letterSpacing: 2,
         textTransform: 'uppercase',
     },
     headerSubtitle: {

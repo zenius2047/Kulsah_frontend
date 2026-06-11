@@ -507,14 +507,14 @@ const styles = StyleSheet.create({
     alignItems: 'center',
   },
   headerTitle: {
-    ...fontSize.b3, lineHeight: fontSize.b3.fontSize + 2,
+    ...fontSize.h1, lineHeight: fontSize.h1.fontSize + 2,
     textTransform: 'uppercase',
     letterSpacing: 2,
   },
   headerSubtitle: {
     color: PRIMARY_COLOR,
     marginTop: 4,
-    ...fontSize.b5, lineHeight: fontSize.b5.fontSize + 1,
+    ...fontSize.h2, lineHeight: fontSize.h2.fontSize + 1,
     textTransform: 'uppercase',
     letterSpacing: 1.5,
   },
@@ -536,7 +536,7 @@ const styles = StyleSheet.create({
   },
   searchInput: {
     flex: 1,
-    ...fontSize.b5, lineHeight: fontSize.b5.fontSize + 1,
+    ...fontSize.b3, lineHeight: fontSize.b3.fontSize + 2,
   },
   filterScroll: {
     gap: 10,

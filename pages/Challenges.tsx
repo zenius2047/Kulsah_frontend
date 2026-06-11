@@ -311,11 +311,11 @@ const createStyles = (isDark: boolean) => {
     headerRoundBtn: { height: 40, width: 40, borderRadius: 20, borderWidth: 1, justifyContent: 'center', alignItems: 'center' },
     headerTitleWrap: { alignItems: 'center' },
     headerTitle: {
-      ...fontSize.b1, lineHeight: fontSize.b1.fontSize + 2,
+      ...fontSize.h1, lineHeight: fontSize.h1.fontSize + 2,
       textTransform: 'uppercase',
       letterSpacing: 2.2,
     },
-    headerSubtitle: { color: PRIMARY_COLOR, marginTop: 4, ...fontSize.b5, lineHeight: fontSize.b5.fontSize + 1, letterSpacing: 1.5, textTransform: 'uppercase' },
+    headerSubtitle: { color: PRIMARY_COLOR, marginTop: 4, ...fontSize.h2, lineHeight: fontSize.h2.fontSize + 1, letterSpacing: 1.5, textTransform: 'uppercase' },
     headerSpacer: { width: 40 },
     content: { padding: 20, gap: 18 },
     searchBox: {
@@ -334,7 +334,7 @@ const createStyles = (isDark: boolean) => {
     },
     searchInput: {
       flex: 1,
-      ...fontSize.b4, lineHeight: fontSize.b4.fontSize + 1,
+      ...fontSize.b3, lineHeight: fontSize.b3.fontSize + 2,
       paddingVertical: 0,
     },
     tabsWrap: {
