@@ -13,6 +13,7 @@ import {
   Text,
   View,
 } from 'react-native';
+import PaymentGateway from '../components/PaymentGateway';
 import { fontSize } from './typography';
 
 interface TicketTier {
@@ -41,6 +42,7 @@ const TicketSelection: React.FC = () => {
   const [selectedZone, setSelectedZone] = useState<string | null>(null);
   const [isProcessing, setIsProcessing] = useState(false);
   const [showSuccess, setShowSuccess] = useState(false);
+  const [paymentOpen, setPaymentOpen] = useState(false);
   const [aiLoading, setAiLoading] = useState(false);
   const [aiSuggestion, setAiSuggestion] = useState<string | null>(null);
 
@@ -58,11 +60,12 @@ const TicketSelection: React.FC = () => {
   );
 
   const handlePurchase = () => {
-    setIsProcessing(true);
-    setTimeout(() => {
-      setIsProcessing(false);
-      setShowSuccess(true);
-    }, 2000);
+    setPaymentOpen(true);
+  };
+
+  const completePurchase = () => {
+    setPaymentOpen(false);
+    setShowSuccess(true);
   };
 
   const getAiRecommendation = async () => {
@@ -174,6 +177,16 @@ const TicketSelection: React.FC = () => {
           </Pressable>
         </View>
       )}
+      <PaymentGateway
+        isOpen={paymentOpen}
+        onClose={() => setPaymentOpen(false)}
+        onSuccess={completePurchase}
+        amount={totalPrice}
+        currency="GHS"
+        itemName={`${totalTickets} ${totalTickets === 1 ? 'Ticket' : 'Tickets'}`}
+        allowedMethods={['momo', 'card', 'bank', 'kulcoins']}
+        walletBalance={1240}
+      />
       <Text style={s.hiddenText}>{eventId ? 'Event: ' + eventId : ''}</Text>
     </View>
   );

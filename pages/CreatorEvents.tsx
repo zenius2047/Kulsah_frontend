@@ -20,6 +20,7 @@ import { MaterialIcons } from '@expo/vector-icons';
 import { LinearGradient } from 'expo-linear-gradient';
 import { mediumScreen } from '../types';
 import { fontSize } from './typography';
+import DateTimePicker from '@react-native-community/datetimepicker';
 
 interface EventTicketTier {
   name: string;
@@ -56,7 +57,7 @@ const CreatorEvents: React.FC = () => {
   const [coverImg, setCoverImg] = useState<string | null>(null);
   const [eventTitle, setEventTitle] = useState('');
   const [eventLocation, setEventLocation] = useState('');
-  const [eventDate, setEventDate] = useState('');
+  // const [eventDate, setEventDate] = useState('');
   const [eventDesc, setEventDesc] = useState('');
   const [eventType, setEventType] = useState<CreatorEvent['type']>('Physical');
   const [ticketTiers, setTicketTiers] = useState<EventTicketTier[]>([
@@ -74,7 +75,20 @@ const CreatorEvents: React.FC = () => {
   const inputBg = isDark ? 'rgba(255,255,255,0.04)' : theme.surface;
   const iconBtnBg = isDark ? 'rgba(255,255,255,0.06)' : theme.surface;
   const trackBg = isDark ? 'rgba(255,255,255,0.08)' : 'rgba(15,23,42,0.08)';
-  const modalBackdrop = isDark ? 'rgba(0,0,0,0.75)' : 'rgba(15,23,42,0.35)';
+  const modalBackdrop = isDark ? 'rgba(0,0,0,0.75)' : 'rgba(15, 23, 42, 0.89)';
+
+
+  const [eventDate, setDate] = useState(new Date());
+  const [show, setShow] = useState(false);
+
+  const onChange = (_event: any, selectedDate?: Date) => {
+    setShow(false);
+
+    if (selectedDate) {
+      setDate(selectedDate);
+    }
+  };
+
 
   const [currentEvents, setCurrentEvents] = useState<CreatorEvent[]>([
     {
@@ -133,7 +147,8 @@ const CreatorEvents: React.FC = () => {
     setEditingEventId(null);
     setEventTitle('');
     setEventLocation('');
-    setEventDate('');
+    setDate(new Date());
+    // setEventDate(new Date());
     setEventDesc('');
     setEventType('Physical');
     setCoverImg(null);
@@ -149,7 +164,8 @@ const CreatorEvents: React.FC = () => {
       setEventTitle(event.title);
       setEventLocation(event.venue);
       setEventType(event.type);
-      setEventDate('2026-12-01');
+      setDate(new Date);
+      // setEventDate(new);
       setEventDesc('');
       setCoverImg(event.img ?? null);
       setAiHelperText('');
@@ -168,7 +184,7 @@ const CreatorEvents: React.FC = () => {
   };
 
   const handleLaunchEvent = (status: 'published' | 'draft') => {
-    if (!eventTitle.trim() || !eventLocation.trim() || !eventDate.trim()) {
+    if (!eventTitle.trim() || !eventLocation.trim() || !eventDate.toDateString().trim()) {
       Alert.alert('Missing Details', 'Please fill in title, location and date.');
       return;
     }
@@ -450,13 +466,21 @@ const CreatorEvents: React.FC = () => {
               />
 
               <Text style={[styles.inputLabel, { color: textMuted }]}>EVENT DATE (YYYY-MM-DD)</Text>
-              <TextInput
-                value={eventDate}
-                onChangeText={setEventDate}
+              <View style={styles.locationRow}>
+                <TextInput
+                value={eventDate.toDateString()}
+                onChangeText={onChange}
                 placeholder="2026-12-01"
                 placeholderTextColor={textMuted}
-                style={[styles.input, { borderColor: softBorder, backgroundColor: inputBg, color: textPrimary }]}
+                style={[styles.input, {flex: 1, borderColor: softBorder, backgroundColor: inputBg, color: textPrimary,}]}
               />
+              <Pressable onPress={()=>setShow(true)} 
+              // disabled={verifyingVenue || !eventLocation.trim()} 
+              style={[styles.mapBtn, { borderColor: softBorder, 
+              backgroundColor: inputBg }]}>
+                <MaterialIcons name="date-range" size={20} color={PRIMARY_COLOR} />
+                </Pressable>
+              </View>
 
               <View style={styles.locationHeader}>
                 <Text style={[styles.inputLabel, { color: textMuted }]}>EVENT LOCATION</Text>
@@ -487,7 +511,7 @@ const CreatorEvents: React.FC = () => {
                 </Pressable>
               )}
 
-              <View style={[styles.aiCard, { borderColor: primaryColorAlpha(0.25), backgroundColor: primaryColorAlpha(isDark ? 0.12 : 0.08) }]}>
+              {/* <View style={[styles.aiCard, { borderColor: primaryColorAlpha(0.25), backgroundColor: primaryColorAlpha(isDark ? 0.12 : 0.08) }]}>
                 <View style={styles.aiHeader}>
                   <View style={styles.aiTitleRow}>
                     <MaterialIcons name="auto-awesome" size={22} color={PRIMARY_COLOR} />
@@ -502,7 +526,7 @@ const CreatorEvents: React.FC = () => {
                 <Pressable disabled={loading} onPress={useAiArchitect} style={[styles.aiButton, { opacity: loading ? 0.7 : 1 }]}>
                   <Text style={styles.aiButtonText}>{loading ? 'CONSULTING STARS...' : 'GENERATE DESCRIPTION & TIERS'}</Text>
                 </Pressable>
-              </View>
+              </View> */}
 
               <Text style={[styles.inputLabel, { color: textMuted }]}>EVENT DESCRIPTION</Text>
               <TextInput
@@ -528,8 +552,48 @@ const CreatorEvents: React.FC = () => {
                   </Pressable>
                   <TextInput value={tier.name} onChangeText={(v) => updateTier(idx, 'name', v)} style={[styles.tierInput, { borderColor: border, backgroundColor: isDark ? 'rgba(255,255,255,0.04)' : '#ffffff', color: textPrimary }]} placeholder="Tier Name" placeholderTextColor={textMuted} />
                   <View style={styles.tierRow}>
-                    <TextInput value={tier.price} onChangeText={(v) => updateTier(idx, 'price', v)} style={[styles.tierInput, { flex: 1, borderColor: border, backgroundColor: isDark ? 'rgba(255,255,255,0.04)' : '#ffffff', color: textPrimary }]} placeholder="Price" placeholderTextColor={textMuted} keyboardType="decimal-pad" />
-                    <TextInput value={tier.capacity} onChangeText={(v) => updateTier(idx, 'capacity', v)} style={[styles.tierInput, { flex: 1, borderColor: border, backgroundColor: isDark ? 'rgba(255,255,255,0.04)' : '#ffffff', color: textPrimary }]} placeholder="Capacity" placeholderTextColor={textMuted} keyboardType="number-pad" />
+                    <View style = {{
+                      width: '48%',
+                      gap: 5
+                    }}>
+                    <Text style={{
+                      fontFamily: 'Pogonia_500Medium',
+                      fontSize: fontSize.b4.fontSize,
+                      lineHeight: fontSize.b4.fontSize + 1,
+                      color: textMuted
+                    }}>
+                      Ticket Price
+                    </Text>
+                      <TextInput 
+                    value={tier.price} 
+                    onChangeText={(v) => updateTier(idx, 'price', v)}
+                    style={[styles.tierInput, 
+                      { flex: 1, borderColor: border, backgroundColor: isDark ? 'rgba(255,255,255,0.04)' : '#ffffff', color: textPrimary }]} 
+                      placeholder="Price" placeholderTextColor={textMuted} 
+                      keyboardType="decimal-pad" />
+                    </View>
+                    <View style = {{
+                      width: '48%',
+                      gap: 5
+                    }}>
+                    <Text  style={{
+                      fontFamily: 'Pogonia_500Medium',
+                      fontSize: fontSize.b4.fontSize,
+                      lineHeight: fontSize.b4.fontSize + 1,
+                      color: textMuted
+                    }}>
+                      Event Capacity
+                    </Text>
+                      <TextInput 
+                    value={tier.capacity} 
+                    onChangeText={(v) => updateTier(idx, 'capacity', v)} 
+                    style={[styles.tierInput, 
+                          { flex: 1, borderColor: border, 
+                          backgroundColor: isDark ? 'rgba(255,255,255,0.04)' : '#ffffff', color: textPrimary }]} 
+                          placeholder="Capacity" 
+                          placeholderTextColor={textMuted} 
+                          keyboardType="number-pad" />
+                    </View>
                   </View>
                 </View>
               ))}
@@ -546,8 +610,29 @@ const CreatorEvents: React.FC = () => {
           </View>
         </View>
         </KeyboardAvoidingView>
+         {show && <Pressable
+         onPress={()=> setShow(false)} 
+         style={{
+            height: '100%',
+            width: '100%',
+            position: 'absolute',
+            zIndex: 3,
+            alignItems: 'center',
+            justifyContent: 'center',
+            backgroundColor: modalBackdrop,
+         }}>
+           
+        <DateTimePicker
+          value={eventDate}
+          mode="date"
+          display="default"
+          onValueChange={onChange}
+        />
+      
+          </Pressable>}
       </Modal>
     </View>
+   
     </KeyboardAvoidingView>
   );
 };
@@ -801,13 +886,16 @@ const styles = StyleSheet.create({
     borderWidth: 1,
     padding: 10,
     gap: 8,
+    justifyContent: 'center',
   },
-  removeTierBtn: { position: 'absolute', right: 8, top: 8, zIndex: 2 },
+  removeTierBtn: { position: 'absolute', right: 20, top: 23, zIndex: 2 },
   tierInput: {
     height: 42,
     borderRadius: 10,
     borderWidth: 1,
     paddingHorizontal: 10,
+    justifyContent: 'center',
+    paddingTop: 8,
     ...fontSize.b4, lineHeight: fontSize.b4.fontSize + 1,
   },
   tierRow: { flexDirection: 'row', gap: 6 },

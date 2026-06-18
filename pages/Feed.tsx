@@ -2789,7 +2789,7 @@ const Feed: React.FC = () => {
             alignItems: 'center',
             gap: 8,
             backgroundColor: 'rgba(0,0,0,0.78)',
-            borderWidth: 1,
+            // borderWidth: 1,
             borderColor: primaryColorAlpha(0.45),
           }}
         >

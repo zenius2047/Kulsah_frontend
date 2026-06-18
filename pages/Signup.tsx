@@ -2,7 +2,7 @@ import React, { useMemo, useState } from 'react';
 import { useThemeMode, PRIMARY_COLOR, primaryColorAlpha } from "../theme";
 import { Image, Pressable, ScrollView, Text, View, KeyboardAvoidingView, Platform } from 'react-native';
 import { useNavigation, useRoute } from '@react-navigation/native';
-import type { User, UserRole } from '../types';
+import { mediumScreen, type User, type UserRole } from '../types';
 import { MaterialIcons } from '@expo/vector-icons';
 import MovieIcon from '../assets/icons/movieIcon-svg.svg';
 import StarsIcon from '../assets/icons/stars-svg.svg';
@@ -56,9 +56,9 @@ export const SignupVibesStep: React.FC<SignupVibesStepProps> = ({
   const { isDark, theme } = useThemeMode();
 
   return (
-  <View style={{ gap: 14 }}>
-    <Text style={{ color: theme.text, ...fontSize.b1, lineHeight: fontSize.b1.fontSize + 2 }}>Inspirations</Text>
-    <Text style={{ color: theme.textSecondary, ...fontSize.b5, lineHeight: fontSize.b5.fontSize + 1 }}>Select your preferred creative orbits.</Text>
+  <View style={{ gap: 10 }}>
+    <Text style={{ color: theme.text, fontSize: fontSize.b1.fontSize + (mediumScreen ? 4 : 2), fontFamily: fontSize.b1.fontFamily, lineHeight: fontSize.b1.fontSize + 2+ (mediumScreen ? 4 : 2) }}>Inspirations</Text>
+    <Text style={{ color: theme.textSecondary, ...fontSize.b3, lineHeight: fontSize.b3.fontSize + 1 }}>Select your preferred creative orbits.</Text>
     <View style={{ flexDirection: 'row', flexWrap: 'wrap', gap: 10 }}>
       {INSPIRATIONS.map((tag) => {
         const isSelected = selectedVibes.has(tag.id);
@@ -203,7 +203,7 @@ const Signup: React.FC<SignupProps> = ({ onLogin }) => {
         ) : (
           <View style={{ width: 24 }} />
         )}
-        <Text style={{ color: 'white', ...fontSize.b1, lineHeight: fontSize.b1.fontSize + 2 }}>KULSAH</Text>
+        <Text style={{ color: 'white', ...fontSize.h1, lineHeight: fontSize.h1.fontSize + 2 }}>KULSAH</Text>
         <View style={{ width: 24 }} />
       </View>
 

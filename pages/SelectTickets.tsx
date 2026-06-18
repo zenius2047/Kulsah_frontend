@@ -19,6 +19,7 @@ import {
 import { SafeAreaView, useSafeAreaInsets } from 'react-native-safe-area-context';
 import { mediumScreen } from '../types';
 import PaymentSuccess from '../assets/icons/payment-success.svg'
+import PaymentGateway from '../components/PaymentGateway';
 import { fontSize } from './typography';
 
 interface TicketTier {
@@ -103,28 +104,8 @@ const SelectTickets: React.FC = () => {
       setErrorText('Select at least one ticket.');
       return;
     }
-
-    if (paymentMethod === 'momo' && phoneNumber.trim().length < 9) {
-      setErrorText('Enter a valid mobile money number.');
-      return;
-    }
-
-    if (paymentMethod === 'card' && (!cardNumber.trim() || !cardExpiry.trim() || !cardCvv.trim())) {
-      setErrorText('Enter all card details.');
-      return;
-    }
-
-    if (paymentMethod === 'kulcoins' && walletBalance < totalPrice) {
-      setErrorText('Insufficient Kulcoins for this ticket purchase.');
-      return;
-    }
-
-    setIsProcessing(true);
-    setTimeout(() => {
-      setIsProcessing(false);
-      setPaymentDrawerOpen(false);
-      setShowSuccess(true);
-    }, 2000);
+    setPaymentDrawerOpen(false);
+    setShowSuccess(true);
   };
 
   const getAiRecommendation = async () => {
@@ -390,7 +371,9 @@ const SelectTickets: React.FC = () => {
         <Pressable
           onPress={() => {
             setErrorText('');
-            setPaymentDrawerOpen(true);
+            if (totalTickets > 0) {
+              setPaymentDrawerOpen(true);
+            }
           }}
           disabled={isProcessing}
           style={[styles.purchaseButton, { backgroundColor: accent }]}
@@ -409,129 +392,16 @@ const SelectTickets: React.FC = () => {
         </Pressable>
       </View>
 
-      <Modal visible={paymentDrawerOpen} transparent animationType="slide" statusBarTranslucent onRequestClose={() => setPaymentDrawerOpen(false)}>
-        <KeyboardAvoidingView behavior={Platform.OS === 'ios' ? 'padding' : undefined} style={styles.paymentModalRoot}>
-          <Pressable style={styles.paymentModalBackdrop} onPress={() => setPaymentDrawerOpen(false)} />
-          <View style={[styles.paymentDrawer, { backgroundColor: cardBg, borderColor: border, paddingBottom: Math.max(insets.bottom, 20) }]}>
-            <View style={[styles.drawerHandle, { backgroundColor: border }]} />
-            <View style={styles.paymentHeader}>
-              <View>
-                <Text style={[styles.paymentEyebrow, { color: subtle }]}>Payment Gateway</Text>
-                <Text style={[styles.paymentTitle, { color: titleColor }]}>Choose how to pay</Text>
-              </View>
-              <Pressable onPress={() => setPaymentDrawerOpen(false)} style={[styles.drawerClose, { backgroundColor: softSurface, borderColor: border }]}>
-                <MaterialIcons name="close" size={20} color={titleColor} />
-              </Pressable>
-            </View>
-
-            <View style={[styles.paymentSummary, { backgroundColor: softSurface, borderColor: border }]}>
-              <Text style={[styles.totalLabel, { color: subtle }]}>Total Payment</Text>
-              <Text style={[styles.totalPrice, { color: titleColor }]}>${totalPrice.toFixed(2)}</Text>
-              <Text style={[styles.totalTickets, { color: accent }]}>{totalTickets} {totalTickets === 1 ? 'Ticket' : 'Tickets'}</Text>
-            </View>
-
-            <View style={styles.paymentMethodRow}>
-              {([
-                { key: 'momo', label: 'Mobile Money', icon: 'phone-iphone' },
-                { key: 'card', label: 'Card', icon: 'credit-card' },
-                { key: 'kulcoins', label: 'Kulcoins', icon: 'toll' },
-              ] as const).map((method) => {
-                const selected = paymentMethod === method.key;
-                return (
-                  <Pressable
-                    key={method.key}
-                    onPress={() => {
-                      setPaymentMethod(method.key);
-                      setErrorText('');
-                    }}
-                    style={[styles.paymentMethod, { backgroundColor: selected ? primaryColorAlpha(0.12) : softSurface, borderColor: selected ? accent : border }]}
-                  >
-                    <MaterialIcons name={method.icon as any} size={19} color={selected ? accent : muted} />
-                    <Text style={[styles.paymentMethodText, { color: selected ? accent : subtle }]}>{method.label}</Text>
-                  </Pressable>
-                );
-              })}
-            </View>
-
-            {paymentMethod === 'momo' ? (
-              <View style={styles.paymentFields}>
-                <View style={styles.providerRow}>
-                  {([
-                    { key: 'mtn', label: 'MTN MoMo', color: '#fbbf24' },
-                    { key: 'telecel', label: 'Telecel', color: '#ef4444' },
-                    { key: 'airteltigo', label: 'AT Money', color: '#2563eb' },
-                  ] as const).map((provider) => {
-                    const selected = momoProvider === provider.key;
-                    return (
-                      <Pressable
-                        key={provider.key}
-                        onPress={() => setMomoProvider(provider.key)}
-                        style={[styles.providerChip, { backgroundColor: selected ? provider.color : softSurface, borderColor: selected ? provider.color : border }]}
-                      >
-                        <Text style={[styles.providerText, { color: selected ? '#ffffff' : subtle }]}>{provider.label}</Text>
-                      </Pressable>
-                    );
-                  })}
-                </View>
-                <TextInput
-                  value={phoneNumber}
-                  onChangeText={setPhoneNumber}
-                  keyboardType="phone-pad"
-                  placeholder="024 000 0000"
-                  placeholderTextColor={muted}
-                  style={[styles.paymentInput, { backgroundColor: inputBg, borderColor: border, color: titleColor }]}
-                />
-              </View>
-            ) : null}
-
-            {paymentMethod === 'card' ? (
-              <View style={styles.paymentFields}>
-                <TextInput
-                  value={cardNumber}
-                  onChangeText={setCardNumber}
-                  keyboardType="number-pad"
-                  maxLength={19}
-                  placeholder="4111 2222 3333 4444"
-                  placeholderTextColor={muted}
-                  style={[styles.paymentInput, { backgroundColor: inputBg, borderColor: border, color: titleColor }]}
-                />
-                <View style={styles.cardFieldRow}>
-                  <TextInput value={cardExpiry} onChangeText={setCardExpiry} maxLength={5} placeholder="MM/YY" placeholderTextColor={muted} style={[styles.paymentInput, styles.cardSmallInput, { backgroundColor: inputBg, borderColor: border, color: titleColor }]} />
-                  <TextInput value={cardCvv} onChangeText={setCardCvv} keyboardType="number-pad" maxLength={3} secureTextEntry placeholder="CVV" placeholderTextColor={muted} style={[styles.paymentInput, styles.cardSmallInput, { backgroundColor: inputBg, borderColor: border, color: titleColor }]} />
-                </View>
-              </View>
-            ) : null}
-
-            {paymentMethod === 'kulcoins' ? (
-              <View style={[styles.walletSummary, { backgroundColor: softSurface, borderColor: border }]}>
-                <View style={styles.walletRow}>
-                  <MaterialIcons name="account-balance-wallet" size={20} color={accent} />
-                  <Text style={[styles.walletText, { color: titleColor }]}>Balance: {walletBalance.toLocaleString()} KC</Text>
-                </View>
-                <Text style={[styles.walletHint, { color: walletBalance >= totalPrice ? subtle : '#ef4444' }]}>
-                  {walletBalance >= totalPrice ? 'Ticket total can be deducted from your Kulcoin balance.' : 'Top up Kulcoins before completing this purchase.'}
-                </Text>
-              </View>
-            ) : null}
-
-            {errorText ? <Text style={styles.paymentError}>{errorText}</Text> : null}
-
-            <Pressable onPress={handlePurchase} disabled={isProcessing} style={[styles.purchaseButton, { backgroundColor: accent }]}>
-              {isProcessing ? (
-                <>
-                  <ActivityIndicator color="#ffffff" />
-                  <Text style={styles.purchaseButtonText}>Processing...</Text>
-                </>
-              ) : (
-                <>
-                  <Text style={styles.purchaseButtonText}>Confirm & Purchase</Text>
-                  <MaterialIcons name="lock" size={18} color="#ffffff" />
-                </>
-              )}
-            </Pressable>
-          </View>
-        </KeyboardAvoidingView>
-      </Modal>
+      <PaymentGateway
+        isOpen={paymentDrawerOpen}
+        onClose={() => setPaymentDrawerOpen(false)}
+        onSuccess={handlePurchase}
+        amount={totalPrice}
+        currency="GHS"
+        itemName={`${totalTickets} ${totalTickets === 1 ? 'Ticket' : 'Tickets'}`}
+        allowedMethods={['momo', 'card', 'bank', 'kulcoins']}
+        walletBalance={walletBalance}
+      />
     </View>
   );
 };

@@ -3,7 +3,7 @@ import { useNavigation } from '@react-navigation/native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import React, { useState } from 'react';
 import { Platform, Pressable, ScrollView, Text, View } from 'react-native';
-import { setUser, User } from '../types';
+import { mediumScreen, setUser, User } from '../types';
 import { SignupVibesStep } from './Signup';
 import { useThemeMode } from "../theme";
 import { fontSize } from './typography';
@@ -38,7 +38,7 @@ const SignupVibes: React.FC = () => {
   };
 
   return (
-    <View style={{ flex: 1, backgroundColor: theme.screen, paddingTop: Platform.OS === 'ios' ? 54: insets.top }}>
+    <View style={{ flex: 1, backgroundColor: theme.screen, paddingTop: Platform.OS === 'ios' ? 54: insets.top, paddingBottom: insets.bottom }}>
       {/* <View style={{ height: 4, backgroundColor: 'rgba(255,255,255,0.1)' }}>
         <View style={{ height: '100%', width: '50%', backgroundColor: PRIMARY_COLOR }} />
       </View> */}
@@ -50,7 +50,7 @@ const SignupVibes: React.FC = () => {
           justifyContent: 'space-between',
           paddingHorizontal: 20,
           // paddingTop: 16,
-          paddingBottom: 14,
+          paddingBottom: 7,
         }}
       >
         <Pressable
@@ -65,7 +65,7 @@ const SignupVibes: React.FC = () => {
         >
           <MaterialIcons name="chevron-left" color={theme.text} size={24} />
         </Pressable>
-        <Text style={{ color: theme.text, fontWeight: '900', ...fontSize.b1, lineHeight: fontSize.b1.fontSize + 2 }}>KULSAH</Text>
+        <Text style={{ color: theme.text, fontSize: fontSize.h1.fontSize + (mediumScreen ? 10: 6), fontFamily: fontSize.h1.fontFamily, lineHeight: fontSize.h1.fontSize + 2 + (mediumScreen ? 10: 6) }}>KULSAH</Text>
         <View style={{ width: 24 }} />
       </View>
 

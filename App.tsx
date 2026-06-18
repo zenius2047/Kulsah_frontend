@@ -8,6 +8,7 @@ import AsyncStorage from '@react-native-async-storage/async-storage';
 import { MaterialIcons,} from '@expo/vector-icons';
 import { useFonts } from 'expo-font';
 import {
+  Inter_300Light,
   Inter_400Regular,
   Inter_500Medium,
   Inter_600SemiBold,
@@ -326,7 +327,7 @@ const CreatorTabs = ({ isDarkMode }: TabsProps) => {
 
 const FanTabs = ({isDarkMode, user, onTap}: TabsProps) => {
   const insets = useSafeAreaInsets();
-  const tabBarHeight = SCREEN_HEIGHT * 0.08 + (Platform.OS === 'ios' ? 0 : insets.bottom);
+  const tabBarHeight = (Platform.OS === 'ios' ? SCREEN_HEIGHT * 0.08 : SCREEN_HEIGHT * 0.07 +insets.bottom);
 
   const guardGuestTab = (e: any) => {
     if (user.role !== 'guest' && user.name !== 'guest') return;
@@ -694,7 +695,6 @@ const styles = StyleSheet.create({
     bottom: 0,
     borderTopWidth: 0,
     height: SCREEN_HEIGHT * 0.08,
-    paddingBottom: 0,
     ...fontSize.b4, lineHeight: fontSize.b4.fontSize + 1,
     // backgroundColor: 'blue'
   },

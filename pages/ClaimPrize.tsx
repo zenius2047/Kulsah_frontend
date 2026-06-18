@@ -12,12 +12,13 @@ import {
   TextInput,
   View,
   Image,
+  type ColorValue,
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { LinearGradient } from 'expo-linear-gradient';
 import { MaterialIcons } from '@expo/vector-icons';
 import { useNavigation } from '@react-navigation/native';
-import { PRIMARY_COLOR, primaryColorAlpha } from '../theme';
+import { PRIMARY_COLOR, primaryColorAlpha, useThemeMode } from '../theme';
 import { fontSize } from './typography';
 
 type RewardType = 'digital' | 'physical' | 'custom' | 'coins' | 'money';
@@ -83,6 +84,13 @@ const MOCK_SUBMISSIONS: ClaimSubmission[] = [
 
 const ClaimPrize: React.FC = () => {
   const navigation = useNavigation<any>();
+  const { isDark, theme } = useThemeMode();
+  const styles = useMemo(() => createStyles(isDark, theme), [isDark, theme]);
+  const placeholderColor = theme.textMuted;
+  const iconColor = theme.text;
+  const screenGradient: readonly [ColorValue, ColorValue, ColorValue] = isDark
+    ? [primaryColorAlpha(0.32), '#09060f', '#050207']
+    : [primaryColorAlpha(0.16), theme.background, theme.screen];
   const [submissions, setSubmissions] = useState<ClaimSubmission[]>(MOCK_SUBMISSIONS);
   const [claimHistory, setClaimHistory] = useState<ClaimSubmission[]>([]);
   const [activeWinIndex, setActiveWinIndex] = useState(0);
@@ -214,7 +222,7 @@ const ClaimPrize: React.FC = () => {
           <View style={styles.modalSection}>
             <Text style={styles.modalTitle}>DIGITAL DELIVERY</Text>
             <Text style={styles.modalSubtitle}>Choose where your access code and bundle link should arrive.</Text>
-            <TextInput value={redeemEmail} onChangeText={setRedeemEmail} placeholder="Email address" placeholderTextColor="#8b779b" style={styles.input} />
+            <TextInput value={redeemEmail} onChangeText={setRedeemEmail} placeholder="Email address" placeholderTextColor={placeholderColor} style={styles.input} />
             <View style={styles.modalActions}>
               <Pressable style={styles.secondaryBtn} onPress={() => setClaimStep(1)}><Text style={styles.secondaryBtnText}>BACK</Text></Pressable>
               <Pressable style={styles.primaryBtnCompact} onPress={() => setClaimStep(3)}><Text style={styles.primaryBtnText}>NEXT</Text></Pressable>
@@ -228,11 +236,11 @@ const ClaimPrize: React.FC = () => {
           <View style={styles.modalSection}>
             <Text style={styles.modalTitle}>SHIPMENT DETAILS</Text>
             <Text style={styles.modalSubtitle}>Send the prize to the right planetary coordinate.</Text>
-            <TextInput value={shippingName} onChangeText={setShippingName} placeholder="Recipient name" placeholderTextColor="#8b779b" style={styles.input} />
-            <TextInput value={shippingAddress} onChangeText={setShippingAddress} placeholder="Street address" placeholderTextColor="#8b779b" style={styles.input} />
+            <TextInput value={shippingName} onChangeText={setShippingName} placeholder="Recipient name" placeholderTextColor={placeholderColor} style={styles.input} />
+            <TextInput value={shippingAddress} onChangeText={setShippingAddress} placeholder="Street address" placeholderTextColor={placeholderColor} style={styles.input} />
             <View style={styles.inputRow}>
-              <TextInput value={shippingCity} onChangeText={setShippingCity} placeholder="City" placeholderTextColor="#8b779b" style={[styles.input, { flex: 1 }]} />
-              <TextInput value={shippingCountry} onChangeText={setShippingCountry} placeholder="Country" placeholderTextColor="#8b779b" style={[styles.input, { flex: 1 }]} />
+              <TextInput value={shippingCity} onChangeText={setShippingCity} placeholder="City" placeholderTextColor={placeholderColor} style={[styles.input, { flex: 1 }]} />
+              <TextInput value={shippingCountry} onChangeText={setShippingCountry} placeholder="Country" placeholderTextColor={placeholderColor} style={[styles.input, { flex: 1 }]} />
             </View>
             <View style={styles.sizeRow}>
               {['S', 'M', 'L', 'XL'].map((size) => (
@@ -254,8 +262,8 @@ const ClaimPrize: React.FC = () => {
           <View style={styles.modalSection}>
             <Text style={styles.modalTitle}>CREATOR COORDINATION</Text>
             <Text style={styles.modalSubtitle}>Tell the creator where to coordinate your custom reward.</Text>
-            <TextInput value={recipientHandle} onChangeText={setRecipientHandle} placeholder="@handle or email" placeholderTextColor="#8b779b" style={styles.input} />
-            <TextInput value={customNotes} onChangeText={setCustomNotes} placeholder="Preferred dates, notes, or questions..." placeholderTextColor="#8b779b" multiline textAlignVertical="top" style={[styles.input, styles.textarea]} />
+            <TextInput value={recipientHandle} onChangeText={setRecipientHandle} placeholder="@handle or email" placeholderTextColor={placeholderColor} style={styles.input} />
+            <TextInput value={customNotes} onChangeText={setCustomNotes} placeholder="Preferred dates, notes, or questions..." placeholderTextColor={placeholderColor} multiline textAlignVertical="top" style={[styles.input, styles.textarea]} />
             <View style={styles.modalActions}>
               <Pressable style={styles.secondaryBtn} onPress={() => setClaimStep(1)}><Text style={styles.secondaryBtnText}>BACK</Text></Pressable>
               <Pressable style={styles.primaryBtnCompact} onPress={() => setClaimStep(3)}><Text style={styles.primaryBtnText}>NEXT</Text></Pressable>
@@ -287,14 +295,14 @@ const ClaimPrize: React.FC = () => {
           <Text style={styles.modalSubtitle}>Review the last details before the reward leaves the dock.</Text>
           {isMoney && payoutMethod === 'momo' && (
             <>
-              <TextInput value={momoProvider} onChangeText={setMomoProvider} placeholder="MoMo provider" placeholderTextColor="#8b779b" style={styles.input} />
-              <TextInput value={phoneOrAccount} onChangeText={setPhoneOrAccount} placeholder="+233 24 123 4567" placeholderTextColor="#8b779b" keyboardType="phone-pad" style={styles.input} />
+              <TextInput value={momoProvider} onChangeText={setMomoProvider} placeholder="MoMo provider" placeholderTextColor={placeholderColor} style={styles.input} />
+              <TextInput value={phoneOrAccount} onChangeText={setPhoneOrAccount} placeholder="+233 24 123 4567" placeholderTextColor={placeholderColor} keyboardType="phone-pad" style={styles.input} />
             </>
           )}
           {isMoney && payoutMethod === 'bank' && (
             <>
-              <TextInput value={bankName} onChangeText={setBankName} placeholder="Bank name" placeholderTextColor="#8b779b" style={styles.input} />
-              <TextInput value={phoneOrAccount} onChangeText={setPhoneOrAccount} placeholder="Account number" placeholderTextColor="#8b779b" style={styles.input} />
+              <TextInput value={bankName} onChangeText={setBankName} placeholder="Bank name" placeholderTextColor={placeholderColor} style={styles.input} />
+              <TextInput value={phoneOrAccount} onChangeText={setPhoneOrAccount} placeholder="Account number" placeholderTextColor={placeholderColor} style={styles.input} />
             </>
           )}
           <View style={styles.reviewCard}>
@@ -337,17 +345,17 @@ const ClaimPrize: React.FC = () => {
 
   return (
     <SafeAreaView style={styles.safeArea} edges={['top', 'left', 'right']}>
-      <LinearGradient colors={['#16071f', '#09060f', '#050207']} style={StyleSheet.absoluteFillObject} />
+      <LinearGradient colors={screenGradient} style={StyleSheet.absoluteFillObject} />
       {!!toast && (
         <View style={styles.toast}>
-          <MaterialIcons name="workspace-premium" size={18} color="#f0abfc" />
+          <MaterialIcons name="workspace-premium" size={18} color={PRIMARY_COLOR} />
           <Text style={styles.toastText}>{toast}</Text>
         </View>
       )}
 
       <View style={styles.header}>
         <Pressable onPress={() => navigation.goBack()} style={styles.headerBtn}>
-          <MaterialIcons name="arrow-back" size={22} color="#fff" />
+          <MaterialIcons name="arrow-back" size={22} color={iconColor} />
         </Pressable>
         <Text style={styles.headerTitle}>WINNER ANNOUNCED</Text>
         <View style={styles.headerBtn} />
@@ -368,7 +376,7 @@ const ClaimPrize: React.FC = () => {
           <View style={styles.cardGlowOne} />
           <View style={styles.cardGlowTwo} />
           <View style={styles.avatarStage}>
-            <LinearGradient colors={['#cd2bee', '#9d17ed', '#f472b6']} style={styles.avatarRing}>
+            <LinearGradient colors={[PRIMARY_COLOR, primaryColorAlpha(0.78), primaryColorAlpha(0.5)]} style={styles.avatarRing}>
               <Image source={{ uri: activeWin.userAvatar }} style={styles.avatar} />
             </LinearGradient>
             <View style={styles.starBadge}>
@@ -432,7 +440,7 @@ const ClaimPrize: React.FC = () => {
               <View style={styles.modalHeader}>
                 <Text style={styles.modalHeaderText}>CLAIM PRIZE</Text>
                 <Pressable onPress={closeClaim} style={styles.closeBtn}>
-                  <MaterialIcons name="close" size={18} color="#fff" />
+                  <MaterialIcons name="close" size={18} color={iconColor} />
                 </Pressable>
               </View>
               <ScrollView contentContainerStyle={styles.modalScroll} keyboardShouldPersistTaps="handled" showsVerticalScrollIndicator={false}>
@@ -446,13 +454,25 @@ const ClaimPrize: React.FC = () => {
   );
 };
 
-const styles = StyleSheet.create({
-  safeArea: { flex: 1, backgroundColor: '#09060f' },
+const createStyles = (isDark: boolean, theme: ReturnType<typeof useThemeMode>['theme']) => {
+  const surface = isDark ? 'rgba(18,10,34,0.78)' : theme.card;
+  const softSurface = isDark ? 'rgba(255,255,255,0.05)' : theme.surface;
+  const softerSurface = isDark ? 'rgba(255,255,255,0.04)' : 'rgba(15,23,42,0.03)';
+  const border = isDark ? 'rgba(255,255,255,0.1)' : theme.border;
+  const faintBorder = isDark ? 'rgba(255,255,255,0.08)' : 'rgba(15,23,42,0.08)';
+  const titleText = theme.text;
+  const mutedText = theme.textMuted;
+  const secondaryText = theme.textSecondary;
+  const modalBackground = isDark ? '#11091f' : theme.card;
+  const starBorder = isDark ? '#09060f' : theme.card;
+
+  return StyleSheet.create({
+  safeArea: { flex: 1, backgroundColor: theme.background },
   header: {
     height: 58,
     paddingHorizontal: 16,
     borderBottomWidth: 1,
-    borderBottomColor: 'rgba(255,255,255,0.06)',
+    borderBottomColor: faintBorder,
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'space-between',
@@ -461,11 +481,11 @@ const styles = StyleSheet.create({
     width: 40,
     height: 40,
     borderRadius: 20,
-    backgroundColor: 'rgba(255,255,255,0.06)',
+    backgroundColor: softSurface,
     alignItems: 'center',
     justifyContent: 'center',
   },
-  headerTitle: { color: '#fff', ...fontSize.b4, lineHeight: fontSize.b4.fontSize + 1, letterSpacing: 2 },
+  headerTitle: { color: titleText, ...fontSize.b4, lineHeight: fontSize.b4.fontSize + 1, letterSpacing: 2 },
   toast: {
     position: 'absolute',
     top: 52,
@@ -474,46 +494,46 @@ const styles = StyleSheet.create({
     zIndex: 10,
     borderRadius: 18,
     borderWidth: 1,
-    borderColor: 'rgba(217,70,239,0.35)',
-    backgroundColor: '#1e1330',
+    borderColor: primaryColorAlpha(0.35),
+    backgroundColor: isDark ? '#1e1330' : theme.card,
     padding: 12,
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'center',
     gap: 8,
   },
-  toastText: { color: '#fff', ...fontSize.b5, lineHeight: fontSize.b5.fontSize + 1, textTransform: 'uppercase', letterSpacing: 0.8 },
+  toastText: { color: titleText, ...fontSize.b5, lineHeight: fontSize.b5.fontSize + 1, textTransform: 'uppercase', letterSpacing: 0.8 },
   content: { padding: 20, paddingBottom: 60, alignItems: 'center' },
   congratsPill: {
     marginTop: 10,
     borderRadius: 999,
     borderWidth: 1,
-    borderColor: 'rgba(217,70,239,0.35)',
-    backgroundColor: 'rgba(45,0,66,0.42)',
+    borderColor: primaryColorAlpha(0.35),
+    backgroundColor: primaryColorAlpha(0.14),
     paddingHorizontal: 18,
     paddingVertical: 8,
   },
-  congratsText: { color: '#f0abfc', ...fontSize.b5, lineHeight: fontSize.b5.fontSize + 1, letterSpacing: 3 },
+  congratsText: { color: PRIMARY_COLOR, ...fontSize.b5, lineHeight: fontSize.b5.fontSize + 1, letterSpacing: 3 },
   heroCopy: { alignItems: 'center', marginTop: 18 },
-  heroSmall: { color: '#fff', ...fontSize.b1, lineHeight: fontSize.b1.fontSize + 3, letterSpacing: 1.2 },
-  heroBig: { color: '#f0abfc', fontFamily: 'Poppins_800ExtraBold', fontSize: 38, lineHeight: 44, letterSpacing: 0 },
-  heroSub: { color: 'rgba(255,255,255,0.55)', ...fontSize.b5, lineHeight: 16, textAlign: 'center', marginTop: 8, maxWidth: 280 },
+  heroSmall: { color: titleText, ...fontSize.b1, lineHeight: fontSize.b1.fontSize + 3, letterSpacing: 1.2 },
+  heroBig: { color: PRIMARY_COLOR, fontFamily: 'Poppins_800ExtraBold', fontSize: 38, lineHeight: 44, letterSpacing: 0 },
+  heroSub: { color: secondaryText, ...fontSize.b5, lineHeight: 16, textAlign: 'center', marginTop: 8, maxWidth: 280 },
   victoryCard: {
     width: '100%',
     marginTop: 26,
     borderRadius: 34,
     borderWidth: 1,
-    borderColor: 'rgba(255,255,255,0.11)',
-    backgroundColor: 'rgba(18,10,34,0.78)',
+    borderColor: border,
+    backgroundColor: surface,
     padding: 24,
     alignItems: 'center',
     overflow: 'hidden',
   },
-  cardGlowOne: { position: 'absolute', top: -40, right: -20, width: 150, height: 150, borderRadius: 75, backgroundColor: 'rgba(217,70,239,0.12)' },
-  cardGlowTwo: { position: 'absolute', bottom: -46, left: -50, width: 130, height: 130, borderRadius: 65, backgroundColor: 'rgba(124,58,237,0.12)' },
+  cardGlowOne: { position: 'absolute', top: -40, right: -20, width: 150, height: 150, borderRadius: 75, backgroundColor: primaryColorAlpha(0.16) },
+  cardGlowTwo: { position: 'absolute', bottom: -46, left: -50, width: 130, height: 130, borderRadius: 65, backgroundColor: primaryColorAlpha(0.12) },
   avatarStage: { width: 126, height: 126, marginTop: 4, marginBottom: 18 },
   avatarRing: { flex: 1, borderRadius: 63, padding: 4 },
-  avatar: { width: '100%', height: '100%', borderRadius: 59, backgroundColor: '#111827' },
+  avatar: { width: '100%', height: '100%', borderRadius: 59, backgroundColor: theme.card },
   starBadge: {
     position: 'absolute',
     right: -1,
@@ -523,38 +543,43 @@ const styles = StyleSheet.create({
     borderRadius: 19,
     backgroundColor: '#facc15',
     borderWidth: 2,
-    borderColor: '#09060f',
+    borderColor: starBorder,
     alignItems: 'center',
     justifyContent: 'center',
   },
-  winnerName: { color: '#fff', ...fontSize.b1, lineHeight: fontSize.b1.fontSize + 2, textTransform: 'uppercase' },
+  winnerName: { color: titleText, ...fontSize.b1, lineHeight: fontSize.b1.fontSize + 2, textTransform: 'uppercase' },
   winnerHandle: { color: PRIMARY_COLOR, ...fontSize.b4, lineHeight: fontSize.b4.fontSize + 1, marginTop: 4 },
-  divider: { width: '100%', height: 1, backgroundColor: 'rgba(255,255,255,0.08)', marginVertical: 20 },
-  challengeLabel: { color: 'rgba(255,255,255,0.4)', ...fontSize.b5, lineHeight: fontSize.b5.fontSize + 1, letterSpacing: 1.8 },
-  challengeTitle: { color: '#fff', ...fontSize.b2, lineHeight: fontSize.b2.fontSize + 4, textAlign: 'center', marginTop: 8 },
+  divider: { width: '100%', height: 1, backgroundColor: faintBorder, marginVertical: 20 },
+  challengeLabel: { color: mutedText, ...fontSize.b5, lineHeight: fontSize.b5.fontSize + 1, letterSpacing: 1.8 },
+  challengeTitle: { color: titleText, ...fontSize.b2, lineHeight: fontSize.b2.fontSize + 4, textAlign: 'center', marginTop: 8 },
   rewardGrid: { width: '100%', flexDirection: 'row', gap: 10, marginTop: 20 },
-  rewardCard: { flex: 1, borderRadius: 20, backgroundColor: 'rgba(255,255,255,0.06)', padding: 14, alignItems: 'center' },
-  rewardLabel: { color: 'rgba(255,255,255,0.42)', ...fontSize.b5, lineHeight: fontSize.b5.fontSize + 1, marginTop: 8, letterSpacing: 1 },
-  rewardValue: { color: '#fff', ...fontSize.b2, lineHeight: fontSize.b2.fontSize + 2, marginTop: 4, textAlign: 'center' },
+  rewardCard: { flex: 1, borderRadius: 20, backgroundColor: softSurface, padding: 14, alignItems: 'center' },
+  rewardLabel: { color: mutedText, ...fontSize.b5, lineHeight: fontSize.b5.fontSize + 1, marginTop: 8, letterSpacing: 1 },
+  rewardValue: { color: titleText, ...fontSize.b2, lineHeight: fontSize.b2.fontSize + 2, marginTop: 4, textAlign: 'center' },
   claimBtn: {
     width: '100%',
     marginTop: 18,
     height: 58,
     borderRadius: 20,
     backgroundColor: PRIMARY_COLOR,
+    shadowColor: PRIMARY_COLOR,
+    shadowOffset: { width: 0, height: 12 },
+    shadowOpacity: 0.24,
+    shadowRadius: 18,
+    elevation: 6,
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'center',
     gap: 10,
   },
   claimBtnText: { color: '#fff', ...fontSize.b3, lineHeight: fontSize.b3.fontSize + 2, letterSpacing: 1.4 },
-  sectionTitle: { alignSelf: 'flex-start', color: 'rgba(255,255,255,0.38)', ...fontSize.b5, lineHeight: fontSize.b5.fontSize + 1, letterSpacing: 2, marginTop: 28, marginBottom: 12 },
+  sectionTitle: { alignSelf: 'flex-start', color: mutedText, ...fontSize.b5, lineHeight: fontSize.b5.fontSize + 1, letterSpacing: 2, marginTop: 28, marginBottom: 12 },
   registryList: { width: '100%', gap: 10 },
   registryCard: {
     borderRadius: 20,
     borderWidth: 1,
-    borderColor: 'rgba(255,255,255,0.08)',
-    backgroundColor: 'rgba(255,255,255,0.04)',
+    borderColor: faintBorder,
+    backgroundColor: softerSurface,
     padding: 10,
     flexDirection: 'row',
     alignItems: 'center',
@@ -563,61 +588,62 @@ const styles = StyleSheet.create({
   registryCardActive: { borderColor: primaryColorAlpha(0.45), backgroundColor: primaryColorAlpha(0.1) },
   registryImage: { width: 54, height: 54, borderRadius: 15 },
   registryCopy: { flex: 1 },
-  registryTitle: { color: '#fff', ...fontSize.b4, lineHeight: fontSize.b4.fontSize + 1 },
-  registryMeta: { color: 'rgba(255,255,255,0.45)', ...fontSize.b5, lineHeight: fontSize.b5.fontSize + 1, marginTop: 4 },
+  registryTitle: { color: titleText, ...fontSize.b4, lineHeight: fontSize.b4.fontSize + 1 },
+  registryMeta: { color: secondaryText, ...fontSize.b5, lineHeight: fontSize.b5.fontSize + 1, marginTop: 4 },
   statusChip: { borderRadius: 999, backgroundColor: primaryColorAlpha(0.15), paddingHorizontal: 9, paddingVertical: 5 },
   statusClaimed: { backgroundColor: 'rgba(34,197,94,0.14)' },
   statusText: { color: PRIMARY_COLOR, ...fontSize.b5, lineHeight: fontSize.b5.fontSize + 1, letterSpacing: 0.8 },
   statusTextClaimed: { color: '#22c55e' },
   modalKeyboard: { flex: 1 },
   modalRoot: { flex: 1, justifyContent: 'flex-end' },
-  modalBackdrop: { ...StyleSheet.absoluteFillObject, backgroundColor: 'rgba(0,0,0,0.78)' },
+  modalBackdrop: { ...StyleSheet.absoluteFillObject, backgroundColor: isDark ? 'rgba(0,0,0,0.78)' : 'rgba(15,23,42,0.42)' },
   modalCard: {
     maxHeight: '86%',
     borderTopLeftRadius: 34,
     borderTopRightRadius: 34,
-    backgroundColor: '#11091f',
+    backgroundColor: modalBackground,
     borderTopWidth: 1,
-    borderColor: 'rgba(255,255,255,0.1)',
+    borderColor: border,
     paddingHorizontal: 16,
     paddingTop: 10,
   },
-  grabber: { alignSelf: 'center', width: 42, height: 5, borderRadius: 3, backgroundColor: 'rgba(255,255,255,0.22)', marginBottom: 12 },
+  grabber: { alignSelf: 'center', width: 42, height: 5, borderRadius: 3, backgroundColor: isDark ? 'rgba(255,255,255,0.22)' : 'rgba(15,23,42,0.18)', marginBottom: 12 },
   modalHeader: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', marginBottom: 10 },
-  modalHeaderText: { color: '#fff', ...fontSize.b4, lineHeight: fontSize.b4.fontSize + 1, letterSpacing: 1.6 },
-  closeBtn: { width: 34, height: 34, borderRadius: 17, backgroundColor: 'rgba(255,255,255,0.08)', alignItems: 'center', justifyContent: 'center' },
+  modalHeaderText: { color: titleText, ...fontSize.b4, lineHeight: fontSize.b4.fontSize + 1, letterSpacing: 1.6 },
+  closeBtn: { width: 34, height: 34, borderRadius: 17, backgroundColor: softSurface, alignItems: 'center', justifyContent: 'center' },
   modalScroll: { paddingBottom: 28 },
   modalSection: { gap: 14 },
   centerBlock: { alignItems: 'center', gap: 8 },
   bigIcon: { width: 76, height: 76, borderRadius: 38, borderWidth: 1, borderColor: primaryColorAlpha(0.3), backgroundColor: primaryColorAlpha(0.12), alignItems: 'center', justifyContent: 'center' },
-  modalTitle: { color: '#fff', ...fontSize.b1, lineHeight: fontSize.b1.fontSize + 2, textAlign: 'center', letterSpacing: 1 },
-  modalSubtitle: { color: 'rgba(255,255,255,0.52)', ...fontSize.b5, lineHeight: 16, textAlign: 'center' },
-  claimSummary: { borderRadius: 22, borderWidth: 1, borderColor: 'rgba(255,255,255,0.08)', backgroundColor: 'rgba(255,255,255,0.04)', padding: 16, gap: 6 },
-  claimLabel: { color: 'rgba(255,255,255,0.4)', ...fontSize.b5, lineHeight: fontSize.b5.fontSize + 1, letterSpacing: 1.3 },
-  claimValue: { color: '#fff', ...fontSize.b4, lineHeight: fontSize.b4.fontSize + 3, marginBottom: 6 },
+  modalTitle: { color: titleText, ...fontSize.b1, lineHeight: fontSize.b1.fontSize + 2, textAlign: 'center', letterSpacing: 1 },
+  modalSubtitle: { color: secondaryText, ...fontSize.b5, lineHeight: 16, textAlign: 'center' },
+  claimSummary: { borderRadius: 22, borderWidth: 1, borderColor: faintBorder, backgroundColor: softerSurface, padding: 16, gap: 6 },
+  claimLabel: { color: mutedText, ...fontSize.b5, lineHeight: fontSize.b5.fontSize + 1, letterSpacing: 1.3 },
+  claimValue: { color: titleText, ...fontSize.b4, lineHeight: fontSize.b4.fontSize + 3, marginBottom: 6 },
   primaryBtn: { height: 54, borderRadius: 18, backgroundColor: PRIMARY_COLOR, flexDirection: 'row', alignItems: 'center', justifyContent: 'center', gap: 8 },
   primaryBtnCompact: { flex: 1, height: 52, borderRadius: 17, backgroundColor: PRIMARY_COLOR, alignItems: 'center', justifyContent: 'center' },
   primaryBtnText: { color: '#fff', ...fontSize.b5, lineHeight: fontSize.b5.fontSize + 1, letterSpacing: 1.3 },
-  secondaryBtn: { flex: 1, height: 52, borderRadius: 17, borderWidth: 1, borderColor: 'rgba(255,255,255,0.12)', alignItems: 'center', justifyContent: 'center' },
-  secondaryBtnText: { color: 'rgba(255,255,255,0.74)', ...fontSize.b5, lineHeight: fontSize.b5.fontSize + 1, letterSpacing: 1.2 },
+  secondaryBtn: { flex: 1, height: 52, borderRadius: 17, borderWidth: 1, borderColor: border, alignItems: 'center', justifyContent: 'center' },
+  secondaryBtnText: { color: secondaryText, ...fontSize.b5, lineHeight: fontSize.b5.fontSize + 1, letterSpacing: 1.2 },
   modalActions: { flexDirection: 'row', gap: 10, marginTop: 4 },
-  input: { height: 50, borderRadius: 16, borderWidth: 1, borderColor: 'rgba(255,255,255,0.1)', backgroundColor: 'rgba(255,255,255,0.05)', color: '#fff', paddingHorizontal: 14, ...fontSize.b4, lineHeight: fontSize.b4.fontSize + 1 },
+  input: { height: 50, borderRadius: 16, borderWidth: 1, borderColor: border, backgroundColor: softSurface, color: titleText, paddingHorizontal: 14, ...fontSize.b4, lineHeight: fontSize.b4.fontSize + 1 },
   textarea: { minHeight: 96, paddingTop: 12 },
   inputRow: { flexDirection: 'row', gap: 10 },
   sizeRow: { flexDirection: 'row', gap: 8 },
-  sizeChip: { flex: 1, height: 42, borderRadius: 14, borderWidth: 1, borderColor: 'rgba(255,255,255,0.1)', alignItems: 'center', justifyContent: 'center' },
+  sizeChip: { flex: 1, height: 42, borderRadius: 14, borderWidth: 1, borderColor: border, alignItems: 'center', justifyContent: 'center' },
   sizeChipActive: { backgroundColor: PRIMARY_COLOR, borderColor: PRIMARY_COLOR },
-  sizeText: { color: 'rgba(255,255,255,0.65)', ...fontSize.b4, lineHeight: fontSize.b4.fontSize + 1 },
+  sizeText: { color: secondaryText, ...fontSize.b4, lineHeight: fontSize.b4.fontSize + 1 },
   sizeTextActive: { color: '#fff' },
-  methodCard: { borderRadius: 18, borderWidth: 1, borderColor: 'rgba(255,255,255,0.1)', backgroundColor: 'rgba(255,255,255,0.05)', padding: 14, flexDirection: 'row', alignItems: 'center', gap: 12 },
+  methodCard: { borderRadius: 18, borderWidth: 1, borderColor: border, backgroundColor: softSurface, padding: 14, flexDirection: 'row', alignItems: 'center', gap: 12 },
   methodCardActive: { borderColor: PRIMARY_COLOR, backgroundColor: PRIMARY_COLOR },
-  methodTitle: { color: '#fff', ...fontSize.b4, lineHeight: fontSize.b4.fontSize + 1 },
+  methodTitle: { color: titleText, ...fontSize.b4, lineHeight: fontSize.b4.fontSize + 1 },
   methodTitleActive: { color: '#fff' },
-  methodBody: { color: 'rgba(255,255,255,0.45)', ...fontSize.b5, lineHeight: fontSize.b5.fontSize + 1, marginTop: 2 },
+  methodBody: { color: secondaryText, ...fontSize.b5, lineHeight: fontSize.b5.fontSize + 1, marginTop: 2 },
   methodBodyActive: { color: 'rgba(255,255,255,0.8)' },
-  reviewCard: { borderRadius: 20, borderWidth: 1, borderColor: 'rgba(255,255,255,0.08)', backgroundColor: 'rgba(255,255,255,0.04)', padding: 14 },
+  reviewCard: { borderRadius: 20, borderWidth: 1, borderColor: faintBorder, backgroundColor: softerSurface, padding: 14 },
   codeBox: { borderRadius: 20, borderWidth: 1, borderColor: primaryColorAlpha(0.28), backgroundColor: primaryColorAlpha(0.1), padding: 16, alignItems: 'center' },
-  codeText: { color: '#fff', ...fontSize.b3, lineHeight: fontSize.b3.fontSize + 3, letterSpacing: 1.2, marginTop: 6 },
-});
+  codeText: { color: titleText, ...fontSize.b3, lineHeight: fontSize.b3.fontSize + 3, letterSpacing: 1.2, marginTop: 6 },
+  });
+};
 
 export default ClaimPrize;

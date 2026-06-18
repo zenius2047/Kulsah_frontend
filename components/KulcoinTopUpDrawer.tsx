@@ -5,6 +5,7 @@ import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useThemeMode, PRIMARY_COLOR, primaryColorAlpha } from "../theme";
 import { mediumScreen } from '../types';
 import KulsahInputBar from './KulsahInputBar';
+import PaymentGateway from './PaymentGateway';
 import { fontSize } from './typography';
 
 type KulcoinTopUpDrawerProps = {
@@ -85,16 +86,6 @@ const KulcoinTopUpDrawer: React.FC<KulcoinTopUpDrawerProps> = ({
 
   const handlePaymentSuccess = () => {
     if (!selectedPkgData) return;
-
-    if (paymentMethod === 'momo' && phoneNumber.trim().length < 9) {
-      setPaymentError('Enter your Mobile Money phone number.');
-      return;
-    }
-
-    if (paymentMethod === 'card' && (!cardNumber.trim() || !cardExpiry.trim() || !cardCvv.trim())) {
-      setPaymentError('Enter all card details.');
-      return;
-    }
 
     setPaymentError('');
     onSuccess(selectedPkgData.coins);
@@ -239,175 +230,14 @@ const KulcoinTopUpDrawer: React.FC<KulcoinTopUpDrawerProps> = ({
         </KeyboardAvoidingView>
       </Modal>
 
-      <Modal
-        visible={isOpen && isPaymentOpen}
-        transparent
-        animationType="slide"
-        statusBarTranslucent
-        onRequestClose={() => setIsPaymentOpen(false)}
-      >
-        <KeyboardAvoidingView
-          behavior={Platform.OS === 'ios' ? 'padding' : undefined}
-          keyboardVerticalOffset={0}
-          style={styles.modalRoot}
-        >
-          <Pressable style={[styles.modalBackdrop, { backgroundColor: overlayColor }]} onPress={() => setIsPaymentOpen(false)} />
-            <View style={[styles.paymentCard, { paddingBottom: Math.max(insets.bottom, 20), backgroundColor: surfaceColor, borderColor }]}>
-            <View style={[styles.drawerHandle, { backgroundColor: handleColor }]} />
-            <View style={styles.paymentHeader}>
-              <Text style={[styles.paymentTitle, { color: titleColor }]}>Payment Gateway</Text>
-              <Text style={[styles.paymentSubtitle, { color: mutedText }]}>
-                Choose a launch path for your galaxy top-up
-              </Text>
-            </View>
-            {selectedPkgData ? (
-              <View style={[styles.paymentSummary, { backgroundColor: cardBg, borderColor }]}>
-                <View style={styles.paymentRow}>
-                  <Text style={[styles.paymentLabel, { color: secondaryText }]}>Package</Text>
-                  <Text style={[styles.paymentValue, { color: titleColor }]}>{selectedPkgData.coins} Kulcoins</Text>
-                </View>
-                <View style={styles.paymentRow}>
-                  <Text style={[styles.paymentLabel, { color: secondaryText }]}>Amount</Text>
-                  <Text style={styles.paymentAccent}>{selectedPkgData.price} GHS</Text>
-                </View>
-              </View>
-            ) : null}
-
-            <View style={styles.paymentMethodRow}>
-              {[
-                { key: 'momo', label: 'Mobile Money', icon: 'phone-iphone' },
-                { key: 'card', label: 'Card', icon: 'credit-card' },
-              ].map((method) => {
-                const selected = paymentMethod === method.key;
-                return (
-                  <Pressable
-                    key={method.key}
-                    onPress={() => {
-                      setPaymentMethod(method.key as PaymentMethod);
-                      setPaymentError('');
-                    }}
-                    style={[
-                      styles.paymentMethod,
-                      {
-                        backgroundColor: selected ? primaryColorAlpha(0.12) : cardBg,
-                        borderColor: selected ? PRIMARY_COLOR : borderColor,
-                      },
-                    ]}
-                  >
-                    <MaterialIcons name={method.icon as keyof typeof MaterialIcons.glyphMap} size={20} color={selected ? PRIMARY_COLOR : secondaryText} />
-                    <Text style={[styles.paymentMethodText, { color: selected ? PRIMARY_COLOR : secondaryText }]}>{method.label}</Text>
-                  </Pressable>
-                );
-              })}
-            </View>
-
-            {paymentMethod === 'momo' ? (
-              <View style={styles.paymentDetails}>
-                <View style={styles.providerRow}>
-                  {[
-                    { key: 'mtn', label: 'MTN MoMo', color: '#fbbf24' },
-                    { key: 'telecel', label: 'Telecel', color: '#ef4444' },
-                    { key: 'airteltigo', label: 'AirtelTigo', color: '#2563eb' },
-                  ].map((provider) => {
-                    const selected = momoProvider === provider.key;
-                    return (
-                      <Pressable
-                        key={provider.key}
-                        onPress={() => {
-                          setMomoProvider(provider.key as MomoProvider);
-                          setPaymentError('');
-                        }}
-                        style={[
-                          styles.providerChip,
-                          {
-                            backgroundColor: selected ? provider.color : cardBg,
-                            borderColor: selected ? provider.color : borderColor,
-                          },
-                        ]}
-                      >
-                        <Text style={[styles.providerText, { color: selected ? '#ffffff' : secondaryText }]}>{provider.label}</Text>
-                      </Pressable>
-                    );
-                  })}
-                </View>
-
-                <Text style={[styles.paymentInputLabel, { color: secondaryText }]}>Mobile Money Number</Text>
-                <KulsahInputBar
-                  value={phoneNumber}
-                  onChangeText={(value) => {
-                    setPhoneNumber(value.replace(/[^0-9+]/g, ''));
-                    setPaymentError('');
-                  }}
-                  keyboardType="phone-pad"
-                  placeholder="024XXXXXXX"
-                  placeholderTextColor={tertiaryText}
-                  containerStyle={[styles.paymentInputWrap, { backgroundColor: customInputBg, borderColor: customInputBorder }]}
-                  inputStyle={[styles.paymentInput, { color: titleColor }]}
-                />
-              </View>
-            ) : null}
-
-            {paymentMethod === 'card' ? (
-              <View style={styles.paymentDetails}>
-                <Text style={[styles.paymentInputLabel, { color: secondaryText }]}>Card Number</Text>
-                <KulsahInputBar
-                  value={cardNumber}
-                  onChangeText={(value) => {
-                    setCardNumber(value.replace(/[^0-9 ]/g, ''));
-                    setPaymentError('');
-                  }}
-                  keyboardType="number-pad"
-                  placeholder="4111 2222 3333 4444"
-                  placeholderTextColor={tertiaryText}
-                  containerStyle={[styles.paymentInputWrap, { backgroundColor: customInputBg, borderColor: customInputBorder }]}
-                  inputStyle={[styles.paymentInput, { color: titleColor }]}
-                />
-                <View style={styles.cardFieldRow}>
-                  <KulsahInputBar
-                    value={cardExpiry}
-                    onChangeText={(value) => {
-                      setCardExpiry(value.replace(/[^0-9/]/g, ''));
-                      setPaymentError('');
-                    }}
-                    maxLength={5}
-                    placeholder="MM/YY"
-                    placeholderTextColor={tertiaryText}
-                    containerStyle={[styles.cardSmallInputWrap, { backgroundColor: customInputBg, borderColor: customInputBorder }]}
-                    inputStyle={[styles.paymentInput, styles.centeredPaymentInput, { color: titleColor }]}
-                  />
-                  <KulsahInputBar
-                    value={cardCvv}
-                    onChangeText={(value) => {
-                      setCardCvv(value.replace(/[^0-9]/g, ''));
-                      setPaymentError('');
-                    }}
-                    keyboardType="number-pad"
-                    maxLength={3}
-                    secureTextEntry
-                    placeholder="CVV"
-                    placeholderTextColor={tertiaryText}
-                    containerStyle={[styles.cardSmallInputWrap, { backgroundColor: customInputBg, borderColor: customInputBorder }]}
-                    inputStyle={[styles.paymentInput, styles.centeredPaymentInput, { color: titleColor }]}
-                  />
-                </View>
-              </View>
-            ) : null}
-
-            {paymentError ? <Text style={styles.paymentError}>{paymentError}</Text> : null}
-
-            <Pressable onPress={handlePaymentSuccess} style={styles.purchaseButton}>
-              <Text style={styles.purchaseButtonText}>Pay {selectedPkgData ? selectedPkgData.price : 0} GHS</Text>
-              <MaterialIcons name="arrow-forward" size={20} color="#ffffff" />
-            </Pressable>
-            <Pressable
-              onPress={() => setIsPaymentOpen(false)}
-              style={[styles.cancelPaymentButton, { backgroundColor: cancelBg }]}
-            >
-              <Text style={[styles.cancelPaymentText, { color: secondaryText }]}>Cancel</Text>
-            </Pressable>
-          </View>
-        </KeyboardAvoidingView>
-      </Modal>
+      <PaymentGateway
+        isOpen={isOpen && isPaymentOpen}
+        onClose={() => setIsPaymentOpen(false)}
+        onSuccess={handlePaymentSuccess}
+        amount={selectedPkgData?.price ?? 0}
+        currency="GHS"
+        itemName={selectedPkgData ? `${selectedPkgData.coins} Kulcoins` : 'Kulcoins'}
+      />
     </>
   );
 };

@@ -81,6 +81,7 @@ const FanProfile: React.FC<FanProfileProps> = ({ onToggleRole }) => {
       {
         backgroundColor: theme.screen,
         paddingTop: isStatsOutOfView ? stickyTopPadding : 0,
+        borderTopWidth: 0,
       },
     ],
     [isStatsOutOfView, stickyTopPadding, theme.screen]
@@ -484,7 +485,7 @@ const FanProfile: React.FC<FanProfileProps> = ({ onToggleRole }) => {
             tab.id === 'Premium'? <PremiumIcon height={22} width={22} fill={activeTab === tab.id ? PRIMARY_COLOR : '#69738d'}/>:
             tab.id === 'Tickets'? <LocalIcon height={22} width={22} fill={activeTab === tab.id ? PRIMARY_COLOR : '#69738d'}/>:
             tab.id === 'Saved'?   <BookMarkIcon height={22} width={22} fill={activeTab === tab.id ? PRIMARY_COLOR : '#69738d'}/>:
-            tab.id === 'Favorite'? <MaterialIcons name="favorite-border" size={22} color={activeTab === tab.id ? '#f43f5e' : '#69738d'}/>:null
+            tab.id === 'Favorite'? <MaterialIcons name="favorite-border" size={22} color={activeTab === tab.id ? PRIMARY_COLOR : '#69738d'}/>:null
           }
                 <Text style={[s.tabText, { color: activeTab === tab.id ? PRIMARY_COLOR : theme.textSecondary }, activeTab === tab.id && s.tabTextActive]}>{tab.id}</Text>
                 {activeTab === tab.id ? <View style={s.tabIndicator} /> : null}
@@ -510,7 +511,7 @@ const FanProfile: React.FC<FanProfileProps> = ({ onToggleRole }) => {
                       <Text style={[s.sectionEyebrow, { color: theme.textSecondary }]}>Subscribed Creators</Text>
                       <View style={s.listWrap}>
                         {subscribedCreators.map((creator) => (
-                          <Pressable key={creator.id} onPress={() => setSelectedCreator(creator.id)} style={[s.listCard, { backgroundColor: isDark ? '#111827' : theme.card, borderColor: theme.border }]}>
+                          <Pressable key={creator.id} onPress={() => setSelectedCreator(creator.id)} style={[s.listCard, { backgroundColor: isDark ? '#111827' : theme.card, borderColor: theme.border, padding: 16 }]}>
                             <View style={s.listLeft}>
                               <Image source={{ uri: creator.img }} style={s.listAvatar} />
                               <View>
@@ -551,7 +552,7 @@ const FanProfile: React.FC<FanProfileProps> = ({ onToggleRole }) => {
               {activeTab === 'Tickets' && (
                 <View style={s.listWrap}>
                   {[1, 2].map((item) => (
-                    <Pressable key={item} onPress={() => navigation.navigate('FanTicket')} style={s.ticketCard}>
+                    <Pressable key={item} onPress={() => navigation.navigate('FanTicket')} style={[s.ticketCard, {borderColor: theme.border,}]}>
                       <View style={s.ticketLeft}>
                         <View style={s.ticketIconWrap}>
                           <TicketIcon height={24} width={24}/>
@@ -826,7 +827,7 @@ const s = StyleSheet.create({
     gap: 18,
     marginTop: 24,
     zIndex: 10,
-    elevation: 4,
+    // elevation: 4,
   },
   tabsRow: {
     borderBottomWidth: 1,
@@ -1368,7 +1369,8 @@ const s = StyleSheet.create({
     borderRadius: 28,
     backgroundColor: 'rgba(255,255,255,0.05)',
     borderWidth: 1,
-    borderColor: 'rgba(255,255,255,0.08)',
+    marginHorizontal: 16,
+    // borderColor: 'rgb(255, 255, 255)',
   },
   ticketLeft: {
     flexDirection: 'row',
@@ -1379,9 +1381,9 @@ const s = StyleSheet.create({
     width: 56,
     height: 56,
     borderRadius: 18,
-    backgroundColor: primaryColorAlpha(0.1),
-    borderWidth: 1,
-    borderColor: primaryColorAlpha(0.24),
+    // backgroundColor: primaryColorAlpha(0.1),
+    // borderWidth: 1,
+    // borderColor: primaryColorAlpha(0.24),
     alignItems: 'center',
     justifyContent: 'center',
   },

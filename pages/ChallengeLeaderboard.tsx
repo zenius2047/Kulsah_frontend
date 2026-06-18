@@ -18,6 +18,7 @@ import {
 import { SafeAreaView, useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useThemeMode, PRIMARY_COLOR, primaryColorAlpha } from "../theme";
 import { user, User } from '../types';
+import PaymentGateway from '../components/PaymentGateway';
 import { fontSize } from './typography';
 
 type LeaderboardTab = 'rankings' | 'rules' | 'prizes';
@@ -180,6 +181,7 @@ const BoostEntryDialog = ({
   const [countdown, setCountdown] = useState(15);
   const [otpInput, setOtpInput] = useState('');
   const [errorText, setErrorText] = useState('');
+  const [paymentGatewayOpen, setPaymentGatewayOpen] = useState(false);
 
   const availableBalance = currentUser?.balance ?? 1250;
   const updatedRank = getBoostRank(selectedPackage.id);
@@ -204,6 +206,7 @@ const BoostEntryDialog = ({
     setOtpInput('');
     setCountdown(15);
     setErrorText('');
+    setPaymentGatewayOpen(false);
   }, [isOpen]);
 
   useEffect(() => {
@@ -227,7 +230,7 @@ const BoostEntryDialog = ({
 
   const handleContinueToPayment = () => {
     setErrorText('');
-    setInputStep('payment');
+    setPaymentGatewayOpen(true);
   };
 
   const handleBackToPayload = () => {
@@ -285,6 +288,7 @@ const BoostEntryDialog = ({
   };
 
   return (
+    <>
     <Modal visible={isOpen} transparent animationType="slide" statusBarTranslucent onRequestClose={() => canDismiss && onClose()}>
       <KeyboardAvoidingView behavior={Platform.OS === 'ios' ? 'padding' : undefined} style={styles.boostModalRoot}>
         <Pressable style={styles.boostBackdrop} onPress={() => canDismiss && onClose()} />
@@ -557,6 +561,20 @@ const BoostEntryDialog = ({
         </View>
       </KeyboardAvoidingView>
     </Modal>
+    <PaymentGateway
+      isOpen={isOpen && paymentGatewayOpen}
+      onClose={() => setPaymentGatewayOpen(false)}
+      onSuccess={() => {
+        setPaymentGatewayOpen(false);
+        completeBoost();
+      }}
+      amount={selectedPackage.priceGhc}
+      currency="GHS"
+      itemName={`${selectedPackage.name} - ${selectedPackage.votes} Votes`}
+      allowedMethods={['momo', 'card', 'bank', 'kulcoins']}
+      walletBalance={availableBalance}
+    />
+    </>
   );
 };
 

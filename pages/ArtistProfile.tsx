@@ -432,7 +432,7 @@ const PlaylistSection = () => {
             s.videoGridCard,
             {
               width: gridItemWidth,
-              height: 180,
+              height: 210,
               marginBottom: gridGap,
               backgroundColor: isDark ? '#0f172a' : theme.surface,
             },
@@ -814,7 +814,7 @@ const PlaylistSection = () => {
                           <Text style={s.btnText}>Subscribe</Text></Pressable>
                           </>}
                           </View>
-          {currentUser?.role !== 'creator' ? (
+          {/* {currentUser?.role !== 'creator' ? (
             <Pressable onPress={() => setIsRoleSwitchModalOpen(true)} style={s.switchCreatorButton}>
               <LinearGradient
                 colors={['#4f46e5', PRIMARY_COLOR]}
@@ -827,7 +827,7 @@ const PlaylistSection = () => {
                 <MaterialIcons name="chevron-right" size={20} color="#ffffff" />
               </LinearGradient>
             </Pressable>
-          ) : null}
+          ) : null} */}
         </View>
 
         <Text style={[s.bio, { color: theme.textSecondary }]}>"Exploring the nexus of synthwave rhythms and cinematic soul. Join the journey through the star systems of sound."</Text>
@@ -1386,7 +1386,7 @@ const PlaylistSection = () => {
 
                         {!isOwner && <Pressable
                         onPress={()=>{
-                          navigation.navigate('EventDetail')
+                          navigation.navigate('EventDetail', { id: item.id })
                         }}
                         style={{
                           backgroundColor: 'white',

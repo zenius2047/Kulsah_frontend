@@ -13,6 +13,7 @@ import {
 } from 'react-native';
 import { useThemeMode, PRIMARY_COLOR, primaryColorAlpha } from "../theme";
 import { mediumScreen, setUser, user as globalUser } from '../types';
+import PaymentGateway from '../components/PaymentGateway';
 import { fontSize } from './typography';
 
 type CoinPackage = {
@@ -373,136 +374,14 @@ const TopUpCoins: React.FC = () => {
         </View>
       </ScrollView>
 
-      <Modal
-        visible={isPaymentOpen}
-        transparent
-        animationType="slide"
-        statusBarTranslucent
-        onRequestClose={() => !isProcessingPayment && setIsPaymentOpen(false)}
-      >
-        <View style={{ flex: 1, backgroundColor: isDark ? 'rgba(0,0,0,0.72)' : 'rgba(15,23,42,0.28)', justifyContent: 'flex-end' }}>
-          <Pressable
-            style={{ flex: 1 }}
-            onPress={() => {
-              if (!isProcessingPayment) setIsPaymentOpen(false);
-            }}
-          />
-          <View
-            style={{
-              borderTopLeftRadius: 34,
-              borderTopRightRadius: 34,
-              padding: 20,
-                backgroundColor: isDark ? '#101828' : theme.card,
-              borderTopWidth: 1,
-              borderColor: isDark ? 'rgba(255,255,255,0.08)' : theme.border,
-              rowGap: 16,
-            }}
-          >
-            <View
-              style={{
-                width: 48,
-                height: 6,
-                borderRadius: 999,
-                alignSelf: 'center',
-                backgroundColor: isDark ? 'rgba(255,255,255,0.2)' : 'rgba(15,23,42,0.12)',
-              }}
-            />
-
-            <Text
-              style={{
-                color: theme.text,
-                ...fontSize.b1, lineHeight: fontSize.b1.fontSize + 2,
-                textTransform: 'uppercase',
-                textAlign: 'center',
-              }}
-            >
-              Payment Gateway
-            </Text>
-
-            {selectedPkgData ? (
-              <View
-                style={{
-                  borderRadius: 24,
-                  padding: 16,
-                  backgroundColor: isDark ? 'rgba(255,255,255,0.05)' : '#fff',
-                  borderWidth: 1,
-                  borderColor: theme.border,
-                  rowGap: 10,
-                }}
-              >
-                <View style={{ flexDirection: 'row', justifyContent: 'space-between' }}>
-                  <Text style={{ color: theme.textSecondary }}>Package</Text>
-                  <Text style={{ color: theme.text }}>
-                    {selectedPkgData.coins} Kulcoins
-                  </Text>
-                </View>
-                <View style={{ flexDirection: 'row', justifyContent: 'space-between' }}>
-                  <Text style={{ color: theme.textSecondary }}>Bonus</Text>
-                  <Text style={{ color: '#4ade80' }}>
-                    +{selectedPkgData.bonus}
-                  </Text>
-                </View>
-                <View style={{ flexDirection: 'row', justifyContent: 'space-between' }}>
-                  <Text style={{ color: theme.textSecondary }}>Amount</Text>
-                  <Text style={{ color: PRIMARY_COLOR }}>
-                    {selectedPkgData.price} GHS
-                  </Text>
-                </View>
-              </View>
-            ) : null}
-
-            <Pressable
-              onPress={() => void handlePaymentSuccess()}
-              disabled={isProcessingPayment}
-              style={{
-                minHeight: 60,
-                borderRadius: 20,
-                backgroundColor: PRIMARY_COLOR,
-                alignItems: 'center',
-                justifyContent: 'center',
-              }}
-            >
-              {isProcessingPayment ? (
-                <ActivityIndicator color="#fff" />
-              ) : (
-                <Text
-                  style={{
-                    color: '#fff',
-                    ...fontSize.b5, lineHeight: fontSize.b5.fontSize + 1,
-                    textTransform: 'uppercase',
-                    letterSpacing: 2,
-                  }}
-                >
-                  Pay Now
-                </Text>
-              )}
-            </Pressable>
-
-            <Pressable
-              onPress={() => setIsPaymentOpen(false)}
-              disabled={isProcessingPayment}
-              style={{
-                minHeight: 56,
-                borderRadius: 18,
-                backgroundColor: isDark ? 'rgba(255,255,255,0.05)' : 'rgba(15,23,42,0.05)',
-                alignItems: 'center',
-                justifyContent: 'center',
-              }}
-            >
-              <Text
-                style={{
-                  color: theme.textSecondary,
-                  ...fontSize.b5, lineHeight: fontSize.b5.fontSize + 1,
-                  textTransform: 'uppercase',
-                  letterSpacing: 1.5,
-                }}
-              >
-                Cancel
-              </Text>
-            </Pressable>
-          </View>
-        </View>
-      </Modal>
+      <PaymentGateway
+        isOpen={isPaymentOpen}
+        onClose={() => setIsPaymentOpen(false)}
+        onSuccess={() => void handlePaymentSuccess()}
+        amount={selectedPkgData?.price ?? 0}
+        currency="GHS"
+        itemName={selectedPkgData ? `${selectedPkgData.coins + selectedPkgData.bonus} Kulcoins` : 'Kulcoins'}
+      />
 
       <Modal visible={showSuccess} transparent animationType="fade" statusBarTranslucent>
         <View
