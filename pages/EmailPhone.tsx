@@ -1,5 +1,6 @@
 import React, { useEffect, useMemo, useRef, useState } from 'react';
 import {
+  Dimensions,
   Keyboard,
   KeyboardAvoidingView,
   Modal,
@@ -63,6 +64,7 @@ const EmailPhone: React.FC = () => {
   const [confirmPassword, setConfirmPassword] = useState(false);
   const [eventDate, setDate] = useState(new Date());
   const modalBackdrop = isDark ? 'rgba(0,0,0,0.75)' : 'rgba(15,23,42,0.35)';
+  const { height: SCREEN_HEIGHT, width: SCREEN_WIDTH } = Dimensions.get('screen');
   
   const lightLeakOne = useMemo(
     () =>
@@ -144,6 +146,7 @@ const EmailPhone: React.FC = () => {
   };
 
   const handleContinue = () => {
+    console.log('Continue tapped');
     if (!canContinue) return;
     // setIdentifier("");
     if(isCreateAccount && step < 4){
@@ -174,11 +177,11 @@ const EmailPhone: React.FC = () => {
           paddingTop: Platform.OS === 'ios' ? 54 : insets.top,
         },
       ]}
-      edges={['left', 'right', 'bottom']}
+      edges={[]}
     >
       <StatusBar barStyle={isDark ? 'light-content' : 'dark-content'} backgroundColor="transparent" translucent />
 
-      <View style={styles.screen}>
+      <View style={[styles.screen, {height: SCREEN_HEIGHT}]}>
         {/* <View style={[styles.blob, styles.blobTop, { backgroundColor: lightLeakOne }]} />
         <View style={[styles.blob, styles.blobBottom, { backgroundColor: lightLeakTwo }]} /> */}
 
@@ -217,7 +220,7 @@ const EmailPhone: React.FC = () => {
             style={[
               styles.card,
               {
-                backgroundColor: theme.background,
+                // backgroundColor: theme.background,
                 borderColor,
                 shadowColor: isDark ? '#000000' : '#7c3aed',
                 paddingLeft: isCreateAccount ? -22 : 0
@@ -250,6 +253,7 @@ const EmailPhone: React.FC = () => {
               {step === 3 && isCreateAccount && <Text style={[styles.brandTitle, { color: theme.textSecondary, marginTop: 30, fontSize: fontSize.b1.fontSize + (mediumScreen ? 6: 2), lineHeight: fontSize.b1.fontSize + 2 + (mediumScreen ? 6: 2), fontFamily: fontSize.b1.fontFamily, paddingLeft: -22, paddingRight: -22 }]}>Create a strong password</Text>}
               {step === 3 && isCreateAccount && <Text style={[styles.brandTitle, { color: titleColor, fontSize: fontSize.b1.fontSize + (mediumScreen ? 0: 0), fontFamily: 'Inter_400Regular', paddingLeft: -22 }]}>Use at least 8 characters with a mix of letters, numbers, and symbols.</Text>}
               {step === 4 && isCreateAccount && <Text style={[styles.brandTitle, { color: theme.textSecondary, marginTop: 30, fontSize: fontSize.b1.fontSize + (mediumScreen ? 6: 2), lineHeight: fontSize.b1.fontSize + 2 + (mediumScreen ? 6: 2), fontFamily: fontSize.b1.fontFamily, paddingLeft: -22 }]}>Enter your email</Text>}
+              {step === 4 && isCreateAccount && <Text style={[styles.brandTitle, { color: titleColor, fontSize: fontSize.b1.fontSize + (mediumScreen ? 0: 0), fontFamily: 'Inter_400Regular', paddingLeft: -22 }]}>Enter your email address to continue creating, earning, connecting, and shining.</Text>}
               {/* {step === 1 && isCreateAccount && <Text style={[styles.brandTitle, { color: titleColor, fontSize: fontSize.b1.fontSize + (mediumScreen ? 0: 0), fontFamily: 'Inter_400Regular', paddingLeft: -22 }]}>Your username is your unique name across the Creator Galaxy.</Text>} */}
               <Pressable onPress={()=>{
                 Keyboard.dismiss();
@@ -356,12 +360,12 @@ const EmailPhone: React.FC = () => {
                   alignItems: 'center',
                   justifyContent: 'center'
                 }}>
-                  {isCreateAccount && 
+                  {(isCreateAccount && 
                   step === 1 ? <MaterialIcons name="account-circle" size={20} color={theme.text} />: 
-                  step === 4 ? <MaterialIcons name="email" size={20} color={theme.text}/>:
+                  step === 4 ? <MaterialIcons name="alternate-email" size={20} color={theme.text}/>:
                   step === 3 ? <MaterialIcons name="lock" size={20} color={theme.textMuted}/>:
                   step === 2 ? <MaterialIcons name="date-range" size={20} color={theme.text}/> : 
-                  step === 0 ? <MaterialIcons name="perm-identity" size={20} color={theme.text}/> : 
+                  step === 0  && isCreateAccount ? <MaterialIcons name="perm-identity" size={20} color={theme.text}/> : 
                   <View style={{
                   }}>
                     <Text style={{
@@ -371,7 +375,7 @@ const EmailPhone: React.FC = () => {
                       @
                     </Text>
                   </View>
-                  }
+                 )}
                   </View>}
 
                 <TextInput
@@ -379,6 +383,7 @@ const EmailPhone: React.FC = () => {
                   value={isCreateAccount ? `${step === 1 ? username : step === 4 ? email : step === 3 ? password : step === 0 ? user : eventDate.toDateString()}`:identifier}
                   onChangeText={handleTextChange}
                   showSoftInputOnFocus={(step === 2 ? false : true)}
+                  // returnKeyLabel='Done'
                   onSubmitEditing={() => {
                     if(step === 3){
                       setFocused(false);
@@ -417,6 +422,7 @@ const EmailPhone: React.FC = () => {
                 onPress = {()=>{
                   console.log('tapped');
                   setShowPassword((showPassword) => !showPassword)
+                  console.log('the value of show password', showPassword)
                 }} 
                 style={{
                   alignItems: 'center',
@@ -537,10 +543,13 @@ const EmailPhone: React.FC = () => {
         </ScrollView>
         {isCreateAccount && <Pressable
                 style={[styles.primaryButton, !canContinue && styles.primaryButtonDisabled, {
+                  marginHorizontal: '5%',
+                  width: '90%',
+                  marginBottom: Platform.OS === 'ios' ? 54 : insets.bottom + 54,
                   position: 'absolute',
-                  right: '5%',
-                  left: '5%',
-                  bottom: Platform.OS === 'ios' ? 60 : insets.bottom + 30,
+                  right: 0,
+                  left: 0,
+                  bottom: 0,
                 }]}
                 onPress={handleContinue}
                 disabled={!canContinue}
@@ -571,14 +580,15 @@ const EmailPhone: React.FC = () => {
         width: '100%',
         alignItems: 'center',
         justifyContent: 'center',
-        // backgroundColor: modalBackdrop
+        // backgroundColor: 'green',
       }}>
         <View style={{
-          height: 200,
+          // height: 200,
           width: '90%',
           alignItems: 'center',
           justifyContent: 'center',
-          marginTop: Platform.OS === 'ios' ? 200 : 0
+          marginTop: Platform.OS === 'ios' ? 200 : 0,
+          // backgroundColor: 'blue',
           // alignSelf: '',
           // backgroundColor: Platform.OS === 'ios' ? '#ffffff22' : 'transparent',
         }}>
@@ -590,6 +600,35 @@ const EmailPhone: React.FC = () => {
           textColor= {theme.text}
         />
         </View>
+
+        {Platform.OS === 'ios' &&  
+        <Pressable
+        style={[styles.primaryButton, !canContinue && styles.primaryButtonDisabled, {
+                  marginHorizontal: '5%',
+                  width: '90%',
+                  marginBottom: 54,
+                  position: 'absolute',
+                  bottom: 0,
+                  left: 0,
+                  right: 0,
+                  // backgroundColor: 'red',
+        }]}
+        onPress={()=>{
+          setShowDate(false);
+          handleContinue();
+        }}
+        disabled={!canContinue}
+        >
+                <LinearGradient
+                  colors={[PRIMARY_COLOR, PRIMARY_COLOR]}
+                  start={{ x: 0, y: 0 }}
+                  end={{ x: 1, y: 0 }}
+                  style={styles.primaryGradient}
+                >
+                  <Text style={styles.primaryButtonText}>CONTINUE</Text>
+                </LinearGradient>
+          
+          </Pressable>}
       </View>
     </Modal>
     </KeyboardAvoidingView>
@@ -602,6 +641,7 @@ const styles = StyleSheet.create({
   },
   screen: {
     flex: 1,
+    // backgroundColor: 'blue',
   },
   blob: {
     position: 'absolute',
@@ -661,9 +701,9 @@ const styles = StyleSheet.create({
     paddingHorizontal: 22,
     paddingVertical: 28,
     overflow: 'hidden',
-    shadowOpacity: 0.16,
-    shadowRadius: 28,
-    shadowOffset: { width: 0, height: 18 },
+    // shadowOpacity: 0.16,
+    // shadowRadius: 28,
+    // shadowOffset: { width: 0, height: 18 },
     // elevation: 8,
   },
   cardGlow: {
@@ -734,6 +774,8 @@ const styles = StyleSheet.create({
     shadowRadius: 20,
     shadowOffset: { width: 0, height: 0 },
     elevation: 7,
+    // width: '90%',
+  
   },
   primaryButtonDisabled: {
     opacity: 0.48,
