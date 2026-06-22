@@ -28,6 +28,8 @@ import CountryPicker, {
   Country,
 } from 'react-native-country-picker-modal';
 import DateTimePicker from '@react-native-community/datetimepicker';
+import api from '../clients';
+import DotTrioLoader from '../components/DotTrioLoader';
 
 
 const EmailPhone: React.FC = () => {
@@ -43,6 +45,7 @@ const EmailPhone: React.FC = () => {
   // const [dob, setDob] = useState('');
   const [focused, setFocused] = useState(false);
   const [confirmFocused, setConfirmFocused] = useState(false);
+  const [isLoading, setLoading] = useState(false);
 
   const titleColor = theme.text;
   const bodyColor = isDark ? '#94a3b8' : theme.textSecondary;
@@ -63,8 +66,12 @@ const EmailPhone: React.FC = () => {
   const [showPassword, setShowPassword] = useState(false);
   const [confirmPassword, setConfirmPassword] = useState(false);
   const [eventDate, setDate] = useState(new Date());
+  const [gender, setGender] = useState('');
+  const [showGenderDropdown, setShowGenderDropdown] = useState(false);
+  const [keyboardHeight, setKeyboardHeight] = useState(0);
   const modalBackdrop = isDark ? 'rgba(0,0,0,0.75)' : 'rgba(15,23,42,0.35)';
   const { height: SCREEN_HEIGHT, width: SCREEN_WIDTH } = Dimensions.get('screen');
+  const genderOptions = ['Female', 'Male', 'Non-binary', 'Prefer not to say'];
   
   const lightLeakOne = useMemo(
     () =>
@@ -93,11 +100,17 @@ const EmailPhone: React.FC = () => {
   const isValidPassword = (password: string): boolean => {
   const regex =
     /^(?=.*[A-Za-z])(?=.*\d)(?=.*[!@#$%^&*()_+\-=\[\]{};':"\\|,.<>/?]).{8,}$/;
-  console.log(`It's valid : ${regex.test(password)}`);
   return regex.test(password);
 };
 
-  const canContinue = isEmail || isPhone || (step === 0 && user.length > 0) || (step === 3 && isValidPassword(password) && password === confirmPasswordText) || (step === 1 && username.length > 0) || (step === 2 && true);
+  const canContinue = !isCreateAccount
+    ? isEmail || isPhone
+    : (step === 0 && user.length > 0) ||
+      (step === 1 && username.length > 0) ||
+      (step === 2 && true) ||
+      (step === 3 && isValidPassword(password) && password === confirmPasswordText) ||
+      (step === 4 && gender.length > 0) ||
+      (step === 5 && isEmail);
 
   const onSelect = (country: Country) => {
     setCountryCode(country.cca2);
@@ -106,19 +119,36 @@ const EmailPhone: React.FC = () => {
 
   useEffect(()=>{
     if(route.params?.isCreateAccount){
-      console.log('Is creating account');
       setIsCreateAccount(route.params?.isCreateAccount);
     }
   },[]);
 
   useEffect(()=>{
-    if(step === 2)inputRef.current?.blur();
+    if(step === 2 || step === 4)inputRef.current?.blur();
+    setShowGenderDropdown(false);
   }, [step])
+
+  useEffect(() => {
+    const showEvent = Platform.OS === 'ios' ? 'keyboardWillShow' : 'keyboardDidShow';
+    const hideEvent = Platform.OS === 'ios' ? 'keyboardWillHide' : 'keyboardDidHide';
+
+    const showSubscription = Keyboard.addListener(showEvent, (event) => {
+      setKeyboardHeight(event.endCoordinates.height);
+    });
+    const hideSubscription = Keyboard.addListener(hideEvent, () => {
+      setKeyboardHeight(0);
+    });
+
+    return () => {
+      showSubscription.remove();
+      hideSubscription.remove();
+    };
+  }, []);
 
   const handleTextChange = (text: string) => {
     if(step === 0) setUser(text);
     if(step === 1)setUsername(text);
-    if(step === 4)setEmail(text);
+    if(step === 5)setEmail(text);
     if(step === 3)setPassword(text);
     setIdentifier(text);
 
@@ -145,28 +175,95 @@ const EmailPhone: React.FC = () => {
   
   };
 
-  const handleContinue = () => {
-    console.log('Continue tapped');
-    if (!canContinue) return;
-    // setIdentifier("");
-    if(isCreateAccount && step < 4){
-      setStep((step + 1));
-      // setIdentifier("");
-      return;
-    }
+  // const handleContinue = async() => {
+  //   if (!canContinue) return;
+  //   // setIdentifier("");
+  //   if(isCreateAccount && step < 5){
+  //     console.log('step is less than five');
+  //     setStep((step + 1));
+  //     // setIdentifier("");
+  //     return;
+  //   }
 
-    if (isEmail) {
-      navigation.navigate('VerifyOtp', {
-        email: emailCandidate,
+  //   if (isEmail){
+  //     setLoading(true);
+  //     try{
+  //       const res = await api.post('auth/register', {
+  //       'name': user,
+  //       'username': username,
+  //       'email': email,
+  //       'password': password
+  //     });
+  //     console.log('this is the response', res);
+     
+  //     }catch (errors){
+  //       const error = errors?.res?.data?.errors
+
+      
+  //     }
+  //     setLoading(false);
+  //     navigation.navigate('VerifyOtp', {
+  //       email: emailCandidate,
+  //     });
+  //     return;
+  //   }
+
+    
+  // };
+
+  const handleContinue = async () => {
+  if (!canContinue) return;
+
+  // Move to the next step during account creation
+  if (isCreateAccount && step < 5) {
+    console.log('step is less than five');
+    setStep(prevStep => prevStep + 1);
+    return;
+  }
+
+  // Register user when all steps are completed
+  if (isEmail) {
+    setLoading(true);
+
+    try {
+      const res = await api.post('auth/register', {
+        name: user,
+        username,
+        email,
+        password,
       });
-      return;
+
+      console.log('Registration successful:', res.data);
+
+      // Navigate only if registration succeeds
+      navigation.navigate('VerifyOtp', {
+        email,
+      });
+
+    } catch (error) {
+      console.log('Registration error:', error?.response?.data);
+
+      // const errors = error?.response?.data?.errors;
+
+      // if (errors) {
+      //   console.log('Validation errors:', errors);
+
+      //   // Example:
+      //   // setFormErrors(errors);
+      // } else {
+      //   console.log(
+      //     error?.response?.data?.message ||
+      //     error?.message ||
+      //     'Something went wrong'
+      //   );
+      // }
+    } finally {
+      setLoading(false);
     }
 
-    navigation.navigate('VerifyOtp', {
-      phone: phoneDigits,
-    });
-  };
-
+    return;
+  }
+};
   return (
     <KeyboardAvoidingView style={{ flex: 1 }} behavior={Platform.OS === 'ios' ? 'padding' : undefined} keyboardVerticalOffset={0}>
     <SafeAreaView
@@ -214,7 +311,13 @@ const EmailPhone: React.FC = () => {
         <ScrollView
           showsVerticalScrollIndicator={false}
           keyboardShouldPersistTaps="handled"
-          contentContainerStyle={[styles.scrollContent, {justifyContent: isCreateAccount ? 'flex-start': 'center'}]}
+          contentContainerStyle={[
+            styles.scrollContent,
+            {
+              justifyContent: isCreateAccount ? 'flex-start': 'center',
+              paddingBottom: 32 + (step === 3 ? keyboardHeight : 0),
+            },
+          ]}
         >
           <View
             style={[
@@ -252,8 +355,10 @@ const EmailPhone: React.FC = () => {
               {step === 2 && isCreateAccount && <Text style={[styles.brandTitle, { color: titleColor, fontSize: fontSize.b1.fontSize + (mediumScreen ? 0: 0), fontFamily: 'Inter_400Regular', paddingLeft: -22 }]}>Tell us your date of birth so we can personalize your journey through the Creator Galaxy..</Text>}
               {step === 3 && isCreateAccount && <Text style={[styles.brandTitle, { color: theme.textSecondary, marginTop: 30, fontSize: fontSize.b1.fontSize + (mediumScreen ? 6: 2), lineHeight: fontSize.b1.fontSize + 2 + (mediumScreen ? 6: 2), fontFamily: fontSize.b1.fontFamily, paddingLeft: -22, paddingRight: -22 }]}>Create a strong password</Text>}
               {step === 3 && isCreateAccount && <Text style={[styles.brandTitle, { color: titleColor, fontSize: fontSize.b1.fontSize + (mediumScreen ? 0: 0), fontFamily: 'Inter_400Regular', paddingLeft: -22 }]}>Use at least 8 characters with a mix of letters, numbers, and symbols.</Text>}
-              {step === 4 && isCreateAccount && <Text style={[styles.brandTitle, { color: theme.textSecondary, marginTop: 30, fontSize: fontSize.b1.fontSize + (mediumScreen ? 6: 2), lineHeight: fontSize.b1.fontSize + 2 + (mediumScreen ? 6: 2), fontFamily: fontSize.b1.fontFamily, paddingLeft: -22 }]}>Enter your email</Text>}
-              {step === 4 && isCreateAccount && <Text style={[styles.brandTitle, { color: titleColor, fontSize: fontSize.b1.fontSize + (mediumScreen ? 0: 0), fontFamily: 'Inter_400Regular', paddingLeft: -22 }]}>Enter your email address to continue creating, earning, connecting, and shining.</Text>}
+              {step === 4 && isCreateAccount && <Text style={[styles.brandTitle, { color: theme.textSecondary, marginTop: 30, fontSize: fontSize.b1.fontSize + (mediumScreen ? 6: 2), lineHeight: fontSize.b1.fontSize + 2 + (mediumScreen ? 6: 2), fontFamily: fontSize.b1.fontFamily, paddingLeft: -22 }]}>Select your gender</Text>}
+              {step === 4 && isCreateAccount && <Text style={[styles.brandTitle, { color: titleColor, fontSize: fontSize.b1.fontSize + (mediumScreen ? 0: 0), fontFamily: 'Inter_400Regular', paddingLeft: -22 }]}>This helps us personalize your Kulsah experience.</Text>}
+              {step === 5 && isCreateAccount && <Text style={[styles.brandTitle, { color: theme.textSecondary, marginTop: 30, fontSize: fontSize.b1.fontSize + (mediumScreen ? 6: 2), lineHeight: fontSize.b1.fontSize + 2 + (mediumScreen ? 6: 2), fontFamily: fontSize.b1.fontFamily, paddingLeft: -22 }]}>Enter your email</Text>}
+              {step === 5 && isCreateAccount && <Text style={[styles.brandTitle, { color: titleColor, fontSize: fontSize.b1.fontSize + (mediumScreen ? 0: 0), fontFamily: 'Inter_400Regular', paddingLeft: -22 }]}>Enter your email address to continue creating, earning, connecting, and shining.</Text>}
               {/* {step === 1 && isCreateAccount && <Text style={[styles.brandTitle, { color: titleColor, fontSize: fontSize.b1.fontSize + (mediumScreen ? 0: 0), fontFamily: 'Inter_400Regular', paddingLeft: -22 }]}>Your username is your unique name across the Creator Galaxy.</Text>} */}
               <Pressable onPress={()=>{
                 Keyboard.dismiss();
@@ -279,7 +384,7 @@ const EmailPhone: React.FC = () => {
               }}>
                 Password
                 </Text>}
-              <View
+              {step !== 4 && <View
                 style={[
                   styles.inputWrap,
                   {
@@ -362,7 +467,7 @@ const EmailPhone: React.FC = () => {
                 }}>
                   {(isCreateAccount && 
                   step === 1 ? <MaterialIcons name="account-circle" size={20} color={theme.text} />: 
-                  step === 4 ? <MaterialIcons name="alternate-email" size={20} color={theme.text}/>:
+                  step === 5 ? <MaterialIcons name="alternate-email" size={20} color={theme.text}/>:
                   step === 3 ? <MaterialIcons name="lock" size={20} color={theme.textMuted}/>:
                   step === 2 ? <MaterialIcons name="date-range" size={20} color={theme.text}/> : 
                   step === 0  && isCreateAccount ? <MaterialIcons name="perm-identity" size={20} color={theme.text}/> : 
@@ -380,7 +485,7 @@ const EmailPhone: React.FC = () => {
 
                 <TextInput
                   ref={inputRef}
-                  value={isCreateAccount ? `${step === 1 ? username : step === 4 ? email : step === 3 ? password : step === 0 ? user : eventDate.toDateString()}`:identifier}
+                  value={isCreateAccount ? `${step === 1 ? username : step === 5 ? email : step === 3 ? password : step === 0 ? user : eventDate.toDateString()}`:identifier}
                   onChangeText={handleTextChange}
                   showSoftInputOnFocus={(step === 2 ? false : true)}
                   // returnKeyLabel='Done'
@@ -391,7 +496,7 @@ const EmailPhone: React.FC = () => {
                       return;
                     }
                       if(canContinue){
-                        if(step < 4)setStep((step + 1));
+                        if(step < 5)setStep((step + 1));
                       }
                     }}
                   onFocus={() => {
@@ -412,13 +517,13 @@ const EmailPhone: React.FC = () => {
                   keyboardType={Isphone ? "phone-pad":"email-address"}
                   autoCapitalize="none"
                   selectionColor={PRIMARY_COLOR}
-                  secureTextEntry={showPassword}
+                  secureTextEntry={step === 3 && showPassword}
                   style={[styles.input, { color: titleColor, width: Isphone ? '75%': step === 3 ? '75%':'85%', marginLeft: Isphone ? 5: 0, 
                     // backgroundColor: 'yellow'
                   }]}
                 />
 
-                {(isCreateAccount || step === 3 ) && <Pressable
+                {(isCreateAccount || step === 3 ) && step !== 5 && <Pressable
                 onPress = {()=>{
                   console.log('tapped');
                   setShowPassword((showPassword) => !showPassword)
@@ -433,7 +538,39 @@ const EmailPhone: React.FC = () => {
                   {showPassword ? <MaterialIcons name = "visibility-off" size={20} color={theme.textMuted}/>: <MaterialIcons name = "visibility" size={20} color={theme.textMuted}/>}
                 </Pressable>}
 
-              </View>
+              </View>}
+
+              {step === 4 && isCreateAccount && <Pressable
+                onPress={() => {
+                  Keyboard.dismiss();
+                  setShowGenderDropdown(true);
+                }}
+                style={[
+                  styles.inputWrap,
+                  {
+                    backgroundColor: fieldBg,
+                    borderColor,
+                  },
+                ]}
+              >
+                <View style={styles.genderIconWrap}>
+                  <MaterialIcons name="wc" size={20} color={theme.text} />
+                </View>
+                <Text
+                  numberOfLines={1}
+                  style={[
+                    styles.genderValue,
+                    {
+                      color: gender ? titleColor : theme.textMuted,
+                    },
+                  ]}
+                >
+                  {gender || 'Select gender'}
+                </Text>
+                <View style={styles.genderChevronWrap}>
+                  <MaterialIcons name="keyboard-arrow-down" size={22} color={theme.textMuted} />
+                </View>
+              </Pressable>}
 
               {step === 3 && <View style = {{
                 gap : 16,
@@ -530,7 +667,6 @@ const EmailPhone: React.FC = () => {
           {!isCreateAccount && <View style={styles.footer}>
             <Text style={[styles.footerPrompt, { color: footerMuted }]}>New to Kulsah?</Text>
             <Pressable onPress={()=>{
-              // navigation.navigate('EmailPhone', {isCreateAccount : true})
               setIsCreateAccount(true);
               setIsPhone(false);
 
@@ -630,6 +766,59 @@ const EmailPhone: React.FC = () => {
           
           </Pressable>}
       </View>
+    </Modal>
+    <Modal
+      visible={showGenderDropdown}
+      animationType="fade"
+      transparent={true}
+      statusBarTranslucent={true}
+      onRequestClose={() => setShowGenderDropdown(false)}
+    >
+      <Pressable
+        style={[styles.dropdownBackdrop, { backgroundColor: modalBackdrop }]}
+        onPress={() => setShowGenderDropdown(false)}
+      >
+        <Pressable style={[styles.dropdownSheet, { backgroundColor: theme.background, borderColor }]}>
+          {genderOptions.map((option) => (
+            <Pressable
+              key={option}
+              onPress={() => {
+                setGender(option);
+                setShowGenderDropdown(false);
+              }}
+              style={[
+                styles.dropdownOption,
+                {
+                  borderBottomColor: borderColor,
+                  backgroundColor: gender === option ? primaryColorAlpha(0.12) : 'transparent',
+                },
+              ]}
+            >
+              <Text style={[styles.dropdownOptionText, { color: titleColor }]}>{option}</Text>
+              {gender === option && <MaterialIcons name="check" size={20} color={PRIMARY_COLOR} />}
+            </Pressable>
+          ))}
+        </Pressable>
+      </Pressable>
+    </Modal>
+    <Modal
+    visible={isLoading}
+    animationType="fade"
+    transparent={true}
+    statusBarTranslucent={true}
+    // onRequestClose={() => setShowGenderDropdown(false)}
+    >
+    <View
+    style={{
+      height: '100%',
+      width: '100%',
+      backgroundColor: modalBackdrop,
+      alignItems: 'center',
+      justifyContent: 'center'
+    }}
+    >
+      <DotTrioLoader/>
+    </View>
     </Modal>
     </KeyboardAvoidingView>
   );
@@ -754,6 +943,23 @@ const styles = StyleSheet.create({
     // gap: 5,
     // paddingTop: 14,
   },
+  genderIconWrap: {
+    width: '15%',
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  genderValue: {
+    width: '70%',
+    fontSize: fontSize.b2.fontSize + (mediumScreen ? 6: 2),
+    fontFamily: fontSize.b3.fontFamily,
+    lineHeight: fontSize.b2.fontSize + 2 + (mediumScreen ? 8: 4),
+    alignSelf: 'center',
+  },
+  genderChevronWrap: {
+    width: '15%',
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
   inputLabel: {
     position: 'absolute',
     left: 16,
@@ -846,6 +1052,30 @@ const styles = StyleSheet.create({
   footerAction: {
     color: PRIMARY_COLOR,
     ...fontSize.b4, lineHeight: fontSize.b4.fontSize + 1,
+  },
+  dropdownBackdrop: {
+    flex: 1,
+    alignItems: 'center',
+    justifyContent: 'center',
+    paddingHorizontal: 24,
+  },
+  dropdownSheet: {
+    width: '100%',
+    borderRadius: 20,
+    borderWidth: 1,
+    overflow: 'hidden',
+  },
+  dropdownOption: {
+    minHeight: 56,
+    borderBottomWidth: 1,
+    paddingHorizontal: 18,
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+  },
+  dropdownOptionText: {
+    ...fontSize.b3,
+    lineHeight: fontSize.b3.fontSize + 2,
   },
 });
 

@@ -13,9 +13,9 @@ import { LinearGradient } from 'expo-linear-gradient';
 import { MaterialIcons } from '@expo/vector-icons';
 import { BlurView } from 'expo-blur';
 import { useNavigation, useRoute } from '@react-navigation/native';
-import { useThemeMode, PRIMARY_COLOR, primaryColorAlpha } from "./theme";
-import { mediumScreen } from './types';
-import { fontSize } from './typography';
+import { useThemeMode, PRIMARY_COLOR, primaryColorAlpha } from "../theme";
+import { mediumScreen } from '../types';
+import { fontSize } from '../typography';
 
 const BRAND_GRADIENT = [PRIMARY_COLOR, PRIMARY_COLOR] as const;
 const SHEEN_GRADIENT = ['rgba(255,255,255,0.1)', 'rgba(255,255,255,0)'] as const;

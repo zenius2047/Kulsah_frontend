@@ -54,7 +54,7 @@ import Signup from './pages/Signup';
 import Community from './pages/Community';
 import { BlurView } from 'expo-blur';
 import ArtistProfile from './pages/ArtistProfile';
-import FanProfile from './fanProfile';
+import FanProfile from './pages/FanProfile';
 import CreatorSettings from './pages/CreatorSettings';
 import { SafeAreaProvider } from 'react-native-safe-area-context';
 import UploadContent from './pages/UploadContent';
@@ -113,8 +113,8 @@ import SignUpModal from './SignUpModal';
 import Login from './pages/Login';
 import EmailPhone from './pages/EmailPhone';
 import Store from './pages/Store';
-import VerifyOtp from './VerifyOtp';
-import EmailVerification from './EmailVerification';
+import VerifyOtp from './pages/VerifyOtp';
+import EmailVerification from './pages/EmailVerification';
 import VibePicker from './pages/VibePicker';
 import FanTicketDetail from './pages/FanTicketDetail';
 import MarketPlace from './MarketPlace';
@@ -802,3 +802,6 @@ const styles = StyleSheet.create({
 });
 
 export default App;
+
+
+

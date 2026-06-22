@@ -13,9 +13,9 @@ import { LinearGradient } from 'expo-linear-gradient';
 import { MaterialIcons } from '@expo/vector-icons';
 import { useNavigation, useRoute } from '@react-navigation/native';
 import { BlurView } from 'expo-blur';
-import { useThemeMode, PRIMARY_COLOR, primaryColorAlpha } from "./theme";
-import { mediumScreen } from './types';
-import { fontSize } from './typography';
+import { useThemeMode, PRIMARY_COLOR, primaryColorAlpha } from "../theme";
+import { mediumScreen } from '../types';
+import { fontSize } from '../typography';
 
 const OTP_LENGTH = 4;
 const BRAND_GRADIENT = [PRIMARY_COLOR, PRIMARY_COLOR] as const;
