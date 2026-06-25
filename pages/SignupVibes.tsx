@@ -28,9 +28,11 @@ const SignupVibes: React.FC = () => {
     if (selectedVibes.size === 0) return;
 
     const guestUser: User = {
-      id: '',
+      id: 0,
       name: 'guest',
       role: 'fan',
+      email: 'guest@kulsah.com',
+      handle: 'guest',
     };
 
     await AsyncStorage.setItem('pulsar_user', JSON.stringify(guestUser));

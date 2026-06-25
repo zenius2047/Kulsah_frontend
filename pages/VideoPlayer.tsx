@@ -157,10 +157,10 @@ const VideoPlayer: React.FC = () => {
   }, [route.params?.id, routeFeedVideo?.id]);
 
   useEffect(() => {
-    AsyncStorage.getItem('pulsar_user').then((saved) => {
+    AsyncStorage.getItem('pulsar_user').then((saved: string | null) => {
       if (!saved) return;
       try {
-        const parsed = JSON.parse(saved);
+        const parsed = JSON.parse(saved) as { role?: string };
         const nextRole = parsed?.role === 'creator' ? 'creator' : 'fan';
         setRole(nextRole);
         setStudioMode(nextRole === 'creator');

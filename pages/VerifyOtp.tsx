@@ -1,6 +1,7 @@
 import React, { useEffect, useMemo, useRef, useState } from 'react';
 import {
   Animated,
+  Modal,
   Platform,
   Pressable,
   StatusBar,
@@ -16,8 +17,12 @@ import { BlurView } from 'expo-blur';
 import { useThemeMode, PRIMARY_COLOR, primaryColorAlpha } from "../theme";
 import { mediumScreen } from '../types';
 import { fontSize } from '../typography';
+import { authApi, useAuth } from '../src';
+import DotTrioLoader from '../components/DotTrioLoader';
 
-const OTP_LENGTH = 4;
+
+const OTP_LENGTH = 6;
+const RESEND_DELAY_SECONDS = 10 * 60;
 const BRAND_GRADIENT = [PRIMARY_COLOR, PRIMARY_COLOR] as const;
 const AVATAR_URI =
   'https://lh3.googleusercontent.com/aida-public/AB6AXuBcVzQUWysJKvjL2bxQdmy1AEhRJvlEcdW-0otb0yN7oc7giBhZzzR9mHJQzo62tIKcz6fGwU3aV75TIpGWJpJ6hvFlXPhWFi0QqZbnUsQx3tmpQlYOYA-KdNmrmhSnysxIDJrwkavXNNm8YvK0fM2Q1b6iZnSdO4L13Z3EXWA-AE7erRrMCjWmJRsOBmmM95oh1q3aUgO5Xit31f_4wpBuITxMJqX7e6k1DLq05lfUkjVR4rdfpyg5mqPvJyDEbfdMKTPeKTlp91gD';
@@ -29,8 +34,13 @@ const VerifyOtp: React.FC = () => {
   const insets = useSafeAreaInsets();
   const [otp, setOtp] = useState<string[]>(Array(OTP_LENGTH).fill(''));
   const blink = useRef(new Animated.Value(1)).current;
+  const [resendSecondsRemaining, setResendSecondsRemaining] = useState(RESEND_DELAY_SECONDS);
   const routePhone = typeof route.params?.phone === 'string' ? route.params.phone : '';
   const routeEmail = typeof route.params?.email === 'string' ? route.params.email : '';
+  const routeId = route.params?.id;
+  const {token, setUser} = useAuth();
+  const modalBackdrop = isDark ? 'rgba(0,0,0,0.75)' : 'rgba(15,23,42,0.35)';
+  const [isLoading, setIsLoading] = useState(false);
 
   useEffect(() => {
     const animation = Animated.loop(
@@ -52,12 +62,25 @@ const VerifyOtp: React.FC = () => {
     return () => animation.stop();
   }, [blink]);
 
+  useEffect(() => {
+    if (resendSecondsRemaining <= 0) return;
+
+    const timer = setInterval(() => {
+      setResendSecondsRemaining((current) => Math.max(0, current - 1));
+    }, 1000);
+
+    return () => clearInterval(timer);
+  }, [resendSecondsRemaining]);
+
+
+
   const activeIndex = useMemo(() => {
     const firstEmptyIndex = otp.findIndex((digit) => digit === '');
     return firstEmptyIndex === -1 ? OTP_LENGTH - 1 : firstEmptyIndex;
   }, [otp]);
 
   const isComplete = otp.every((digit) => digit !== '');
+  const canResendOtp = resendSecondsRemaining === 0;
   const displayDestination = useMemo(() => {
     if (routeEmail) {
       const [name, domain] = routeEmail.split('@');
@@ -107,7 +130,20 @@ const VerifyOtp: React.FC = () => {
   };
 
   const handleResend = () => {
+    if (!canResendOtp) return;
     setOtp(Array(OTP_LENGTH).fill(''));
+    setResendSecondsRemaining(RESEND_DELAY_SECONDS);
+    try{
+      const res = authApi.resendOtp( token)
+    }catch (e: any){
+      console.log("this is the error", e?.response?.data)
+    }
+  };
+
+  const formatCountdown = (totalSeconds: number) => {
+    const minutes = Math.floor(totalSeconds / 60);
+    const seconds = totalSeconds % 60;
+    return `${String(minutes).padStart(2, '0')}:${String(seconds).padStart(2, '0')}`;
   };
 
   const keypadRows = [
@@ -133,8 +169,8 @@ const VerifyOtp: React.FC = () => {
     >
       <StatusBar barStyle={isDark ? 'light-content' : 'dark-content'} translucent backgroundColor="transparent" />
 
-      <View style={[styles.glow, styles.glowTop, { backgroundColor: glowTopColor }]} />
-      <View style={[styles.glow, styles.glowBottom, { backgroundColor: glowBottomColor }]} />
+      {/* <View style={[styles.glow, styles.glowTop, { backgroundColor: glowTopColor }]} />
+      <View style={[styles.glow, styles.glowBottom, { backgroundColor: glowBottomColor }]} /> */}
 
       {/* <View style={[styles.headerShell, { backgroundColor: headerBg, borderBottomColor: borderTone }]}>
         <View style={styles.headerRow}>
@@ -162,7 +198,7 @@ const VerifyOtp: React.FC = () => {
         <View style={styles.heroBlock}>
           <Text style={[styles.title, { color: theme.text }]}>Enter OTP</Text>
           <Text style={[styles.subtitle, { color: mutedText }]}>
-            We&apos;ve sent a 4-digit verification code to{' '}
+            We&apos;ve sent a 6-digit verification code to{' '}
             <Text style={styles.highlightText}>{displayDestination}</Text>. Please enter it below.
           </Text>
         </View>
@@ -198,12 +234,39 @@ const VerifyOtp: React.FC = () => {
           })}
         </View>
 
-        <Pressable onPress={handleResend} style={styles.resendButton}>
+        <Pressable
+          onPress={handleResend}
+          disabled={!canResendOtp}
+          style={[styles.resendButton, !canResendOtp && styles.resendButtonDisabled]}
+        >
           <Text style={[styles.resendText, { color: mutedText }]}>Didn&apos;t receive the code?</Text>
-          <Text style={styles.resendAction}>Resend OTP</Text>
+          <Text style={[styles.resendAction, !canResendOtp && styles.resendActionDisabled]}>
+            {canResendOtp ? 'Resend OTP' : `Resend in ${formatCountdown(resendSecondsRemaining)}`}
+          </Text>
         </Pressable>
 
-        <Pressable style={[styles.primaryButton, !isComplete && styles.primaryButtonDisabled]}>
+        <Pressable 
+        onPress ={ async ()=>{
+          console.log(`${otp.toString().replaceAll(",", "")}`);
+          setIsLoading(true);
+         try{
+
+           const res = await authApi.verifyOtp(
+            {
+              otp: otp.toString().replaceAll(",", ""),
+            },
+            token
+          );
+          
+          console.log('Verification done', res.data);
+          setUser(res.data['user']);
+          navigation.navigate('MainTabs');
+         }catch(error: any){
+          console.log('Registration error:', error?.response?.data);
+         }
+         setIsLoading(false);
+        }}
+        style={[styles.primaryButton, !isComplete && styles.primaryButtonDisabled]}>
           <LinearGradient colors={BRAND_GRADIENT} start={{ x: 0, y: 0 }} end={{ x: 1, y: 0 }} style={styles.primaryGradient}>
             <Text style={styles.primaryButtonText}>Continue</Text>
           </LinearGradient>
@@ -233,6 +296,25 @@ const VerifyOtp: React.FC = () => {
           </Pressable>
         </View>
       </BlurView>
+      <Modal
+    visible={isLoading}
+    animationType="fade"
+    transparent={true}
+    statusBarTranslucent={true}
+    // onRequestClose={() => setShowGenderDropdown(false)}
+    >
+    <View
+    style={{
+      height: '100%',
+      width: '100%',
+      backgroundColor: modalBackdrop,
+      alignItems: 'center',
+      justifyContent: 'center'
+    }}
+    >
+      <DotTrioLoader/>
+    </View>
+    </Modal>
     </SafeAreaView>
   );
 };
@@ -340,8 +422,8 @@ const styles = StyleSheet.create({
     marginBottom: 28,
   },
   otpBox: {
-    width: mediumScreen ? 68 : 60,
-    height: mediumScreen ? 86 : 78,
+    width: mediumScreen ? 48 : 40,
+    height: mediumScreen ? 66 : 58,
     borderRadius: 22,
     borderWidth: 1,
     alignItems: 'center',
@@ -371,12 +453,18 @@ const styles = StyleSheet.create({
     flexWrap: 'wrap',
     justifyContent: 'center',
   },
+  resendButtonDisabled: {
+    opacity: 0.7,
+  },
   resendText: {
     ...fontSize.b4, lineHeight: fontSize.b4.fontSize + 1,
   },
   resendAction: {
     color: PRIMARY_COLOR,
     ...fontSize.b4, lineHeight: fontSize.b4.fontSize + 1,
+  },
+  resendActionDisabled: {
+    color: '#94a3b8',
   },
   primaryButton: {
     width: '100%',

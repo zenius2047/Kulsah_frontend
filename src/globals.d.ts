@@ -1,5 +1,4 @@
-import type { FontSize as AppFontSize } from './fonts';
-import { fontSize } from './typography';
+import type { FontSize as AppFontSize } from './utils/helpers';
 
 declare global {
   const FontSize: typeof AppFontSize;
@@ -41,3 +40,4 @@ declare module 'react-native' {
     animationDelay?: string | number;
   }
 }
+

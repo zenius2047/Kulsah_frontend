@@ -65,10 +65,10 @@ const Player: React.FC = () => {
   const progress = duration > 0 ? Math.min(1, current / duration) : 0;
 
   useEffect(() => {
-    AsyncStorage.getItem('pulsar_user').then((saved) => {
+    AsyncStorage.getItem('pulsar_user').then((saved: string | null) => {
       if (!saved) return;
       try {
-        const parsed = JSON.parse(saved);
+        const parsed = JSON.parse(saved) as { role?: string };
         const nextRole = parsed?.role === 'creator' ? 'creator' : 'fan';
         setRole(nextRole);
         setStudioMode(nextRole === 'creator');

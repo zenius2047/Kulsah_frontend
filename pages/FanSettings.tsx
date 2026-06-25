@@ -109,6 +109,8 @@ const FanSettings: React.FC<FanSettingsProps> = ({ onLogout, isDarkMode, onToggl
       id: user?.id || 'mila_ray_01',
       name: user?.name || 'Mila Ray',
       role: 'creator' as const,
+      email: user?.email || '',
+      handle: user?.handle || 'mila_ray_01',
     };
     setUser(nextUser);
     await AsyncStorage.setItem('pulsar_user', JSON.stringify(nextUser));

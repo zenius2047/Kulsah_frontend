@@ -118,6 +118,8 @@ const CreatorSettings: React.FC<CreatorSettingsProps> = ({ onLogout, isDarkMode,
       id: user?.id || 'alex_rivera_42',
       name: user?.name || 'Alex Rivera',
       role: 'fan' as const,
+      email: user?.email || '',
+      handle: user?.handle || 'alex_rivera_42',
     };
     setUser(nextUser);
     await AsyncStorage.setItem('pulsar_user', JSON.stringify(nextUser));

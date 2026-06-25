@@ -3,10 +3,11 @@
     "name": "kulsah",
     "slug": "kulsah",
     "version": "1.0.0",
+    "scheme": "kulsah",
     "orientation": "portrait",
     "icon": "./assets/icon.png",
     "userInterfaceStyle": "light",
-    "newArchEnabled": true,
+    "newArchEnabled": false,
     "splash": {
       "image": "./assets/splash-icon.png",
       "resizeMode": "contain",
@@ -20,6 +21,7 @@
       }
     },
     "android": {
+       "googleServicesFile": "./google-services.json",
       "adaptiveIcon": {
         "foregroundImage": "./assets/adaptive-icon.png",
         "backgroundColor": "#ffffff"
@@ -34,6 +36,12 @@
     },
     "plugins": [
       "expo-video",
+      [
+        "@react-native-google-signin/google-signin",
+        {
+          "iosUrlScheme": "com.googleusercontent.apps.66968860440-rh81s6n5gocqdfh8g7617i7h9cnllljl"
+        }
+      ],
       [
         "expo-font",
         {
@@ -86,13 +94,14 @@
             "./assets/fonts/GCGudlakDemo-ExtraBold.ttf"
           ]
         }
-      ]
+      ],
+      "expo-web-browser"
     ],
     "extra": {
       "eas": {
-        "projectId": "418cf936-dac6-42da-99d0-c8bdd7dced45"
+        "projectId": "96d7a304-4b49-4342-8407-fd445a974cc7"
       }
     },
-    "owner": "godfredkofis-organization"
+    "owner": "godfred-kofis-team"
   }
 }

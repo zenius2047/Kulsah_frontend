@@ -8,14 +8,17 @@ import {
   Text,
   View,
 } from 'react-native';
+import { useNavigation } from '@react-navigation/native';
 import { useThemeMode, PRIMARY_COLOR, primaryColorAlpha } from "./theme";
 import TikTok from './assets/icons/tik-tok-svg.svg';
 import Facebook from './assets/icons/facebook-svg.svg';
 import Google from './assets/icons/google-svg.svg';
 import Apple from './assets/icons/apple-logo-svg.svg';
-import { mediumScreen, setUser, user } from './types';
-import AsyncStorage from '@react-native-async-storage/async-storage';
+import { mediumScreen } from './types';
 import { fontSize } from './typography';
+import { useGoogleAuth } from './src/config/auth-google';
+import { authApi } from './src';
+import { getToken } from './src';
 
 type SignUpModalProps = {
   visible: boolean;
@@ -30,7 +33,26 @@ const SignUpModal: React.FC<SignUpModalProps> = ({
   onClose,
   onCreateAccount,
 }) => {
+  const navigation = useNavigation<any>();
   const { isDark, theme } = useThemeMode();
+
+  const {
+    signIn: signInWithGoogle,
+    isSigningIn: isGoogleSigningIn,
+    error: googleAuthError,
+  } = useGoogleAuth({
+    onSuccess: async() => {
+      onClose();
+      navigation.navigate('MainTabs');
+      try{
+        const token = await getToken() ?? "";
+        const res = await authApi.social({token:token, provider: 'google'})
+      }catch(e:any){
+        // console.log()
+      }
+
+    },
+  });
 
   return (
     <Modal
@@ -75,10 +97,24 @@ const SignUpModal: React.FC<SignUpModalProps> = ({
           </View>
 
           <View style={styles.actions}>
-            <AuthButton provider="google" label="Continue with Google    " isDark={isDark} />
+            <AuthButton
+              provider="google"
+              label="Continue with Google    "
+              isDark={isDark}
+              onPress={() => {
+                void signInWithGoogle();
+              }}
+              disabled={isGoogleSigningIn}
+            />
             <AuthButton provider="apple" label="Continue with Apple      " isDark={isDark} />
             <AuthButton provider="facebook" label="Continue with Facebook " isDark={isDark} />
             <AuthButton provider="tiktok" label="Continue with TikTok     " isDark={isDark} />
+
+            {!!googleAuthError && (
+              <Text style={[styles.googleError, { color: '#f87171' }]}>
+                {googleAuthError}
+              </Text>
+            )}
 
             <Pressable style={[styles.primaryButton, { backgroundColor: theme.accent }]} onPress={onCreateAccount}>
               <MaterialIcons name="mail-outline" size={20} color="#ffffff" />
@@ -106,39 +142,32 @@ type AuthButtonProps = {
   provider: 'google' | 'apple' | 'facebook' | 'tiktok';
   label: string;
   isDark: boolean;
+  onPress?: () => void;
+  disabled?: boolean;
 };
 
-const AuthButton: React.FC<AuthButtonProps> = ({ provider, label, isDark }) => (
-
-
-
-
-  <Pressable
-  onPress={async()=>{
-
-    // const mockUser: User = {
-    //   id: role === 'creator' ? 'mila_ray_01' : 'alex_rivera_42',
-    //   name: role === 'creator' ? 'Mila Ray' : 'Alex Rivera',
-    //   role,
-    // };
-    console.log('Executing');
-    setUser({ id: '5', name: "Mila Ray", role: "fan" });
-    // setCurrentUser(user);
-    await AsyncStorage.setItem('pulsar_user', JSON.stringify(user));
-    navigation.navigate('MainTabs');
-
-  }}
-  style={[styles.authButton, {backgroundColor: '#00000006'}]}>
-    {/* Replace this placeholder with the matching provider SVG icon when assets are ready. */}
-    <View style={styles.authIconPlaceholder}>
-      {provider === 'google' && <Google height={20} width={20}/>}
-      {provider === 'apple' && <Apple height={20} width={20}/>}
-      {provider === 'facebook' && <Facebook height={20} width={20}/>}
-      {provider === 'tiktok' && <TikTok height={20} width={20}/>}
-    </View>
-    <Text style={[styles.authButtonText, {color: isDark ? 'white': 'black'}]}>{label}</Text>
-  </Pressable>
-);
+const AuthButton: React.FC<AuthButtonProps> = ({ provider, label, isDark, onPress, disabled }) => {
+  return (
+    <Pressable
+      onPress={onPress}
+      disabled={disabled}
+      style={[
+        styles.authButton,
+        { backgroundColor: '#00000006' },
+        disabled && styles.authButtonDisabled,
+      ]}
+    >
+      {/* Replace this placeholder with the matching provider SVG icon when assets are ready. */}
+      <View style={styles.authIconPlaceholder}>
+        {provider === 'google' && <Google height={20} width={20} />}
+        {provider === 'apple' && <Apple height={20} width={20} />}
+        {provider === 'facebook' && <Facebook height={20} width={20} />}
+        {provider === 'tiktok' && <TikTok height={20} width={20} />}
+      </View>
+      <Text style={[styles.authButtonText, { color: isDark ? 'white' : 'black' }]}>{label}</Text>
+    </Pressable>
+  );
+};
 
 const styles = StyleSheet.create({
   overlay: {
@@ -210,6 +239,9 @@ const styles = StyleSheet.create({
     gap: 12,
     paddingHorizontal: 18,
   },
+  authButtonDisabled: {
+    opacity: 0.65,
+  },
   authIconPlaceholder: {
     width: 22,
     height: 22,
@@ -229,6 +261,12 @@ const styles = StyleSheet.create({
   authButtonText: {
     ...fontSize.b4, lineHeight: fontSize.b4.fontSize + 1,
     // fontWeight: '800',
+  },
+  googleError: {
+    ...fontSize.b5,
+    lineHeight: fontSize.b5.fontSize + 1,
+    textAlign: 'center',
+    marginTop: -2,
   },
   primaryButton: {
     minHeight: 56,

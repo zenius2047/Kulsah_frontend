@@ -138,7 +138,7 @@ const ChatView: React.FC = () => {
 
       const replies = response.text
         ?.split(',')
-        .map((r) => r.trim().replace(/^"|"$/g, ''))
+        .map((r: string) => r.trim().replace(/^"|"$/g, ''))
         .filter(Boolean);
 
       setSmartReplies((replies || []).slice(0, 3));

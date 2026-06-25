@@ -160,7 +160,7 @@ const  ArtistProfile: React.FC = () => {
   useEffect(() => {
     let mounted = true;
     AsyncStorage.getItem('pulsar_library_videos')
-      .then((stored) => {
+      .then((stored: string | null) => {
         if (stored && mounted) {
           setLibraryVideos(JSON.parse(stored));
         }
@@ -694,6 +694,8 @@ const PlaylistSection = () => {
       id: currentUser?.id || user?.id || 'mila_ray_01',
       name: currentUser?.name || user?.name || 'Mila Ray',
       role: 'creator',
+      email: currentUser?.email || user?.email || '',
+      handle: currentUser?.handle || user?.handle || 'mila_ray_01',
     };
     setUser(nextUser);
     await AsyncStorage.setItem('pulsar_user', JSON.stringify(nextUser));

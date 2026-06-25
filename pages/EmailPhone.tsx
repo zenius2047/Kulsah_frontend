@@ -1,11 +1,13 @@
 import React, { useEffect, useMemo, useRef, useState } from 'react';
 import {
   Dimensions,
+  BackHandler,
   Keyboard,
   KeyboardAvoidingView,
   Modal,
   Platform,
   Pressable,
+  PanResponder,
   ScrollView,
   StatusBar,
   StyleSheet,
@@ -24,12 +26,17 @@ import AppleIcon from '../assets/icons/apple-logo-svg.svg';
 import KulsahBlack from '../assets/icons/kulsah-black-svg.svg';
 import KulsahWhite from '../assets/icons/kulsah-white-svg.svg';
 import { fontSize } from './typography';
-import CountryPicker, {
-  Country,
-} from 'react-native-country-picker-modal';
-import DateTimePicker from '@react-native-community/datetimepicker';
-import api from '../clients';
+import DateTimePicker, { type DateTimePickerEvent } from '@react-native-community/datetimepicker';
 import DotTrioLoader from '../components/DotTrioLoader';
+import { authApi, setAuthToken, setUser as setAuthStoreUser } from '../src';
+
+const COUNTRY_OPTIONS = [
+  { cca2: 'GH', callingCode: '233', label: 'Ghana' },
+  { cca2: 'NG', callingCode: '234', label: 'Nigeria' },
+  { cca2: 'KE', callingCode: '254', label: 'Kenya' },
+  { cca2: 'ZA', callingCode: '27', label: 'South Africa' },
+  { cca2: 'US', callingCode: '1', label: 'United States' },
+];
 
 
 const EmailPhone: React.FC = () => {
@@ -41,11 +48,14 @@ const EmailPhone: React.FC = () => {
   const [username, setUsername] = useState('');
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
+  const [signInPassword, setSignInPassword] = useState('');
   const [confirmPasswordText, setConfirmPasswordText] = useState('')
   // const [dob, setDob] = useState('');
   const [focused, setFocused] = useState(false);
+  const [signInPasswordFocused, setSignInPasswordFocused] = useState(false);
   const [confirmFocused, setConfirmFocused] = useState(false);
   const [isLoading, setLoading] = useState(false);
+  const [authError, setAuthError] = useState('');
 
   const titleColor = theme.text;
   const bodyColor = isDark ? '#94a3b8' : theme.textSecondary;
@@ -68,11 +78,22 @@ const EmailPhone: React.FC = () => {
   const [eventDate, setDate] = useState(new Date());
   const [gender, setGender] = useState('');
   const [showGenderDropdown, setShowGenderDropdown] = useState(false);
+  const [showCountryDropdown, setShowCountryDropdown] = useState(false);
   const [keyboardHeight, setKeyboardHeight] = useState(0);
   const modalBackdrop = isDark ? 'rgba(0,0,0,0.75)' : 'rgba(15,23,42,0.35)';
   const { height: SCREEN_HEIGHT, width: SCREEN_WIDTH } = Dimensions.get('screen');
   const genderOptions = ['Female', 'Male', 'Non-binary', 'Prefer not to say'];
+  const [emailTaken, setEmailTaken] = useState(false);
+  const [usernameCheckState, setUsernameCheckState] = useState<'idle' | 'checking' | 'available' | 'taken' | 'error'>('idle');
+  const [usernameCheckMessage, setUsernameCheckMessage] = useState('');
+  const [dobError, setDobError] = useState('');
+  const scrollRef = useRef<ScrollView | null>(null);
+  // const [id, setId] = useState<Number>(0);
+  const edgeSwipeStartX = useRef(0);
+  const edgeSwipeHandled = useRef(false);
   
+
+
   const lightLeakOne = useMemo(
     () =>
       isDark
@@ -89,7 +110,7 @@ const EmailPhone: React.FC = () => {
     [isDark]
   );
 
-  const [countryCode, setCountryCode] = useState<any>('GH');
+  const [countryCode, setCountryCode] = useState('GH');
   const [callingCode, setCallingCode] = useState('233');
   const [Isphone, setIsPhone] = useState(false);
   const [showDate, setShowDate] = useState(false);
@@ -103,18 +124,36 @@ const EmailPhone: React.FC = () => {
   return regex.test(password);
 };
 
+  const getAgeInYears = (birthDate: Date) => {
+    const today = new Date();
+    let years = today.getFullYear() - birthDate.getFullYear();
+    const monthDiff = today.getMonth() - birthDate.getMonth();
+    const dayDiff = today.getDate() - birthDate.getDate();
+
+    if (monthDiff < 0 || (monthDiff === 0 && dayDiff < 0)) {
+      years -= 1;
+    }
+
+    return years;
+  };
+
+  const isAdult = step === 2 ? getAgeInYears(eventDate) >= 18 : true;
+  const normalizedUsername = username.trim();
+  const isUsernameAvailable = usernameCheckState === 'available';
+
   const canContinue = !isCreateAccount
-    ? isEmail || isPhone
+    ? ((isEmail || isPhone) && signInPassword.trim().length > 0)
     : (step === 0 && user.length > 0) ||
-      (step === 1 && username.length > 0) ||
-      (step === 2 && true) ||
+      (step === 1 && normalizedUsername.length >= 3 && isUsernameAvailable) ||
+      (step === 2 && isAdult) ||
       (step === 3 && isValidPassword(password) && password === confirmPasswordText) ||
       (step === 4 && gender.length > 0) ||
       (step === 5 && isEmail);
 
-  const onSelect = (country: Country) => {
+  const onSelectCountry = (country: typeof COUNTRY_OPTIONS[number]) => {
     setCountryCode(country.cca2);
-    setCallingCode(country.callingCode[0]);
+    setCallingCode(country.callingCode);
+    setShowCountryDropdown(false);
   };
 
   useEffect(()=>{
@@ -127,6 +166,161 @@ const EmailPhone: React.FC = () => {
     if(step === 2 || step === 4)inputRef.current?.blur();
     setShowGenderDropdown(false);
   }, [step])
+
+  useEffect(() => {
+    if (!isCreateAccount || step !== 1) {
+      setUsernameCheckState('idle');
+      setUsernameCheckMessage('');
+      return;
+    }
+
+    if (normalizedUsername.length === 0) {
+      setUsernameCheckState('idle');
+      setUsernameCheckMessage('');
+      return;
+    }
+
+    if (normalizedUsername.length < 3) {
+      setUsernameCheckState('idle');
+      setUsernameCheckMessage('Username must be at least 3 characters.');
+      return;
+    }
+
+    let isActive = true;
+    setUsernameCheckState('checking');
+    setUsernameCheckMessage('Checking username availability...');
+
+    const timer = setTimeout(async () => {
+      try {
+        const res = await authApi.checkUsername({ username: normalizedUsername });
+        if (!isActive) return;
+
+        const data = res.data ?? {};
+        const availabilityFlag =
+          data?.unique ?? data?.is_unique ?? data?.available ?? data?.isAvailable;
+        const serverMessage = typeof data?.message === 'string' ? data.message.toLowerCase() : '';
+
+        if (typeof availabilityFlag === 'boolean') {
+          if (availabilityFlag) {
+            setUsernameCheckState('available');
+            setUsernameCheckMessage('Username is available.');
+          } else {
+            setUsernameCheckState('taken');
+            setUsernameCheckMessage('Username is already taken.');
+          }
+          return;
+        }
+
+        if (
+          serverMessage.includes('taken') ||
+          serverMessage.includes('exist') ||
+          serverMessage.includes('already')
+        ) {
+          setUsernameCheckState('taken');
+          setUsernameCheckMessage('Username is already taken.');
+          return;
+        }
+
+        setUsernameCheckState('available');
+        setUsernameCheckMessage('Username is available.');
+      } catch (error: any) {
+        if (!isActive) return;
+
+        const status = error?.response?.status;
+        const data = error?.response?.data ?? {};
+        const serverMessage = typeof data?.message === 'string' ? data.message.toLowerCase() : '';
+        const invalid =
+          status === 409 ||
+          status === 422 ||
+          serverMessage.includes('taken') ||
+          serverMessage.includes('exist') ||
+          serverMessage.includes('already');
+
+        if (invalid) {
+          setUsernameCheckState('taken');
+          setUsernameCheckMessage('Username is already taken.');
+        } else {
+          setUsernameCheckState('error');
+          setUsernameCheckMessage('Could not verify username right now.');
+        }
+      }
+    }, 450);
+
+    return () => {
+      isActive = false;
+      clearTimeout(timer);
+    };
+  }, [isCreateAccount, step, normalizedUsername]);
+
+  useEffect(() => {
+    const onHardwareBackPress = () => {
+      if (!isCreateAccount) {
+        return false;
+      }
+
+      if (step > 0) {
+        setStep((currentStep) => currentStep - 1);
+        return true;
+      }
+
+      setIsCreateAccount(false);
+      return true;
+    };
+
+    const subscription = BackHandler.addEventListener('hardwareBackPress', onHardwareBackPress);
+    return () => subscription.remove();
+  }, [isCreateAccount, step]);
+
+  const edgeSwipeResponder = useMemo(
+    () =>
+      PanResponder.create({
+        onStartShouldSetPanResponder: (event) => {
+          if (Platform.OS !== 'ios' || !isCreateAccount) {
+            return false;
+          }
+
+          const x = event.nativeEvent.pageX;
+          const nearEdge = x <= 24 || x >= SCREEN_WIDTH - 24;
+          if (nearEdge) {
+            edgeSwipeStartX.current = x;
+            edgeSwipeHandled.current = false;
+          }
+
+          return nearEdge;
+        },
+        onMoveShouldSetPanResponder: (_event, gestureState) => {
+          if (Platform.OS !== 'ios' || !isCreateAccount) {
+            return false;
+          }
+
+          return Math.abs(gestureState.dx) > 16 && Math.abs(gestureState.dx) > Math.abs(gestureState.dy);
+        },
+        onPanResponderRelease: (_event, gestureState) => {
+          if (edgeSwipeHandled.current || Platform.OS !== 'ios' || !isCreateAccount) {
+            return;
+          }
+
+          const startedNearLeftEdge = edgeSwipeStartX.current <= 24;
+          const startedNearRightEdge = edgeSwipeStartX.current >= SCREEN_WIDTH - 24;
+          const swipedBackward = startedNearLeftEdge && gestureState.dx > 60;
+          const swipedForward = startedNearRightEdge && gestureState.dx < -60;
+
+          if (!swipedBackward && !swipedForward) {
+            return;
+          }
+
+          edgeSwipeHandled.current = true;
+
+          if (step > 0) {
+            setStep((currentStep) => currentStep - 1);
+            return;
+          }
+
+          setIsCreateAccount(false);
+        },
+      }),
+    [SCREEN_WIDTH, isCreateAccount, step]
+  );
 
   useEffect(() => {
     const showEvent = Platform.OS === 'ios' ? 'keyboardWillShow' : 'keyboardDidShow';
@@ -145,10 +339,27 @@ const EmailPhone: React.FC = () => {
     };
   }, []);
 
+  // useEffect(() => {
+  //   if (step === 3 && (focused || confirmFocused)) {
+  //     console.log('it has to scroll');
+  //     requestAnimationFrame(() => {
+  //       scrollRef.current?.scrollToEnd({
+  //         animated: true,
+  //       });
+  //     });
+  //   }
+  // }, [step, focused, confirmFocused, keyboardHeight]);
+
   const handleTextChange = (text: string) => {
+    setAuthError('');
     if(step === 0) setUser(text);
     if(step === 1)setUsername(text);
-    if(step === 5)setEmail(text);
+    if(step === 5){
+      if(emailTaken){
+        setEmailTaken(false);
+      }
+      setEmail(text);
+    }
     if(step === 3)setPassword(text);
     setIdentifier(text);
 
@@ -162,13 +373,19 @@ const EmailPhone: React.FC = () => {
   // setIsPhone(/^\d$/.test(firstChar));
 };
 
- const onChange = (_event: any, selectedDate?: Date) => {
+  const handleSignInPasswordChange = (text: string) => {
+    setAuthError('');
+    setSignInPassword(text);
+  };
+
+  const onChange = (_event: DateTimePickerEvent, selectedDate?: Date) => {
     if(Platform.OS === 'android'){
     setShowDate(false);
     // console.log('show date is false');
     }
     if (selectedDate) {
       setDate(selectedDate);
+      setDobError(getAgeInYears(selectedDate) >= 18 ? '' : 'You must be 18 years or older to continue.');
     }
 
     inputRef.current?.blur();
@@ -214,6 +431,51 @@ const EmailPhone: React.FC = () => {
   const handleContinue = async () => {
   if (!canContinue) return;
 
+  if (!isCreateAccount) {
+    setLoading(true);
+    setAuthError('');
+
+    try {
+      const normalizedValue = normalizedIdentifier;
+      const payload = isEmail
+        ? { email: emailCandidate, password: signInPassword }
+        : { phone: `+${callingCode}${normalizedValue.replace(/\D/g, '')}`, password: signInPassword };
+
+      const res = await authApi.login(payload);
+      const responseData = res.data ?? {};
+      const sessionToken =
+        responseData.access_token ??
+        responseData.accessToken ??
+        responseData.token ??
+        '';
+
+      if (typeof sessionToken === 'string' && sessionToken.length > 0) {
+        await setAuthToken(sessionToken);
+      }
+
+      if (responseData.user) {
+        // setId(responseData.user.id ?? 0);
+        setAuthStoreUser(responseData.user);
+      }
+
+      navigation.navigate('VerifyOtp', {
+       email,
+      //  id: id,
+      });
+    } catch (error: any) {
+      const responseData = error?.response?.data ?? {};
+      const message =
+        responseData?.message ||
+        responseData?.error ||
+        'Unable to sign in with those credentials.';
+      setAuthError(message);
+    } finally {
+      setLoading(false);
+    }
+
+    return;
+  }
+
   // Move to the next step during account creation
   if (isCreateAccount && step < 5) {
     console.log('step is less than five');
@@ -226,21 +488,32 @@ const EmailPhone: React.FC = () => {
     setLoading(true);
 
     try {
-      const res = await api.post('auth/register', {
-        name: user,
-        username,
-        email,
-        password,
+      // const res = await api.post('auth/register', {
+      //   name: user,
+      //   username,
+      //   email,
+      //   password,
+      // });
+      const res = await authApi.register({
+        name: user, 
+        username: username, 
+        email: email, 
+        password: password
       });
-
       console.log('Registration successful:', res.data);
+      console.log('this is the access_token:', res.data['access_token']);
+      setAuthToken(res.data['access_token']);
 
       // Navigate only if registration succeeds
       navigation.navigate('VerifyOtp', {
         email,
+        // id:id
       });
 
-    } catch (error) {
+    } catch (error: any) {
+      if(error.response.data["email"][0] === "The email has already been taken."){
+        setEmailTaken(true);
+      }
       console.log('Registration error:', error?.response?.data);
 
       // const errors = error?.response?.data?.errors;
@@ -278,44 +551,56 @@ const EmailPhone: React.FC = () => {
     >
       <StatusBar barStyle={isDark ? 'light-content' : 'dark-content'} backgroundColor="transparent" translucent />
 
-      <View style={[styles.screen, {height: SCREEN_HEIGHT}]}>
+      <View style={[styles.screen, {height: SCREEN_HEIGHT}]} {...edgeSwipeResponder.panHandlers}>
         {/* <View style={[styles.blob, styles.blobTop, { backgroundColor: lightLeakOne }]} />
         <View style={[styles.blob, styles.blobBottom, { backgroundColor: lightLeakTwo }]} /> */}
 
-        <View style={styles.header}>
-          <View style={styles.headerLeft}>
-            <Pressable
-              onPress={() =>{
-                if(isCreateAccount === true){
-                  if(step > 0){
-                    setStep((step-1))
-                    return;
-                  }
-                  console.log("create account is true");
-                  setIsCreateAccount(false);
-                  return;
-                } 
-                else{
-                  navigation.goBack()
-                }
-              } }
-              style={[styles.backButton, { backgroundColor: iconBg, borderColor }]}
-            >
-              <MaterialIcons name="chevron-left" size={20} color={titleColor} />
-            </Pressable>
-            <Text style={[styles.headerTitle, { color: titleColor }]}>{isCreateAccount ? 'Sign Up': 'Sign In'}</Text>
+        {isCreateAccount ? (
+          <View style={[styles.stepperHeader, {}]}>
+            <View style={styles.stepperBody}>
+              <View style={styles.stepperRow}>
+                {Array.from({ length: 6 }).map((_, index) => {
+                  const isDone = index <= step;
+                  return (
+                    <View
+                      key={`step-line-${index}`}
+                      style={[
+                        styles.stepperConnector,
+                        { backgroundColor: isDone ? PRIMARY_COLOR : borderColor },
+                      ]}
+                    />
+                  );
+                })}
+              </View>
+            </View>
           </View>
-          <View style={styles.headerSpacer} />
-        </View>
+        ) : (
+          <View style={styles.header}>
+            <View style={styles.headerLeft}>
+              {/* <Pressable
+                onPress={() => {
+                  navigation.goBack();
+                }}
+                style={[styles.backButton, { backgroundColor: iconBg, borderColor }]}
+              >
+                <MaterialIcons name="chevron-left" size={20} color={titleColor} />
+              </Pressable> */}
+              <Text style={[styles.headerTitle, { color: titleColor }]}>Sign In</Text>
+            </View>
+            <View style={styles.headerSpacer} />
+          </View>
+        )}
 
         <ScrollView
+          ref={scrollRef}
           showsVerticalScrollIndicator={false}
           keyboardShouldPersistTaps="handled"
           contentContainerStyle={[
             styles.scrollContent,
             {
               justifyContent: isCreateAccount ? 'flex-start': 'center',
-              paddingBottom: 32 + (step === 3 ? keyboardHeight : 0),
+              paddingBottom: 32 + (step === 3 ? (keyboardHeight *0.5) : 0),
+              
             },
           ]}
         >
@@ -357,8 +642,8 @@ const EmailPhone: React.FC = () => {
               {step === 3 && isCreateAccount && <Text style={[styles.brandTitle, { color: titleColor, fontSize: fontSize.b1.fontSize + (mediumScreen ? 0: 0), fontFamily: 'Inter_400Regular', paddingLeft: -22 }]}>Use at least 8 characters with a mix of letters, numbers, and symbols.</Text>}
               {step === 4 && isCreateAccount && <Text style={[styles.brandTitle, { color: theme.textSecondary, marginTop: 30, fontSize: fontSize.b1.fontSize + (mediumScreen ? 6: 2), lineHeight: fontSize.b1.fontSize + 2 + (mediumScreen ? 6: 2), fontFamily: fontSize.b1.fontFamily, paddingLeft: -22 }]}>Select your gender</Text>}
               {step === 4 && isCreateAccount && <Text style={[styles.brandTitle, { color: titleColor, fontSize: fontSize.b1.fontSize + (mediumScreen ? 0: 0), fontFamily: 'Inter_400Regular', paddingLeft: -22 }]}>This helps us personalize your Kulsah experience.</Text>}
-              {step === 5 && isCreateAccount && <Text style={[styles.brandTitle, { color: theme.textSecondary, marginTop: 30, fontSize: fontSize.b1.fontSize + (mediumScreen ? 6: 2), lineHeight: fontSize.b1.fontSize + 2 + (mediumScreen ? 6: 2), fontFamily: fontSize.b1.fontFamily, paddingLeft: -22 }]}>Enter your email</Text>}
-              {step === 5 && isCreateAccount && <Text style={[styles.brandTitle, { color: titleColor, fontSize: fontSize.b1.fontSize + (mediumScreen ? 0: 0), fontFamily: 'Inter_400Regular', paddingLeft: -22 }]}>Enter your email address to continue creating, earning, connecting, and shining.</Text>}
+              {step === 5 && isCreateAccount && <Text style={[styles.brandTitle, { color: theme.textSecondary, marginTop: 30, fontSize: fontSize.b1.fontSize + (mediumScreen ? 6: 2), lineHeight: fontSize.b1.fontSize + 2 + (mediumScreen ? 6: 2), fontFamily: fontSize.b1.fontFamily, paddingLeft: -22 }]}>{Isphone ? "Enter your phone number":"Enter your email"}</Text>}
+              {step === 5 && isCreateAccount && <Text style={[styles.brandTitle, { color: titleColor, fontSize: fontSize.b1.fontSize + (mediumScreen ? 0: 0), fontFamily: 'Inter_400Regular', paddingLeft: -22 }]}>Enter your {Isphone ? 'phone number': 'email address'} to continue creating, earning, connecting, and shining.</Text>}
               {/* {step === 1 && isCreateAccount && <Text style={[styles.brandTitle, { color: titleColor, fontSize: fontSize.b1.fontSize + (mediumScreen ? 0: 0), fontFamily: 'Inter_400Regular', paddingLeft: -22 }]}>Your username is your unique name across the Creator Galaxy.</Text>} */}
               <Pressable onPress={()=>{
                 Keyboard.dismiss();
@@ -369,7 +654,7 @@ const EmailPhone: React.FC = () => {
                 }, 100);
                 setEmail("")
               }}>
-                {(!isCreateAccount || (step === 3))  && <Text style={[styles.brandSubtitle, { color: PRIMARY_COLOR, marginTop: 20, ...fontSize.b4, lineHeight: fontSize.b4.fontSize + 1 }]}>
+                {(!isCreateAccount || (step === 5))  && <Text style={[styles.brandSubtitle, { color: PRIMARY_COLOR, marginTop: 20, ...fontSize.b4, lineHeight: fontSize.b4.fontSize + 1 }]}>
                 {`Sign In with ${Isphone ? 'email' : 'phone number'} instead ?`}
               </Text>}
               </Pressable>
@@ -390,7 +675,20 @@ const EmailPhone: React.FC = () => {
                   {
                     backgroundColor: fieldBg,
                     // backgroundColor: 'red',
-                    borderColor: focused ? primaryColorAlpha(0.45) : borderColor,
+                    borderColor:
+                      step === 1 && isCreateAccount
+                        ? usernameCheckState === 'taken'
+                          ? '#dc2626'
+                          : usernameCheckState === 'available'
+                            ? '#16a34a'
+                            : focused
+                              ? primaryColorAlpha(0.45)
+                              : borderColor
+                        : emailTaken
+                          ? 'red'
+                          : focused
+                            ? primaryColorAlpha(0.45)
+                            : borderColor,
                   },
                 ]}
               >
@@ -422,34 +720,36 @@ const EmailPhone: React.FC = () => {
                     // paddingHorizontal: 10,
                   }}
                 >
-                  <View style={{
-                    width: '40%'
-                  }}>
-                    <CountryPicker
-                    countryCode={countryCode}
-                    withFlag
-                    withFilter
-                    withCallingCode
-                    onSelect={onSelect}
-                  />
-                  </View>
-
-
-                  <View style={{
-                    // backgroundColor: 'green',
-                    width: '60%',
-                  }}>
-                    <Text
-                    numberOfLines={1}
+                  <Pressable
+                    onPress={() => setShowCountryDropdown(true)}
                     style={{
-                      fontSize: fontSize.b2.fontSize + (mediumScreen ? 6: 2), 
-                      fontFamily: fontSize.b3.fontFamily,
-                      color: theme.textMuted
+                      width: '100%',
+                      flexDirection: 'row',
+                      alignItems: 'center',
+                      justifyContent: 'center',
+                      gap: 6,
                     }}
+                  >
+                    <Text
+                      style={{
+                        fontSize: fontSize.b2.fontSize + (mediumScreen ? 4 : 0),
+                        fontFamily: fontSize.b3.fontFamily,
+                        color: theme.text,
+                      }}
+                    >
+                      {countryCode}
+                    </Text>
+                    <Text
+                      numberOfLines={1}
+                      style={{
+                        fontSize: fontSize.b2.fontSize + (mediumScreen ? 6: 2), 
+                        fontFamily: fontSize.b3.fontFamily,
+                        color: theme.textMuted
+                      }}
                     >
                       {`+${callingCode}`}
                     </Text>
-                  </View>
+                  </Pressable>
                   {/* <TextInput
                     style={{ flex: 1, height: 50 }}
                     placeholder={`+${callingCode} Phone Number`}
@@ -466,19 +766,20 @@ const EmailPhone: React.FC = () => {
                   justifyContent: 'center'
                 }}>
                   {(isCreateAccount && 
-                  step === 1 ? <MaterialIcons name="account-circle" size={20} color={theme.text} />: 
-                  step === 5 ? <MaterialIcons name="alternate-email" size={20} color={theme.text}/>:
+                  step === 1 ? <MaterialIcons name="alternate-email" size={20} color={theme.text} />: 
+                  step === 5 ? <MaterialIcons name="email" size={20} color={theme.text}/>:
                   step === 3 ? <MaterialIcons name="lock" size={20} color={theme.textMuted}/>:
                   step === 2 ? <MaterialIcons name="date-range" size={20} color={theme.text}/> : 
                   step === 0  && isCreateAccount ? <MaterialIcons name="perm-identity" size={20} color={theme.text}/> : 
                   <View style={{
                   }}>
-                    <Text style={{
+                    {/* <Text style={{
                       fontSize: fontSize.b1.fontSize,
                       fontFamily: fontSize.b1.fontFamily,
                     }}>
                       @
-                    </Text>
+                    </Text> */}
+                    <MaterialIcons name="email" size={20} color={theme.text} />
                   </View>
                  )}
                   </View>}
@@ -539,6 +840,97 @@ const EmailPhone: React.FC = () => {
                 </Pressable>}
 
               </View>}
+
+              {!isCreateAccount && <View style={{ gap: 8 }}>
+                <Text style={{
+                  fontSize: fontSize.b4.fontSize,
+                  fontFamily: fontSize.b4.fontFamily,
+                  marginBottom: -10,
+                  color: theme.accent,
+                }}>
+                  Password
+                </Text>
+                <View
+                  style={[
+                    styles.inputWrap,
+                    {
+                      backgroundColor: fieldBg,
+                      borderColor: signInPasswordFocused ? primaryColorAlpha(0.45) : borderColor,
+                    },
+                  ]}
+                >
+                  <View style={{
+                    width: '15%',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                  }}>
+                    <MaterialIcons name="lock" size={20} color={theme.textMuted} />
+                  </View>
+
+                  <TextInput
+                    value={signInPassword}
+                    onChangeText={handleSignInPasswordChange}
+                    onFocus={() => setSignInPasswordFocused(true)}
+                    onBlur={() => setSignInPasswordFocused(false)}
+                    placeholder="Enter password"
+                    autoCapitalize="none"
+                    selectionColor={PRIMARY_COLOR}
+                    secureTextEntry={!showPassword}
+                    style={[styles.input, { color: titleColor, width: '75%' }]}
+                  />
+
+                  <Pressable
+                    onPress={() => setShowPassword((current) => !current)}
+                    style={{
+                      alignItems: 'center',
+                      justifyContent: 'center',
+                      paddingHorizontal: 10,
+                    }}
+                  >
+                    {showPassword ? (
+                      <MaterialIcons name="visibility-off" size={20} color={theme.textMuted} />
+                    ) : (
+                      <MaterialIcons name="visibility" size={20} color={theme.textMuted} />
+                    )}
+                  </Pressable>
+                </View>
+              </View>}
+
+              {step === 1 && isCreateAccount && (
+                <View style={{ gap: 8 }}>
+                  <Text
+                    style={{
+                      ...fontSize.b5,
+                      color:
+                        usernameCheckState === 'taken'
+                          ? '#dc2626'
+                          : usernameCheckState === 'available'
+                            ? '#16a34a'
+                            : theme.textMuted,
+                    }}
+                  >
+                    {usernameCheckMessage ||
+                      (normalizedUsername.length < 3
+                        ? 'Use at least 3 characters.'
+                        : 'Checking username availability...')}
+                  </Text>
+                </View>
+              )}
+
+              {step === 2 && isCreateAccount && (
+                <View style={{ gap: 8 }}>
+                  <Text
+                    style={{
+                      ...fontSize.b5,
+                      color: isAdult ? '#16a34a' : '#dc2626',
+                    }}
+                  >
+                    {isAdult
+                      ? 'Age verified: 18+'
+                      : dobError || 'You must be 18 years or older to continue.'}
+                  </Text>
+                </View>
+              )}
 
               {step === 4 && isCreateAccount && <Pressable
                 onPress={() => {
@@ -642,8 +1034,24 @@ const EmailPhone: React.FC = () => {
                 <Text style={[styles.helpLinkText, { color: bodyColor }]}>Need help signing in?</Text>
               </Pressable> */}
             </View>
+            {emailTaken && <View>
+              <Text style={{
+                ...fontSize.b5,
+                color: 'red'
+              }}>
+                Email is already taken. Provide a different email
+              </Text>
+              </View>}
 
-           {!isCreateAccount && <View>
+              {!isCreateAccount && <View>
+             {!!authError && <View style={{ marginTop: 8 }}>
+              <Text style={{
+                ...fontSize.b5,
+                color: '#dc2626',
+              }}>
+                {authError}
+              </Text>
+             </View>}
              <View style={styles.dividerRow}>
               <View style={[styles.divider, { backgroundColor: borderColor }]} />
               <Text style={[styles.dividerText, { color: footerMuted }]}>or explore</Text>
@@ -681,7 +1089,7 @@ const EmailPhone: React.FC = () => {
                 style={[styles.primaryButton, !canContinue && styles.primaryButtonDisabled, {
                   marginHorizontal: '5%',
                   width: '90%',
-                  marginBottom: Platform.OS === 'ios' ? 54 : insets.bottom + 54,
+                  marginBottom: keyboardHeight ? 24 : (Platform.OS === 'ios' ? 54 : insets.bottom + 54),
                   position: 'absolute',
                   right: 0,
                   left: 0,
@@ -732,7 +1140,7 @@ const EmailPhone: React.FC = () => {
           value={eventDate}
           mode="date"
           display="spinner"
-          onValueChange={onChange}
+          onChange={onChange}
           textColor= {theme.text}
         />
         </View>
@@ -768,7 +1176,7 @@ const EmailPhone: React.FC = () => {
       </View>
     </Modal>
     <Modal
-      visible={showGenderDropdown}
+    visible={showGenderDropdown}
       animationType="fade"
       transparent={true}
       statusBarTranslucent={true}
@@ -798,6 +1206,44 @@ const EmailPhone: React.FC = () => {
               {gender === option && <MaterialIcons name="check" size={20} color={PRIMARY_COLOR} />}
             </Pressable>
           ))}
+        </Pressable>
+      </Pressable>
+    </Modal>
+    <Modal
+      visible={showCountryDropdown}
+      animationType="fade"
+      transparent={true}
+      statusBarTranslucent={true}
+      onRequestClose={() => setShowCountryDropdown(false)}
+    >
+      <Pressable
+        style={[styles.dropdownBackdrop, { backgroundColor: modalBackdrop }]}
+        onPress={() => setShowCountryDropdown(false)}
+      >
+        <Pressable style={[styles.dropdownSheet, { backgroundColor: theme.background, borderColor }]}>
+          {COUNTRY_OPTIONS.map((option) => {
+            const isSelected = option.cca2 === countryCode;
+            return (
+              <Pressable
+                key={option.cca2}
+                onPress={() => onSelectCountry(option)}
+                style={[
+                  styles.dropdownOption,
+                  {
+                    borderBottomColor: borderColor,
+                    backgroundColor: isSelected ? primaryColorAlpha(0.12) : 'transparent',
+                  },
+                ]}
+              >
+                <Text style={[styles.dropdownOptionText, { color: titleColor }]}>
+                  {option.label}
+                </Text>
+                <Text style={[styles.dropdownMetaText, { color: theme.textMuted }]}>
+                  {`${option.cca2} +${option.callingCode}`}
+                </Text>
+              </Pressable>
+            );
+          })}
         </Pressable>
       </Pressable>
     </Modal>
@@ -856,18 +1302,19 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'space-between',
   },
+  stepperHeader: {
+    paddingHorizontal: 24,
+    paddingTop: 10,
+    paddingBottom: 14,
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 14,
+    // borderBottomWidth: 1,
+  },
   headerLeft: {
     flexDirection: 'row',
     alignItems: 'center',
     gap: 14,
-  },
-  backButton: {
-    width: 40,
-    height: 40,
-    borderRadius: 20,
-    alignItems: 'center',
-    justifyContent: 'center',
-    borderWidth: 1,
   },
   headerTitle: {
     ...fontSize.b1, lineHeight: fontSize.b1.fontSize + 2,
@@ -875,6 +1322,20 @@ const styles = StyleSheet.create({
   },
   headerSpacer: {
     width: 40,
+  },
+  stepperBody: {
+    flex: 1,
+  },
+  stepperRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    width: '100%',
+    gap: 6,
+  },
+  stepperConnector: {
+    flex: 1,
+    height: 2,
+    borderRadius: 999,
   },
   scrollContent: {
     flexGrow: 1,
@@ -1076,6 +1537,10 @@ const styles = StyleSheet.create({
   dropdownOptionText: {
     ...fontSize.b3,
     lineHeight: fontSize.b3.fontSize + 2,
+  },
+  dropdownMetaText: {
+    ...fontSize.b5,
+    lineHeight: fontSize.b5.fontSize + 1,
   },
 });
 

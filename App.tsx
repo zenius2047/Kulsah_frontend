@@ -4,6 +4,7 @@ import { View, StyleSheet, ActivityIndicator, Text, TextInput, Pressable, Status
 import { NavigationContainer, createNavigationContainerRef } from '@react-navigation/native';
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
+import { QueryClientProvider } from '@tanstack/react-query';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { MaterialIcons,} from '@expo/vector-icons';
 import { useFonts } from 'expo-font';
@@ -41,6 +42,8 @@ import MovieIcon from './assets/icons/movieIcon-svg.svg';
 import HomeIcon from './assets/icons/home-svg.svg';
 import ForumIcon from './assets/icons/forum-svg.svg';
 import { SafeAreaView, useSafeAreaInsets } from 'react-native-safe-area-context';
+import { queryClient } from './src/lib/queryClient';
+import { AuthProvider } from './src/context/AuthContext';
 // import MaterialSymbols from 'react-native-vector-icons/MaterialSymbolsOutlined';
 
 // import Icon from 'react-native-vector-icons/MaterialIcons';
@@ -178,6 +181,26 @@ interface TabsProps {
   onTap?: ()=>void
 }
 
+type TabBarIconProps = {
+  color: string;
+  size: number;
+  focused: boolean;
+};
+
+type TabScreenOptionsRoute = {
+  name: string;
+};
+
+type TabListenerParams = {
+  navigation: {
+    getParent: () => { navigate: (screen: string) => void } | undefined;
+  };
+};
+
+type TabPressEvent = {
+  preventDefault: () => void;
+};
+
 const getTabBarShadow = (isDarkMode: boolean, isGalaxy: boolean) => ({
   borderTopWidth: 1,
   borderTopColor: isGalaxy
@@ -200,7 +223,7 @@ const CreatorTabs = ({ isDarkMode }: TabsProps) => {
     <Tab.Navigator
     id="creator-tabs"
     safeAreaInsets={{ bottom: 0 }}
-    screenOptions={({ route }) => ({
+    screenOptions={({ route }: { route: TabScreenOptionsRoute }) => ({
         headerShown: false,
         tabBarActiveTintColor: route.name === 'Galaxy' ? '#ffffff' : isDarkMode ? '#ffffff' : '#000000',
         tabBarInactiveTintColor: '#8E8E93',
@@ -221,7 +244,7 @@ const CreatorTabs = ({ isDarkMode }: TabsProps) => {
       name="Galaxy"
       component={Feed}
       options={{
-        tabBarIcon: ({ color, size, focused }) =>
+        tabBarIcon: ({ color, size, focused }: TabBarIconProps) =>
           focused ? (
             <MaterialIcons name="movie" size={size} color='white' />
           ) : (
@@ -233,7 +256,7 @@ const CreatorTabs = ({ isDarkMode }: TabsProps) => {
       name="Arena"
       component={Arena}
       options={{
-        tabBarIcon: ({ color, size, focused }) =>
+        tabBarIcon: ({ color, size, focused }: TabBarIconProps) =>
         focused ? (
           <MaterialIcons name="explore" size={size} color={color} />
         ) : (
@@ -244,9 +267,9 @@ const CreatorTabs = ({ isDarkMode }: TabsProps) => {
     <Tab.Screen
       name=" "
       component={RecordContent}
-      listeners={({ navigation }) => ({
-        tabPress: (e) => {
-          (e as any).preventDefault();
+      listeners={({ navigation }: TabListenerParams) => ({
+        tabPress: (e: TabPressEvent) => {
+          e.preventDefault();
           navigation.getParent()?.navigate('RecordContent');
         },
       })}
@@ -279,7 +302,7 @@ const CreatorTabs = ({ isDarkMode }: TabsProps) => {
     name="Signal"
     component={Inbox}
     options = {{
-      tabBarIcon: ({ color, size, focused }) => (
+      tabBarIcon: ({ color, size, focused }: TabBarIconProps) => (
         <MaterialIcons
           name={focused ? 'chat-bubble' : 'chat-bubble-outline'}
           size={size}
@@ -294,10 +317,10 @@ const CreatorTabs = ({ isDarkMode }: TabsProps) => {
       component={ArtistProfile}
       initialParams={{
         isOwner: true,
-        id: user?.id,
+        handle: user?.handle,
       }}
       options={{
-        tabBarIcon: ({ color, size }) =>
+        tabBarIcon: ({ color, size }: Omit<TabBarIconProps, 'focused'>) =>
         <View
         style={{
           height: 30,
@@ -329,7 +352,7 @@ const FanTabs = ({isDarkMode, user, onTap}: TabsProps) => {
   const insets = useSafeAreaInsets();
   const tabBarHeight = (Platform.OS === 'ios' ? SCREEN_HEIGHT * 0.08 : SCREEN_HEIGHT * 0.07 +insets.bottom);
 
-  const guardGuestTab = (e: any) => {
+  const guardGuestTab = (e: TabPressEvent) => {
     if (user.role !== 'guest' && user.name !== 'guest') return;
     e.preventDefault();
     onTap?.();
@@ -339,7 +362,7 @@ const FanTabs = ({isDarkMode, user, onTap}: TabsProps) => {
     <Tab.Navigator
       id="fan-tabs"
       safeAreaInsets={{ bottom: 0 }}
-      screenOptions={({ route }) => ({
+      screenOptions={({ route }: { route: TabScreenOptionsRoute }) => ({
         headerShown: false,
         tabBarActiveTintColor: route.name === 'Galaxy' ? '#ffffff' : isDarkMode ? '#ffffff' : '#000000',
         tabBarInactiveTintColor: isDarkMode ? '#8E8E93' : '#64748b',
@@ -358,7 +381,7 @@ const FanTabs = ({isDarkMode, user, onTap}: TabsProps) => {
       name="Galaxy"
       component={Feed}
       options={{
-        tabBarIcon: ({ color, size, focused }) =>
+        tabBarIcon: ({ color, size, focused }: TabBarIconProps) =>
           focused ? (
             <MaterialIcons name="movie" size={size} color='white' />
           ) : (
@@ -371,7 +394,7 @@ const FanTabs = ({isDarkMode, user, onTap}: TabsProps) => {
     component={FanArena}
     options = {{
       // tabBarLabel: '',
-      tabBarIcon: ({ color, size, focused }) =>
+      tabBarIcon: ({ color, size, focused }: TabBarIconProps) =>
         focused ? (
           <MaterialIcons name="explore" size={size} color={color} />
         ) : (
@@ -384,7 +407,7 @@ const FanTabs = ({isDarkMode, user, onTap}: TabsProps) => {
     name="Community"
     component={Community}
     options = {{
-      tabBarIcon: ({ color, size, focused }) =>
+      tabBarIcon: ({ color, size, focused }: TabBarIconProps) =>
         focused ? (
           <MaterialIcons name="forum" size={size} color={color} />
         ) : (
@@ -397,7 +420,7 @@ const FanTabs = ({isDarkMode, user, onTap}: TabsProps) => {
     name="Signal"
     component={Inbox}
     options = {{
-      tabBarIcon: ({ color, size, focused }) => (
+      tabBarIcon: ({ color, size, focused }: TabBarIconProps) => (
         <MaterialIcons
           name={focused ? 'chat-bubble' : 'chat-bubble-outline'}
           size={size}
@@ -411,7 +434,7 @@ const FanTabs = ({isDarkMode, user, onTap}: TabsProps) => {
       name="Profile"
       component={FanProfile}
       options={{
-        tabBarIcon: ({ color, size }) => <View
+        tabBarIcon: ({ color, size }: Omit<TabBarIconProps, 'focused'>) => <View
         style={{
           height: 30,
           width: 30,
@@ -510,7 +533,7 @@ const App: React.FC = () => {
       const [savedUser, savedDarkMode] = await Promise.all([
         AsyncStorage.getItem('pulsar_user'),
         AsyncStorage.getItem('pulsar_dark_mode'),
-        new Promise((resolve) => setTimeout(resolve, 2000)),
+        new Promise<void>((resolve) => setTimeout(resolve, 2000)),
       ]);
 
       if (savedDarkMode !== null) {
@@ -534,9 +557,11 @@ const App: React.FC = () => {
 
   const handleLogin = async (role: UserRole) => {
     const mockUser: User = {
-      id: role === 'creator' ? 'mila_ray_01' : 'alex_rivera_42',
+      id: role === 'creator' ? 1 : 2,
       name: role === 'creator' ? 'Mila Ray' : 'Alex Rivera',
       role,
+      email: role === 'creator' ? 'mila@kulsah.com' : 'alex@kulsah.com',
+      handle: role === 'creator' ? 'mila_ray_01' : 'alex_rivera_42',
     };
     setUser(mockUser);
     setCurrentUser(mockUser);
@@ -548,14 +573,16 @@ const App: React.FC = () => {
   }
 
   return (
-    <PaperProvider theme={paperTheme}>
-      <SafeAreaProvider>
-        <ErrorBoundary
-          fallbackTitle="App error"
-          fallbackMessage="An unexpected error occurred. Retry to reload the app."
-        >
-          <NavigationContainer ref={navigationRef}>
-            <SafeAreaView edges={Platform.OS === 'ios'? []: []} style={{ flex: 1 }}>
+    <QueryClientProvider client={queryClient}>
+      <AuthProvider>
+        <PaperProvider theme={paperTheme}>
+          <SafeAreaProvider>
+            <ErrorBoundary
+              fallbackTitle="App error"
+              fallbackMessage="An unexpected error occurred. Retry to reload the app."
+            >
+              <NavigationContainer ref={navigationRef}>
+                <SafeAreaView edges={Platform.OS === 'ios'? []: []} style={{ flex: 1 }}>
 
             <StatusBar barStyle={isDark ? 'light-content' : 'dark-content'} backgroundColor="transparent" translucent = {true} />
             <Stack.Navigator id="root-stack" screenOptions={{ headerShown: false }}>
@@ -567,7 +594,11 @@ const App: React.FC = () => {
                 <>
                   <Stack.Screen name="MainTabs">{() => (currentUser.role === 'creator' ? <CreatorTabs isDarkMode={isDark} user={currentUser} /> : <FanTabs isDarkMode={isDark} user={currentUser} onTap={onTap} />)}</Stack.Screen>
                   <Stack.Screen name="Login">{() => <Login onLogin={handleLogin} />}</Stack.Screen>
-                  <Stack.Screen name="EmailPhone" component={EmailPhone} />
+                  <Stack.Screen
+                    name="EmailPhone"
+                    component={EmailPhone}
+                    options={{ gestureEnabled: false }}
+                  />
                   <Stack.Screen name="EmailVerification" component={EmailVerification} />
                   <Stack.Screen name="VerifyOtp" component={VerifyOtp} />
                   <Stack.Screen name="Chat" component={ChatView} />
@@ -630,13 +661,18 @@ const App: React.FC = () => {
                   <Stack.Screen name="HelpCentre" component={HelpCentre}/>
                   <Stack.Screen name="TermsPolicies" component={TermsPolicies}/>
                   <Stack.Screen name="PrivacyCentre" component={PrivacyCentre}/>
+                  <Stack.Screen name="VibeSignature" component={VibePicker}/>
                 </>
               ) : (
                 <>
                   <Stack.Screen name="GetStarted" component={GetStarted} />
                   <Stack.Screen name="/vibe-picker" component={SignupVibes} />
                   {/* <Stack.Screen name="Signup">{() => <Signup onLogin={handleLogin} />}</Stack.Screen> */}
-                  <Stack.Screen name="EmailPhone" component={EmailPhone} />
+                  <Stack.Screen
+                    name="EmailPhone"
+                    component={EmailPhone}
+                    options={{ gestureEnabled: false }}
+                  />
                   <Stack.Screen name="EmailVerification" component={EmailVerification} />
                   <Stack.Screen name="VerifyOtp" component={VerifyOtp} />
                 </>
@@ -655,11 +691,13 @@ const App: React.FC = () => {
                 });
               }}
             />
-            </SafeAreaView>
-          </NavigationContainer>
-        </ErrorBoundary>
-      </SafeAreaProvider>
-    </PaperProvider>
+                </SafeAreaView>
+              </NavigationContainer>
+            </ErrorBoundary>
+          </SafeAreaProvider>
+        </PaperProvider>
+      </AuthProvider>
+    </QueryClientProvider>
   );
 };
 

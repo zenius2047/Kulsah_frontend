@@ -125,10 +125,10 @@ const PlaylistPlayer: React.FC = () => {
   const muted = isDark ? '#9ca3af' : theme.textSecondary;
 
   useEffect(() => {
-    AsyncStorage.getItem('pulsar_user').then((saved) => {
+    AsyncStorage.getItem('pulsar_user').then((saved: string | null) => {
       if (!saved) return;
       try {
-        const parsed = JSON.parse(saved);
+        const parsed = JSON.parse(saved) as { role?: string; subscribedTo?: string[] };
         const nextIsOwner = parsed?.role === 'creator';
         setIsOwner(nextIsOwner);
         setIsSubscribed(nextIsOwner || Boolean(parsed?.subscribedTo?.includes('Elena Rose')));

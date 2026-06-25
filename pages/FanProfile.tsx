@@ -18,7 +18,7 @@ import {
 } from 'react-native';
 import { LinearGradient } from 'expo-linear-gradient';
 import AsyncStorage from '@react-native-async-storage/async-storage';
-import { mediumScreen, setUser, user } from '../types';
+import { mediumScreen, setUser, User, user } from '../types';
 import LocalIcon from '../assets/icons/local-activity-svg.svg';
 import MovieIcon from '../assets/icons/play-circle-svg.svg';
 import BookMarkIcon from '../assets/icons/bookmark-svg.svg';
@@ -211,7 +211,7 @@ const FanProfile: React.FC<FanProfileProps> = ({ onToggleRole }) => {
       id: user?.id || 'mila_ray_01',
       name: user?.name || 'Mila Ray',
       role: 'creator' as const,
-    };
+    } as User;
     setUser(nextUser);
     await AsyncStorage.setItem('pulsar_user', JSON.stringify(nextUser));
     if (onToggleRole) {
@@ -436,7 +436,7 @@ const FanProfile: React.FC<FanProfileProps> = ({ onToggleRole }) => {
                 <Text style={[s.vibeText, { color: theme.text }]}>{vibe}</Text>
               </View>
             ))}
-            <Pressable onPress={() => navigation.navigate('FanSettings')} style={s.vibeEdit}>
+            <Pressable onPress={() => navigation.navigate('VibeSignature')} style={s.vibeEdit}>
               <MaterialIcons name="edit" size={14} color={theme.textSecondary} />
             </Pressable>
           </View>

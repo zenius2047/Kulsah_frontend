@@ -126,7 +126,7 @@ const ChallengeDrafts: React.FC = () => {
   useEffect(() => {
     let mounted = true;
     AsyncStorage.getItem(DRAFTS_KEY)
-      .then(async (saved) => {
+      .then(async (saved: string | null) => {
         const nextDrafts = saved ? JSON.parse(saved) : fallbackDrafts;
         if (!saved) {
           await AsyncStorage.setItem(DRAFTS_KEY, JSON.stringify(fallbackDrafts));
@@ -171,7 +171,7 @@ const ChallengeDrafts: React.FC = () => {
     const newChallenge: ChallengeDraft = {
       ...editingDraft,
       id: `c_${Date.now()}`,
-      creatorId: user?.id || editingDraft.creatorId || 'mila_ray_01',
+      creatorId: String(user?.id || editingDraft.creatorId || 'mila_ray_01'),
       creatorName: user?.name || 'Nova Pulse',
       title: editTitle,
       description: editDesc,

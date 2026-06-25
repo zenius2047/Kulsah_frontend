@@ -1,0 +1,46 @@
+{
+  "project_info": {
+    "project_number": "66968860440",
+    "project_id": "kulsah-511ef",
+    "storage_bucket": "kulsah-511ef.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:66968860440:android:2af4d5933461323de4506d",
+        "android_client_info": {
+          "package_name": "com.godfreddevsorganization.kulsah"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "66968860440-s6r9b0jd7s0fvb2rpmqltk3qq02u290n.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyCNT_JrXXZdeZPXr2o9i2QqW5FhSD182Eo"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "66968860440-s6r9b0jd7s0fvb2rpmqltk3qq02u290n.apps.googleusercontent.com",
+              "client_type": 3
+            },
+            {
+              "client_id": "66968860440-rh81s6n5gocqdfh8g7617i7h9cnllljl.apps.googleusercontent.com",
+              "client_type": 2,
+              "ios_info": {
+                "bundle_id": "kulsah"
+              }
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

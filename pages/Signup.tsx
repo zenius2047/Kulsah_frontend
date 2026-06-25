@@ -119,7 +119,7 @@ const Signup: React.FC<SignupProps> = ({ onLogin }) => {
   const [formData, setFormData] = useState({ name: '', email: '', password: '' });
   const [selectedVibes, setSelectedVibes] = useState<Set<string>>(new Set(params.initialSelectedVibes ?? []));
   const [isProcessing, setIsProcessing] = useState(false);
-  const [user, setUser] = useState<User>({id: "", name: "", role: 'fan'});
+  const [user, setUser] = useState<User>({ id: 0, name: '', role: 'fan', email: '', handle: '' });
 
   const steps: OnboardingStep[] = useMemo(
     () => ['welcome', 'name', 'vibes', 'credentials', 'success'],
@@ -141,7 +141,10 @@ const Signup: React.FC<SignupProps> = ({ onLogin }) => {
   const handleNext = () => {
     setUser({
       ...user,
-      name: formData.name
+      id: user.id || Date.now(),
+      name: formData.name,
+      email: formData.email || user.email,
+      handle: user.handle || formData.name.trim().toLowerCase().replace(/\s+/g, '_') || 'guest',
     })
     const nextIdx = steps.indexOf(step) + 1;
     if (nextIdx < steps.length) setStep(steps[nextIdx]);
