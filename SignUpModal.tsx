@@ -106,7 +106,9 @@ const SignUpModal: React.FC<SignUpModalProps> = ({
               }}
               disabled={isGoogleSigningIn}
             />
-            <AuthButton provider="apple" label="Continue with Apple      " isDark={isDark} />
+            <AuthButton provider="apple" label="Continue with Apple      " isDark={isDark}  onPress = {()=>{
+              
+            }}/>
             <AuthButton provider="facebook" label="Continue with Facebook " isDark={isDark} />
             <AuthButton provider="tiktok" label="Continue with TikTok     " isDark={isDark} />
 

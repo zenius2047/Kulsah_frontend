@@ -18,6 +18,25 @@ export interface User {
   verified_at?: string;
 }
 
+export type Gender = 'male' | 'female';
+
+export type UpdateProfilePayload = {
+  name?: string;
+  username?: string;
+  bio?: string | null;
+  phone?: string | null;
+  dob?: string | null;
+  gender?: Gender | null;
+  location?: string | null;
+  country_code?: string | null;
+};
+
+export type AvatarUploadSource = {
+  uri: string;
+  name?: string;
+  type?: string;
+};
+
 export type RootStackParamList = {
   Home: undefined;
   Details: { name: string };

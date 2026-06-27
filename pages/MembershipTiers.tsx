@@ -18,8 +18,10 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 import { GoogleGenAI } from '@google/genai';
 import { useThemeMode, PRIMARY_COLOR, primaryColorAlphaHex } from "../theme";
 import { fontSize } from './typography';
+import { useUpdateSubscriptionPlan } from '../src';
 
 type SubscriptionTier = {
+  id: string;
   name: string;
   price: string;
   perks: string[];
@@ -28,6 +30,7 @@ type SubscriptionTier = {
 };
 
 const INITIAL_SUBSCRIPTION: SubscriptionTier = {
+  id: 'default',
   name: 'Kulsah',
   price: '9.99',
   perks: ['Exclusive feed access', 'Direct messaging', 'Badge of honor'],
@@ -44,6 +47,7 @@ const MembershipTiers: React.FC = () => {
   const [isEditorOpen, setIsEditorOpen] = useState(false);
   const [editingSub, setEditingSub] = useState<SubscriptionTier | null>(null);
   const [newPerkText, setNewPerkText] = useState('');
+  const { mutateAsync: updateSubscriptionPlan } = useUpdateSubscriptionPlan();
 
   const totalMonthlyRevenue = useMemo(() => {
     const price = Number.parseFloat(subscription.price) || 0;
@@ -70,10 +74,32 @@ const MembershipTiers: React.FC = () => {
     setNewPerkText('');
   };
 
-  const saveSubscription = () => {
+  const saveSubscription = async () => {
     if (!editingSub) return;
-    setSubscription(editingSub);
-    closeEditor();
+    try {
+      setIsSaving(true);
+      await updateSubscriptionPlan({
+        subscriptionPlan: editingSub.id === 'default' ? editingSub.name : editingSub.id,
+        payload: {
+          name: editingSub.name.trim(),
+          description: null,
+          price: Number.parseFloat(editingSub.price),
+          currency: 'USD',
+          billing_interval: 'monthly',
+        },
+      });
+
+      setSubscription(editingSub);
+      closeEditor();
+      Alert.alert('Published', 'Your membership tier updates are now live.');
+    } catch (error: any) {
+      Alert.alert(
+        'Update failed',
+        error?.response?.data?.message || error?.message || 'Please try again.'
+      );
+    } finally {
+      setIsSaving(false);
+    }
   };
 
   const addPerk = () => {
@@ -303,8 +329,8 @@ const MembershipTiers: React.FC = () => {
                     </View>
                   </View>
 
-                  <Pressable onPress={saveSubscription} style={s.syncButton}>
-                    <Text style={s.syncButtonText}>Synchronize Subscription</Text>
+                  <Pressable onPress={() => void saveSubscription()} style={s.syncButton} disabled={isSaving}>
+                    <Text style={s.syncButtonText}>{isSaving ? 'Publishing...' : 'Synchronize Subscription'}</Text>
                   </Pressable>
                 </ScrollView>
               </View>

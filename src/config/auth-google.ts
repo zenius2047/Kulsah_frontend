@@ -105,22 +105,20 @@ export const useGoogleAuth = (options: UseGoogleAuthOptions = {}) => {
         return null;
       }
 
-      const { idToken } = response.data;
+      const nativeUser = response.data;
+      const nativeTokens = nativeUser.idToken ? null : await GoogleSignin.getTokens();
+      const idToken = nativeUser.idToken ?? nativeTokens?.idToken;
+      const accessToken = nativeTokens?.accessToken;
+
       if (!idToken) {
         throw new Error('Google sign-in did not return an ID token.');
       }
 
-      const firebaseUser = await completeFirebaseSignIn(idToken);
+      const firebaseUser = await completeFirebaseSignIn(idToken, accessToken);
       await options.onSuccess?.(firebaseUser);
 
       return firebaseUser;
     } catch (caughtError: any) {
-      if (caughtError instanceof Error && caughtError.message.includes('Expo Go')) {
-        setError(caughtError.message);
-        options.onError?.(caughtError);
-        return null;
-      }
-
       const errorMessage = String(caughtError?.message ?? '').toLowerCase();
       const nativeModuleMissing =
         errorMessage.includes('rngooglesignin') ||
@@ -128,6 +126,12 @@ export const useGoogleAuth = (options: UseGoogleAuthOptions = {}) => {
         errorMessage.includes('expo go');
 
       if (nativeModuleMissing) {
+        console.log('Native Google sign-in unavailable, falling back to web auth session.');
+        const fallbackResult = await signInWeb();
+        if (fallbackResult) {
+          return fallbackResult;
+        }
+
         const nextError = new Error('Native Google sign-in needs a development build, not Expo Go.');
         setError(nextError.message);
         options.onError?.(nextError);
@@ -147,14 +151,20 @@ export const useGoogleAuth = (options: UseGoogleAuthOptions = {}) => {
         const nextError = new Error(
           `Android Google Sign-In is not configured for this build. Add package ${ANDROID_PACKAGE_NAME} with SHA-1 ${ANDROID_SIGNING_SHA1} and SHA-256 ${ANDROID_SIGNING_SHA256} in Firebase/Google Cloud, then rebuild the development client.`
         );
-        setError(nextError.message);
-        options.onError?.(nextError);
         console.log('Google Sign-In Android configuration error:', {
           packageName: ANDROID_PACKAGE_NAME,
           sha1: ANDROID_SIGNING_SHA1,
           sha256: ANDROID_SIGNING_SHA256,
           originalError: caughtError,
         });
+        console.log('Falling back to web auth session for Google sign-in.');
+        const fallbackResult = await signInWeb();
+        if (fallbackResult) {
+          return fallbackResult;
+        }
+
+        setError(nextError.message);
+        options.onError?.(nextError);
         return null;
       }
 

@@ -20,6 +20,7 @@ import { fontSize } from '../typography';
 import TicketIcon from '../assets/icons/Ticket1.svg';
 import LocalActivity from '../assets/icons/local_activity.svg';
 import LibraryMusic from '../assets/icons/library_music.svg';
+import { useSubscribeToPlan } from '../src';
 
 
 type Tab = 'Videos' | 'Library' | 'Premium'  | 'Tickets' | 'Events' | 'Challenges' | 'Favorites' | 'Saved';
@@ -29,6 +30,7 @@ const { height: SCREEN_HEIGHT, width: SCREEN_WIDTH } = Dimensions.get('screen');
 const KULCOIN_ICON = require('../assets/coin.png');
 
 interface SubscriptionTier {
+  id: string;
   name: string;
   price: string;
   perks: string[];
@@ -48,6 +50,7 @@ type LibraryVideo = {
 };
 
 const INITIAL_SUBSCRIPTION: SubscriptionTier = {
+  id: 'default',
   name: 'Kulsah',
   price: '9.99',
   perks: [
@@ -153,6 +156,7 @@ const  ArtistProfile: React.FC = () => {
   const [activeMenuId, setActiveMenuId] = useState<string | null>(null);
   const [editingVideo, setEditingVideo] = useState<LibraryVideo | null>(null);
   const [editTitleValue, setEditTitleValue] = useState('');
+  const { mutateAsync: subscribeToPlan } = useSubscribeToPlan();
   const ping = (m: string) => { setToast(m); setTimeout(() => setToast(''), 2200); };
   const share = async () => { try { await Share.share({ title: `${name} on Kulsah`, message: `Check out ${name}'s creative universe on Kulsah!` }); } catch { ping('Share failed'); } };
 
@@ -709,24 +713,41 @@ const PlaylistSection = () => {
     setShowSuccess(false);
   };
 
-  const handlePurchase = () => {
+  const handlePurchase = async () => {
     if (!selectedSub) return;
     if (coinBalance > subscriptionCost) {
       setShowKulCoinPrompt(true);
       return;
     }
 
-    setIsProcessing(true);
-    setTimeout(() => {
+    try {
+      setIsProcessing(true);
+      await subscribeToPlan({
+        subscriptionPlan: selectedSub.id === 'default' ? name : selectedSub.id,
+        payload: {
+          name: selectedSub.name.trim(),
+          description: null,
+          price: Number.parseFloat(selectedSub.price),
+          currency: 'USD',
+          billing_interval: 'monthly',
+        },
+      });
+
       setCoinBalance((prev) => prev - subscriptionCost);
-      setIsProcessing(false);
       setShowSuccess(true);
       setTimeout(() => {
         setSelectedSub(null);
         setShowSuccess(false);
         ping(`Welcome to ${selectedSub.name}!`);
       }, 1800);
-    }, 1200);
+    } catch (error: any) {
+      Alert.alert(
+        'Subscription failed',
+        error?.response?.data?.message || error?.message || 'Please try again.'
+      );
+    } finally {
+      setIsProcessing(false);
+    }
   };
 
   return (
@@ -1547,7 +1568,7 @@ const PlaylistSection = () => {
                     </View>
                   </View>
 
-                  <Pressable onPress={handlePurchase} disabled={isProcessing} style={s.subscriptionPrimary}>
+                    <Pressable onPress={() => void handlePurchase()} disabled={isProcessing} style={s.subscriptionPrimary}>
                     {isProcessing ? (
                       <ActivityIndicator color="#fff" />
                     ) : (

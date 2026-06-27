@@ -3,6 +3,7 @@ import { useThemeMode, PRIMARY_COLOR, primaryColorAlpha } from "../theme";
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { Accelerometer } from 'expo-sensors';
 import {
+  Alert,
   Dimensions,
   FlatList,
   Image,
@@ -43,6 +44,7 @@ import CreatorShareSheet from './CreatorShareSheet';
 import Premium from '../assets/icons/kulsah_premium_icon.svg';
 import DotTrioLoader from '../components/DotTrioLoader';
 import { fontSize } from '../typography';
+import { useSubscribeToPlan } from '../src';
 
 const KULCOIN_ICON = require('../assets/coin.png');
 
@@ -71,6 +73,7 @@ interface FeedItem {
 }
 
 interface SubscriptionTier {
+  id: string;
   name: string;
   price: string;
   perks: string[];
@@ -78,6 +81,7 @@ interface SubscriptionTier {
 
 interface FeedSubscriptionSelection {
   itemId: string;
+  creatorHandle: string;
   creatorName: string;
   tier: SubscriptionTier;
 }
@@ -225,6 +229,7 @@ const SHAKE_FORCE_THRESHOLD = 2.05;
 const SHAKE_DELTA_THRESHOLD = 1.15;
 const SHAKE_REFRESH_COOLDOWN_MS = 1400;
 const INITIAL_SUBSCRIPTION: SubscriptionTier = {
+  id: 'default',
   name: 'Kulsah',
   price: '9.99',
   perks: [
@@ -2293,6 +2298,7 @@ const Feed: React.FC = () => {
   const [shakeToRefreshEnabled, setShakeToRefreshEnabled] = useState(false);
   const [isShakeRefreshing, setIsShakeRefreshing] = useState(false);
   const [followToast, setFollowToast] = useState<string | null>(null);
+  const { mutateAsync: subscribeToPlan } = useSubscribeToPlan();
 
 
   useEffect(() => {
@@ -2346,6 +2352,7 @@ const Feed: React.FC = () => {
   const handleSubscribe = useCallback((feedItem: FeedItem) => {
     setSelectedSubscription({
       itemId: feedItem.id,
+      creatorHandle: feedItem.handle,
       creatorName: feedItem.artist,
       tier: INITIAL_SUBSCRIPTION,
     });
@@ -2376,7 +2383,7 @@ const Feed: React.FC = () => {
     setShowSubscriptionSuccess(false);
   }, [isProcessingSubscription]);
 
-  const handleSubscriptionPurchase = useCallback(() => {
+  const handleSubscriptionPurchase = useCallback(async () => {
     if (!selectedSubscription) return;
 
     const subscriptionCost =
@@ -2387,22 +2394,42 @@ const Feed: React.FC = () => {
       return;
     }
 
-    setIsProcessingSubscription(true);
-    setTimeout(() => {
+    try {
+      setIsProcessingSubscription(true);
+      await subscribeToPlan({
+        subscriptionPlan:
+          selectedSubscription.tier.id === 'default'
+            ? selectedSubscription.creatorHandle || selectedSubscription.creatorName
+            : selectedSubscription.tier.id,
+        payload: {
+          name: selectedSubscription.tier.name.trim(),
+          description: null,
+          price: Number.parseFloat(selectedSubscription.tier.price),
+          currency: 'USD',
+          billing_interval: 'monthly',
+        },
+      });
+
       setItems((prev) =>
         prev.map((item) =>
           item.id === selectedSubscription.itemId ? { ...item, isSubscribed: true } : item
         )
       );
       setCoinBalance((prev) => prev - subscriptionCost);
-      setIsProcessingSubscription(false);
       setShowSubscriptionSuccess(true);
       setTimeout(() => {
         setSelectedSubscription(null);
         setShowSubscriptionSuccess(false);
       }, 1800);
-    }, 1200);
-  }, [coinBalance, selectedSubscription, subscriptionBillingCycle]);
+    } catch (error: any) {
+      Alert.alert(
+        'Subscription failed',
+        error?.response?.data?.message || error?.message || 'Please try again.'
+      );
+    } finally {
+      setIsProcessingSubscription(false);
+    }
+  }, [coinBalance, selectedSubscription, subscribeToPlan, subscriptionBillingCycle]);
 
   const handleToggleMute = useCallback(() => {
     setIsGlobalMuted((v) => !v);

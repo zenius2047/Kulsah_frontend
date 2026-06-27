@@ -1,6 +1,8 @@
 import React, { useMemo, useRef, useState, useEffect } from 'react';
 import { useThemeMode, PRIMARY_COLOR, primaryColorAlpha, primaryColorAlphaHex } from "../theme";
 import {
+  Alert,
+  ActivityIndicator,
   Image,
   KeyboardAvoidingView,
   Modal,
@@ -12,6 +14,7 @@ import {
   TextInput,
   View,
 } from 'react-native';
+import * as ImagePicker from 'expo-image-picker';
 import { MaterialIcons } from '@expo/vector-icons';
 import { useNavigation, useRoute } from '@react-navigation/native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
@@ -27,6 +30,9 @@ import { SvgProps } from 'react-native-svg';
 import CoinsIcon from '../assets/icons/coins-svg.svg';
 import CreatorSwitch from '../assets/icons/switch-creator.svg';
 import { fontSize } from './typography';
+import { useUpdateProfile, useUploadAvatar } from '../src';
+import type { AvatarUploadSource, User } from '../src';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 type SubView = 'main' | 'profile' | 'identity' | 'gifts' | 'payments' | 'notifications';
 
@@ -62,32 +68,106 @@ interface SettingItem {
   path?: string;
 }
 
+const DEFAULT_PROFILE_NAME = 'Alex Rivera';
+const DEFAULT_PROFILE_HANDLE = 'alex_vibes_2024';
+const DEFAULT_PROFILE_BIO =
+  'Synthwave enthusiast. Collecting limited drops and supporting indie talent across the soundscape.';
+const DEFAULT_PROFILE_AVATAR = 'https://picsum.photos/seed/profile/200';
+const PROFILE_BIO_LIMIT = 160;
+
+
+const createProfileDraft = (source?: User | null) => ({
+  name: source?.name?.trim() || DEFAULT_PROFILE_NAME,
+  handle: (source?.handle?.trim() || DEFAULT_PROFILE_HANDLE).replace(/^@/, ''),
+  bio: source?.bio?.trim() || DEFAULT_PROFILE_BIO,
+  avatar: source?.avatar?.trim() || DEFAULT_PROFILE_AVATAR,
+});
+
+const resolveAvatarUri = (payload: unknown): string | null => {
+  if (typeof payload === 'string' && payload.trim()) return payload.trim();
+
+  if (payload && typeof payload === 'object') {
+    const record = payload as Record<string, unknown>;
+    const candidates = [
+      record.avatar,
+      record.avatar_url,
+      record.avatarUrl,
+      record.url,
+      record.path,
+      record.data && typeof record.data === 'object' ? (record.data as Record<string, unknown>).avatar : undefined,
+      record.data && typeof record.data === 'object' ? (record.data as Record<string, unknown>).avatar_url : undefined,
+      record.data && typeof record.data === 'object' ? (record.data as Record<string, unknown>).avatarUrl : undefined,
+      record.data && typeof record.data === 'object' ? (record.data as Record<string, unknown>).url : undefined,
+      record.user && typeof record.user === 'object' ? (record.user as Record<string, unknown>).avatar : undefined,
+      record.user && typeof record.user === 'object' ? (record.user as Record<string, unknown>).avatar_url : undefined,
+      record.user && typeof record.user === 'object' ? (record.user as Record<string, unknown>).avatarUrl : undefined,
+    ];
+
+    for (const candidate of candidates) {
+      if (typeof candidate === 'string' && candidate.trim()) {
+        return candidate.trim();
+      }
+    }
+  }
+
+  return null;
+};
+
+const getPickedAvatarSource = (asset: ImagePicker.ImagePickerAsset): AvatarUploadSource => {
+  const extension = asset.uri.split('.').pop()?.split('?')[0]?.toLowerCase() || 'jpg';
+  const mimeType =
+    asset.mimeType ||
+    (extension === 'png'
+      ? 'image/png'
+      : extension === 'webp'
+        ? 'image/webp'
+        : 'image/jpeg');
+
+  return {
+    uri: asset.uri,
+    name: asset.fileName || `avatar-${Date.now()}.${extension === 'jpg' ? 'jpeg' : extension}`,
+    type: mimeType,
+  };
+};
+
 
 const FanSettings: React.FC<FanSettingsProps> = ({ onLogout, isDarkMode, onToggleTheme, onToggleRole }) => {
   const { isDark, theme } = useThemeMode();
   const navigation = useNavigation<any>();
   const route = useRoute<any>();
-  const [currentUser, setCurrentUser] = useState(user);
+  const [currentUser, setCurrentUser] = useState<User | null>(user);
   const [activeView, setActiveView] = useState<SubView>('main');
   const [currentSlide, setCurrentSlide] = useState(0);
   const [isRoleSwitchModalOpen, setIsRoleSwitchModalOpen] = useState(false);
+  const [isAvatarModalOpen, setIsAvatarModalOpen] = useState(false);
+  const [isAvatarFullscreenOpen, setIsAvatarFullscreenOpen] = useState(false);
+  const [isAvatarUploading, setIsAvatarUploading] = useState(false);
   const [shakeToRefreshEnabled, setShakeToRefreshEnabled] = useState(false);
   const scrollRef = useRef<ScrollView>(null);
 
   const [flippedCards, setFlippedCards] = useState<Record<string, boolean>>({});
   const [tokenTime, setTokenTime] = useState(30);
+  const { mutateAsync: updateProfile, isPending: isSavingProfile } = useUpdateProfile();
+  const { mutateAsync: uploadAvatar } = useUploadAvatar();
 
-  const [profile, setProfile] = useState({
-    name: 'Alex Rivera',
-    handle: 'alex_vibes_2024',
-    bio: 'Synthwave enthusiast. Collecting limited drops and supporting indie talent across the soundscape.',
-    avatar: 'https://picsum.photos/seed/profile/200',
-  });
+  const [profile, setProfile] = useState(() => createProfileDraft(user));
+
+  const insets = useSafeAreaInsets();
 
   useEffect(() => {
     const unsubscribe = subscribeUser(setCurrentUser);
     return unsubscribe;
   }, []);
+
+  useEffect(() => {
+    if (!currentUser) return;
+    setProfile((prev) => ({
+      name: currentUser.name?.trim() || prev.name,
+      handle: (currentUser.handle?.trim() || prev.handle).replace(/^@/, ''),
+      bio: typeof currentUser.bio === 'string' && currentUser.bio.trim() ? currentUser.bio : prev.bio,
+      avatar: currentUser.avatar?.trim() || prev.avatar,
+    }));
+  }, [currentUser]);
 
   useEffect(() => {
     const loadShakePreference = async () => {
@@ -156,6 +236,74 @@ const FanSettings: React.FC<FanSettingsProps> = ({ onLogout, isDarkMode, onToggl
     }
   }, [route]);
 
+  const persistUser = async (nextUser: User) => {
+    setUser(nextUser);
+    setCurrentUser(nextUser);
+    await AsyncStorage.setItem('pulsar_user', JSON.stringify(nextUser));
+  };
+
+  const openAvatarModal = () => setIsAvatarModalOpen(true);
+
+  const handleAvatarUpload = async () => {
+    try {
+      setIsAvatarModalOpen(false);
+
+      const permission = await ImagePicker.requestMediaLibraryPermissionsAsync();
+      if (!permission.granted) {
+        Alert.alert(
+          'Permission needed',
+          'Please allow access to your photo library so you can choose a new avatar.',
+        );
+        return;
+      }
+
+      const result = await ImagePicker.launchImageLibraryAsync({
+        mediaTypes: ['images'],
+        allowsEditing: true,
+        aspect: [1, 1],
+        quality: 0.85,
+      });
+
+      if (result.canceled || !result.assets?.length) {
+        return;
+      }
+
+      const asset = result.assets[0];
+      if (!asset?.uri) {
+        Alert.alert('Upload failed', 'We could not read the selected image. Please try again.');
+        return;
+      }
+
+      setIsAvatarUploading(true);
+      const uploadResult = await uploadAvatar(getPickedAvatarSource(asset));
+      const avatarUri = resolveAvatarUri(uploadResult) || asset.uri;
+
+      if (!avatarUri) {
+        throw new Error('Avatar upload did not return a usable image URL.');
+      }
+
+      const nextProfile = { ...profile, avatar: avatarUri };
+      setProfile(nextProfile);
+
+      if (currentUser) {
+        await persistUser({
+          ...currentUser,
+          avatar: avatarUri,
+          bio: nextProfile.bio,
+          name: nextProfile.name,
+          handle: nextProfile.handle,
+        });
+      }
+    } catch (error: any) {
+      Alert.alert(
+        'Avatar upload failed',
+        error?.response?.data?.message || error?.message || 'Please try again.',
+      );
+    } finally {
+      setIsAvatarUploading(false);
+    }
+  };
+
   useEffect(() => {
     if (activeView !== 'identity') return;
     const interval = setInterval(() => {
@@ -164,8 +312,35 @@ const FanSettings: React.FC<FanSettingsProps> = ({ onLogout, isDarkMode, onToggl
     return () => clearInterval(interval);
   }, [activeView]);
 
-  const handleSaveProfile = () => {
-    setActiveView('main');
+  const handleSaveProfile = async () => {
+    try {
+      const username = profile.handle.trim().replace(/^@/, '');
+      await updateProfile({
+        name: profile.name.trim(),
+        username,
+        bio: profile.bio.trim(),
+      });
+
+      const nextUser = currentUser
+        ? {
+            ...currentUser,
+            name: profile.name.trim() || currentUser.name,
+            handle: username || currentUser.handle,
+            bio: profile.bio.trim(),
+          }
+        : currentUser;
+
+      if (nextUser) {
+        await persistUser(nextUser);
+      }
+
+      setActiveView('main');
+    } catch (error: any) {
+      Alert.alert(
+        'Profile update failed',
+        error?.response?.data?.message || error?.message || 'Please try again.'
+      );
+    }
   };
 
   const handleSlideScroll = (e: any) => {
@@ -211,7 +386,7 @@ const FanSettings: React.FC<FanSettingsProps> = ({ onLogout, isDarkMode, onToggl
       behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
       keyboardVerticalOffset={Platform.OS === 'ios' ? 12 : 0}
     >
-      {renderHeader('Persona Studio')}
+      {renderHeader('Profile')}
       <ScrollView
         contentContainerStyle={s.formCard}
         keyboardShouldPersistTaps="handled"
@@ -219,15 +394,28 @@ const FanSettings: React.FC<FanSettingsProps> = ({ onLogout, isDarkMode, onToggl
         showsVerticalScrollIndicator={false}
       >
         <View style={s.profileAvatarWrap}>
-          <View style={s.avatarRing}>
+          <Pressable onPress={() => setIsAvatarFullscreenOpen(true)} style={s.avatarRing} disabled={isAvatarUploading}>
             <Image source={{ uri: profile.avatar }} style={s.avatarImage} />
-            <View style={s.avatarOverlay}>
-              <MaterialIcons name="photo-camera" size={18} color="#fff" />
-            </View>
-          </View>
-          <View style={s.avatarEditDot}>
-            <MaterialIcons name="edit" size={14} color="#fff" />
-          </View>
+            {isAvatarUploading ? (
+              <View style={s.avatarUploadingOverlay}>
+                <ActivityIndicator size="small" color="#fff" />
+              </View>
+            ) : null}
+          </Pressable>
+          <Pressable
+              onPress={(e) => {
+                e?.stopPropagation?.();
+                openAvatarModal();
+              }}
+              disabled={isAvatarUploading}
+              style={[s.avatarEditDot, isAvatarUploading && s.avatarEditDotDisabled]}
+            >
+              {isAvatarUploading ? (
+                <ActivityIndicator size="small" color="#fff" />
+              ) : (
+                <MaterialIcons name="edit" size={14} color="#fff" />
+              )}
+            </Pressable>
         </View>
 
         <View style={s.formBlock}>
@@ -242,12 +430,12 @@ const FanSettings: React.FC<FanSettingsProps> = ({ onLogout, isDarkMode, onToggl
 
         <View style={s.formBlock}>
           <Text style={[s.label, { color: secondaryText }]}>Galaxy Handle</Text>
-          <View style={s.handleWrap}>
-            <Text style={[s.handlePrefix, { color: theme.accent }]}>@</Text>
+          <View style={[s.handleWrap, {borderColor: theme.border, backgroundColor: inputBackground, height: 52, justifyContent: 'center'}]}>
+            <Text style={[s.handlePrefix, { color: PRIMARY_COLOR, fontSize: fontSize.b3.fontSize, lineHeight: fontSize.b3.fontSize + 1, justifyContent: 'center'}]}>@</Text>
             <TextInput
               value={profile.handle}
               onChangeText={(value) => setProfile({ ...profile, handle: value })}
-              style={[s.input, s.handleInput, { borderColor: theme.border, backgroundColor: inputBackground, color: theme.text }]}
+              style={[s.input, s.handleInput, { color: theme.text, borderRadius: 0, borderWidth: 0, height: 40 }]}
               placeholderTextColor={mutedText}
             />
           </View>
@@ -269,10 +457,81 @@ const FanSettings: React.FC<FanSettingsProps> = ({ onLogout, isDarkMode, onToggl
           />
         </View>
 
-        <Pressable onPress={handleSaveProfile} style={[s.primaryButton, { backgroundColor: theme.accent }]}>
-          <Text style={s.primaryButtonText}>Update Persona</Text>
+        <Pressable
+          onPress={() => void handleSaveProfile()}
+          disabled={isSavingProfile || isAvatarUploading}
+          style={[
+            s.primaryButton,
+            { backgroundColor: theme.accent },
+            (isSavingProfile || isAvatarUploading) && { opacity: 0.7 },
+          ]}
+        >
+          <Text style={s.primaryButtonText}>
+            {isSavingProfile ? 'Saving...' : isAvatarUploading ? 'Uploading Avatar...' : 'Update Profile'}
+          </Text>
         </Pressable>
       </ScrollView>
+      <Modal
+        visible={isAvatarModalOpen}
+        transparent
+        animationType="fade"
+        statusBarTranslucent
+        onRequestClose={() => setIsAvatarModalOpen(false)}
+      >
+        <View style={s.avatarModalRoot}>
+          <Pressable style={s.avatarModalBackdrop} onPress={() => setIsAvatarModalOpen(false)} />
+          <View style={[s.avatarModalCard, { backgroundColor: theme.background, borderColor: theme.border }]}>
+            <View style={[s.avatarModalIcon, { backgroundColor: isDark ? '#ffffff14' : theme.accentSoft }]}>
+              <MaterialIcons name="photo-library" size={28} color={theme.accent} />
+            </View>
+            <View style={s.avatarModalCopy}>
+              <Text style={[s.avatarModalTitle, { color: theme.text }]}>Update Avatar</Text>
+              <Text style={[s.avatarModalBody, { color: theme.textSecondary }]}>
+                Choose a new image from your device, upload it, and we&apos;ll update your profile once the server confirms it.
+              </Text>
+            </View>
+            <View style={s.avatarModalActions}>
+              <Pressable
+                onPress={() => void handleAvatarUpload()}
+                disabled={isAvatarUploading}
+                style={[s.avatarModalPrimary, isAvatarUploading && { opacity: 0.7 }]}
+              >
+                <Text style={s.avatarModalPrimaryText}>Choose Image</Text>
+              </Pressable>
+              <Pressable
+                onPress={() => setIsAvatarModalOpen(false)}
+                style={[s.avatarModalSecondary, { borderColor: theme.border, backgroundColor: isDark ? 'rgba(255,255,255,0.05)' : 'rgba(0,0,0,0.05)' }]}
+              >
+                <Text style={[s.avatarModalSecondaryText, { color: theme.text }]}>Cancel</Text>
+              </Pressable>
+            </View>
+          </View>
+        </View>
+      </Modal>
+
+      <Modal
+        visible={isAvatarFullscreenOpen}
+        transparent
+        animationType="fade"
+        // statusBarTranslucent
+        onRequestClose={() => setIsAvatarFullscreenOpen(false)}
+      >
+        <View style={s.avatarFullscreenRoot}>
+          <Pressable
+            style={s.avatarFullscreenBackdrop}
+            onPress={() => setIsAvatarFullscreenOpen(false)}
+          />
+          <View style={s.avatarFullscreenChrome}>
+            <Pressable
+              onPress={() => setIsAvatarFullscreenOpen(false)}
+              style={[s.avatarFullscreenClose, {}]}
+            >
+              <MaterialIcons name="close" size={22} color="#fff" />
+            </Pressable>
+          </View>
+          <Image source={{ uri: profile.avatar }} style={s.avatarFullscreenImage} resizeMode="contain" />
+        </View>
+      </Modal>
     </KeyboardAvoidingView>
   );
 
@@ -631,7 +890,7 @@ const FanSettings: React.FC<FanSettingsProps> = ({ onLogout, isDarkMode, onToggl
     {
       title: 'Digital ID',
       items: [
-        { label: 'Persona Profile', icon: AccountIcon, desc: 'Avatar, name, and story', id: 'profile' },
+        { label: 'Profile', icon: AccountIcon, desc: 'Avatar, name, and story', id: 'profile' },
         { label: 'Entry Passes & QR', icon: 'badge', desc: 'Active tickets and identity', id: 'identity' },
       ],
     },
@@ -660,13 +919,21 @@ const FanSettings: React.FC<FanSettingsProps> = ({ onLogout, isDarkMode, onToggl
           <View style={s.profileAvatarWrap}>
             <View style={s.avatarRing}>
               <Image source={{ uri: profile.avatar }} style={s.avatarImage} />
-              <View style={s.avatarOverlay}>
-                <MaterialIcons name="photo-camera" size={18} color="#fff" />
-              </View>
             </View>
-            <View style={s.avatarEditDot}>
-              <MaterialIcons name="edit" size={14} color="#fff" />
-            </View>
+            {/* <Pressable
+              onPress={(e) => {
+                e?.stopPropagation?.();
+                openAvatarModal();
+              }}
+              disabled={isAvatarUploading}
+              style={[s.avatarEditDot, isAvatarUploading && s.avatarEditDotDisabled]}
+            >
+              {isAvatarUploading ? (
+                <ActivityIndicator size="small" color="#fff" />
+              ) : (
+                <MaterialIcons name="edit" size={14} color="#fff" />
+              )}
+            </Pressable> */}
           </View>
           <View style={s.profileTextWrap}>
             <View style={s.profileNameRow}>
@@ -766,6 +1033,8 @@ const FanSettings: React.FC<FanSettingsProps> = ({ onLogout, isDarkMode, onToggl
           </View>
         </View>
       </Modal>
+
+      
     </View>
   );
 };
@@ -791,19 +1060,19 @@ const s = StyleSheet.create({
   },
   headerTitle: { ...fontSize.h1, lineHeight: fontSize.h1.fontSize + 2, textTransform: 'uppercase', color: '#0f172a', letterSpacing: 2 },
   viewWrap: { flex: 1, backgroundColor: '#f8fafc' },
-  formCard: { padding: 16, gap: 18 },
-  profileAvatarWrap: { alignItems: 'center', marginBottom: 12 },
+  formCard: { padding: 16, gap: 18, alignItems: 'center' },
+  profileAvatarWrap: { alignItems: 'center', marginBottom: 12, },
   avatarRing: {
     width: 112,
     height: 112,
     borderRadius: 56,
-    borderWidth: 4,
+    borderWidth: 0,
     borderColor: PRIMARY_COLOR,
     padding: 4,
     overflow: 'hidden',
   },
   avatarImage: { width: '100%', height: '100%', borderRadius: 999 },
-  avatarOverlay: {
+  avatarUploadingOverlay: {
     ...StyleSheet.absoluteFillObject,
     alignItems: 'center',
     justifyContent: 'center',
@@ -820,7 +1089,42 @@ const s = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'center',
   },
-  formBlock: { gap: 8 },
+  avatarEditDotDisabled: {
+    opacity: 0.75,
+  },
+  avatarFullscreenRoot: {
+    flex: 1,
+    backgroundColor: '#000',
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  avatarFullscreenBackdrop: {
+    ...StyleSheet.absoluteFillObject,
+    backgroundColor: '#000',
+  },
+  avatarFullscreenChrome: {
+    position: 'absolute',
+    top: Platform.OS === 'ios' ? 54 : 24,
+    right: 18,
+    left: 18,
+    zIndex: 2,
+    alignItems: 'flex-end',
+  },
+  avatarFullscreenClose: {
+    width: 44,
+    height: 44,
+    borderRadius: 22,
+    backgroundColor: 'rgba(255,255,255,0.14)',
+    alignItems: 'center',
+    justifyContent: 'center',
+    
+  },
+  avatarFullscreenImage: {
+    width: '100%',
+    height: '100%',
+    zIndex: 1,
+  },
+  formBlock: { gap: 8, width: '100%'},
   label: { ...fontSize.b4, lineHeight: fontSize.b4.fontSize + 1, textTransform: 'uppercase', letterSpacing: 2, color: '#94a3b8' },
   input: {
     height: 52,
@@ -828,13 +1132,14 @@ const s = StyleSheet.create({
     borderWidth: 1,
     borderColor: '#e2e8f0',
     paddingHorizontal: 16,
-    backgroundColor: '#fff',
-    ...fontSize.b4, lineHeight: fontSize.b4.fontSize + 1,
+    backgroundColor: 'fff',
+    ...fontSize.b4, lineHeight: fontSize.b4.fontSize ,
     color: '#0f172a',
   },
-  handleWrap: { position: 'relative', justifyContent: 'center' },
+  handleWrap: { position: 'relative', justifyContent: 'center', borderRadius: 18,
+    borderWidth: 1, },
   handlePrefix: { position: 'absolute', left: 16, color: PRIMARY_COLOR },
-  handleInput: { paddingLeft: 34 },
+  handleInput: { paddingLeft: 34, },
   rowBetween: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between' },
   counter: { ...fontSize.b4, lineHeight: fontSize.b4.fontSize + 1, color: '#94a3b8' },
   textArea: {
@@ -855,8 +1160,9 @@ const s = StyleSheet.create({
     backgroundColor: PRIMARY_COLOR,
     alignItems: 'center',
     justifyContent: 'center',
+    width: '100%'
   },
-  primaryButtonText: { color: '#fff', ...fontSize.b4, lineHeight: fontSize.b4.fontSize + 1, textTransform: 'uppercase', letterSpacing: 2 },
+  primaryButtonText: { color: '#fff', ...fontSize.b4, lineHeight: fontSize.b4.fontSize + 1, textTransform: 'uppercase', letterSpacing: 2,  },
   identityContent: { padding: 16, paddingBottom: 120, gap: 20 },
   carouselWrap: { gap: 12 },
   cardSlide: { width: 360, paddingRight: 12 },
@@ -1318,6 +1624,79 @@ const s = StyleSheet.create({
     ...fontSize.b5, lineHeight: fontSize.b5.fontSize + 1,
     textTransform: 'uppercase',
     letterSpacing: 1.8,
+  },
+  avatarModalRoot: {
+    flex: 1,
+    alignItems: 'center',
+    justifyContent: 'center',
+    padding: 24,
+  },
+  avatarModalBackdrop: {
+    ...StyleSheet.absoluteFillObject,
+    backgroundColor: 'rgba(0,0,0,0.62)',
+  },
+  avatarModalCard: {
+    width: '100%',
+    maxWidth: 380,
+    borderRadius: 40,
+    borderWidth: 1,
+    padding: 28,
+    alignItems: 'center',
+  },
+  avatarModalIcon: {
+    width: 72,
+    height: 72,
+    borderRadius: 28,
+    alignItems: 'center',
+    justifyContent: 'center',
+    marginBottom: 20,
+  },
+  avatarModalCopy: {
+    alignItems: 'center',
+    gap: 8,
+  },
+  avatarModalTitle: {
+    ...fontSize.b1,
+    textTransform: 'uppercase',
+    textAlign: 'center',
+    lineHeight: 28,
+  },
+  avatarModalBody: {
+    ...fontSize.b4,
+    lineHeight: 20,
+    textAlign: 'center',
+  },
+  avatarModalActions: {
+    width: '100%',
+    gap: 12,
+    marginTop: 24,
+  },
+  avatarModalPrimary: {
+    width: '100%',
+    minHeight: 60,
+    borderRadius: 22,
+    backgroundColor: PRIMARY_COLOR,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  avatarModalPrimaryText: {
+    color: '#ffffff',
+    ...fontSize.b5, lineHeight: fontSize.b5.fontSize + 1,
+    textTransform: 'uppercase',
+    letterSpacing: 1.8,
+  },
+  avatarModalSecondary: {
+    width: '100%',
+    minHeight: 60,
+    borderRadius: 22,
+    borderWidth: 1,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  avatarModalSecondaryText: {
+    ...fontSize.b5, lineHeight: fontSize.b5.fontSize + 1,
+    textTransform: 'uppercase',
+    letterSpacing: 1.6,
   },
 });
 

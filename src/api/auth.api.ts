@@ -11,12 +11,13 @@ export const authApi = {
       Authorization: `Bearer ${token}`
     }
   }),
-  resendOtp: (token: string) => api.post(endpoints.auth.resendOtp,{
+  resendOtp: (token: string) => api.post(endpoints.auth.resendOtp, {}, {
     headers: {
       Authorization: `Bearer ${token}`
     }
   }),
-  social: (payload: {token: string, provider: 'google'| 'apple' | 'tiktok' | 'facebook'}) => api.post(`${endpoints.socialLogin}${payload.provider}`,payload)
+  social: (payload: {token: string, provider: 'google'| 'apple' | 'tiktok' | 'facebook'}) =>
+    api.post(`${endpoints.socialLogin.social}${payload.provider}`, payload)
 };
 
 export const login = authApi.login;
