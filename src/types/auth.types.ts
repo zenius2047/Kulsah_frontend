@@ -30,6 +30,10 @@ export type UpdateVibePayload = {
   };
 };
 
+export type SwitchRolePayload = {
+  role: 'fan' | 'creator';
+};
+
 export type AuthSession = {
   token: string;
 };

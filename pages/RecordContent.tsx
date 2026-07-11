@@ -3,7 +3,6 @@ import { useThemeMode, PRIMARY_COLOR, primaryColorAlpha } from "../theme";
 import {
   ActivityIndicator,
   Alert,
-  Image,
   Modal,
   Platform,
   Pressable,
@@ -16,12 +15,13 @@ import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { BlurView } from 'expo-blur';
 import { LinearGradient } from 'expo-linear-gradient';
 import { MaterialIcons } from '@expo/vector-icons';
-import { useNavigation } from '@react-navigation/native';
+import { useIsFocused, useNavigation } from '@react-navigation/native';
 import { CameraView, useCameraPermissions, useMicrophonePermissions } from 'expo-camera';
 import * as ImagePicker from 'expo-image-picker';
 import { VoteSheetContent } from './SoundSelect';
 import { mediumScreen } from '../types';
 import { fontSize } from './typography';
+import type { VideoDisplayOrientation } from '../src';
 
 type FilterItem = {
   id: string;
@@ -36,9 +36,6 @@ type SideControl = {
   icon: keyof typeof MaterialIcons.glyphMap;
   active?: boolean;
 };
-
-const galleryThumb =
-  'https://lh3.googleusercontent.com/aida-public/AB6AXuCbezKu_kUkaiBA-7aoLNUD4B55ysJvHfiHScypbfBP7Zp6g_v1KUzobuRSjoR8KKiwr1w5tW8iRgHjH4pTHAIlCxW3Jg8DOvX31D6dlpg_nuULiAX3GNB8GPiCrTHTivLWEz5_I4WxAfI8DARjJAw6PliuHzsRq2Nli6scx8aYwbXOfb_ZiwjDQ7iojfE7BmmpTNz7jy8AJkfM-yEJmnXJoxZRn3W4DUitZDJcDaIqhnaiJhHID1vJPThCMJylP-fHJ068CjNz0f4c';
 
 const filters: FilterItem[] = [
   {
@@ -91,9 +88,16 @@ const sideControls: SideControl[] = [
 const modes = ['Live', 'Post', 'Create'] as const;
 const MAX_RECORDING_SECONDS = 30;
 
+const getOrientationFromCamera = (orientation?: string): VideoDisplayOrientation =>
+  orientation?.startsWith('landscape') ? 'landscape' : 'portrait';
+
+const getOrientationFromSize = (width?: number | null, height?: number | null): VideoDisplayOrientation =>
+  width != null && height != null && width > height ? 'landscape' : 'portrait';
+
 const RecordContent: React.FC = ({route}:any) => {
   const { isDark, theme } = useThemeMode();
   const navigation = useNavigation<any>();
+  const isFocused = useIsFocused();
   const insets = useSafeAreaInsets();
   const [permission, requestPermission] = useCameraPermissions();
   const [microphonePermission, requestMicrophonePermission] = useMicrophonePermissions();
@@ -104,6 +108,8 @@ const RecordContent: React.FC = ({route}:any) => {
   const [isRecording, setIsRecording] = React.useState(false);
   const [recordedSeconds, setRecordedSeconds] = React.useState(0);
   const [isPickingVideo, setIsPickingVideo] = React.useState(false);
+  const cameraOrientationRef = React.useRef<VideoDisplayOrientation>('portrait');
+  const mountedRef = React.useRef(true);
   const [sound, setSound] = React.useState<{
     title:string,
     id:string,
@@ -112,6 +118,10 @@ const RecordContent: React.FC = ({route}:any) => {
 
   const recordingProgress = Math.min(recordedSeconds / MAX_RECORDING_SECONDS, 1);
   const formatSeconds = (value: number) => `00:${String(Math.min(value, MAX_RECORDING_SECONDS)).padStart(2, '0')}`;
+
+  const updateCameraOrientation = React.useCallback((orientation: VideoDisplayOrientation) => {
+    cameraOrientationRef.current = orientation;
+  }, []);
 
 
   React.useEffect(()=>{
@@ -134,18 +144,37 @@ const RecordContent: React.FC = ({route}:any) => {
     return () => clearInterval(interval);
   }, [isRecording]);
 
+  React.useEffect(() => {
+    return () => {
+      mountedRef.current = false;
+      cameraRef.current?.stopRecording?.();
+    };
+  }, []);
+
+  React.useEffect(() => {
+    if (isFocused || !isRecording) return;
+
+    cameraRef.current?.stopRecording();
+  }, [isFocused, isRecording]);
+
   const handleSideControlPress = async (controlId: string) => {
     if (controlId === 'flip') {
       setFacing((current) => (current === 'front' ? 'back' : 'front'));
     }
   };
 
-  const goToUploadPreview = (asset: { uri: string; name?: string | null; type?: string | null }) => {
+  const goToUploadPreview = (asset: {
+    uri: string;
+    name?: string | null;
+    type?: string | null;
+    orientation?: VideoDisplayOrientation;
+  }) => {
     navigation.navigate('EditSubmission', {
       video: {
         uri: asset.uri,
         name: asset.name || `video-${Date.now()}.mp4`,
         type: asset.type || 'video/mp4',
+        orientation: asset.orientation ?? cameraOrientationRef.current,
       },
       sound,
     });
@@ -194,13 +223,16 @@ const RecordContent: React.FC = ({route}:any) => {
           uri: recording.uri,
           name: `recording-${Date.now()}.mp4`,
           type: 'video/mp4',
+          orientation: cameraOrientationRef.current,
         });
       }
     } catch (error: any) {
       Alert.alert('Recording failed', error?.message || 'Please try recording again.');
     } finally {
-      setIsRecording(false);
-      setRecordedSeconds(0);
+      if (mountedRef.current) {
+        setIsRecording(false);
+        setRecordedSeconds(0);
+      }
     }
   };
 
@@ -236,6 +268,7 @@ const RecordContent: React.FC = ({route}:any) => {
         uri: asset.uri,
         name: asset.fileName,
         type: asset.mimeType,
+        orientation: getOrientationFromSize(asset.width, asset.height),
       });
     } catch (error: any) {
       Alert.alert('Video picker failed', error?.message || 'Please try again.');
@@ -255,9 +288,14 @@ const RecordContent: React.FC = ({route}:any) => {
             ) :
              (
               <>
-                <MaterialIcons name="photo-camera" size={40} color="#ffffff" style={{
+               <View style={{
+                width: '100%',
+                alignItems: 'center'
+               }}>
+                 <MaterialIcons name="photo-camera" size={40} color="#ffffff" style={{
                   marginTop: Platform.OS === "ios" ? 54 : insets.top,
                 }} />
+               </View>
                 <Text style={styles.permissionTitle}>Camera access needed</Text>
                 <Text style={styles.permissionText}>
                   Turn on camera permission to use live recording background.
@@ -274,12 +312,14 @@ const RecordContent: React.FC = ({route}:any) => {
           style={StyleSheet.absoluteFill}
         /> */}
 
-        <CameraView
-          ref={cameraRef}
-          style={StyleSheet.absoluteFill}
-          facing={facing}
-          mode="video"
-        />
+        {isFocused ? (
+          <CameraView
+            ref={cameraRef}
+            style={StyleSheet.absoluteFill}
+            facing={facing}
+            mode="video"
+          />
+        ) : null}
 
         <View style={[styles.topArea, { paddingTop: Platform.OS === 'ios' ? 54 : insets.top }]}>
           <LinearGradient
@@ -357,10 +397,13 @@ const RecordContent: React.FC = ({route}:any) => {
           >
             {filters.map((filter) => (
               <Pressable key={filter.id} style={styles.filterItem}>
-                <Image
-                  source={{ uri: filter.image }}
-                  style={[styles.filterThumb, filter.active ? styles.filterThumbActive : null]}
-                />
+                <View style={[styles.filterThumb, filter.active ? styles.filterThumbActive : null]}>
+                  <MaterialIcons
+                    name="auto-awesome"
+                    size={22}
+                    color={filter.active ? PRIMARY_COLOR : 'rgba(255,255,255,0.72)'}
+                  />
+                </View>
                 {filter.active ? <View style={styles.filterRing} /> : null}
                 <Text style={[styles.filterText, filter.active ? styles.filterTextActive : null]}>
                   {filter.name}
@@ -372,7 +415,9 @@ const RecordContent: React.FC = ({route}:any) => {
           <View style={styles.primaryActions}>
             <Pressable style={styles.utilityAction} onPress={() => void handleUploadPress()} disabled={isPickingVideo}>
               <View style={styles.galleryThumbWrap}>
-                <Image source={{ uri: galleryThumb }} style={styles.galleryThumb} />
+                <View style={styles.galleryThumb}>
+                  <MaterialIcons name="video-library" size={22} color="#fff" />
+                </View>
                 {isPickingVideo ? (
                   <View style={styles.galleryLoadingOverlay}>
                     <ActivityIndicator size="small" color="#fff" />
@@ -462,6 +507,8 @@ const styles = StyleSheet.create({
     ...fontSize.b1, lineHeight: fontSize.b1.fontSize + 2,
     marginTop: 18,
     marginBottom: 8,
+    width: '100%',
+    textAlign: 'center'
   },
   permissionText: {
     color: 'rgba(255,255,255,0.75)',
@@ -472,12 +519,13 @@ const styles = StyleSheet.create({
   },
   permissionButton: {
     marginTop: 18,
-    paddingHorizontal: 18,
+    // paddingHorizontal: 18,
     paddingVertical: 12,
     borderRadius: 999,
     backgroundColor: PRIMARY_COLOR,
     alignItems: 'center',
-    justifyContent: 'center'
+    justifyContent: 'center',
+    marginHorizontal: '20%'
   },
   permissionButtonText: {
     color: '#fff',
@@ -627,6 +675,9 @@ const styles = StyleSheet.create({
     borderRadius: 16,
     borderWidth: 1,
     borderColor: 'rgba(255,255,255,0.18)',
+    alignItems: 'center',
+    justifyContent: 'center',
+    backgroundColor: 'rgba(0,0,0,0.34)',
     opacity: 0.65,
   },
   filterThumbActive: {
@@ -669,6 +720,9 @@ const styles = StyleSheet.create({
     borderRadius: 12,
     borderWidth: 2,
     borderColor: 'rgba(255,255,255,0.4)',
+    alignItems: 'center',
+    justifyContent: 'center',
+    backgroundColor: 'rgba(0,0,0,0.48)',
   },
   galleryThumbWrap: {
     width: 48,

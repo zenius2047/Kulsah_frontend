@@ -1,7 +1,8 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { useThemeMode, PRIMARY_COLOR, primaryColorAlpha } from "../theme";
 import {
-  Image,
+  ActivityIndicator,
+  Alert,
   KeyboardAvoidingView,
   Platform,
   Pressable,
@@ -15,49 +16,234 @@ import {
   View,
 } from 'react-native';
 import { MaterialIcons } from '@expo/vector-icons';
-import { useNavigation } from '@react-navigation/native';
+import { useFocusEffect, useIsFocused, useNavigation, useRoute } from '@react-navigation/native';
+import { useVideoPlayer, VideoView } from 'expo-video';
 import { fontSize } from './typography';
+import {
+  parseApiError,
+  useCreatorVideoProgress,
+  useCreatorVideoUploadStore,
+  useUpdateCreatorVideo,
+  useUploadCreatorVideo,
+} from '../src';
+import type { VideoContentType, VideoDisplayOrientation, VideoUploadSource, VideoVisibility } from '../src';
 
-const previewImage =
-  'https://lh3.googleusercontent.com/aida-public/AB6AXuDhFOftNzhs814shqXm7wsAjhpwgP6vdnALyuid0Wfz-EnNLz-62RACTh85zIywL8WoBz1HuyX-nfeEHJ-I6SrmLZJQvP9lXpMHO1vwvZVjYORCfTKexBTzDZounMgCXAAniKec20F8gMW3jJtkvU2f5DjjLu1GhLyMGomadglNeGEbriDqwCKQkMeBpc3obvTvhuG5cINCuKXP1i6v9u-fGTyWtwo7nGMa3Y9_NNvdnVt8z_U3NJsKZfECzDg6dyvdMqB9bOIfE77E';
+type SubmitEntryRouteParams = {
+  video?: VideoUploadSource;
+  sound?: {
+    title?: string;
+    id?: string;
+    meta?: string;
+    usage?: string;
+  } | null;
+  creatorUploadTaskId?: string;
+  uploadedVideoId?: string | number;
+  uploadStatus?: string;
+  uploadProgressPercentage?: number;
+  visibility?: VideoVisibility;
+  orientation?: VideoDisplayOrientation;
+};
 
-const suggestedTags = ['#creator', '#trending', '#motion', '#afterhours'];
+const contentTypeOptions: Array<{
+  value: VideoContentType;
+  label: string;
+  icon: keyof typeof MaterialIcons.glyphMap;
+}> = [
+  { value: 'music', label: 'Music', icon: 'music-note' },
+  { value: 'dance', label: 'Dance', icon: 'directions-run' },
+  { value: 'comedy', label: 'Comedy', icon: 'sentiment-very-satisfied' },
+  { value: 'tutorial', label: 'Tutorial', icon: 'school' },
+  { value: 'lifestyle', label: 'Lifestyle', icon: 'auto-awesome' },
+  { value: 'behind_the_scenes', label: 'BTS', icon: 'movie-filter' },
+];
+
+const getUploadLabel = (status: string, progress: number) => {
+  if (status === 'draft' && progress < 100) return `Uploading ${progress}%`;
+  if (status === 'draft' && progress >= 100) return 'Upload complete, processing...';
+  if (status === 'processing') return 'Processing video...';
+  if (status === 'ready') return 'Ready';
+  if (status === 'failed') return 'Upload failed';
+  if (status === 'uploading') return `Uploading ${progress}%`;
+  return 'Starting...';
+};
 
 const SubmitEntry: React.FC = () => {
   const { isDark, theme } = useThemeMode();
   const navigation = useNavigation<any>();
-  const [hashtags, setHashtags] = useState(['#neonvibes', '#digitalart']);
-  const [hashtagInput, setHashtagInput] = useState('');
-  const [subscribersOnly, setSubscribersOnly] = useState(true);
+  const isFocused = useIsFocused();
+  const route = useRoute<any>();
+  const params = (route.params ?? {}) as SubmitEntryRouteParams;
+  const video = params.video;
+  const videoUri = video?.uri ?? null;
+  const initialVisibility = params.visibility ?? 'public';
+  const creatorUploadTaskId = params.creatorUploadTaskId;
+  const uploadTask = useCreatorVideoUploadStore((state) =>
+    creatorUploadTaskId ? state.tasks[creatorUploadTaskId] : undefined,
+  );
+  const updateUploadTaskProgress = useCreatorVideoUploadStore((state) => state.updateTaskProgress);
+  const uploadedVideoId = params.uploadedVideoId ?? uploadTask?.videoId;
+  const previewOrientation = params.orientation ?? video?.orientation ?? 'portrait';
+  const isLandscapePreview = previewOrientation === 'landscape';
+  const { mutateAsync: uploadCreatorVideo, isPending: isPosting } = useUploadCreatorVideo();
+  const { mutateAsync: updateCreatorVideo, isPending: isUpdating } = useUpdateCreatorVideo();
+  const { data: uploadProgress } = useCreatorVideoProgress(uploadedVideoId, uploadedVideoId != null);
+  const [title, setTitle] = useState('');
+  const [description, setDescription] = useState('');
+  const [contentTypes, setContentTypes] = useState<VideoContentType[]>(['music']);
+  const [subscribersOnly, setSubscribersOnly] = useState(initialVisibility === 'premium');
   const [allowDuets, setAllowDuets] = useState(true);
   const [allowComments, setAllowComments] = useState(false);
+  const [isPreviewPlaying, setIsPreviewPlaying] = useState(false);
+  const [isMuted, setIsMuted] = useState(true);
+  const loadedPreviewUriRef = React.useRef<string | null>(null);
+
+  const player = useVideoPlayer(null, (instance) => {
+    instance.loop = true;
+    instance.muted = true;
+  });
 
   const cardBackground = isDark ? 'rgba(255,255,255,0.03)' : theme.card;
   const subtleSurface = isDark ? 'rgba(255,255,255,0.05)' : theme.surface;
   const mutedText = isDark ? '#94a3b8' : theme.textSecondary;
   const softText = isDark ? '#64748b' : theme.textMuted;
+  const shouldRenderPreviewVideo = Boolean(videoUri && isFocused && isPreviewPlaying);
+  const progressStatus = uploadProgress?.status ?? uploadTask?.processingStatus ?? params.uploadStatus ?? 'processing';
+  const progressPercentage = uploadProgress?.progress_percentage ?? uploadTask?.progressPercentage ?? params.uploadProgressPercentage ?? 0;
+  const uploadLabel = getUploadLabel(progressStatus, progressPercentage);
+  const uploadIsTerminal = progressStatus === 'ready' || progressStatus === 'failed';
+  const backgroundUploadPending = Boolean(creatorUploadTaskId && !uploadedVideoId && uploadTask?.status !== 'failed');
+  const backgroundUploadFailed = uploadTask?.status === 'failed';
+  const postIsBusy = isPosting || isUpdating;
 
-  const removeHashtag = (tag: string) => {
-    setHashtags((current) => current.filter((item) => item !== tag));
-  };
+  useEffect(() => {
+    if (!creatorUploadTaskId || !uploadProgress) return;
 
-  const addHashtag = (tag: string) => {
-    const normalizedTag = tag.trim().replace(/\s+/g, '').replace(/^#+/, '');
+    updateUploadTaskProgress(creatorUploadTaskId, {
+      progressPercentage: uploadProgress.progress_percentage,
+      processingStatus: uploadProgress.status,
+    });
+  }, [creatorUploadTaskId, updateUploadTaskProgress, uploadProgress]);
 
-    if (!normalizedTag) {
+  const pausePreview = React.useCallback(() => {
+    try {
+      player.pause();
+    } catch {}
+    setIsPreviewPlaying(false);
+  }, [player]);
+
+  const playPreview = React.useCallback(() => {
+    if (!videoUri) return;
+
+    try {
+      if (loadedPreviewUriRef.current !== videoUri) {
+        if (typeof player.replace !== 'function') {
+          throw new Error('Video preview is not supported on this build.');
+        }
+
+        player.replace(videoUri);
+        loadedPreviewUriRef.current = videoUri;
+      }
+
+      player.muted = isMuted;
+      player.play();
+      setIsPreviewPlaying(true);
+    } catch (error: any) {
+      Alert.alert('Preview unavailable', error?.message || 'We could not play this video preview.');
+    }
+  }, [isMuted, player, videoUri]);
+
+  useFocusEffect(
+    React.useCallback(() => {
+      return () => {
+        pausePreview();
+      };
+    }, [pausePreview]),
+  );
+
+  const togglePreviewPlayback = () => {
+    if (!videoUri) return;
+
+    if (isPreviewPlaying) {
+      pausePreview();
       return;
     }
 
-    const formattedTag = `#${normalizedTag}`;
-
-    if (!hashtags.includes(formattedTag)) {
-      setHashtags((current) => [...current, formattedTag]);
-    }
+    playPreview();
   };
 
-  const submitTypedHashtag = () => {
-    addHashtag(hashtagInput);
-    setHashtagInput('');
+  const toggleMute = () => {
+    const nextMuted = !isMuted;
+    player.muted = nextMuted;
+    setIsMuted(nextMuted);
+  };
+
+  const toggleContentType = (nextType: VideoContentType) => {
+    setContentTypes((current) => {
+      if (current.includes(nextType)) {
+        return current.length === 1 ? current : current.filter((type) => type !== nextType);
+      }
+
+      return [...current, nextType];
+    });
+  };
+
+  const handlePostVideo = async () => {
+    if (!video) {
+      Alert.alert('No video selected', 'Go back and select or record a video before posting.');
+      return;
+    }
+
+    const visibility: VideoVisibility = subscribersOnly ? 'premium' : 'public';
+
+    if (backgroundUploadPending) {
+      Alert.alert('Upload still running', 'Your video is still uploading in the background. Please wait for the upload to finish before posting details.');
+      return;
+    }
+
+    if (backgroundUploadFailed) {
+      Alert.alert('Upload failed', uploadTask?.error || 'The background upload failed. Go back and try again.');
+      return;
+    }
+
+    try {
+      if (uploadedVideoId != null) {
+        await updateCreatorVideo({
+          video: uploadedVideoId,
+          payload: {
+            title: title.trim() || null,
+            caption: description.trim() || null,
+            content_type: contentTypes,
+            visibility,
+          },
+        });
+      } else {
+        await uploadCreatorVideo({
+          video: {
+            ...video,
+            orientation: previewOrientation,
+          },
+          title: title.trim() || null,
+          caption: description.trim() || null,
+          contentType: contentTypes,
+          visibility,
+          orientation: previewOrientation,
+        });
+      }
+
+      Alert.alert('Posted', uploadedVideoId != null ? 'Your video details were saved.' : 'Your video upload has started.', [
+        {
+          text: 'Done',
+          onPress: () =>
+            navigation.navigate('MainTabs', {
+              screen: 'Home',
+              params: { tabToRoute: 'challenges' },
+            }),
+        },
+      ]);
+    } catch (caughtError) {
+      const parsed = parseApiError(caughtError);
+      Alert.alert(parsed.title, parsed.message);
+    }
   };
 
   return (
@@ -103,10 +289,38 @@ const SubmitEntry: React.FC = () => {
         >
         <View style={styles.previewSection}>
           <View style={styles.previewCard}>
-            <Image source={{ uri: previewImage }} style={styles.previewImage} />
+            {videoUri ? (
+              shouldRenderPreviewVideo ? (
+                <VideoView
+                  player={player}
+                  nativeControls={false}
+                  contentFit={isLandscapePreview ? 'contain' : 'cover'}
+                  style={styles.previewVideo}
+                />
+              ) : (
+                <View style={styles.previewPlaceholder}>
+                  <MaterialIcons name="play-circle-outline" size={46} color="rgba(255,255,255,0.78)" />
+                </View>
+              )
+            ) : (
+              <View style={styles.missingPreview}>
+                <MaterialIcons name="videocam-off" size={34} color="rgba(255,255,255,0.72)" />
+                <Text style={styles.missingPreviewText}>No video selected</Text>
+              </View>
+            )}
             <View style={styles.previewShade} />
+            {videoUri ? (
+              <>
+                <Pressable style={styles.previewPlayButton} onPress={togglePreviewPlayback}>
+                  <MaterialIcons name={isPreviewPlaying ? 'pause' : 'play-arrow'} size={28} color="#fff" />
+                </Pressable>
+                <Pressable style={styles.previewMuteButton} onPress={toggleMute}>
+                  <MaterialIcons name={isMuted ? 'volume-off' : 'volume-up'} size={18} color="#fff" />
+                </Pressable>
+              </>
+            ) : null}
             <View style={styles.previewDuration}>
-              <Text style={styles.previewDurationText}>00:15</Text>
+              <Text style={styles.previewDurationText}>{previewOrientation.toUpperCase()}</Text>
             </View>
           </View>
 
@@ -114,6 +328,8 @@ const SubmitEntry: React.FC = () => {
             <View style={styles.inputGroup}>
               <Text style={[styles.inputLabel, { color: mutedText }]}>Title</Text>
               <TextInput
+                value={title}
+                onChangeText={setTitle}
                 placeholder="Add a catchy title..."
                 placeholderTextColor={softText}
                 style={[
@@ -126,8 +342,10 @@ const SubmitEntry: React.FC = () => {
             <View style={styles.inputGroup}>
               <Text style={[styles.inputLabel, { color: mutedText }]}>Description</Text>
               <TextInput
+                value={description}
+                onChangeText={setDescription}
                 multiline
-                placeholder="Tell your fans more about this Pulse..."
+                placeholder="Tell your fans more about this Pulse... add #hashtags and @mentions here"
                 placeholderTextColor={softText}
                 style={[
                   styles.textArea,
@@ -139,59 +357,62 @@ const SubmitEntry: React.FC = () => {
         </View>
 
         <View style={styles.section}>
+              {creatorUploadTaskId || uploadedVideoId != null ? (
+            <View style={[styles.progressCard, { backgroundColor: cardBackground, borderColor: theme.border }]}>
+              <View style={styles.progressTop}>
+                <Text style={[styles.sectionTitle, { color: theme.text }]}>Upload Progress</Text>
+                <Text style={[styles.progressStatus, { color: backgroundUploadFailed || progressStatus === 'failed' ? '#ef4444' : PRIMARY_COLOR }]}>
+                  {uploadLabel}
+                </Text>
+              </View>
+              <View style={[styles.progressTrack, { backgroundColor: subtleSurface }]}>
+                <View style={[styles.progressFill, { width: `${Math.max(0, Math.min(100, progressPercentage))}%` }]} />
+              </View>
+              <Text style={[styles.progressHint, { color: mutedText }]}>
+                {backgroundUploadFailed
+                  ? uploadTask?.error || 'Upload failed. Please go back and try again.'
+                  : backgroundUploadPending
+                    ? 'Uploading in the background. You can finish details while it continues.'
+                    : uploadIsTerminal
+                      ? 'Processing finished.'
+                      : 'You can finish details while processing continues.'}
+              </Text>
+            </View>
+          ) : null}
+
           <View style={styles.sectionTop}>
-            <Text style={[styles.sectionTitle, { color: theme.text }]}>Hashtags</Text>
-            <Text style={styles.sectionHint}>Suggested: 4</Text>
+            <Text style={[styles.sectionTitle, { color: theme.text }]}>Content Type</Text>
+            <Text style={styles.sectionHint}>Choose 1+</Text>
           </View>
 
           <View style={[styles.glassCard, { backgroundColor: cardBackground, borderColor: theme.border }]}>
-            <View style={styles.tagWrap}>
-              {hashtags.map((tag) => (
-                <View key={tag} style={styles.activeTag}>
-                  <Text style={styles.activeTagText}>{tag}</Text>
-                  <Pressable onPress={() => removeHashtag(tag)}>
-                    <MaterialIcons name="close" size={16} color={PRIMARY_COLOR} />
+            <View style={styles.contentTypeGrid}>
+              {contentTypeOptions.map((option) => {
+                const selected = contentTypes.includes(option.value);
+
+                return (
+                  <Pressable
+                    key={option.value}
+                    onPress={() => toggleContentType(option.value)}
+                    style={[
+                      styles.contentTypeButton,
+                      {
+                        backgroundColor: selected ? primaryColorAlpha(0.18) : subtleSurface,
+                        borderColor: selected ? PRIMARY_COLOR : theme.border,
+                      },
+                    ]}
+                  >
+                    <MaterialIcons
+                      name={option.icon}
+                      size={18}
+                      color={selected ? PRIMARY_COLOR : theme.textSecondary}
+                    />
+                    <Text style={[styles.contentTypeText, { color: selected ? PRIMARY_COLOR : mutedText }]}>
+                      {option.label}
+                    </Text>
                   </Pressable>
-                </View>
-              ))}
-
-              <View style={[styles.addTagInputWrap, { backgroundColor: subtleSurface, borderColor: theme.border }]}>
-                <TextInput
-                  value={hashtagInput}
-                  onChangeText={setHashtagInput}
-                  onSubmitEditing={submitTypedHashtag}
-                  placeholder="#addhashtag"
-                  placeholderTextColor={softText}
-                  returnKeyType="done"
-                  autoCapitalize="none"
-                  autoCorrect={false}
-                  style={[styles.addTagInput, { color: theme.text }]}
-                />
-                <Pressable
-                  onPress={submitTypedHashtag}
-                  disabled={!hashtagInput.trim()}
-                  style={({ pressed }) => [
-                    styles.addTagIconButton,
-                    {
-                      opacity: !hashtagInput.trim() ? 0.45 : pressed ? 0.75 : 1,
-                    },
-                  ]}
-                >
-                  <MaterialIcons name="add" size={18} color={theme.textSecondary} />
-                </Pressable>
-              </View>
-            </View>
-
-            <View style={[styles.suggestedRow, { borderTopColor: theme.border }]}>
-              {suggestedTags.map((tag) => (
-                <Pressable
-                  key={tag}
-                  style={[styles.suggestedChip, { backgroundColor: subtleSurface }]}
-                  onPress={() => addHashtag(tag)}
-                >
-                  <Text style={[styles.suggestedChipText, { color: mutedText }]}>{tag}</Text>
-                </Pressable>
-              ))}
+                );
+              })}
             </View>
           </View>
         </View>
@@ -241,15 +462,17 @@ const SubmitEntry: React.FC = () => {
 
         <View style={styles.bottomCtaWrap}>
           <Pressable
-          onPress={()=>{
-            navigation.navigate('MainTabs', {
-              screen: 'Home',
-              params: { tabToRoute: 'challenges' },
-            })
-          }}
-          style={styles.postVideoButton}>
-            <Text style={styles.postVideoText}>POST VIDEO</Text>
-            <MaterialIcons name="send" size={18} color="#fff" />
+          onPress={() => void handlePostVideo()}
+          disabled={!videoUri || postIsBusy || backgroundUploadPending || backgroundUploadFailed}
+          style={[styles.postVideoButton, (!videoUri || postIsBusy || backgroundUploadPending || backgroundUploadFailed) && styles.postVideoButtonDisabled]}>
+            {postIsBusy ? (
+              <ActivityIndicator size="small" color="#fff" />
+            ) : (
+              <>
+                <Text style={styles.postVideoText}>POST VIDEO</Text>
+                <MaterialIcons name="send" size={18} color="#fff" />
+              </>
+            )}
           </Pressable>
         </View>
         </ScrollView>
@@ -365,14 +588,61 @@ const styles = StyleSheet.create({
     // aspectRatio: 9 / 16,
     borderRadius: 16,
     overflow: 'hidden',
+    backgroundColor: '#000',
   },
-  previewImage: {
+  previewVideo: {
     width: '100%',
     height: '100%',
+  },
+  previewPlaceholder: {
+    flex: 1,
+    alignItems: 'center',
+    justifyContent: 'center',
+    backgroundColor: '#050505',
+  },
+  missingPreview: {
+    flex: 1,
+    alignItems: 'center',
+    justifyContent: 'center',
+    gap: 8,
+    backgroundColor: '#0a050d',
+  },
+  missingPreviewText: {
+    color: 'rgba(255,255,255,0.76)',
+    ...fontSize.b4,
+    lineHeight: fontSize.b4.fontSize + 1,
   },
   previewShade: {
     ...StyleSheet.absoluteFillObject,
     backgroundColor: 'rgba(0,0,0,0.28)',
+  },
+  previewPlayButton: {
+    position: 'absolute',
+    left: '50%',
+    top: '50%',
+    width: 48,
+    height: 48,
+    marginLeft: -24,
+    marginTop: -24,
+    borderRadius: 24,
+    alignItems: 'center',
+    justifyContent: 'center',
+    backgroundColor: 'rgba(0,0,0,0.48)',
+    borderWidth: 1,
+    borderColor: 'rgba(255,255,255,0.18)',
+  },
+  previewMuteButton: {
+    position: 'absolute',
+    right: 8,
+    top: 8,
+    width: 34,
+    height: 34,
+    borderRadius: 17,
+    alignItems: 'center',
+    justifyContent: 'center',
+    backgroundColor: 'rgba(0,0,0,0.52)',
+    borderWidth: 1,
+    borderColor: 'rgba(255,255,255,0.14)',
   },
   previewDuration: {
     position: 'absolute',
@@ -428,6 +698,37 @@ const styles = StyleSheet.create({
   sectionTitle: {
     ...fontSize.b4, lineHeight: fontSize.b4.fontSize + 1,
   },
+  progressCard: {
+    borderRadius: 18,
+    borderWidth: 1,
+    padding: 14,
+    gap: 10,
+  },
+  progressTop: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    gap: 12,
+  },
+  progressStatus: {
+    ...fontSize.b5,
+    lineHeight: fontSize.b5.fontSize + 1,
+    textTransform: 'uppercase',
+  },
+  progressTrack: {
+    height: 8,
+    borderRadius: 999,
+    overflow: 'hidden',
+  },
+  progressFill: {
+    height: '100%',
+    borderRadius: 999,
+    backgroundColor: PRIMARY_COLOR,
+  },
+  progressHint: {
+    ...fontSize.b5,
+    lineHeight: fontSize.b5.fontSize + 3,
+  },
   sectionHint: {
     color: PRIMARY_COLOR,
     ...fontSize.b5, lineHeight: fontSize.b5.fontSize + 1,
@@ -440,63 +741,28 @@ const styles = StyleSheet.create({
     padding: 14,
     gap: 14,
   },
-  tagWrap: {
+  contentTypeGrid: {
     flexDirection: 'row',
     flexWrap: 'wrap',
-    gap: 8,
+    gap: 10,
   },
-  activeTag: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: 6,
-    paddingHorizontal: 12,
-    paddingVertical: 8,
-    borderRadius: 999,
-    backgroundColor: primaryColorAlpha(0.2),
-    borderWidth: 1,
-    borderColor: primaryColorAlpha(0.3),
-  },
-  activeTagText: {
-    color: PRIMARY_COLOR,
-    ...fontSize.b4, lineHeight: fontSize.b4.fontSize + 1,
-  },
-  addTagInputWrap: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    minHeight: 38,
-    minWidth: 150,
+  contentTypeButton: {
+    minHeight: 44,
+    minWidth: '30%',
     flexGrow: 1,
-    borderRadius: 999,
+    borderRadius: 14,
     borderWidth: 1,
-    overflow: 'hidden',
-  },
-  addTagInput: {
-    flex: 1,
-    minWidth: 0,
-    paddingLeft: 12,
-    paddingVertical: 8,
-    ...fontSize.b4, lineHeight: fontSize.b4.fontSize + 1,
-  },
-  addTagIconButton: {
-    width: 38,
-    height: 38,
+    paddingHorizontal: 12,
+    paddingVertical: 10,
+    flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'center',
+    gap: 7,
   },
-  suggestedRow: {
-    flexDirection: 'row',
-    gap: 8,
-    paddingTop: 12,
-    borderTopWidth: 1,
-    flexWrap: 'wrap',
-  },
-  suggestedChip: {
-    paddingHorizontal: 12,
-    paddingVertical: 8,
-    borderRadius: 10,
-  },
-  suggestedChipText: {
-    ...fontSize.b4, lineHeight: fontSize.b4.fontSize + 1,
+  contentTypeText: {
+    ...fontSize.b4,
+    lineHeight: fontSize.b4.fontSize + 1,
+    fontWeight: '800',
   },
   permissionsCard: {
     borderRadius: 20,
@@ -559,6 +825,9 @@ const styles = StyleSheet.create({
     shadowOpacity: 0.45,
     shadowRadius: 22,
     elevation: 8,
+  },
+  postVideoButtonDisabled: {
+    opacity: 0.55,
   },
   postVideoText: {
     color: '#fff',

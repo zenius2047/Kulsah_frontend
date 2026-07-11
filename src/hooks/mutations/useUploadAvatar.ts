@@ -1,11 +1,11 @@
 import { useMutation } from '@tanstack/react-query';
-import { profileApi } from '../../api/profile.api';
+import { generalApi } from '../../api/general.api';
 import type { AvatarUploadSource } from '../../types/user.types';
 
 export const useUploadAvatar = () =>
   useMutation({
     mutationFn: async (avatar: AvatarUploadSource | FormData) => {
-      const response = await profileApi.uploadAvatar(avatar);
+      const response = await generalApi.uploadAvatar(avatar);
       return response.data;
     },
   });

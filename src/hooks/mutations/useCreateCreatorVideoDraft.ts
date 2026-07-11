@@ -1,16 +1,15 @@
-import { useMutation } from '@tanstack/react-query';
-import { useQueryClient } from '@tanstack/react-query';
+import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { videoApi } from '../../api/video.api';
-import type { UploadCreatorVideoPayload } from '../../types/video.types';
+import type { CreateCreatorVideoDraftPayload } from '../../types/video.types';
 import { CREATOR_VIDEO_ANALYTICS_QUERY_KEY } from '../queries/useCreatorVideoAnalytics';
 import { CREATOR_VIDEOS_QUERY_KEY } from '../queries/useCreatorVideos';
 
-export const useUploadCreatorVideo = () => {
+export const useCreateCreatorVideoDraft = () => {
   const queryClient = useQueryClient();
 
   return useMutation({
-    mutationFn: async (payload: UploadCreatorVideoPayload) => {
-      const response = await videoApi.uploadCreatorVideo(payload);
+    mutationFn: async (payload: CreateCreatorVideoDraftPayload) => {
+      const response = await videoApi.createCreatorVideoDraft(payload);
       return response.data;
     },
     onSuccess: () => {

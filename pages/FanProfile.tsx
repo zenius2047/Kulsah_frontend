@@ -3,6 +3,7 @@ import { useThemeMode, PRIMARY_COLOR, primaryColorAlpha } from "../theme";
 import { MaterialIcons } from '@expo/vector-icons';
 import { useNavigation } from '@react-navigation/native';
 import {
+  Alert,
   Image,
   ImageBackground,
   LayoutChangeEvent,
@@ -28,6 +29,7 @@ import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import CreatorSwitch from '../assets/icons/switch-creator.svg';
 import { fontSize } from '../typography';
 import TicketIcon from '../assets/icons/Ticket1.svg';
+import { parseApiError, useSwitchRole } from '../src';
 
 interface FanProfileProps {
   onLogout?: () => void;
@@ -75,6 +77,7 @@ const FanProfile: React.FC<FanProfileProps> = ({ onToggleRole }) => {
   const stickyTopPadding = insets.top + 8;
   const [isRoleSwitchModalOpen, setIsRoleSwitchModalOpen] = useState(false);
   const elevatedSurface = isDark ? 'rgba(31, 16, 34, 0.75)' : theme.card;
+  const { mutateAsync: switchRole } = useSwitchRole();
   const tabsSectionStyle = useMemo(
     () => [
       s.tabsSection,
@@ -207,26 +210,32 @@ const FanProfile: React.FC<FanProfileProps> = ({ onToggleRole }) => {
   };
 
   const handleSwitchRole = async () => {
-    const nextUser = {
-      id: user?.id || 'mila_ray_01',
-      name: user?.name || 'Mila Ray',
-      role: 'creator' as const,
-    } as User;
-    setUser(nextUser);
-    await AsyncStorage.setItem('pulsar_user', JSON.stringify(nextUser));
-    if (onToggleRole) {
-      console.log('onToggleRole exists.........')
-      onToggleRole();
-      return;
+    try {
+      await switchRole({ role: 'creator' });
+      const nextUser = {
+        id: user?.id || 'mila_ray_01',
+        name: user?.name || 'Mila Ray',
+        role: 'creator' as const,
+      } as User;
+      setUser(nextUser);
+      await AsyncStorage.setItem('pulsar_user', JSON.stringify(nextUser));
+      if (onToggleRole) {
+        console.log('onToggleRole exists.........')
+        onToggleRole();
+        return;
+      }
+      // navigation.reset({
+      //   index: 0,
+      //   routes: [{ name: 'MainTabs' }],
+      // });
+      navigation.navigate('MainTabs', {
+                screen: 'Galaxy',
+                // params: { tabToRoute: 'challenges' },
+              })
+    } catch (caughtError) {
+      const parsed = parseApiError(caughtError);
+      Alert.alert(parsed.title, parsed.message);
     }
-    // navigation.reset({
-    //   index: 0,
-    //   routes: [{ name: 'MainTabs' }],
-    // });
-    navigation.navigate('MainTabs', {
-              screen: 'Galaxy',
-              // params: { tabToRoute: 'challenges' },
-            })
   };
 
   const renderVideoGrid = (

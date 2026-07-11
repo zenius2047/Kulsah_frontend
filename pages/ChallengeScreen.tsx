@@ -394,7 +394,7 @@ const navigation = useNavigation<any>()
 
         <Pressable
         onPress={()=>{
-            navigation.navigate("SubmitEntry")
+            navigation.navigate("ChallengeEntry")
         }}
         style={{
             backgroundColor: PRIMARY_COLOR,

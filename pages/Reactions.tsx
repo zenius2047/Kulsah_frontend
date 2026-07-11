@@ -1,7 +1,6 @@
 import React, { useEffect, useMemo, useRef, useState } from 'react';
-import { Image, Keyboard, KeyboardAvoidingView, Platform, Pressable, ScrollView, StyleSheet, Text, View } from 'react-native';
+import { ActivityIndicator, Alert, Image, Keyboard, KeyboardAvoidingView, Platform, Pressable, ScrollView, StyleSheet, Text, View } from 'react-native';
 import { MaterialIcons } from '@expo/vector-icons';
-import { BlurView } from 'expo-blur';
 import { LinearGradient } from 'expo-linear-gradient';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useThemeMode, PRIMARY_COLOR, primaryColorAlpha } from "../theme";
@@ -12,10 +11,17 @@ import KulsahInputBar from '../components/KulsahInputBar';
 import KulcoinTopUpDrawer from '../components/KulcoinTopUpDrawer';
 import EmptyStateComment from '../assets/icons/Comment VECTOR.svg';
 import { fontSize } from './typography';
+import { useAddCommentMutation, useLikeCommentMutation, useReplyToCommentMutation, useVideoComments } from '../src';
+import type { GeneralComment } from '../src/types/general.types';
+import { parseApiError } from '../src/utils/apiError';
 
 
 // type ReactionTab =  'Gifts'| null;
 type PickerTab = 'emoji' | 'sticker';
+type ReplyTarget = {
+  id: string;
+  handle: string;
+};
 
 type ReactionComment = {
   id: string;
@@ -27,12 +33,13 @@ type ReactionComment = {
   time: string;
   likes: number;
   verified?: boolean;
+  optimistic?: boolean;
   reply?: {
     handle: string;
     avatar: string;
     text: string;
     time: string;
-  };
+  } | null;
 };
 
 const commentsSeed: ReactionComment[] = [
@@ -68,13 +75,45 @@ const CURRENT_USER = {
 
 type ReactionsProps = {
   onClose: () => void;
+  videoId?: string | number;
   title?: string;
   currentBalance?: number;
   onBalanceChange?: (nextBalance: number) => void;
 };
 
+const normalizeHandle = (handle?: string | null) => {
+  if (!handle) return '@user';
+  return handle.startsWith('@') ? handle : `@${handle}`;
+};
+
+const mapApiComment = (comment: GeneralComment): ReactionComment => ({
+  id: String(comment.id),
+  handle: normalizeHandle(comment.handle),
+  avatar: comment.avatar || 'https://picsum.photos/seed/comment-avatar/120',
+  text: comment.text ?? comment.body ?? '',
+  stickerUrl: comment.stickerUrl ?? undefined,
+  gift: comment.gift ? (comment.gift as GiftSelection) : undefined,
+  time: comment.time ?? 'now',
+  likes: Number(comment.likes ?? 0),
+  verified: Boolean(comment.verified),
+  reply: comment.reply
+    ? {
+        handle: normalizeHandle(comment.reply.handle),
+        avatar: comment.reply.avatar || 'https://picsum.photos/seed/reply-avatar/120',
+        text: comment.reply.text,
+        time: comment.reply.time,
+      }
+    : null,
+});
+
+const getCommentErrorMessage = (error: unknown) => {
+  const parsed = parseApiError(error);
+  return parsed.validationErrors?.body?.[0] || parsed.message;
+};
+
 const Reactions: React.FC<ReactionsProps> = ({
   onClose,
+  videoId,
   title = 'Reactions',
   currentBalance,
   onBalanceChange,
@@ -82,15 +121,21 @@ const Reactions: React.FC<ReactionsProps> = ({
   const { isDark, theme } = useThemeMode();
   const insets = useSafeAreaInsets();
   // const [activeTab, setActiveTab] = useState<ReactionTab>(null);
-  const [replyingTo, setReplyingTo] = useState<string | null>('@pixel_warrior');
+  const [replyingTo, setReplyingTo] = useState<ReplyTarget | null>(null);
   const [message, setMessage] = useState('');
-  const [comments, setComments] = useState<ReactionComment[]>(commentsSeed);
+  const [comments, setComments] = useState<ReactionComment[]>(videoId ? [] : commentsSeed);
+  const [likedCommentIds, setLikedCommentIds] = useState<Set<string>>(new Set());
+  const [pendingLikeIds, setPendingLikeIds] = useState<Set<string>>(new Set());
   const [pickerOpen, setIsPickerOpen] = useState(false);
   const [pickerTab, setPickerTab] = useState<PickerTab>('emoji');
   const [giftDialogOpen, setGiftDialogOpen] = useState(false);
   const [topUpOpen, setTopUpOpen] = useState(false);
   const [localCoinBalance, setLocalCoinBalance] = useState(1250);
   const sendingMessageRef = useRef(false);
+  const addCommentMutation = useAddCommentMutation();
+  const replyToCommentMutation = useReplyToCommentMutation();
+  const likeCommentMutation = useLikeCommentMutation();
+  const commentsQuery = useVideoComments(videoId, { per_page: 20 }, Boolean(videoId));
 
   const shellBackground = isDark ? 'rgba(10,5,13,0.92)' : 'rgba(255,255,255,0.96)';
   const cardBackground = isDark ? 'rgba(255,255,255,0.04)' : 'rgba(15,23,42,0.04)';
@@ -101,6 +146,8 @@ const Reactions: React.FC<ReactionsProps> = ({
   const sheetHeight = useMemo(() => 0.85, []);
   const [keyboardHeight, setKeyboardHeight] = useState(0);
   const coinBalance = currentBalance ?? localCoinBalance;
+  const isSendingMessage = addCommentMutation.isPending || replyToCommentMutation.isPending || sendingMessageRef.current;
+  const hasTypedMessage = message.trim().length > 0;
 
   useEffect(() => {
     const showSubscription = Keyboard.addListener(
@@ -125,6 +172,16 @@ const Reactions: React.FC<ReactionsProps> = ({
     };
   }, []);
 
+  useEffect(() => {
+    if (!videoId || !commentsQuery.data) return;
+
+    const apiComments = commentsQuery.data.pages.flatMap((page) => page.data).map(mapApiComment);
+    setComments((current) => {
+      const optimisticComments = current.filter((comment) => comment.optimistic);
+      return [...optimisticComments, ...apiComments];
+    });
+  }, [commentsQuery.data, videoId]);
+
   const createComment = (overrides: Partial<ReactionComment>): ReactionComment => ({
     id: `comment-${Date.now()}`,
     handle: CURRENT_USER.handle,
@@ -135,8 +192,8 @@ const Reactions: React.FC<ReactionsProps> = ({
     ...overrides,
   });
 
-  const handleSendMessage = () => {
-    if (sendingMessageRef.current) {
+  const handleSendMessage = async () => {
+    if (isSendingMessage) {
       return;
     }
 
@@ -146,15 +203,79 @@ const Reactions: React.FC<ReactionsProps> = ({
     }
 
     sendingMessageRef.current = true;
-    setComments((prev) => [
-      ...prev,
-      createComment({ text: nextMessage }),
-    ]);
+
+    const optimisticComment = replyingTo ? null : createComment({ text: nextMessage, optimistic: true });
+    if (optimisticComment) {
+      setComments((prev) => [optimisticComment, ...prev]);
+    }
     setMessage('');
-    setReplyingTo(null);
-    requestAnimationFrame(() => {
+
+    if (!videoId) {
+      if (replyingTo) {
+        setComments((prev) =>
+          prev.map((comment) =>
+            comment.id === replyingTo.id
+              ? {
+                  ...comment,
+                  reply: {
+                    handle: CURRENT_USER.handle,
+                    avatar: CURRENT_USER.avatar,
+                    text: nextMessage,
+                    time: 'now',
+                  },
+                }
+              : comment
+          )
+        );
+      }
+      setReplyingTo(null);
+      requestAnimationFrame(() => {
+        sendingMessageRef.current = false;
+      });
+      return;
+    }
+
+    try {
+      const response = replyingTo
+        ? await replyToCommentMutation.mutateAsync({
+            video: videoId,
+            comment: replyingTo.id,
+            payload: { body: nextMessage },
+          })
+        : await addCommentMutation.mutateAsync({
+            video: videoId,
+            payload: { body: nextMessage },
+          });
+      const nextComment = mapApiComment(response.data);
+      setComments((prev) => {
+        if (replyingTo) {
+          return prev.map((comment) =>
+            comment.id === replyingTo.id
+              ? {
+                  ...comment,
+                  reply: {
+                    handle: nextComment.handle,
+                    avatar: nextComment.avatar,
+                    text: nextComment.text,
+                    time: nextComment.time,
+                  },
+                }
+              : comment
+          );
+        }
+
+        return prev.map((comment) => (comment.id === optimisticComment?.id ? nextComment : comment));
+      });
+      setReplyingTo(null);
+      void commentsQuery.refetch();
+    } catch (error: any) {
+      if (optimisticComment) {
+        setComments((prev) => prev.filter((comment) => comment.id !== optimisticComment.id));
+      }
+      Alert.alert('Comment failed', getCommentErrorMessage(error));
+    } finally {
       sendingMessageRef.current = false;
-    });
+    }
   };
 
   const handleEmojiSelect = (emoji: string) => {
@@ -168,6 +289,70 @@ const Reactions: React.FC<ReactionsProps> = ({
     ]);
     setIsPickerOpen(false);
     setReplyingTo(null);
+  };
+
+  const patchCommentFromResponse = (nextComment: Partial<ReactionComment> & Pick<ReactionComment, 'id'>) => {
+    setComments((prev) =>
+      prev.map((comment) =>
+        comment.id === nextComment.id
+          ? {
+              ...comment,
+              ...nextComment,
+              reply: nextComment.reply === undefined ? comment.reply : nextComment.reply,
+            }
+          : comment
+      )
+    );
+  };
+
+  const handleToggleCommentLike = async (comment: ReactionComment) => {
+    if (!videoId || pendingLikeIds.has(comment.id)) return;
+
+    const shouldLike = !likedCommentIds.has(comment.id);
+    setPendingLikeIds((prev) => new Set(prev).add(comment.id));
+    setLikedCommentIds((prev) => {
+      const next = new Set(prev);
+      if (shouldLike) {
+        next.add(comment.id);
+      } else {
+        next.delete(comment.id);
+      }
+      return next;
+    });
+
+    try {
+      const response = await likeCommentMutation.mutateAsync({
+        video: videoId,
+        comment: comment.id,
+        liked: shouldLike,
+      });
+      const data = response.data;
+      patchCommentFromResponse(
+        'handle' in data
+          ? mapApiComment(data as GeneralComment)
+          : {
+              id: String(data.id),
+              likes: Number(data.likes ?? comment.likes),
+            }
+      );
+    } catch (error) {
+      setLikedCommentIds((prev) => {
+        const next = new Set(prev);
+        if (shouldLike) {
+          next.delete(comment.id);
+        } else {
+          next.add(comment.id);
+        }
+        return next;
+      });
+      Alert.alert('Comment like failed', getCommentErrorMessage(error));
+    } finally {
+      setPendingLikeIds((prev) => {
+        const next = new Set(prev);
+        next.delete(comment.id);
+        return next;
+      });
+    }
   };
 
   const handleSendGift = (gift: GiftSelection) => {
@@ -253,11 +438,33 @@ const Reactions: React.FC<ReactionsProps> = ({
 
         <ScrollView
           showsVerticalScrollIndicator={false}
-          contentContainerStyle={[styles.content, comments.length === 0 && styles.emptyContent]}
+          contentContainerStyle={[
+            styles.content,
+            (commentsQuery.isLoading || comments.length === 0 || commentsQuery.isError) && styles.emptyContent,
+          ]}
           keyboardShouldPersistTaps="always"
           keyboardDismissMode="none"
         >
-          {comments.length === 0 ? (
+          {commentsQuery.isLoading ? (
+            <View style={styles.emptyState}>
+              <ActivityIndicator color={PRIMARY_COLOR} />
+              <Text style={[styles.emptyBody, { color: secondary }]}>Loading comments...</Text>
+            </View>
+          ) : commentsQuery.isError ? (
+            <View style={styles.emptyState}>
+              <EmptyStateComment width={160} height={160} />
+              <Text style={[styles.emptyTitle, { color: theme.text }]}>Comments Unavailable</Text>
+              <Text style={[styles.emptyBody, { color: secondary }]}>
+                {getCommentErrorMessage(commentsQuery.error)}
+              </Text>
+              <Pressable
+                onPress={() => void commentsQuery.refetch()}
+                style={[styles.loadMoreButton, { borderColor: softBorder }]}
+              >
+                <Text style={[styles.loadMoreText, { color: PRIMARY_COLOR }]}>Try Again</Text>
+              </Pressable>
+            </View>
+          ) : comments.length === 0 ? (
             <View style={styles.emptyState}>
               <EmptyStateComment width={180} height={180} />
               <Text style={[styles.emptyTitle, { color: theme.text }]}>No Comments Yet</Text>
@@ -299,13 +506,28 @@ const Reactions: React.FC<ReactionsProps> = ({
                         <Text style={[styles.commentBody, { color: commentText }]}>{comment.text}</Text>
                       )}
                       <View style={styles.actionRow}>
-                        <Pressable onPress={() => setReplyingTo(comment.handle)} style={styles.metaAction}>
+                        <Pressable onPress={() => setReplyingTo({ id: comment.id, handle: comment.handle })} style={styles.metaAction}>
                           <MaterialIcons name="reply" size={14} color={muted} />
                           <Text style={[styles.metaActionText, { color: muted }]}>Reply</Text>
                         </Pressable>
-                        <Pressable style={styles.metaAction}>
-                          <MaterialIcons name="favorite" size={14} color={muted} />
-                          <Text style={[styles.metaActionText, { color: muted }]}>{comment.likes}</Text>
+                        <Pressable
+                          disabled={!videoId || pendingLikeIds.has(comment.id)}
+                          onPress={() => void handleToggleCommentLike(comment)}
+                          style={[styles.metaAction, pendingLikeIds.has(comment.id) && styles.disabledAction]}
+                        >
+                          <MaterialIcons
+                            name="favorite"
+                            size={14}
+                            color={likedCommentIds.has(comment.id) ? PRIMARY_COLOR : muted}
+                          />
+                          <Text
+                            style={[
+                              styles.metaActionText,
+                              { color: likedCommentIds.has(comment.id) ? PRIMARY_COLOR : muted },
+                            ]}
+                          >
+                            {comment.likes}
+                          </Text>
                         </Pressable>
                       </View>
                     </View>
@@ -327,7 +549,6 @@ const Reactions: React.FC<ReactionsProps> = ({
                           </Text>
                           <View style={styles.replyActions}>
                             <Text style={[styles.replyActionText, { color: muted }]}>Reply</Text>
-                            <Text style={[styles.replyActionText, { color: muted }]}>Like</Text>
                           </View>
                         </View>
                       </View>
@@ -335,20 +556,19 @@ const Reactions: React.FC<ReactionsProps> = ({
                   ) : null}
                 </View>
               ))}
-
-              <BlurView intensity={32} tint={isDark ? 'dark' : 'light'} style={[styles.giftCard, { borderColor: primaryColorAlpha(0.18) }]}>
-                <Image source={{ uri: 'https://picsum.photos/seed/marcus-digital/120' }} style={styles.avatar} />
-                <View style={{ flex: 1 }}>
-                  <View style={styles.giftHeaderRow}>
-                    <Text style={[styles.commentHandle, { color: theme.text }]}>@marcus_digital</Text>
-                    <Text style={styles.giftLabel}>GIFTER</Text>
-                  </View>
-                  <View style={styles.giftMetaRow}>
-                    <MaterialIcons name="redeem" size={18} color={PRIMARY_COLOR} />
-                    <Text style={[styles.giftText, { color: theme.text }]}>Sent a Hyper-Glow Gift</Text>
-                  </View>
-                </View>
-              </BlurView>
+              {commentsQuery.hasNextPage ? (
+                <Pressable
+                  disabled={commentsQuery.isFetchingNextPage}
+                  onPress={() => void commentsQuery.fetchNextPage()}
+                  style={[styles.loadMoreButton, { borderColor: softBorder }]}
+                >
+                  {commentsQuery.isFetchingNextPage ? (
+                    <ActivityIndicator color={PRIMARY_COLOR} />
+                  ) : (
+                    <Text style={[styles.loadMoreText, { color: PRIMARY_COLOR }]}>Load More</Text>
+                  )}
+                </Pressable>
+              ) : null}
             </>
           )}
         </ScrollView>
@@ -367,7 +587,7 @@ const Reactions: React.FC<ReactionsProps> = ({
               <View style={styles.replyingInfo}>
                 <MaterialIcons name="reply" size={16} color={PRIMARY_COLOR} />
                 <Text style={[styles.replyingText, { color: secondary }]}>
-                  Replying to <Text style={{ color: theme.text }}>{replyingTo}</Text>
+                  Replying to <Text style={{ color: theme.text }}>{replyingTo.handle}</Text>
                 </Text>
               </View>
               <Pressable onPress={() => setReplyingTo(null)}>
@@ -404,15 +624,19 @@ const Reactions: React.FC<ReactionsProps> = ({
                     </Pressable>
                   </View>
                   <View>
-                    {message ? (
+                    {hasTypedMessage ? (
                     <Pressable
                       accessibilityRole="button"
                       accessibilityLabel="Send message"
-                      onTouchStart={handleSendMessage}
+                      disabled={isSendingMessage || !hasTypedMessage}
                       onPress={handleSendMessage}
-                      style={styles.sendButton}
+                      style={[styles.sendButton, isSendingMessage && styles.disabledAction]}
                     >
-                      <MaterialIcons name="send" size={18} color="#fff" />
+                      {isSendingMessage ? (
+                        <ActivityIndicator color="#fff" size="small" />
+                      ) : (
+                        <MaterialIcons name="send" size={18} color="#fff" />
+                      )}
                     </Pressable>
                   ) : null}
                   </View>
@@ -429,7 +653,7 @@ const Reactions: React.FC<ReactionsProps> = ({
       <GiftDialog
         isOpen={giftDialogOpen}
         onClose={() => setGiftDialogOpen(false)}
-        creatorName={replyingTo ?? ""}
+        creatorName={replyingTo?.handle ?? ""}
         currentBalance={coinBalance}
         onSendGift={(gift) => {
           handleSendGift(gift);
@@ -555,6 +779,7 @@ const styles = StyleSheet.create({
   actionRow: { flexDirection: 'row', alignItems: 'center', gap: 18, marginTop: 8 },
   metaAction: { flexDirection: 'row', alignItems: 'center', gap: 4 },
   metaActionText: { ...fontSize.b4, lineHeight: fontSize.b4.fontSize + 1 },
+  disabledAction: { opacity: 0.55 },
   replyWrap: { marginLeft: 34, paddingLeft: 18, position: 'relative', gap: 10 },
   replyLine: { position: 'absolute', left: 0, top: -6, bottom: 6, width: 2, borderRadius: 999 },
   replyRow: { flexDirection: 'row', gap: 10 },
@@ -577,6 +802,8 @@ const styles = StyleSheet.create({
   inputActions: { flexDirection: 'row' },
   inputIcon: { width: 32, height: 32, borderRadius: 16, alignItems: 'center', justifyContent: 'center' },
   sendButton: { width: 36, height: 36, borderRadius: 12, alignItems: 'center', justifyContent: 'center', backgroundColor: PRIMARY_COLOR },
+  loadMoreButton: { alignSelf: 'center', minHeight: 38, minWidth: 118, borderRadius: 18, borderWidth: 1, alignItems: 'center', justifyContent: 'center', paddingHorizontal: 16, paddingVertical: 8 },
+  loadMoreText: { ...fontSize.b5, lineHeight: fontSize.b5.fontSize + 1, textTransform: 'uppercase' },
   homeIndicatorWrap: { alignItems: 'center', paddingTop: 10 },
   homeIndicator: { width: 128, height: 4, borderRadius: 999 },
 });

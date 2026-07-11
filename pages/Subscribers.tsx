@@ -1,9 +1,10 @@
 import React, { useState, useEffect, useMemo, useRef, useCallback } from 'react';
 import { useThemeMode } from '../theme';
-import { View, Text, Pressable, Image, TextInput } from 'react-native';
+import { ActivityIndicator, Alert, Modal, View, Text, Pressable, Image, TextInput } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
 
 import { GoogleGenAI } from "@google/genai";
+import { parseApiError, useBlockCreatorSubscription } from '../src';
 
 type TabType = 'subs' | 'followers' | 'following';
 type FanStatus = 'active' | 'superfan' | 'at-risk' | 'new';
@@ -46,6 +47,10 @@ const Subscribers: React.FC = () => {
   const [aiInsight, setAiInsight] = useState<string>("");
   const [isAuditing, setIsAuditing] = useState(false);
   const [selectedFan, setSelectedFan] = useState<User | null>(null);
+  const [blockReason, setBlockReason] = useState('');
+  const [isBlockModalOpen, setIsBlockModalOpen] = useState(false);
+  const [blockedIds, setBlockedIds] = useState<string[]>([]);
+  const blockSubscription = useBlockCreatorSubscription();
 
   const runNetworkAudit = async () => {
     setIsAuditing(true);
@@ -67,6 +72,34 @@ const Subscribers: React.FC = () => {
     u.name.toLowerCase().includes(search.toLowerCase()) || 
     u.handle.toLowerCase().includes(search.toLowerCase())
   );
+
+  const openBlockModal = () => {
+    setBlockReason('');
+    setIsBlockModalOpen(true);
+  };
+
+  const submitBlock = async () => {
+    if (!selectedFan || !blockReason.trim()) {
+      Alert.alert('Reason required', 'Add a reason before blocking this subscriber.');
+      return;
+    }
+
+    try {
+      await blockSubscription.mutateAsync({
+        subscription: selectedFan.id,
+        payload: {
+          reason: blockReason.trim(),
+          requires_admin_review: true,
+        },
+      });
+      setBlockedIds((current) => [...new Set([...current, selectedFan.id])]);
+      setIsBlockModalOpen(false);
+      Alert.alert('Subscriber blocked', `${selectedFan.name} is now blocked from this subscription.`);
+    } catch (caughtError) {
+      const parsed = parseApiError(caughtError);
+      Alert.alert(parsed.title, parsed.message);
+    }
+  };
 
   return (
     <View>
@@ -144,6 +177,7 @@ const Subscribers: React.FC = () => {
                      {user.fanStatus && (
                        <Text>{user.fanStatus}</Text>
                      )}
+                     {blockedIds.includes(user.id) && <Text>blocked</Text>}
                    </View>
                 </View>
               </View>
@@ -214,13 +248,42 @@ const Subscribers: React.FC = () => {
                  Send Priority Message
                  <Text>send</Text>
                </Pressable>
-               <Pressable>
-                 <Text>more_horiz</Text>
+               {activeTab === 'subs' ? (
+               <Pressable onPress={openBlockModal}>
+                 <Text>{blockedIds.includes(selectedFan.id) ? 'Blocked' : 'Block Subscriber'}</Text>
                </Pressable>
+               ) : null}
             </View>
           </View>
         </View>
       )}
+
+      <Modal visible={isBlockModalOpen} transparent animationType="fade" onRequestClose={() => setIsBlockModalOpen(false)}>
+        <View>
+          <Pressable onPress={() => setIsBlockModalOpen(false)} />
+          <View>
+            <Text>Block Subscriber</Text>
+            <Text>
+              New access for this subscription will be blocked. This request will be sent for admin review.
+            </Text>
+            <TextInput
+              value={blockReason}
+              onChangeText={setBlockReason}
+              multiline
+              maxLength={2000}
+              placeholder="Reason for blocking"
+            />
+            <View>
+              <Pressable onPress={() => setIsBlockModalOpen(false)}>
+                <Text>Cancel</Text>
+              </Pressable>
+              <Pressable onPress={() => void submitBlock()} disabled={blockSubscription.isPending}>
+                {blockSubscription.isPending ? <ActivityIndicator /> : <Text>Submit Block</Text>}
+              </Pressable>
+            </View>
+          </View>
+        </View>
+      </Modal>
     </View>
   );
 };

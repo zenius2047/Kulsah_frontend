@@ -529,6 +529,10 @@ const EmailPhone: React.FC = () => {
       //   email,
       //   password,
       // });
+      console.log('this is the username:', username);
+      console.log('this is the name:', user);
+      console.log('this is the email:', email);
+      console.log('this is the password:', password);
       const res = await authApi.register({
         name: user, 
         username: username, 

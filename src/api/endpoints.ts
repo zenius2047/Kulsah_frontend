@@ -16,18 +16,47 @@ export const endpoints = {
     forgotPassword: 'auth/forgotton-password',
     resetPassword: 'auth/reset-password',
     updateVibe: 'auth/update-vibe',
+    switchRole: 'auth/switch-role',
   },
   general: {
     updateProfile: 'general/update-profile',
     uploadAvatar: 'general/upload-avatar',
     feed: 'general/feed',
+    video: (video: string | number) => `general/videos/${video}`,
+    videoView: (video: string | number) => `general/videos/${video}/view`,
+    videoLike: (video: string | number) => `general/videos/${video}/like`,
+    videoBookmark: (video: string | number) => `general/videos/${video}/bookmark`,
+    videoComments: (video: string | number) => `general/videos/${video}/comments`,
+    commentReply: (video: string | number, comment: string | number) =>
+      `general/videos/${video}/comments/${comment}/reply`,
+    commentLike: (video: string | number, comment: string | number) =>
+      `general/videos/${video}/comments/${comment}/like`,
+    creatorFollow: (creator: string | number) => `general/creators/${creator}/follow`,
+    wallet: 'general/wallet',
+    walletTransactions: 'general/wallet/transactions',
+    walletLedger: 'general/wallet/ledger',
+    walletTransfer: 'general/wallet/transfer',
+    walletTopUp: 'general/wallet/top-up',
   },
   creator: {
     videos: 'creator/videos',
+    videoDrafts: 'creator/videos/drafts',
+    videoAnalytics: 'creator/videos/analytics',
+    video: (video: string | number) => `creator/videos/${video}`,
+    videoUpload: (video: string | number) => `creator/videos/${video}/upload`,
+    videoProgress: (video: string | number) => `creator/videos/${video}/progress`,
   },
   subscription: {
     fanSubscribe: 'fan/subscription-plans',
     creatorPlan: 'creator/subscription-plans',
+    creatorPlanItem: (subscriptionPlan: string | number) =>
+      `creator/subscription-plans/${subscriptionPlan}`,
+    creatorPlanDisable: (subscriptionPlan: string | number) =>
+      `creator/subscription-plans/${subscriptionPlan}/disable`,
+    creatorSubscriptionBlock: (subscription: string | number) =>
+      `creator/subscriptions/${subscription}/block`,
+    publicCreatorPlans: (creator: string | number) =>
+      `creator-fan/creators/${creator}/subscription-plans`,
   },
   user: {
     me: 'users/me',

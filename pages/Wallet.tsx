@@ -1,202 +1,263 @@
-import React, { useState, useEffect, useMemo, useRef, useCallback } from 'react';
-import { useThemeMode } from '../theme';
-import { View, Text, Pressable, Image, TextInput } from 'react-native';
+import React, { useMemo, useState } from 'react';
+import {
+  ActivityIndicator,
+  Alert,
+  FlatList,
+  Pressable,
+  SafeAreaView,
+  ScrollView,
+  StyleSheet,
+  Text,
+  TextInput,
+  View,
+} from 'react-native';
+import { MaterialIcons } from '@expo/vector-icons';
 import { useNavigation } from '@react-navigation/native';
+import { PRIMARY_COLOR, primaryColorAlpha, useThemeMode } from '../theme';
+import {
+  getApiErrorMessage,
+  useAuth,
+  useWallet,
+  useWalletLedger,
+  useWalletTopUpMutation,
+  useWalletTransactions,
+  useWalletTransferMutation,
+} from '../src';
+import { fontSize } from './typography';
 
+type WalletTab = 'transactions' | 'ledger';
+
+const money = (value: unknown) => {
+  const numeric = typeof value === 'number' ? value : Number(value ?? 0);
+  return `$${(Number.isFinite(numeric) ? numeric : 0).toFixed(2)}`;
+};
 
 const Wallet: React.FC = () => {
   const { isDark, theme } = useThemeMode();
   const navigation = useNavigation<any>();
-  const [isFlipped, setIsFlipped] = useState(false);
-  const [activeTab, setActiveTab] = useState<'pass' | 'tickets'>('pass');
+  const { user } = useAuth();
+  const [activeTab, setActiveTab] = useState<WalletTab>('transactions');
+  const [recipientId, setRecipientId] = useState('');
+  const [transferAmount, setTransferAmount] = useState('');
+  const [transferDescription, setTransferDescription] = useState('');
+  const [topUpAmount, setTopUpAmount] = useState('');
+  const [topUpReference, setTopUpReference] = useState('');
 
-  const tickets = [
-    { 
-      id: 'burna-boy-ticket', 
-      title: 'Burna Boy: Love, Damini', 
-      date: 'Aug 24', 
-      location: 'O2 Arena • Section A', 
-      status: 'upcoming', 
-      img: 'https://images.unsplash.com/photo-1470229722913-7c0e2dbbafd3?auto=format&fit=crop&q=80&w=400' 
+  const walletQuery = useWallet();
+  const transactionsQuery = useWalletTransactions(1);
+  const ledgerQuery = useWalletLedger(1);
+  const transferMutation = useWalletTransferMutation();
+  const topUpMutation = useWalletTopUpMutation();
+
+  const wallet = walletQuery.data?.data;
+  const balances = wallet?.balances;
+  const listData = activeTab === 'transactions'
+    ? transactionsQuery.data?.data ?? []
+    : ledgerQuery.data?.data ?? [];
+  const listLoading = activeTab === 'transactions'
+    ? transactionsQuery.isLoading
+    : ledgerQuery.isLoading;
+  const listError = activeTab === 'transactions'
+    ? transactionsQuery.error
+    : ledgerQuery.error;
+  const panelBg = isDark ? 'rgba(255,255,255,0.05)' : theme.card;
+  const border = isDark ? 'rgba(255,255,255,0.1)' : theme.border;
+
+  const canSubmitTransfer = useMemo(
+    () => recipientId.trim() && Number(transferAmount) >= 0.0001 && !transferMutation.isPending,
+    [recipientId, transferAmount, transferMutation.isPending],
+  );
+
+  const canSubmitTopUp = useMemo(
+    () => Number(topUpAmount) >= 0.0001 && !topUpMutation.isPending,
+    [topUpAmount, topUpMutation.isPending],
+  );
+
+  const submitTransfer = async () => {
+    const parsedRecipientId = Number(recipientId);
+    const parsedAmount = Number(transferAmount);
+
+    if (!Number.isInteger(parsedRecipientId)) {
+      Alert.alert('Check recipient', 'Recipient id must be a valid user id.');
+      return;
     }
-  ];
+
+    if (String(parsedRecipientId) === String(user?.id)) {
+      Alert.alert('Not available', 'You cannot transfer wallet funds to yourself.');
+      return;
+    }
+
+    try {
+      await transferMutation.mutateAsync({
+        recipient_id: parsedRecipientId,
+        amount_usd: parsedAmount,
+        description: transferDescription.trim() || undefined,
+      });
+      setRecipientId('');
+      setTransferAmount('');
+      setTransferDescription('');
+      Alert.alert('Transfer sent', 'Your wallet transfer was created.');
+    } catch {
+      // Mutation hook shows the parsed API error.
+    }
+  };
+
+  const submitTopUp = async () => {
+    try {
+      await topUpMutation.mutateAsync({
+        amount_usd: Number(topUpAmount),
+        payment_reference: topUpReference.trim() || undefined,
+      });
+      setTopUpAmount('');
+      setTopUpReference('');
+      Alert.alert('Top-up created', 'Your wallet top-up was created.');
+    } catch {
+      // Mutation hook shows the parsed API error.
+    }
+  };
 
   return (
-    <View>
-      <View>
-        <View>
-          <Pressable onPress={() => navigation.navigate('/explore')}>
-            <Text>chevron_left</Text>
-          </Pressable>
-          <Text>My Galaxy</Text>
-        </View>
-        <View>
-          <View>
-            <Text>verified</Text>
-            <Text>Verified</Text>
-          </View>
-        </View>
+    <SafeAreaView style={[styles.safeArea, { backgroundColor: theme.background }]}>
+      <View style={[styles.header, { borderBottomColor: border }]}>
+        <Pressable onPress={() => navigation.goBack()} style={[styles.iconButton, { backgroundColor: panelBg }]}>
+          <MaterialIcons name="chevron-left" size={24} color={theme.text} />
+        </Pressable>
+        <Text style={[styles.headerTitle, { color: theme.text }]}>Wallet</Text>
+        <Pressable onPress={() => void walletQuery.refetch()} style={[styles.iconButton, { backgroundColor: panelBg }]}>
+          <MaterialIcons name="refresh" size={20} color={theme.text} />
+        </Pressable>
       </View>
 
-      <View>
-        {/* Tab Selection */}
-        <View>
-          <Pressable 
-            onPress={() => setActiveTab('pass')}
-           
-          >
-            Identity Pass
-          </Pressable>
-          <Pressable 
-            onPress={() => setActiveTab('tickets')}
-           
-          >
-            My Tickets
+      {walletQuery.isLoading ? (
+        <View style={styles.centerState}>
+          <ActivityIndicator size="large" color={PRIMARY_COLOR} />
+          <Text style={[styles.stateText, { color: theme.textSecondary }]}>Loading wallet...</Text>
+        </View>
+      ) : walletQuery.isError ? (
+        <View style={styles.centerState}>
+          <MaterialIcons name="account-balance-wallet" size={44} color={PRIMARY_COLOR} />
+          <Text style={[styles.stateTitle, { color: theme.text }]}>Wallet unavailable</Text>
+          <Text style={[styles.stateText, { color: theme.textSecondary }]}>{getApiErrorMessage(walletQuery.error)}</Text>
+          <Pressable onPress={() => void walletQuery.refetch()} style={styles.primaryButton}>
+            <Text style={styles.primaryButtonText}>Retry</Text>
           </Pressable>
         </View>
-
-        {activeTab === 'pass' ? (
-          <View>
-            <View 
-              onPress={() => setIsFlipped(!isFlipped)}
-             
-            >
-              {/* Front Side */}
-              <View>
-                <View></View>
-                <View></View>
-                
-                <View>
-                  <View>
-                    <Text>Identity Card</Text>
-                    <Text>ALEX{'\\n'}RIVERA</Text>
-                  </View>
-                  <View>
-                    <Text>stars</Text>
-                  </View>
-                </View>
-
-                <View>
-                  <View>
-                    <Image source={{ uri: "https://picsum.photos/seed/alex/300" }} />
-                    <View></View>
-                  </View>
-                  <View>
-                    <Text>Founding Member</Text>
-                    <Text>Kulsah Galaxy #0042</Text>
-                  </View>
-                </View>
-
-                <View>
-                  <View>
-                    ECOSYSTEM ID: KULS-8829-X
-                  </View>
-                  <View>
-                    <Text>contactless</Text>
-                    <Text>nfc</Text>
-                  </View>
-                </View>
-              </View>
-
-              {/* Back Side (Dynamic QR Code) */}
-              <View>
-                <View>
-                  <Image 
-                    source={{ uri: "https://api.qrserver.com/v1/create-qr-code/?size=250x250&data=ALEX_RIVERA_KULSAH&bgcolor=ffffff&color=0f172a" }} 
-                    
-                    
-                  />
-                </View>
-                <Text>Digital Access</Text>
-                <Text>Dynamic Key Refreshes in 12 seconds</Text>
-                <View>
-                  {[1, 2, 3, 4, 5].map(i => <View key={i}><View style={{ animationDelay: `${i * 0.2}s` }}></View></View>)}
-                </View>
-              </View>
-            </View>
-            <Text>
-              <Text>touch_app</Text> Tap Card to Flip
+      ) : (
+        <ScrollView contentContainerStyle={styles.content} showsVerticalScrollIndicator={false}>
+          <View style={[styles.balanceCard, { backgroundColor: panelBg, borderColor: border }]}>
+            <Text style={[styles.label, { color: theme.textSecondary }]}>{wallet?.account_name ?? 'Kulsah Wallet'}</Text>
+            <Text style={[styles.totalBalance, { color: theme.text }]}>{money(balances?.total_usd)}</Text>
+            <Text style={[styles.label, { color: theme.textSecondary }]}>
+              {wallet?.account_key ?? 'Account key pending'} / {wallet?.status ?? 'active'}
             </Text>
-          </View>
-        ) : (
-          <View>
-            <View>
-              <Text>Active Tickets</Text>
-              <Text>{tickets.length} Events</Text>
+
+            <View style={styles.balanceGrid}>
+              <BalanceTile label="Available" value={money(balances?.available_usd)} />
+              <BalanceTile label="Pending" value={money(balances?.pending_usd)} />
+              <BalanceTile label="Held" value={money(balances?.held_usd)} />
             </View>
-            
-            <View>
-              {tickets.map((ticket) => (
-                <View key={ticket.id}>
-                  <View>
-                    <Image source={{ uri: ticket.img }} />
-                    <View></View>
-                    <View>
-                      {ticket.date}
-                    </View>
+          </View>
+
+          <View style={styles.formGrid}>
+            <View style={[styles.formCard, { backgroundColor: panelBg, borderColor: border }]}>
+              <Text style={[styles.cardTitle, { color: theme.text }]}>Transfer</Text>
+              <TextInput value={recipientId} onChangeText={setRecipientId} keyboardType="number-pad" placeholder="Recipient user id" placeholderTextColor={theme.textMuted} style={[styles.input, { color: theme.text, borderColor: border }]} />
+              <TextInput value={transferAmount} onChangeText={setTransferAmount} keyboardType="decimal-pad" placeholder="Amount USD" placeholderTextColor={theme.textMuted} style={[styles.input, { color: theme.text, borderColor: border }]} />
+              <TextInput value={transferDescription} onChangeText={setTransferDescription} placeholder="Description" placeholderTextColor={theme.textMuted} style={[styles.input, { color: theme.text, borderColor: border }]} />
+              <Pressable disabled={!canSubmitTransfer} onPress={() => void submitTransfer()} style={[styles.primaryButton, !canSubmitTransfer && styles.disabled]}>
+                {transferMutation.isPending ? <ActivityIndicator color="#fff" /> : <Text style={styles.primaryButtonText}>Send Transfer</Text>}
+              </Pressable>
+            </View>
+
+            <View style={[styles.formCard, { backgroundColor: panelBg, borderColor: border }]}>
+              <Text style={[styles.cardTitle, { color: theme.text }]}>Top Up</Text>
+              <TextInput value={topUpAmount} onChangeText={setTopUpAmount} keyboardType="decimal-pad" placeholder="Amount USD" placeholderTextColor={theme.textMuted} style={[styles.input, { color: theme.text, borderColor: border }]} />
+              <TextInput value={topUpReference} onChangeText={setTopUpReference} placeholder="Payment reference" placeholderTextColor={theme.textMuted} style={[styles.input, { color: theme.text, borderColor: border }]} />
+              <Pressable disabled={!canSubmitTopUp} onPress={() => void submitTopUp()} style={[styles.primaryButton, !canSubmitTopUp && styles.disabled]}>
+                {topUpMutation.isPending ? <ActivityIndicator color="#fff" /> : <Text style={styles.primaryButtonText}>Create Top-up</Text>}
+              </Pressable>
+            </View>
+          </View>
+
+          <View style={styles.tabs}>
+            {(['transactions', 'ledger'] as WalletTab[]).map((tab) => (
+              <Pressable key={tab} onPress={() => setActiveTab(tab)} style={[styles.tabButton, activeTab === tab && styles.tabButtonActive]}>
+                <Text style={[styles.tabText, { color: activeTab === tab ? '#fff' : theme.textSecondary }]}>{tab.toUpperCase()}</Text>
+              </Pressable>
+            ))}
+          </View>
+
+          {listLoading ? (
+            <View style={styles.listState}>
+              <ActivityIndicator color={PRIMARY_COLOR} />
+            </View>
+          ) : listError ? (
+            <Text style={[styles.stateText, { color: theme.textSecondary }]}>{getApiErrorMessage(listError)}</Text>
+          ) : listData.length === 0 ? (
+            <View style={styles.listState}>
+              <MaterialIcons name="receipt-long" size={36} color={primaryColorAlpha(0.6)} />
+              <Text style={[styles.stateText, { color: theme.textSecondary }]}>No {activeTab} yet.</Text>
+            </View>
+          ) : (
+            <FlatList
+              data={listData}
+              keyExtractor={(item) => String(item.id)}
+              scrollEnabled={false}
+              renderItem={({ item }) => (
+                <View style={[styles.rowCard, { borderColor: border }]}>
+                  <View style={{ flex: 1 }}>
+                    <Text style={[styles.rowTitle, { color: theme.text }]}>{String(item.type ?? item.status ?? activeTab)}</Text>
+                    <Text style={[styles.label, { color: theme.textSecondary }]}>{String(item.description ?? item.created_at ?? '')}</Text>
                   </View>
-                  <View>
-                    <Text>{ticket.title}</Text>
-                    <View>
-                      <Text>location_on</Text>
-                      <Text>{ticket.location}</Text>
-                    </View>
-                    <View>
-                      <Pressable 
-                        onPress={() => navigation.navigate(`/ticket/${ticket.id}`)}
-                       
-                      >
-                        <Text>qr_code_2</Text>
-                        Open Ticket
-                      </Pressable>
-                      <Pressable>
-                        <Text>share</Text>
-                      </Pressable>
-                    </View>
-                  </View>
-                  {/* Decorative Ticket Perforation */}
-                  <View></View>
-                  <View></View>
+                  <Text style={[styles.rowAmount, { color: PRIMARY_COLOR }]}>{money(item.amount_usd)}</Text>
                 </View>
-              ))}
-            </View>
-          </View>
-        )}
-
-        {/* Perks Section */}
-        <View>
-          <Text>Member Privileges</Text>
-          <View>
-            <View>
-              <Text>airport_shuttle</Text>
-              <Text>Fast-track Entry</Text>
-              <Text>Unlimited use</Text>
-            </View>
-            <View>
-              <Text>shopping_bag</Text>
-              <Text>Merch Discount</Text>
-              <Text>15% Off storewide</Text>
-            </View>
-          </View>
-        </View>
-      </View>
-
-      <style>{`
-        .perspective-2000 { perspective: 2000px; }
-        .transform-style-3d { transform-style: preserve-3d; }
-        .backface-hidden { backface-visibility: hidden; }
-        .rotate-y-180 { transform: rotateY(180deg); }
-        @keyframes shimmer {
-          0% { background-position: 200% 200%; }
-          100% { background-position: -200% -200%; }
-        }
-        @keyframes loading {
-          0% { transform: translateX(-100%); }
-          100% { transform: translateX(100%); }
-        }
-      `}</style>
-    </View>
+              )}
+            />
+          )}
+        </ScrollView>
+      )}
+    </SafeAreaView>
   );
 };
+
+const BalanceTile = ({ label, value }: { label: string; value: string }) => (
+  <View style={styles.balanceTile}>
+    <Text style={styles.balanceTileLabel}>{label}</Text>
+    <Text style={styles.balanceTileValue}>{value}</Text>
+  </View>
+);
+
+const styles = StyleSheet.create({
+  safeArea: { flex: 1 },
+  header: { height: 64, paddingHorizontal: 16, borderBottomWidth: 1, flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between' },
+  iconButton: { width: 40, height: 40, borderRadius: 20, alignItems: 'center', justifyContent: 'center' },
+  headerTitle: { ...fontSize.b2, lineHeight: fontSize.b2.fontSize + 2 },
+  content: { padding: 16, gap: 16, paddingBottom: 48 },
+  centerState: { flex: 1, alignItems: 'center', justifyContent: 'center', padding: 24 },
+  stateTitle: { marginTop: 12, ...fontSize.b2, lineHeight: fontSize.b2.fontSize + 2 },
+  stateText: { marginTop: 8, textAlign: 'center', ...fontSize.b4, lineHeight: fontSize.b4.fontSize + 1 },
+  balanceCard: { borderWidth: 1, borderRadius: 18, padding: 18, gap: 10 },
+  label: { ...fontSize.b5, lineHeight: fontSize.b5.fontSize + 1 },
+  totalBalance: { ...fontSize.h1, lineHeight: fontSize.h1.fontSize + 4 },
+  balanceGrid: { flexDirection: 'row', gap: 8, marginTop: 8 },
+  balanceTile: { flex: 1, borderRadius: 12, padding: 10, backgroundColor: primaryColorAlpha(0.12) },
+  balanceTileLabel: { color: '#94a3b8', ...fontSize.b5, lineHeight: fontSize.b5.fontSize + 1 },
+  balanceTileValue: { color: '#fff', marginTop: 4, ...fontSize.b5, lineHeight: fontSize.b5.fontSize + 1 },
+  formGrid: { gap: 12 },
+  formCard: { borderWidth: 1, borderRadius: 16, padding: 14, gap: 10 },
+  cardTitle: { ...fontSize.b3, lineHeight: fontSize.b3.fontSize + 1 },
+  input: { minHeight: 44, borderWidth: 1, borderRadius: 12, paddingHorizontal: 12, ...fontSize.b4, lineHeight: fontSize.b4.fontSize + 1 },
+  primaryButton: { minHeight: 44, borderRadius: 999, backgroundColor: PRIMARY_COLOR, alignItems: 'center', justifyContent: 'center', paddingHorizontal: 16 },
+  primaryButtonText: { color: '#fff', ...fontSize.b4, lineHeight: fontSize.b4.fontSize + 1 },
+  disabled: { opacity: 0.5 },
+  tabs: { flexDirection: 'row', gap: 8 },
+  tabButton: { flex: 1, minHeight: 40, borderRadius: 999, alignItems: 'center', justifyContent: 'center', backgroundColor: 'rgba(148,163,184,0.14)' },
+  tabButtonActive: { backgroundColor: PRIMARY_COLOR },
+  tabText: { ...fontSize.b5, lineHeight: fontSize.b5.fontSize + 1 },
+  listState: { minHeight: 110, alignItems: 'center', justifyContent: 'center' },
+  rowCard: { borderWidth: 1, borderRadius: 14, padding: 12, marginBottom: 10, flexDirection: 'row', alignItems: 'center', gap: 12 },
+  rowTitle: { ...fontSize.b4, lineHeight: fontSize.b4.fontSize + 1, textTransform: 'capitalize' },
+  rowAmount: { ...fontSize.b4, lineHeight: fontSize.b4.fontSize + 1 },
+});
 
 export default Wallet;

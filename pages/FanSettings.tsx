@@ -33,7 +33,7 @@ import { SvgProps } from 'react-native-svg';
 import CoinsIcon from '../assets/icons/coins-svg.svg';
 import CreatorSwitch from '../assets/icons/switch-creator.svg';
 import { fontSize } from './typography';
-import { useUpdateProfile, useUploadAvatar } from '../src';
+import { parseApiError, useSwitchRole, useUpdateProfile, useUploadAvatar } from '../src';
 import type { AvatarUploadSource, User } from '../src';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
@@ -244,6 +244,7 @@ const FanSettings: React.FC<FanSettingsProps> = ({ onLogout, isDarkMode, onToggl
   const [tokenTime, setTokenTime] = useState(30);
   const { mutateAsync: updateProfile, isPending: isSavingProfile } = useUpdateProfile();
   const { mutateAsync: uploadAvatar } = useUploadAvatar();
+  const { mutateAsync: switchRole } = useSwitchRole();
 
   const [profile, setProfile] = useState(() => createProfileDraft(user));
   const [pendingAvatarAsset, setPendingAvatarAsset] = useState<ImagePicker.ImagePickerAsset | null>(null);
@@ -286,16 +287,22 @@ const FanSettings: React.FC<FanSettingsProps> = ({ onLogout, isDarkMode, onToggl
   };
 
   const creatorToggle = async()=>{
-    const nextUser = {
-      id: user?.id || 'mila_ray_01',
-      name: user?.name || 'Mila Ray',
-      role: 'creator' as const,
-      email: user?.email || '',
-      handle: user?.handle || 'mila_ray_01',
-    };
-    setUser(nextUser);
-    await AsyncStorage.setItem('pulsar_user', JSON.stringify(nextUser));
-    navigation.navigate('MainTabs', { screen: 'Galaxy' });
+    try {
+      await switchRole({ role: 'creator' });
+      const nextUser = {
+        id: user?.id || 'mila_ray_01',
+        name: user?.name || 'Mila Ray',
+        role: 'creator' as const,
+        email: user?.email || '',
+        handle: user?.handle || 'mila_ray_01',
+      };
+      setUser(nextUser);
+      await AsyncStorage.setItem('pulsar_user', JSON.stringify(nextUser));
+      navigation.navigate('MainTabs', { screen: 'Galaxy' });
+    } catch (caughtError) {
+      const parsed = parseApiError(caughtError);
+      Alert.alert(parsed.title, parsed.message);
+    }
   }
 
 

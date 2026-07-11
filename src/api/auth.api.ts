@@ -1,6 +1,22 @@
 import api from './client';
 import { endpoints } from './endpoints';
-import type { LoginPayload, RegisterPayload, ResetPasswordPayload, UpdateVibePayload } from '../types/auth.types';
+import { Auth } from '../store/auth.store';
+import type {
+  LoginPayload,
+  RegisterPayload,
+  ResetPasswordPayload,
+  SwitchRolePayload,
+  UpdateVibePayload,
+} from '../types/auth.types';
+
+const authHeaderConfig = (token = Auth.token) =>
+  token
+    ? {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      }
+    : undefined;
 
 export const authApi = {
   login: (payload: LoginPayload) => api.post(endpoints.auth.login, payload),
@@ -10,19 +26,10 @@ export const authApi = {
     api.post(endpoints.auth.forgotPassword, payload),
   resetPassword: (payload: ResetPasswordPayload) =>
     api.post(endpoints.auth.resetPassword, payload),
-  logout: (token?: string) =>
-    api.post(
-      endpoints.auth.logout,
-      {},
-      token
-        ? {
-            headers: {
-              Authorization: `Bearer ${token}`,
-            },
-          }
-        : undefined
-    ),
+  logout: (token?: string) => api.post(endpoints.auth.logout, {}, authHeaderConfig(token)),
   updateVibe: (payload: UpdateVibePayload) => api.post(endpoints.auth.updateVibe, payload),
+  switchRole: (payload: SwitchRolePayload, token?: string) =>
+    api.post(endpoints.auth.switchRole, payload, authHeaderConfig(token)),
   verifyResetOtp: (payload: { email?: string; phone?: string; otp: string }) =>
     api.post(endpoints.auth.verifyResetOtp, payload),
   verifyOtp: (payload: { otp: string}, token: string) => api.post(endpoints.auth.verifyOtp, payload, {
@@ -47,3 +54,4 @@ export const resendOtp = authApi.resendOtp;
 export const forgotPassword = authApi.forgotPassword;
 export const resetPassword = authApi.resetPassword;
 export const verifyResetOtp = authApi.verifyResetOtp;
+export const switchRole = authApi.switchRole;

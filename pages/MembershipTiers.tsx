@@ -1,6 +1,6 @@
 import { MaterialIcons } from '@expo/vector-icons';
 import { useNavigation } from '@react-navigation/native';
-import React, { useMemo, useState } from 'react';
+import React, { useEffect, useMemo, useState } from 'react';
 import {
   ActivityIndicator,
   Alert,
@@ -15,327 +15,324 @@ import {
   View,
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
-import { GoogleGenAI } from '@google/genai';
-import { useThemeMode, PRIMARY_COLOR, primaryColorAlphaHex } from "../theme";
+import { useThemeMode, PRIMARY_COLOR, primaryColorAlphaHex } from '../theme';
 import { fontSize } from './typography';
-import { useUpdateSubscriptionPlan } from '../src';
+import {
+  parseApiError,
+  useCreateSubscriptionPlan,
+  useCreatorSubscriptionPlans,
+  useDisableSubscriptionPlan,
+  useUpdateSubscriptionPlan,
+} from '../src';
+import type { CreatorSubscriptionPlan } from '../src';
 
-type SubscriptionTier = {
-  id: string;
+type PlanForm = {
   name: string;
+  description: string;
   price: string;
-  perks: string[];
-  currentMembers: number;
-  color: string;
+  currency: string;
+  billing_interval: 'monthly';
 };
 
-const INITIAL_SUBSCRIPTION: SubscriptionTier = {
-  id: 'default',
-  name: 'Kulsah',
-  price: '9.99',
-  perks: ['Exclusive feed access', 'Direct messaging', 'Badge of honor'],
-  currentMembers: 1248,
-  color: PRIMARY_COLOR,
+const emptyForm: PlanForm = {
+  name: 'Monthly Plan',
+  description: '',
+  price: '10.00',
+  currency: 'USD',
+  billing_interval: 'monthly',
 };
+
+const formFromPlan = (plan?: CreatorSubscriptionPlan | null): PlanForm =>
+  plan
+    ? {
+        name: plan.name,
+        description: plan.description || '',
+        price: String(plan.price ?? ''),
+        currency: plan.currency || 'USD',
+        billing_interval: plan.billing_interval || 'monthly',
+      }
+    : emptyForm;
 
 const MembershipTiers: React.FC = () => {
   const navigation = useNavigation<any>();
   const { isDark, theme } = useThemeMode();
-  const [subscription, setSubscription] = useState<SubscriptionTier>(INITIAL_SUBSCRIPTION);
-  const [isAiLoading, setIsAiLoading] = useState(false);
-  const [isSaving, setIsSaving] = useState(false);
+  const { data, isLoading, isRefetching, error, refetch } = useCreatorSubscriptionPlans();
+  const createPlan = useCreateSubscriptionPlan();
+  const updatePlan = useUpdateSubscriptionPlan();
+  const disablePlan = useDisableSubscriptionPlan();
+  const [form, setForm] = useState<PlanForm>(emptyForm);
+  const [successMessage, setSuccessMessage] = useState('');
   const [isEditorOpen, setIsEditorOpen] = useState(false);
-  const [editingSub, setEditingSub] = useState<SubscriptionTier | null>(null);
-  const [newPerkText, setNewPerkText] = useState('');
-  const { mutateAsync: updateSubscriptionPlan } = useUpdateSubscriptionPlan();
 
-  const totalMonthlyRevenue = useMemo(() => {
-    const price = Number.parseFloat(subscription.price) || 0;
-    return price * subscription.currentMembers;
-  }, [subscription]);
+  const plan = data?.data?.[0] ?? null;
+  const apiError = error ? parseApiError(error) : null;
+  const mutationError = createPlan.error || updatePlan.error || disablePlan.error;
+  const parsedMutationError = mutationError ? parseApiError(mutationError) : null;
+  const isSaving = createPlan.isPending || updatePlan.isPending;
 
-  const totalYearlyRevenue = useMemo(() => {
-    const annualMembers = Math.round(subscription.currentMembers * 0.3);
-    const monthlyMembers = subscription.currentMembers - annualMembers;
-    const monthlyPrice = Number.parseFloat(subscription.price) || 0;
-    const annualPrice = monthlyPrice * 12 * 0.85;
-    return monthlyMembers * monthlyPrice * 12 + annualMembers * annualPrice;
-  }, [subscription]);
+  useEffect(() => {
+    setForm(formFromPlan(plan));
+  }, [plan?.id]);
+
+  const projectedMonthlyRevenue = useMemo(() => {
+    const price = Number.parseFloat(form.price) || 0;
+    return price * 100;
+  }, [form.price]);
+
+  const updateField = (key: keyof PlanForm, value: string) => {
+    setSuccessMessage('');
+    setForm((current) => ({ ...current, [key]: value }));
+  };
+
+  const validateForm = () => {
+    if (!form.name.trim()) return 'Plan name is required.';
+    if (!form.currency.trim()) return 'Currency is required.';
+    if (!Number.isFinite(Number(form.price)) || Number(form.price) <= 0) return 'Price must be greater than zero.';
+    return null;
+  };
+
+  const submitPlan = async () => {
+    const validationMessage = validateForm();
+    if (validationMessage) {
+      Alert.alert('Check your details', validationMessage);
+      return;
+    }
+
+    try {
+      const payload = {
+        name: form.name.trim(),
+        description: form.description.trim() || null,
+        price: Number(form.price),
+        currency: form.currency.trim().toUpperCase(),
+        billing_interval: form.billing_interval,
+      };
+
+      if (plan) {
+        await updatePlan.mutateAsync({ subscriptionPlan: plan.id, payload });
+        setSuccessMessage('Subscription plan updated.');
+      } else {
+        await createPlan.mutateAsync(payload);
+        setSuccessMessage('Subscription plan created.');
+      }
+
+      setIsEditorOpen(false);
+    } catch (caughtError) {
+      const parsed = parseApiError(caughtError);
+      Alert.alert(parsed.title, parsed.message);
+    }
+  };
+
+  const confirmDisablePlan = () => {
+    if (!plan) return;
+
+    Alert.alert(
+      'Disable subscription plan?',
+      'New subscribers will not be able to join this plan. Existing subscribers keep access until their current subscription expires.',
+      [
+        { text: 'Cancel', style: 'cancel' },
+        {
+          text: 'Disable',
+          style: 'destructive',
+          onPress: async () => {
+            try {
+              await disablePlan.mutateAsync(plan.id);
+              setSuccessMessage('Plan disabled. Existing subscribers keep access until expiry.');
+            } catch (caughtError) {
+              const parsed = parseApiError(caughtError);
+              Alert.alert(parsed.title, parsed.message);
+            }
+          },
+        },
+      ],
+    );
+  };
 
   const openEditor = () => {
-    setEditingSub({ ...subscription, perks: [...subscription.perks] });
-    setNewPerkText('');
+    setForm(formFromPlan(plan));
     setIsEditorOpen(true);
   };
 
-  const closeEditor = () => {
-    setIsEditorOpen(false);
-    setEditingSub(null);
-    setNewPerkText('');
-  };
+  const renderForm = (compact = false) => (
+    <View style={compact ? s.modalFields : s.formCard}>
+      <View style={s.fieldBlock}>
+        <Text style={[s.fieldLabel, { color: theme.textMuted }]}>Plan Name</Text>
+        <TextInput
+          value={form.name}
+          onChangeText={(value) => updateField('name', value)}
+          style={[s.textField, { color: theme.text, backgroundColor: isDark ? '#ffffff08' : theme.surface, borderColor: theme.border }]}
+          placeholder="Monthly Plan"
+          placeholderTextColor={theme.textMuted}
+        />
+      </View>
 
-  const saveSubscription = async () => {
-    if (!editingSub) return;
-    try {
-      setIsSaving(true);
-      await updateSubscriptionPlan({
-        subscriptionPlan: editingSub.id === 'default' ? editingSub.name : editingSub.id,
-        payload: {
-          name: editingSub.name.trim(),
-          description: null,
-          price: Number.parseFloat(editingSub.price),
-          currency: 'USD',
-          billing_interval: 'monthly',
-        },
-      });
+      <View style={s.fieldBlock}>
+        <Text style={[s.fieldLabel, { color: theme.textMuted }]}>Description</Text>
+        <TextInput
+          value={form.description}
+          onChangeText={(value) => updateField('description', value)}
+          multiline
+          style={[s.textArea, { color: theme.text, backgroundColor: isDark ? '#ffffff08' : theme.surface, borderColor: theme.border }]}
+          placeholder="Optional description"
+          placeholderTextColor={theme.textMuted}
+        />
+      </View>
 
-      setSubscription(editingSub);
-      closeEditor();
-      Alert.alert('Published', 'Your membership tier updates are now live.');
-    } catch (error: any) {
-      Alert.alert(
-        'Update failed',
-        error?.response?.data?.message || error?.message || 'Please try again.'
-      );
-    } finally {
-      setIsSaving(false);
-    }
-  };
+      <View style={s.formRow}>
+        <View style={[s.fieldBlock, s.priceField]}>
+          <Text style={[s.fieldLabel, { color: theme.textMuted }]}>Price</Text>
+          <TextInput
+            value={form.price}
+            onChangeText={(value) => updateField('price', value)}
+            keyboardType="decimal-pad"
+            style={[s.textField, { color: theme.text, backgroundColor: isDark ? '#ffffff08' : theme.surface, borderColor: theme.border }]}
+            placeholder="10.00"
+            placeholderTextColor={theme.textMuted}
+          />
+        </View>
+        <View style={[s.fieldBlock, s.currencyField]}>
+          <Text style={[s.fieldLabel, { color: theme.textMuted }]}>Currency</Text>
+          <TextInput
+            value={form.currency}
+            onChangeText={(value) => updateField('currency', value.toUpperCase())}
+            autoCapitalize="characters"
+            maxLength={3}
+            style={[s.textField, { color: theme.text, backgroundColor: isDark ? '#ffffff08' : theme.surface, borderColor: theme.border }]}
+            placeholder="USD"
+            placeholderTextColor={theme.textMuted}
+          />
+        </View>
+      </View>
 
-  const addPerk = () => {
-    if (!editingSub || !newPerkText.trim()) return;
-    setEditingSub({ ...editingSub, perks: [...editingSub.perks, newPerkText.trim()] });
-    setNewPerkText('');
-  };
+      <View style={s.fieldBlock}>
+        <Text style={[s.fieldLabel, { color: theme.textMuted }]}>Billing Interval</Text>
+        <View style={[s.intervalPill, { backgroundColor: primaryColorAlphaHex(isDark ? '26' : '18'), borderColor: primaryColorAlphaHex('44') }]}>
+          <MaterialIcons name="calendar-month" size={18} color={theme.accent} />
+          <Text style={[s.intervalText, { color: theme.text }]}>Monthly</Text>
+        </View>
+      </View>
 
-  const getAiPricingAdvice = async () => {
-    setIsAiLoading(true);
-    try {
-      const ai = new GoogleGenAI({ apiKey: process.env.API_KEY });
-      const response = await ai.models.generateContent({
-        model: 'gemini-3-flash-preview',
-        contents: `You are a creator economy expert. An artist has a subscription priced at $${subscription.price}. Suggest a 1-sentence perk addition to justify this price or increase conversion.`,
-      });
-      Alert.alert('AI Suggestion', response.text || 'Add personalized video shout-outs to your premium offering.');
-    } catch {
-      Alert.alert('AI Suggestion', 'Include early access to all future concert ticket pre-sales.');
-    } finally {
-      setIsAiLoading(false);
-    }
-  };
+      {parsedMutationError ? (
+        <View style={[s.messageBox, { backgroundColor: '#ef44441a', borderColor: '#ef444455' }]}>
+          <Text style={[s.messageText, { color: '#ef4444' }]}>{parsedMutationError.message}</Text>
+        </View>
+      ) : null}
 
-  const handleGlobalSave = () => {
-    setIsSaving(true);
-    setTimeout(() => {
-      setIsSaving(false);
-      Alert.alert('Published', 'Your membership tier updates are now live.');
-    }, 1500);
-  };
-
-  const revenueLabel = `$${totalMonthlyRevenue.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
-  const yearlyLabel = `$${totalYearlyRevenue.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
-  const monthlyLtv = `$${((Number.parseFloat(subscription.price) || 0) * subscription.currentMembers).toLocaleString(undefined, { maximumFractionDigits: 0 })}`;
+      <Pressable onPress={() => void submitPlan()} disabled={isSaving} style={[s.primaryButton, isSaving && s.disabledButton]}>
+        {isSaving ? <ActivityIndicator size="small" color="#fff" /> : <Text style={s.primaryButtonText}>{plan ? 'Save Plan' : 'Create Plan'}</Text>}
+      </Pressable>
+    </View>
+  );
 
   return (
     <SafeAreaView style={[s.screen, { backgroundColor: theme.screen }]} edges={[]}>
-      <View style={[s.header, { backgroundColor: isDark ? 'rgba(31, 16, 34, 0.78)' : theme.card, borderBottomColor: theme.border }]}>
+      <View style={[s.header, { backgroundColor: isDark ? 'rgba(31,16,34,0.78)' : theme.card, borderBottomColor: theme.border }]}>
         <View style={s.headerLeft}>
           <Pressable onPress={() => navigation.goBack()} style={[s.iconButton, { backgroundColor: isDark ? '#ffffff14' : theme.surface }]}>
             <MaterialIcons name="chevron-left" size={20} color={theme.text} />
           </Pressable>
-          <Text style={[s.headerTitle, { color: theme.text }]}>Galaxy Economy</Text>
+          <Text style={[s.headerTitle, { color: theme.text }]}>Subscription Settings</Text>
         </View>
-        {/* <Pressable
-          onPress={getAiPricingAdvice}
-          disabled={isAiLoading}
-          style={[s.aiButton, { backgroundColor: isDark ? primaryColorAlphaHex('24') : theme.accentSoft, borderColor: isDark ? primaryColorAlphaHex('4a') : primaryColorAlphaHex('2b') }]}
-        >
-          {isAiLoading ? (
-            <ActivityIndicator size="small" color={theme.accent} />
-          ) : (
-            <MaterialIcons name="auto-awesome" size={20} color={theme.accent} />
-          )}
-        </Pressable> */}
-      </View>
-
-      <ScrollView contentContainerStyle={s.content} showsVerticalScrollIndicator={false} keyboardShouldPersistTaps="handled">
-        <View style={[s.heroCard, { backgroundColor: isDark ? '#101625' : theme.card, borderColor: theme.border, shadowColor: theme.shadow }]}>
-          <View style={s.heroGlow} />
-          <View style={s.heroMetrics}>
-            <View>
-              <Text style={[s.metricLabel, { color: theme.textMuted }]}>Projected MRR</Text>
-              <Text style={[s.metricValue, { color: '#22c55e' }]}>{revenueLabel}</Text>
-            </View>
-            <View style={s.metricRight}>
-              <Text style={[s.metricLabel, { color: theme.textMuted }]}>Projected ARR</Text>
-              <Text style={[s.metricValue, { color: theme.accent }]}>{yearlyLabel}</Text>
-            </View>
-          </View>
-          <View style={[s.progressTrack, { backgroundColor: isDark ? '#ffffff10' : '#e2e8f0' }]}>
-            <View style={s.progressFill} />
-          </View>
-          <View style={s.metaRow}>
-            <Text style={[s.microText, { color: theme.textMuted }]}>Based on {subscription.currentMembers} active members</Text>
-            <Text style={[s.microText, { color: theme.accent }]}>Includes 15% annual discount</Text>
-          </View>
-        </View>
-
-        <View style={s.sectionBlock}>
-          <Text style={[s.sectionTitle, { color: theme.textMuted }]}>Subscription Management</Text>
-          <View style={[s.tierCard, { backgroundColor: isDark ? 'rgba(31, 16, 34, 0.75)' : theme.card, borderColor: subscription.color }]}>
-            <View style={s.rowBetween}>
-              <View style={{ flex: 1 }}>
-                <Text style={[s.tierName, { color: theme.text }]}>{subscription.name}</Text>
-                <Text style={[s.tierCaption, { color: theme.textMuted }]}>Active offering</Text>
-              </View>
-              <View style={[s.pricePill, { backgroundColor: isDark ? '#00000040' : theme.surface, borderColor: theme.border }]}>
-                <Text style={[s.priceDollar, { color: theme.accent }]}>$</Text>
-                <TextInput
-                  value={subscription.price}
-                  onChangeText={(value) => setSubscription((prev) => ({ ...prev, price: value }))}
-                  keyboardType="decimal-pad"
-                  style={[s.priceInput, { color: theme.text }]}
-                  placeholder="0.00"
-                  placeholderTextColor={theme.textMuted}
-                />
-              </View>
-            </View>
-
-            <View style={s.perksSection}>
-              <Text style={[s.perksLabel, { color: theme.textMuted }]}>Active Perks</Text>
-              <View style={s.perksWrap}>
-                {subscription.perks.map((perk, index) => (
-                  <View key={`${perk}-${index}`} style={[s.perkChip, { backgroundColor: isDark ? '#ffffff0d' : theme.surface, borderColor: theme.border }]}>
-                    <Text style={[s.perkText, { color: theme.textSecondary }]}>{perk}</Text>
-                  </View>
-                ))}
-                <Pressable onPress={openEditor} style={[s.editChip, { borderColor: theme.border }]}>
-                  <MaterialIcons name="edit" size={16} color={theme.accent} />
-                </Pressable>
-              </View>
-            </View>
-
-            <View style={[s.footerStats, { borderTopColor: theme.border }]}>
-              <View style={s.statsRow}>
-                <View>
-                  <Text style={[s.statValue, { color: theme.text }]}>{subscription.currentMembers}</Text>
-                  <Text style={[s.statLabel, { color: theme.textMuted }]}>Members</Text>
-                </View>
-                <View style={[s.divider, { backgroundColor: theme.border }]} />
-                <View>
-                  <Text style={[s.statValue, { color: '#22c55e' }]}>{monthlyLtv}</Text>
-                  <Text style={[s.statLabel, { color: theme.textMuted }]}>LTV Monthly</Text>
-                </View>
-              </View>
-              <Pressable onPress={openEditor} style={[s.settingsButton, { backgroundColor: isDark ? '#ffffff12' : theme.surface, borderColor: theme.border }]}>
-                <MaterialIcons name="settings-suggest" size={20} color={theme.accent} />
-              </Pressable>
-            </View>
-          </View>
-        </View>
-      </ScrollView>
-
-      <View style={[s.bottomBar, { backgroundColor: isDark ? 'rgba(10, 5, 13, 0.95)' : 'rgba(255,255,255,0.95)', borderTopColor: theme.border }]}>
-        <Pressable onPress={handleGlobalSave} disabled={isSaving} style={[s.publishButton, isSaving && s.publishButtonDisabled]}>
-          {isSaving ? (
-            <ActivityIndicator size="small" color="#fff" />
-          ) : (
-            <>
-              <Text style={s.publishText}>Publish</Text>
-              <MaterialIcons name="rocket-launch" size={20} color="#fff" />
-            </>
-          )}
+        <Pressable onPress={() => void refetch()} disabled={isRefetching} style={[s.iconButton, { backgroundColor: isDark ? '#ffffff14' : theme.surface }]}>
+          {isRefetching ? <ActivityIndicator size="small" color={theme.accent} /> : <MaterialIcons name="refresh" size={18} color={theme.text} />}
         </Pressable>
       </View>
 
-      <Modal
-      statusBarTranslucent
-      visible={isEditorOpen} transparent animationType="slide" onRequestClose={closeEditor}>
-        <View style={s.modalRoot}>
-          <Pressable style={s.scrim} onPress={closeEditor} />
-          {editingSub ? (
-            <KeyboardAvoidingView
-              behavior={Platform.OS === 'ios' ? 'padding' : undefined}
-              keyboardVerticalOffset={Platform.OS === 'ios' ? 24 : 0}
-              style={s.modalKeyboardWrap}
-            >
-              <View style={[s.modalCard, { backgroundColor: isDark ? theme.background : theme.card, borderTopColor: theme.border }]}>
-                <View style={[s.grabber, { backgroundColor: isDark ? '#ffffff20' : '#cbd5e1' }]} />
+      <ScrollView contentContainerStyle={s.content} keyboardShouldPersistTaps="handled" showsVerticalScrollIndicator={false}>
+        {successMessage ? (
+          <View style={[s.messageBox, { backgroundColor: '#22c55e1a', borderColor: '#22c55e55' }]}>
+            <Text style={[s.messageText, { color: '#16a34a' }]}>{successMessage}</Text>
+          </View>
+        ) : null}
 
-                <View style={s.modalHeader}>
-                  <Text style={[s.modalTitle, { color: theme.text }]}>Refine Subscription</Text>
-                  <Pressable onPress={closeEditor} style={[s.modalClose, { backgroundColor: isDark ? '#ffffff12' : theme.surface, borderColor: theme.border }]}>
-                    <MaterialIcons name="close" size={18} color={theme.text} />
-                  </Pressable>
+        {apiError ? (
+          <View style={[s.messageBox, { backgroundColor: '#ef44441a', borderColor: '#ef444455' }]}>
+            <Text style={[s.messageText, { color: '#ef4444' }]}>{apiError.message}</Text>
+          </View>
+        ) : null}
+
+        {isLoading ? (
+          <View style={s.centerState}>
+            <ActivityIndicator color={theme.accent} />
+            <Text style={[s.centerText, { color: theme.textMuted }]}>Loading subscription plan...</Text>
+          </View>
+        ) : plan ? (
+          <>
+            <View style={[s.planCard, { backgroundColor: isDark ? '#101625' : theme.card, borderColor: plan.is_active ? PRIMARY_COLOR : theme.border }]}>
+              <View style={s.rowBetween}>
+                <View style={s.flex}>
+                  <Text style={[s.planName, { color: theme.text }]}>{plan.name}</Text>
+                  <Text style={[s.planMeta, { color: theme.textMuted }]}>
+                    {plan.currency} {plan.price} / {plan.billing_interval}
+                  </Text>
                 </View>
-
-                <ScrollView
-                  showsVerticalScrollIndicator={false}
-                  keyboardShouldPersistTaps="handled"
-                  contentContainerStyle={s.modalContent}
-                >
-                  <View style={s.fieldBlock}>
-                    <Text style={[s.fieldLabel, { color: theme.textMuted }]}>Identity Label</Text>
-                    <TextInput
-                      value={editingSub.name}
-                      onChangeText={(value) => setEditingSub({ ...editingSub, name: value })}
-                      style={[s.textField, { color: theme.text, backgroundColor: isDark ? '#ffffff08' : theme.surface, borderColor: theme.border }]}
-                      placeholder="Subscription name"
-                      placeholderTextColor={theme.textMuted}
-                    />
-                  </View>
-
-                  <View style={s.fieldBlock}>
-                    <Text style={[s.fieldLabel, { color: theme.textMuted }]}>Pricing Strategy (USD)</Text>
-                    <View style={[s.priceEditorWrap, { backgroundColor: isDark ? '#ffffff08' : theme.surface, borderColor: theme.border }]}>
-                      <Text style={[s.editorDollar, { color: theme.accent }]}>$</Text>
-                      <TextInput
-                        value={editingSub.price}
-                        onChangeText={(value) => setEditingSub({ ...editingSub, price: value })}
-                        keyboardType="decimal-pad"
-                        style={[s.priceEditorInput, { color: theme.text }]}
-                        placeholder="0.00"
-                        placeholderTextColor={theme.textMuted}
-                      />
-                    </View>
-                  </View>
-
-                  <View style={s.fieldBlock}>
-                    <Text style={[s.fieldLabel, { color: theme.textMuted }]}>Perk Pipeline</Text>
-                    <View style={s.listWrap}>
-                      {editingSub.perks.map((perk, index) => (
-                        <View key={`${perk}-${index}`} style={[s.listItem, { backgroundColor: isDark ? '#ffffff08' : theme.surface, borderColor: theme.border }]}>
-                          <Text style={[s.listItemText, { color: theme.text }]}>{perk}</Text>
-                          <Pressable onPress={() => setEditingSub({ ...editingSub, perks: editingSub.perks.filter((_, i) => i !== index) })}>
-                            <MaterialIcons name="delete-outline" size={18} color="#ef4444" />
-                          </Pressable>
-                        </View>
-                      ))}
-                    </View>
-
-                    <View style={s.addRow}>
-                      <TextInput
-                        value={newPerkText}
-                        onChangeText={setNewPerkText}
-                        onSubmitEditing={addPerk}
-                        returnKeyType="done"
-                        placeholder="New value-add..."
-                        placeholderTextColor={theme.textMuted}
-                        style={[s.addInput, { color: theme.text, backgroundColor: isDark ? '#ffffff08' : theme.surface, borderColor: theme.border }]}
-                      />
-                      <Pressable onPress={addPerk} style={s.addButton}>
-                        <MaterialIcons name="add" size={22} color="#fff" />
-                      </Pressable>
-                    </View>
-                  </View>
-
-                  <Pressable onPress={() => void saveSubscription()} style={s.syncButton} disabled={isSaving}>
-                    <Text style={s.syncButtonText}>{isSaving ? 'Publishing...' : 'Synchronize Subscription'}</Text>
-                  </Pressable>
-                </ScrollView>
+                <View style={[s.statusPill, { backgroundColor: plan.is_active ? '#22c55e1f' : '#64748b1f' }]}>
+                  <Text style={[s.statusText, { color: plan.is_active ? '#16a34a' : theme.textMuted }]}>{plan.is_active ? 'Active' : 'Disabled'}</Text>
+                </View>
               </View>
-            </KeyboardAvoidingView>
-          ) : null}
+
+              <Text style={[s.description, { color: theme.textSecondary }]}>
+                {plan.description || 'No description added yet.'}
+              </Text>
+
+              <View style={[s.revenueStrip, { backgroundColor: isDark ? '#ffffff0a' : theme.surface, borderColor: theme.border }]}>
+                <View>
+                  <Text style={[s.metricLabel, { color: theme.textMuted }]}>Projected MRR at 100 fans</Text>
+                  <Text style={[s.metricValue, { color: '#22c55e' }]}>
+                    ${projectedMonthlyRevenue.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
+                  </Text>
+                </View>
+              </View>
+
+              <View style={s.actionRow}>
+                <Pressable onPress={openEditor} style={[s.secondaryButton, { borderColor: theme.border, backgroundColor: isDark ? '#ffffff0d' : theme.surface }]}>
+                  <MaterialIcons name="edit" size={18} color={theme.accent} />
+                  <Text style={[s.secondaryButtonText, { color: theme.text }]}>Edit</Text>
+                </Pressable>
+                <Pressable
+                  onPress={confirmDisablePlan}
+                  disabled={!plan.is_active || disablePlan.isPending}
+                  style={[s.dangerButton, (!plan.is_active || disablePlan.isPending) && s.disabledButton]}
+                >
+                  {disablePlan.isPending ? <ActivityIndicator size="small" color="#fff" /> : <Text style={s.dangerButtonText}>Disable</Text>}
+                </Pressable>
+              </View>
+
+              {!plan.is_active ? (
+                <Text style={[s.noticeText, { color: theme.textMuted }]}>
+                  New subscribers cannot join. Existing subscribers keep access until expiry.
+                </Text>
+              ) : null}
+            </View>
+          </>
+        ) : (
+          <>
+            <View style={s.centerState}>
+              <MaterialIcons name="workspace-premium" size={44} color={theme.accent} />
+              <Text style={[s.emptyTitle, { color: theme.text }]}>Create your one subscription plan</Text>
+              <Text style={[s.centerText, { color: theme.textMuted }]}>Creators can only have one active plan. Set the monthly offer fans will see.</Text>
+            </View>
+            {renderForm()}
+          </>
+        )}
+      </ScrollView>
+
+      <Modal statusBarTranslucent visible={isEditorOpen} transparent animationType="slide" onRequestClose={() => setIsEditorOpen(false)}>
+        <View style={s.modalRoot}>
+          <Pressable style={s.scrim} onPress={() => setIsEditorOpen(false)} />
+          <KeyboardAvoidingView behavior={Platform.OS === 'ios' ? 'padding' : undefined} style={s.modalKeyboardWrap}>
+            <View style={[s.modalCard, { backgroundColor: isDark ? theme.background : theme.card, borderTopColor: theme.border }]}>
+              <View style={[s.grabber, { backgroundColor: isDark ? '#ffffff20' : '#cbd5e1' }]} />
+              <View style={s.modalHeader}>
+                <Text style={[s.modalTitle, { color: theme.text }]}>Edit Plan</Text>
+                <Pressable onPress={() => setIsEditorOpen(false)} style={[s.modalClose, { backgroundColor: isDark ? '#ffffff12' : theme.surface, borderColor: theme.border }]}>
+                  <MaterialIcons name="close" size={18} color={theme.text} />
+                </Pressable>
+              </View>
+              <ScrollView keyboardShouldPersistTaps="handled" showsVerticalScrollIndicator={false}>
+                {renderForm(true)}
+              </ScrollView>
+            </View>
+          </KeyboardAvoidingView>
         </View>
       </Modal>
     </SafeAreaView>
@@ -353,309 +350,54 @@ const s = StyleSheet.create({
     justifyContent: 'space-between',
     borderBottomWidth: StyleSheet.hairlineWidth,
   },
-  headerLeft: { flexDirection: 'row', alignItems: 'center', gap: 12 },
-  iconButton: {
-    width: 38,
-    height: 38,
-    borderRadius: 19,
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
-  headerTitle: {
-    ...fontSize.b3, lineHeight: fontSize.b3.fontSize + 2,
-    textTransform: 'uppercase',
-  },
-  aiButton: {
-    width: 42,
-    height: 42,
-    borderRadius: 14,
-    alignItems: 'center',
-    justifyContent: 'center',
-    borderWidth: 1,
-  },
-  content: { padding: 16, paddingBottom: 150, gap: 18 },
-  heroCard: {
-    borderRadius: 30,
-    borderWidth: 1,
-    padding: 20,
-    overflow: 'hidden',
-    shadowOpacity: 0.16,
-    shadowRadius: 16,
-    shadowOffset: { width: 0, height: 10 },
-    elevation: 6,
-  },
-  heroGlow: {
-    position: 'absolute',
-    top: -40,
-    right: -10,
-    width: 160,
-    height: 160,
-    borderRadius: 80,
-    backgroundColor: 'rgba(34,197,94,0.10)',
-  },
-  heroMetrics: { flexDirection: 'row', justifyContent: 'space-between', gap: 12 },
-  metricRight: { alignItems: 'flex-end' },
-  metricLabel: {
-    ...fontSize.b4, lineHeight: fontSize.b4.fontSize + 1,
-    letterSpacing: 2,
-    textTransform: 'uppercase',
-  },
-  metricValue: {
-    marginTop: 4,
-    ...fontSize.b1, lineHeight: fontSize.b1.fontSize + 2,
-  },
-  progressTrack: {
-    marginTop: 18,
-    height: 7,
-    borderRadius: 999,
-    overflow: 'hidden',
-  },
-  progressFill: {
-    width: '65%',
-    height: '100%',
-    borderRadius: 999,
-    backgroundColor: '#4ade80',
-  },
-  metaRow: { marginTop: 14, flexDirection: 'row', justifyContent: 'space-between', gap: 12 },
-  microText: {
-    flex: 1,
-    ...fontSize.b5, lineHeight: fontSize.b5.fontSize + 1,
-    textTransform: 'uppercase',
-    letterSpacing: 1,
-  },
-  sectionBlock: { gap: 10 },
-  sectionTitle: {
-    paddingHorizontal: 4,
-    ...fontSize.b4, lineHeight: fontSize.b4.fontSize + 1,
-    textTransform: 'uppercase',
-    letterSpacing: 3,
-  },
-  tierCard: {
-    borderRadius: 30,
-    borderWidth: 1,
-    padding: 20,
-    gap: 18,
-  },
-  rowBetween: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', gap: 12 },
-  tierName: {
-    ...fontSize.b1, lineHeight: fontSize.b1.fontSize + 2,
-  },
-  tierCaption: {
-    marginTop: 4,
-    ...fontSize.b5, lineHeight: fontSize.b5.fontSize + 1,
-    textTransform: 'uppercase',
-    letterSpacing: 2,
-  },
-  pricePill: {
-    minWidth: 100,
-    borderRadius: 18,
-    borderWidth: 1,
-    paddingHorizontal: 14,
-    paddingVertical: 10,
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'center',
-    gap: 4,
-  },
-  priceDollar: {
-    ...fontSize.b3, lineHeight: fontSize.b3.fontSize + 2,
-  },
-  priceInput: {
-    minWidth: 54,
-    ...fontSize.b4, lineHeight: fontSize.b4.fontSize + 1,
-    padding: 0,
-  },
-  perksSection: { gap: 10 },
-  perksLabel: {
-    ...fontSize.b5, lineHeight: fontSize.b5.fontSize + 1,
-    textTransform: 'uppercase',
-    letterSpacing: 2,
-  },
-  perksWrap: { flexDirection: 'row', flexWrap: 'wrap', gap: 8 },
-  perkChip: {
-    borderRadius: 14,
-    borderWidth: 1,
-    paddingHorizontal: 12,
-    paddingVertical: 8,
-  },
-  perkText: {
-    ...fontSize.b5, lineHeight: fontSize.b5.fontSize + 1,
-  },
-  editChip: {
-    width: 34,
-    height: 34,
-    borderRadius: 12,
-    borderWidth: 1,
-    alignItems: 'center',
-    justifyContent: 'center',
-    borderStyle: 'dashed',
-  },
-  footerStats: {
-    borderTopWidth: 1,
-    paddingTop: 16,
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'center',
-    gap: 12,
-  },
-  statsRow: { flexDirection: 'row', alignItems: 'center', gap: 16, flex: 1 },
-  statValue: {
-    ...fontSize.b1, lineHeight: fontSize.b1.fontSize + 2,
-  },
-  statLabel: {
-    ...fontSize.b4, lineHeight: fontSize.b4.fontSize + 1,
-    textTransform: 'uppercase',
-  },
-  divider: { width: 1, height: 34 },
-  settingsButton: {
-    width: 44,
-    height: 44,
-    borderRadius: 16,
-    borderWidth: 1,
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
-  bottomBar: {
-    position: 'absolute',
-    left: 0,
-    right: 0,
-    bottom: 0,
-    paddingHorizontal: 16,
-    paddingTop: 12,
-    paddingBottom: 24,
-    borderTopWidth: StyleSheet.hairlineWidth,
-  },
-  publishButton: {
-    height: 58,
-    borderRadius: 30,
-    backgroundColor: PRIMARY_COLOR,
-    alignItems: 'center',
-    justifyContent: 'center',
-    flexDirection: 'row',
-    gap: 12,
-  },
-  publishButtonDisabled: { opacity: 0.8 },
-  publishText: {
-    color: '#fff',
-    ...fontSize.b3, lineHeight: fontSize.b3.fontSize + 2,
-    textTransform: 'uppercase',
-    letterSpacing: 2,
-  },
-  modalRoot: {
-    flex: 1,
-    justifyContent: 'flex-end',
-    backgroundColor: 'rgba(0,0,0,0.45)',
-  },
-  modalKeyboardWrap: {
-    justifyContent: 'flex-end',
-  },
+  headerLeft: { flexDirection: 'row', alignItems: 'center', gap: 12, flex: 1 },
+  iconButton: { width: 38, height: 38, borderRadius: 19, alignItems: 'center', justifyContent: 'center' },
+  headerTitle: { ...fontSize.b3, lineHeight: fontSize.b3.fontSize + 2, textTransform: 'uppercase', flex: 1 },
+  content: { padding: 16, paddingBottom: 80, gap: 16 },
+  centerState: { alignItems: 'center', gap: 10, paddingVertical: 32, paddingHorizontal: 24 },
+  centerText: { ...fontSize.b4, lineHeight: fontSize.b4.fontSize + 4, textAlign: 'center' },
+  emptyTitle: { ...fontSize.b2, lineHeight: fontSize.b2.fontSize + 3, textAlign: 'center' },
+  formCard: { gap: 16 },
+  modalFields: { gap: 16, paddingBottom: 24 },
+  fieldBlock: { gap: 8 },
+  fieldLabel: { ...fontSize.b5, lineHeight: fontSize.b5.fontSize + 1, textTransform: 'uppercase', letterSpacing: 1.4 },
+  textField: { minHeight: 52, borderRadius: 16, borderWidth: 1, paddingHorizontal: 14, ...fontSize.b4, lineHeight: fontSize.b4.fontSize + 2 },
+  textArea: { minHeight: 96, borderRadius: 16, borderWidth: 1, paddingHorizontal: 14, paddingVertical: 12, textAlignVertical: 'top', ...fontSize.b4, lineHeight: fontSize.b4.fontSize + 4 },
+  formRow: { flexDirection: 'row', gap: 12 },
+  priceField: { flex: 1 },
+  currencyField: { width: 104 },
+  intervalPill: { height: 48, borderRadius: 16, borderWidth: 1, flexDirection: 'row', alignItems: 'center', paddingHorizontal: 14, gap: 8 },
+  intervalText: { ...fontSize.b4, lineHeight: fontSize.b4.fontSize + 1 },
+  primaryButton: { minHeight: 54, borderRadius: 18, backgroundColor: PRIMARY_COLOR, alignItems: 'center', justifyContent: 'center' },
+  primaryButtonText: { color: '#fff', ...fontSize.b4, lineHeight: fontSize.b4.fontSize + 1, textTransform: 'uppercase', letterSpacing: 1.2 },
+  disabledButton: { opacity: 0.55 },
+  messageBox: { borderWidth: 1, borderRadius: 16, padding: 14 },
+  messageText: { ...fontSize.b4, lineHeight: fontSize.b4.fontSize + 4 },
+  planCard: { borderRadius: 24, borderWidth: 1, padding: 18, gap: 16 },
+  rowBetween: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'flex-start', gap: 12 },
+  flex: { flex: 1 },
+  planName: { ...fontSize.b1, lineHeight: fontSize.b1.fontSize + 3 },
+  planMeta: { ...fontSize.b4, lineHeight: fontSize.b4.fontSize + 2, marginTop: 4, textTransform: 'uppercase' },
+  statusPill: { borderRadius: 999, paddingHorizontal: 10, paddingVertical: 6 },
+  statusText: { ...fontSize.b5, lineHeight: fontSize.b5.fontSize + 1, textTransform: 'uppercase' },
+  description: { ...fontSize.b4, lineHeight: fontSize.b4.fontSize + 5 },
+  revenueStrip: { borderRadius: 16, borderWidth: 1, padding: 14 },
+  metricLabel: { ...fontSize.b5, lineHeight: fontSize.b5.fontSize + 1, textTransform: 'uppercase' },
+  metricValue: { ...fontSize.b2, lineHeight: fontSize.b2.fontSize + 3, marginTop: 4 },
+  actionRow: { flexDirection: 'row', gap: 12 },
+  secondaryButton: { flex: 1, minHeight: 50, borderRadius: 16, borderWidth: 1, alignItems: 'center', justifyContent: 'center', flexDirection: 'row', gap: 8 },
+  secondaryButtonText: { ...fontSize.b4, lineHeight: fontSize.b4.fontSize + 1 },
+  dangerButton: { flex: 1, minHeight: 50, borderRadius: 16, backgroundColor: '#ef4444', alignItems: 'center', justifyContent: 'center' },
+  dangerButtonText: { color: '#fff', ...fontSize.b4, lineHeight: fontSize.b4.fontSize + 1 },
+  noticeText: { ...fontSize.b5, lineHeight: fontSize.b5.fontSize + 4 },
+  modalRoot: { flex: 1, justifyContent: 'flex-end', backgroundColor: 'rgba(0,0,0,0.45)' },
   scrim: { ...StyleSheet.absoluteFillObject },
-  modalCard: {
-    maxHeight: '92%',
-    borderTopLeftRadius: 34,
-    borderTopRightRadius: 34,
-    borderTopWidth: 1,
-    paddingHorizontal: 20,
-    paddingTop: 10,
-    paddingBottom: 28,
-  },
-  grabber: {
-    alignSelf: 'center',
-    width: 52,
-    height: 6,
-    borderRadius: 999,
-    marginBottom: 16,
-  },
+  modalKeyboardWrap: { justifyContent: 'flex-end' },
+  modalCard: { maxHeight: '92%', borderTopLeftRadius: 28, borderTopRightRadius: 28, borderTopWidth: 1, paddingHorizontal: 18, paddingTop: 10, paddingBottom: 24 },
+  grabber: { alignSelf: 'center', width: 52, height: 6, borderRadius: 999, marginBottom: 16 },
   modalHeader: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', marginBottom: 18 },
-  modalTitle: {
-    ...fontSize.b1, lineHeight: fontSize.b1.fontSize + 2,
-  },
-  modalClose: {
-    width: 38,
-    height: 38,
-    borderRadius: 19,
-    alignItems: 'center',
-    justifyContent: 'center',
-    borderWidth: 1,
-  },
-  modalContent: { paddingBottom: 8, gap: 18 },
-  fieldBlock: { gap: 10 },
-  fieldLabel: {
-    ...fontSize.b4, lineHeight: fontSize.b4.fontSize + 1,
-    textTransform: 'uppercase',
-    letterSpacing: 2,
-    marginLeft: 4,
-  },
-  textField: {
-    height: 54,
-    borderRadius: 18,
-    borderWidth: 1,
-    paddingHorizontal: 16,
-    ...fontSize.b4, lineHeight: fontSize.b4.fontSize + 1,
-  },
-  priceEditorWrap: {
-    height: 60,
-    borderRadius: 18,
-    borderWidth: 1,
-    paddingHorizontal: 16,
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: 6,
-  },
-  editorDollar: {
-    ...fontSize.b1, lineHeight: fontSize.b1.fontSize + 2,
-  },
-  priceEditorInput: {
-    flex: 1,
-    ...fontSize.b1, lineHeight: fontSize.b1.fontSize + 2,
-    padding: 0,
-  },
-  listWrap: { gap: 10 },
-  listItem: {
-    minHeight: 52,
-    borderRadius: 18,
-    borderWidth: 1,
-    paddingHorizontal: 16,
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'space-between',
-    gap: 10,
-  },
-  listItemText: {
-    flex: 1,
-    ...fontSize.b4, lineHeight: fontSize.b4.fontSize + 1,
-  },
-  addRow: { flexDirection: 'row', gap: 10 },
-  addInput: {
-    flex: 1,
-    height: 54,
-    borderRadius: 18,
-    borderWidth: 1,
-    paddingHorizontal: 16,
-    ...fontSize.b4, lineHeight: fontSize.b4.fontSize + 1,
-  },
-  addButton: {
-    width: 54,
-    height: 54,
-    borderRadius: 18,
-    alignItems: 'center',
-    justifyContent: 'center',
-    backgroundColor: PRIMARY_COLOR,
-  },
-  syncButton: {
-    height: 56,
-    borderRadius: 28,
-    alignItems: 'center',
-    justifyContent: 'center',
-    backgroundColor: PRIMARY_COLOR,
-    marginTop: 6,
-  },
-  syncButtonText: {
-    color: '#fff',
-    ...fontSize.b4, lineHeight: fontSize.b4.fontSize + 1,
-    textTransform: 'uppercase',
-    letterSpacing: 1.4,
-  },
+  modalTitle: { ...fontSize.b2, lineHeight: fontSize.b2.fontSize + 2 },
+  modalClose: { width: 38, height: 38, borderRadius: 19, alignItems: 'center', justifyContent: 'center', borderWidth: 1 },
 });
 
 export default MembershipTiers;

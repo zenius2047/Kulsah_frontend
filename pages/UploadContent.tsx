@@ -15,6 +15,7 @@ import {
 } from 'react-native';
 import { MaterialIcons } from '@expo/vector-icons';
 import { useNavigation, useRoute } from '@react-navigation/native';
+import * as ImagePicker from 'expo-image-picker';
 // import { Audio } from 'expo-av';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { LinearGradient } from 'expo-linear-gradient';
@@ -22,10 +23,12 @@ import PlayIcon from '../assets/icons/play-arrow-svg.svg';
 import ImageIcon from '../assets/icons/image-svg.svg';
 import VideoCamIcon from '../assets/icons/videocam-svg.svg';
 import { fontSize } from './typography';
+import { parseApiError, videoApi } from '../src';
+import type { CreatorVideo, CreatorVideoProgress, VideoUploadSource } from '../src';
 
 type Step = 'select' | 'edit' | 'post';
 type ActiveTool = 'none' | 'filters' | 'adjust' | 'voice' | 'captions' | 'trim';
-type Visibility = 'public' | 'friends' | 'subscribers';
+type Visibility = 'public' | 'premium';
 
 type Sound = { id: string; title: string; artist: string; duration: string; cover: string };
 
@@ -39,6 +42,7 @@ const MEDIA = Array.from({ length: 9 }).map((_, i) => ({
   id: `m${i + 1}`,
   img: `https://picsum.photos/seed/m${i + 1}/400`,
 }));
+const CONTENT_TYPES = ['music', 'dance', 'comedy', 'tutorial', 'lifestyle', 'behind_the_scenes'];
 
 const UploadContent: React.FC = () => {
   const { isDark, theme } = useThemeMode();
@@ -53,6 +57,12 @@ const UploadContent: React.FC = () => {
   const [captionsEnabled, setCaptionsEnabled] = useState(false);
   const [captionText, setCaptionText] = useState('Visualizing the future of sound...');
   const [caption, setCaption] = useState('');
+  const [title, setTitle] = useState('');
+  const [selectedContentTypes, setSelectedContentTypes] = useState<string[]>(['music']);
+  const [selectedVideo, setSelectedVideo] = useState<VideoUploadSource | null>(null);
+  const [uploadedVideo, setUploadedVideo] = useState<CreatorVideo | null>(null);
+  const [processingProgress, setProcessingProgress] = useState<CreatorVideoProgress | null>(null);
+  const [uploadError, setUploadError] = useState('');
   const [isRecording, setIsRecording] = useState(false);
   const [isPublishing, setIsPublishing] = useState(false);
   const [isPublished, setIsPublished] = useState(false);
@@ -75,6 +85,28 @@ const UploadContent: React.FC = () => {
     };
   }, []);
 
+  useEffect(() => {
+    if (!uploadedVideo?.id) return undefined;
+
+    let isMounted = true;
+    const pollProgress = async () => {
+      try {
+        const response = await videoApi.getCreatorVideoProgress(uploadedVideo.id);
+        if (!isMounted) return;
+        setProcessingProgress(response.data.data);
+      } catch {
+        if (isMounted) setUploadError('Upload completed, but processing progress could not be refreshed.');
+      }
+    };
+
+    void pollProgress();
+    const interval = setInterval(() => void pollProgress(), 3000);
+    return () => {
+      isMounted = false;
+      clearInterval(interval);
+    };
+  }, [uploadedVideo?.id]);
+
   const playPreview = async (type: 'sound' | 'voice') => {
     try {
       const uri =
@@ -95,23 +127,99 @@ const UploadContent: React.FC = () => {
     else navigation.goBack();
   };
 
-  const publish = () => {
-    setIsPublishing(true);
-    setTimeout(() => {
-      setIsPublishing(false);
+  const pickVideo = async () => {
+    setUploadError('');
+    const permission = await ImagePicker.requestMediaLibraryPermissionsAsync();
+    if (!permission.granted) {
+      Alert.alert('Permission needed', 'Allow media library access to choose a video for upload.');
+      return;
+    }
+
+    const result = await ImagePicker.launchImageLibraryAsync({
+      mediaTypes: ImagePicker.MediaTypeOptions.Videos,
+      allowsEditing: false,
+      quality: 1,
+    });
+
+    if (result.canceled || !result.assets?.[0]) return;
+
+    const asset = result.assets[0];
+    const name = asset.fileName || asset.uri.split('/').pop() || 'creator-video.mp4';
+    setSelectedVideo({
+      uri: asset.uri,
+      name,
+      type: asset.mimeType || 'video/mp4',
+    });
+    setThumbnail(asset.uri);
+    setSelectedMediaId('');
+    setStep('edit');
+  };
+
+  const toggleContentType = (contentType: string) => {
+    setSelectedContentTypes((current) => {
+      if (current.includes(contentType)) {
+        return current.length === 1 ? current : current.filter((item) => item !== contentType);
+      }
+
+      return [...current, contentType];
+    });
+  };
+
+  const publish = async () => {
+    if (!selectedVideo) {
+      Alert.alert('Choose a video', 'Pick a local video before posting.');
+      return;
+    }
+
+    try {
+      setIsPublishing(true);
+      setUploadError('');
+      setProcessingProgress(null);
+      const response = await videoApi.uploadCreatorVideo({
+        video: selectedVideo,
+        title: title.trim() || null,
+        caption: caption.trim() || null,
+        contentType: selectedContentTypes,
+        visibility,
+      });
+      setUploadedVideo(response.data.data);
+      setProcessingProgress({
+        video_id: response.data.data.id,
+        status: response.data.data.status || 'processing',
+        progress_percentage: response.data.data.progress_percentage ?? 0,
+      });
       setIsPublished(true);
-    }, 2000);
+    } catch (caughtError) {
+      const parsed = parseApiError(caughtError);
+      setUploadError(parsed.message);
+      Alert.alert(parsed.title, parsed.message);
+    } finally {
+      setIsPublishing(false);
+    }
   };
 
   const selectedImage = MEDIA.find((m) => m.id === selectedMediaId)?.img ?? thumbnail;
 
   if (isPublished) {
+    const progress = processingProgress?.progress_percentage ?? uploadedVideo?.progress_percentage ?? 0;
+    const status = processingProgress?.status ?? uploadedVideo?.status ?? 'processing';
+
     return (
       <SafeAreaView style={s.root}>
         <View style={s.center}>
           <MaterialIcons name="verified" size={64} color={PRIMARY_COLOR} />
-          <Text style={s.title}>Transmission Established</Text>
-          <Text style={s.muted}>Your visual broadcast is now live.</Text>
+          <Text style={s.title}>Upload received</Text>
+          <Text style={s.muted}>Your video is being processed.</Text>
+          <View style={s.progressPanel}>
+            <View style={s.spaceBetween}>
+              <Text style={s.text}>{status}</Text>
+              <Text style={s.text}>{progress}%</Text>
+            </View>
+            <View style={s.progressTrack}>
+              <View style={[s.progressFill, { width: `${Math.max(0, Math.min(100, progress))}%` }]} />
+            </View>
+            {uploadError ? <Text style={s.errorText}>{uploadError}</Text> : null}
+          </View>
           <Pressable style={s.primary} onPress={() => navigation.navigate('MainTabs')}>
             <Text style={s.primaryText}>Return to Console</Text>
           </Pressable>
@@ -285,7 +393,7 @@ const UploadContent: React.FC = () => {
             </View>
 
 
-            <View style={{
+            <Pressable onPress={() => void pickVideo()} style={{
               backgroundColor: '#1f1022',
               borderRadius: 32,
               height: 120,
@@ -312,7 +420,7 @@ const UploadContent: React.FC = () => {
                 marginTop: 6,
               }}
               >LIBRARY</Text>
-            </View>
+            </Pressable>
 
             </View>
             <View
@@ -350,6 +458,19 @@ const UploadContent: React.FC = () => {
                 </Pressable>
               ))}
             </View>
+            {selectedVideo ? (
+              <View style={s.panel}>
+                <Text style={s.text}>Selected video</Text>
+                <Text style={s.muted}>{selectedVideo.name}</Text>
+              </View>
+            ) : (
+              <View style={s.panel}>
+                <Text style={s.text}>Choose a video from your library before posting.</Text>
+                <Pressable style={s.secondary} onPress={() => void pickVideo()}>
+                  <Text style={s.secondaryText}>Pick Video</Text>
+                </Pressable>
+              </View>
+            )}
             <View style={s.row}>
               {/* <Pressable style={s.secondary} onPress={() => setIsRecording(true)}><Text style={s.secondaryText}>Record</Text></Pressable> */}
               <Pressable style={s.primary} onPress={() => setStep('edit')}>
@@ -541,15 +662,33 @@ const UploadContent: React.FC = () => {
         {step === 'post' && (
           <>
             <Image source={{ uri: thumbnail }} style={s.preview} />
+            <TextInput style={s.input} value={title} onChangeText={setTitle} placeholder="Title (optional)" placeholderTextColor="#777" maxLength={255} />
             <TextInput style={[s.input, { minHeight: 100 }]} multiline value={caption} onChangeText={setCaption} placeholder="What's happening?" placeholderTextColor="#777" />
             <View style={s.panel}>
-              {(['public', 'subscribers'] as Visibility[]).map((v) => (
+              <Text style={s.panelTitle}>Content type</Text>
+              <View style={s.rowWrap}>
+                {CONTENT_TYPES.map((contentType) => (
+                  <Pressable
+                    key={contentType}
+                    style={[s.typeChip, selectedContentTypes.includes(contentType) && s.typeChipActive]}
+                    onPress={() => toggleContentType(contentType)}
+                  >
+                    <Text style={[s.typeChipText, selectedContentTypes.includes(contentType) && s.typeChipTextActive]}>
+                      {contentType.replace(/_/g, ' ')}
+                    </Text>
+                  </Pressable>
+                ))}
+              </View>
+            </View>
+            <View style={s.panel}>
+              {(['public', 'premium'] as Visibility[]).map((v) => (
                 <Pressable key={v} style={s.spaceBetween} onPress={() => setVisibility(v)}>
                   <Text style={s.text}>{v}</Text>
                   <MaterialIcons name={visibility === v ? 'radio-button-checked' : 'radio-button-unchecked'} size={18} color={visibility === v ? PRIMARY_COLOR : '#999'} />
                 </Pressable>
               ))}
             </View>
+            {uploadError ? <Text style={s.errorText}>{uploadError}</Text> : null}
             <View style={s.panel}>
               <View style={s.spaceBetween}><Text style={s.text}>Allow Comments</Text><Switch value={allowComments} onValueChange={setAllowComments} /></View>
               <View style={s.spaceBetween}><Text style={s.text}>Allow Duet</Text><Switch value={allowDuet} onValueChange={setAllowDuet} /></View>
@@ -557,7 +696,7 @@ const UploadContent: React.FC = () => {
             </View>
             <View style={s.row}>
               <Pressable style={s.secondary}><Text style={s.secondaryText}>Draft</Text></Pressable>
-              <Pressable style={s.primary} onPress={publish} disabled={isPublishing}>
+              <Pressable style={[s.primary, isPublishing && s.disabled]} onPress={publish} disabled={isPublishing}>
                 {isPublishing ? <ActivityIndicator color="#fff" /> : <Text style={s.primaryText}>Post</Text>}
               </Pressable>
             </View>
@@ -608,8 +747,17 @@ const s = StyleSheet.create({
   input: { backgroundColor: '#15151A', borderRadius: 12, color: '#fff', padding: 12, borderWidth: 1, borderColor: '#333' },
   primary: { flex: 1, height: 64, backgroundColor: PRIMARY_COLOR, borderRadius: 32, alignItems: 'center', justifyContent: 'center', flexDirection: 'row' },
   primaryText: { color: '#fff', fontWeight: '800' },
+  disabled: { opacity: 0.6 },
   secondary: { flex: 1, minHeight: 44, borderRadius: 12, borderWidth: 1, borderColor: '#333', alignItems: 'center', justifyContent: 'center', paddingHorizontal: 12 },
   secondaryText: { color: '#ddd', fontWeight: '700' },
+  typeChip: { borderWidth: 1, borderColor: '#333', borderRadius: 999, paddingHorizontal: 12, paddingVertical: 8 },
+  typeChipActive: { backgroundColor: PRIMARY_COLOR, borderColor: PRIMARY_COLOR },
+  typeChipText: { color: '#ddd', ...fontSize.b5, lineHeight: fontSize.b5.fontSize + 1, textTransform: 'capitalize' },
+  typeChipTextActive: { color: '#fff' },
+  errorText: { color: '#f87171', ...fontSize.b4, lineHeight: fontSize.b4.fontSize + 4 },
+  progressPanel: { width: '100%', borderRadius: 16, borderWidth: 1, borderColor: '#333', backgroundColor: '#15151A', padding: 14, gap: 10 },
+  progressTrack: { height: 9, borderRadius: 999, backgroundColor: '#2A2A30', overflow: 'hidden' },
+  progressFill: { height: '100%', borderRadius: 999, backgroundColor: PRIMARY_COLOR },
   captionPreview: { color: '#fff', textAlign: 'center', marginTop: -44, marginBottom: 24, fontWeight: '700' },
   spaceBetween: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center' },
   stepBtn: { borderWidth: 1, borderColor: '#444', borderRadius: 8, paddingVertical: 4, paddingHorizontal: 8 },

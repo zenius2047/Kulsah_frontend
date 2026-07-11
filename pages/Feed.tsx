@@ -44,13 +44,21 @@ import CreatorShareSheet from './CreatorShareSheet';
 import Premium from '../assets/icons/kulsah_premium_icon.svg';
 import DotTrioLoader from '../components/DotTrioLoader';
 import { fontSize } from '../typography';
-import { useAuth, useSubscribeToPlan } from '../src';
-import { videoApi } from '../src';
+import {
+  getApiErrorMessage,
+  useBookmarkVideoMutation,
+  useFollowCreatorMutation,
+  useGeneralFeed,
+  useLikeVideoMutation,
+  useRecordVideoViewMutation,
+  useSubscribeToPlan,
+} from '../src';
 
 const KULCOIN_ICON = require('../assets/coin.png');
 
 interface FeedItem {
   id: string;
+  creatorId?: string;
   artist: string;
   handle: string;
   avatar: string;
@@ -69,6 +77,7 @@ interface FeedItem {
   soundArtist?: string;
   soundTitle?: string;
   following: boolean;
+  isBookmarked: boolean;
   bookmarks: string;
   saves: string;
 }
@@ -259,6 +268,19 @@ const formatFeedCount = (value: unknown, fallback = '0') => {
   return fallback;
 };
 
+const parseFeedCount = (value: unknown) => {
+  if (typeof value === 'number') return value;
+  if (typeof value !== 'string') return 0;
+
+  const normalized = value.trim().toLowerCase();
+  const numeric = Number.parseFloat(normalized.replace(/[^0-9.]/g, ''));
+  if (!Number.isFinite(numeric)) return 0;
+  if (normalized.includes('m')) return Math.round(numeric * 1000000);
+  if (normalized.includes('k')) return Math.round(numeric * 1000);
+
+  return Math.round(numeric);
+};
+
 const asRecord = (value: unknown): Record<string, any> =>
   value && typeof value === 'object' ? (value as Record<string, any>) : {};
 
@@ -310,6 +332,7 @@ const mapFeedVideoToItem = (rawValue: unknown, index: number): FeedItem | null =
 
   return {
     id: firstString(raw.id, raw._id, raw.uuid, raw.slug, `${video}-${index}`),
+    creatorId: firstString(raw.creator_id, raw.creatorId, raw.user_id, raw.userId, creator.id, creator.user_id) || undefined,
     artist: firstString(
       raw.artist,
       raw.creatorName,
@@ -338,6 +361,7 @@ const mapFeedVideoToItem = (rawValue: unknown, index: number): FeedItem | null =
     soundArtist: firstString(raw.soundArtist, raw.sound_artist, raw.audioArtist, raw.audio_artist) || undefined,
     soundTitle: firstString(raw.soundTitle, raw.sound_title, raw.audioTitle, raw.audio_title, raw.title) || undefined,
     following: Boolean(raw.following ?? raw.isFollowing),
+    isBookmarked: Boolean(raw.isBookmarked ?? raw.bookmarked ?? raw.isSaved ?? raw.saved),
     bookmarks: formatFeedCount(raw.bookmarks ?? raw.bookmarksCount ?? raw.bookmark_count),
     saves: formatFeedCount(raw.saves ?? raw.savesCount ?? raw.save_count),
   };
@@ -856,6 +880,9 @@ const VideoFeedItem: React.FC<{
   isPlaying: boolean;
   onSubscribe: (item: FeedItem) => void;
   onFollow: (item: FeedItem) => void;
+  onToggleLike: (item: FeedItem, liked: boolean) => void;
+  onToggleBookmark: (item: FeedItem, bookmarked: boolean) => void;
+  onRecordView: (item: FeedItem) => void;
   isGlobalMuted: boolean;
   isLive?: boolean;
   onToggleMute: () => void;
@@ -866,6 +893,9 @@ const VideoFeedItem: React.FC<{
   item,
   onSubscribe,
   onFollow,
+  onToggleLike,
+  onToggleBookmark,
+  onRecordView,
   isGlobalMuted,
   onToggleMute,
   isPlaying,
@@ -928,7 +958,9 @@ const VideoFeedItem: React.FC<{
         clearTimeout(singleTapTimeoutRef.current);
         singleTapTimeoutRef.current = null;
       }
-      setIsLiked((prev) => !prev);
+      const nextLiked = !isLiked;
+      setIsLiked(nextLiked);
+      onToggleLike(item, nextLiked);
       lastTapRef.current = 0;
       return;
     }
@@ -957,10 +989,11 @@ const VideoFeedItem: React.FC<{
   const { status } = useEvent(player, 'statusChange', { status: player.status });
   const timeUpdate: any = useEvent(player as any, 'timeUpdate', INITIAL_TIME_UPDATE);
   const [dimensions, setDimensions] = useState({ width: 0, height: 0 });
-  const isPortraitVideo =
-    dimensions.width === 0 ||
-    dimensions.height === 0 ||
-    dimensions.height >= dimensions.width;
+
+  useEffect(() => {
+    setIsLiked(item.isLiked);
+  }, [item.isLiked]);
+
 
   // Extract dimensions once the video source loads
   const loadedTrack = loadedMetadata?.availableVideoTracks?.[0];
@@ -971,20 +1004,33 @@ const VideoFeedItem: React.FC<{
     : 0;
 
   React.useEffect(() => {
+    if (loadedMetadata) {
+      console.log('sourceLoad payload:', JSON.stringify(loadedMetadata, null, 2));
+      console.log('video track:', JSON.stringify(loadedTrack, null, 2));
+      console.log('track size:', loadedTrack?.size);
+      console.log('possible rotation:', (loadedTrack as any)?.rotation);
+      console.log('possible orientation:', (loadedTrack as any)?.orientation);
+    }
+
     if (loadedWidth > 0 && loadedHeight > 0) {
       const width = loadedWidth;
       const height = loadedHeight;
       setDimensions((prev) => (
         prev.width === width && prev.height === height ? prev : { width, height }
       ));
-      console.log(`This is the height : ${height} for the user ${item.handle} video` )
+      console.log(`This is the height : ${height} for the user ${item.handle} video with caption ${item.caption} and the video is portrait? ${isPortraitVideo}` )
       console.log(`This is the width : ${width} for the user ${item.handle} video`)
     }
 
     if (typeof loadedDuration === 'number' && loadedDuration > 0) {
       setDuration((prev) => (prev === loadedDuration ? prev : loadedDuration));
     }
-  }, [item.handle, loadedDuration, loadedWidth, loadedHeight]);
+  }, [item.handle, loadedDuration, loadedMetadata, loadedTrack, loadedWidth, loadedHeight]);
+
+    const isPortraitVideo =
+    dimensions.width === 0 ||
+    dimensions.height === 0 ||
+    dimensions.height >= dimensions.width;
 
   useEffect(() => {
     if (isScrubbing) return;
@@ -1056,10 +1102,11 @@ const VideoFeedItem: React.FC<{
 
   if (shouldPlay) {
     player.play();
+    onRecordView(item);
   } else {
     player.pause();
   }
-}, [isFocused, isPlaying, playVideo, player]);
+}, [isFocused, isPlaying, item, onRecordView, playVideo, player]);
 
 useEffect(() => {
   if (muteStateRef.current === isGlobalMuted) return;
@@ -1206,7 +1253,11 @@ useEffect(() => {
         )} */}
 
         <Pressable
-        onPress={() => setIsLiked(v => !v)}
+        onPress={() => {
+          const nextLiked = !isLiked;
+          setIsLiked(nextLiked);
+          onToggleLike(item, nextLiked);
+        }}
         style={{
           alignItems: 'center',
           shadowColor: '#000',
@@ -1277,14 +1328,14 @@ useEffect(() => {
           </Text>
         </Pressable> */}
 
-        <Pressable onPress={()=>{}} style={{
+        <Pressable onPress={() => onToggleBookmark(item, !item.isBookmarked)} style={{
           shadowColor: '#000',
           shadowOffset: { width: 0, height: 2 },
           shadowOpacity: 0.5,
           shadowRadius: 6,
           elevation: 4,
           alignItems: 'center' }}>
-          <MaterialIcons name="bookmark" size={30} color="white" />
+          <MaterialIcons name="bookmark" size={30} color={item.isBookmarked ? PRIMARY_COLOR : 'white'} />
           <Text style={{ 
             color: 'white', 
             fontSize: fontSize.b3.fontSize -2,
@@ -1620,6 +1671,7 @@ useEffect(() => {
       >
         <Reactions
           onClose={() => setShowComments(false)}
+          videoId={item.id}
           title={`${item.comments} Reactions`}
           currentBalance={coinBalance}
           onBalanceChange={onBalanceChange}
@@ -1653,7 +1705,45 @@ const Feed: React.FC = () => {
   const lastShakeForceRef = useRef(1);
   const followToastTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   const insets= useSafeAreaInsets();
+  const [feedViewportHeight, setFeedViewportHeight] = useState(0);
   const [items, setItems] = useState<FeedItem[]>([
+    // {
+    //   id: '86',
+    //   artist: 'drop',
+    //   handle: 'gibson',
+    //   avatar: 'https://picsum.photos/seed/elena/150/150',
+    //   caption: "PRIVATE DROP: Working on 'Nebula' vocal layers. This is the raw studio session for my supporters only. #BTS #KulsahExclusive",
+    //   background: 'https://images.unsplash.com/photo-1598488035139-bdbb2231ce04?auto=format&fit=crop&q=80&w=800',
+    //   video: 'https://res.cloudinary.com/dh0dywpzm/video/upload/v1779790948/K50526_sfmxi0.mp4',
+    //   likes: '2.4M',
+    //   comments: '88.1K',
+    //   isLiked: false,
+    //   isSubscribed: true,
+    //   isPremium: true,
+    //   ticketsAvailable: false,
+    //   // ticketLocation: 'London, UK',
+    //   originalSound: true,
+    //   // soundArtist: 'Synthwave Kid',
+    //   // soundTitle: 'Neon Dreams',
+    //   following: false,
+    //   bookmarks: '2.5k',
+    //   saves: '2.5k',
+    //   isLive: true,
+    // },
+    // {
+    //   id: '83',
+    //   artist: 'Kulsah Headquarters',
+    //   handle: 'kulsah_hq',
+    //   avatar: 'https://picsum.photos/seed/elena/150/150',
+    //   caption: "Working on 'Nebula' vocal layers. This is the raw studio session for my supporters only. #BTS #KulsahExclusive",
+    //   background: 'https://images.unsplash.com/photo-1598488035139-bdbb2231ce04?auto=format&fit=crop&q=80&w=800',
+    //   video: 'https://res.cloudinary.com/dh0dywpzm/video/upload/v1779794760/kulsah_sing_vgqxne.mp4',
+    //   likes: '2.4M',
+    //   comments: '88.1K',
+    //   isLiked: false,
+    //   isSubscribed: false,
+    //   isPremium: true,
+    //   t  const [items, setItems] = useState<FeedItem[]>([
     // {
     //   id: '86',
     //   artist: 'drop',
@@ -2010,25 +2100,25 @@ const Feed: React.FC = () => {
     //   saves: '2.5k',
     //   originalSound: true,
     // },
-    {
-      id: '11',
-      artist: 'Bill',
-      handle: 'bill_official',
-      avatar: 'https://picsum.photos/seed/amara/150/150',
-      caption: 'EXCLUSIVE: Late night neon dance rehearsal. The tour visuals are finally ready for my subscribers.',
-      background: 'https://images.unsplash.com/photo-1516450360452-9312f5e86fc7?auto=format&fit=crop&q=80&w=800',
-      video: 'https://dozi-chat-s3.s3.us-east-1.amazonaws.com/kul/Kulsah+videos/kul+poll200.mp4',
-      likes: '890K',
-      comments: '12.4K',
-      isLiked: false,
-      isSubscribed: true,
-      isPremium: false,
-      ticketsAvailable: false,
-      following: false,
-      bookmarks: '2.5k',
-      saves: '2.5k',
-      originalSound: true,
-    },
+    // {
+    //   id: '11',
+    //   artist: 'Bill',
+    //   handle: 'bill_official',
+    //   avatar: 'https://picsum.photos/seed/amara/150/150',
+    //   caption: 'EXCLUSIVE: Late night neon dance rehearsal. The tour visuals are finally ready for my subscribers.',
+    //   background: 'https://images.unsplash.com/photo-1516450360452-9312f5e86fc7?auto=format&fit=crop&q=80&w=800',
+    //   video: 'https://dozi-chat-s3.s3.us-east-1.amazonaws.com/kul/Kulsah+videos/kul+poll200.mp4',
+    //   likes: '890K',
+    //   comments: '12.4K',
+    //   isLiked: false,
+    //   isSubscribed: true,
+    //   isPremium: false,
+    //   ticketsAvailable: false,
+    //   following: false,
+    //   bookmarks: '2.5k',
+    //   saves: '2.5k',
+    //   originalSound: true,
+    // },
     // {
     //   id: '9',
     //   artist: 'Godfred',
@@ -2403,30 +2493,32 @@ const Feed: React.FC = () => {
   const [followToast, setFollowToast] = useState<string | null>(null);
   const { mutateAsync: subscribeToPlan } = useSubscribeToPlan();
 
-  const [feedLimit, setFeedLimit] = useState(10);
-  const [feedPage, setFeedPage] = useState(1);
-  const {token} = useAuth();
-
-
-  const getFeed = useCallback(async () => {
-    try{
-      const res = await videoApi.getFeedVideos(token,{ limit: feedLimit, page: feedPage });
-      const nextItems = extractFeedRows(res.data)
-        .map(mapFeedVideoToItem)
-        .filter((item): item is FeedItem => Boolean(item));
-
-      setItems((prev) => (feedPage === 1 ? nextItems : [...prev, ...nextItems]));
-    } 
-    catch (e:any){
-      console.log('this is the error', e?.response?.data || e?.message);
-    }
-  }, [feedLimit, feedPage]);
+  const feedLimit = 20;
+  const {
+    data: feedData,
+    isLoading: isFeedLoading,
+    isFetchingNextPage,
+    isRefetching: isFeedRefetching,
+    isError: isFeedError,
+    error: feedError,
+    hasNextPage,
+    fetchNextPage,
+    refetch: refetchFeed,
+  } = useGeneralFeed({ limit: feedLimit });
+  const likeVideoMutation = useLikeVideoMutation();
+  const bookmarkVideoMutation = useBookmarkVideoMutation();
+  const followCreatorMutation = useFollowCreatorMutation();
+  const recordVideoViewMutation = useRecordVideoViewMutation();
+  const viewedVideoIdsRef = useRef<Set<string>>(new Set());
 
   useEffect(() => {
-    void getFeed();
-    // console.log(`This is the value of mediumScreen : ${mediumScreen}`)
-    
-  }, [getFeed]);
+    const nextItems = (feedData?.pages ?? [])
+      .flatMap((page) => extractFeedRows(page))
+      .map(mapFeedVideoToItem)
+      .filter((item): item is FeedItem => Boolean(item));
+
+    setItems(nextItems);
+  }, [feedData]);
 
   useEffect(() => {
     setIsCreatorViewer(user?.role === 'creator');
@@ -2483,12 +2575,35 @@ const Feed: React.FC = () => {
   }, []);
 
   const handleFollow = useCallback((feedItem: FeedItem) => {
+    const creatorId = feedItem.creatorId;
+    if (!creatorId) {
+      Alert.alert('Cannot follow yet', 'This feed card does not include a creator id.');
+      return;
+    }
+
+    if (String(creatorId) === String(user?.id)) {
+      Alert.alert('Not available', 'You cannot follow yourself.');
+      return;
+    }
+
+    const nextFollowing = !feedItem.following;
+    const previousItems = items;
+
     setItems((prev) =>
       prev.map((item) =>
-        item.id === feedItem.id ? { ...item, following: true } : item
+        item.creatorId === creatorId ? { ...item, following: nextFollowing } : item
       )
     );
-    setFollowToast(`Following @${feedItem.handle}`);
+    setFollowToast(`${nextFollowing ? 'Following' : 'Unfollowed'} @${feedItem.handle}`);
+
+    followCreatorMutation.mutate(
+      { creator: creatorId, following: nextFollowing },
+      {
+        onError: () => {
+          setItems(previousItems);
+        },
+      },
+    );
 
     if (followToastTimeoutRef.current) {
       clearTimeout(followToastTimeoutRef.current);
@@ -2498,7 +2613,101 @@ const Feed: React.FC = () => {
       setFollowToast(null);
       followToastTimeoutRef.current = null;
     }, 1700);
-  }, []);
+  }, [followCreatorMutation, items]);
+
+  const handleToggleLike = useCallback((feedItem: FeedItem, liked: boolean) => {
+    const previousItems = items;
+    const optimisticLikes = Math.max(0, parseFeedCount(feedItem.likes) + (liked ? 1 : -1));
+
+    setItems((prev) =>
+      prev.map((item) =>
+        item.id === feedItem.id
+          ? { ...item, isLiked: liked, likes: formatFeedCount(optimisticLikes) }
+          : item
+      )
+    );
+
+    likeVideoMutation.mutate(
+      { video: feedItem.id, liked },
+      {
+        onSuccess: (response) => {
+          setItems((prev) =>
+            prev.map((item) =>
+              item.id === feedItem.id
+                ? {
+                    ...item,
+                    isLiked: response.data.isLiked,
+                    isBookmarked: response.data.isBookmarked,
+                    likes: formatFeedCount(response.data.likes_count),
+                    comments: formatFeedCount(response.data.comments_count),
+                    bookmarks: formatFeedCount(response.data.bookmarks_count),
+                    saves: formatFeedCount(response.data.bookmarks_count),
+                  }
+                : item
+            )
+          );
+        },
+        onError: () => {
+          setItems(previousItems);
+        },
+      },
+    );
+  }, [items, likeVideoMutation]);
+
+  const handleToggleBookmark = useCallback((feedItem: FeedItem, bookmarked: boolean) => {
+    const previousItems = items;
+    const optimisticBookmarks = Math.max(0, parseFeedCount(feedItem.saves) + (bookmarked ? 1 : -1));
+
+    setItems((prev) =>
+      prev.map((item) =>
+        item.id === feedItem.id
+          ? {
+              ...item,
+              isBookmarked: bookmarked,
+              bookmarks: formatFeedCount(optimisticBookmarks),
+              saves: formatFeedCount(optimisticBookmarks),
+            }
+          : item
+      )
+    );
+
+    bookmarkVideoMutation.mutate(
+      { video: feedItem.id, bookmarked },
+      {
+        onSuccess: (response) => {
+          setItems((prev) =>
+            prev.map((item) =>
+              item.id === feedItem.id
+                ? {
+                    ...item,
+                    isLiked: response.data.isLiked,
+                    isBookmarked: response.data.isBookmarked,
+                    likes: formatFeedCount(response.data.likes_count),
+                    comments: formatFeedCount(response.data.comments_count),
+                    bookmarks: formatFeedCount(response.data.bookmarks_count),
+                    saves: formatFeedCount(response.data.bookmarks_count),
+                  }
+                : item
+            )
+          );
+        },
+        onError: () => {
+          setItems(previousItems);
+        },
+      },
+    );
+  }, [bookmarkVideoMutation, items]);
+
+  const handleRecordView = useCallback((feedItem: FeedItem) => {
+    if (viewedVideoIdsRef.current.has(feedItem.id)) return;
+    viewedVideoIdsRef.current.add(feedItem.id);
+
+    recordVideoViewMutation.mutate(feedItem.id, {
+      onError: () => {
+        viewedVideoIdsRef.current.delete(feedItem.id);
+      },
+    });
+  }, [recordVideoViewMutation]);
 
   const closeSubscriptionModal = useCallback(() => {
     if (isProcessingSubscription) return;
@@ -2661,6 +2870,9 @@ const Feed: React.FC = () => {
           isPlaying={index === activeIndex}
           onSubscribe={handleSubscribe}
           onFollow={handleFollow}
+          onToggleLike={handleToggleLike}
+          onToggleBookmark={handleToggleBookmark}
+          onRecordView={handleRecordView}
           isGlobalMuted={isGlobalMuted}
           onToggleMute={handleToggleMute}
           isLive={item.isLive}
@@ -2670,7 +2882,7 @@ const Feed: React.FC = () => {
         />
       </ErrorBoundary>
     </View>
-  ), [activeIndex, coinBalance, feedItemHeight, handleFollow, handleSubscribe, handleToggleMute, isCreatorViewer, isGlobalMuted]);
+  ), [activeIndex, coinBalance, feedItemHeight, handleFollow, handleRecordView, handleSubscribe, handleToggleBookmark, handleToggleLike, handleToggleMute, isCreatorViewer, isGlobalMuted]);
 
   return (
     <SafeAreaView
@@ -2847,51 +3059,89 @@ const Feed: React.FC = () => {
 
       </View>
 
-      {displayedItems.length > 0 ? (
-        <View style={{
-          height: "100%",
-          backgroundColor: 'black',
-          // paddingBottom: '10%'
-        }}>
+      {isFeedLoading ? (
+        <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center', backgroundColor: 'black', paddingHorizontal: 24 }}>
+          <ActivityIndicator size="large" color={PRIMARY_COLOR} />
+          <Text style={{ color: '#94a3b8', marginTop: 12, ...fontSize.b4, lineHeight: fontSize.b4.fontSize + 1 }}>
+            Loading your galaxy feed...
+          </Text>
+        </View>
+      ) : isFeedError ? (
+        <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center', backgroundColor: 'black', paddingHorizontal: 24 }}>
+          <MaterialIcons name="wifi-off" size={42} color={PRIMARY_COLOR} />
+          <Text style={{ color: 'white', marginTop: 14, ...fontSize.b1, lineHeight: fontSize.b1.fontSize + 2, textAlign: 'center' }}>
+            Feed could not load
+          </Text>
+          <Text style={{ color: '#94a3b8', marginTop: 8, textAlign: 'center', ...fontSize.b4, lineHeight: fontSize.b4.fontSize + 1 }}>
+            {getApiErrorMessage(feedError)}
+          </Text>
+          <Pressable onPress={() => void refetchFeed()} style={{ marginTop: 18, paddingHorizontal: 18, paddingVertical: 10, borderRadius: 999, backgroundColor: PRIMARY_COLOR }}>
+            <Text style={{ color: 'white', ...fontSize.b4, lineHeight: fontSize.b4.fontSize + 1 }}>Retry</Text>
+          </Pressable>
+        </View>
+      ) : displayedItems.length > 0 ? (
+        <View
+          onLayout={(event) => {
+            const nextHeight = event.nativeEvent.layout.height;
+            setFeedViewportHeight((current) => (
+              Math.abs(current - nextHeight) < 1 ? current : nextHeight
+            ));
+          }}
+          style={{
+            flex: 1,
+            backgroundColor: 'black',
+          }}
+        >
           <FlatList
-          ref={feedListRef}
-          data={displayedItems}
-          keyExtractor={(item) => item.id}
-          renderItem={renderFeedItem}
-          showsVerticalScrollIndicator={false}
-          snapToInterval={feedItemHeight}
-          snapToAlignment="start"
-          decelerationRate="fast"
-          disableIntervalMomentum
-          ListFooterComponent={() => (
-            <View style={{ height: SCREEN_HEIGHT * 0.08, justifyContent: 'center', alignItems: 'center', backgroundColor: 'gold' }}>
-              <Text style={{ color: '#94a3b8', ...fontSize.b5, lineHeight: fontSize.b5.fontSize + 1 }}>Syncing more galaxy feed...</Text>
-            </View>
-          )}
-          getItemLayout={(_, index) => ({
-            length: feedItemHeight,
-            offset: feedItemHeight * index,
-            index,
-          })}
-          onViewableItemsChanged={onViewRef.current}
-          viewabilityConfig={viewConfigRef.current}
-          removeClippedSubviews
-          initialNumToRender={2}
-          windowSize={3}
-          maxToRenderPerBatch={2}
-        />
+            ref={feedListRef}
+            data={displayedItems}
+            keyExtractor={(item) => item.id}
+            renderItem={renderFeedItem}
+            showsVerticalScrollIndicator={false}
+            snapToInterval={feedItemHeight}
+            snapToAlignment="start"
+            decelerationRate="fast"
+            disableIntervalMomentum
+            ListFooterComponent={() => (
+              <View style={{ height: isFetchingNextPage ? 56 : 0, justifyContent: 'center', alignItems: 'center', backgroundColor: 'black' }}>
+                {isFetchingNextPage ? (
+                  <ActivityIndicator size="small" color={PRIMARY_COLOR} />
+                ) : null}
+              </View>
+            )}
+            refreshing={isFeedRefetching}
+            onRefresh={() => void refetchFeed()}
+            onEndReached={() => {
+              if (hasNextPage && !isFetchingNextPage) {
+                void fetchNextPage();
+              }
+            }}
+            onEndReachedThreshold={0.6}
+            getItemLayout={(_, index) => ({
+              length: feedItemHeight,
+              offset: feedItemHeight * index,
+              index,
+            })}
+            onViewableItemsChanged={onViewRef.current}
+            viewabilityConfig={viewConfigRef.current}
+            removeClippedSubviews
+            initialNumToRender={2}
+            windowSize={3}
+            maxToRenderPerBatch={2}
+          />
         </View>
       ) : (
-        <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center', paddingHorizontal: 24 }}>
+        <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center', paddingHorizontal: 24, backgroundColor: 'black' }}>
           <Text style={{ color: 'white', ...fontSize.b1, lineHeight: fontSize.b1.fontSize + 2, fontWeight: '800' }}>Your Orbit is Empty</Text>
-          <Text style={{...fontSize.b1, color: '#94a3b8', marginTop: 8, textAlign: 'center',  }}>
+          <Text style={{ ...fontSize.b1, color: '#94a3b8', marginTop: 8, textAlign: 'center' }}>
             Follow creators in the galaxy to see their latest transmissions.
           </Text>
           <Pressable onPress={() => setActiveTab('foryou')} style={{ marginTop: 18 }}>
-            <Text style={{...fontSize.b2, color: PRIMARY_COLOR, }}>Discover Creators</Text>
+            <Text style={{ ...fontSize.b2, color: PRIMARY_COLOR }}>Discover Creators</Text>
           </Pressable>
         </View>
       )}
+
       {isShakeRefreshing ? (
         <View
           pointerEvents="none"
@@ -2924,6 +3174,7 @@ const Feed: React.FC = () => {
           </Text>
         </View>
       ) : null}
+
       {followToast ? (
         <View
           pointerEvents="none"
@@ -2939,33 +3190,33 @@ const Feed: React.FC = () => {
             alignItems: 'center',
             gap: 8,
             backgroundColor: 'rgba(0,0,0,0.78)',
-            // borderWidth: 1,
             borderColor: primaryColorAlpha(0.45),
           }}
         >
           <MaterialIcons name="check-circle" size={18} color={PRIMARY_COLOR} />
           <Text
             style={{
-              ...fontSize.b3,
-              lineHeight: fontSize.b3.fontSize + 2,
-              color: '#ffffff',
-              fontFamily: 'DMSans_700Bold',
+              ...fontSize.b4,
+              color: '#fff',
+              lineHeight: fontSize.b4.fontSize + 1,
             }}
           >
             {followToast}
           </Text>
         </View>
       ) : null}
+
       <FeedSubscriptionModal
-        visible={!!selectedSubscription}
+        visible={Boolean(selectedSubscription)}
         selection={selectedSubscription}
         billingCycle={subscriptionBillingCycle}
         coinBalance={coinBalance}
         isProcessing={isProcessingSubscription}
         showSuccess={showSubscriptionSuccess}
         onClose={closeSubscriptionModal}
-        onPurchase={handleSubscriptionPurchase}
+        onPurchase={() => void handleSubscriptionPurchase()}
       />
+
       <KulCoinPrompt
         isOpen={showKulCoinPrompt}
         onClose={() => setShowKulCoinPrompt(false)}
@@ -2973,12 +3224,10 @@ const Feed: React.FC = () => {
         currentCoins={coinBalance}
         onPurchaseKulCoins={() => {
           setShowKulCoinPrompt(false);
-          setSelectedSubscription(null);
-          setShowSubscriptionSuccess(false);
           navigation.navigate('TopUpCoins');
         }}
       />
-    </View>
+      </View>
     </SafeAreaView>
   );
 };
@@ -2992,7 +3241,6 @@ const StyleSheet = {
     left: 0,
     margin: 0,
     padding: 0,
-
   },
   tabWrap: {
     flexDirection: "row",

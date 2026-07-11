@@ -20,7 +20,7 @@ import { fontSize } from '../typography';
 import TicketIcon from '../assets/icons/Ticket1.svg';
 import LocalActivity from '../assets/icons/local_activity.svg';
 import LibraryMusic from '../assets/icons/library_music.svg';
-import { useSubscribeToPlan } from '../src';
+import { parseApiError, useCreatorVideos, useSubscribeToPlan, useSwitchRole } from '../src';
 
 
 type Tab = 'Videos' | 'Library' | 'Premium'  | 'Tickets' | 'Events' | 'Challenges' | 'Favorites' | 'Saved';
@@ -157,11 +157,20 @@ const  ArtistProfile: React.FC = () => {
   const [editingVideo, setEditingVideo] = useState<LibraryVideo | null>(null);
   const [editTitleValue, setEditTitleValue] = useState('');
   const { mutateAsync: subscribeToPlan } = useSubscribeToPlan();
+  const { mutateAsync: switchRole } = useSwitchRole();
+  const {
+    data: creatorVideosResponse,
+    isLoading: creatorVideosLoading,
+    error: creatorVideosError,
+    refetch: refetchCreatorVideos,
+  } = useCreatorVideos({ per_page: 100 }, isOwner);
   const ping = (m: string) => { setToast(m); setTimeout(() => setToast(''), 2200); };
   const share = async () => { try { await Share.share({ title: `${name} on Kulsah`, message: `Check out ${name}'s creative universe on Kulsah!` }); } catch { ping('Share failed'); } };
 
   useEffect(() => subscribeUser(setCurrentUser), []);
   useEffect(() => {
+    if (isOwner) return;
+
     let mounted = true;
     AsyncStorage.getItem('pulsar_library_videos')
       .then((stored: string | null) => {
@@ -173,7 +182,25 @@ const  ArtistProfile: React.FC = () => {
     return () => {
       mounted = false;
     };
-  }, []);
+  }, [isOwner]);
+  useEffect(() => {
+    if (!isOwner || !creatorVideosResponse?.data) return;
+
+    setLibraryVideos(
+      creatorVideosResponse.data.map((item) => ({
+        id: String(item.id),
+        title: item.title,
+        views: item.views,
+        date: item.date,
+        duration: item.duration,
+        category: item.category,
+        img: item.img,
+        likes: item.likes,
+        premium: item.premium,
+        draft: item.draft,
+      })),
+    );
+  }, [creatorVideosResponse?.data, isOwner]);
   useEffect(() => {
     if (!tabs.includes(activeTab)) {
       setActiveTab('Videos');
@@ -471,6 +498,13 @@ const PlaylistSection = () => {
 
     return (
       <View style={s.librarySection}>
+        {isOwner && creatorVideosError ? (
+          <Pressable onPress={() => void refetchCreatorVideos()} style={[s.libraryStateCard, { backgroundColor: faintSurface, borderColor: theme.border }]}>
+            <MaterialIcons name="cloud-off" size={18} color={theme.textSecondary} />
+            <Text style={[s.libraryStateText, { color: theme.textSecondary }]}>Could not refresh creator videos. Tap to retry.</Text>
+          </Pressable>
+        ) : null}
+
         <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={s.librarySubTabs}>
           {subTabs.map((subTab) => {
             const active = librarySubTab === subTab;
@@ -486,7 +520,20 @@ const PlaylistSection = () => {
           })}
         </ScrollView>
 
+        {creatorVideosLoading && isOwner ? (
+          <View style={[s.libraryStateCard, { backgroundColor: faintSurface, borderColor: theme.border }]}>
+            <ActivityIndicator size="small" color={PRIMARY_COLOR} />
+            <Text style={[s.libraryStateText, { color: theme.textSecondary }]}>Loading creator videos...</Text>
+          </View>
+        ) : null}
+
         <View style={s.libraryGrid}>
+          {!creatorVideosLoading && filteredLibrary.length === 0 ? (
+            <View style={[s.libraryStateCard, { backgroundColor: faintSurface, borderColor: theme.border }]}>
+              <MaterialIcons name="video-library" size={22} color={theme.textSecondary} />
+              <Text style={[s.libraryStateText, { color: theme.textSecondary }]}>No videos found for this filter.</Text>
+            </View>
+          ) : null}
           {filteredLibrary.map((item) => {
             const isLocked = Boolean(item.premium) && !isSubscribed;
             return (
@@ -500,7 +547,7 @@ const PlaylistSection = () => {
                     return;
                   }
                   ping(`Loading Video: ${item.title}`);
-                  navigation.navigate('VideoPlayer');
+                  navigation.navigate('VideoPlayer', { id: item.id });
                 }}
                 style={[s.libraryCard, { backgroundColor: isDark ? '#0f172a' : theme.surface, borderColor: isDark ? 'rgba(255,255,255,0.1)' : theme.border }]}
               >
@@ -694,17 +741,23 @@ const PlaylistSection = () => {
   };
 
   const creatorToggle = async () => {
-    const nextUser: User = {
-      id: currentUser?.id || user?.id || 'mila_ray_01',
-      name: currentUser?.name || user?.name || 'Mila Ray',
-      role: 'creator',
-      email: currentUser?.email || user?.email || '',
-      handle: currentUser?.handle || user?.handle || 'mila_ray_01',
-    };
-    setUser(nextUser);
-    await AsyncStorage.setItem('pulsar_user', JSON.stringify(nextUser));
-    setIsRoleSwitchModalOpen(false);
-    navigation.navigate('MainTabs', { screen: 'Galaxy' });
+    try {
+      await switchRole({ role: 'creator' });
+      const nextUser: User = {
+        id: currentUser?.id || user?.id || 'mila_ray_01',
+        name: currentUser?.name || user?.name || 'Mila Ray',
+        role: 'creator',
+        email: currentUser?.email || user?.email || '',
+        handle: currentUser?.handle || user?.handle || 'mila_ray_01',
+      };
+      setUser(nextUser);
+      await AsyncStorage.setItem('pulsar_user', JSON.stringify(nextUser));
+      setIsRoleSwitchModalOpen(false);
+      navigation.navigate('MainTabs', { screen: 'Galaxy' });
+    } catch (caughtError) {
+      const parsed = parseApiError(caughtError);
+      Alert.alert(parsed.title, parsed.message);
+    }
   };
 
   const closeSubscription = () => {
@@ -2030,6 +2083,22 @@ const s = StyleSheet.create({
   },
   librarySection: {
     gap: 12,
+  },
+  libraryStateCard: {
+    marginHorizontal: 16,
+    minHeight: 52,
+    borderRadius: 16,
+    borderWidth: 1,
+    paddingHorizontal: 14,
+    paddingVertical: 12,
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 10,
+  },
+  libraryStateText: {
+    flex: 1,
+    ...fontSize.b5,
+    lineHeight: fontSize.b5.fontSize + 3,
   },
   librarySubTabs: {
     gap: 8,

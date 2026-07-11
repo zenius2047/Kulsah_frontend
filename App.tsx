@@ -671,10 +671,10 @@ const App: React.FC = () => {
                   <Stack.Screen name="Video" component={Player}/>
                   <Stack.Screen name="EventDetail" component={EventDetail}/>
                   <Stack.Screen name="SelectTickets" component={SelectTickets}/>
-                  <Stack.Screen name="SubmitEntry" component={ChallengeEntry}/>
+                  <Stack.Screen name="ChallengeEntry" component={ChallengeEntry}/>
                   <Stack.Screen name= "Library" component={Library}/>
                   <Stack.Screen name= "EditSubmission" component={EditSubmission}/>
-                  <Stack.Screen name= "Submitentry" component={SubmitEntry}/>
+                  <Stack.Screen name= "SubmitEntry" component={SubmitEntry}/>
                   <Stack.Screen name= "Livefeed" component={LiveFeed}/>
                   <Stack.Screen name= "ConnectHub" component={CollaborationHub}/>
                   <Stack.Screen name= "Notification" component={Notifications}/>

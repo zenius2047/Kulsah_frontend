@@ -22,6 +22,7 @@ import ForumIcon from '../assets/icons/forum-svg.svg';
 import PlayCircle from '../assets/icons/play-circle-svg.svg';
 import StarsIcon from '../assets/icons/stars-svg.svg';
 import { fontSize } from './typography';
+import { useCreatorVideoAnalytics } from '../src';
 // import PlayCircleIcon '../assets/icons/play-circle-svg.svg';
 
 interface ArtistDashboardProps {
@@ -51,6 +52,14 @@ const ArtistDashboard: React.FC<ArtistDashboardProps> = ({ onToggleRole }) => {
   const insets = useSafeAreaInsets();
   const [insight, setInsight] = useState<string>('');
   const [loading, setLoading] = useState(false);
+  const { data: videoAnalytics } = useCreatorVideoAnalytics();
+
+  const formatCompact = (value?: number) => {
+    const safeValue = Number(value ?? 0);
+    if (safeValue >= 1_000_000) return `${(safeValue / 1_000_000).toFixed(1)}M`;
+    if (safeValue >= 1_000) return `${(safeValue / 1_000).toFixed(1)}K`;
+    return String(safeValue);
+  };
 
   const viewData = [
     { name: 'Mon', views: 4200 },
@@ -63,10 +72,10 @@ const ArtistDashboard: React.FC<ArtistDashboardProps> = ({ onToggleRole }) => {
   ];
 
   const metrics: MetricItem[] = [
-    { label: 'Live Viewers', value: '412', growth: '+12%', icon: 'sensors', color: '#22c55e', path: 'Analytics' },
+    { label: 'Total Videos', value: formatCompact(videoAnalytics?.total_videos ?? 0), growth: `${videoAnalytics?.ready_videos ?? 0} ready`, icon: 'sensors', color: '#22c55e', path: 'Analytics' },
     { label: 'Subscribers', value: '2,842', growth: '+5.2%', icon: 'stars', color: PRIMARY_COLOR, path: '/subscribers' },
-    { label: 'Video Revenue', value: '$8,240', growth: '+21%', icon: 'play-circle-filled', color: '#3b82f6', path: '/creator/revenue' },
-    { label: 'Engagement Rate', value: '12', growth: 'New', icon: 'favorite-border', color: '#f43f5e', path: 'Analytics' },
+    { label: 'Total Views', value: formatCompact(videoAnalytics?.total_views ?? 0), growth: `${formatCompact(videoAnalytics?.average_views ?? 0)} avg`, icon: 'play-circle-filled', color: '#3b82f6', path: '/creator/revenue' },
+    { label: 'Engagement', value: formatCompact((videoAnalytics?.total_likes ?? 0) + (videoAnalytics?.total_comments ?? 0)), growth: `${videoAnalytics?.premium_videos ?? 0} premium`, icon: 'favorite-border', color: '#f43f5e', path: 'Analytics' },
     // { label: 'Network Match', value: '94%', growth: 'High', icon: 'handshake', color: '#6366f1', path: '/creator/collaborations' },
   ];
 
@@ -229,7 +238,7 @@ const ArtistDashboard: React.FC<ArtistDashboardProps> = ({ onToggleRole }) => {
             <Pressable key={m.label} onPress={() => navigation.navigate(m.path)} style={s.metricCard}>
               <View style={s.metricTop}>
                 <View style={[s.metricIconWrap, ]}>
-                  {(m.label === 'Live Viewers' ||m.label === 'Engagement Rate') ?<MaterialIcons name={m.icon as any} size={24} color={m.color} /> :
+                  {(m.label === 'Total Videos' ||m.label === 'Engagement') ?<MaterialIcons name={m.icon as any} size={24} color={m.color} /> :
                   m.label === 'Subscribers' ?
                   <StarsIcon height={24} width={24} fill={m.color}/>: <PlayCircle height={24} width={24} fill={m.color}/>}
                 </View>
