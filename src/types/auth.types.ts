@@ -18,7 +18,18 @@ export type LoginPayload = {
   password: string;
 };
 
+export type ResetPasswordPayload = {
+  email?: string;
+  phone?: string;
+  password: string;
+};
+
+export type UpdateVibePayload = {
+  onboarding: {
+    vibe: string[];
+  };
+};
+
 export type AuthSession = {
   token: string;
 };
-

@@ -109,8 +109,16 @@ const CreatorSettings: React.FC<CreatorSettingsProps> = ({ onLogout, isDarkMode,
   };
 
   const logout = async()=> {
+    if (onLogout) {
+      await onLogout();
+      return;
+    }
+
     await AsyncStorage.clear();
-    navigation.navigate('GetStarted')
+    navigation.reset({
+      index: 0,
+      routes: [{ name: 'GetStarted' }],
+    });
   }
 
   const fanToggle = async()=>{

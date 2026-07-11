@@ -2,6 +2,7 @@ import React from 'react';
 import { useThemeMode, PRIMARY_COLOR, primaryColorAlpha } from "../theme";
 import {
   ActivityIndicator,
+  Alert,
   Image,
   Modal,
   Platform,
@@ -16,7 +17,8 @@ import { BlurView } from 'expo-blur';
 import { LinearGradient } from 'expo-linear-gradient';
 import { MaterialIcons } from '@expo/vector-icons';
 import { useNavigation } from '@react-navigation/native';
-import { CameraView, useCameraPermissions } from 'expo-camera';
+import { CameraView, useCameraPermissions, useMicrophonePermissions } from 'expo-camera';
+import * as ImagePicker from 'expo-image-picker';
 import { VoteSheetContent } from './SoundSelect';
 import { mediumScreen } from '../types';
 import { fontSize } from './typography';
@@ -87,20 +89,29 @@ const sideControls: SideControl[] = [
 ];
 
 const modes = ['Live', 'Post', 'Create'] as const;
+const MAX_RECORDING_SECONDS = 30;
 
 const RecordContent: React.FC = ({route}:any) => {
   const { isDark, theme } = useThemeMode();
   const navigation = useNavigation<any>();
   const insets = useSafeAreaInsets();
   const [permission, requestPermission] = useCameraPermissions();
+  const [microphonePermission, requestMicrophonePermission] = useMicrophonePermissions();
+  const cameraRef = React.useRef<any>(null);
   const [facing, setFacing] = React.useState<'front' | 'back'>('front');
   const [activeMode, setMode] = React.useState<'Post'| 'Live' | 'Create'>('Post');
   const [soundSelectOpen, setSoundSelectOpen] = React.useState(false);
+  const [isRecording, setIsRecording] = React.useState(false);
+  const [recordedSeconds, setRecordedSeconds] = React.useState(0);
+  const [isPickingVideo, setIsPickingVideo] = React.useState(false);
   const [sound, setSound] = React.useState<{
     title:string,
     id:string,
     meta:string,
     usage:string}| null>(null);
+
+  const recordingProgress = Math.min(recordedSeconds / MAX_RECORDING_SECONDS, 1);
+  const formatSeconds = (value: number) => `00:${String(Math.min(value, MAX_RECORDING_SECONDS)).padStart(2, '0')}`;
 
 
   React.useEffect(()=>{
@@ -112,9 +123,124 @@ const RecordContent: React.FC = ({route}:any) => {
           }
       }, [route?.params?.sound])
 
+  React.useEffect(() => {
+    if (!isRecording) return undefined;
+
+    setRecordedSeconds(0);
+    const interval = setInterval(() => {
+      setRecordedSeconds((current) => Math.min(current + 1, MAX_RECORDING_SECONDS));
+    }, 1000);
+
+    return () => clearInterval(interval);
+  }, [isRecording]);
+
   const handleSideControlPress = async (controlId: string) => {
     if (controlId === 'flip') {
       setFacing((current) => (current === 'front' ? 'back' : 'front'));
+    }
+  };
+
+  const goToUploadPreview = (asset: { uri: string; name?: string | null; type?: string | null }) => {
+    navigation.navigate('EditSubmission', {
+      video: {
+        uri: asset.uri,
+        name: asset.name || `video-${Date.now()}.mp4`,
+        type: asset.type || 'video/mp4',
+      },
+      sound,
+    });
+  };
+
+  const ensureMicrophonePermission = async () => {
+    if (microphonePermission?.granted) return true;
+
+    const nextPermission = await requestMicrophonePermission();
+    if (nextPermission.granted) return true;
+
+    Alert.alert(
+      'Microphone access needed',
+      'Please allow microphone access so your recording can include sound.',
+    );
+    return false;
+  };
+
+  const handleRecordPress = async () => {
+    if (isRecording) {
+      cameraRef.current?.stopRecording();
+      return;
+    }
+
+    if (!permission?.granted) {
+      const nextPermission = await requestPermission();
+      if (!nextPermission.granted) return;
+    }
+
+    const hasMicrophonePermission = await ensureMicrophonePermission();
+    if (!hasMicrophonePermission) return;
+
+    try {
+      if (!cameraRef.current) {
+        Alert.alert('Camera unavailable', 'The camera is still getting ready. Please try again.');
+        return;
+      }
+
+      setIsRecording(true);
+      const recording = await cameraRef.current.recordAsync({
+        maxDuration: MAX_RECORDING_SECONDS,
+      });
+
+      if (recording?.uri) {
+        goToUploadPreview({
+          uri: recording.uri,
+          name: `recording-${Date.now()}.mp4`,
+          type: 'video/mp4',
+        });
+      }
+    } catch (error: any) {
+      Alert.alert('Recording failed', error?.message || 'Please try recording again.');
+    } finally {
+      setIsRecording(false);
+      setRecordedSeconds(0);
+    }
+  };
+
+  const handleUploadPress = async () => {
+    try {
+      setIsPickingVideo(true);
+      const permission = await ImagePicker.requestMediaLibraryPermissionsAsync();
+      if (!permission.granted) {
+        Alert.alert(
+          'Media access needed',
+          'Please allow access to your media library so you can choose a video.',
+        );
+        return;
+      }
+
+      const result = await ImagePicker.launchImageLibraryAsync({
+        mediaTypes: ['videos'],
+        allowsEditing: true,
+        quality: 1,
+      });
+
+      if (result.canceled || !result.assets?.length) {
+        return;
+      }
+
+      const asset = result.assets[0];
+      if (!asset?.uri) {
+        Alert.alert('Upload failed', 'We could not read the selected video. Please try again.');
+        return;
+      }
+
+      goToUploadPreview({
+        uri: asset.uri,
+        name: asset.fileName,
+        type: asset.mimeType,
+      });
+    } catch (error: any) {
+      Alert.alert('Video picker failed', error?.message || 'Please try again.');
+    } finally {
+      setIsPickingVideo(false);
     }
   };
 
@@ -148,7 +274,12 @@ const RecordContent: React.FC = ({route}:any) => {
           style={StyleSheet.absoluteFill}
         /> */}
 
-        <CameraView style={StyleSheet.absoluteFill} facing={facing} />
+        <CameraView
+          ref={cameraRef}
+          style={StyleSheet.absoluteFill}
+          facing={facing}
+          mode="video"
+        />
 
         <View style={[styles.topArea, { paddingTop: Platform.OS === 'ios' ? 54 : insets.top }]}>
           <LinearGradient
@@ -158,11 +289,13 @@ const RecordContent: React.FC = ({route}:any) => {
 
           <View style={styles.progressMeta}>
             <View style={styles.progressRow}>
-              <Text style={styles.progressLabel}>Recording</Text>
-              <Text style={styles.progressTime}>00:12 / 00:30</Text>
+              <Text style={styles.progressLabel}>{isRecording ? 'Recording' : 'Ready'}</Text>
+              <Text style={styles.progressTime}>
+                {formatSeconds(recordedSeconds)} / 00:{MAX_RECORDING_SECONDS}
+              </Text>
             </View>
             <View style={styles.progressTrack}>
-              <View style={styles.progressFill} />
+              <View style={[styles.progressFill, { width: `${recordingProgress * 100}%` }]} />
             </View>
           </View>
 
@@ -237,16 +370,24 @@ const RecordContent: React.FC = ({route}:any) => {
           </ScrollView>
 
           <View style={styles.primaryActions}>
-            <Pressable style={styles.utilityAction}>
-              <Image source={{ uri: galleryThumb }} style={styles.galleryThumb} />
+            <Pressable style={styles.utilityAction} onPress={() => void handleUploadPress()} disabled={isPickingVideo}>
+              <View style={styles.galleryThumbWrap}>
+                <Image source={{ uri: galleryThumb }} style={styles.galleryThumb} />
+                {isPickingVideo ? (
+                  <View style={styles.galleryLoadingOverlay}>
+                    <ActivityIndicator size="small" color="#fff" />
+                  </View>
+                ) : null}
+              </View>
               <Text style={styles.utilityLabel}>Upload</Text>
             </Pressable>
 
-            <View style={styles.recordWrap}>
-              <View style={styles.recordOuterRing}>
-                <View style={styles.recordInnerButton} />
+            <Pressable style={styles.recordWrap} onPress={() => void handleRecordPress()}>
+              <View style={[styles.recordOuterRing, isRecording ? styles.recordOuterRingActive : null]}>
+                <View style={[styles.recordInnerButton, isRecording ? styles.recordInnerButtonActive : null]} />
               </View>
-            </View>
+              {isRecording ? <Text style={styles.recordHint}>Tap to stop</Text> : null}
+            </Pressable>
 
             <Pressable style={styles.utilityAction}>
               <BlurView intensity={24} tint="dark" style={styles.effectsCircle}>
@@ -529,6 +670,18 @@ const styles = StyleSheet.create({
     borderWidth: 2,
     borderColor: 'rgba(255,255,255,0.4)',
   },
+  galleryThumbWrap: {
+    width: 48,
+    height: 48,
+    borderRadius: 12,
+    overflow: 'hidden',
+  },
+  galleryLoadingOverlay: {
+    ...StyleSheet.absoluteFillObject,
+    alignItems: 'center',
+    justifyContent: 'center',
+    backgroundColor: 'rgba(0,0,0,0.45)',
+  },
   utilityLabel: {
     color: '#fff',
     ...fontSize.b5, lineHeight: fontSize.b5.fontSize + 1,
@@ -556,6 +709,11 @@ const styles = StyleSheet.create({
     shadowOpacity: 0.12,
     shadowRadius: 12,
   },
+  recordOuterRingActive: {
+    borderColor: '#ef4444',
+    shadowColor: '#ef4444',
+    shadowOpacity: 0.32,
+  },
   recordInnerButton: {
     width: '100%',
     height: '100%',
@@ -566,6 +724,19 @@ const styles = StyleSheet.create({
     shadowOpacity: 0.5,
     shadowRadius: 20,
     elevation: 10,
+  },
+  recordInnerButtonActive: {
+    width: 34,
+    height: 34,
+    borderRadius: 9,
+  },
+  recordHint: {
+    position: 'absolute',
+    bottom: -22,
+    color: '#fff',
+    ...fontSize.b5,
+    lineHeight: fontSize.b5.fontSize + 1,
+    textTransform: 'uppercase',
   },
   effectsCircle: {
     width: 48,

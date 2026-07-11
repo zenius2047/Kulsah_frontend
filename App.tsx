@@ -44,6 +44,7 @@ import ForumIcon from './assets/icons/forum-svg.svg';
 import { SafeAreaView, useSafeAreaInsets } from 'react-native-safe-area-context';
 import { queryClient } from './src/lib/queryClient';
 import { AuthProvider } from './src/context/AuthContext';
+import { authApi, clearAuth, useAuthStore } from './src';
 // import MaterialSymbols from 'react-native-vector-icons/MaterialSymbolsOutlined';
 
 // import Icon from 'react-native-vector-icons/MaterialIcons';
@@ -117,6 +118,8 @@ import Login from './pages/Login';
 import EmailPhone from './pages/EmailPhone';
 import Store from './pages/Store';
 import VerifyOtp from './pages/VerifyOtp';
+import ForgotPassword from './pages/ForgotPassword';
+import ResetPassword from './pages/ResetPassword';
 import EmailVerification from './pages/EmailVerification';
 import VibePicker from './pages/VibePicker';
 import FanTicketDetail from './pages/FanTicketDetail';
@@ -530,6 +533,8 @@ const App: React.FC = () => {
 
   const loadInitialData = async () => {
     try {
+      await useAuthStore.persist.rehydrate();
+
       const [savedUser, savedDarkMode] = await Promise.all([
         AsyncStorage.getItem('pulsar_user'),
         AsyncStorage.getItem('pulsar_dark_mode'),
@@ -540,7 +545,13 @@ const App: React.FC = () => {
         setDark(JSON.parse(savedDarkMode));
       }
 
-      if (savedUser) {
+      const persistedAuthUser = useAuthStore.getState().user;
+
+      if (persistedAuthUser) {
+        setUser(persistedAuthUser);
+        setCurrentUser(persistedAuthUser);
+        await AsyncStorage.setItem('pulsar_user', JSON.stringify(persistedAuthUser));
+      } else if (savedUser) {
         const parsedUser = JSON.parse(savedUser) as User;
         setUser(parsedUser);
         setCurrentUser(parsedUser);
@@ -566,6 +577,31 @@ const App: React.FC = () => {
     setUser(mockUser);
     setCurrentUser(mockUser);
     await AsyncStorage.setItem('pulsar_user', JSON.stringify(mockUser));
+  };
+
+  const handleLogout = async () => {
+    const token = useAuthStore.getState().token;
+    if (token) {
+      try {
+        await authApi.logout(token);
+      } catch (error) {
+        console.warn('Logout request failed, clearing local auth anyway.', error);
+      }
+    }
+
+    await AsyncStorage.removeItem('pulsar_user');
+    clearAuth();
+    setUser(null);
+    setCurrentUser(null);
+
+    requestAnimationFrame(() => {
+      if (navigationRef.isReady()) {
+        navigationRef.reset({
+          index: 0,
+          routes: [{ name: 'GetStarted' as never }],
+        });
+      }
+    });
   };
 
   if(!fontsLoaded && !fontError){
@@ -601,12 +637,14 @@ const App: React.FC = () => {
                   />
                   <Stack.Screen name="EmailVerification" component={EmailVerification} />
                   <Stack.Screen name="VerifyOtp" component={VerifyOtp} />
+                  <Stack.Screen name="ForgotPassword" component={ForgotPassword} />
+                  <Stack.Screen name="ResetPassword" component={ResetPassword} />
                   <Stack.Screen name="Chat" component={ChatView} />
-                  <Stack.Screen name="Settings" component={CreatorSettings} />
+                  <Stack.Screen name="Settings">{() => <CreatorSettings onLogout={handleLogout} />}</Stack.Screen>
                   <Stack.Screen name="MembershipTiers" component={MembershipTiers} />
                   <Stack.Screen name="ArtistProfile" component={ArtistProfile} />
                   <Stack.Screen name="UploadContent" component={UploadContent} />
-                  <Stack.Screen name="FanSettings" component={FanSettings} />
+                  <Stack.Screen name="FanSettings">{() => <FanSettings onLogout={handleLogout} />}</Stack.Screen>
                   <Stack.Screen name="GoLive" component={GoLiveSetup} />
                   <Stack.Screen name="CreatorEvents" component={CreatorEvents} />
                   <Stack.Screen name="/creator/analytics" component={CreatorAnalytics} />
@@ -662,6 +700,7 @@ const App: React.FC = () => {
                   <Stack.Screen name="TermsPolicies" component={TermsPolicies}/>
                   <Stack.Screen name="PrivacyCentre" component={PrivacyCentre}/>
                   <Stack.Screen name="VibeSignature" component={VibePicker}/>
+                  {/* <Stack.Screen name="GetStarted" component={GetStarted} /> */}
                 </>
               ) : (
                 <>
@@ -675,6 +714,8 @@ const App: React.FC = () => {
                   />
                   <Stack.Screen name="EmailVerification" component={EmailVerification} />
                   <Stack.Screen name="VerifyOtp" component={VerifyOtp} />
+                  <Stack.Screen name="ForgotPassword" component={ForgotPassword} />
+                  <Stack.Screen name="ResetPassword" component={ResetPassword} />
                 </>
               )}
             </Stack.Navigator>

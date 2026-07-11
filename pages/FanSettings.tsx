@@ -3,11 +3,13 @@ import { useThemeMode, PRIMARY_COLOR, primaryColorAlpha, primaryColorAlphaHex } 
 import {
   Alert,
   ActivityIndicator,
+  Animated,
   Image,
   KeyboardAvoidingView,
   Modal,
   Platform,
   Pressable,
+  PanResponder,
   ScrollView,
   StyleSheet,
   Text,
@@ -15,6 +17,7 @@ import {
   View,
 } from 'react-native';
 import * as ImagePicker from 'expo-image-picker';
+import * as ImageManipulator from 'expo-image-manipulator';
 import { MaterialIcons } from '@expo/vector-icons';
 import { useNavigation, useRoute } from '@react-navigation/native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
@@ -74,6 +77,9 @@ const DEFAULT_PROFILE_BIO =
   'Synthwave enthusiast. Collecting limited drops and supporting indie talent across the soundscape.';
 const DEFAULT_PROFILE_AVATAR = 'https://picsum.photos/seed/profile/200';
 const PROFILE_BIO_LIMIT = 160;
+const AVATAR_CROP_STAGE = 280;
+const AVATAR_CROP_MIN_SCALE = 1;
+const AVATAR_CROP_MAX_SCALE = 3;
 
 
 const createProfileDraft = (source?: User | null) => ({
@@ -113,6 +119,94 @@ const resolveAvatarUri = (payload: unknown): string | null => {
   return null;
 };
 
+type CropOffset = { x: number; y: number };
+
+const clamp = (value: number, min: number, max: number) => Math.min(max, Math.max(min, value));
+
+const getAvatarCropBaseSize = (asset: ImagePicker.ImagePickerAsset) => {
+  const width = asset.width || AVATAR_CROP_STAGE;
+  const height = asset.height || AVATAR_CROP_STAGE;
+  const aspectRatio = width / height;
+
+  if (aspectRatio >= 1) {
+    return { width: AVATAR_CROP_STAGE * aspectRatio, height: AVATAR_CROP_STAGE };
+  }
+
+  return { width: AVATAR_CROP_STAGE, height: AVATAR_CROP_STAGE / aspectRatio };
+};
+
+const getAvatarCropBounds = (asset: ImagePicker.ImagePickerAsset, scale: number) => {
+  const base = getAvatarCropBaseSize(asset);
+  const width = base.width * scale;
+  const height = base.height * scale;
+
+  return {
+    width,
+    height,
+    maxOffsetX: Math.max(0, (width - AVATAR_CROP_STAGE) / 2),
+    maxOffsetY: Math.max(0, (height - AVATAR_CROP_STAGE) / 2),
+  };
+};
+
+const createAvatarCropData = async (
+  asset: ImagePicker.ImagePickerAsset,
+  scale: number,
+  offset: CropOffset,
+) => {
+  const sourceWidth = asset.width || AVATAR_CROP_STAGE;
+  const sourceHeight = asset.height || AVATAR_CROP_STAGE;
+  const bounds = getAvatarCropBounds(asset, scale);
+
+  const cropWidth = Math.min(
+    sourceWidth,
+    Math.max(1, Math.round(sourceWidth * (AVATAR_CROP_STAGE / bounds.width))),
+  );
+  const cropHeight = Math.min(
+    sourceHeight,
+    Math.max(1, Math.round(sourceHeight * (AVATAR_CROP_STAGE / bounds.height))),
+  );
+  const originX = clamp(
+    Math.round(((bounds.width - AVATAR_CROP_STAGE) / 2 - offset.x) * (sourceWidth / bounds.width)),
+    0,
+    Math.max(0, sourceWidth - cropWidth),
+  );
+  const originY = clamp(
+    Math.round(((bounds.height - AVATAR_CROP_STAGE) / 2 - offset.y) * (sourceHeight / bounds.height)),
+    0,
+    Math.max(0, sourceHeight - cropHeight),
+  );
+
+  const cropped = await ImageManipulator.manipulateAsync(
+    asset.uri,
+    [
+      {
+        crop: {
+          originX,
+          originY,
+          width: cropWidth,
+          height: cropHeight,
+        },
+      },
+      {
+        resize: {
+          width: 1024,
+          height: 1024,
+        },
+      },
+    ],
+    {
+      compress: 0.9,
+      format: ImageManipulator.SaveFormat.JPEG,
+    },
+  );
+
+  return {
+    uri: cropped.uri,
+    name: asset.fileName || `avatar-${Date.now()}.jpg`,
+    type: 'image/jpeg',
+  };
+};
+
 const getPickedAvatarSource = (asset: ImagePicker.ImagePickerAsset): AvatarUploadSource => {
   const extension = asset.uri.split('.').pop()?.split('?')[0]?.toLowerCase() || 'jpg';
   const mimeType =
@@ -140,6 +234,7 @@ const FanSettings: React.FC<FanSettingsProps> = ({ onLogout, isDarkMode, onToggl
   const [currentSlide, setCurrentSlide] = useState(0);
   const [isRoleSwitchModalOpen, setIsRoleSwitchModalOpen] = useState(false);
   const [isAvatarModalOpen, setIsAvatarModalOpen] = useState(false);
+  const [isAvatarCropModalOpen, setIsAvatarCropModalOpen] = useState(false);
   const [isAvatarFullscreenOpen, setIsAvatarFullscreenOpen] = useState(false);
   const [isAvatarUploading, setIsAvatarUploading] = useState(false);
   const [shakeToRefreshEnabled, setShakeToRefreshEnabled] = useState(false);
@@ -151,6 +246,12 @@ const FanSettings: React.FC<FanSettingsProps> = ({ onLogout, isDarkMode, onToggl
   const { mutateAsync: uploadAvatar } = useUploadAvatar();
 
   const [profile, setProfile] = useState(() => createProfileDraft(user));
+  const [pendingAvatarAsset, setPendingAvatarAsset] = useState<ImagePicker.ImagePickerAsset | null>(null);
+  const [avatarCropScale, setAvatarCropScale] = useState(1);
+  const [avatarCropOffset, setAvatarCropOffset] = useState<CropOffset>({ x: 0, y: 0 });
+  const avatarCropOffsetRef = useRef<CropOffset>({ x: 0, y: 0 });
+  const avatarCropStartOffsetRef = useRef<CropOffset>({ x: 0, y: 0 });
+  const avatarCropScaleRef = useRef(1);
 
   const insets = useSafeAreaInsets();
 
@@ -236,6 +337,23 @@ const FanSettings: React.FC<FanSettingsProps> = ({ onLogout, isDarkMode, onToggl
     }
   }, [route]);
 
+  useEffect(() => {
+    avatarCropOffsetRef.current = avatarCropOffset;
+  }, [avatarCropOffset]);
+
+  useEffect(() => {
+    avatarCropScaleRef.current = avatarCropScale;
+  }, [avatarCropScale]);
+
+  const resetAvatarCropState = () => {
+    setPendingAvatarAsset(null);
+    setAvatarCropScale(1);
+    setAvatarCropOffset({ x: 0, y: 0 });
+    avatarCropOffsetRef.current = { x: 0, y: 0 };
+    avatarCropStartOffsetRef.current = { x: 0, y: 0 };
+    avatarCropScaleRef.current = 1;
+  };
+
   const persistUser = async (nextUser: User) => {
     setUser(nextUser);
     setCurrentUser(nextUser);
@@ -246,8 +364,6 @@ const FanSettings: React.FC<FanSettingsProps> = ({ onLogout, isDarkMode, onToggl
 
   const handleAvatarUpload = async () => {
     try {
-      setIsAvatarModalOpen(false);
-
       const permission = await ImagePicker.requestMediaLibraryPermissionsAsync();
       if (!permission.granted) {
         Alert.alert(
@@ -259,8 +375,6 @@ const FanSettings: React.FC<FanSettingsProps> = ({ onLogout, isDarkMode, onToggl
 
       const result = await ImagePicker.launchImageLibraryAsync({
         mediaTypes: ['images'],
-        allowsEditing: true,
-        aspect: [1, 1],
         quality: 0.85,
       });
 
@@ -274,9 +388,39 @@ const FanSettings: React.FC<FanSettingsProps> = ({ onLogout, isDarkMode, onToggl
         return;
       }
 
+      setIsAvatarModalOpen(false);
+      setPendingAvatarAsset(asset);
+      setAvatarCropScale(1);
+      setAvatarCropOffset({ x: 0, y: 0 });
+      avatarCropOffsetRef.current = { x: 0, y: 0 };
+      avatarCropStartOffsetRef.current = { x: 0, y: 0 };
+      avatarCropScaleRef.current = 1;
+      setIsAvatarCropModalOpen(true);
+    } catch (error: any) {
+      Alert.alert(
+        'Avatar picker failed',
+        error?.response?.data?.message || error?.message || 'Please try again.',
+      );
+    }
+  };
+
+  const handleAvatarCropSubmit = async () => {
+    if (!pendingAvatarAsset) {
+      setIsAvatarCropModalOpen(false);
+      resetAvatarCropState();
+      return;
+    }
+
+    try {
+      setIsAvatarCropModalOpen(false);
       setIsAvatarUploading(true);
-      const uploadResult = await uploadAvatar(getPickedAvatarSource(asset));
-      const avatarUri = resolveAvatarUri(uploadResult) || asset.uri;
+      const croppedAvatar = await createAvatarCropData(
+        pendingAvatarAsset,
+        avatarCropScaleRef.current,
+        avatarCropOffsetRef.current,
+      );
+      const uploadResult = await uploadAvatar(croppedAvatar);
+      const avatarUri = resolveAvatarUri(uploadResult) || croppedAvatar.uri;
 
       if (!avatarUri) {
         throw new Error('Avatar upload did not return a usable image URL.');
@@ -294,6 +438,9 @@ const FanSettings: React.FC<FanSettingsProps> = ({ onLogout, isDarkMode, onToggl
           handle: nextProfile.handle,
         });
       }
+
+      resetAvatarCropState();
+      setIsAvatarModalOpen(false);
     } catch (error: any) {
       Alert.alert(
         'Avatar upload failed',
@@ -302,6 +449,56 @@ const FanSettings: React.FC<FanSettingsProps> = ({ onLogout, isDarkMode, onToggl
     } finally {
       setIsAvatarUploading(false);
     }
+  };
+
+  const avatarCropResponder = React.useMemo(
+    () =>
+      PanResponder.create({
+        onStartShouldSetPanResponder: () => !!pendingAvatarAsset,
+        onMoveShouldSetPanResponder: () => !!pendingAvatarAsset,
+        onMoveShouldSetPanResponderCapture: () => !!pendingAvatarAsset,
+        onPanResponderGrant: () => {
+          avatarCropStartOffsetRef.current = avatarCropOffsetRef.current;
+        },
+        onPanResponderMove: (_evt, gestureState) => {
+          if (!pendingAvatarAsset) return;
+
+          const bounds = getAvatarCropBounds(pendingAvatarAsset, avatarCropScaleRef.current);
+          const maxOffsetX = bounds.maxOffsetX;
+          const maxOffsetY = bounds.maxOffsetY;
+
+          const nextOffset = {
+            x: clamp(avatarCropStartOffsetRef.current.x + gestureState.dx, -maxOffsetX, maxOffsetX),
+            y: clamp(avatarCropStartOffsetRef.current.y + gestureState.dy, -maxOffsetY, maxOffsetY),
+          };
+
+          avatarCropOffsetRef.current = nextOffset;
+          setAvatarCropOffset(nextOffset);
+        },
+        onPanResponderTerminationRequest: () => false,
+        onShouldBlockNativeResponder: () => true,
+      }),
+    [pendingAvatarAsset],
+  );
+
+  const zoomAvatarCrop = (delta: number) => {
+    if (!pendingAvatarAsset) return;
+
+    setAvatarCropScale((prev) => {
+      const next = clamp(Number((prev + delta).toFixed(2)), AVATAR_CROP_MIN_SCALE, AVATAR_CROP_MAX_SCALE);
+      avatarCropScaleRef.current = next;
+
+      const bounds = getAvatarCropBounds(pendingAvatarAsset, next);
+      const nextOffset = {
+        x: clamp(avatarCropOffsetRef.current.x, -bounds.maxOffsetX, bounds.maxOffsetX),
+        y: clamp(avatarCropOffsetRef.current.y, -bounds.maxOffsetY, bounds.maxOffsetY),
+      };
+
+      avatarCropOffsetRef.current = nextOffset;
+      setAvatarCropOffset(nextOffset);
+
+      return next;
+    });
   };
 
   useEffect(() => {
@@ -503,6 +700,118 @@ const FanSettings: React.FC<FanSettingsProps> = ({ onLogout, isDarkMode, onToggl
                 style={[s.avatarModalSecondary, { borderColor: theme.border, backgroundColor: isDark ? 'rgba(255,255,255,0.05)' : 'rgba(0,0,0,0.05)' }]}
               >
                 <Text style={[s.avatarModalSecondaryText, { color: theme.text }]}>Cancel</Text>
+              </Pressable>
+            </View>
+          </View>
+        </View>
+      </Modal>
+
+      <Modal
+        visible={isAvatarCropModalOpen}
+        transparent
+        animationType="fade"
+        statusBarTranslucent
+        onRequestClose={() => {
+          setIsAvatarCropModalOpen(false);
+          resetAvatarCropState();
+        }}
+      >
+        <View style={[s.avatarCropRoot, { paddingTop: insets.top + 14, paddingBottom: insets.bottom + 20 }]}>
+          <Pressable
+            style={s.avatarCropBackdrop}
+            onPress={() => {
+              setIsAvatarCropModalOpen(false);
+              resetAvatarCropState();
+            }}
+          />
+
+          <View style={[s.avatarCropCard, { backgroundColor: theme.background, borderColor: theme.border }]}>
+            <View style={s.avatarCropHeader}>
+              <Pressable
+                onPress={() => {
+                  setIsAvatarCropModalOpen(false);
+                  resetAvatarCropState();
+                }}
+                style={[s.avatarCropHeaderButton, { backgroundColor: isDark ? '#ffffff14' : theme.surface }]}
+              >
+                <MaterialIcons name="close" size={18} color={theme.text} />
+              </Pressable>
+              <View style={s.avatarCropTitleWrap}>
+                <Text style={[s.avatarCropTitle, { color: theme.text }]}>Crop Avatar</Text>
+                <Text style={[s.avatarCropSubtitle, { color: theme.textSecondary }]}>
+                  Drag and zoom until the frame feels right.
+                </Text>
+              </View>
+              <Pressable
+                onPress={() => void handleAvatarCropSubmit()}
+                disabled={isAvatarUploading || !pendingAvatarAsset}
+                style={[s.avatarCropHeaderButton, { backgroundColor: theme.accent }, (isAvatarUploading || !pendingAvatarAsset) && { opacity: 0.7 }]}
+              >
+                {isAvatarUploading ? (
+                  <ActivityIndicator size="small" color="#fff" />
+                ) : (
+                  <Text style={s.avatarCropHeaderButtonText}>Done</Text>
+                )}
+              </Pressable>
+            </View>
+
+            <View style={s.avatarCropStageShell}>
+              <View
+                {...avatarCropResponder.panHandlers}
+                style={[s.avatarCropStage, { width: AVATAR_CROP_STAGE, height: AVATAR_CROP_STAGE }]}
+              >
+                {pendingAvatarAsset ? (
+                  <>
+                    <Animated.Image
+                      source={{ uri: pendingAvatarAsset.uri }}
+                      style={[
+                        s.avatarCropImage,
+                        (() => {
+                          const bounds = getAvatarCropBounds(pendingAvatarAsset, avatarCropScale);
+                          return {
+                            width: bounds.width,
+                            height: bounds.height,
+                            transform: [
+                              { translateX: -bounds.width / 2 + avatarCropOffset.x },
+                              { translateY: -bounds.height / 2 + avatarCropOffset.y },
+                            ],
+                          };
+                        })(),
+                      ]}
+                      resizeMode="cover"
+                    />
+                    <View pointerEvents="none" style={s.avatarCropGrid}>
+                      <View style={[s.avatarCropGridRow, { top: '33.333%' }]} />
+                      <View style={[s.avatarCropGridRow, { top: '66.666%' }]} />
+                      <View style={[s.avatarCropGridCol, { left: '33.333%' }]} />
+                      <View style={[s.avatarCropGridCol, { left: '66.666%' }]} />
+                    </View>
+                    <View pointerEvents="none" style={s.avatarCropFrame} />
+                  </>
+                ) : null}
+              </View>
+            </View>
+
+            <View style={s.avatarCropControls}>
+              <Pressable
+                onPress={() => zoomAvatarCrop(-0.15)}
+                disabled={!pendingAvatarAsset || isAvatarUploading}
+                style={[s.avatarCropControl, { borderColor: theme.border, backgroundColor: isDark ? '#ffffff10' : theme.surface }, (!pendingAvatarAsset || isAvatarUploading) && { opacity: 0.5 }]}
+              >
+                <MaterialIcons name="remove" size={20} color={theme.text} />
+              </Pressable>
+              <View style={s.avatarCropScaleInfo}>
+                <Text style={[s.avatarCropScaleText, { color: theme.text }]}>
+                  {Math.round(avatarCropScale * 100)}%
+                </Text>
+                <Text style={[s.avatarCropScaleHint, { color: theme.textSecondary }]}>Zoom</Text>
+              </View>
+              <Pressable
+                onPress={() => zoomAvatarCrop(0.15)}
+                disabled={!pendingAvatarAsset || isAvatarUploading}
+                style={[s.avatarCropControl, { borderColor: theme.border, backgroundColor: isDark ? '#ffffff10' : theme.surface }, (!pendingAvatarAsset || isAvatarUploading) && { opacity: 0.5 }]}
+              >
+                <MaterialIcons name="add" size={20} color={theme.text} />
               </Pressable>
             </View>
           </View>
@@ -987,7 +1296,7 @@ const FanSettings: React.FC<FanSettingsProps> = ({ onLogout, isDarkMode, onToggl
         <View style={s.logoutWrap}>
           <Pressable onPress={onLogout} style={s.logoutButton}>
             <MaterialIcons name="logout" size={18} color="#ef4444" />
-            <Text style={s.logoutText}>Exit Galaxy Hub</Text>
+            <Text style={s.logoutText}>Logout</Text>
           </Pressable>
           <Text style={[s.versionText, { color: secondaryText }]}>Kulsah Ecosystem v2.4.2</Text>
         </View>
@@ -1697,6 +2006,130 @@ const s = StyleSheet.create({
     ...fontSize.b5, lineHeight: fontSize.b5.fontSize + 1,
     textTransform: 'uppercase',
     letterSpacing: 1.6,
+  },
+  avatarCropRoot: {
+    flex: 1,
+    alignItems: 'center',
+    justifyContent: 'center',
+    paddingHorizontal: 20,
+  },
+  avatarCropBackdrop: {
+    ...StyleSheet.absoluteFillObject,
+    backgroundColor: 'rgba(0,0,0,0.72)',
+  },
+  avatarCropCard: {
+    width: '100%',
+    maxWidth: 420,
+    borderRadius: 34,
+    borderWidth: 1,
+    padding: 18,
+    gap: 18,
+  },
+  avatarCropHeader: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    gap: 10,
+  },
+  avatarCropHeaderButton: {
+    minWidth: 50,
+    minHeight: 50,
+    borderRadius: 16,
+    alignItems: 'center',
+    justifyContent: 'center',
+    paddingHorizontal: 14,
+  },
+  avatarCropHeaderButtonText: {
+    color: '#fff',
+    ...fontSize.b5,
+    lineHeight: fontSize.b5.fontSize + 1,
+    textTransform: 'uppercase',
+    letterSpacing: 1.5,
+  },
+  avatarCropTitleWrap: {
+    flex: 1,
+    alignItems: 'center',
+    gap: 2,
+  },
+  avatarCropTitle: {
+    ...fontSize.b2,
+    textTransform: 'uppercase',
+    letterSpacing: 1.5,
+    textAlign: 'center',
+  },
+  avatarCropSubtitle: {
+    ...fontSize.b5,
+    textAlign: 'center',
+    lineHeight: fontSize.b5.fontSize + 2,
+  },
+  avatarCropStageShell: {
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  avatarCropStage: {
+    borderRadius: 28,
+    overflow: 'hidden',
+    backgroundColor: '#0f172a',
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  avatarCropImage: {
+    position: 'absolute',
+    left: '50%',
+    top: '50%',
+  },
+  avatarCropGrid: {
+    ...StyleSheet.absoluteFillObject,
+  },
+  avatarCropGridRow: {
+    position: 'absolute',
+    left: 0,
+    right: 0,
+    height: StyleSheet.hairlineWidth,
+    backgroundColor: 'rgba(255,255,255,0.4)',
+  },
+  avatarCropGridCol: {
+    position: 'absolute',
+    top: 0,
+    bottom: 0,
+    width: StyleSheet.hairlineWidth,
+    backgroundColor: 'rgba(255,255,255,0.4)',
+  },
+  avatarCropFrame: {
+    ...StyleSheet.absoluteFillObject,
+    borderWidth: 2,
+    borderColor: 'rgba(255,255,255,0.65)',
+  },
+  avatarCropControls: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    gap: 12,
+  },
+  avatarCropControl: {
+    width: 52,
+    height: 52,
+    borderRadius: 18,
+    borderWidth: 1,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  avatarCropScaleInfo: {
+    flex: 1,
+    alignItems: 'center',
+    gap: 2,
+  },
+  avatarCropScaleText: {
+    ...fontSize.b3,
+    lineHeight: fontSize.b3.fontSize + 2,
+    textTransform: 'uppercase',
+    letterSpacing: 1.2,
+  },
+  avatarCropScaleHint: {
+    ...fontSize.b5,
+    lineHeight: fontSize.b5.fontSize + 1,
+    textTransform: 'uppercase',
+    letterSpacing: 1.5,
   },
 });
 

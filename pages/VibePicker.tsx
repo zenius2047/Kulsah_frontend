@@ -16,6 +16,7 @@ import { SafeAreaView, useSafeAreaInsets } from 'react-native-safe-area-context'
 import { useThemeMode, PRIMARY_COLOR } from "../theme";
 import { mediumScreen } from '../types';
 import { fontSize } from './typography';
+import { authApi } from '../src';
 
 interface Vibe {
   id: string;
@@ -44,6 +45,8 @@ const VibePicker: React.FC = () => {
   const { width } = useWindowDimensions();
   const { isDark, theme } = useThemeMode();
   const [selected, setSelected] = useState<Set<string>>(new Set());
+  const [isSaving, setIsSaving] = useState(false);
+  const [errorMessage, setErrorMessage] = useState('');
 
   const contentWidth = width - 32;
   const cardGap = 16;
@@ -62,9 +65,35 @@ const VibePicker: React.FC = () => {
     });
   };
 
-  const handleContinue = () => {
-    if (!hasSelected) return;
-    navigation.navigate('Feed');
+  const handleContinue = async () => {
+    if (!hasSelected || isSaving) return;
+
+    setIsSaving(true);
+    setErrorMessage('');
+
+    try {
+      const selectedLabels = VIBES.filter((vibe) => selected.has(vibe.id)).map((vibe) => vibe.label);
+      await authApi.updateVibe({
+        onboarding: {
+          vibe: selectedLabels,
+        },
+      });
+
+      if (navigation.canGoBack()) {
+        navigation.goBack();
+        return;
+      }
+
+      navigation.navigate('Feed');
+    } catch (error: any) {
+      const message =
+        error?.response?.data?.message ||
+        error?.response?.data?.error ||
+        'Unable to save your vibes right now.';
+      setErrorMessage(message);
+    } finally {
+      setIsSaving(false);
+    }
   };
 
   return (
@@ -84,6 +113,7 @@ const VibePicker: React.FC = () => {
           <View style={[styles.header, { paddingTop: Platform.OS === "ios" ? 54 : insets.top}]}>
           <Text style={[styles.title, { color: theme.text }]}>Pick your vibe</Text>
           <Text style={[styles.subtitle, { color: theme.textMuted }]}>Select 1 or more vibe to personalize your galaxy.</Text>
+          {!!errorMessage && <Text style={[styles.errorText, { color: '#dc2626' }]}>{errorMessage}</Text>}
         </View>
 
           <View style={styles.grid}>
@@ -140,21 +170,23 @@ const VibePicker: React.FC = () => {
         >
           {hasSelected && <Pressable
             onPress={handleContinue}
-            disabled={!hasSelected}
+            disabled={!hasSelected || isSaving}
             accessibilityRole="button"
-            accessibilityState={{ disabled: !hasSelected }}
+            accessibilityState={{ disabled: !hasSelected || isSaving }}
             style={({ pressed }) => [
               styles.continueButton,
-              hasSelected ? styles.continueButtonActive : styles.continueButtonDisabled,
-              pressed && hasSelected ? styles.continueButtonPressed : null,
+              hasSelected && !isSaving ? styles.continueButtonActive : styles.continueButtonDisabled,
+              pressed && hasSelected && !isSaving ? styles.continueButtonPressed : null,
             ]}
           >
-            <Text style={[styles.continueText, !hasSelected && styles.continueTextDisabled]}>Enter the Galaxy</Text>
+            <Text style={[styles.continueText, (!hasSelected || isSaving) && styles.continueTextDisabled]}>
+              {isSaving ? 'Saving...' : 'Enter the Galaxy'}
+            </Text>
             <MaterialIcons
               name="chevron-right"
               size={24}
-              color={hasSelected ? '#fff' : 'rgba(255,255,255,0.22)'}
-              style={hasSelected ? styles.continueIconActive : undefined}
+              color={hasSelected && !isSaving ? '#fff' : 'rgba(255,255,255,0.22)'}
+              style={hasSelected && !isSaving ? styles.continueIconActive : undefined}
             />
           </Pressable>}
         </LinearGradient>
@@ -190,6 +222,12 @@ const styles = StyleSheet.create({
   subtitle: {
     marginTop: 8,
     ...fontSize.b3, lineHeight: fontSize.b3.fontSize + 2,
+    textAlign: 'center',
+  },
+  errorText: {
+    marginTop: 10,
+    ...fontSize.b5,
+    lineHeight: fontSize.b5.fontSize + 2,
     textAlign: 'center',
   },
   scrollContent: {

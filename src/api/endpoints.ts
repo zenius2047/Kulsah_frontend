@@ -10,12 +10,20 @@ export const endpoints = {
     register: 'auth/register',
     logout: 'auth/logout',
     verifyOtp: 'auth/activate',
+    verifyResetOtp: 'auth/verify-reset-otp',
     resendOtp: 'auth/resend',
     checkUsername: 'auth/check-username',
+    forgotPassword: 'auth/forgotton-password',
+    resetPassword: 'auth/reset-password',
+    updateVibe: 'auth/update-vibe',
   },
   general: {
     updateProfile: 'general/update-profile',
     uploadAvatar: 'general/upload-avatar',
+    feed: 'general/feed',
+  },
+  creator: {
+    videos: 'creator/videos',
   },
   subscription: {
     fanSubscribe: 'fan/subscription-plans',

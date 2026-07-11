@@ -1,156 +1,294 @@
-import React from 'react';
+import React, { useEffect, useMemo, useRef, useState } from 'react';
 import { useThemeMode, PRIMARY_COLOR, primaryColorAlpha } from "../theme";
 import {
-  Image,
+  ActivityIndicator,
+  Alert,
+  KeyboardAvoidingView,
+  Platform,
   Pressable,
   SafeAreaView,
   StatusBar,
   StyleSheet,
   Text,
+  TextInput,
   View,
 } from 'react-native';
 import { MaterialIcons } from '@expo/vector-icons';
 import { LinearGradient } from 'expo-linear-gradient';
-import { useNavigation } from '@react-navigation/native';
+import { useNavigation, useRoute } from '@react-navigation/native';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
+import { useVideoPlayer, VideoView } from 'expo-video';
 import { fontSize } from './typography';
+import { useUploadCreatorVideo } from '../src';
+import type { VideoUploadSource, VideoVisibility } from '../src';
 
-const HERO_IMAGE =
-  'https://lh3.googleusercontent.com/aida-public/AB6AXuC_nWXY2AjaIksgSrdVz-rWJuHhSgT-45-SRU3MJ6e4gJxNtQZGIYyPIlbQ9PEIkdyN4qv28cdTSaRODCpkLcUIG9ftoeHKVQ05SBQ09b-NaLDq3rvKAprnqeOLPF_nXSr8bQHKD_GQz_Hmqf1ISoPQZHvJHRDaMVEHv2LJtIkI8A-oYXv2fZVI79soN7r-cUbNV8mlgAc2cdq8N1atKiZGY3EttYb1xX5mLWFxqAi3d3cE11d3kprkfZrbaT_JV42R-ZZAeRVvMh80';
-
-const timelineFrames = [
-  'https://lh3.googleusercontent.com/aida-public/AB6AXuDfsG95ALQamVYUPsuJtIBXNYtmOaKa7estwrAzCWTyhh7bByynMUkxs80qKFgJejNG3HCCja9UJbTxyHd6Y-SOFoi5Ax8cNOR3-3mMs4Y7sjHUNFC2djpf7gdbsno7YIqiAevGlw_xHLYypMNlgWcGAthEKiggoIm0ryf_HcKpunsoKYxnsS912o_hsmiPOrpBLLTKxLe38dx7wg8nYoBXdx4Ih-WtYo41qj-ofOijZ2s43bxkij7fvejj4Z8LHzdqbf6B1uX9kA3R',
-  'https://lh3.googleusercontent.com/aida-public/AB6AXuCrVPFrSbHL85gMGYxul1QmtcZMZzMYkP6rX1VF2vXht2v934bo0A-C9JS0BsQAoAeJf826Y1BMm5BtfZ61_l_P8AEPhKH_cqKru6jC17ybH8FkBkwVCHP16h7XbcGmBi881eP2tLVL_tybJeG4uBYzPAsQqCNrpxHB4380UjnhE3qrmOo4RNuoDfIQ1xOIzJCsjzB2HpFk-tXrmJ7Fbq4KkjeLqRdELqegqB_kUu3Yi6t9brYZPlMsDQMr99joW3Od3dYXgpf33XV9',
-  'https://lh3.googleusercontent.com/aida-public/AB6AXuC9WKGuPLXRFc_0heD9SxaFz8JYEIROk1NUZSTparx4G3MSGnbJgvKqDg381LLEfD4TrtnXqBakQmEaoX_n0l44wvxRPCzg32ioP8KhOe9elqspjkT1kfAhRXP73OEOhDBxhlnYN70gWU3G68zT37yzboV8cH5SoITaK2vHhOVsl3ovojJs9fJOBP_tXOlXyQ5W3p0xL3GllYGDjevbHGuonvqb120XrKZ_cSJq2fEHsHskEVEU-LTK_BQPcRAwUCWUh3n1CAPim47X',
-  'https://lh3.googleusercontent.com/aida-public/AB6AXuByzB4NauRJpg6cUWEZ5jIKrhD-YU9efbVltvZRay20Iic7oP8nvW7o_XdzWUWQrShcFKpCm5JtCSkkHZse-dZwZ5TYQfrHTh0SzeKLj-C8h4RkUBIRvAnMIPv6qFg_Rh6cSPbgM3ROIr0pylMSIy1rp0CJnOypyY1llKFIhk2TtpoDfYS6B9im_B7zWdQcFjjqI2s8Ft-xw3E-j9_1qqbEBpZ3h2uxOaUC7zsipq4OSwaBwSbWCDLadWtem9VziXC1h7BMTg5Tx_5r',
-  'https://lh3.googleusercontent.com/aida-public/AB6AXuBJXBUCjal8jLWvwIIzQOC0zZjWq4h-lGGLMN1VRNa3-YgjKhUBXj5TECYksFw9I1xmB6jsVpDRj9V1ziHng3fl7Npgxu-in7TeZj1qrDOan52BLWnRh-2zIXn6ZC1YrrqdOIr62kwi5RG3l-Gq2KxsVfxlSXiNmbJMn6h6KKP4_MVqG37hFzfbiHUCAWbcM9ISu92tnzxbUomHL7oXUPrU-dZcEWl_dbcCQGwFUKT7EQqQDgXHlzG4SP6XtIgxtEeyrH0KAHMY0jw8',
-];
+type EditSubmissionRouteParams = {
+  video?: VideoUploadSource;
+  sound?: {
+    title?: string;
+    id?: string;
+    meta?: string;
+    usage?: string;
+  } | null;
+};
 
 const quickActions = [
   { id: 'draw', label: 'Draw', icon: 'brush' as const },
   { id: 'text', label: 'Text', icon: 'text-fields' as const },
+  { id: 'music', label: 'Sound', icon: 'music-note' as const },
 ];
+
+const visibilityOptions: Array<{ value: VideoVisibility; label: string; icon: keyof typeof MaterialIcons.glyphMap }> = [
+  { value: 'public', label: 'Public', icon: 'public' },
+  { value: 'premium', label: 'Premium', icon: 'workspace-premium' },
+];
+
+const formatTime = (seconds: number) => {
+  const safeSeconds = Number.isFinite(seconds) ? Math.max(0, Math.floor(seconds)) : 0;
+  const minutes = Math.floor(safeSeconds / 60);
+  const remainingSeconds = safeSeconds % 60;
+
+  return `${String(minutes).padStart(2, '0')}:${String(remainingSeconds).padStart(2, '0')}`;
+};
 
 const EditSubmission: React.FC = () => {
   const { isDark, theme } = useThemeMode();
   const navigation = useNavigation<any>();
+  const route = useRoute<any>();
+  const insets = useSafeAreaInsets();
+  const captionInputRef = useRef<TextInput | null>(null);
+  const { mutateAsync: uploadCreatorVideo, isPending: isPosting } = useUploadCreatorVideo();
+  const params = (route.params ?? {}) as EditSubmissionRouteParams;
+  const video = params.video;
+  const videoUri = video?.uri ?? null;
+  const [title, setTitle] = useState('');
+  const [caption, setCaption] = useState('');
+  const [visibility, setVisibility] = useState<VideoVisibility>('public');
+  const [isPlaying, setIsPlaying] = useState(true);
+  const [isMuted, setIsMuted] = useState(false);
+  const [currentTime, setCurrentTime] = useState(0);
+  const [duration, setDuration] = useState(0);
+
+  const player = useVideoPlayer(videoUri, (instance) => {
+    instance.loop = true;
+    instance.muted = false;
+    instance.play();
+  });
+
+  useEffect(() => {
+    player.muted = isMuted;
+  }, [isMuted, player]);
+
+  useEffect(() => {
+    if (!videoUri) return undefined;
+
+    const interval = setInterval(() => {
+      setCurrentTime(player.currentTime || 0);
+      setDuration(player.duration || 0);
+      setIsPlaying(player.playing);
+    }, 300);
+
+    return () => clearInterval(interval);
+  }, [player, videoUri]);
+
+  const progress = useMemo(() => {
+    if (!duration) return 0;
+    return Math.min(1, Math.max(0, currentTime / duration));
+  }, [currentTime, duration]);
+
+  const handleTogglePlayback = () => {
+    if (!videoUri) return;
+
+    if (player.playing) {
+      player.pause();
+      setIsPlaying(false);
+      return;
+    }
+
+    player.play();
+    setIsPlaying(true);
+  };
+
+  const handleQuickAction = (actionId: string) => {
+    if (actionId === 'text') {
+      captionInputRef.current?.focus();
+      return;
+    }
+
+    if (actionId === 'music') {
+      navigation.navigate('Vote');
+      return;
+    }
+
+    Alert.alert('Draw tools', 'Drawing tools are ready for the next editor pass.');
+  };
+
+  const handlePost = async () => {
+    if (!video) {
+      Alert.alert('No video selected', 'Record or choose a video before posting.');
+      return;
+    }
+
+    try {
+      await uploadCreatorVideo({
+        video,
+        title: title.trim() || null,
+        caption: caption.trim() || null,
+        visibility,
+      });
+
+      Alert.alert('Posted', 'Your video is now live.', [
+        {
+          text: 'Done',
+          onPress: () => navigation.navigate('MainTabs'),
+        },
+      ]);
+    } catch (error: any) {
+      Alert.alert(
+        'Post failed',
+        error?.response?.data?.message || error?.message || 'Please try posting again.',
+      );
+    }
+  };
 
   return (
-    <SafeAreaView style={[styles.safeArea, { backgroundColor: theme.background }]}>
-      <StatusBar
-        barStyle={isDark ? 'light-content' : 'dark-content'}
-        backgroundColor="transparent"
-        translucent
-      />
+    <SafeAreaView style={[styles.safeArea, { backgroundColor: '#000' }]}>
+      <StatusBar barStyle="light-content" backgroundColor="transparent" translucent />
 
-      <View style={[styles.screen, { backgroundColor: isDark ? '#0a050d' : theme.background }]}>
-        <Image source={{ uri: HERO_IMAGE }} style={styles.heroImage} />
+      <KeyboardAvoidingView
+        behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
+        keyboardVerticalOffset={Platform.OS === 'ios' ? insets.top : 0}
+        style={styles.screen}
+      >
+        {videoUri ? (
+          <VideoView
+            player={player}
+            nativeControls={false}
+            contentFit="cover"
+            style={styles.videoBackground}
+          />
+        ) : (
+          <View style={styles.missingVideo}>
+            <MaterialIcons name="videocam-off" size={46} color="rgba(255,255,255,0.62)" />
+            <Text style={styles.missingVideoText}>No video selected</Text>
+          </View>
+        )}
+
         <LinearGradient
-          colors={['rgba(0,0,0,0.4)', 'rgba(0,0,0,0.08)', 'rgba(10,5,13,0.96)']}
+          colors={['rgba(0,0,0,0.52)', 'rgba(0,0,0,0.08)', 'rgba(0,0,0,0.88)']}
           style={StyleSheet.absoluteFill}
         />
 
-        <View
-          style={[
-            styles.header,
-            {
-              backgroundColor: isDark ? 'rgba(10,5,13,0.8)' : 'rgba(255,255,255,0.82)',
-              borderBottomColor: theme.border,
-            },
-          ]}
-        >
+        <View style={styles.header}>
           <View style={styles.headerLeft}>
             <Pressable onPress={() => navigation.goBack()} style={styles.headerBack}>
-              <MaterialIcons name="chevron-left" size={22} color={isDark ? '#94a3b8' : theme.textSecondary} />
+              <MaterialIcons name="chevron-left" size={24} color="#fff" />
             </Pressable>
-            <Text style={[styles.headerTitle, { color: theme.text }]}>Edit Submission</Text>
+            <Text style={styles.headerTitle}>Edit Submission</Text>
           </View>
 
           <Pressable
-          onPress={()=>(
-            navigation.navigate("Submitentry")
-          )}
-          style={styles.postButton}>
-            <Text style={styles.postButtonText}>POST</Text>
+            onPress={() => void handlePost()}
+            style={[styles.postButton, (!videoUri || isPosting) && styles.postButtonDisabled]}
+            disabled={!videoUri || isPosting}
+          >
+            {isPosting ? <ActivityIndicator size="small" color="#fff" /> : <Text style={styles.postButtonText}>POST</Text>}
           </Pressable>
         </View>
 
-        <View style={styles.overlayLayer}>
-          <View style={styles.challengeBadgeWrap}>
-            <View
-              style={[
-                styles.challengeBadge,
-                {
-                  backgroundColor: isDark ? 'rgba(255,255,255,0.05)' : 'rgba(255,255,255,0.7)',
-                  borderColor: theme.border,
-                },
-              ]}
-            >
-              <View style={styles.badgeDot} />
-              <Text style={styles.badgeMeta}>Participating In</Text>
-              <Text style={[styles.badgeTitle, { color: theme.text }]}>NEON VIBE CHECK</Text>
+        <Pressable style={styles.videoTapLayer} onPress={handleTogglePlayback}>
+          {!isPlaying ? (
+            <View style={styles.playButton}>
+              <MaterialIcons name="play-arrow" size={54} color="#fff" />
             </View>
+          ) : null}
+        </Pressable>
+
+        <View style={styles.challengeBadgeWrap}>
+          <View style={styles.challengeBadge}>
+            <View style={styles.badgeDot} />
+            <Text style={styles.badgeMeta}>Ready to publish</Text>
+            <Text style={styles.badgeTitle}>{visibility.toUpperCase()}</Text>
           </View>
+        </View>
 
-          <View style={styles.rightRail}>
-            {quickActions.map((action) => (
-              <View key={action.id} style={styles.quickActionItem}>
-                <Pressable
-                  style={[
-                    styles.quickActionButton,
-                    {
-                      backgroundColor: isDark ? 'rgba(255,255,255,0.05)' : 'rgba(255,255,255,0.7)',
-                      borderColor: theme.border,
-                    },
-                  ]}
-                >
-                  <MaterialIcons name={action.icon} size={22} color={theme.text} />
-                </Pressable>
-                <Text style={[styles.quickActionLabel, { color: isDark ? '#94a3b8' : theme.textSecondary }]}>
-                  {action.label}
-                </Text>
-              </View>
-            ))}
+        <View style={styles.rightRail}>
+          {quickActions.map((action) => (
+            <View key={action.id} style={styles.quickActionItem}>
+              <Pressable style={styles.quickActionButton} onPress={() => handleQuickAction(action.id)}>
+                <MaterialIcons name={action.icon} size={22} color="#fff" />
+              </Pressable>
+              <Text style={styles.quickActionLabel}>{action.label}</Text>
+            </View>
+          ))}
+
+          <View style={styles.quickActionItem}>
+            <Pressable style={styles.quickActionButton} onPress={() => setIsMuted((value) => !value)}>
+              <MaterialIcons name={isMuted ? 'volume-off' : 'volume-up'} size={22} color="#fff" />
+            </Pressable>
+            <Text style={styles.quickActionLabel}>{isMuted ? 'Muted' : 'Sound'}</Text>
           </View>
+        </View>
 
-          <View style={styles.bottomPanelWrap}>
-            <View
-              style={[
-                styles.timelinePanel,
-                {
-                  backgroundColor: isDark ? 'rgba(255,255,255,0.05)' : 'rgba(255,255,255,0.76)',
-                  borderColor: theme.border,
-                },
-              ]}
-            >
-              <View style={styles.timelineHeader}>
-                <Text style={[styles.timelineMeta, { color: isDark ? '#94a3b8' : theme.textSecondary }]}>
-                  00:08 / 00:15
-                </Text>
-                <View style={styles.speedWrap}>
-                  <MaterialIcons name="slow-motion-video" size={16} color={isDark ? '#94a3b8' : theme.textSecondary} />
-                  <Text style={[styles.timelineMeta, { color: isDark ? '#94a3b8' : theme.textSecondary }]}>
-                    1.0x
-                  </Text>
-                </View>
+        <View style={styles.bottomPanelWrap}>
+          <View style={styles.formPanel}>
+            {params.sound?.title ? (
+              <View style={styles.soundPill}>
+                <MaterialIcons name="music-note" size={16} color={PRIMARY_COLOR} />
+                <Text style={styles.soundPillText} numberOfLines={1}>{params.sound.title}</Text>
               </View>
+            ) : null}
 
-              <View style={styles.timelineStrip}>
-                {timelineFrames.map((frame, index) => (
-                  <View key={index} style={styles.frameCell}>
-                    <Image source={{ uri: frame }} style={styles.frameImage} />
-                  </View>
-                ))}
+            <TextInput
+              value={title}
+              onChangeText={setTitle}
+              placeholder="Title"
+              placeholderTextColor="rgba(255,255,255,0.58)"
+              style={styles.titleInput}
+              maxLength={255}
+            />
+            <TextInput
+              ref={captionInputRef}
+              value={caption}
+              onChangeText={setCaption}
+              placeholder="Write a caption..."
+              placeholderTextColor="rgba(255,255,255,0.58)"
+              style={styles.captionInput}
+              maxLength={5000}
+              multiline
+            />
 
-                <View style={styles.trimWindow}>
-                  <View style={styles.trimHandleLeft} />
-                  <View style={styles.trimHandleRight} />
-                </View>
-                <View style={styles.playhead} />
-              </View>
+            <View style={styles.visibilityRow}>
+              {visibilityOptions.map((option) => {
+                const selected = visibility === option.value;
+
+                return (
+                  <Pressable
+                    key={option.value}
+                    onPress={() => setVisibility(option.value)}
+                    style={[styles.visibilityButton, selected && styles.visibilityButtonActive]}
+                  >
+                    <MaterialIcons name={option.icon} size={16} color={selected ? '#fff' : 'rgba(255,255,255,0.72)'} />
+                    <Text style={[styles.visibilityText, selected && styles.visibilityTextActive]}>{option.label}</Text>
+                  </Pressable>
+                );
+              })}
+            </View>
+
+            <View style={styles.timelineHeader}>
+              <Text style={styles.timelineMeta}>
+                {formatTime(currentTime)} / {formatTime(duration)}
+              </Text>
+              <Text style={styles.timelineMeta}>1.0x</Text>
+            </View>
+
+            <View style={styles.timelineTrack}>
+              <View style={[styles.timelineFill, { width: `${progress * 100}%` }]} />
+              <View style={[styles.playhead, { left: `${progress * 100}%` }]} />
             </View>
           </View>
         </View>
-      </View>
+      </KeyboardAvoidingView>
     </SafeAreaView>
   );
 };
@@ -161,12 +299,24 @@ const styles = StyleSheet.create({
   },
   screen: {
     flex: 1,
-    paddingTop: 20,
+    backgroundColor: '#000',
   },
-  heroImage: {
+  videoBackground: {
     ...StyleSheet.absoluteFillObject,
     width: '100%',
     height: '100%',
+  },
+  missingVideo: {
+    ...StyleSheet.absoluteFillObject,
+    alignItems: 'center',
+    justifyContent: 'center',
+    backgroundColor: '#0a050d',
+    gap: 10,
+  },
+  missingVideoText: {
+    color: 'rgba(255,255,255,0.74)',
+    ...fontSize.b3,
+    lineHeight: fontSize.b3.fontSize + 2,
   },
   header: {
     position: 'absolute',
@@ -180,7 +330,6 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'space-between',
-    borderBottomWidth: 1,
   },
   headerLeft: {
     flexDirection: 'row',
@@ -188,36 +337,61 @@ const styles = StyleSheet.create({
     gap: 12,
   },
   headerBack: {
-    padding: 4,
+    width: 40,
+    height: 40,
+    borderRadius: 20,
+    alignItems: 'center',
+    justifyContent: 'center',
+    backgroundColor: 'rgba(0,0,0,0.36)',
+    borderWidth: 1,
+    borderColor: 'rgba(255,255,255,0.12)',
   },
   headerTitle: {
-    ...fontSize.b4, lineHeight: fontSize.b4.fontSize + 1,
+    color: '#fff',
+    ...fontSize.b4,
+    lineHeight: fontSize.b4.fontSize + 1,
+    fontWeight: '800',
   },
   postButton: {
-    paddingHorizontal: 20,
+    minWidth: 82,
+    minHeight: 40,
+    paddingHorizontal: 18,
     paddingVertical: 10,
     borderRadius: 999,
     backgroundColor: PRIMARY_COLOR,
-    shadowColor: PRIMARY_COLOR,
-    shadowOffset: { width: 0, height: 0 },
-    shadowOpacity: 0.4,
-    shadowRadius: 18,
-    elevation: 8,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  postButtonDisabled: {
+    opacity: 0.55,
   },
   postButtonText: {
     color: '#fff',
-    ...fontSize.b5, lineHeight: fontSize.b5.fontSize + 1,
+    ...fontSize.b5,
+    lineHeight: fontSize.b5.fontSize + 1,
     letterSpacing: 0.8,
+    fontWeight: '900',
   },
-  overlayLayer: {
-    flex: 1,
-    justifyContent: 'flex-end',
-    paddingTop: 84,
-    paddingBottom: 42,
+  videoTapLayer: {
+    ...StyleSheet.absoluteFillObject,
+    alignItems: 'center',
+    justifyContent: 'center',
+    zIndex: 3,
+  },
+  playButton: {
+    width: 86,
+    height: 86,
+    borderRadius: 43,
+    alignItems: 'center',
+    justifyContent: 'center',
+    backgroundColor: 'rgba(0,0,0,0.42)',
+    borderWidth: 1,
+    borderColor: 'rgba(255,255,255,0.18)',
   },
   challengeBadgeWrap: {
     position: 'absolute',
-    top: 96,
+    zIndex: 10,
+    top: 104,
     left: 20,
   },
   challengeBadge: {
@@ -228,36 +402,38 @@ const styles = StyleSheet.create({
     paddingVertical: 10,
     borderRadius: 14,
     borderWidth: 1,
+    borderColor: 'rgba(255,255,255,0.12)',
+    backgroundColor: 'rgba(0,0,0,0.34)',
   },
   badgeDot: {
     width: 8,
     height: 8,
     borderRadius: 4,
     backgroundColor: PRIMARY_COLOR,
-    shadowColor: PRIMARY_COLOR,
-    shadowOffset: { width: 0, height: 0 },
-    shadowOpacity: 0.9,
-    shadowRadius: 8,
-    elevation: 6,
   },
   badgeMeta: {
     color: PRIMARY_COLOR,
-    ...fontSize.b5, lineHeight: fontSize.b5.fontSize + 1,
+    ...fontSize.b5,
+    lineHeight: fontSize.b5.fontSize + 1,
     textTransform: 'uppercase',
     letterSpacing: 0.9,
   },
   badgeTitle: {
-    ...fontSize.b5, lineHeight: fontSize.b5.fontSize + 1,
+    color: '#fff',
+    ...fontSize.b5,
+    lineHeight: fontSize.b5.fontSize + 1,
+    fontWeight: '900',
   },
   rightRail: {
     position: 'absolute',
-    right: 20,
-    bottom: 222,
-    gap: 22,
+    zIndex: 20,
+    right: 18,
+    bottom: 286,
+    gap: 18,
   },
   quickActionItem: {
     alignItems: 'center',
-    gap: 6,
+    gap: 5,
   },
   quickActionButton: {
     width: 48,
@@ -266,99 +442,124 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'center',
     borderWidth: 1,
+    borderColor: 'rgba(255,255,255,0.14)',
+    backgroundColor: 'rgba(0,0,0,0.4)',
   },
   quickActionLabel: {
-    ...fontSize.b5, lineHeight: fontSize.b5.fontSize + 1,
+    color: 'rgba(255,255,255,0.78)',
+    ...fontSize.b5,
+    lineHeight: fontSize.b5.fontSize + 1,
     textTransform: 'uppercase',
     letterSpacing: 0.8,
   },
   bottomPanelWrap: {
-    paddingHorizontal: 20,
+    position: 'absolute',
+    zIndex: 30,
+    left: 0,
+    right: 0,
+    bottom: 26,
+    paddingHorizontal: 18,
   },
-  timelinePanel: {
-    borderRadius: 18,
+  formPanel: {
+    borderRadius: 20,
     borderWidth: 1,
+    borderColor: 'rgba(255,255,255,0.13)',
+    backgroundColor: 'rgba(0,0,0,0.52)',
     padding: 14,
+    gap: 10,
+  },
+  soundPill: {
+    alignSelf: 'flex-start',
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 6,
+    maxWidth: '82%',
+    borderRadius: 999,
+    paddingHorizontal: 10,
+    paddingVertical: 6,
+    backgroundColor: primaryColorAlpha(0.16),
+  },
+  soundPillText: {
+    color: '#fff',
+    ...fontSize.b5,
+    lineHeight: fontSize.b5.fontSize + 1,
+  },
+  titleInput: {
+    minHeight: 42,
+    color: '#fff',
+    ...fontSize.b4,
+    lineHeight: fontSize.b4.fontSize + 1,
+    borderBottomWidth: 1,
+    borderBottomColor: 'rgba(255,255,255,0.12)',
+    paddingVertical: 8,
+  },
+  captionInput: {
+    minHeight: 64,
+    maxHeight: 110,
+    color: '#fff',
+    ...fontSize.b4,
+    lineHeight: 20,
+    textAlignVertical: 'top',
+  },
+  visibilityRow: {
+    flexDirection: 'row',
+    gap: 8,
+  },
+  visibilityButton: {
+    flex: 1,
+    minHeight: 38,
+    borderRadius: 999,
+    borderWidth: 1,
+    borderColor: 'rgba(255,255,255,0.12)',
+    backgroundColor: 'rgba(255,255,255,0.07)',
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
+    gap: 6,
+  },
+  visibilityButtonActive: {
+    backgroundColor: PRIMARY_COLOR,
+    borderColor: PRIMARY_COLOR,
+  },
+  visibilityText: {
+    color: 'rgba(255,255,255,0.72)',
+    ...fontSize.b5,
+    lineHeight: fontSize.b5.fontSize + 1,
+    fontWeight: '800',
+  },
+  visibilityTextActive: {
+    color: '#fff',
   },
   timelineHeader: {
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'space-between',
-    marginBottom: 10,
   },
   timelineMeta: {
-    ...fontSize.b5, lineHeight: fontSize.b5.fontSize + 1,
+    color: 'rgba(255,255,255,0.68)',
+    ...fontSize.b5,
+    lineHeight: fontSize.b5.fontSize + 1,
     textTransform: 'uppercase',
     letterSpacing: 1,
   },
-  speedWrap: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: 6,
-  },
-  timelineStrip: {
-    height: 52,
-    borderRadius: 12,
-    overflow: 'hidden',
-    backgroundColor: 'rgba(0,0,0,0.42)',
-    padding: 4,
-    flexDirection: 'row',
-    gap: 4,
-    position: 'relative',
-  },
-  frameCell: {
-    flex: 1,
-    borderRadius: 8,
+  timelineTrack: {
+    height: 6,
+    borderRadius: 999,
+    backgroundColor: 'rgba(255,255,255,0.2)',
     overflow: 'hidden',
   },
-  frameImage: {
-    width: '100%',
+  timelineFill: {
     height: '100%',
-  },
-  trimWindow: {
-    position: 'absolute',
-    top: 0,
-    bottom: 0,
-    left: '20%',
-    right: '30%',
-    borderLeftWidth: 4,
-    borderRightWidth: 4,
-    borderColor: PRIMARY_COLOR,
-    backgroundColor: primaryColorAlpha(0.2),
-  },
-  trimHandleLeft: {
-    position: 'absolute',
-    left: -6,
-    top: '50%',
-    marginTop: -8,
-    width: 3,
-    height: 16,
     borderRadius: 999,
-    backgroundColor: 'rgba(255,255,255,0.42)',
-  },
-  trimHandleRight: {
-    position: 'absolute',
-    right: -6,
-    top: '50%',
-    marginTop: -8,
-    width: 3,
-    height: 16,
-    borderRadius: 999,
-    backgroundColor: 'rgba(255,255,255,0.42)',
+    backgroundColor: PRIMARY_COLOR,
   },
   playhead: {
     position: 'absolute',
-    top: 0,
-    bottom: 0,
-    left: '55%',
+    top: -3,
     width: 2,
+    height: 12,
     backgroundColor: '#fff',
-    shadowColor: '#fff',
-    shadowOffset: { width: 0, height: 0 },
-    shadowOpacity: 0.7,
-    shadowRadius: 8,
   },
 });
 
 export default EditSubmission;
-

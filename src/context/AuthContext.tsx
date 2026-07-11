@@ -1,4 +1,5 @@
 import React, { createContext, useContext, useMemo } from 'react';
+import { authApi } from '../api/auth.api';
 import { useAuthStore } from '../store/auth.store';
 import type { User } from '../types/user.types';
 
@@ -30,6 +31,15 @@ export const AuthProvider: React.FC<React.PropsWithChildren> = ({ children }) =>
         useAuthStore.getState().setToken(nextToken);
       },
       logout: async () => {
+        const token = useAuthStore.getState().token;
+        if (token) {
+          try {
+            await authApi.logout(token);
+          } catch {
+            // Ignore network failures during logout and still clear local auth.
+          }
+        }
+
         useAuthStore.getState().clearAuth();
       },
       refresh: async () => undefined,
@@ -48,4 +58,3 @@ export const useAuth = () => {
 
   return context;
 };
-

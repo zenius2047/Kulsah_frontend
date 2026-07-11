@@ -17,7 +17,7 @@ import { BlurView } from 'expo-blur';
 import { useThemeMode, PRIMARY_COLOR, primaryColorAlpha } from "../theme";
 import { mediumScreen } from '../types';
 import { fontSize } from '../typography';
-import { authApi, useAuth } from '../src';
+import { authApi, setAuthToken, useAuth, setUser as setAuthStoreUser } from '../src';
 import DotTrioLoader from '../components/DotTrioLoader';
 
 
@@ -26,6 +26,17 @@ const RESEND_DELAY_SECONDS = 10 * 60;
 const BRAND_GRADIENT = [PRIMARY_COLOR, PRIMARY_COLOR] as const;
 const AVATAR_URI =
   'https://lh3.googleusercontent.com/aida-public/AB6AXuBcVzQUWysJKvjL2bxQdmy1AEhRJvlEcdW-0otb0yN7oc7giBhZzzR9mHJQzo62tIKcz6fGwU3aV75TIpGWJpJ6hvFlXPhWFi0QqZbnUsQx3tmpQlYOYA-KdNmrmhSnysxIDJrwkavXNNm8YvK0fM2Q1b6iZnSdO4L13Z3EXWA-AE7erRrMCjWmJRsOBmmM95oh1q3aUgO5Xit31f_4wpBuITxMJqX7e6k1DLq05lfUkjVR4rdfpyg5mqPvJyDEbfdMKTPeKTlp91gD';
+
+const extractToken = (data: any) =>
+  data?.access_token ?? data?.accessToken ?? data?.token ?? data?.reset_token ?? data?.resetToken ?? '';
+
+const extractMessage = (error: any, fallback: string) => {
+  const data = error?.response?.data ?? {};
+  if (typeof data?.message === 'string') return data.message;
+  if (typeof data?.error === 'string') return data.error;
+  if (Array.isArray(data?.otp) && data.otp[0]) return data.otp[0];
+  return fallback;
+};
 
 const VerifyOtp: React.FC = () => {
   const navigation = useNavigation<any>();
@@ -38,9 +49,11 @@ const VerifyOtp: React.FC = () => {
   const routePhone = typeof route.params?.phone === 'string' ? route.params.phone : '';
   const routeEmail = typeof route.params?.email === 'string' ? route.params.email : '';
   const routeId = route.params?.id;
+  const flow = route.params?.flow === 'resetPassword' ? 'resetPassword' : 'default';
   const {token, setUser} = useAuth();
   const modalBackdrop = isDark ? 'rgba(0,0,0,0.75)' : 'rgba(15,23,42,0.35)';
   const [isLoading, setIsLoading] = useState(false);
+  const [errorMessage, setErrorMessage] = useState('');
 
   useEffect(() => {
     const animation = Animated.loop(
@@ -103,6 +116,7 @@ const VerifyOtp: React.FC = () => {
   }, [routeEmail, routePhone]);
 
   const handleDigitPress = (digit: string) => {
+    setErrorMessage('');
     setOtp((current) => {
       const next = [...current];
       const emptyIndex = next.findIndex((value) => value === '');
@@ -113,6 +127,7 @@ const VerifyOtp: React.FC = () => {
   };
 
   const handleBackspace = () => {
+    setErrorMessage('');
     setOtp((current) => {
       const next = [...current];
       let filledIndex = -1;
@@ -129,14 +144,16 @@ const VerifyOtp: React.FC = () => {
     });
   };
 
-  const handleResend = () => {
+  const handleResend = async () => {
     if (!canResendOtp) return;
     setOtp(Array(OTP_LENGTH).fill(''));
     setResendSecondsRemaining(RESEND_DELAY_SECONDS);
+    setErrorMessage('');
     try{
-      const res = authApi.resendOtp( token)
+      await authApi.resendOtp(token)
     }catch (e: any){
       console.log("this is the error", e?.response?.data)
+      setErrorMessage(extractMessage(e, 'Unable to resend OTP right now.'));
     }
   };
 
@@ -161,6 +178,65 @@ const VerifyOtp: React.FC = () => {
   const glowTopColor = isDark ? primaryColorAlpha(0.22) : primaryColorAlpha(0.12);
   const glowBottomColor = isDark ? primaryColorAlpha(0.16) : primaryColorAlpha(0.08);
   const keypadBorder = isDark ? borderTone : 'rgba(15,23,42,0.06)';
+  const handleVerifyOtp = async () => {
+    if (!isComplete || isLoading) return;
+    const otpValue = otp.join('');
+    setIsLoading(true);
+    setErrorMessage('');
+
+    try {
+      if (flow === 'resetPassword') {
+        if (!routeEmail && !routePhone) {
+          setErrorMessage('Missing email or phone number for password reset.');
+          return;
+        }
+
+        const res = await authApi.verifyResetOtp({
+          ...(routeEmail ? { email: routeEmail } : { phone: routePhone }),
+          otp: otpValue,
+        });
+        const responseData = res.data ?? {};
+        const responseToken = extractToken(responseData);
+
+        if (typeof responseToken === 'string' && responseToken.length > 0) {
+          await setAuthToken(responseToken);
+        }
+
+      if (responseData.user) {
+        setAuthStoreUser(responseData.user);
+      }
+
+        navigation.navigate('ResetPassword', {
+          otp: otpValue,
+          email: routeEmail,
+          phone: routePhone,
+        });
+        return;
+      }
+
+      const res = await authApi.verifyOtp(
+        {
+          otp: otpValue,
+        },
+        token
+      );
+      const responseData = res.data ?? {};
+      const responseToken = extractToken(responseData);
+
+      if (typeof responseToken === 'string' && responseToken.length > 0) {
+        await setAuthToken(responseToken);
+      }
+
+      console.log('Verification done', responseData);
+      setUser(responseData['user']);
+      navigation.navigate('MainTabs');
+    } catch (error: any) {
+      console.log('Registration error:', error?.response?.data);
+      setErrorMessage(extractMessage(error, 'Unable to verify OTP right now.'));
+    } finally {
+      setIsLoading(false);
+    }
+  };
 
   return (
     <SafeAreaView
@@ -245,27 +321,11 @@ const VerifyOtp: React.FC = () => {
           </Text>
         </Pressable>
 
-        <Pressable 
-        onPress ={ async ()=>{
-          console.log(`${otp.toString().replaceAll(",", "")}`);
-          setIsLoading(true);
-         try{
+        {!!errorMessage && <Text style={styles.errorText}>{errorMessage}</Text>}
 
-           const res = await authApi.verifyOtp(
-            {
-              otp: otp.toString().replaceAll(",", ""),
-            },
-            token
-          );
-          
-          console.log('Verification done', res.data);
-          setUser(res.data['user']);
-          navigation.navigate('MainTabs');
-         }catch(error: any){
-          console.log('Registration error:', error?.response?.data);
-         }
-         setIsLoading(false);
-        }}
+        <Pressable 
+        onPress={handleVerifyOtp}
+        disabled={!isComplete || isLoading}
         style={[styles.primaryButton, !isComplete && styles.primaryButtonDisabled]}>
           <LinearGradient colors={BRAND_GRADIENT} start={{ x: 0, y: 0 }} end={{ x: 1, y: 0 }} style={styles.primaryGradient}>
             <Text style={styles.primaryButtonText}>Continue</Text>
@@ -465,6 +525,14 @@ const styles = StyleSheet.create({
   },
   resendActionDisabled: {
     color: '#94a3b8',
+  },
+  errorText: {
+    color: '#dc2626',
+    ...fontSize.b5,
+    lineHeight: fontSize.b5.fontSize + 2,
+    textAlign: 'center',
+    marginTop: -12,
+    marginBottom: 18,
   },
   primaryButton: {
     width: '100%',

@@ -19,6 +19,7 @@ import { SafeAreaView, useSafeAreaInsets } from 'react-native-safe-area-context'
 import { LinearGradient } from 'expo-linear-gradient';
 import { MaterialIcons } from '@expo/vector-icons';
 import { useNavigation, useRoute } from '@react-navigation/native';
+import type { User } from '../src';
 import { useThemeMode, PRIMARY_COLOR, primaryColorAlpha } from "../theme";
 import { mediumScreen } from '../types';
 import GoogleIcon from '../assets/icons/google-svg.svg';
@@ -37,6 +38,27 @@ const COUNTRY_OPTIONS = [
   { cca2: 'ZA', callingCode: '27', label: 'South Africa' },
   { cca2: 'US', callingCode: '1', label: 'United States' },
 ];
+
+const extractAuthUser = (data: Record<string, any>, fallbackIdentifier: string): User => {
+  const responseUser = data.user ?? data.data?.user ?? data.data;
+  if (responseUser && typeof responseUser === 'object') {
+    return responseUser as User;
+  }
+
+  const normalizedIdentifier = fallbackIdentifier.trim();
+  const fallbackHandle = normalizedIdentifier.includes('@')
+    ? normalizedIdentifier.split('@')[0]
+    : normalizedIdentifier.replace(/\D/g, '') || 'user';
+
+  return {
+    id: data.id ?? data.user_id ?? Date.now(),
+    name: data.name ?? fallbackHandle,
+    role: data.role ?? 'fan',
+    email: normalizedIdentifier.includes('@') ? normalizedIdentifier : '',
+    handle: data.username ?? data.handle ?? fallbackHandle,
+    ...(normalizedIdentifier.includes('@') ? {} : { phone: normalizedIdentifier }),
+  };
+};
 
 
 const EmailPhone: React.FC = () => {
@@ -437,6 +459,7 @@ const EmailPhone: React.FC = () => {
 
     try {
       const normalizedValue = normalizedIdentifier;
+      console.log('this is the email being sent', emailCandidate);
       const payload = isEmail
         ? { email: emailCandidate, password: signInPassword }
         : { phone: `+${callingCode}${normalizedValue.replace(/\D/g, '')}`, password: signInPassword };
@@ -453,21 +476,33 @@ const EmailPhone: React.FC = () => {
         await setAuthToken(sessionToken);
       }
 
-      if (responseData.user) {
-        // setId(responseData.user.id ?? 0);
-        setAuthStoreUser(responseData.user);
-      }
-
-      navigation.navigate('VerifyOtp', {
-       email,
-      //  id: id,
+      setAuthStoreUser(extractAuthUser(responseData, normalizedValue));
+      navigation.reset({
+        index: 0,
+        routes: [{ name: 'MainTabs' }],
       });
+
+      // navigation.navigate('VerifyOtp', {
+      //  email,
+      // //  id: id,
+      // });
     } catch (error: any) {
       const responseData = error?.response?.data ?? {};
+      console.log('this is the error', responseData);
       const message =
         responseData?.message ||
         responseData?.error ||
         'Unable to sign in with those credentials.';
+        if(message === 'Account not activated. OTP has been sent to your email or phone.'){
+          const sessionToken = responseData?.token;
+          if (typeof sessionToken === 'string' && sessionToken.length > 0) {
+            await setAuthToken(sessionToken);
+          }
+          navigation.navigate('VerifyOtp', {
+            email: email
+          })
+          return;
+        }
       setAuthError(message);
     } finally {
       setLoading(false);
@@ -598,7 +633,7 @@ const EmailPhone: React.FC = () => {
           contentContainerStyle={[
             styles.scrollContent,
             {
-              justifyContent: isCreateAccount ? 'flex-start': 'center',
+              justifyContent: 'flex-start',
               paddingBottom: 32 + (step === 3 ? (keyboardHeight *0.5) : 0),
               
             },
@@ -894,6 +929,12 @@ const EmailPhone: React.FC = () => {
                     )}
                   </Pressable>
                 </View>
+                <Pressable
+                  onPress={() => navigation.navigate('ForgotPassword')}
+                  style={styles.forgotPasswordButton}
+                >
+                  <Text style={styles.forgotPasswordText}>Forgot password?</Text>
+                </Pressable>
               </View>}
 
               {step === 1 && isCreateAccount && (
@@ -1465,6 +1506,16 @@ const styles = StyleSheet.create({
   helpLinkText: {
     ...fontSize.b4, lineHeight: fontSize.b4.fontSize + 1,
   },
+  forgotPasswordButton: {
+    alignSelf: 'flex-end',
+    paddingTop: 2,
+    paddingBottom: 4,
+  },
+  forgotPasswordText: {
+    color: PRIMARY_COLOR,
+    ...fontSize.b5,
+    lineHeight: fontSize.b5.fontSize + 1,
+  },
   dividerRow: {
     flexDirection: 'row',
     alignItems: 'center',
@@ -1501,7 +1552,8 @@ const styles = StyleSheet.create({
   },
   footer: {
     alignItems: 'center',
-    marginTop: 220,
+    marginTop: 28,
+    marginBottom: 8,
     gap: 10,
     // backgroundColor: 'pink'
   },
