@@ -8,7 +8,7 @@ export const useUser = (enabled = true) =>
     enabled,
     queryFn: async () => {
       const response = await userApi.me();
-      return response.data as User;
+      console.log('this is the response of me:', response.data?.data);
+      return (response.data?.data ?? response.data) as User;
     },
   });
-

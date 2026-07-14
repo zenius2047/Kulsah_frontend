@@ -21,6 +21,7 @@ export * from './hooks/mutations/useUpdateCreatorVideo';
 export * from './hooks/mutations/useUpdateCreatorVideoProgress';
 export * from './hooks/mutations/useUpdateSubscriptionPlan';
 export * from './hooks/mutations/useUploadAvatar';
+export * from './hooks/mutations/useUploadBanner';
 export * from './hooks/mutations/useUploadCreatorVideo';
 export * from './hooks/mutations/useUploadCreatorVideoToDraft';
 export * from './hooks/queries/useCreatorSubscriptionPlans';
@@ -35,6 +36,7 @@ export * from './hooks/queries/useUser';
 export * from './hooks/general/useGeneralFeed';
 export * from './hooks/general/useGeneralMutations';
 export * from './hooks/general/useVideoComments';
+export * from './hooks/general/useWatchedVideos';
 export * from './hooks/general/useWallet';
 
 export * from './services/token.service';

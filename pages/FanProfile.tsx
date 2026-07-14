@@ -1,9 +1,10 @@
 import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { useThemeMode, PRIMARY_COLOR, primaryColorAlpha } from "../theme";
 import { MaterialIcons } from '@expo/vector-icons';
-import { useNavigation } from '@react-navigation/native';
+import { useFocusEffect, useNavigation } from '@react-navigation/native';
 import {
   Alert,
+  ActivityIndicator,
   Image,
   ImageBackground,
   LayoutChangeEvent,
@@ -29,7 +30,7 @@ import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import CreatorSwitch from '../assets/icons/switch-creator.svg';
 import { fontSize } from '../typography';
 import TicketIcon from '../assets/icons/Ticket1.svg';
-import { parseApiError, useSwitchRole } from '../src';
+import { parseApiError, useSwitchRole, useWatchedVideos } from '../src';
 
 interface FanProfileProps {
   onLogout?: () => void;
@@ -78,6 +79,28 @@ const FanProfile: React.FC<FanProfileProps> = ({ onToggleRole }) => {
   const [isRoleSwitchModalOpen, setIsRoleSwitchModalOpen] = useState(false);
   const elevatedSurface = isDark ? 'rgba(31, 16, 34, 0.75)' : theme.card;
   const { mutateAsync: switchRole } = useSwitchRole();
+  const {
+    data: watchedVideosResponse,
+    isLoading: watchedVideosLoading,
+    error: watchedVideosError,
+    refetch: refetchWatchedVideos,
+  } = useWatchedVideos({ per_page: 100 });
+  const watchedVideos = useMemo(
+    () =>
+      (watchedVideosResponse?.data.videos ?? [])
+        .map((item) => ({
+          id: item.id,
+          title: item.title,
+          views: item.views ? `${item.views} views` : item.title,
+          img: item.img ?? undefined,
+        })),
+    [watchedVideosResponse?.data.videos]
+  );
+  useFocusEffect(
+    useCallback(() => {
+      void refetchWatchedVideos();
+    }, [refetchWatchedVideos])
+  );
   const tabsSectionStyle = useMemo(
     () => [
       s.tabsSection,
@@ -170,21 +193,6 @@ const FanProfile: React.FC<FanProfileProps> = ({ onToggleRole }) => {
     { id: 'fv1', title: 'Midnight Soul Session', artist: 'Elena Rose', views: '1.2M', img: 'https://picsum.photos/seed/vid1/400/225' },
     { id: 'fv2', title: 'Summer Tour BTS', artist: 'Burna Boy', views: '840K', img: 'https://picsum.photos/seed/vid2/400/225' },
   ];
-  const fanVideos = [
-    { id: 'fv-grid-1', title: 'Midnight Soul Session', views: '2.4K views', img: 'https://picsum.photos/seed/vid1/400/225' },
-    { id: 'fv-grid-2', title: 'Summer Tour BTS', views: '8.2K views', img: 'https://picsum.photos/seed/vid2/400/225' },
-    { id: 'fv-grid-3', title: 'Neon Rehearsal', views: '4.1K views', img: 'https://picsum.photos/seed/vid3/400/225' },
-    { id: 'fv-grid-4', title: 'Studio Cut', views: '9.7K views', img: 'https://picsum.photos/seed/vid4/400/225' },
-    { id: 'fv-grid-5', title: 'Orbit Session', views: '6.3K views', img: 'https://picsum.photos/seed/vid5/400/225' },
-    { id: 'fv-grid-6', title: 'Afterglow Clip', views: '3.8K views', img: 'https://picsum.photos/seed/vid6/400/225' },
-    { id: 'fv-grid-7', title: 'Midnight Soul Session', views: '2.4K views', img: 'https://picsum.photos/seed/vid1/400/225' },
-    { id: 'fv-grid-8', title: 'Summer Tour BTS', views: '8.2K views', img: 'https://picsum.photos/seed/vid2/400/225' },
-    { id: 'fv-grid-9', title: 'Neon Rehearsal', views: '4.1K views', img: 'https://picsum.photos/seed/vid3/400/225' },
-    { id: 'fv-grid-10', title: 'Studio Cut', views: '9.7K views', img: 'https://picsum.photos/seed/vid4/400/225' },
-    { id: 'fv-grid-11', title: 'Orbit Session', views: '6.3K views', img: 'https://picsum.photos/seed/vid5/400/225' },
-    { id: 'fv-grid-12', title: 'Afterglow Clip', views: '3.8K views', img: 'https://picsum.photos/seed/vid6/400/225' },
-  ];
-
   const subscribedCreators: Creator[] = [
     { id: 'c1', name: 'Elena Rose', img: 'https://picsum.photos/seed/elena/150', handle: '@elena_r', premiumCount: 12 },
     { id: 'c2', name: 'Zion King', img: 'https://picsum.photos/seed/zion/150', handle: '@zion_k', premiumCount: 8 },
@@ -220,7 +228,7 @@ const FanProfile: React.FC<FanProfileProps> = ({ onToggleRole }) => {
       setUser(nextUser);
       await AsyncStorage.setItem('pulsar_user', JSON.stringify(nextUser));
       if (onToggleRole) {
-        console.log('onToggleRole exists.........')
+        // console.log('onToggleRole exists.........')
         onToggleRole();
         return;
       }
@@ -239,7 +247,7 @@ const FanProfile: React.FC<FanProfileProps> = ({ onToggleRole }) => {
   };
 
   const renderVideoGrid = (
-    items: Array<{ id: string; title: string; views?: string; img: string }>
+    items: Array<{ id: string; title: string; views?: string; img?: string }>
   ) => (
     <View style={s.videoGridWrap}>
       <View style={[s.videoGrid, { paddingHorizontal: isTablet ? 15 : 3 }]}>
@@ -254,7 +262,7 @@ const FanProfile: React.FC<FanProfileProps> = ({ onToggleRole }) => {
               },
             ]}
           >
-            <Image source={{ uri: item.img }} style={s.videoGridImage} />
+            {item.img ? <Image source={{ uri: item.img }} style={s.videoGridImage} /> : null}
             <LinearGradient colors={['transparent', 'rgba(0,0,0,0.75)']} style={s.videoGridOverlay} />
             <View style={s.videoGridMeta}>
               <MaterialIcons name="play-arrow" size={14} color="#fff" />
@@ -265,6 +273,40 @@ const FanProfile: React.FC<FanProfileProps> = ({ onToggleRole }) => {
       </View>
     </View>
   );
+
+  const renderWatchedVideos = () => {
+    if (watchedVideosLoading) {
+      return (
+        <View style={[s.videoStateCard, { backgroundColor: elevatedSurface, borderColor: theme.border }]}>
+          <ActivityIndicator size="small" color={PRIMARY_COLOR} />
+          <Text style={[s.videoStateText, { color: theme.textSecondary }]}>Loading watched videos...</Text>
+        </View>
+      );
+    }
+
+    if (watchedVideosError) {
+      return (
+        <Pressable
+          onPress={() => void refetchWatchedVideos()}
+          style={[s.videoStateCard, { backgroundColor: elevatedSurface, borderColor: theme.border }]}
+        >
+          <MaterialIcons name="cloud-off" size={18} color={theme.textSecondary} />
+          <Text style={[s.videoStateText, { color: theme.textSecondary }]}>Could not load watched videos. Tap to retry.</Text>
+        </Pressable>
+      );
+    }
+
+    if (watchedVideos.length === 0) {
+      return (
+        <View style={[s.videoStateCard, { backgroundColor: elevatedSurface, borderColor: theme.border }]}>
+          <MaterialIcons name="movie" size={20} color={theme.textSecondary} />
+          <Text style={[s.videoStateText, { color: theme.textSecondary }]}>Watched videos will appear here.</Text>
+        </View>
+      );
+    }
+
+    return renderVideoGrid(watchedVideos);
+  };
 
   const renderPremiumVaultContent = (creatorId: string) => {
     const creator = subscribedCreators.find((item) => item.id === creatorId);
@@ -555,7 +597,7 @@ const FanProfile: React.FC<FanProfileProps> = ({ onToggleRole }) => {
               )}
 
               {activeTab === 'Video' && (
-                renderVideoGrid(fanVideos)
+                renderWatchedVideos()
               )}
 
               {activeTab === 'Tickets' && (
@@ -978,6 +1020,22 @@ const s = StyleSheet.create({
   videoGridMetaText: {
     color: '#fff',
     ...fontSize.b5, lineHeight: fontSize.b5.fontSize + 1,
+  },
+  videoStateCard: {
+    marginHorizontal: 16,
+    minHeight: 54,
+    borderRadius: 16,
+    borderWidth: 1,
+    paddingHorizontal: 14,
+    paddingVertical: 12,
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 10,
+  },
+  videoStateText: {
+    flex: 1,
+    ...fontSize.b5,
+    lineHeight: fontSize.b5.fontSize + 3,
   },
   twoColGrid: {
     flexDirection: 'row',

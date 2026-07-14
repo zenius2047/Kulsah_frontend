@@ -46,6 +46,8 @@ import DotTrioLoader from '../components/DotTrioLoader';
 import { fontSize } from '../typography';
 import {
   getApiErrorMessage,
+  parseApiError,
+  usePublicCreatorSubscriptionPlans,
   useBookmarkVideoMutation,
   useFollowCreatorMutation,
   useGeneralFeed,
@@ -53,6 +55,7 @@ import {
   useRecordVideoViewMutation,
   useSubscribeToPlan,
 } from '../src';
+import type { CreatorSubscriptionPlan } from '../src';
 
 const KULCOIN_ICON = require('../assets/coin.png');
 
@@ -82,18 +85,11 @@ interface FeedItem {
   saves: string;
 }
 
-interface SubscriptionTier {
-  id: string;
-  name: string;
-  price: string;
-  perks: string[];
-}
-
 interface FeedSubscriptionSelection {
   itemId: string;
+  creatorId?: string;
   creatorHandle: string;
   creatorName: string;
-  tier: SubscriptionTier;
 }
 
 const LiveFeedCreatorAvatar: React.FC<{
@@ -238,17 +234,6 @@ const SHAKE_TO_REFRESH_STORAGE_KEY = 'pulsar_shake_to_refresh';
 const SHAKE_FORCE_THRESHOLD = 2.05;
 const SHAKE_DELTA_THRESHOLD = 1.15;
 const SHAKE_REFRESH_COOLDOWN_MS = 1400;
-const INITIAL_SUBSCRIPTION: SubscriptionTier = {
-  id: 'default',
-  name: 'Kulsah',
-  price: '9.99',
-  perks: [
-    'Exclusive Feed Access',
-    'Direct Messaging',
-    'Badge of Honor',
-  ],
-};
-
 const FALLBACK_FEED_AVATAR = 'https://picsum.photos/seed/kulsah-feed-avatar/150/150';
 const FALLBACK_FEED_BACKGROUND =
   'https://images.unsplash.com/photo-1516450360452-9312f5e86fc7?auto=format&fit=crop&q=80&w=800';
@@ -595,7 +580,7 @@ const FeedSubscriptionModal: React.FC<{
   isProcessing: boolean;
   showSuccess: boolean;
   onClose: () => void;
-  onPurchase: () => void;
+  onPurchase: (plan: CreatorSubscriptionPlan) => void;
 }> = ({
   visible,
   selection,
@@ -609,6 +594,16 @@ const FeedSubscriptionModal: React.FC<{
   const { isDark, theme } = useThemeMode();
   const subscriptionCost = billingCycle === 'monthly' ? MONTHLY_KULCOINS : YEARLY_KULCOINS;
   const subscriptionLabel = billingCycle === 'monthly' ? 'Monthly' : 'Annual';
+  const creatorIdentifier = selection?.creatorId ?? selection?.creatorHandle;
+  const {
+    data: plansData,
+    isLoading: isLoadingPlans,
+    isRefetching: isRefetchingPlans,
+    error: plansError,
+    refetch: refetchPlans,
+  } = usePublicCreatorSubscriptionPlans(visible ? creatorIdentifier : undefined);
+  const plan = plansData?.data?.find((item) => item.is_active) ?? plansData?.data?.[0] ?? null;
+  const parsedPlansError = plansError ? parseApiError(plansError) : null;
 
   return (
     <Modal visible={visible} transparent animationType="slide" statusBarTranslucent onRequestClose={onClose}>
@@ -688,6 +683,53 @@ const FeedSubscriptionModal: React.FC<{
                   </Text>
                 </Pressable>
               </View>
+            ) : isLoadingPlans ? (
+              <View style={{ paddingVertical: 36, rowGap: 12, alignItems: 'center' }}>
+                <ActivityIndicator color={PRIMARY_COLOR} />
+                <Text style={{ color: theme.text, ...fontSize.b2, lineHeight: fontSize.b2.fontSize + 3, textAlign: 'center' }}>
+                  Loading Subscription
+                </Text>
+                <Text style={{ color: theme.textSecondary, ...fontSize.b4, lineHeight: fontSize.b4.fontSize + 4, textAlign: 'center' }}>
+                  Checking this creator's active plan.
+                </Text>
+              </View>
+            ) : parsedPlansError ? (
+              <View style={{ paddingVertical: 34, rowGap: 12, alignItems: 'center' }}>
+                <MaterialIcons name="error-outline" size={42} color="#ef4444" />
+                <Text style={{ color: theme.text, ...fontSize.b2, lineHeight: fontSize.b2.fontSize + 3, textAlign: 'center' }}>
+                  {parsedPlansError.title}
+                </Text>
+                <Text style={{ color: theme.textSecondary, ...fontSize.b4, lineHeight: fontSize.b4.fontSize + 4, textAlign: 'center' }}>
+                  {parsedPlansError.message}
+                </Text>
+                <Pressable
+                  onPress={() => void refetchPlans()}
+                  disabled={isRefetchingPlans}
+                  style={{
+                    minHeight: 52,
+                    borderRadius: 26,
+                    backgroundColor: PRIMARY_COLOR,
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                    paddingHorizontal: 20,
+                    minWidth: 140,
+                  }}
+                >
+                  {isRefetchingPlans ? <ActivityIndicator size="small" color="#fff" /> : (
+                    <Text style={{ color: '#fff', ...fontSize.b4, lineHeight: fontSize.b4.fontSize + 1 }}>Retry</Text>
+                  )}
+                </Pressable>
+              </View>
+            ) : !plan ? (
+              <View style={{ paddingVertical: 34, rowGap: 12, alignItems: 'center' }}>
+                <MaterialIcons name="workspace-premium" size={42} color={PRIMARY_COLOR} />
+                <Text style={{ color: theme.text, ...fontSize.b2, lineHeight: fontSize.b2.fontSize + 3, textAlign: 'center' }}>
+                  No Subscription Plan
+                </Text>
+                <Text style={{ color: theme.textSecondary, ...fontSize.b4, lineHeight: fontSize.b4.fontSize + 4, textAlign: 'center' }}>
+                  {selection.creatorName} has not published a subscription plan yet.
+                </Text>
+              </View>
             ) : (
               <ScrollView showsVerticalScrollIndicator={false} contentContainerStyle={{ paddingBottom: 8, rowGap: 24 }}>
                 <View style={{ flexDirection: 'row', alignItems: 'center', columnGap: 16 }}>
@@ -713,7 +755,7 @@ const FeedSubscriptionModal: React.FC<{
                         textTransform: 'uppercase',
                       }}
                     >
-                      {selection.tier.name} Access
+                      {plan.name}
                     </Text>
                     <Text
                       style={{
@@ -739,46 +781,27 @@ const FeedSubscriptionModal: React.FC<{
                       letterSpacing: 3,
                     }}
                   >
-                    Unlocked Privileges
+                    Description
                   </Text>
-                  {selection.tier.perks.map((perk, i) => (
-                    <View
-                      key={`${perk}-${i}`}
+                  <View
+                    style={{
+                      borderRadius: 24,
+                      borderWidth: 1,
+                      paddingHorizontal: 16,
+                      paddingVertical: 15,
+                      backgroundColor: isDark ? 'rgba(255,255,255,0.04)' : '#fff',
+                      borderColor: isDark ? 'rgba(255,255,255,0.06)' : 'rgba(15,23,42,0.06)',
+                    }}
+                  >
+                    <Text
                       style={{
-                        flexDirection: 'row',
-                        alignItems: 'center',
-                        columnGap: 12,
-                        borderRadius: 24,
-                        borderWidth: 1,
-                        paddingHorizontal: 16,
-                        paddingVertical: 15,
-                        backgroundColor: isDark ? 'rgba(255,255,255,0.04)' : '#fff',
-                        borderColor: isDark ? 'rgba(255,255,255,0.06)' : 'rgba(15,23,42,0.06)',
+                        color: theme.text,
+                        ...fontSize.b4, lineHeight: fontSize.b4.fontSize + 5,
                       }}
                     >
-                      <View
-                        style={{
-                          width: 32,
-                          height: 32,
-                          borderRadius: 12,
-                          backgroundColor: primaryColorAlpha(0.12),
-                          alignItems: 'center',
-                          justifyContent: 'center',
-                        }}
-                      >
-                        <MaterialIcons name="check-circle" size={16} color={PRIMARY_COLOR} />
-                      </View>
-                      <Text
-                        style={{
-                          flex: 1,
-                          color: theme.text,
-                          ...fontSize.b4, lineHeight: fontSize.b4.fontSize + 1,
-                        }}
-                      >
-                        {perk.trim()}
-                      </Text>
-                    </View>
-                  ))}
+                      {plan.description || 'No description added yet.'}
+                    </Text>
+                  </View>
 
                   <View
                     style={{
@@ -829,14 +852,14 @@ const FeedSubscriptionModal: React.FC<{
                           ...fontSize.b1, lineHeight: fontSize.b1.fontSize + 2,
                         }}
                       >
-                        -{subscriptionCost} KC
+                        -{plan.price} KC
                       </Text>
                     </View>
                   </View>
                 </View>
 
                 <Pressable
-                  onPress={onPurchase}
+                  onPress={() => onPurchase(plan)}
                   disabled={isProcessing}
                   style={{
                     minHeight: 72,
@@ -923,6 +946,7 @@ const VideoFeedItem: React.FC<{
   const singleTapTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   const playbackStateRef = useRef<boolean | null>(null);
   const muteStateRef = useRef<boolean | null>(null);
+  const viewTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   const [lineNumber, setLineNumber] = useState(1);
   const [more, setMore] = useState(true);
   const insets = useSafeAreaInsets();
@@ -939,8 +963,8 @@ const VideoFeedItem: React.FC<{
   
 
   const togglePlayPause = () => {
-    console.log("Video is tapped");
-    console.log("The value of more:", more);
+    // console.log("Video is tapped");
+    // console.log("The value of more:", more);
     if(!more){
       setMore(true);
       setLineNumber(1);
@@ -1005,11 +1029,11 @@ const VideoFeedItem: React.FC<{
 
   React.useEffect(() => {
     if (loadedMetadata) {
-      console.log('sourceLoad payload:', JSON.stringify(loadedMetadata, null, 2));
-      console.log('video track:', JSON.stringify(loadedTrack, null, 2));
-      console.log('track size:', loadedTrack?.size);
-      console.log('possible rotation:', (loadedTrack as any)?.rotation);
-      console.log('possible orientation:', (loadedTrack as any)?.orientation);
+      // console.log('sourceLoad payload:', JSON.stringify(loadedMetadata, null, 2));
+      // console.log('video track:', JSON.stringify(loadedTrack, null, 2));
+      // console.log('track size:', loadedTrack?.size);
+      // console.log('possible rotation:', (loadedTrack as any)?.rotation);
+      // console.log('possible orientation:', (loadedTrack as any)?.orientation);
     }
 
     if (loadedWidth > 0 && loadedHeight > 0) {
@@ -1018,8 +1042,8 @@ const VideoFeedItem: React.FC<{
       setDimensions((prev) => (
         prev.width === width && prev.height === height ? prev : { width, height }
       ));
-      console.log(`This is the height : ${height} for the user ${item.handle} video with caption ${item.caption} and the video is portrait? ${isPortraitVideo}` )
-      console.log(`This is the width : ${width} for the user ${item.handle} video`)
+      // console.log(`This is the height : ${height} for the user ${item.handle} video with caption ${item.caption} and the video is portrait? ${isPortraitVideo}` )
+      // console.log(`This is the width : ${width} for the user ${item.handle} video`)
     }
 
     if (typeof loadedDuration === 'number' && loadedDuration > 0) {
@@ -1063,6 +1087,9 @@ const VideoFeedItem: React.FC<{
       if (singleTapTimeoutRef.current) {
         clearTimeout(singleTapTimeoutRef.current);
       }
+      if (viewTimerRef.current) {
+        clearTimeout(viewTimerRef.current);
+      }
     };
   }, []);
   // const replacePlayer = useCallback(async () => {
@@ -1102,11 +1129,32 @@ const VideoFeedItem: React.FC<{
 
   if (shouldPlay) {
     player.play();
-    onRecordView(item);
   } else {
     player.pause();
   }
 }, [isFocused, isPlaying, item, onRecordView, playVideo, player]);
+
+useEffect(() => {
+  if (viewTimerRef.current) {
+    clearTimeout(viewTimerRef.current);
+    viewTimerRef.current = null;
+  }
+
+  const shouldTrackView = isFocused && isPlaying && playVideo === true;
+  if (!shouldTrackView) return;
+
+  viewTimerRef.current = setTimeout(() => {
+    onRecordView(item);
+    viewTimerRef.current = null;
+  }, 3000);
+
+  return () => {
+    if (viewTimerRef.current) {
+      clearTimeout(viewTimerRef.current);
+      viewTimerRef.current = null;
+    }
+  };
+}, [isFocused, isPlaying, item, onRecordView, playVideo]);
 
 useEffect(() => {
   if (muteStateRef.current === isGlobalMuted) return;
@@ -2476,9 +2524,34 @@ const Feed: React.FC = () => {
     // },
   ]);
   const displayedItems = useMemo(() => {
-    if (activeTab === 'premium') return items.filter((i) => i.isSubscribed);
+    if (activeTab === 'following') return items.filter((item) => item.following);
+    if (activeTab === 'premium') return items.filter((item) => item.isPremium);
     return items;
   }, [activeTab, items]);
+
+  const emptyFeedState = useMemo(() => {
+    if (activeTab === 'following') {
+      return {
+        title: 'No Following Videos Yet',
+        message: 'Follow creators to collect their latest transmissions here.',
+        action: 'Discover Creators',
+      };
+    }
+
+    if (activeTab === 'premium') {
+      return {
+        title: 'No Premium Videos Yet',
+        message: 'Premium drops from creators will appear here when they are available.',
+        action: 'Explore For You',
+      };
+    }
+
+    return {
+      title: 'Your Orbit is Empty',
+      message: 'Follow creators in the galaxy to see their latest transmissions.',
+      action: 'Refresh Feed',
+    };
+  }, [activeTab]);
 
   const [activeIndex, setActiveIndex] = useState(0);
   const [selectedSubscription, setSelectedSubscription] = useState<FeedSubscriptionSelection | null>(null);
@@ -2519,6 +2592,11 @@ const Feed: React.FC = () => {
 
     setItems(nextItems);
   }, [feedData]);
+
+  useEffect(() => {
+    setActiveIndex(0);
+    feedListRef.current?.scrollToOffset({ offset: 0, animated: false });
+  }, [activeTab]);
 
   useEffect(() => {
     setIsCreatorViewer(user?.role === 'creator');
@@ -2567,9 +2645,9 @@ const Feed: React.FC = () => {
   const handleSubscribe = useCallback((feedItem: FeedItem) => {
     setSelectedSubscription({
       itemId: feedItem.id,
+      creatorId: feedItem.creatorId,
       creatorHandle: feedItem.handle,
       creatorName: feedItem.artist,
-      tier: INITIAL_SUBSCRIPTION,
     });
     setShowSubscriptionSuccess(false);
   }, []);
@@ -2715,7 +2793,7 @@ const Feed: React.FC = () => {
     setShowSubscriptionSuccess(false);
   }, [isProcessingSubscription]);
 
-  const handleSubscriptionPurchase = useCallback(async () => {
+  const handleSubscriptionPurchase = useCallback(async (plan: CreatorSubscriptionPlan) => {
     if (!selectedSubscription) return;
 
     const subscriptionCost =
@@ -2729,16 +2807,13 @@ const Feed: React.FC = () => {
     try {
       setIsProcessingSubscription(true);
       await subscribeToPlan({
-        subscriptionPlan:
-          selectedSubscription.tier.id === 'default'
-            ? selectedSubscription.creatorHandle || selectedSubscription.creatorName
-            : selectedSubscription.tier.id,
+        subscriptionPlan: plan.id,
         payload: {
-          name: selectedSubscription.tier.name.trim(),
-          description: null,
-          price: Number.parseFloat(selectedSubscription.tier.price),
-          currency: 'USD',
-          billing_interval: 'monthly',
+          name: plan.name.trim(),
+          description: plan.description || null,
+          price: Number.parseFloat(String(plan.price)),
+          currency: plan.currency,
+          billing_interval: plan.billing_interval,
         },
       });
 
@@ -3132,12 +3207,23 @@ const Feed: React.FC = () => {
         </View>
       ) : (
         <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center', paddingHorizontal: 24, backgroundColor: 'black' }}>
-          <Text style={{ color: 'white', ...fontSize.b1, lineHeight: fontSize.b1.fontSize + 2, fontWeight: '800' }}>Your Orbit is Empty</Text>
-          <Text style={{ ...fontSize.b1, color: '#94a3b8', marginTop: 8, textAlign: 'center' }}>
-            Follow creators in the galaxy to see their latest transmissions.
+          <Text style={{ color: 'white', ...fontSize.b1, lineHeight: fontSize.b1.fontSize + 2, fontWeight: '800', textAlign: 'center' }}>
+            {emptyFeedState.title}
           </Text>
-          <Pressable onPress={() => setActiveTab('foryou')} style={{ marginTop: 18 }}>
-            <Text style={{ ...fontSize.b2, color: PRIMARY_COLOR }}>Discover Creators</Text>
+          <Text style={{ ...fontSize.b1, color: '#94a3b8', marginTop: 8, textAlign: 'center' }}>
+            {emptyFeedState.message}
+          </Text>
+          <Pressable
+            onPress={() => {
+              if (activeTab === 'foryou') {
+                void refetchFeed();
+                return;
+              }
+              setActiveTab('foryou');
+            }}
+            style={{ marginTop: 18 }}
+          >
+            <Text style={{ ...fontSize.b2, color: PRIMARY_COLOR }}>{emptyFeedState.action}</Text>
           </Pressable>
         </View>
       )}
@@ -3214,7 +3300,7 @@ const Feed: React.FC = () => {
         isProcessing={isProcessingSubscription}
         showSuccess={showSubscriptionSuccess}
         onClose={closeSubscriptionModal}
-        onPurchase={() => void handleSubscriptionPurchase()}
+        onPurchase={(plan) => void handleSubscriptionPurchase(plan)}
       />
 
       <KulCoinPrompt

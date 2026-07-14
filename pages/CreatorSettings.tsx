@@ -1,7 +1,8 @@
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { MaterialIcons } from '@expo/vector-icons';
 import { useNavigation } from '@react-navigation/native';
-import React, { useEffect, useMemo, useState } from 'react';
+import * as ImagePicker from 'expo-image-picker';
+import React, { useCallback, useEffect, useMemo, useState } from 'react';
 import { useThemeMode, PRIMARY_COLOR, primaryColorAlphaHex } from "../theme";
 import { SafeAreaView } from 'react-native-safe-area-context';
 import {
@@ -35,6 +36,8 @@ import HandShakeIcon from '../assets/icons/handshake-svg.svg';
 import FireIcon from '../assets/icons/fire-svg.svg';
 import { mediumScreen, setDark, setUser, user } from '../types';
 import { fontSize } from './typography';
+import { parseApiError, useUploadAvatar, useUploadBanner } from '../src';
+import type { AvatarUploadSource } from '../src';
 import HelpCentre from '../assets/icons/help_center.svg';
 import PrivacyCentre from '../assets/icons/admin_panel.svg';
 import Terms from '../assets/icons/gravel.svg';
@@ -63,6 +66,72 @@ interface SettingItem {
 
 const ALL_TAGS = ['Synthwave', 'Indie-Soul', 'Live-Looping', 'Afrobeats', 'Techno', 'Cinematic', 'Visual Art', 'Jazz Fusion'];
 const SHAKE_TO_REFRESH_STORAGE_KEY = 'pulsar_shake_to_refresh';
+const INCOGNITO_SUBS_STORAGE_KEY = 'pulsar_incognito_subs';
+const BANNER_REQUIRED_HEIGHT = 180;
+
+const getPickedImageSource = (
+  asset: ImagePicker.ImagePickerAsset,
+  fallbackName: string,
+): AvatarUploadSource => {
+  const extension = asset.uri.split('.').pop()?.split('?')[0]?.toLowerCase() || 'jpg';
+  const type =
+    asset.mimeType ||
+    (extension === 'png'
+      ? 'image/png'
+      : extension === 'webp'
+        ? 'image/webp'
+        : 'image/jpeg');
+
+  return {
+    uri: asset.uri,
+    name: asset.fileName || `${fallbackName}-${Date.now()}.${extension === 'jpg' ? 'jpeg' : extension}`,
+    type,
+  };
+};
+
+const resolveUploadedImageUri = (payload: unknown, fieldName: 'avatar' | 'banner'): string | null => {
+  if (typeof payload === 'string' && payload.trim()) return payload.trim();
+
+  if (payload && typeof payload === 'object') {
+    const record = payload as Record<string, unknown>;
+    const data = record.data && typeof record.data === 'object' ? record.data as Record<string, unknown> : null;
+    const userRecord = record.user && typeof record.user === 'object' ? record.user as Record<string, unknown> : null;
+    const urlKey = `${fieldName}_url`;
+    const camelUrlKey = `${fieldName}Url`;
+    const candidates = [
+      record[fieldName],
+      record[urlKey],
+      record[camelUrlKey],
+      record.url,
+      record.path,
+      data?.[fieldName],
+      data?.[urlKey],
+      data?.[camelUrlKey],
+      data?.url,
+      userRecord?.[fieldName],
+      userRecord?.[urlKey],
+      userRecord?.[camelUrlKey],
+    ];
+
+    for (const candidate of candidates) {
+      if (typeof candidate === 'string' && candidate.trim()) {
+        return candidate.trim();
+      }
+    }
+  }
+
+  return null;
+};
+
+const showBannerHeightWarning = (actualHeight?: number | null) =>
+  new Promise<void>((resolve) => {
+    Alert.alert(
+      'Picture orientation warning',
+      `Banner images should be ${BANNER_REQUIRED_HEIGHT}px tall. The selected image is ${actualHeight ?? 'an unknown height'}px tall.`,
+      [{ text: 'Continue', onPress: () => resolve() }],
+      { cancelable: true, onDismiss: () => resolve() },
+    );
+  });
 
 const CreatorSettings: React.FC<CreatorSettingsProps> = ({ onLogout, isDarkMode, onToggleTheme, onToggleRole }) => {
   const { isDark, theme } = useThemeMode();
@@ -73,9 +142,10 @@ const CreatorSettings: React.FC<CreatorSettingsProps> = ({ onLogout, isDarkMode,
   const [handle, setHandle] = useState('@elena_rose_cre8');
   const [name, setName] = useState('Elena Rose');
   const [bannerImage, setBannerImage] = useState(
-    'https://images.unsplash.com/photo-1493225255756-d9584f8606e9?auto=format&fit=crop&q=80&w=1200',
+    user?.banner?.trim() || 'https://images.unsplash.com/photo-1493225255756-d9584f8606e9?auto=format&fit=crop&q=80&w=1200',
   );
-  const [avatarImage, setAvatarImage] = useState('https://picsum.photos/seed/elena/200');
+  const [avatarImage, setAvatarImage] = useState(user?.avatar?.trim() || 'https://picsum.photos/seed/elena/200');
+  const [isImageUploading, setIsImageUploading] = useState(false);
 
   const [showEvents, setShowEvents] = useState(true);
   const [shakeToRefreshEnabled, setShakeToRefreshEnabled] = useState(false);
@@ -85,13 +155,17 @@ const CreatorSettings: React.FC<CreatorSettingsProps> = ({ onLogout, isDarkMode,
   const [exclusiveMode, setExclusiveMode] = useState(false);
   const [twoFactor, setTwoFactor] = useState(true);
   const [contentProtection, setContentProtection] = useState(true);
+  const { mutateAsync: uploadAvatar } = useUploadAvatar();
+  const { mutateAsync: uploadBanner } = useUploadBanner();
 
   useEffect(() => {
     const loadPrefs = async () => {
       const eventsFlag = await AsyncStorage.getItem('pulsar_show_events');
       const shakeFlag = await AsyncStorage.getItem(SHAKE_TO_REFRESH_STORAGE_KEY);
+      const incognitoSubsFlag = await AsyncStorage.getItem(INCOGNITO_SUBS_STORAGE_KEY);
       setShowEvents(eventsFlag !== 'false');
       setShakeToRefreshEnabled(shakeFlag === 'true');
+      setHideSubs(incognitoSubsFlag === 'true');
     };
     void loadPrefs();
   }, []);
@@ -106,6 +180,12 @@ const CreatorSettings: React.FC<CreatorSettingsProps> = ({ onLogout, isDarkMode,
     const next = !shakeToRefreshEnabled;
     setShakeToRefreshEnabled(next);
     await AsyncStorage.setItem(SHAKE_TO_REFRESH_STORAGE_KEY, String(next));
+  };
+
+  const toggleIncognitoSubs = async () => {
+    const next = !hideSubs;
+    setHideSubs(next);
+    await AsyncStorage.setItem(INCOGNITO_SUBS_STORAGE_KEY, String(next));
   };
 
   const logout = async()=> {
@@ -137,15 +217,70 @@ const CreatorSettings: React.FC<CreatorSettingsProps> = ({ onLogout, isDarkMode,
     });
   }
 
-  const pickImageStub = (type: 'avatar' | 'banner') => {
-    const seed = Date.now();
-    if (type === 'avatar') {
-      setAvatarImage(`https://picsum.photos/seed/avatar${seed}/200`);
-    } else {
-      setBannerImage(`https://picsum.photos/seed/banner${seed}/1200/700`);
+  const persistUploadedImage = useCallback(async (type: 'avatar' | 'banner', imageUri: string) => {
+    const currentUser = user;
+    if (!currentUser) return;
+
+    const nextUser = { ...currentUser, [type]: imageUri };
+    setUser(nextUser);
+    await AsyncStorage.setItem('pulsar_user', JSON.stringify(nextUser));
+  }, []);
+
+  const pickProfileImage = useCallback(async (type: 'avatar' | 'banner') => {
+    if (isImageUploading) return;
+
+    try {
+      const permission = await ImagePicker.requestMediaLibraryPermissionsAsync();
+      if (!permission.granted) {
+        Alert.alert(
+          'Permission needed',
+          'Please allow access to your photo library so you can choose an image.',
+        );
+        return;
+      }
+
+      const result = await ImagePicker.launchImageLibraryAsync({
+        mediaTypes: ['images'],
+        quality: 0.9,
+      });
+
+      if (result.canceled || !result.assets?.length) {
+        return;
+      }
+
+      const asset = result.assets[0];
+      if (!asset?.uri) {
+        Alert.alert('Upload failed', 'We could not read the selected image. Please try again.');
+        return;
+      }
+
+      if (type === 'banner' && asset.height !== BANNER_REQUIRED_HEIGHT) {
+        await showBannerHeightWarning(asset.height);
+      }
+
+      setIsImageUploading(true);
+      const imageSource = getPickedImageSource(asset, type);
+      const uploadResult = type === 'avatar'
+        ? await uploadAvatar(imageSource)
+        : await uploadBanner(imageSource);
+      const uploadedUri = resolveUploadedImageUri(uploadResult, type) || imageSource.uri;
+
+      if (type === 'avatar') {
+        setAvatarImage(uploadedUri);
+      } else {
+        setBannerImage(uploadedUri);
+      }
+
+      await persistUploadedImage(type, uploadedUri);
+    } catch (caughtError) {
+      const parsed = parseApiError(caughtError);
+      Alert.alert(parsed.title, parsed.message);
+    } finally {
+      setIsImageUploading(false);
     }
-    Alert.alert('Image Updated', `Updated ${type} with a placeholder image. Integrate Expo ImagePicker for device uploads.`);
-  };
+  }, [isImageUploading, persistUploadedImage, uploadAvatar, uploadBanner]);
+
+  const imageUploadDescription = isImageUploading ? 'Uploading image...' : undefined;
 
   const sections = useMemo(
     () => [
@@ -179,8 +314,8 @@ const CreatorSettings: React.FC<CreatorSettingsProps> = ({ onLogout, isDarkMode,
       {
         title: 'Visual Identity',
         items: [
-          { label: 'Update Avatar', icon: AccountIcon, desc: 'Change your main profile photo', action: () => pickImageStub('avatar') },
-          { label: 'Banner Aesthetic', icon: ImageIcon, desc: 'Customize your profile header image', action: () => pickImageStub('banner') },
+          { label: 'Update Avatar', icon: AccountIcon, desc: imageUploadDescription || 'Change your main profile photo', action: () => pickProfileImage('avatar') },
+          { label: 'Banner Aesthetic', icon: ImageIcon, desc: imageUploadDescription || 'Customize your profile header image', action: () => pickProfileImage('banner') },
           { label: 'Identity & Bio', icon: EditIcon, desc: 'Manage your @handle and story', action: () => setActiveSubView('identity') },
           { label: 'Streak Rewards', icon: FireIcon, desc: 'View your galaxy milestones', action: () => {
             navigation.navigate('StreakReward')
@@ -240,7 +375,7 @@ const CreatorSettings: React.FC<CreatorSettingsProps> = ({ onLogout, isDarkMode,
             desc: 'Hide subscriber counts from public',
             isToggle: true,
             enabled: hideSubs,
-            onToggle: () => setHideSubs((prev) => !prev),
+            onToggle: () => void toggleIncognitoSubs(),
           },
           {
             label: 'Exclusive Mode',
@@ -276,7 +411,7 @@ const CreatorSettings: React.FC<CreatorSettingsProps> = ({ onLogout, isDarkMode,
         ] as SettingItem[],
       },
     ],
-    [contentProtection, exclusiveMode, hideSubs, isDark, onToggleRole, shakeToRefreshEnabled, showEvents, twoFactor],
+    [contentProtection, exclusiveMode, hideSubs, imageUploadDescription, isDark, onToggleRole, pickProfileImage, shakeToRefreshEnabled, showEvents, twoFactor],
   );
 
   const renderHeader = (title: string, onBack: () => void) => (
@@ -399,7 +534,7 @@ const CreatorSettings: React.FC<CreatorSettingsProps> = ({ onLogout, isDarkMode,
         </ImageBackground> */}
 
         <View style={s.profileTop}>
-          <Pressable onPress={() => pickImageStub('avatar')} style={[s.avatarWrap, {backgroundColor: theme.screen }]}>
+          <Pressable onPress={() => pickProfileImage('avatar')} style={[s.avatarWrap, {backgroundColor: theme.screen }]}>
             <Image source={{ uri: avatarImage }} style={s.avatar} />
             <View style={[s.avatarEdit, {borderColor: theme.screen}]}>
               <MaterialIcons name="edit" size={13} color="#fff" />

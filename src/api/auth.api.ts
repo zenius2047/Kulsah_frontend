@@ -43,7 +43,9 @@ export const authApi = {
     }
   }),
   social: (payload: {token: string, provider: 'google'| 'apple' | 'tiktok' | 'facebook'}) =>
-    api.post(`${endpoints.socialLogin.social}${payload.provider}`, payload)
+    api.post(`${endpoints.socialLogin.social}${payload.provider}`, payload),
+
+  me: (token?: string) => api.get(endpoints.user.me, authHeaderConfig(token)),
 };
 
 export const login = authApi.login;

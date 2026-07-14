@@ -215,7 +215,7 @@ const RecordContent: React.FC = ({route}:any) => {
 
       setIsRecording(true);
       const recording = await cameraRef.current.recordAsync({
-        maxDuration: MAX_RECORDING_SECONDS,
+        // maxDuration: MAX_RECORDING_SECONDS,
       });
 
       if (recording?.uri) {
@@ -331,7 +331,9 @@ const RecordContent: React.FC = ({route}:any) => {
             <View style={styles.progressRow}>
               <Text style={styles.progressLabel}>{isRecording ? 'Recording' : 'Ready'}</Text>
               <Text style={styles.progressTime}>
-                {formatSeconds(recordedSeconds)} / 00:{MAX_RECORDING_SECONDS}
+                {formatSeconds(recordedSeconds)} 
+                {/* / 00:{MAX_RECORDING_SECONDS
+                } */}
               </Text>
             </View>
             <View style={styles.progressTrack}>

@@ -71,6 +71,21 @@ interface SettingItem {
   path?: string;
 }
 
+type CoinPack = {
+  id: string;
+  coins: number;
+  bonus: number;
+  price: number;
+  popular?: boolean;
+};
+
+type PendingTopUp = {
+  label: string;
+  coins: number;
+  bonus: number;
+  price: number;
+};
+
 const DEFAULT_PROFILE_NAME = 'Alex Rivera';
 const DEFAULT_PROFILE_HANDLE = 'alex_vibes_2024';
 const DEFAULT_PROFILE_BIO =
@@ -80,6 +95,12 @@ const PROFILE_BIO_LIMIT = 160;
 const AVATAR_CROP_STAGE = 280;
 const AVATAR_CROP_MIN_SCALE = 1;
 const AVATAR_CROP_MAX_SCALE = 3;
+const COIN_PACKS: CoinPack[] = [
+  { id: 'starter', coins: 10, bonus: 0, price: 1 },
+  { id: 'popular', coins: 50, bonus: 5, price: 5, popular: true },
+  { id: 'boost', coins: 100, bonus: 15, price: 10 },
+  { id: 'vault', coins: 250, bonus: 50, price: 25 },
+];
 
 
 const createProfileDraft = (source?: User | null) => ({
@@ -238,7 +259,11 @@ const FanSettings: React.FC<FanSettingsProps> = ({ onLogout, isDarkMode, onToggl
   const [isAvatarFullscreenOpen, setIsAvatarFullscreenOpen] = useState(false);
   const [isAvatarUploading, setIsAvatarUploading] = useState(false);
   const [shakeToRefreshEnabled, setShakeToRefreshEnabled] = useState(false);
+  const [showCoinPacks, setShowCoinPacks] = useState(false);
+  const [customCoinAmount, setCustomCoinAmount] = useState('');
+  const [pendingTopUp, setPendingTopUp] = useState<PendingTopUp | null>(null);
   const scrollRef = useRef<ScrollView>(null);
+  const giftsScrollRef = useRef<ScrollView>(null);
 
   const [flippedCards, setFlippedCards] = useState<Record<string, boolean>>({});
   const [tokenTime, setTokenTime] = useState(30);
@@ -284,6 +309,42 @@ const FanSettings: React.FC<FanSettingsProps> = ({ onLogout, isDarkMode, onToggl
     const next = !shakeToRefreshEnabled;
     setShakeToRefreshEnabled(next);
     await AsyncStorage.setItem(SHAKE_TO_REFRESH_STORAGE_KEY, String(next));
+  };
+
+  const openCoinPacks = () => {
+    setShowCoinPacks(true);
+    setTimeout(() => {
+      giftsScrollRef.current?.scrollToEnd({ animated: true });
+    }, 80);
+  };
+
+  const proceedToPaymentHub = (topUp: PendingTopUp) => {
+    setPendingTopUp(topUp);
+    setActiveView('payments');
+  };
+
+  const handleCoinPackPress = (pack: CoinPack) => {
+    proceedToPaymentHub({
+      label: `${pack.coins + pack.bonus} Coins`,
+      coins: pack.coins,
+      bonus: pack.bonus,
+      price: pack.price,
+    });
+  };
+
+  const handleCustomCoinTopUp = () => {
+    const coins = Number.parseInt(customCoinAmount, 10);
+    if (!Number.isFinite(coins) || coins <= 0) {
+      Alert.alert('Enter coins', 'Add a valid number of coins to top up.');
+      return;
+    }
+
+    proceedToPaymentHub({
+      label: `${coins} Custom Coins`,
+      coins,
+      bonus: 0,
+      price: Number((coins / 10).toFixed(2)),
+    });
   };
 
   const creatorToggle = async()=>{
@@ -1041,6 +1102,27 @@ const FanSettings: React.FC<FanSettingsProps> = ({ onLogout, isDarkMode, onToggl
     <View style={[s.viewWrap, { backgroundColor: theme.screen }]}>
       {renderHeader('Payment Hub')}
       <ScrollView contentContainerStyle={s.paymentsContent} showsVerticalScrollIndicator={false}>
+        {pendingTopUp ? (
+          <View style={[s.pendingTopUpCard, { backgroundColor: elevatedSurface, borderColor: theme.border }]}>
+            <View style={s.pendingTopUpIcon}>
+              <MaterialIcons name="toll" size={22} color={theme.accent} />
+            </View>
+            <View style={s.pendingTopUpText}>
+              <Text style={[s.pendingTopUpLabel, { color: secondaryText }]}>Pending Top Up</Text>
+              <Text style={[s.pendingTopUpTitle, { color: theme.text }]}>{pendingTopUp.label}</Text>
+              <Text style={[s.pendingTopUpMeta, { color: secondaryText }]}>
+                {pendingTopUp.bonus > 0 ? `${pendingTopUp.coins} + ${pendingTopUp.bonus} bonus coins` : `${pendingTopUp.coins} coins`}
+              </Text>
+            </View>
+            <View style={s.pendingTopUpAmount}>
+              <Text style={[s.pendingTopUpPrice, { color: theme.accent }]}>{pendingTopUp.price} GHS</Text>
+              <Pressable onPress={() => setActiveView('gifts')}>
+                <Text style={[s.pendingTopUpChange, { color: secondaryText }]}>Change</Text>
+              </Pressable>
+            </View>
+          </View>
+        ) : null}
+
         <View style={s.sectionBlock}>
           <View style={s.rowBetween}>
             <Text style={[s.sectionTitle, { color: secondaryText }]}>Verified Methods</Text>
@@ -1080,7 +1162,7 @@ const FanSettings: React.FC<FanSettingsProps> = ({ onLogout, isDarkMode, onToggl
   const renderGiftsView = () => (
     <View style={[s.viewWrap, { backgroundColor: theme.screen }]}>
       {renderHeader('Gifts & Coins')}
-      <ScrollView contentContainerStyle={s.paymentsContent} showsVerticalScrollIndicator={false}>
+      <ScrollView ref={giftsScrollRef} contentContainerStyle={s.paymentsContent} showsVerticalScrollIndicator={false}>
         <View
           style={[
             s.walletCard,
@@ -1099,7 +1181,7 @@ const FanSettings: React.FC<FanSettingsProps> = ({ onLogout, isDarkMode, onToggl
               1,240 <Text style={[s.walletUnit, { color: theme.accent }]}>Coins</Text>
             </Text>
             <View style={s.walletActions}>
-              <Pressable onPress={() => setActiveView('payments')} style={[s.walletPrimaryButton, { backgroundColor: theme.accent }]}>
+              <Pressable onPress={openCoinPacks} style={[s.walletPrimaryButton, { backgroundColor: theme.accent }]}>
                 <Text style={s.walletPrimaryButtonText}>Top Up Wallet</Text>
               </Pressable>
               <Pressable
@@ -1117,6 +1199,65 @@ const FanSettings: React.FC<FanSettingsProps> = ({ onLogout, isDarkMode, onToggl
             </View>
           </View>
         </View>
+
+        {showCoinPacks ? (
+          <View style={s.sectionBlock}>
+            <View style={s.rowBetween}>
+              <Text style={[s.sectionTitle, { color: secondaryText }]}>Coin Packs</Text>
+              <Text style={[s.moreItemsMeta, { color: mutedText }]}>Choose Amount</Text>
+            </View>
+
+            <View style={s.coinPackGrid}>
+              {COIN_PACKS.map((pack) => (
+                <Pressable
+                  key={pack.id}
+                  onPress={() => handleCoinPackPress(pack)}
+                  style={[
+                    s.coinPackCard,
+                    {
+                      backgroundColor: elevatedSurface,
+                      borderColor: pack.popular ? theme.accent : theme.border,
+                    },
+                  ]}
+                >
+                  {pack.popular ? (
+                    <View style={[s.coinPackBadge, { backgroundColor: theme.accent }]}>
+                      <Text style={s.coinPackBadgeText}>Popular</Text>
+                    </View>
+                  ) : null}
+                  <MaterialIcons name="toll" size={24} color={theme.accent} />
+                  <Text style={[s.coinPackCoins, { color: theme.text }]}>{pack.coins}</Text>
+                  {pack.bonus > 0 ? (
+                    <Text style={s.coinPackBonus}>+{pack.bonus} Bonus</Text>
+                  ) : (
+                    <Text style={[s.coinPackBonus, { color: mutedText }]}>No Bonus</Text>
+                  )}
+                  <Text style={[s.coinPackPrice, { color: theme.accent }]}>{pack.price} GHS</Text>
+                </Pressable>
+              ))}
+            </View>
+
+            <View style={[s.customCoinCard, { backgroundColor: elevatedSurface, borderColor: theme.border }]}>
+              <View style={s.customCoinCopy}>
+                <Text style={[s.giftTitle, { color: theme.text }]}>Custom Amount</Text>
+                <Text style={[s.giftDesc, { color: secondaryText }]}>Enter the exact number of coins you want.</Text>
+              </View>
+              <View style={s.customCoinRow}>
+                <TextInput
+                  value={customCoinAmount}
+                  onChangeText={(value) => setCustomCoinAmount(value.replace(/[^0-9]/g, ''))}
+                  keyboardType="number-pad"
+                  placeholder="Coins"
+                  placeholderTextColor={mutedText}
+                  style={[s.customCoinInput, { color: theme.text, backgroundColor: inputBackground, borderColor: theme.border }]}
+                />
+                <Pressable onPress={handleCustomCoinTopUp} style={[s.customCoinButton, { backgroundColor: theme.accent }]}>
+                  <MaterialIcons name="arrow-forward" size={20} color="#fff" />
+                </Pressable>
+              </View>
+            </View>
+          </View>
+        ) : null}
 
         <View style={s.sectionBlock}>
           <View style={s.rowBetween}>
@@ -1682,6 +1823,131 @@ const s = StyleSheet.create({
     borderWidth: 1,
     alignItems: 'center',
     justifyContent: 'center',
+  },
+  coinPackGrid: {
+    flexDirection: 'row',
+    flexWrap: 'wrap',
+    justifyContent: 'space-between',
+    rowGap: 12,
+  },
+  coinPackCard: {
+    width: '48%',
+    minHeight: 150,
+    borderRadius: 24,
+    borderWidth: 1,
+    padding: 16,
+    alignItems: 'center',
+    justifyContent: 'center',
+    gap: 6,
+  },
+  coinPackBadge: {
+    position: 'absolute',
+    top: -9,
+    borderRadius: 999,
+    paddingHorizontal: 10,
+    paddingVertical: 4,
+  },
+  coinPackBadgeText: {
+    color: '#fff',
+    ...fontSize.b5,
+    lineHeight: fontSize.b5.fontSize + 1,
+    textTransform: 'uppercase',
+    letterSpacing: 1,
+  },
+  coinPackCoins: {
+    ...fontSize.b1,
+    lineHeight: fontSize.b1.fontSize + 2,
+  },
+  coinPackBonus: {
+    color: '#22c55e',
+    ...fontSize.b5,
+    lineHeight: fontSize.b5.fontSize + 1,
+    textTransform: 'uppercase',
+    letterSpacing: 1,
+  },
+  coinPackPrice: {
+    ...fontSize.b4,
+    lineHeight: fontSize.b4.fontSize + 1,
+    textTransform: 'uppercase',
+  },
+  customCoinCard: {
+    borderRadius: 24,
+    borderWidth: 1,
+    padding: 16,
+    gap: 14,
+  },
+  customCoinCopy: {
+    gap: 4,
+  },
+  customCoinRow: {
+    flexDirection: 'row',
+    gap: 10,
+  },
+  customCoinInput: {
+    flex: 1,
+    minHeight: 52,
+    borderRadius: 18,
+    borderWidth: 1,
+    paddingHorizontal: 16,
+    ...fontSize.b4,
+    lineHeight: fontSize.b4.fontSize + 1,
+  },
+  customCoinButton: {
+    width: 52,
+    height: 52,
+    borderRadius: 18,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  pendingTopUpCard: {
+    borderRadius: 24,
+    borderWidth: 1,
+    padding: 16,
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 12,
+  },
+  pendingTopUpIcon: {
+    width: 48,
+    height: 48,
+    borderRadius: 16,
+    backgroundColor: primaryColorAlpha(0.12),
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  pendingTopUpText: {
+    flex: 1,
+  },
+  pendingTopUpLabel: {
+    ...fontSize.b5,
+    lineHeight: fontSize.b5.fontSize + 1,
+    textTransform: 'uppercase',
+    letterSpacing: 1.5,
+  },
+  pendingTopUpTitle: {
+    marginTop: 2,
+    ...fontSize.b4,
+    lineHeight: fontSize.b4.fontSize + 1,
+    textTransform: 'uppercase',
+  },
+  pendingTopUpMeta: {
+    marginTop: 2,
+    ...fontSize.b5,
+    lineHeight: fontSize.b5.fontSize + 1,
+  },
+  pendingTopUpAmount: {
+    alignItems: 'flex-end',
+    gap: 4,
+  },
+  pendingTopUpPrice: {
+    ...fontSize.b4,
+    lineHeight: fontSize.b4.fontSize + 1,
+  },
+  pendingTopUpChange: {
+    ...fontSize.b5,
+    lineHeight: fontSize.b5.fontSize + 1,
+    textTransform: 'uppercase',
+    letterSpacing: 1,
   },
   moreItemsMeta: {
     ...fontSize.b5, lineHeight: fontSize.b5.fontSize + 1,

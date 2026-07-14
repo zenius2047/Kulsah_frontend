@@ -10,11 +10,15 @@ import type {
   GeneralFeedParams,
   GeneralFeedResponse,
   GeneralVideoResponse,
+  WatchedVideosParams,
+  WatchedVideosResponse,
   PaginatedWalletResponse,
   UpdateGeneralProfilePayload,
   UpdateGeneralProfileResponse,
   UploadAvatarPayload,
   UploadAvatarResponse,
+  UploadBannerPayload,
+  UploadBannerResponse,
   VideoActionResponse,
   WalletLedgerEntry,
   WalletMutationResponse,
@@ -25,18 +29,21 @@ import type {
 } from '../types/general.types';
 import type { AvatarUploadSource } from '../types/user.types';
 
-const createAvatarFormData = (avatar?: UploadAvatarPayload) => {
+const createImageFormData = (
+  fieldName: 'avatar' | 'banner',
+  image?: UploadAvatarPayload | UploadBannerPayload,
+) => {
   const formData = new FormData();
 
-  if (avatar instanceof FormData) {
-    return avatar;
+  if (image instanceof FormData) {
+    return image;
   }
 
-  if (avatar) {
-    const source = avatar as AvatarUploadSource;
-    formData.append('avatar', {
+  if (image) {
+    const source = image as AvatarUploadSource;
+    formData.append(fieldName, {
       uri: source.uri,
-      name: source.name ?? 'avatar.jpg',
+      name: source.name ?? `${fieldName}.jpg`,
       type: source.type ?? 'image/jpeg',
     } as any);
   }
@@ -51,6 +58,8 @@ export const generalApi = {
     api.get<GeneralVideoResponse>(endpoints.general.video(video)),
   recordVideoView: (video: string | number) =>
     api.post<GeneralVideoResponse>(endpoints.general.videoView(video)),
+  getWatchedVideos: (params?: WatchedVideosParams) =>
+    api.get<WatchedVideosResponse>(endpoints.general.videoWatched, { params }),
   likeVideo: (video: string | number) =>
     api.post<VideoActionResponse>(endpoints.general.videoLike(video)),
   unlikeVideo: (video: string | number) =>
@@ -74,7 +83,13 @@ export const generalApi = {
   unfollowCreator: (creator: string | number) =>
     api.delete<FollowCreatorResponse>(endpoints.general.creatorFollow(creator)),
   uploadAvatar: (avatar?: UploadAvatarPayload) =>
-    api.post<UploadAvatarResponse>(endpoints.general.uploadAvatar, createAvatarFormData(avatar), {
+    api.post<UploadAvatarResponse>(endpoints.general.uploadAvatar, createImageFormData('avatar', avatar), {
+      headers: {
+        'Content-Type': 'multipart/form-data',
+      },
+    }),
+  uploadBanner: (banner?: UploadBannerPayload) =>
+    api.post<UploadBannerResponse>(endpoints.general.uploadBanner, createImageFormData('banner', banner), {
       headers: {
         'Content-Type': 'multipart/form-data',
       },

@@ -21,9 +21,11 @@ export const endpoints = {
   general: {
     updateProfile: 'general/update-profile',
     uploadAvatar: 'general/upload-avatar',
+    uploadBanner: 'general/upload-banner',
     feed: 'general/feed',
     video: (video: string | number) => `general/videos/${video}`,
     videoView: (video: string | number) => `general/videos/${video}/view`,
+    videoWatched: 'general/videos/watched',
     videoLike: (video: string | number) => `general/videos/${video}/like`,
     videoBookmark: (video: string | number) => `general/videos/${video}/bookmark`,
     videoComments: (video: string | number) => `general/videos/${video}/comments`,
@@ -59,7 +61,7 @@ export const endpoints = {
       `creator-fan/creators/${creator}/subscription-plans`,
   },
   user: {
-    me: 'users/me',
+    me: 'auth/me',
     profile: 'users/profile',
   },
   socialLogin: {

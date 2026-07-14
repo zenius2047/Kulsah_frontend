@@ -1,6 +1,6 @@
 import { MaterialIcons } from '@expo/vector-icons';
-import { useNavigation, useRoute } from '@react-navigation/native';
-import React, { useEffect, useMemo, useState } from 'react';
+import { useFocusEffect, useNavigation, useRoute } from '@react-navigation/native';
+import React, { useCallback, useEffect, useMemo, useState } from 'react';
 import { useThemeMode, PRIMARY_COLOR, primaryColorAlpha, primaryColorAlphaHex } from "../theme";
 import { ActivityIndicator, Alert, Dimensions, Image, ImageBackground, Modal, Pressable, ScrollView, Share, StyleSheet, Text, TextInput, useWindowDimensions, View } from 'react-native';
 import { LinearGradient } from 'expo-linear-gradient';
@@ -20,14 +20,24 @@ import { fontSize } from '../typography';
 import TicketIcon from '../assets/icons/Ticket1.svg';
 import LocalActivity from '../assets/icons/local_activity.svg';
 import LibraryMusic from '../assets/icons/library_music.svg';
-import { parseApiError, useCreatorVideos, useSubscribeToPlan, useSwitchRole } from '../src';
+import { parseApiError, useCreatorVideos, useSubscribeToPlan, useSwitchRole, useUser, useWatchedVideos } from '../src';
 
 
 type Tab = 'Videos' | 'Library' | 'Premium'  | 'Tickets' | 'Events' | 'Challenges' | 'Favorites' | 'Saved';
-type LibrarySubTab = 'All' | 'Public' | 'Premium' | 'Drafts';
+type LibrarySubTab = 'All' | 'Public' | 'Premium' | 'Drafts' | 'Playlist';
 type Billing = 'monthly' | 'annually';
 const { height: SCREEN_HEIGHT, width: SCREEN_WIDTH } = Dimensions.get('screen');
 const KULCOIN_ICON = require('../assets/coin.png');
+const FALLBACK_BANNER =
+  'https://res.cloudinary.com/dh0dywpzm/image/upload/v1779792408/banner_image_001_ewjudx.jpg';
+const FALLBACK_AVATAR =
+  'https://res.cloudinary.com/dh0dywpzm/image/upload/v1779792408/profile_image_001_utl9qa.jpg';
+
+const formatProfileCount = (value: number) => {
+  if (value >= 1000000) return `${(value / 1000000).toFixed(value >= 10000000 ? 0 : 1)}M`;
+  if (value >= 1000) return `${(value / 1000).toFixed(value >= 10000 ? 0 : 1)}K`;
+  return String(value);
+};
 
 interface SubscriptionTier {
   id: string;
@@ -49,6 +59,16 @@ type LibraryVideo = {
   draft?: boolean;
 };
 
+interface Playlist {
+  id: string;
+  title: string;
+  videoCount: number;
+  views: string;
+  timeAgo: string;
+  img: string;
+  videoIds?: string[];
+}
+
 const INITIAL_SUBSCRIPTION: SubscriptionTier = {
   id: 'default',
   name: 'Kulsah',
@@ -64,6 +84,7 @@ const INITIAL_SUBSCRIPTION: SubscriptionTier = {
 
 const MONTHLY_KULCOINS = 100;
 const YEARLY_KULCOINS = 1000;
+const INCOGNITO_SUBS_STORAGE_KEY = 'pulsar_incognito_subs';
 const videos = [
   { id: 'v1', title: 'Moonlight Symphony', views: '1.2M', duration: '4:20', img: 'https://images.unsplash.com/photo-1598488035139-bdbb2231ce04?auto=format&fit=crop&q=80&w=600' },
   { id: 'v2', title: 'Summer Tour Highlights', views: '450K', duration: '12:15', img: 'https://images.unsplash.com/photo-1514525253361-bee8718a74a2?auto=format&fit=crop&q=80&w=600' },
@@ -114,6 +135,25 @@ const initialLibraryVideos: LibraryVideo[] = [
   { id: 'dv2', title: 'Cyberpunk Beats Jam [WIP Raw Take]', views: '0', date: 'Just now', duration: '5:40', category: 'Drafts', img: 'https://images.unsplash.com/photo-1511671782779-c97d3d27a1d4?auto=format&fit=crop&q=80&w=400', likes: '0', draft: true },
 ];
 
+const playlists: Playlist[] = [
+  {
+    id: 'pl1',
+    title: 'VIP Acoustic Sessions',
+    videoCount: 3,
+    views: '1.2M views',
+    timeAgo: 'Updated 2 days ago',
+    img: 'https://images.unsplash.com/photo-1514525253361-bee8718a74a2?auto=format&fit=crop&q=80&w=800',
+  },
+  {
+    id: 'pl2',
+    title: 'Behind The Scenes & Vlogs',
+    videoCount: 3,
+    views: '250K views',
+    timeAgo: 'Updated 1 week ago',
+    img: 'https://images.unsplash.com/photo-1598488035139-bdbb2231ce04?auto=format&fit=crop&q=80&w=800',
+  },
+];
+
 
 
 const  ArtistProfile: React.FC = () => {
@@ -130,15 +170,28 @@ const  ArtistProfile: React.FC = () => {
   const route = useRoute<any>();
   const [currentUser, setCurrentUser] = useState<User | null>(user);
   const [isFollowing, setIsFollowing] = useState(false);
-  const [likeCount, setLikeCount] = useState(84200);
   const isOwner = route.params?.isOwner ?? false;
-  const name = route.params?.id || 'Kulsah';
+  const { data: meProfile } = useUser(isOwner);
+  const profileUser = isOwner ? meProfile ?? currentUser : null;
+  const routeName = route.params?.id || 'Kulsah';
+  const name = profileUser?.name?.trim() || routeName;
+  const displayName = isOwner ? name : routeName;
+  const displayHandle = profileUser?.handle?.trim() || String(displayName).toLowerCase().replace(/\s+/g, '_');
+  const displayBanner = profileUser?.banner?.trim() || FALLBACK_BANNER;
+  const displayAvatar = profileUser?.avatar?.trim() || FALLBACK_AVATAR;
+  const displayBio = profileUser?.bio?.trim() || 'No bio yet.';
+  const displayRole = profileUser ? (profileUser.role === 'creator' ? 'Creator' : 'Fan') : 'Creator';
+  const isVerified = profileUser ? Boolean(profileUser.verified || profileUser.verified_at) : true;
+  const followerCount = profileUser?.total_followers ?? (isFollowing ? 14201 : 14200);
+  const likeCount = profileUser?.total_likes ?? 84200;
+  const subscriberCount = profileUser?.total_subscribers ?? 2842;
+  const isFanViewer = !isOwner && currentUser?.role === 'fan';
   // const isOwner = !route.params?.id || route.params?.id === 'Me';
   const tabs = useMemo(() => {
     if (isOwner) {
       return ['Videos', 'Library', 'Premium',  'Tickets', 'Events', 'Challenges', 'Favorites', 'Saved'] as Tab[];
     }
-    return ['Videos', 'Library', 'Premium',  'Events', 'Challenges'] as Tab[];
+    return ['Videos', 'Premium',  'Events', 'Challenges'] as Tab[];
   }, [isOwner]);
   const [activeTab, setActiveTab] = useState<Tab>('Videos');
   const [librarySubTab, setLibrarySubTab] = useState<LibrarySubTab>('All');
@@ -151,11 +204,18 @@ const  ArtistProfile: React.FC = () => {
   const [following, setFollowing] = useState(false);
   const [playingSoundId, setPlayingSoundId] = useState<string | null>(null);
   const [billingCycle, setBillingCycle] = useState<Billing>('monthly');
+  const [hideSubscriberCountFromFans, setHideSubscriberCountFromFans] = useState(false);
   const [isRoleSwitchModalOpen, setIsRoleSwitchModalOpen] = useState(false);
   const [libraryVideos, setLibraryVideos] = useState<LibraryVideo[]>(initialLibraryVideos);
+  const [libraryPlaylists, setLibraryPlaylists] = useState<Playlist[]>(playlists);
   const [activeMenuId, setActiveMenuId] = useState<string | null>(null);
   const [editingVideo, setEditingVideo] = useState<LibraryVideo | null>(null);
   const [editTitleValue, setEditTitleValue] = useState('');
+  const [isCreatePlaylistOpen, setIsCreatePlaylistOpen] = useState(false);
+  const [playlistTitleValue, setPlaylistTitleValue] = useState('');
+  const [isLibrarySelectionMode, setIsLibrarySelectionMode] = useState(false);
+  const [selectedLibraryVideoIds, setSelectedLibraryVideoIds] = useState<string[]>([]);
+  const [playlistPickerVideoIds, setPlaylistPickerVideoIds] = useState<string[]>([]);
   const { mutateAsync: subscribeToPlan } = useSubscribeToPlan();
   const { mutateAsync: switchRole } = useSwitchRole();
   const {
@@ -164,10 +224,54 @@ const  ArtistProfile: React.FC = () => {
     error: creatorVideosError,
     refetch: refetchCreatorVideos,
   } = useCreatorVideos({ per_page: 100 }, isOwner);
-  const ping = (m: string) => { setToast(m); setTimeout(() => setToast(''), 2200); };
-  const share = async () => { try { await Share.share({ title: `${name} on Kulsah`, message: `Check out ${name}'s creative universe on Kulsah!` }); } catch { ping('Share failed'); } };
+  const {
+    data: watchedVideosResponse,
+    isLoading: watchedVideosLoading,
+    error: watchedVideosError,
+    refetch: refetchWatchedVideos,
+  } = useWatchedVideos({ per_page: 100 }, isOwner);
+  const watchedVideos = useMemo(
+    () =>
+      (watchedVideosResponse?.data.videos ?? []).map((item) => ({
+        id: item.id,
+        title: item.title,
+        views: item.views ? `${item.views} views` : item.title,
+        img: item.img ?? undefined,
+      })),
+    [watchedVideosResponse?.data.videos]
+  );
+  useFocusEffect(
+    useCallback(() => {
+      if (!isOwner) return;
 
+      void refetchWatchedVideos();
+    }, [isOwner, refetchWatchedVideos])
+  );
+  const ping = (m: string) => { setToast(m); setTimeout(() => setToast(''), 2200); };
+  const share = async () => { try { await Share.share({ title: `${displayName} on Kulsah`, message: `Check out ${displayName}'s creative universe on Kulsah!` }); } catch { ping('Share failed'); } };
+  const canShowSubscriberStat = !isFanViewer || !hideSubscriberCountFromFans;
   useEffect(() => subscribeUser(setCurrentUser), []);
+  useEffect(() => {
+    if (isOwner && meProfile) {
+      setCurrentUser(meProfile);
+      setUser(meProfile);
+    }
+  }, [isOwner, meProfile]);
+  useEffect(() => {
+    let mounted = true;
+
+    AsyncStorage.getItem(INCOGNITO_SUBS_STORAGE_KEY)
+      .then((value: string | null) => {
+        if (mounted) {
+          setHideSubscriberCountFromFans(value === 'true');
+        }
+      })
+      .catch(() => undefined);
+
+    return () => {
+      mounted = false;
+    };
+  }, []);
   useEffect(() => {
     if (isOwner) return;
 
@@ -211,6 +315,11 @@ const  ArtistProfile: React.FC = () => {
       setLibrarySubTab('All');
     }
   }, [isOwner, librarySubTab]);
+  useEffect(() => {
+    setIsLibrarySelectionMode(false);
+    setSelectedLibraryVideoIds([]);
+    setActiveMenuId(null);
+  }, [librarySubTab]);
 
   const persistLibraryVideos = (videosToPersist: LibraryVideo[]) => {
     setLibraryVideos(videosToPersist);
@@ -234,6 +343,80 @@ const  ArtistProfile: React.FC = () => {
         },
       },
     ]);
+  };
+
+  const createLibraryPlaylist = () => {
+    const nextTitle = playlistTitleValue.trim();
+    if (!nextTitle) {
+      ping('Playlist title cannot be empty');
+      return;
+    }
+
+    const coverVideo = libraryVideos.find((item) => !item.draft) ?? libraryVideos[0];
+    const nextPlaylist: Playlist = {
+      id: `pl-${Date.now()}`,
+      title: nextTitle,
+      videoCount: 0,
+      views: '0 views',
+      timeAgo: 'Created just now',
+      img: coverVideo?.img ?? FALLBACK_BANNER,
+      videoIds: [],
+    };
+
+    setLibraryPlaylists((current) => [nextPlaylist, ...current]);
+    setPlaylistTitleValue('');
+    setIsCreatePlaylistOpen(false);
+    ping('Playlist created');
+  };
+
+  const toggleLibraryVideoSelection = (videoId: string) => {
+    setSelectedLibraryVideoIds((current) =>
+      current.includes(videoId)
+        ? current.filter((id) => id !== videoId)
+        : [...current, videoId]
+    );
+  };
+
+  const openPlaylistPicker = (videoIds: string[]) => {
+    const uniqueVideoIds = Array.from(new Set(videoIds));
+    if (uniqueVideoIds.length === 0) {
+      ping('Select at least one video');
+      return;
+    }
+
+    setPlaylistPickerVideoIds(uniqueVideoIds);
+    setActiveMenuId(null);
+  };
+
+  const closePlaylistPicker = () => {
+    setPlaylistPickerVideoIds([]);
+  };
+
+  const moveVideosToPlaylist = (playlistId: string) => {
+    const videoIds = playlistPickerVideoIds;
+    if (videoIds.length === 0) return;
+
+    setLibraryPlaylists((current) =>
+      current.map((playlist) => {
+        if (playlist.id !== playlistId) return playlist;
+
+        const existingVideoIds = playlist.videoIds ?? [];
+        const nextVideoIds = Array.from(new Set([...existingVideoIds, ...videoIds]));
+        const addedCount = nextVideoIds.length - existingVideoIds.length;
+
+        return {
+          ...playlist,
+          videoIds: nextVideoIds,
+          videoCount: playlist.videoCount + Math.max(addedCount, 0),
+          timeAgo: 'Updated just now',
+        };
+      })
+    );
+
+    setSelectedLibraryVideoIds([]);
+    setIsLibrarySelectionMode(false);
+    closePlaylistPicker();
+    ping(`${videoIds.length} video${videoIds.length === 1 ? '' : 's'} moved to playlist`);
   };
 
 
@@ -281,35 +464,6 @@ const musicReleases = [
   },
 ];
 
-
-
-interface Playlist {
-  id: string;
-  title: string;
-  videoCount: number;
-  views: string;
-  timeAgo: string;
-  img: string;
-}
-
-const playlists: Playlist[] = [
-  {
-    id: 'pl1',
-    title: 'VIP Acoustic Sessions',
-    videoCount: 3,
-    views: '1.2M views',
-    timeAgo: 'Updated 2 days ago',
-    img: 'https://images.unsplash.com/photo-1514525253361-bee8718a74a2?auto=format&fit=crop&q=80&w=800',
-  },
-  {
-    id: 'pl2',
-    title: 'Behind The Scenes & Vlogs',
-    videoCount: 3,
-    views: '250K views',
-    timeAgo: 'Updated 1 week ago',
-    img: 'https://images.unsplash.com/photo-1598488035139-bdbb2231ce04?auto=format&fit=crop&q=80&w=800',
-  },
-];
 
 
 const PlaylistSection = () => {
@@ -425,7 +579,7 @@ const PlaylistSection = () => {
                 },
               ]}
               onPress={() => {
-                console.log('share');
+                // console.log('share');
               }}
             >
               <MaterialIcons
@@ -484,11 +638,47 @@ const PlaylistSection = () => {
     </View>
   );
 
+  const renderWatchedVideos = () => {
+    if (!isOwner) {
+      return renderGrid(videos);
+    }
+
+    if (watchedVideosLoading) {
+      return (
+        <View style={[s.libraryStateCard, { backgroundColor: faintSurface, borderColor: theme.border }]}>
+          <ActivityIndicator size="small" color={PRIMARY_COLOR} />
+          <Text style={[s.libraryStateText, { color: theme.textSecondary }]}>Loading watched videos...</Text>
+        </View>
+      );
+    }
+
+    if (watchedVideosError) {
+      return (
+        <Pressable onPress={() => void refetchWatchedVideos()} style={[s.libraryStateCard, { backgroundColor: faintSurface, borderColor: theme.border }]}>
+          <MaterialIcons name="cloud-off" size={18} color={theme.textSecondary} />
+          <Text style={[s.libraryStateText, { color: theme.textSecondary }]}>Could not load watched videos. Tap to retry.</Text>
+        </Pressable>
+      );
+    }
+
+    if (watchedVideos.length === 0) {
+      return (
+        <View style={[s.libraryStateCard, { backgroundColor: faintSurface, borderColor: theme.border }]}>
+          <MaterialIcons name="movie" size={22} color={theme.textSecondary} />
+          <Text style={[s.libraryStateText, { color: theme.textSecondary }]}>Watched videos will appear here.</Text>
+        </View>
+      );
+    }
+
+    return renderGrid(watchedVideos);
+  };
+
   const renderLibrary = () => {
     const isSubscribed = Boolean((currentUser as any)?.subscribedTo?.includes(name)) || isOwner;
     const canManageLibrary = isOwner || currentUser?.role === 'creator';
-    const subTabs = (isOwner ? ['All', 'Public', 'Premium', 'Drafts'] : ['All', 'Public', 'Premium']) as LibrarySubTab[];
+    const subTabs = (isOwner ? ['All', 'Public', 'Premium', 'Drafts', 'Playlist'] : ['All', 'Public', 'Premium', 'Playlist']) as LibrarySubTab[];
     const filteredLibrary = libraryVideos.filter((item) => {
+      if (librarySubTab === 'Playlist') return false;
       if (librarySubTab === 'Drafts') return Boolean(item.draft);
       if (item.draft) return false;
       if (librarySubTab === 'All') return true;
@@ -527,7 +717,104 @@ const PlaylistSection = () => {
           </View>
         ) : null}
 
-        <View style={s.libraryGrid}>
+        {librarySubTab !== 'Playlist' && canManageLibrary ? (
+          <View style={[s.libraryBulkBar, { backgroundColor: faintSurface, borderColor: theme.border }]}>
+            <View style={s.libraryBulkCopy}>
+              <Text style={[s.libraryBulkTitle, { color: theme.text }]}>
+                {isLibrarySelectionMode ? `${selectedLibraryVideoIds.length} Selected` : 'Manage Videos'}
+              </Text>
+              <Text style={[s.libraryBulkMeta, { color: theme.textSecondary }]}>
+                {isLibrarySelectionMode ? 'Tap videos to select multiple.' : 'Select multiple videos for playlists.'}
+              </Text>
+            </View>
+            {isLibrarySelectionMode ? (
+              <>
+                <Pressable
+                  onPress={() => openPlaylistPicker(selectedLibraryVideoIds)}
+                  style={[
+                    s.libraryBulkAction,
+                    { backgroundColor: selectedLibraryVideoIds.length > 0 ? PRIMARY_COLOR : 'rgba(148,163,184,0.24)' },
+                  ]}
+                >
+                  <MaterialIcons name="playlist-add" size={17} color="#fff" />
+                  <Text style={s.libraryBulkActionText}>Move</Text>
+                </Pressable>
+                <Pressable
+                  onPress={() => {
+                    setIsLibrarySelectionMode(false);
+                    setSelectedLibraryVideoIds([]);
+                  }}
+                  style={[s.libraryBulkIconAction, { borderColor: theme.border }]}
+                >
+                  <MaterialIcons name="close" size={18} color={theme.text} />
+                </Pressable>
+              </>
+            ) : (
+              <Pressable
+                onPress={() => setIsLibrarySelectionMode(true)}
+                style={s.libraryBulkAction}
+              >
+                <MaterialIcons name="checklist" size={17} color="#fff" />
+                <Text style={s.libraryBulkActionText}>Select</Text>
+              </Pressable>
+            )}
+          </View>
+        ) : null}
+
+        {librarySubTab === 'Playlist' ? (
+          <View style={s.libraryPlaylistSection}>
+            <View style={s.libraryPlaylistHeader}>
+              <View style={s.libraryPlaylistHeaderCopy}>
+                <Text style={[s.libraryPlaylistTitle, { color: theme.text }]}>Playlists</Text>
+                <Text style={[s.libraryPlaylistSubtitle, { color: theme.textSecondary }]}>
+                  Group videos into public or premium collections.
+                </Text>
+              </View>
+              {canManageLibrary ? (
+                <Pressable
+                  onPress={() => setIsCreatePlaylistOpen(true)}
+                  style={s.libraryCreatePlaylistButton}
+                >
+                  <MaterialIcons name="add" size={18} color="#fff" />
+                  <Text style={s.libraryCreatePlaylistText}>Create</Text>
+                </Pressable>
+              ) : null}
+            </View>
+
+            {libraryPlaylists.length === 0 ? (
+              <View style={[s.libraryStateCard, { backgroundColor: faintSurface, borderColor: theme.border }]}>
+                <MaterialIcons name="playlist-play" size={22} color={theme.textSecondary} />
+                <Text style={[s.libraryStateText, { color: theme.textSecondary }]}>No playlists created yet.</Text>
+              </View>
+            ) : (
+              <View style={s.libraryPlaylistGrid}>
+                {libraryPlaylists.map((item) => (
+                  <Pressable
+                    key={item.id}
+                    onPress={() => navigation.navigate('PlaylistPlayer', { id: item.id })}
+                    style={[s.libraryPlaylistCard, { backgroundColor: isDark ? '#0f172a' : theme.surface, borderColor: isDark ? 'rgba(255,255,255,0.1)' : theme.border }]}
+                  >
+                    <View style={s.libraryPlaylistCover}>
+                      <Image source={{ uri: item.img }} style={s.libraryPlaylistImage} />
+                      <LinearGradient colors={['transparent', 'rgba(0,0,0,0.82)']} style={StyleSheet.absoluteFillObject} />
+                      <View style={s.libraryPlaylistCount}>
+                        <MaterialIcons name="playlist-play" size={22} color="#fff" />
+                        <Text style={s.libraryPlaylistCountText}>{item.videoCount} VIDEOS</Text>
+                      </View>
+                    </View>
+                    <View style={s.libraryPlaylistInfo}>
+                      <Text numberOfLines={2} style={[s.libraryPlaylistCardTitle, { color: theme.text }]}>{item.title}</Text>
+                      <Text numberOfLines={1} style={[s.libraryPlaylistMeta, { color: theme.textSecondary }]}>
+                        {item.views} • {item.timeAgo}
+                      </Text>
+                    </View>
+                  </Pressable>
+                ))}
+              </View>
+            )}
+          </View>
+        ) : (
+          <View style={s.libraryGrid}>
           {!creatorVideosLoading && filteredLibrary.length === 0 ? (
             <View style={[s.libraryStateCard, { backgroundColor: faintSurface, borderColor: theme.border }]}>
               <MaterialIcons name="video-library" size={22} color={theme.textSecondary} />
@@ -536,10 +823,16 @@ const PlaylistSection = () => {
           ) : null}
           {filteredLibrary.map((item) => {
             const isLocked = Boolean(item.premium) && !isSubscribed;
+            const isSelected = selectedLibraryVideoIds.includes(item.id);
             return (
               <Pressable
                 key={item.id}
                 onPress={() => {
+                  if (isLibrarySelectionMode) {
+                    toggleLibraryVideoSelection(item.id);
+                    return;
+                  }
+
                   setActiveMenuId(null);
                   if (isLocked) {
                     ping('Unlock the exclusive Galaxy tier to access this library video!');
@@ -553,13 +846,18 @@ const PlaylistSection = () => {
               >
                 <Image source={{ uri: item.img }} style={s.libraryImage} />
                 <LinearGradient colors={['transparent', 'rgba(0,0,0,0.3)', 'rgba(0,0,0,0.95)']} style={StyleSheet.absoluteFillObject} />
+                {isLibrarySelectionMode ? (
+                  <View style={[s.librarySelectBadge, { backgroundColor: isSelected ? PRIMARY_COLOR : 'rgba(0,0,0,0.58)', borderColor: isSelected ? PRIMARY_COLOR : 'rgba(255,255,255,0.58)' }]}>
+                    <MaterialIcons name={isSelected ? 'check' : 'add'} size={16} color="#fff" />
+                  </View>
+                ) : null}
 
                 <View style={[s.libraryBadge, { backgroundColor: item.draft ? 'rgba(82,82,91,0.92)' : item.premium ? 'rgba(245,158,11,0.88)' : 'rgba(37,99,235,0.88)', borderStyle: item.draft ? 'dashed' : 'solid' }]}>
                   <MaterialIcons name={item.draft ? 'drafts' : item.premium ? 'stars' : 'public'} size={10} color="#fff" />
                   <Text style={s.libraryBadgeText}>{item.draft ? 'Draft' : item.premium ? 'Premium' : 'Public'}</Text>
                 </View>
 
-                {canManageLibrary ? (
+                {canManageLibrary && !isLibrarySelectionMode ? (
                   <View style={s.libraryMenuWrap}>
                     <Pressable
                       onPress={(event) => {
@@ -584,6 +882,16 @@ const PlaylistSection = () => {
                         >
                           <MaterialIcons name="edit" size={15} color={theme.textSecondary} />
                           <Text style={[s.libraryMenuText, { color: theme.text }]}>Edit Title</Text>
+                        </Pressable>
+                        <Pressable
+                          onPress={(event) => {
+                            event.stopPropagation();
+                            openPlaylistPicker([item.id]);
+                          }}
+                          style={s.libraryMenuItem}
+                        >
+                          <MaterialIcons name="playlist-add" size={15} color={theme.textSecondary} />
+                          <Text style={[s.libraryMenuText, { color: theme.text }]}>Move to Playlist</Text>
                         </Pressable>
 
                         {item.draft ? (
@@ -684,7 +992,8 @@ const PlaylistSection = () => {
               </Pressable>
             );
           })}
-        </View>
+          </View>
+        )}
 
         <Modal visible={Boolean(editingVideo)} transparent animationType="fade" statusBarTranslucent onRequestClose={() => setEditingVideo(null)}>
           <View style={s.libraryEditOverlay}>
@@ -719,6 +1028,88 @@ const PlaylistSection = () => {
                   <Text style={[s.libraryEditButtonText, { color: '#fff' }]}>Save</Text>
                 </Pressable>
               </View>
+            </View>
+          </View>
+        </Modal>
+
+        <Modal visible={isCreatePlaylistOpen} transparent animationType="fade" statusBarTranslucent onRequestClose={() => setIsCreatePlaylistOpen(false)}>
+          <View style={s.libraryEditOverlay}>
+            <Pressable style={StyleSheet.absoluteFillObject} onPress={() => setIsCreatePlaylistOpen(false)} />
+            <View style={[s.libraryEditCard, { backgroundColor: isDark ? '#09090b' : theme.card, borderColor: theme.border }]}>
+              <Text style={[s.libraryEditTitle, { color: theme.text }]}>Create Playlist</Text>
+              <TextInput
+                value={playlistTitleValue}
+                onChangeText={setPlaylistTitleValue}
+                placeholder="Playlist title"
+                placeholderTextColor={theme.textSecondary}
+                style={[s.libraryEditInput, { color: theme.text, borderColor: theme.border, backgroundColor: isDark ? 'rgba(255,255,255,0.05)' : 'rgba(15,23,42,0.04)' }]}
+              />
+              <View style={s.libraryEditActions}>
+                <Pressable onPress={() => setIsCreatePlaylistOpen(false)} style={[s.libraryEditButton, { backgroundColor: faintSurface }]}>
+                  <Text style={[s.libraryEditButtonText, { color: theme.text }]}>Cancel</Text>
+                </Pressable>
+                <Pressable onPress={createLibraryPlaylist} style={[s.libraryEditButton, s.libraryEditPrimary]}>
+                  <Text style={[s.libraryEditButtonText, { color: '#fff' }]}>Create</Text>
+                </Pressable>
+              </View>
+            </View>
+          </View>
+        </Modal>
+
+        <Modal visible={playlistPickerVideoIds.length > 0} transparent animationType="fade" statusBarTranslucent onRequestClose={closePlaylistPicker}>
+          <View style={s.libraryEditOverlay}>
+            <Pressable style={StyleSheet.absoluteFillObject} onPress={closePlaylistPicker} />
+            <View style={[s.libraryPlaylistPickerCard, { backgroundColor: isDark ? '#09090b' : theme.card, borderColor: theme.border }]}>
+              <View style={s.libraryPlaylistPickerHeader}>
+                <View style={{ flex: 1 }}>
+                  <Text style={[s.libraryEditTitle, { color: theme.text }]}>Select Playlist</Text>
+                  <Text style={[s.libraryPlaylistPickerMeta, { color: theme.textSecondary }]}>
+                    Moving {playlistPickerVideoIds.length} video{playlistPickerVideoIds.length === 1 ? '' : 's'}
+                  </Text>
+                </View>
+                <Pressable onPress={closePlaylistPicker} style={[s.libraryBulkIconAction, { borderColor: theme.border }]}>
+                  <MaterialIcons name="close" size={18} color={theme.text} />
+                </Pressable>
+              </View>
+
+              <ScrollView showsVerticalScrollIndicator={false} contentContainerStyle={s.libraryPlaylistPickerList}>
+                {libraryPlaylists.length === 0 ? (
+                  <View style={[s.libraryStateCard, { marginHorizontal: 0, backgroundColor: faintSurface, borderColor: theme.border }]}>
+                    <MaterialIcons name="playlist-play" size={22} color={theme.textSecondary} />
+                    <Text style={[s.libraryStateText, { color: theme.textSecondary }]}>Create a playlist first.</Text>
+                  </View>
+                ) : (
+                  libraryPlaylists.map((playlist) => (
+                    <Pressable
+                      key={playlist.id}
+                      onPress={() => moveVideosToPlaylist(playlist.id)}
+                      style={[s.libraryPlaylistPickerItem, { backgroundColor: faintSurface, borderColor: theme.border }]}
+                    >
+                      <Image source={{ uri: playlist.img }} style={s.libraryPlaylistPickerImage} />
+                      <View style={s.libraryPlaylistPickerCopy}>
+                        <Text numberOfLines={1} style={[s.libraryPlaylistPickerTitle, { color: theme.text }]}>
+                          {playlist.title}
+                        </Text>
+                        <Text style={[s.libraryPlaylistPickerMeta, { color: theme.textSecondary }]}>
+                          {playlist.videoCount} videos • {playlist.timeAgo}
+                        </Text>
+                      </View>
+                      <MaterialIcons name="chevron-right" size={22} color={theme.textSecondary} />
+                    </Pressable>
+                  ))
+                )}
+              </ScrollView>
+
+              <Pressable
+                onPress={() => {
+                  closePlaylistPicker();
+                  setIsCreatePlaylistOpen(true);
+                }}
+                style={[s.libraryPickerCreateButton, { borderColor: theme.border }]}
+              >
+                <MaterialIcons name="add" size={18} color={PRIMARY_COLOR} />
+                <Text style={[s.libraryPickerCreateText, { color: PRIMARY_COLOR }]}>Create New Playlist</Text>
+              </Pressable>
             </View>
           </View>
         </Modal>
@@ -813,7 +1204,7 @@ const PlaylistSection = () => {
           </Pressable>
 
           <View style={s.headerTitleWrap}>
-            <Text numberOfLines={1} style={[s.headerTitle, { color: theme.text }]}>{isOwner ? 'Profile' : name}</Text>
+            <Text numberOfLines={1} style={[s.headerTitle, { color: theme.text }]}>{isOwner ? 'Profile' : displayName}</Text>
             <Text numberOfLines={1} style={s.headerSubtitle}>{isOwner ? 'Your Galaxy' : 'Creator Universe'}</Text>
           </View>
 
@@ -828,10 +1219,10 @@ const PlaylistSection = () => {
       contentContainerStyle={s.content} showsVerticalScrollIndicator={false} keyboardShouldPersistTaps="handled">
         <ImageBackground
         resizeMode= 'contain'
-        source={{ uri: 'https://res.cloudinary.com/dh0dywpzm/image/upload/v1779792408/banner_image_001_ewjudx.jpg' }} style={[s.cover, {width: SCREEN_WIDTH}]}><LinearGradient colors={isDark ? ['rgba(0,0,0,0.1)', '#060913'] : ['rgba(255,255,255,0.06)', '#f8fafc']} style={StyleSheet.absoluteFillObject} /></ImageBackground>
+        source={{ uri: displayBanner }} style={[s.cover, {width: SCREEN_WIDTH}]}><LinearGradient colors={isDark ? ['rgba(0,0,0,0.1)', '#060913'] : ['rgba(255,255,255,0.06)', '#f8fafc']} style={StyleSheet.absoluteFillObject} /></ImageBackground>
         <View style={s.hero}>
           <View style={[s.avatarWrap, { borderColor: 'rgba(59 130 246 / 0.5)' }]}>
-            <Image source={{ uri: 'https://res.cloudinary.com/dh0dywpzm/image/upload/v1779792408/profile_image_001_utl9qa.jpg' }}
+            <Image source={{ uri: displayAvatar }}
                 style={s.image} />
                   <Pressable
                   onPress={()=>{
@@ -849,26 +1240,30 @@ const PlaylistSection = () => {
             // backgroundColor: 'red',
             // height: 35
           }}>
-            <Text style={[s.name, { color: theme.text }]}>{isOwner ? "Me": name}</Text>
-            <VerifiedIcon height={24} width={24} fill={PRIMARY_COLOR}/>
+            <Text style={[s.name, { color: theme.text }]}>{isOwner ? displayName : routeName}</Text>
+            {isVerified ? <VerifiedIcon height={24} width={24} fill={PRIMARY_COLOR}/> : null}
           </View>
-          <Text style={s.role}>Universal Creator</Text>
+          <Text style={s.role}>{displayRole}</Text>
           {/* <View style={s.stats}><Text style={s.stat}>14,200{'\n'}<Text style={s.muted}>Followers</Text></Text><Text style={s.stat}>84.2K{'\n'}<Text style={s.muted}>Likes</Text></Text><Text style={[s.stat, s.purple]}>2,842{'\n'}<Text style={s.purple}>Subscribers</Text></Text></View> */}
           <View style={[s.stats, isTablet && s.statsTablet]}>
             <View style={s.statBlock}>
-              <Text style={[s.statValue, { color: theme.text }]}>{isFollowing ? '14,201' : '14,200'}</Text>
+              <Text style={[s.statValue, { color: theme.text }]}>{formatProfileCount(followerCount)}</Text>
               <Text style={[s.statLabel, { color: theme.textSecondary }]}>Followers</Text>
             </View>
             <View style={s.sep} />
             <View style={s.statBlock}>
-              <Text style={[s.statValue, { color: theme.text }]}>{(likeCount / 1000).toFixed(1)}K</Text>
+              <Text style={[s.statValue, { color: theme.text }]}>{likeCount}</Text>
               <Text style={[s.statLabel, { color: theme.textSecondary }]}>Likes</Text>
             </View>
-            <View style={s.sep} />
-            <Pressable style={s.statBlock} onPress={() => isOwner && navigation.navigate('/subscribers')}>
-              <Text style={[s.statValue, {color: theme.text}]}>2,842</Text>
-              <Text style={[s.statLabel, {color: theme.text}]}>Subscribers</Text>
-            </Pressable>
+            {canShowSubscriberStat ? (
+              <>
+                <View style={s.sep} />
+                <Pressable style={s.statBlock} onPress={() => isOwner && navigation.navigate('/subscribers')}>
+                  <Text style={[s.statValue, {color: theme.text}]}>{formatProfileCount(subscriberCount)}</Text>
+                  <Text style={[s.statLabel, {color: theme.text}]}>Subscribers</Text>
+                </Pressable>
+              </>
+            ) : null}
           </View>
           <View style={[s.actions, ]}>{isOwner ? <>
           <Pressable onPress={() => navigation.navigate('Settings')} style={[s.primary, {width: '30%'}]}>
@@ -906,7 +1301,7 @@ const PlaylistSection = () => {
           ) : null} */}
         </View>
 
-        <Text style={[s.bio, { color: theme.textSecondary }]}>"Exploring the nexus of synthwave rhythms and cinematic soul. Join the journey through the star systems of sound."</Text>
+        <Text style={[s.bio, { color: theme.textSecondary }]}>{displayBio}</Text>
 
         {/* <View style={s.membership}><View style={s.membershipHeader}><Text style={s.section}>Membership</Text><View style={s.toggle}><Pressable onPress={() => setBilling('monthly')} style={[s.toggleBtn, billing === 'monthly' && s.toggleOn]}><Text style={s.toggleText}>Monthly</Text></Pressable><Pressable onPress={() => setBilling('annually')} style={[s.toggleBtn, billing === 'annually' && s.toggleOn]}><Text style={s.toggleText}>Yearly</Text></Pressable></View></View><Pressable onPress={() => { setSelectedSub(true); setStep('details'); }} style={s.card}><Text style={s.cardLabel}>{SUB.name}</Text><Text style={s.price}>${price} / {billing === 'monthly' ? 'mo' : 'yr'}</Text>{SUB.perks.map((perk) => <Text key={perk} style={s.perk}>- {perk}</Text>)}</Pressable></View> */}
         {!isOwner &&
@@ -1004,7 +1399,7 @@ const PlaylistSection = () => {
           </Pressable>)}</ScrollView>
 
         <View style={s.body}>
-          {activeTab === 'Videos' ? renderGrid(videos) : null}
+          {activeTab === 'Videos' ? renderWatchedVideos() : null}
           {activeTab === 'Premium'
             ? 
             // renderGrid(premiumVideos, () => {
@@ -1200,9 +1595,9 @@ const PlaylistSection = () => {
                         ]}
                         onPress={() => {
                           if (isSubscribed) {
-                            console.log('play premium');
+                            // console.log('play premium');
                           } else {
-                            console.log('show subscription');
+                            // console.log('show subscription');
                           }
                         }}
                       >
@@ -2118,6 +2513,150 @@ const s = StyleSheet.create({
     textTransform: 'uppercase',
     letterSpacing: 1.4,
   },
+  libraryBulkBar: {
+    minHeight: 62,
+    marginHorizontal: 16,
+    borderRadius: 18,
+    borderWidth: 1,
+    paddingHorizontal: 12,
+    paddingVertical: 10,
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 8,
+  },
+  libraryBulkCopy: {
+    flex: 1,
+  },
+  libraryBulkTitle: {
+    ...fontSize.b4,
+    lineHeight: fontSize.b4.fontSize + 2,
+    textTransform: 'uppercase',
+  },
+  libraryBulkMeta: {
+    marginTop: 2,
+    ...fontSize.b5,
+    lineHeight: fontSize.b5.fontSize + 2,
+  },
+  libraryBulkAction: {
+    minHeight: 36,
+    borderRadius: 999,
+    paddingHorizontal: 12,
+    backgroundColor: PRIMARY_COLOR,
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
+    gap: 5,
+  },
+  libraryBulkActionText: {
+    color: '#fff',
+    ...fontSize.b5,
+    lineHeight: fontSize.b5.fontSize + 1,
+    textTransform: 'uppercase',
+    letterSpacing: 1,
+  },
+  libraryBulkIconAction: {
+    width: 36,
+    height: 36,
+    borderRadius: 18,
+    borderWidth: 1,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  libraryPlaylistSection: {
+    gap: 14,
+    paddingHorizontal: 16,
+  },
+  libraryPlaylistHeader: {
+    minHeight: 54,
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    gap: 12,
+  },
+  libraryPlaylistHeaderCopy: {
+    flex: 1,
+  },
+  libraryPlaylistTitle: {
+    ...fontSize.b2,
+    lineHeight: fontSize.b2.fontSize + 3,
+    textTransform: 'uppercase',
+  },
+  libraryPlaylistSubtitle: {
+    marginTop: 3,
+    ...fontSize.b5,
+    lineHeight: fontSize.b5.fontSize + 3,
+  },
+  libraryCreatePlaylistButton: {
+    minHeight: 38,
+    borderRadius: 999,
+    paddingHorizontal: 14,
+    backgroundColor: PRIMARY_COLOR,
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
+    gap: 5,
+  },
+  libraryCreatePlaylistText: {
+    color: '#fff',
+    ...fontSize.b5,
+    lineHeight: fontSize.b5.fontSize + 1,
+    textTransform: 'uppercase',
+    letterSpacing: 1.2,
+  },
+  libraryPlaylistGrid: {
+    flexDirection: 'row',
+    flexWrap: 'wrap',
+    justifyContent: 'space-between',
+    rowGap: 14,
+  },
+  libraryPlaylistCard: {
+    width: '48.5%',
+    borderRadius: 16,
+    borderWidth: 1,
+    overflow: 'hidden',
+  },
+  libraryPlaylistCover: {
+    height: 118,
+    backgroundColor: '#0f172a',
+    position: 'relative',
+  },
+  libraryPlaylistImage: {
+    width: '100%',
+    height: '100%',
+  },
+  libraryPlaylistCount: {
+    position: 'absolute',
+    right: 0,
+    top: 0,
+    bottom: 0,
+    width: '43%',
+    backgroundColor: 'rgba(0,0,0,0.72)',
+    alignItems: 'center',
+    justifyContent: 'center',
+    gap: 4,
+  },
+  libraryPlaylistCountText: {
+    color: '#fff',
+    ...fontSize.b5,
+    lineHeight: fontSize.b5.fontSize + 1,
+    textTransform: 'uppercase',
+    letterSpacing: 0.8,
+    textAlign: 'center',
+  },
+  libraryPlaylistInfo: {
+    minHeight: 86,
+    paddingHorizontal: 12,
+    paddingVertical: 11,
+    justifyContent: 'space-between',
+  },
+  libraryPlaylistCardTitle: {
+    ...fontSize.b4,
+    lineHeight: fontSize.b4.fontSize + 3,
+  },
+  libraryPlaylistMeta: {
+    ...fontSize.b5,
+    lineHeight: fontSize.b5.fontSize + 2,
+  },
   libraryGrid: {
     flexDirection: 'row',
     flexWrap: 'wrap',
@@ -2136,6 +2675,18 @@ const s = StyleSheet.create({
   libraryImage: {
     width: '100%',
     height: '100%',
+  },
+  librarySelectBadge: {
+    position: 'absolute',
+    top: 10,
+    right: 10,
+    width: 34,
+    height: 34,
+    borderRadius: 17,
+    borderWidth: 1,
+    alignItems: 'center',
+    justifyContent: 'center',
+    zIndex: 12,
   },
   libraryBadge: {
     position: 'absolute',
@@ -2340,6 +2891,67 @@ const s = StyleSheet.create({
     lineHeight: fontSize.b5.fontSize + 2,
     textTransform: 'uppercase',
     letterSpacing: 1,
+  },
+  libraryPlaylistPickerCard: {
+    width: '92%',
+    maxWidth: 440,
+    maxHeight: SCREEN_HEIGHT * 0.72,
+    borderRadius: 28,
+    borderWidth: 1,
+    padding: 16,
+  },
+  libraryPlaylistPickerHeader: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 12,
+    marginBottom: 12,
+  },
+  libraryPlaylistPickerList: {
+    gap: 10,
+    paddingBottom: 10,
+  },
+  libraryPlaylistPickerItem: {
+    minHeight: 76,
+    borderRadius: 18,
+    borderWidth: 1,
+    padding: 8,
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 10,
+  },
+  libraryPlaylistPickerImage: {
+    width: 58,
+    height: 58,
+    borderRadius: 14,
+    backgroundColor: '#0f172a',
+  },
+  libraryPlaylistPickerCopy: {
+    flex: 1,
+  },
+  libraryPlaylistPickerTitle: {
+    ...fontSize.b4,
+    lineHeight: fontSize.b4.fontSize + 2,
+  },
+  libraryPlaylistPickerMeta: {
+    marginTop: 3,
+    ...fontSize.b5,
+    lineHeight: fontSize.b5.fontSize + 2,
+  },
+  libraryPickerCreateButton: {
+    minHeight: 46,
+    borderRadius: 999,
+    borderWidth: 1,
+    marginTop: 8,
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
+    gap: 6,
+  },
+  libraryPickerCreateText: {
+    ...fontSize.b5,
+    lineHeight: fontSize.b5.fontSize + 1,
+    textTransform: 'uppercase',
+    letterSpacing: 1.1,
   },
   tabIndicator: {
     position: 'absolute',

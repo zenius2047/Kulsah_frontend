@@ -459,7 +459,7 @@ const EmailPhone: React.FC = () => {
 
     try {
       const normalizedValue = normalizedIdentifier;
-      console.log('this is the email being sent', emailCandidate);
+      // console.log('this is the email being sent', emailCandidate);
       const payload = isEmail
         ? { email: emailCandidate, password: signInPassword }
         : { phone: `+${callingCode}${normalizedValue.replace(/\D/g, '')}`, password: signInPassword };
@@ -488,7 +488,7 @@ const EmailPhone: React.FC = () => {
       // });
     } catch (error: any) {
       const responseData = error?.response?.data ?? {};
-      console.log('this is the error', responseData);
+      // console.log('this is the error', responseData);
       const message =
         responseData?.message ||
         responseData?.error ||
@@ -513,7 +513,7 @@ const EmailPhone: React.FC = () => {
 
   // Move to the next step during account creation
   if (isCreateAccount && step < 5) {
-    console.log('step is less than five');
+    // console.log('step is less than five');
     setStep(prevStep => prevStep + 1);
     return;
   }
@@ -529,18 +529,18 @@ const EmailPhone: React.FC = () => {
       //   email,
       //   password,
       // });
-      console.log('this is the username:', username);
-      console.log('this is the name:', user);
-      console.log('this is the email:', email);
-      console.log('this is the password:', password);
+      // console.log('this is the username:', username);
+      // console.log('this is the name:', user);
+      // console.log('this is the email:', email);
+      // console.log('this is the password:', password);
       const res = await authApi.register({
         name: user, 
         username: username, 
         email: email, 
         password: password
       });
-      console.log('Registration successful:', res.data);
-      console.log('this is the access_token:', res.data['access_token']);
+      // console.log('Registration successful:', res.data);
+      // console.log('this is the access_token:', res.data['access_token']);
       setAuthToken(res.data['access_token']);
 
       // Navigate only if registration succeeds
@@ -865,9 +865,9 @@ const EmailPhone: React.FC = () => {
 
                 {(isCreateAccount || step === 3 ) && step !== 5 && <Pressable
                 onPress = {()=>{
-                  console.log('tapped');
+                  // console.log('tapped');
                   setShowPassword((showPassword) => !showPassword)
-                  console.log('the value of show password', showPassword)
+                  // console.log('the value of show password', showPassword)
                 }} 
                 style={{
                   alignItems: 'center',
@@ -1046,7 +1046,7 @@ const EmailPhone: React.FC = () => {
 
                 <Pressable
                 onPress = {()=>{
-                  console.log('tapped');
+                  // console.log('tapped');
                   setConfirmPassword((confirmPassword) => !confirmPassword)
                 }} 
                 style={{

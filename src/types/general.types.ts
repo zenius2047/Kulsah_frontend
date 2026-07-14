@@ -86,6 +86,27 @@ export type GeneralVideoResponse = {
   message?: string;
 };
 
+export type WatchedVideoListItem = {
+  id: string;
+  title: string;
+  views: string;
+  duration: string;
+  img: string | null;
+  watched_at?: string | null;
+};
+
+export type WatchedVideosParams = {
+  per_page?: number;
+  page?: number;
+};
+
+export type WatchedVideosResponse = {
+  data: {
+    videos: WatchedVideoListItem[];
+  };
+  meta?: PaginationMeta;
+};
+
 export type VideoActionState = {
   video_id: string | number;
   user_id: string | number;
@@ -169,10 +190,16 @@ export type FollowCreatorResponse = {
 };
 
 export type UploadAvatarPayload = AvatarUploadSource | FormData | null | undefined;
+export type UploadBannerPayload = AvatarUploadSource | FormData | null | undefined;
 
 export type UploadAvatarResponse = {
   message?: string;
   user: Pick<User, 'id' | 'avatar'> & Partial<User>;
+};
+
+export type UploadBannerResponse = {
+  message?: string;
+  user: Pick<User, 'id' | 'banner'> & Partial<User>;
 };
 
 export type UpdateGeneralProfilePayload = {
