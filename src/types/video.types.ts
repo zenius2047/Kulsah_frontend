@@ -7,6 +7,7 @@ export type VideoUploadSource = {
   name?: string;
   type?: string;
   orientation?: VideoDisplayOrientation;
+  size?: number;
 };
 
 export type UploadCreatorVideoPayload = {
@@ -27,6 +28,37 @@ export type CreateCreatorVideoDraftPayload = {
 
 export type UploadCreatorVideoToDraftPayload = {
   video: VideoUploadSource | FormData;
+};
+
+export type CreatorVideoTextEditOverlay = {
+  type: 'text';
+  text: string;
+  x: number;
+  y: number;
+  start: number;
+  end: number;
+  font_size: number;
+  color: string;
+  box: boolean;
+  box_color?: string;
+};
+
+export type CreatorVideoDrawingEditOverlay = {
+  type: 'drawing';
+  file_index: number;
+  x: number;
+  y: number;
+  start: number;
+  end: number;
+  width: number;
+  height: number;
+};
+
+export type CreatorVideoEditOverlay = CreatorVideoTextEditOverlay | CreatorVideoDrawingEditOverlay;
+
+export type SubmitCreatorVideoEditsPayload = {
+  overlays: CreatorVideoEditOverlay[];
+  drawingFiles?: VideoUploadSource[];
 };
 
 export type UpdateCreatorVideoProgressPayload = {
@@ -64,10 +96,52 @@ export type UploadCreatorVideoResponse = {
   data: CreatorVideo;
 };
 
+export type CreatorVideoUploadStatus =
+  | 'idle'
+  | 'initializing'
+  | 'uploading'
+  | 'finalizing'
+  | 'submitting_edits'
+  | 'processing'
+  | 'ready'
+  | 'failed';
+
+export type InitCreatorVideoUploadPayload = {
+  original_name?: string;
+  file_name?: string;
+  filename?: string;
+  mime_type?: string;
+  content_type?: Array<VideoContentType | string> | string;
+  title?: string | null;
+  caption?: string | null;
+  visibility?: VideoVisibility;
+  size?: number;
+};
+
+export type CreatorVideoUploadSession = {
+  video: CreatorVideo;
+  upload: {
+    upload_url: string;
+    upload_headers?: Record<string, unknown>;
+    expires_at: string;
+  };
+};
+
+export type InitCreatorVideoUploadResponse = {
+  data: CreatorVideoUploadSession;
+};
+
+export type CompleteCreatorVideoUploadResponse = {
+  data: CreatorVideo;
+  message?: string;
+};
+
 export type CreatorVideoProgress = {
   video_id: string | number;
   status: string;
   progress_percentage: number;
+  error?: string | null;
+  message?: string | null;
 };
 
 export type CreatorVideoProgressResponse = {
@@ -102,6 +176,58 @@ export type CreatorVideosResponse = {
     per_page: number;
     total: number;
   };
+};
+
+export type CreatorVideoPlaylist = {
+  id: number;
+  user_id: number;
+  name: string;
+  videos_count: number;
+  created_at: string;
+  updated_at: string;
+  videos: CreatorVideoListItem[];
+};
+
+export type CreatorVideoPlaylistsParams = {
+  page?: number;
+  per_page?: number;
+};
+
+export type CreatorVideoPlaylistsResponse = {
+  data: CreatorVideoPlaylist[];
+  meta: {
+    current_page: number;
+    last_page: number;
+    per_page: number;
+    total: number;
+  };
+};
+
+export type CreatorVideoPlaylistResponse = {
+  data: CreatorVideoPlaylist;
+};
+
+export type CreateCreatorVideoPlaylistPayload = {
+  name: string;
+};
+
+export type UpdateCreatorVideoPlaylistPayload = {
+  name: string;
+};
+
+export type BulkAddCreatorVideoPlaylistVideosPayload = {
+  video_ids: number[];
+};
+
+export type CreatorVideoPlaylistPlaybackResponse = {
+  playlist_id: string;
+  playlist_name: string;
+  item: Record<string, unknown>;
+  next_videos: Record<string, unknown>[];
+};
+
+export type DeleteCreatorVideoPlaylistResponse = {
+  message: string;
 };
 
 export type CreatorVideoAnalytics = {

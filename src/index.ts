@@ -24,10 +24,13 @@ export * from './hooks/mutations/useUploadAvatar';
 export * from './hooks/mutations/useUploadBanner';
 export * from './hooks/mutations/useUploadCreatorVideo';
 export * from './hooks/mutations/useUploadCreatorVideoToDraft';
+export * from './hooks/mutations/useCreatorVideoDirectUpload';
+export * from './hooks/mutations/useCreatorVideoPlaylists';
 export * from './hooks/queries/useCreatorSubscriptionPlans';
 export * from './hooks/queries/useCreatorVideo';
 export * from './hooks/queries/useCreatorVideoAnalytics';
 export * from './hooks/queries/useCreatorVideoProgress';
+export * from './hooks/queries/useCreatorVideoPlaylists';
 export * from './hooks/queries/useCreatorVideos';
 export * from './hooks/queries/useFeedVideos';
 export * from './hooks/queries/useLogin';
@@ -40,6 +43,8 @@ export * from './hooks/general/useWatchedVideos';
 export * from './hooks/general/useWallet';
 
 export * from './services/token.service';
+export * from './services/creatorVideoDirectUpload.service';
+export * from './services/videoOverlayBurnIn.service';
 
 export * from './store/auth.store';
 export * from './store/app.store';

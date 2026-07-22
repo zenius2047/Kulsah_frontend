@@ -2,13 +2,17 @@ import AsyncStorage from '@react-native-async-storage/async-storage';
 import { MaterialIcons } from '@expo/vector-icons';
 import { useNavigation } from '@react-navigation/native';
 import * as ImagePicker from 'expo-image-picker';
+import * as ImageManipulator from 'expo-image-manipulator';
 import React, { useCallback, useEffect, useMemo, useState } from 'react';
 import { useThemeMode, PRIMARY_COLOR, primaryColorAlphaHex } from "../theme";
 import { SafeAreaView } from 'react-native-safe-area-context';
 import {
   Alert,
+  Dimensions,
   Image,
   ImageBackground,
+  Modal,
+  PanResponder,
   Pressable,
   ScrollView,
   StyleSheet,
@@ -67,7 +71,8 @@ interface SettingItem {
 const ALL_TAGS = ['Synthwave', 'Indie-Soul', 'Live-Looping', 'Afrobeats', 'Techno', 'Cinematic', 'Visual Art', 'Jazz Fusion'];
 const SHAKE_TO_REFRESH_STORAGE_KEY = 'pulsar_shake_to_refresh';
 const INCOGNITO_SUBS_STORAGE_KEY = 'pulsar_incognito_subs';
-const BANNER_REQUIRED_HEIGHT = 180;
+const BANNER_HEIGHT = 120;
+const BANNER_CROP_WIDTH = Dimensions.get('window').width - 72;
 
 const getPickedImageSource = (
   asset: ImagePicker.ImagePickerAsset,
@@ -123,15 +128,41 @@ const resolveUploadedImageUri = (payload: unknown, fieldName: 'avatar' | 'banner
   return null;
 };
 
-const showBannerHeightWarning = (actualHeight?: number | null) =>
-  new Promise<void>((resolve) => {
-    Alert.alert(
-      'Picture orientation warning',
-      `Banner images should be ${BANNER_REQUIRED_HEIGHT}px tall. The selected image is ${actualHeight ?? 'an unknown height'}px tall.`,
-      [{ text: 'Continue', onPress: () => resolve() }],
-      { cancelable: true, onDismiss: () => resolve() },
-    );
-  });
+const clamp = (value: number, min: number, max: number) => Math.min(max, Math.max(min, value));
+
+const getBannerCropLayout = (asset: ImagePicker.ImagePickerAsset) => {
+  const sourceWidth = asset.width || BANNER_CROP_WIDTH;
+  const sourceHeight = asset.height || BANNER_HEIGHT;
+  const scale = Math.max(BANNER_CROP_WIDTH / sourceWidth, BANNER_HEIGHT / sourceHeight);
+  const renderedWidth = sourceWidth * scale;
+  const renderedHeight = sourceHeight * scale;
+  return { sourceWidth, sourceHeight, renderedWidth, renderedHeight, maxOffsetY: Math.max(0, (renderedHeight - BANNER_HEIGHT) / 2) };
+};
+
+const createBannerCropData = async (asset: ImagePicker.ImagePickerAsset, offsetY: number): Promise<AvatarUploadSource> => {
+  const layout = getBannerCropLayout(asset);
+  const cropWidth = Math.min(
+    layout.sourceWidth,
+    Math.max(1, Math.round(BANNER_CROP_WIDTH * (layout.sourceWidth / layout.renderedWidth))),
+  );
+  const cropHeight = Math.min(
+    layout.sourceHeight,
+    Math.max(1, Math.round(BANNER_HEIGHT * (layout.sourceHeight / layout.renderedHeight))),
+  );
+  const originY = clamp(
+    Math.round(((layout.renderedHeight - BANNER_HEIGHT) / 2 - offsetY) * (layout.sourceHeight / layout.renderedHeight)),
+    0,
+    Math.max(0, layout.sourceHeight - cropHeight),
+  );
+  const originX = Math.max(0, Math.round((layout.sourceWidth - cropWidth) / 2));
+  const cropped = await ImageManipulator.manipulateAsync(
+    asset.uri,
+    [{ crop: { originX, originY, width: cropWidth, height: cropHeight } }, { resize: { height: BANNER_HEIGHT } }],
+    { compress: 0.9, format: ImageManipulator.SaveFormat.JPEG },
+  );
+
+  return { uri: cropped.uri, name: `banner-${Date.now()}.jpg`, type: 'image/jpeg' };
+};
 
 const CreatorSettings: React.FC<CreatorSettingsProps> = ({ onLogout, isDarkMode, onToggleTheme, onToggleRole }) => {
   const { isDark, theme } = useThemeMode();
@@ -146,6 +177,11 @@ const CreatorSettings: React.FC<CreatorSettingsProps> = ({ onLogout, isDarkMode,
   );
   const [avatarImage, setAvatarImage] = useState(user?.avatar?.trim() || 'https://picsum.photos/seed/elena/200');
   const [isImageUploading, setIsImageUploading] = useState(false);
+  const [pendingBannerAsset, setPendingBannerAsset] = useState<ImagePicker.ImagePickerAsset | null>(null);
+  const [isBannerCropOpen, setIsBannerCropOpen] = useState(false);
+  const [bannerOffsetY, setBannerOffsetY] = useState(0);
+  const bannerOffsetYRef = React.useRef(0);
+  const bannerDragStartRef = React.useRef(0);
 
   const [showEvents, setShowEvents] = useState(true);
   const [shakeToRefreshEnabled, setShakeToRefreshEnabled] = useState(false);
@@ -157,6 +193,19 @@ const CreatorSettings: React.FC<CreatorSettingsProps> = ({ onLogout, isDarkMode,
   const [contentProtection, setContentProtection] = useState(true);
   const { mutateAsync: uploadAvatar } = useUploadAvatar();
   const { mutateAsync: uploadBanner } = useUploadBanner();
+
+  const bannerPanResponder = useMemo(() => PanResponder.create({
+    onStartShouldSetPanResponder: () => true,
+    onMoveShouldSetPanResponder: (_, gesture) => Math.abs(gesture.dy) > 2,
+    onPanResponderGrant: () => { bannerDragStartRef.current = bannerOffsetYRef.current; },
+    onPanResponderMove: (_, gesture) => {
+      if (!pendingBannerAsset) return;
+      const maxOffsetY = getBannerCropLayout(pendingBannerAsset).maxOffsetY;
+      const next = clamp(bannerDragStartRef.current + gesture.dy, -maxOffsetY, maxOffsetY);
+      bannerOffsetYRef.current = next;
+      setBannerOffsetY(next);
+    },
+  }), [pendingBannerAsset]);
 
   useEffect(() => {
     const loadPrefs = async () => {
@@ -254,8 +303,12 @@ const CreatorSettings: React.FC<CreatorSettingsProps> = ({ onLogout, isDarkMode,
         return;
       }
 
-      if (type === 'banner' && asset.height !== BANNER_REQUIRED_HEIGHT) {
-        await showBannerHeightWarning(asset.height);
+      if (type === 'banner') {
+        setPendingBannerAsset(asset);
+        bannerOffsetYRef.current = 0;
+        setBannerOffsetY(0);
+        setIsBannerCropOpen(true);
+        return;
       }
 
       setIsImageUploading(true);
@@ -279,6 +332,31 @@ const CreatorSettings: React.FC<CreatorSettingsProps> = ({ onLogout, isDarkMode,
       setIsImageUploading(false);
     }
   }, [isImageUploading, persistUploadedImage, uploadAvatar, uploadBanner]);
+
+  const closeBannerCrop = useCallback(() => {
+    setIsBannerCropOpen(false);
+    setPendingBannerAsset(null);
+    bannerOffsetYRef.current = 0;
+    setBannerOffsetY(0);
+  }, []);
+
+  const submitBannerCrop = useCallback(async () => {
+    if (!pendingBannerAsset || isImageUploading) return;
+    try {
+      setIsImageUploading(true);
+      const croppedBanner = await createBannerCropData(pendingBannerAsset, bannerOffsetYRef.current);
+      const uploadResult = await uploadBanner(croppedBanner);
+      const uploadedUri = resolveUploadedImageUri(uploadResult, 'banner') || croppedBanner.uri;
+      setBannerImage(uploadedUri);
+      await persistUploadedImage('banner', uploadedUri);
+      closeBannerCrop();
+    } catch (caughtError) {
+      const parsed = parseApiError(caughtError);
+      Alert.alert(parsed.title, parsed.message);
+    } finally {
+      setIsImageUploading(false);
+    }
+  }, [closeBannerCrop, isImageUploading, pendingBannerAsset, persistUploadedImage, uploadBanner]);
 
   const imageUploadDescription = isImageUploading ? 'Uploading image...' : undefined;
 
@@ -610,6 +688,39 @@ const CreatorSettings: React.FC<CreatorSettingsProps> = ({ onLogout, isDarkMode,
       </ScrollView>
       </SafeAreaView>
 
+      <Modal visible={isBannerCropOpen} transparent animationType="fade" onRequestClose={closeBannerCrop}>
+        <View style={s.cropBackdrop}>
+          <View style={[s.cropCard, { backgroundColor: theme.card }]}>
+            <Text style={[s.cropTitle, { color: theme.text }]}>Crop banner</Text>
+            <Text style={[s.cropDescription, { color: theme.textSecondary }]}>Drag the image up or down. The highlighted area will be saved at exactly 120px high.</Text>
+            <View style={s.bannerCropStage} {...bannerPanResponder.panHandlers}>
+              {pendingBannerAsset ? (
+                <Image
+                  source={{ uri: pendingBannerAsset.uri }}
+                  resizeMode="stretch"
+                  style={{
+                    position: 'absolute',
+                    width: getBannerCropLayout(pendingBannerAsset).renderedWidth,
+                    height: getBannerCropLayout(pendingBannerAsset).renderedHeight,
+                    left: (BANNER_CROP_WIDTH - getBannerCropLayout(pendingBannerAsset).renderedWidth) / 2,
+                    top: (BANNER_HEIGHT - getBannerCropLayout(pendingBannerAsset).renderedHeight) / 2 + bannerOffsetY,
+                  }}
+                />
+              ) : null}
+              <View pointerEvents="none" style={s.cropOutline} />
+            </View>
+            <View style={s.cropActions}>
+              <Pressable style={[s.cropButton, { borderColor: theme.border }]} onPress={closeBannerCrop} disabled={isImageUploading}>
+                <Text style={[s.cropButtonText, { color: theme.text }]}>Cancel</Text>
+              </Pressable>
+              <Pressable style={[s.cropButton, s.cropSaveButton]} onPress={() => void submitBannerCrop()} disabled={isImageUploading}>
+                <Text style={[s.cropButtonText, { color: '#fff' }]}>{isImageUploading ? 'Uploading…' : 'Crop & upload'}</Text>
+              </Pressable>
+            </View>
+          </View>
+        </View>
+      </Modal>
+
     </View>
   );
 };
@@ -617,6 +728,16 @@ const CreatorSettings: React.FC<CreatorSettingsProps> = ({ onLogout, isDarkMode,
 const s = StyleSheet.create({
   screen: { flex: 1, backgroundColor: '#000' },
   content: { paddingBottom: 120 },
+  cropBackdrop: { flex: 1, justifyContent: 'center', padding: 20, backgroundColor: '#000000b8' },
+  cropCard: { borderRadius: 24, padding: 16, gap: 14 },
+  cropTitle: { ...fontSize.h2, lineHeight: fontSize.h2.fontSize + 3 },
+  cropDescription: { ...fontSize.b4, lineHeight: fontSize.b4.fontSize + 5 },
+  bannerCropStage: { width: BANNER_CROP_WIDTH, height: BANNER_HEIGHT, alignSelf: 'center', overflow: 'hidden', backgroundColor: '#111827', borderRadius: 12 },
+  cropOutline: { ...StyleSheet.absoluteFillObject, borderWidth: 2, borderColor: PRIMARY_COLOR, borderRadius: 12 },
+  cropActions: { flexDirection: 'row', gap: 10, justifyContent: 'flex-end' },
+  cropButton: { minHeight: 46, paddingHorizontal: 16, borderRadius: 14, borderWidth: 1, alignItems: 'center', justifyContent: 'center' },
+  cropSaveButton: { flex: 1, borderColor: PRIMARY_COLOR, backgroundColor: PRIMARY_COLOR },
+  cropButtonText: { ...fontSize.b4, lineHeight: fontSize.b4.fontSize + 2, fontWeight: '700' },
   header: {
     paddingTop: 50,
     paddingHorizontal: 16,

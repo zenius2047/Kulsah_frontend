@@ -1,14 +1,17 @@
-import React, { useMemo, useState } from 'react';
+import React, { useState } from 'react';
+import * as FileSystem from 'expo-file-system/legacy';
 import { useThemeMode, PRIMARY_COLOR, primaryColorAlpha } from "../theme";
 import {
   Alert,
   KeyboardAvoidingView,
+  PanResponder,
   Platform,
   Pressable,
   SafeAreaView,
   StatusBar,
   StyleSheet,
   Text,
+  TextInput,
   View,
 } from 'react-native';
 import { MaterialIcons } from '@expo/vector-icons';
@@ -16,24 +19,59 @@ import { LinearGradient } from 'expo-linear-gradient';
 import { useFocusEffect, useIsFocused, useNavigation, useRoute } from '@react-navigation/native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useVideoPlayer, VideoView } from 'expo-video';
+import Svg, { Path } from 'react-native-svg';
 import { fontSize } from './typography';
 import {
+  createCreatorVideoEditsPayload,
+  hasVideoOverlays,
   parseApiError,
-  useCreateCreatorVideoDraft,
-  useCreatorVideoUploadStore,
-  useUpdateCreatorVideoProgress,
-  useUploadCreatorVideoToDraft,
 } from '../src';
-import type { VideoDisplayOrientation, VideoUploadSource, VideoVisibility } from '../src';
+import type { SubmitCreatorVideoEditsPayload, VideoDisplayOrientation, VideoUploadSource } from '../src';
 
 type EditSubmissionRouteParams = {
   video?: VideoUploadSource;
+  uploadedVideoId?: string | number;
   sound?: {
     title?: string;
     id?: string;
     meta?: string;
     usage?: string;
   } | null;
+};
+
+type EditorTool = 'none' | 'draw' | 'text';
+
+type DrawingPoint = {
+  x: number;
+  y: number;
+};
+
+type DrawingStroke = {
+  id: string;
+  color: string;
+  width: number;
+  start: number;
+  end: number;
+  points: DrawingPoint[];
+};
+
+type TextSticker = {
+  id: string;
+  text: string;
+  color: string;
+  backgroundColor: string;
+  x: number;
+  y: number;
+  start: number;
+  end: number;
+  fontSize: number;
+};
+
+type DraggableTextStickerProps = {
+  sticker: TextSticker;
+  editable: boolean;
+  onMove: (id: string, deltaX: number, deltaY: number) => void;
+  onPress: (id: string) => void;
 };
 
 const getOrientationFromTrackSize = (width?: number, height?: number): VideoDisplayOrientation | null => {
@@ -72,17 +110,77 @@ const quickActions = [
   { id: 'music', label: 'Sound', icon: 'music-note' as const },
 ];
 
-const visibilityOptions: Array<{ value: VideoVisibility; label: string; icon: keyof typeof MaterialIcons.glyphMap }> = [
-  { value: 'public', label: 'Public', icon: 'public' },
-  { value: 'premium', label: 'Premium', icon: 'workspace-premium' },
-];
+const DRAW_COLORS = ['#fff', PRIMARY_COLOR, '#f97316', '#22c55e', '#38bdf8', '#f43f5e'];
+const TEXT_COLORS = ['#fff', '#111827', PRIMARY_COLOR, '#f97316', '#38bdf8'];
+const TEXT_BACKGROUNDS = ['transparent', 'rgba(0,0,0,0.62)', 'rgba(255,255,255,0.9)', PRIMARY_COLOR];
+const RENDER_TARGET_SIZES: Record<VideoDisplayOrientation, { width: number; height: number }> = {
+  portrait: { width: 720, height: 1280 },
+  landscape: { width: 1280, height: 720 },
+};
 
-const formatTime = (seconds: number) => {
-  const safeSeconds = Number.isFinite(seconds) ? Math.max(0, Math.floor(seconds)) : 0;
-  const minutes = Math.floor(safeSeconds / 60);
-  const remainingSeconds = safeSeconds % 60;
+const createPath = (points: DrawingPoint[]) => {
+  if (!points.length) return '';
 
-  return `${String(minutes).padStart(2, '0')}:${String(remainingSeconds).padStart(2, '0')}`;
+  return points.reduce((path, point, index) => {
+    const command = index === 0 ? 'M' : 'L';
+    return `${path}${command}${point.x.toFixed(1)},${point.y.toFixed(1)} `;
+  }, '');
+};
+
+const createScaledPath = (
+  points: DrawingPoint[],
+  canvasSize: { width: number; height: number },
+  targetSize: { width: number; height: number },
+) => {
+  const scaleX = targetSize.width / Math.max(1, canvasSize.width);
+  const scaleY = targetSize.height / Math.max(1, canvasSize.height);
+
+  return createPath(points.map((point) => ({ x: point.x * scaleX, y: point.y * scaleY })));
+};
+
+const DraggableTextSticker: React.FC<DraggableTextStickerProps> = ({ sticker, editable, onMove, onPress }) => {
+  const lastDeltaRef = React.useRef({ x: 0, y: 0 });
+  const panResponder = React.useMemo(
+    () =>
+      PanResponder.create({
+        onStartShouldSetPanResponder: () => editable,
+        onMoveShouldSetPanResponder: (_event, gestureState) =>
+          editable && (Math.abs(gestureState.dx) > 3 || Math.abs(gestureState.dy) > 3),
+        onPanResponderGrant: () => {
+          lastDeltaRef.current = { x: 0, y: 0 };
+        },
+        onPanResponderMove: (_event, gestureState) => {
+          const deltaX = gestureState.dx - lastDeltaRef.current.x;
+          const deltaY = gestureState.dy - lastDeltaRef.current.y;
+          lastDeltaRef.current = { x: gestureState.dx, y: gestureState.dy };
+          onMove(sticker.id, deltaX, deltaY);
+        },
+        onPanResponderRelease: () => {
+          lastDeltaRef.current = { x: 0, y: 0 };
+        },
+      }),
+    [editable, onMove, sticker.id],
+  );
+
+  return (
+    <Pressable
+      {...panResponder.panHandlers}
+      onPress={() => onPress(sticker.id)}
+      style={[
+        styles.textSticker,
+        {
+          left: sticker.x,
+          top: sticker.y,
+          backgroundColor: sticker.backgroundColor,
+          borderColor: editable ? 'rgba(255,255,255,0.34)' : 'transparent',
+        },
+      ]}
+    >
+      <Text style={[styles.textStickerLabel, { color: sticker.color, fontSize: Math.max(16, sticker.fontSize * 0.42) }]}>
+        {sticker.text}
+      </Text>
+    </Pressable>
+  );
 };
 
 const EditSubmission: React.FC = () => {
@@ -94,32 +192,42 @@ const EditSubmission: React.FC = () => {
   const params = (route.params ?? {}) as EditSubmissionRouteParams;
   const video = params.video;
   const videoUri = video?.uri ?? null;
-  const [visibility, setVisibility] = useState<VideoVisibility>('public');
-  const [hasStartedPreview, setHasStartedPreview] = useState(false);
-  const [isPlaying, setIsPlaying] = useState(false);
+  const uploadedVideoId = params.uploadedVideoId;
+  const [isPlaying, setIsPlaying] = useState(true);
   const [isMuted, setIsMuted] = useState(false);
-  const [currentTime, setCurrentTime] = useState(0);
-  const [duration, setDuration] = useState(0);
-  const { mutateAsync: createCreatorVideoDraft } = useCreateCreatorVideoDraft();
-  const { mutateAsync: uploadCreatorVideoToDraft } = useUploadCreatorVideoToDraft();
-  const { mutateAsync: updateCreatorVideoProgress } = useUpdateCreatorVideoProgress();
-  const startUploadTask = useCreatorVideoUploadStore((state) => state.startTask);
-  const attachVideoIdToUploadTask = useCreatorVideoUploadStore((state) => state.attachVideoId);
-  const completeUploadTask = useCreatorVideoUploadStore((state) => state.completeTask);
-  const failUploadTask = useCreatorVideoUploadStore((state) => state.failTask);
-  const updateUploadTaskProgress = useCreatorVideoUploadStore((state) => state.updateTaskProgress);
+  const [activeTool, setActiveTool] = useState<EditorTool>('none');
+  const [drawingColor, setDrawingColor] = useState(PRIMARY_COLOR);
+  const [drawingWidth, setDrawingWidth] = useState(5);
+  const [strokes, setStrokes] = useState<DrawingStroke[]>([]);
+  const [textStickers, setTextStickers] = useState<TextSticker[]>([]);
+  const [textComposerVisible, setTextComposerVisible] = useState(false);
+  const [composerText, setComposerText] = useState('');
+  const [composerColor, setComposerColor] = useState('#fff');
+  const [composerBackground, setComposerBackground] = useState('rgba(0,0,0,0.62)');
+  const [composerFontSize, setComposerFontSize] = useState(48);
+  const [composerStart, setComposerStart] = useState('0');
+  const [composerEnd, setComposerEnd] = useState('5');
+  const [drawingStart, setDrawingStart] = useState('0');
+  const [drawingEnd, setDrawingEnd] = useState('5');
+  const [editorCanvasSize, setEditorCanvasSize] = useState({ width: 0, height: 0 });
+  const [isRenderingVideo, setIsRenderingVideo] = useState(false);
   const loadedPreviewUriRef = React.useRef<string | null>(null);
-  const lastProgressPatchRef = React.useRef({ percent: 0, timestamp: 0 });
+  const playbackStateRef = React.useRef<boolean | null>(null);
+  const drawingExportRef = React.useRef<any>(null);
 
   const player = useVideoPlayer(null, (instance) => {
     instance.loop = true;
     instance.muted = false;
+    instance.keepScreenOnWhilePlaying = false;
+    instance.timeUpdateEventInterval = 0.5;
   });
 
   const routeOrientation = video?.orientation ?? null;
   const previewOrientation = routeOrientation ?? 'portrait';
   const isLandscapePreview = previewOrientation === 'landscape';
-  const shouldRenderVideo = Boolean(videoUri && isFocused && hasStartedPreview);
+  const renderTargetSize = RENDER_TARGET_SIZES[previewOrientation];
+  const shouldRenderVideo = Boolean(videoUri && isFocused);
+  const nextButtonLabel = isRenderingVideo ? 'Preparing edits' : 'Next';
 
   const pausePreview = React.useCallback(() => {
     try {
@@ -130,38 +238,129 @@ const EditSubmission: React.FC = () => {
 
   const playPreview = React.useCallback(() => {
     if (!videoUri) return;
-
-    try {
-      if (loadedPreviewUriRef.current !== videoUri) {
-        if (typeof player.replace !== 'function') {
-          throw new Error('Video preview is not supported on this build.');
-        }
-
-        player.replace(videoUri);
-        loadedPreviewUriRef.current = videoUri;
-      }
-
-      player.muted = isMuted;
-      player.play();
-      setIsPlaying(true);
-    } catch (error: any) {
-      Alert.alert('Preview unavailable', error?.message || 'We could not play this video preview.');
-    }
-  }, [isMuted, player, videoUri]);
+    setIsPlaying(true);
+  }, [videoUri]);
 
   useFocusEffect(
     React.useCallback(() => {
       return () => {
-        pausePreview();
-        setHasStartedPreview(false);
+        try {
+          player.pause();
+        } catch {}
+        playbackStateRef.current = null;
       };
-    }, [pausePreview]),
+    }, [player]),
   );
 
-  const progress = useMemo(() => {
-    if (!duration) return 0;
-    return Math.min(1, Math.max(0, currentTime / duration));
-  }, [currentTime, duration]);
+  React.useEffect(() => {
+    let cancelled = false;
+    const shouldPlay = Boolean(videoUri && isFocused && isPlaying);
+
+    if (playbackStateRef.current === shouldPlay && loadedPreviewUriRef.current === videoUri) return;
+    playbackStateRef.current = shouldPlay;
+
+    const syncPlayback = async () => {
+      try {
+        if (!videoUri || !shouldPlay) {
+          player.pause();
+          return;
+        }
+
+        if (loadedPreviewUriRef.current !== videoUri) {
+          await player.replaceAsync(videoUri);
+          if (cancelled) return;
+          loadedPreviewUriRef.current = videoUri;
+        }
+
+        player.muted = isMuted;
+        player.play();
+      } catch (error: any) {
+        if (!cancelled) {
+          setIsPlaying(false);
+          Alert.alert('Preview unavailable', error?.message || 'We could not play this video preview.');
+        }
+      }
+    };
+
+    void syncPlayback();
+
+    return () => {
+      cancelled = true;
+    };
+  }, [isFocused, isMuted, isPlaying, player, videoUri]);
+
+  React.useEffect(() => {
+    player.muted = isMuted;
+  }, [isMuted, player]);
+
+  const drawingResponder = React.useMemo(
+    () =>
+      PanResponder.create({
+        onStartShouldSetPanResponder: () => activeTool === 'draw',
+        onMoveShouldSetPanResponder: () => activeTool === 'draw',
+        onPanResponderGrant: (event) => {
+          const { locationX, locationY } = event.nativeEvent;
+          const stroke: DrawingStroke = {
+            id: `${Date.now()}-${Math.random().toString(36).slice(2)}`,
+            color: drawingColor,
+            width: drawingWidth,
+            start: Math.max(0, Number(drawingStart) || 0),
+            end: Math.max(Math.max(0, Number(drawingStart) || 0) + 0.1, Number(drawingEnd) || 5),
+            points: [{ x: locationX, y: locationY }],
+          };
+          setStrokes((current) => [...current, stroke]);
+        },
+        onPanResponderMove: (event) => {
+          const { locationX, locationY } = event.nativeEvent;
+          setStrokes((current) => {
+            const lastStroke = current[current.length - 1];
+            if (!lastStroke) return current;
+
+            return [
+              ...current.slice(0, -1),
+              {
+                ...lastStroke,
+                points: [...lastStroke.points, { x: locationX, y: locationY }],
+              },
+            ];
+          });
+        },
+      }),
+    [activeTool, drawingColor, drawingEnd, drawingStart, drawingWidth],
+  );
+
+  const moveTextSticker = React.useCallback((id: string, deltaX: number, deltaY: number) => {
+    setTextStickers((current) =>
+      current.map((sticker) =>
+        sticker.id === id
+          ? {
+              ...sticker,
+              x: Math.max(12, Math.min(Math.max(12, editorCanvasSize.width - 96), sticker.x + deltaX)),
+              y: Math.max(84, Math.min(Math.max(84, editorCanvasSize.height - 120), sticker.y + deltaY)),
+            }
+          : sticker,
+      ),
+    );
+  }, [editorCanvasSize.height, editorCanvasSize.width]);
+
+  const editTextSticker = React.useCallback(
+    (id: string) => {
+      if (activeTool !== 'text') return;
+
+      const sticker = textStickers.find((item) => item.id === id);
+      if (!sticker) return;
+
+      setComposerText(sticker.text);
+      setComposerColor(sticker.color);
+      setComposerBackground(sticker.backgroundColor);
+      setComposerFontSize(sticker.fontSize);
+      setComposerStart(String(sticker.start));
+      setComposerEnd(String(sticker.end));
+      setTextStickers((current) => current.filter((item) => item.id !== id));
+      setTextComposerVisible(true);
+    },
+    [activeTool, textStickers],
+  );
 
   const handleTogglePlayback = () => {
     if (!videoUri) return;
@@ -171,13 +370,19 @@ const EditSubmission: React.FC = () => {
       return;
     }
 
-    setHasStartedPreview(true);
     playPreview();
   };
 
   const handleQuickAction = (actionId: string) => {
     if (actionId === 'text') {
-      Alert.alert('Text tools', 'Text tools are ready for the next editor pass.');
+      setActiveTool('text');
+      setComposerText('');
+      setComposerColor('#fff');
+      setComposerBackground('rgba(0,0,0,0.62)');
+      setComposerFontSize(48);
+      setComposerStart('0');
+      setComposerEnd('5');
+      setTextComposerVisible(true);
       return;
     }
 
@@ -186,85 +391,119 @@ const EditSubmission: React.FC = () => {
       return;
     }
 
-    Alert.alert('Draw tools', 'Drawing tools are ready for the next editor pass.');
+    setActiveTool((current) => (current === 'draw' ? 'none' : 'draw'));
   };
 
-  const handleNext = () => {
+  const addTextSticker = () => {
+    const trimmedText = composerText.trim();
+    if (!trimmedText) {
+      setTextComposerVisible(false);
+      return;
+    }
+
+    setTextStickers((current) => [
+      ...current,
+      {
+        id: `${Date.now()}-${Math.random().toString(36).slice(2)}`,
+        text: trimmedText,
+        color: composerColor,
+        backgroundColor: composerBackground,
+        start: Math.max(0, Number(composerStart) || 0),
+        end: Math.max(Math.max(0, Number(composerStart) || 0) + 0.1, Number(composerEnd) || 5),
+        fontSize: composerFontSize,
+        x: 72,
+        y: 260,
+      },
+    ]);
+    setComposerText('');
+    setTextComposerVisible(false);
+    setActiveTool('text');
+  };
+
+  const undoEditorAction = () => {
+    if (activeTool === 'draw' && strokes.length > 0) {
+      setStrokes((current) => current.slice(0, -1));
+      return;
+    }
+
+    if (activeTool === 'text' && textStickers.length > 0) {
+      setTextStickers((current) => current.slice(0, -1));
+    }
+  };
+
+  const exportDrawingFiles = async (): Promise<VideoUploadSource[]> => {
+    if (!strokes.some((stroke) => stroke.points.length > 0)) return [];
+    if (!FileSystem.cacheDirectory) {
+      throw new Error('Drawing export cache is not available on this device.');
+    }
+
+    const exporter = drawingExportRef.current;
+    if (!exporter?.toDataURL) {
+      throw new Error('Drawing export is not available on this device.');
+    }
+
+    const base64 = await new Promise<string>((resolve, reject) => {
+      try {
+        exporter.toDataURL((value: string) => resolve(value), renderTargetSize);
+      } catch (error) {
+        reject(error);
+      }
+    });
+
+    const uri = `${FileSystem.cacheDirectory}kulsah-drawing-${Date.now()}.png`;
+    await FileSystem.writeAsStringAsync(uri, base64, {
+      encoding: FileSystem.EncodingType.Base64,
+    });
+
+    return [
+      {
+        uri,
+        name: 'drawing-0.png',
+        type: 'image/png',
+      },
+    ];
+  };
+
+  const handleNext = async () => {
     if (!video) {
       Alert.alert('No video selected', 'Record or choose a video before continuing.');
       return;
     }
 
-    const uploadTaskId = `${Date.now()}-${Math.random().toString(36).slice(2)}`;
-    startUploadTask(uploadTaskId);
+    let editPayload: SubmitCreatorVideoEditsPayload | null = null;
 
-    void createCreatorVideoDraft({
-      content_type: ['music'],
-      visibility,
-    })
-      .then(async (draftResponse) => {
-        const draftVideoId = draftResponse.data.id;
-        lastProgressPatchRef.current = { percent: 0, timestamp: 0 };
+    try {
+      setIsRenderingVideo(true);
+      const drawingFiles = await exportDrawingFiles();
 
-        attachVideoIdToUploadTask(uploadTaskId, {
-          videoId: draftVideoId,
-          progressPercentage: draftResponse.data.progress_percentage ?? 0,
-          processingStatus: draftResponse.data.status ?? 'uploading',
+      if (hasVideoOverlays(strokes, textStickers)) {
+        editPayload = createCreatorVideoEditsPayload({
+          orientation: previewOrientation,
+          canvasSize: editorCanvasSize,
+          strokes,
+          textStickers,
+          drawingFiles,
         });
+      }
 
-        const uploadResponse = await uploadCreatorVideoToDraft({
-          video: draftVideoId,
-          payload: {
-            video: {
-              ...video,
-              orientation: previewOrientation,
-            },
-          },
-          onUploadProgress: (percent) => {
-            updateUploadTaskProgress(uploadTaskId, {
-              progressPercentage: percent,
-              processingStatus: 'draft',
-            });
-
-            const now = Date.now();
-            const shouldPatch =
-              percent === 100 ||
-              percent - lastProgressPatchRef.current.percent >= 5 ||
-              now - lastProgressPatchRef.current.timestamp >= 1000;
-
-            if (!shouldPatch) return;
-
-            lastProgressPatchRef.current = { percent, timestamp: now };
-            void updateCreatorVideoProgress({
-              video: draftVideoId,
-              payload: { progress_percentage: percent },
-            }).catch(() => undefined);
-          },
-        });
-
-        completeUploadTask(uploadTaskId, {
-          videoId: draftVideoId,
-          progressPercentage: uploadResponse.data.progress_percentage ?? 100,
-          processingStatus: uploadResponse.data.status ?? 'processing',
-        });
-      })
-      .catch((caughtError) => {
-        const parsed = parseApiError(caughtError);
-        failUploadTask(uploadTaskId, parsed.message);
-      });
-
-    navigation.replace('SubmitEntry', {
-      video: {
-        ...video,
+      navigation.replace('SubmitEntry', {
+        video: {
+          ...video,
+          orientation: previewOrientation,
+        },
+        uploadedVideoId,
+        autoStartUpload: uploadedVideoId == null,
+        editPayload,
+        sound: params.sound ?? null,
         orientation: previewOrientation,
-      },
-      creatorUploadTaskId: uploadTaskId,
-      uploadStatus: 'uploading',
-      uploadProgressPercentage: 0,
-      sound: params.sound ?? null,
-      visibility,
-      orientation: previewOrientation,
-    });
+      });
+    } catch (caughtError) {
+      const parsed = parseApiError(caughtError);
+      Alert.alert(parsed.title || 'Edit export failed', parsed.message || 'We could not prepare your video edits.');
+      return;
+    } finally {
+      setIsRenderingVideo(false);
+    }
   };
 
   return (
@@ -306,16 +545,8 @@ const EditSubmission: React.FC = () => {
             <Pressable onPress={() => navigation.goBack()} style={styles.headerBack}>
               <MaterialIcons name="chevron-left" size={24} color="#fff" />
             </Pressable>
-            <Text style={styles.headerTitle}>Edit Submission</Text>
+            {/* <Text style={styles.headerTitle}>Edit Submission</Text> */}
           </View>
-
-          <Pressable
-            onPress={() => void handleNext()}
-            style={[styles.postButton, !videoUri && styles.postButtonDisabled]}
-            disabled={!videoUri}
-          >
-            <Text style={styles.postButtonText}>NEXT</Text>
-          </Pressable>
         </View>
 
         <Pressable style={styles.videoTapLayer} onPress={handleTogglePlayback}>
@@ -326,18 +557,70 @@ const EditSubmission: React.FC = () => {
           ) : null}
         </Pressable>
 
-        <View style={styles.challengeBadgeWrap}>
-          <View style={styles.challengeBadge}>
-            <View style={styles.badgeDot} />
-            <Text style={styles.badgeMeta}>Ready to publish</Text>
-            <Text style={styles.badgeTitle}>{`${visibility.toUpperCase()} / ${previewOrientation.toUpperCase()}`}</Text>
-          </View>
+        <View
+          {...drawingResponder.panHandlers}
+          onLayout={(event) => {
+            const { width, height } = event.nativeEvent.layout;
+            setEditorCanvasSize((current) =>
+              current.width === width && current.height === height ? current : { width, height },
+            );
+          }}
+          pointerEvents={activeTool === 'draw' ? 'auto' : 'none'}
+          style={styles.drawingLayer}
+        >
+          <Svg width="100%" height="100%">
+            {strokes.map((stroke) => (
+              <Path
+                key={stroke.id}
+                d={createPath(stroke.points)}
+                fill="none"
+                stroke={stroke.color}
+                strokeWidth={stroke.width}
+                strokeLinecap="round"
+                strokeLinejoin="round"
+              />
+            ))}
+          </Svg>
+        </View>
+
+        <View pointerEvents={activeTool === 'draw' ? 'none' : 'box-none'} style={styles.stickerLayer}>
+          {textStickers.map((sticker) => (
+            <DraggableTextSticker
+              key={sticker.id}
+              sticker={sticker}
+              editable={activeTool === 'text'}
+              onMove={moveTextSticker}
+              onPress={editTextSticker}
+            />
+          ))}
+        </View>
+
+        <View pointerEvents="none" style={[styles.drawingExportSurface, renderTargetSize]}>
+          <Svg ref={drawingExportRef} width={renderTargetSize.width} height={renderTargetSize.height}>
+            {strokes.map((stroke) => (
+              <Path
+                key={`export-${stroke.id}`}
+                d={createScaledPath(stroke.points, editorCanvasSize, renderTargetSize)}
+                fill="none"
+                stroke={stroke.color}
+                strokeWidth={stroke.width * (renderTargetSize.width / Math.max(1, editorCanvasSize.width))}
+                strokeLinecap="round"
+                strokeLinejoin="round"
+              />
+            ))}
+          </Svg>
         </View>
 
         <View style={styles.rightRail}>
           {quickActions.map((action) => (
             <View key={action.id} style={styles.quickActionItem}>
-              <Pressable style={styles.quickActionButton} onPress={() => handleQuickAction(action.id)}>
+              <Pressable
+                style={[
+                  styles.quickActionButton,
+                  activeTool === action.id && styles.quickActionButtonActive,
+                ]}
+                onPress={() => handleQuickAction(action.id)}
+              >
                 <MaterialIcons name={action.icon} size={22} color="#fff" />
               </Pressable>
               <Text style={styles.quickActionLabel}>{action.label}</Text>
@@ -352,44 +635,194 @@ const EditSubmission: React.FC = () => {
           </View>
         </View>
 
-        <View style={styles.bottomPanelWrap}>
-          <View style={styles.formPanel}>
-            {params.sound?.title ? (
-              <View style={styles.soundPill}>
-                <MaterialIcons name="music-note" size={16} color={PRIMARY_COLOR} />
-                <Text style={styles.soundPillText} numberOfLines={1}>{params.sound.title}</Text>
-              </View>
-            ) : null}
+        {textComposerVisible ? (
+          <KeyboardAvoidingView
+            behavior={Platform.OS === 'ios' ? 'padding' : undefined}
+            style={styles.textComposerOverlay}
+          >
+            <View style={styles.textComposerTop}>
+              <Pressable style={styles.editorIconButton} onPress={() => setTextComposerVisible(false)}>
+                <MaterialIcons name="close" size={22} color="#fff" />
+              </Pressable>
+              <Pressable style={styles.doneButton} onPress={addTextSticker}>
+                <Text style={styles.doneButtonText}>Done</Text>
+              </Pressable>
+            </View>
 
-            <View style={styles.visibilityRow}>
-              {visibilityOptions.map((option) => {
-                const selected = visibility === option.value;
+            <TextInput
+              value={composerText}
+              onChangeText={setComposerText}
+              autoFocus
+              multiline
+              maxLength={80}
+              placeholder="Add text"
+              placeholderTextColor="rgba(255,255,255,0.5)"
+              textAlign="center"
+              style={[
+                styles.composerInput,
+                {
+                  color: composerColor,
+                  backgroundColor: composerBackground,
+                },
+              ]}
+            />
 
-                return (
+            <View style={styles.composerTray}>
+              <View style={styles.swatchRow}>
+                {TEXT_COLORS.map((color) => (
                   <Pressable
-                    key={option.value}
-                    onPress={() => setVisibility(option.value)}
-                    style={[styles.visibilityButton, selected && styles.visibilityButtonActive]}
+                    key={color}
+                    onPress={() => setComposerColor(color)}
+                    style={[
+                      styles.colorSwatch,
+                      { backgroundColor: color },
+                      composerColor === color && styles.colorSwatchActive,
+                    ]}
+                  />
+                ))}
+              </View>
+
+              <View style={styles.swatchRow}>
+                {TEXT_BACKGROUNDS.map((color) => (
+                  <Pressable
+                    key={color}
+                    onPress={() => setComposerBackground(color)}
+                    style={[
+                      styles.backgroundSwatch,
+                      {
+                        backgroundColor: color === 'transparent' ? 'rgba(255,255,255,0.08)' : color,
+                      },
+                      composerBackground === color && styles.colorSwatchActive,
+                    ]}
                   >
-                    <MaterialIcons name={option.icon} size={16} color={selected ? '#fff' : 'rgba(255,255,255,0.72)'} />
-                    <Text style={[styles.visibilityText, selected && styles.visibilityTextActive]}>{option.label}</Text>
+                    {color === 'transparent' ? <MaterialIcons name="format-color-reset" size={18} color="#fff" /> : null}
                   </Pressable>
-                );
-              })}
-            </View>
+                ))}
+              </View>
 
-            <View style={styles.timelineHeader}>
-              <Text style={styles.timelineMeta}>
-                {formatTime(currentTime)} / {formatTime(duration)}
-              </Text>
-              <Text style={styles.timelineMeta}>1.0x</Text>
-            </View>
+              <View style={styles.fontSizeRow}>
+                {[36, 48, 64].map((size) => (
+                  <Pressable
+                    key={size}
+                    onPress={() => setComposerFontSize(size)}
+                    style={[styles.fontSizeButton, composerFontSize === size && styles.fontSizeButtonActive]}
+                  >
+                    <Text style={styles.fontSizeButtonText}>{size}</Text>
+                  </Pressable>
+                ))}
+              </View>
 
-            <View style={styles.timelineTrack}>
-              <View style={[styles.timelineFill, { width: `${progress * 100}%` }]} />
-              <View style={[styles.playhead, { left: `${progress * 100}%` }]} />
+              <View style={styles.timeInputRow}>
+                <TextInput
+                  value={composerStart}
+                  onChangeText={setComposerStart}
+                  keyboardType="decimal-pad"
+                  placeholder="Start"
+                  placeholderTextColor="rgba(255,255,255,0.5)"
+                  style={styles.timeInput}
+                />
+                <TextInput
+                  value={composerEnd}
+                  onChangeText={setComposerEnd}
+                  keyboardType="decimal-pad"
+                  placeholder="End"
+                  placeholderTextColor="rgba(255,255,255,0.5)"
+                  style={styles.timeInput}
+                />
+              </View>
             </View>
-          </View>
+          </KeyboardAvoidingView>
+        ) : null}
+
+        <View style={styles.bottomPanelWrap}>
+          {activeTool === 'draw' ? (
+            <View style={styles.toolPanel}>
+              <View style={styles.swatchRow}>
+                {DRAW_COLORS.map((color) => (
+                  <Pressable
+                    key={color}
+                    onPress={() => setDrawingColor(color)}
+                    style={[
+                      styles.colorSwatch,
+                      { backgroundColor: color },
+                      drawingColor === color && styles.colorSwatchActive,
+                    ]}
+                  />
+                ))}
+              </View>
+
+              <View style={styles.brushRow}>
+                {[4, 7, 10].map((width) => (
+                  <Pressable
+                    key={width}
+                    onPress={() => setDrawingWidth(width)}
+                    style={[styles.brushButton, drawingWidth === width && styles.brushButtonActive]}
+                  >
+                    <View style={[styles.brushDot, { width, height: width, borderRadius: width / 2 }]} />
+                  </Pressable>
+                ))}
+              </View>
+
+              <View style={styles.timeInputRow}>
+                <TextInput
+                  value={drawingStart}
+                  onChangeText={setDrawingStart}
+                  keyboardType="decimal-pad"
+                  placeholder="Start"
+                  placeholderTextColor="rgba(255,255,255,0.5)"
+                  style={styles.timeInput}
+                />
+                <TextInput
+                  value={drawingEnd}
+                  onChangeText={setDrawingEnd}
+                  keyboardType="decimal-pad"
+                  placeholder="End"
+                  placeholderTextColor="rgba(255,255,255,0.5)"
+                  style={styles.timeInput}
+                />
+              </View>
+
+              <View style={styles.toolActions}>
+                <Pressable style={styles.secondaryToolButton} onPress={undoEditorAction}>
+                  <MaterialIcons name="undo" size={18} color="#fff" />
+                  <Text style={styles.secondaryToolText}>Undo</Text>
+                </Pressable>
+                <Pressable style={styles.doneButton} onPress={() => setActiveTool('none')}>
+                  <Text style={styles.doneButtonText}>Done</Text>
+                </Pressable>
+              </View>
+            </View>
+          ) : activeTool === 'text' ? (
+            <View style={styles.toolPanel}>
+              <View style={styles.toolActions}>
+                <Pressable style={styles.secondaryToolButton} onPress={() => setTextComposerVisible(true)}>
+                  <MaterialIcons name="add" size={18} color="#fff" />
+                  <Text style={styles.secondaryToolText}>Add text</Text>
+                </Pressable>
+                <Pressable style={styles.secondaryToolButton} onPress={undoEditorAction}>
+                  <MaterialIcons name="undo" size={18} color="#fff" />
+                  <Text style={styles.secondaryToolText}>Undo</Text>
+                </Pressable>
+                <Pressable style={styles.doneButton} onPress={() => setActiveTool('none')}>
+                  <Text style={styles.doneButtonText}>Done</Text>
+                </Pressable>
+              </View>
+            </View>
+          ) : params.sound?.title ? (
+            <View style={styles.soundPill}>
+              <MaterialIcons name="music-note" size={16} color={PRIMARY_COLOR} />
+              <Text style={styles.soundPillText} numberOfLines={1}>{params.sound.title}</Text>
+            </View>
+          ) : null}
+
+          <Pressable
+            onPress={() => void handleNext()}
+            style={[styles.bottomNextButton, (!videoUri || isRenderingVideo) && styles.postButtonDisabled]}
+            disabled={!videoUri || isRenderingVideo}
+          >
+            <Text style={styles.postButtonText}>{nextButtonLabel}</Text>
+            <MaterialIcons name={isRenderingVideo ? 'hourglass-empty' : 'chevron-right'} size={18} color="#fff" />
+          </Pressable>
         </View>
       </KeyboardAvoidingView>
     </SafeAreaView>
@@ -479,10 +912,10 @@ const styles = StyleSheet.create({
   },
   postButtonText: {
     color: '#fff',
-    ...fontSize.b5,
-    lineHeight: fontSize.b5.fontSize + 1,
+    ...fontSize.b3,
+    lineHeight: fontSize.b3.fontSize + 1,
     letterSpacing: 0.8,
-    fontWeight: '900',
+    // fontWeight: '900',
   },
   videoTapLayer: {
     ...StyleSheet.absoluteFillObject,
@@ -499,42 +932,6 @@ const styles = StyleSheet.create({
     backgroundColor: 'rgba(0,0,0,0.42)',
     borderWidth: 1,
     borderColor: 'rgba(255,255,255,0.18)',
-  },
-  challengeBadgeWrap: {
-    position: 'absolute',
-    zIndex: 10,
-    top: 104,
-    left: 20,
-  },
-  challengeBadge: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: 8,
-    paddingHorizontal: 14,
-    paddingVertical: 10,
-    borderRadius: 14,
-    borderWidth: 1,
-    borderColor: 'rgba(255,255,255,0.12)',
-    backgroundColor: 'rgba(0,0,0,0.34)',
-  },
-  badgeDot: {
-    width: 8,
-    height: 8,
-    borderRadius: 4,
-    backgroundColor: PRIMARY_COLOR,
-  },
-  badgeMeta: {
-    color: PRIMARY_COLOR,
-    ...fontSize.b5,
-    lineHeight: fontSize.b5.fontSize + 1,
-    textTransform: 'uppercase',
-    letterSpacing: 0.9,
-  },
-  badgeTitle: {
-    color: '#fff',
-    ...fontSize.b5,
-    lineHeight: fontSize.b5.fontSize + 1,
-    fontWeight: '900',
   },
   rightRail: {
     position: 'absolute',
@@ -557,6 +954,10 @@ const styles = StyleSheet.create({
     borderColor: 'rgba(255,255,255,0.14)',
     backgroundColor: 'rgba(0,0,0,0.4)',
   },
+  quickActionButtonActive: {
+    backgroundColor: PRIMARY_COLOR,
+    borderColor: PRIMARY_COLOR,
+  },
   quickActionLabel: {
     color: 'rgba(255,255,255,0.78)',
     ...fontSize.b5,
@@ -566,19 +967,12 @@ const styles = StyleSheet.create({
   },
   bottomPanelWrap: {
     position: 'absolute',
-    zIndex: 30,
+    zIndex: 40,
     left: 0,
     right: 0,
-    bottom: 26,
+    bottom: 24,
     paddingHorizontal: 18,
-  },
-  formPanel: {
-    borderRadius: 20,
-    borderWidth: 1,
-    borderColor: 'rgba(255,255,255,0.13)',
-    backgroundColor: 'rgba(0,0,0,0.52)',
-    padding: 14,
-    gap: 10,
+    gap: 12,
   },
   soundPill: {
     alignSelf: 'flex-start',
@@ -596,64 +990,232 @@ const styles = StyleSheet.create({
     ...fontSize.b5,
     lineHeight: fontSize.b5.fontSize + 1,
   },
-  visibilityRow: {
-    flexDirection: 'row',
-    gap: 8,
-  },
-  visibilityButton: {
-    flex: 1,
-    minHeight: 38,
-    borderRadius: 999,
-    borderWidth: 1,
-    borderColor: 'rgba(255,255,255,0.12)',
-    backgroundColor: 'rgba(255,255,255,0.07)',
+  bottomNextButton: {
+    // alignSelf: 'flex-end',
+    minWidth: '90%',
+    minHeight: 50,
+    borderRadius: 25,
+    paddingHorizontal: '10%',
+    backgroundColor: PRIMARY_COLOR,
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'center',
-    gap: 6,
+    gap: 8,
   },
-  visibilityButtonActive: {
-    backgroundColor: PRIMARY_COLOR,
-    borderColor: PRIMARY_COLOR,
+  drawingLayer: {
+    ...StyleSheet.absoluteFillObject,
+    zIndex: 12,
   },
-  visibilityText: {
-    color: 'rgba(255,255,255,0.72)',
-    ...fontSize.b5,
-    lineHeight: fontSize.b5.fontSize + 1,
-    fontWeight: '800',
+  stickerLayer: {
+    ...StyleSheet.absoluteFillObject,
+    zIndex: 14,
   },
-  visibilityTextActive: {
-    color: '#fff',
+  drawingExportSurface: {
+    position: 'absolute',
+    left: -10000,
+    top: -10000,
+    backgroundColor: 'transparent',
   },
-  timelineHeader: {
+  textSticker: {
+    position: 'absolute',
+    maxWidth: 260,
+    borderRadius: 12,
+    borderWidth: 1,
+    paddingHorizontal: 12,
+    paddingVertical: 8,
+  },
+  textStickerLabel: {
+    ...fontSize.b2,
+    lineHeight: fontSize.b2.fontSize + 4,
+    fontWeight: '900',
+    textAlign: 'center',
+    textShadowColor: 'rgba(0,0,0,0.44)',
+    textShadowOffset: { width: 0, height: 1 },
+    textShadowRadius: 3,
+  },
+  textComposerOverlay: {
+    position: 'absolute',
+    zIndex: 80,
+    top: 0,
+    left: 0,
+    right: 0,
+    bottom: 0,
+    backgroundColor: 'rgba(0,0,0,0.72)',
+    justifyContent: 'center',
+    paddingHorizontal: 24,
+  },
+  textComposerTop: {
+    position: 'absolute',
+    top: 48,
+    left: 18,
+    right: 18,
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'space-between',
   },
-  timelineMeta: {
-    color: 'rgba(255,255,255,0.68)',
+  editorIconButton: {
+    width: 42,
+    height: 42,
+    borderRadius: 21,
+    alignItems: 'center',
+    justifyContent: 'center',
+    backgroundColor: 'rgba(255,255,255,0.12)',
+  },
+  composerInput: {
+    alignSelf: 'center',
+    minWidth: '72%',
+    maxWidth: '94%',
+    minHeight: 58,
+    borderRadius: 16,
+    paddingHorizontal: 14,
+    paddingVertical: 10,
+    ...fontSize.h2,
+    lineHeight: fontSize.h2.fontSize + 6,
+    fontWeight: '900',
+  },
+  composerTray: {
+    position: 'absolute',
+    left: 18,
+    right: 18,
+    bottom: 36,
+    gap: 14,
+    alignItems: 'center',
+  },
+  toolPanel: {
+    borderRadius: 20,
+    borderWidth: 1,
+    borderColor: 'rgba(255,255,255,0.13)',
+    backgroundColor: 'rgba(0,0,0,0.62)',
+    padding: 14,
+    gap: 14,
+  },
+  swatchRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
+    gap: 12,
+  },
+  colorSwatch: {
+    width: 30,
+    height: 30,
+    borderRadius: 15,
+    borderWidth: 2,
+    borderColor: 'rgba(255,255,255,0.28)',
+  },
+  backgroundSwatch: {
+    width: 34,
+    height: 34,
+    borderRadius: 17,
+    borderWidth: 2,
+    borderColor: 'rgba(255,255,255,0.28)',
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  colorSwatchActive: {
+    borderColor: '#fff',
+    transform: [{ scale: 1.12 }],
+  },
+  brushRow: {
+    flexDirection: 'row',
+    justifyContent: 'center',
+    gap: 10,
+  },
+  fontSizeRow: {
+    flexDirection: 'row',
+    justifyContent: 'center',
+    gap: 10,
+  },
+  fontSizeButton: {
+    minWidth: 48,
+    height: 34,
+    borderRadius: 17,
+    alignItems: 'center',
+    justifyContent: 'center',
+    backgroundColor: 'rgba(255,255,255,0.08)',
+    borderWidth: 1,
+    borderColor: 'rgba(255,255,255,0.12)',
+  },
+  fontSizeButtonActive: {
+    borderColor: PRIMARY_COLOR,
+    backgroundColor: primaryColorAlpha(0.2),
+  },
+  fontSizeButtonText: {
+    color: '#fff',
     ...fontSize.b5,
     lineHeight: fontSize.b5.fontSize + 1,
-    textTransform: 'uppercase',
-    letterSpacing: 1,
+    fontWeight: '900',
   },
-  timelineTrack: {
-    height: 6,
-    borderRadius: 999,
-    backgroundColor: 'rgba(255,255,255,0.2)',
-    overflow: 'hidden',
+  timeInputRow: {
+    flexDirection: 'row',
+    justifyContent: 'center',
+    gap: 10,
   },
-  timelineFill: {
-    height: '100%',
-    borderRadius: 999,
+  timeInput: {
+    minWidth: 86,
+    height: 38,
+    borderRadius: 19,
+    paddingHorizontal: 14,
+    color: '#fff',
+    textAlign: 'center',
+    backgroundColor: 'rgba(255,255,255,0.1)',
+    borderWidth: 1,
+    borderColor: 'rgba(255,255,255,0.12)',
+    ...fontSize.b5,
+    lineHeight: fontSize.b5.fontSize + 1,
+    fontWeight: '800',
+  },
+  brushButton: {
+    width: 42,
+    height: 34,
+    borderRadius: 17,
+    alignItems: 'center',
+    justifyContent: 'center',
+    backgroundColor: 'rgba(255,255,255,0.08)',
+    borderWidth: 1,
+    borderColor: 'rgba(255,255,255,0.12)',
+  },
+  brushButtonActive: {
+    borderColor: PRIMARY_COLOR,
+    backgroundColor: primaryColorAlpha(0.2),
+  },
+  brushDot: {
+    backgroundColor: '#fff',
+  },
+  toolActions: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'flex-end',
+    gap: 10,
+  },
+  secondaryToolButton: {
+    minHeight: 40,
+    borderRadius: 20,
+    paddingHorizontal: 14,
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
+    gap: 6,
+    backgroundColor: 'rgba(255,255,255,0.1)',
+  },
+  secondaryToolText: {
+    color: '#fff',
+    ...fontSize.b5,
+    lineHeight: fontSize.b5.fontSize + 1,
+    fontWeight: '800',
+  },
+  doneButton: {
+    minHeight: 40,
+    borderRadius: 20,
+    paddingHorizontal: 18,
+    alignItems: 'center',
+    justifyContent: 'center',
     backgroundColor: PRIMARY_COLOR,
   },
-  playhead: {
-    position: 'absolute',
-    top: -3,
-    width: 2,
-    height: 12,
-    backgroundColor: '#fff',
+  doneButtonText: {
+    color: '#fff',
+    ...fontSize.b5,
+    lineHeight: fontSize.b5.fontSize + 1,
+    fontWeight: '900',
   },
 });
 

@@ -59,6 +59,21 @@ type PremiumAsset = {
   img: string;
 };
 
+const extractWatchedVideos = (value: unknown): Array<Record<string, any>> => {
+  if (Array.isArray(value)) return value;
+  if (!value || typeof value !== 'object') return [];
+
+  const record = value as Record<string, unknown>;
+  if (Array.isArray(record.videos)) return record.videos as Array<Record<string, any>>;
+  if (record.videos && typeof record.videos === 'object') {
+    const videosRecord = record.videos as Record<string, unknown>;
+    if (Array.isArray(videosRecord.data)) return videosRecord.data as Array<Record<string, any>>;
+  }
+  if (record.data && record.data !== value) return extractWatchedVideos(record.data);
+
+  return [];
+};
+
 const STICKY_HEADER_INDICES = [2];
 
 const FanProfile: React.FC<FanProfileProps> = ({ onToggleRole }) => {
@@ -87,14 +102,13 @@ const FanProfile: React.FC<FanProfileProps> = ({ onToggleRole }) => {
   } = useWatchedVideos({ per_page: 100 });
   const watchedVideos = useMemo(
     () =>
-      (watchedVideosResponse?.data.videos ?? [])
-        .map((item) => ({
+      extractWatchedVideos(watchedVideosResponse).map((item) => ({
           id: item.id,
           title: item.title,
           views: item.views ? `${item.views} views` : item.title,
           img: item.img ?? undefined,
         })),
-    [watchedVideosResponse?.data.videos]
+    [watchedVideosResponse]
   );
   useFocusEffect(
     useCallback(() => {

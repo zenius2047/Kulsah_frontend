@@ -59,7 +59,7 @@ import type { CreatorSubscriptionPlan } from '../src';
 
 const KULCOIN_ICON = require('../assets/coin.png');
 
-interface FeedItem {
+export interface FeedItem {
   id: string;
   creatorId?: string;
   artist: string;
@@ -898,7 +898,7 @@ const FeedSubscriptionModal: React.FC<{
 };
 
 
-const VideoFeedItem: React.FC<{
+export const VideoFeedItem: React.FC<{
   item: FeedItem;
   isPlaying: boolean;
   onSubscribe: (item: FeedItem) => void;
@@ -3178,7 +3178,7 @@ const Feed: React.FC = () => {
             decelerationRate="fast"
             disableIntervalMomentum
             ListFooterComponent={() => (
-              <View style={{ height: isFetchingNextPage ? 56 : 0, justifyContent: 'center', alignItems: 'center', backgroundColor: 'black' }}>
+              <View style={{ height: SCREEN_HEIGHT * (Platform.OS === 'ios' ? 0.08 : 0.07) + (Platform.OS === 'ios' ? 0 : insets.bottom), justifyContent: 'center', alignItems: 'center', backgroundColor: 'black' }}>
                 {isFetchingNextPage ? (
                   <ActivityIndicator size="small" color={PRIMARY_COLOR} />
                 ) : null}

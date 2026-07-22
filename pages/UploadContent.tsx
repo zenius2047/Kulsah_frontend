@@ -23,8 +23,8 @@ import PlayIcon from '../assets/icons/play-arrow-svg.svg';
 import ImageIcon from '../assets/icons/image-svg.svg';
 import VideoCamIcon from '../assets/icons/videocam-svg.svg';
 import { fontSize } from './typography';
-import { parseApiError, videoApi } from '../src';
-import type { CreatorVideo, CreatorVideoProgress, VideoUploadSource } from '../src';
+import { parseApiError, useCreatorVideoDirectUpload } from '../src';
+import type { CreatorVideo, UploadCreatorVideoPayload, VideoUploadSource } from '../src';
 
 type Step = 'select' | 'edit' | 'post';
 type ActiveTool = 'none' | 'filters' | 'adjust' | 'voice' | 'captions' | 'trim';
@@ -61,7 +61,6 @@ const UploadContent: React.FC = () => {
   const [selectedContentTypes, setSelectedContentTypes] = useState<string[]>(['music']);
   const [selectedVideo, setSelectedVideo] = useState<VideoUploadSource | null>(null);
   const [uploadedVideo, setUploadedVideo] = useState<CreatorVideo | null>(null);
-  const [processingProgress, setProcessingProgress] = useState<CreatorVideoProgress | null>(null);
   const [uploadError, setUploadError] = useState('');
   const [isRecording, setIsRecording] = useState(false);
   const [isPublishing, setIsPublishing] = useState(false);
@@ -73,6 +72,7 @@ const UploadContent: React.FC = () => {
   const [trimRange, setTrimRange] = useState({ start: 0, end: 100 });
   const [adjust, setAdjust] = useState({ brightness: 100, contrast: 100, saturation: 100 });
   const [voice, setVoice] = useState('none');
+  const directUpload = useCreatorVideoDirectUpload();
   // const audioRef = useRef<Audio.Sound | null>(null);
 
   useEffect(() => {
@@ -84,28 +84,6 @@ const UploadContent: React.FC = () => {
       // void audioRef.current?.unloadAsync();
     };
   }, []);
-
-  useEffect(() => {
-    if (!uploadedVideo?.id) return undefined;
-
-    let isMounted = true;
-    const pollProgress = async () => {
-      try {
-        const response = await videoApi.getCreatorVideoProgress(uploadedVideo.id);
-        if (!isMounted) return;
-        setProcessingProgress(response.data.data);
-      } catch {
-        if (isMounted) setUploadError('Upload completed, but processing progress could not be refreshed.');
-      }
-    };
-
-    void pollProgress();
-    const interval = setInterval(() => void pollProgress(), 3000);
-    return () => {
-      isMounted = false;
-      clearInterval(interval);
-    };
-  }, [uploadedVideo?.id]);
 
   const playPreview = async (type: 'sound' | 'voice') => {
     try {
@@ -165,8 +143,22 @@ const UploadContent: React.FC = () => {
     });
   };
 
+  const buildUploadPayload = (): UploadCreatorVideoPayload | null => {
+    if (!selectedVideo) return null;
+
+    return {
+      video: selectedVideo,
+      title: title.trim() || null,
+      caption: caption.trim() || null,
+      contentType: selectedContentTypes,
+      visibility,
+    };
+  };
+
   const publish = async () => {
-    if (!selectedVideo) {
+    const payload = buildUploadPayload();
+
+    if (!payload) {
       Alert.alert('Choose a video', 'Pick a local video before posting.');
       return;
     }
@@ -174,20 +166,8 @@ const UploadContent: React.FC = () => {
     try {
       setIsPublishing(true);
       setUploadError('');
-      setProcessingProgress(null);
-      const response = await videoApi.uploadCreatorVideo({
-        video: selectedVideo,
-        title: title.trim() || null,
-        caption: caption.trim() || null,
-        contentType: selectedContentTypes,
-        visibility,
-      });
-      setUploadedVideo(response.data.data);
-      setProcessingProgress({
-        video_id: response.data.data.id,
-        status: response.data.data.status || 'processing',
-        progress_percentage: response.data.data.progress_percentage ?? 0,
-      });
+      const response = await directUpload.upload(payload);
+      setUploadedVideo(response.video);
       setIsPublished(true);
     } catch (caughtError) {
       const parsed = parseApiError(caughtError);
@@ -198,18 +178,55 @@ const UploadContent: React.FC = () => {
     }
   };
 
+  const retryUpload = async () => {
+    const payload = buildUploadPayload();
+    if (!payload) return;
+
+    try {
+      setIsPublishing(true);
+      setUploadError('');
+      const response = await directUpload.retry(payload);
+      setUploadedVideo(response.video);
+      setIsPublished(true);
+    } catch (caughtError) {
+      const parsed = parseApiError(caughtError);
+      setUploadError(parsed.message);
+    } finally {
+      setIsPublishing(false);
+    }
+  };
+
+  const uploadStatusLabel = (() => {
+    switch (directUpload.status) {
+      case 'initializing':
+        return 'Preparing upload';
+      case 'uploading':
+        return `Uploading ${directUpload.uploadProgress}%`;
+      case 'finalizing':
+        return 'Finalizing upload';
+      case 'processing':
+        return 'Upload complete';
+      case 'ready':
+        return 'Ready';
+      case 'failed':
+        return 'Upload failed';
+      default:
+        return 'Ready to post';
+    }
+  })();
+
   const selectedImage = MEDIA.find((m) => m.id === selectedMediaId)?.img ?? thumbnail;
 
   if (isPublished) {
-    const progress = processingProgress?.progress_percentage ?? uploadedVideo?.progress_percentage ?? 0;
-    const status = processingProgress?.status ?? uploadedVideo?.status ?? 'processing';
+    const progress = directUpload.uploadProgress || directUpload.progress;
+    const status = directUpload.processing?.status ?? uploadedVideo?.status ?? directUpload.status;
 
     return (
       <SafeAreaView style={s.root}>
         <View style={s.center}>
           <MaterialIcons name="verified" size={64} color={PRIMARY_COLOR} />
           <Text style={s.title}>Upload received</Text>
-          <Text style={s.muted}>Your video is being processed.</Text>
+          <Text style={s.muted}>Your video uploaded. Processing will continue in the background.</Text>
           <View style={s.progressPanel}>
             <View style={s.spaceBetween}>
               <Text style={s.text}>{status}</Text>
@@ -218,7 +235,8 @@ const UploadContent: React.FC = () => {
             <View style={s.progressTrack}>
               <View style={[s.progressFill, { width: `${Math.max(0, Math.min(100, progress))}%` }]} />
             </View>
-            {uploadError ? <Text style={s.errorText}>{uploadError}</Text> : null}
+            <Text style={s.muted}>Rendering continues in the background.</Text>
+            {uploadError || directUpload.error ? <Text style={s.errorText}>{uploadError || directUpload.error}</Text> : null}
           </View>
           <Pressable style={s.primary} onPress={() => navigation.navigate('MainTabs')}>
             <Text style={s.primaryText}>Return to Console</Text>
@@ -689,6 +707,26 @@ const UploadContent: React.FC = () => {
               ))}
             </View>
             {uploadError ? <Text style={s.errorText}>{uploadError}</Text> : null}
+            {directUpload.status !== 'idle' ? (
+              <View style={s.progressPanel}>
+                <View style={s.spaceBetween}>
+                  <Text style={s.text}>{uploadStatusLabel}</Text>
+                  <Text style={s.text}>{directUpload.uploadProgress || directUpload.progress}%</Text>
+                </View>
+                <View style={s.progressTrack}>
+                  <View style={[s.progressFill, { width: `${Math.max(0, Math.min(100, directUpload.uploadProgress || directUpload.progress))}%` }]} />
+                </View>
+                {directUpload.status === 'processing' ? (
+                  <Text style={s.muted}>Rendering continues in the background.</Text>
+                ) : null}
+                {directUpload.error ? <Text style={s.errorText}>{directUpload.error}</Text> : null}
+                {directUpload.status === 'failed' ? (
+                  <Pressable style={s.secondary} onPress={() => void retryUpload()} disabled={isPublishing}>
+                    <Text style={s.secondaryText}>Retry Upload</Text>
+                  </Pressable>
+                ) : null}
+              </View>
+            ) : null}
             <View style={s.panel}>
               <View style={s.spaceBetween}><Text style={s.text}>Allow Comments</Text><Switch value={allowComments} onValueChange={setAllowComments} /></View>
               <View style={s.spaceBetween}><Text style={s.text}>Allow Duet</Text><Switch value={allowDuet} onValueChange={setAllowDuet} /></View>

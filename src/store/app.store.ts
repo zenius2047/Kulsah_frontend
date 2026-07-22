@@ -1,6 +1,9 @@
 import AsyncStorage from '@react-native-async-storage/async-storage';
+import { Dimensions } from 'react-native';
 import { create } from 'zustand';
 import { createJSONStorage, persist, subscribeWithSelector } from 'zustand/middleware';
+
+const initialScreen = Dimensions.get('screen');
 
 type AppState = {
   darkMode: boolean;
@@ -20,10 +23,12 @@ export const useAppStore = create<AppState>()(
     persist(
       (set) => ({
         darkMode: false,
-        mediumScreen: false,
-        smallWidth: false,
-        height: 0,
-        width: 0,
+        // Typography is created while modules are imported, before App effects run.
+        // Seed these values synchronously so the first render uses the right sizes.
+        mediumScreen: initialScreen.height > 880,
+        smallWidth: initialScreen.width < 400,
+        height: initialScreen.height,
+        width: initialScreen.width,
         setDark: (value) => set({ darkMode: value }),
         setScreenType: (value) => set({ mediumScreen: value }),
         setSmallWith: (value) => set({ smallWidth: value }),
@@ -90,4 +95,3 @@ type DarkModeListener = (value: boolean) => void;
 
 export const subscribeDarkMode = (listener: DarkModeListener) =>
   useAppStore.subscribe((state) => state.darkMode, listener);
-

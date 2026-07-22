@@ -1,9 +1,13 @@
 import React, { useEffect, useState } from 'react';
+import * as ImagePicker from 'expo-image-picker';
+import * as VideoThumbnails from 'expo-video-thumbnails';
 import { useThemeMode, PRIMARY_COLOR, primaryColorAlpha } from "../theme";
 import {
   ActivityIndicator,
   Alert,
+  Image,
   KeyboardAvoidingView,
+  Modal,
   Platform,
   Pressable,
   SafeAreaView,
@@ -16,17 +20,21 @@ import {
   View,
 } from 'react-native';
 import { MaterialIcons } from '@expo/vector-icons';
-import { useFocusEffect, useIsFocused, useNavigation, useRoute } from '@react-navigation/native';
-import { useVideoPlayer, VideoView } from 'expo-video';
+import { useNavigation, useRoute } from '@react-navigation/native';
 import { fontSize } from './typography';
 import {
   parseApiError,
-  useCreatorVideoProgress,
-  useCreatorVideoUploadStore,
+  useCreatorVideoDirectUpload,
   useUpdateCreatorVideo,
-  useUploadCreatorVideo,
+  videoApi,
 } from '../src';
-import type { VideoContentType, VideoDisplayOrientation, VideoUploadSource, VideoVisibility } from '../src';
+import type {
+  SubmitCreatorVideoEditsPayload,
+  VideoContentType,
+  VideoDisplayOrientation,
+  VideoUploadSource,
+  VideoVisibility,
+} from '../src';
 
 type SubmitEntryRouteParams = {
   video?: VideoUploadSource;
@@ -36,12 +44,13 @@ type SubmitEntryRouteParams = {
     meta?: string;
     usage?: string;
   } | null;
-  creatorUploadTaskId?: string;
   uploadedVideoId?: string | number;
+  autoStartUpload?: boolean;
   uploadStatus?: string;
   uploadProgressPercentage?: number;
   visibility?: VideoVisibility;
   orientation?: VideoDisplayOrientation;
+  editPayload?: SubmitCreatorVideoEditsPayload | null;
 };
 
 const contentTypeOptions: Array<{
@@ -58,123 +67,240 @@ const contentTypeOptions: Array<{
 ];
 
 const getUploadLabel = (status: string, progress: number) => {
-  if (status === 'draft' && progress < 100) return `Uploading ${progress}%`;
-  if (status === 'draft' && progress >= 100) return 'Upload complete, processing...';
-  if (status === 'processing') return 'Processing video...';
+  if (status === 'initializing') return 'Initializing upload...';
+  if (status === 'uploading') return `Uploading ${progress}%`;
+  if (status === 'finalizing') return 'Completing upload...';
+  if (status === 'submitting_edits') return 'Submitting edits...';
+  if (status === 'processing') return 'Upload complete';
   if (status === 'ready') return 'Ready';
   if (status === 'failed') return 'Upload failed';
-  if (status === 'uploading') return `Uploading ${progress}%`;
   return 'Starting...';
+};
+
+type ThumbnailSource = {
+  uri: string;
+  origin: 'frame' | 'upload';
+  time?: number;
+  name?: string;
+  type?: string;
+};
+
+const thumbnailFrameTimes = [0, 1000, 2000, 3500, 5000, 8000];
+
+const formatFrameTime = (time: number) => {
+  const seconds = Math.round(time / 1000);
+  return `0:${seconds.toString().padStart(2, '0')}`;
 };
 
 const SubmitEntry: React.FC = () => {
   const { isDark, theme } = useThemeMode();
   const navigation = useNavigation<any>();
-  const isFocused = useIsFocused();
   const route = useRoute<any>();
   const params = (route.params ?? {}) as SubmitEntryRouteParams;
   const video = params.video;
   const videoUri = video?.uri ?? null;
   const initialVisibility = params.visibility ?? 'public';
-  const creatorUploadTaskId = params.creatorUploadTaskId;
-  const uploadTask = useCreatorVideoUploadStore((state) =>
-    creatorUploadTaskId ? state.tasks[creatorUploadTaskId] : undefined,
-  );
-  const updateUploadTaskProgress = useCreatorVideoUploadStore((state) => state.updateTaskProgress);
-  const uploadedVideoId = params.uploadedVideoId ?? uploadTask?.videoId;
   const previewOrientation = params.orientation ?? video?.orientation ?? 'portrait';
-  const isLandscapePreview = previewOrientation === 'landscape';
-  const { mutateAsync: uploadCreatorVideo, isPending: isPosting } = useUploadCreatorVideo();
+  const editPayload = params.editPayload ?? null;
+  const directUpload = useCreatorVideoDirectUpload();
   const { mutateAsync: updateCreatorVideo, isPending: isUpdating } = useUpdateCreatorVideo();
-  const { data: uploadProgress } = useCreatorVideoProgress(uploadedVideoId, uploadedVideoId != null);
+  const [uploadedVideoId, setUploadedVideoId] = useState<string | number | undefined>(params.uploadedVideoId);
+  const [editSubmitStatus, setEditSubmitStatus] = useState<'idle' | 'submitting_edits' | 'ready' | 'failed'>('idle');
+  const [editSubmitError, setEditSubmitError] = useState<string | null>(null);
   const [title, setTitle] = useState('');
   const [description, setDescription] = useState('');
   const [contentTypes, setContentTypes] = useState<VideoContentType[]>(['music']);
   const [subscribersOnly, setSubscribersOnly] = useState(initialVisibility === 'premium');
   const [allowDuets, setAllowDuets] = useState(true);
   const [allowComments, setAllowComments] = useState(false);
-  const [isPreviewPlaying, setIsPreviewPlaying] = useState(false);
-  const [isMuted, setIsMuted] = useState(true);
-  const loadedPreviewUriRef = React.useRef<string | null>(null);
-
-  const player = useVideoPlayer(null, (instance) => {
-    instance.loop = true;
-    instance.muted = true;
-  });
+  const [thumbnailPickerVisible, setThumbnailPickerVisible] = useState(false);
+  const [frameThumbnails, setFrameThumbnails] = useState<ThumbnailSource[]>([]);
+  const [selectedThumbnail, setSelectedThumbnail] = useState<ThumbnailSource | null>(null);
+  const [thumbnailLoading, setThumbnailLoading] = useState(false);
 
   const cardBackground = isDark ? 'rgba(255,255,255,0.03)' : theme.card;
   const subtleSurface = isDark ? 'rgba(255,255,255,0.05)' : theme.surface;
   const mutedText = isDark ? '#94a3b8' : theme.textSecondary;
   const softText = isDark ? '#64748b' : theme.textMuted;
-  const shouldRenderPreviewVideo = Boolean(videoUri && isFocused && isPreviewPlaying);
-  const progressStatus = uploadProgress?.status ?? uploadTask?.processingStatus ?? params.uploadStatus ?? 'processing';
-  const progressPercentage = uploadProgress?.progress_percentage ?? uploadTask?.progressPercentage ?? params.uploadProgressPercentage ?? 0;
+  const autoUploadPending = Boolean(params.autoStartUpload && uploadedVideoId == null && directUpload.status !== 'failed');
+  const progressStatus =
+    directUpload.status !== 'idle'
+      ? directUpload.status
+      : editSubmitStatus !== 'idle'
+        ? editSubmitStatus
+        : params.uploadStatus ?? (uploadedVideoId != null ? 'ready' : 'idle');
+  const progressPercentage =
+    directUpload.status !== 'idle'
+      ? directUpload.progress
+      : editSubmitStatus === 'failed'
+        ? 0
+        : editSubmitStatus !== 'idle' || uploadedVideoId != null
+          ? 100
+          : params.uploadProgressPercentage ?? 0;
   const uploadLabel = getUploadLabel(progressStatus, progressPercentage);
-  const uploadIsTerminal = progressStatus === 'ready' || progressStatus === 'failed';
-  const backgroundUploadPending = Boolean(creatorUploadTaskId && !uploadedVideoId && uploadTask?.status !== 'failed');
-  const backgroundUploadFailed = uploadTask?.status === 'failed';
-  const postIsBusy = isPosting || isUpdating;
+  const uploadIsTerminal = progressStatus === 'ready' || progressStatus === 'processing' || progressStatus === 'failed';
+  const postIsBusy = directUpload.isActive || isUpdating || editSubmitStatus === 'submitting_edits' || autoUploadPending;
+  const selectedVisibility: VideoVisibility = subscribersOnly ? 'premium' : 'public';
+  const autoUploadStartedRef = React.useRef(false);
+  const editSubmitStartedRef = React.useRef(false);
 
   useEffect(() => {
-    if (!creatorUploadTaskId || !uploadProgress) return;
+    if (!params.autoStartUpload || autoUploadStartedRef.current || !video || uploadedVideoId != null) return;
 
-    updateUploadTaskProgress(creatorUploadTaskId, {
-      progressPercentage: uploadProgress.progress_percentage,
-      processingStatus: uploadProgress.status,
-    });
-  }, [creatorUploadTaskId, updateUploadTaskProgress, uploadProgress]);
+    autoUploadStartedRef.current = true;
 
-  const pausePreview = React.useCallback(() => {
-    try {
-      player.pause();
-    } catch {}
-    setIsPreviewPlaying(false);
-  }, [player]);
+    const startUpload = async () => {
+      try {
+        const result = await directUpload.upload({
+          video: {
+            ...video,
+            orientation: previewOrientation,
+          },
+          title: null,
+          caption: null,
+          contentType: contentTypes,
+          visibility: selectedVisibility,
+          orientation: previewOrientation,
+        }, editPayload ? { edits: editPayload } : undefined);
 
-  const playPreview = React.useCallback(() => {
-    if (!videoUri) return;
+        setUploadedVideoId(result.video.id);
+        navigation.setParams?.({
+          uploadedVideoId: result.video.id,
+          uploadStatus: result.progress.status,
+          uploadProgressPercentage: 100,
+          autoStartUpload: false,
+          editPayload: null,
+        });
+      } catch {
+        // The upload hook owns failed status and error text for the progress card.
+      }
+    };
 
-    try {
-      if (loadedPreviewUriRef.current !== videoUri) {
-        if (typeof player.replace !== 'function') {
-          throw new Error('Video preview is not supported on this build.');
-        }
+    void startUpload();
+  }, [
+    contentTypes,
+    directUpload,
+    editPayload,
+    navigation,
+    params.autoStartUpload,
+    previewOrientation,
+    selectedVisibility,
+    uploadedVideoId,
+    video,
+  ]);
 
-        player.replace(videoUri);
-        loadedPreviewUriRef.current = videoUri;
+  useEffect(() => {
+    if (params.autoStartUpload || !uploadedVideoId || !editPayload?.overlays.length || editSubmitStartedRef.current) return;
+
+    editSubmitStartedRef.current = true;
+
+    const submitEdits = async () => {
+      try {
+        setEditSubmitStatus('submitting_edits');
+        setEditSubmitError(null);
+        await videoApi.submitCreatorVideoEdits(uploadedVideoId, editPayload);
+        setEditSubmitStatus('ready');
+        navigation.setParams?.({ editPayload: null });
+      } catch (caughtError) {
+        const parsed = parseApiError(caughtError);
+        setEditSubmitError(parsed.message);
+        setEditSubmitStatus('failed');
+      }
+    };
+
+    void submitEdits();
+  }, [editPayload, navigation, params.autoStartUpload, uploadedVideoId]);
+
+  useEffect(() => {
+    let cancelled = false;
+
+    const generateFrames = async () => {
+      if (!videoUri) {
+        setFrameThumbnails([]);
+        setSelectedThumbnail(null);
+        setThumbnailLoading(false);
+        return;
       }
 
-      player.muted = isMuted;
-      player.play();
-      setIsPreviewPlaying(true);
-    } catch (error: any) {
-      Alert.alert('Preview unavailable', error?.message || 'We could not play this video preview.');
-    }
-  }, [isMuted, player, videoUri]);
+      setSelectedThumbnail(null);
+      setThumbnailLoading(true);
 
-  useFocusEffect(
-    React.useCallback(() => {
-      return () => {
-        pausePreview();
-      };
-    }, [pausePreview]),
-  );
+      const results = await Promise.allSettled(
+        thumbnailFrameTimes.map(async (time) => {
+          const { uri } = await VideoThumbnails.getThumbnailAsync(videoUri, { time });
+          return { uri, time, origin: 'frame' as const };
+        }),
+      );
 
-  const togglePreviewPlayback = () => {
+      if (cancelled) return;
+
+      const nextFrames: ThumbnailSource[] = [];
+      results.forEach((result) => {
+        if (result.status === 'fulfilled') {
+          nextFrames.push(result.value);
+        }
+      });
+
+      setFrameThumbnails(nextFrames);
+      setSelectedThumbnail((current) => current ?? nextFrames[0] ?? null);
+      setThumbnailLoading(false);
+    };
+
+    void generateFrames();
+
+    return () => {
+      cancelled = true;
+    };
+  }, [videoUri]);
+
+  const openThumbnailPicker = () => {
     if (!videoUri) return;
-
-    if (isPreviewPlaying) {
-      pausePreview();
-      return;
-    }
-
-    playPreview();
+    setThumbnailPickerVisible(true);
   };
 
-  const toggleMute = () => {
-    const nextMuted = !isMuted;
-    player.muted = nextMuted;
-    setIsMuted(nextMuted);
+  const returnToVideoPreview = (event?: any) => {
+    event?.stopPropagation?.();
+    if (!video) return;
+
+    navigation.replace('EditSubmission', {
+      video: {
+        ...video,
+        orientation: previewOrientation,
+      },
+      uploadedVideoId,
+      sound: params.sound ?? null,
+    });
+  };
+
+  const handlePickThumbnailImage = async () => {
+    try {
+      const permission = await ImagePicker.requestMediaLibraryPermissionsAsync();
+      if (!permission.granted) {
+        Alert.alert('Permission needed', 'Allow photo library access to upload a thumbnail image.');
+        return;
+      }
+
+      const result = await ImagePicker.launchImageLibraryAsync({
+        mediaTypes: ImagePicker.MediaTypeOptions.Images,
+        allowsEditing: true,
+        quality: 0.9,
+      });
+
+      if (result.canceled || !result.assets?.[0]?.uri) return;
+
+      const asset = result.assets[0];
+      const nextThumbnail: ThumbnailSource = {
+        uri: asset.uri,
+        origin: 'upload',
+        name: asset.fileName ?? `thumbnail-${Date.now()}.jpg`,
+        type: asset.mimeType ?? 'image/jpeg',
+      };
+
+      setSelectedThumbnail(nextThumbnail);
+      setThumbnailPickerVisible(false);
+    } catch (error: any) {
+      Alert.alert('Thumbnail unavailable', error?.message || 'We could not load that image.');
+    }
   };
 
   const toggleContentType = (nextType: VideoContentType) => {
@@ -193,18 +319,6 @@ const SubmitEntry: React.FC = () => {
       return;
     }
 
-    const visibility: VideoVisibility = subscribersOnly ? 'premium' : 'public';
-
-    if (backgroundUploadPending) {
-      Alert.alert('Upload still running', 'Your video is still uploading in the background. Please wait for the upload to finish before posting details.');
-      return;
-    }
-
-    if (backgroundUploadFailed) {
-      Alert.alert('Upload failed', uploadTask?.error || 'The background upload failed. Go back and try again.');
-      return;
-    }
-
     try {
       if (uploadedVideoId != null) {
         await updateCreatorVideo({
@@ -213,11 +327,11 @@ const SubmitEntry: React.FC = () => {
             title: title.trim() || null,
             caption: description.trim() || null,
             content_type: contentTypes,
-            visibility,
+            visibility: selectedVisibility,
           },
         });
       } else {
-        await uploadCreatorVideo({
+        await directUpload.upload({
           video: {
             ...video,
             orientation: previewOrientation,
@@ -225,12 +339,12 @@ const SubmitEntry: React.FC = () => {
           title: title.trim() || null,
           caption: description.trim() || null,
           contentType: contentTypes,
-          visibility,
+          visibility: selectedVisibility,
           orientation: previewOrientation,
-        });
+        }, editPayload ? { edits: editPayload } : undefined);
       }
 
-      Alert.alert('Posted', uploadedVideoId != null ? 'Your video details were saved.' : 'Your video upload has started.', [
+      Alert.alert('Posted', uploadedVideoId != null ? 'Your video details were saved.' : 'Your video uploaded. Processing will continue in the background.', [
         {
           text: 'Done',
           onPress: () =>
@@ -288,18 +402,13 @@ const SubmitEntry: React.FC = () => {
           showsVerticalScrollIndicator={false}
         >
         <View style={styles.previewSection}>
-          <View style={styles.previewCard}>
+          <Pressable style={styles.previewCard} onPress={openThumbnailPicker} disabled={!videoUri}>
             {videoUri ? (
-              shouldRenderPreviewVideo ? (
-                <VideoView
-                  player={player}
-                  nativeControls={false}
-                  contentFit={isLandscapePreview ? 'contain' : 'cover'}
-                  style={styles.previewVideo}
-                />
+              selectedThumbnail ? (
+                <Image source={{ uri: selectedThumbnail.uri }} style={styles.previewImage} />
               ) : (
                 <View style={styles.previewPlaceholder}>
-                  <MaterialIcons name="play-circle-outline" size={46} color="rgba(255,255,255,0.78)" />
+                  <ActivityIndicator size="small" color="#fff" />
                 </View>
               )
             ) : (
@@ -311,18 +420,23 @@ const SubmitEntry: React.FC = () => {
             <View style={styles.previewShade} />
             {videoUri ? (
               <>
-                <Pressable style={styles.previewPlayButton} onPress={togglePreviewPlayback}>
-                  <MaterialIcons name={isPreviewPlaying ? 'pause' : 'play-arrow'} size={28} color="#fff" />
-                </Pressable>
-                <Pressable style={styles.previewMuteButton} onPress={toggleMute}>
-                  <MaterialIcons name={isMuted ? 'volume-off' : 'volume-up'} size={18} color="#fff" />
+                {/* <View style={styles.thumbnailEditButton}>
+                  <MaterialIcons name="image-search" size={22} color="#fff" />
+                </View> */}
+                <View style={styles.thumbnailHintPill}>
+                  <MaterialIcons name="photo-library" size={13} color="#fff" />
+                  <Text style={styles.thumbnailHintText}>Thumbnail</Text>
+                </View>
+                <Pressable style={styles.videoPreviewButton} onPress={returnToVideoPreview}>
+                  <MaterialIcons name="play-circle-outline" size={15} color="#fff" />
+                  <Text style={styles.videoPreviewButtonText}>Preview</Text>
                 </Pressable>
               </>
             ) : null}
-            <View style={styles.previewDuration}>
+            {/* <View style={styles.previewDuration}>
               <Text style={styles.previewDurationText}>{previewOrientation.toUpperCase()}</Text>
-            </View>
-          </View>
+            </View> */}
+          </Pressable>
 
           <View style={styles.formColumn}>
             <View style={styles.inputGroup}>
@@ -357,11 +471,11 @@ const SubmitEntry: React.FC = () => {
         </View>
 
         <View style={styles.section}>
-              {creatorUploadTaskId || uploadedVideoId != null ? (
+          {directUpload.status !== 'idle' || uploadedVideoId != null || params.autoStartUpload || editSubmitStatus !== 'idle' ? (
             <View style={[styles.progressCard, { backgroundColor: cardBackground, borderColor: theme.border }]}>
               <View style={styles.progressTop}>
                 <Text style={[styles.sectionTitle, { color: theme.text }]}>Upload Progress</Text>
-                <Text style={[styles.progressStatus, { color: backgroundUploadFailed || progressStatus === 'failed' ? '#ef4444' : PRIMARY_COLOR }]}>
+                <Text style={[styles.progressStatus, { color: progressStatus === 'failed' ? '#ef4444' : PRIMARY_COLOR }]}>
                   {uploadLabel}
                 </Text>
               </View>
@@ -369,13 +483,15 @@ const SubmitEntry: React.FC = () => {
                 <View style={[styles.progressFill, { width: `${Math.max(0, Math.min(100, progressPercentage))}%` }]} />
               </View>
               <Text style={[styles.progressHint, { color: mutedText }]}>
-                {backgroundUploadFailed
-                  ? uploadTask?.error || 'Upload failed. Please go back and try again.'
-                  : backgroundUploadPending
-                    ? 'Uploading in the background. You can finish details while it continues.'
-                    : uploadIsTerminal
-                      ? 'Processing finished.'
-                      : 'You can finish details while processing continues.'}
+                {progressStatus === 'failed'
+                  ? directUpload.error || editSubmitError || 'Upload failed. Please try again.'
+                  : uploadIsTerminal
+                    ? progressStatus === 'processing'
+                      ? 'Rendering will continue in the background.'
+                      : 'Processing finished.'
+                    : editPayload
+                      ? 'Your video and edits are being prepared.'
+                      : 'Your video is being uploaded and processed.'}
               </Text>
             </View>
           ) : null}
@@ -424,7 +540,7 @@ const SubmitEntry: React.FC = () => {
             <PermissionRow
               icon="stars"
               title="Subscribers Only"
-              subtitle="Only paid members can view this content"
+              subtitle={subscribersOnly ? 'Visibility will be saved as Premium' : 'Visibility will be saved as Public'}
               accent={PRIMARY_COLOR}
               enabled={subscribersOnly}
               onToggle={setSubscribersOnly}
@@ -463,8 +579,8 @@ const SubmitEntry: React.FC = () => {
         <View style={styles.bottomCtaWrap}>
           <Pressable
           onPress={() => void handlePostVideo()}
-          disabled={!videoUri || postIsBusy || backgroundUploadPending || backgroundUploadFailed}
-          style={[styles.postVideoButton, (!videoUri || postIsBusy || backgroundUploadPending || backgroundUploadFailed) && styles.postVideoButtonDisabled]}>
+          disabled={!videoUri || postIsBusy}
+          style={[styles.postVideoButton, (!videoUri || postIsBusy) && styles.postVideoButtonDisabled]}>
             {postIsBusy ? (
               <ActivityIndicator size="small" color="#fff" />
             ) : (
@@ -477,6 +593,86 @@ const SubmitEntry: React.FC = () => {
         </View>
         </ScrollView>
       </KeyboardAvoidingView>
+      <Modal
+        visible={thumbnailPickerVisible}
+        transparent
+        animationType="slide"
+        statusBarTranslucent
+        onRequestClose={() => setThumbnailPickerVisible(false)}
+      >
+        <View style={styles.thumbnailModal}>
+          <Pressable style={StyleSheet.absoluteFillObject} onPress={() => setThumbnailPickerVisible(false)} />
+          <View style={[styles.thumbnailSheet, { backgroundColor: isDark ? '#0b1120' : '#fff' }]}>
+            <View style={styles.thumbnailSheetHeader}>
+              <View>
+                <Text style={[styles.thumbnailSheetTitle, { color: theme.text }]}>Select Thumbnail</Text>
+                <Text style={[styles.thumbnailSheetSubtitle, { color: mutedText }]}>
+                  Pick a video frame or upload an image.
+                </Text>
+              </View>
+              <Pressable style={[styles.sheetCloseButton, { backgroundColor: subtleSurface }]} onPress={() => setThumbnailPickerVisible(false)}>
+                <MaterialIcons name="close" size={20} color={theme.textSecondary} />
+              </Pressable>
+            </View>
+
+            <View style={[styles.thumbnailHero, { backgroundColor: subtleSurface }]}>
+              {selectedThumbnail ? (
+                <Image source={{ uri: selectedThumbnail.uri }} style={styles.thumbnailHeroImage} />
+              ) : (
+                <View style={styles.thumbnailHeroEmpty}>
+                  {thumbnailLoading ? (
+                    <ActivityIndicator size="small" color={PRIMARY_COLOR} />
+                  ) : (
+                    <MaterialIcons name="image" size={30} color={theme.textSecondary} />
+                  )}
+                </View>
+              )}
+              <View style={styles.thumbnailHeroBadge}>
+                <Text style={styles.thumbnailHeroBadgeText}>
+                  {selectedThumbnail?.origin === 'upload'
+                    ? 'Uploaded Image'
+                    : selectedThumbnail?.time != null
+                      ? `Frame ${formatFrameTime(selectedThumbnail.time)}`
+                      : 'Thumbnail'}
+                </Text>
+              </View>
+            </View>
+
+            <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={styles.frameStrip}>
+              {frameThumbnails.map((frame) => {
+                const selected = selectedThumbnail?.uri === frame.uri;
+
+                return (
+                  <Pressable
+                    key={`${frame.uri}-${frame.time}`}
+                    onPress={() => setSelectedThumbnail(frame)}
+                    style={[styles.frameOption, selected && styles.frameOptionActive]}
+                  >
+                    <Image source={{ uri: frame.uri }} style={styles.frameOptionImage} />
+                    <Text style={styles.frameOptionText}>{formatFrameTime(frame.time ?? 0)}</Text>
+                  </Pressable>
+                );
+              })}
+              {thumbnailLoading ? (
+                <View style={[styles.frameOption, styles.frameOptionLoading]}>
+                  <ActivityIndicator size="small" color={PRIMARY_COLOR} />
+                </View>
+              ) : null}
+            </ScrollView>
+
+            <View style={styles.thumbnailSheetActions}>
+              <Pressable style={[styles.uploadThumbnailButton, { backgroundColor: subtleSurface }]} onPress={handlePickThumbnailImage}>
+                <MaterialIcons name="file-upload" size={18} color={theme.textSecondary} />
+                <Text style={[styles.uploadThumbnailText, { color: theme.text }]}>Upload Image</Text>
+              </Pressable>
+              <Pressable style={styles.useThumbnailButton} onPress={() => setThumbnailPickerVisible(false)}>
+                <Text style={styles.useThumbnailText}>Use Thumbnail</Text>
+                <MaterialIcons name="check" size={18} color="#fff" />
+              </Pressable>
+            </View>
+          </View>
+        </View>
+      </Modal>
     </SafeAreaView>
   );
 };
@@ -578,21 +774,21 @@ const styles = StyleSheet.create({
     gap: 28,
   },
   previewSection: {
-    // flexDirection: 'row',
-    gap: 18,
-    alignItems: 'flex-start',
+    flexDirection: 'row',
+    gap: 12,
+    alignItems: 'stretch',
   },
   previewCard: {
-    width: "100%",
-    height: 200,
-    // aspectRatio: 9 / 16,
-    borderRadius: 16,
+    width: 122,
+    height: 174,
+    borderRadius: 14,
     overflow: 'hidden',
     backgroundColor: '#000',
   },
-  previewVideo: {
+  previewImage: {
     width: '100%',
     height: '100%',
+    resizeMode: 'cover',
   },
   previewPlaceholder: {
     flex: 1,
@@ -616,41 +812,72 @@ const styles = StyleSheet.create({
     ...StyleSheet.absoluteFillObject,
     backgroundColor: 'rgba(0,0,0,0.28)',
   },
-  previewPlayButton: {
+  thumbnailEditButton: {
     position: 'absolute',
     left: '50%',
     top: '50%',
-    width: 48,
-    height: 48,
-    marginLeft: -24,
-    marginTop: -24,
-    borderRadius: 24,
+    width: 40,
+    height: 40,
+    marginLeft: -20,
+    marginTop: -20,
+    borderRadius: 20,
     alignItems: 'center',
     justifyContent: 'center',
     backgroundColor: 'rgba(0,0,0,0.48)',
     borderWidth: 1,
     borderColor: 'rgba(255,255,255,0.18)',
   },
-  previewMuteButton: {
+  thumbnailHintPill: {
     position: 'absolute',
-    right: 8,
-    top: 8,
-    width: 34,
-    height: 34,
-    borderRadius: 17,
+    left: 7,
+    right: 7,
+    top: 7,
+    minHeight: 26,
+    borderRadius: 13,
+    paddingHorizontal: 7,
+    flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'center',
-    backgroundColor: 'rgba(0,0,0,0.52)',
-    borderWidth: 1,
-    borderColor: 'rgba(255,255,255,0.14)',
+    gap: 4,
+    // backgroundColor: 'rgba(0,0,0,0.52)',
+    // borderWidth: 1,
+    // borderColor: 'rgba(255,255,255,0.14)',
+  },
+  thumbnailHintText: {
+    color: '#fff',
+    ...fontSize.b5,
+    lineHeight: fontSize.b5.fontSize + 1,
+    textTransform: 'uppercase',
+    letterSpacing: 0.4,
+  },
+  videoPreviewButton: {
+    position: 'absolute',
+    left: 7,
+    right: 7,
+    bottom: 8,
+    minHeight: 20,
+    borderRadius: 15,
+    paddingHorizontal: 8,
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
+    gap: 5,
+    backgroundColor: 'transparent',
+  },
+  videoPreviewButtonText: {
+    color: '#fff',
+    ...fontSize.b5,
+    lineHeight: fontSize.b5.fontSize + 1,
+    textTransform: 'uppercase',
+    letterSpacing: 0.6,
   },
   previewDuration: {
     position: 'absolute',
-    left: 8,
-    bottom: 8,
+    left: 7,
+    bottom: 44,
     backgroundColor: 'rgba(0,0,0,0.6)',
-    paddingHorizontal: 8,
-    paddingVertical: 4,
+    paddingHorizontal: 6,
+    paddingVertical: 3,
     borderRadius: 6,
   },
   previewDurationText: {
@@ -660,8 +887,8 @@ const styles = StyleSheet.create({
   },
   formColumn: {
     flex: 1,
-    gap: 14,
-    width: '100%'
+    gap: 10,
+    minWidth: 0,
   },
   inputGroup: {
     gap: 4,
@@ -673,16 +900,16 @@ const styles = StyleSheet.create({
     letterSpacing: 0.8,
   },
   input: {
-    borderRadius: 14,
-    paddingHorizontal: 14,
-    paddingVertical: 12,
-    ...fontSize.b4, lineHeight: fontSize.b4.fontSize + 1,
+    borderRadius: 12,
+    paddingHorizontal: 12,
+    paddingVertical: 10,
+    ...fontSize.b4, lineHeight: fontSize.b4.fontSize + 2,
   },
   textArea: {
-    minHeight: 92,
-    borderRadius: 14,
-    paddingHorizontal: 14,
-    paddingVertical: 12,
+    minHeight: 78,
+    borderRadius: 12,
+    paddingHorizontal: 12,
+    paddingVertical: 10,
     textAlignVertical: 'top',
     ...fontSize.b4, lineHeight: fontSize.b4.fontSize + 1,
   },
@@ -833,6 +1060,141 @@ const styles = StyleSheet.create({
     color: '#fff',
     ...fontSize.b4, lineHeight: fontSize.b4.fontSize + 1,
     letterSpacing: 1.1,
+  },
+  thumbnailModal: {
+    flex: 1,
+    justifyContent: 'flex-end',
+    backgroundColor: 'rgba(0,0,0,0.46)',
+  },
+  thumbnailSheet: {
+    borderTopLeftRadius: 24,
+    borderTopRightRadius: 24,
+    paddingHorizontal: 18,
+    paddingTop: 18,
+    paddingBottom: 28,
+    gap: 16,
+  },
+  thumbnailSheetHeader: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    gap: 16,
+  },
+  thumbnailSheetTitle: {
+    ...fontSize.b3,
+    lineHeight: fontSize.b3.fontSize + 2,
+  },
+  thumbnailSheetSubtitle: {
+    marginTop: 3,
+    ...fontSize.b5,
+    lineHeight: fontSize.b5.fontSize + 3,
+  },
+  sheetCloseButton: {
+    width: 38,
+    height: 38,
+    borderRadius: 19,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  thumbnailHero: {
+    height: 190,
+    borderRadius: 18,
+    overflow: 'hidden',
+  },
+  thumbnailHeroImage: {
+    width: '100%',
+    height: '100%',
+    resizeMode: 'cover',
+  },
+  thumbnailHeroEmpty: {
+    flex: 1,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  thumbnailHeroBadge: {
+    position: 'absolute',
+    left: 10,
+    bottom: 10,
+    borderRadius: 8,
+    paddingHorizontal: 9,
+    paddingVertical: 5,
+    backgroundColor: 'rgba(0,0,0,0.66)',
+  },
+  thumbnailHeroBadgeText: {
+    color: '#fff',
+    ...fontSize.b5,
+    lineHeight: fontSize.b5.fontSize + 1,
+    textTransform: 'uppercase',
+    letterSpacing: 0.7,
+  },
+  frameStrip: {
+    gap: 10,
+    paddingRight: 4,
+  },
+  frameOption: {
+    width: 86,
+    height: 112,
+    borderRadius: 12,
+    overflow: 'hidden',
+    backgroundColor: '#111827',
+    borderWidth: 2,
+    borderColor: 'transparent',
+  },
+  frameOptionActive: {
+    borderColor: PRIMARY_COLOR,
+  },
+  frameOptionImage: {
+    width: '100%',
+    height: '100%',
+    resizeMode: 'cover',
+  },
+  frameOptionText: {
+    position: 'absolute',
+    left: 6,
+    bottom: 6,
+    color: '#fff',
+    ...fontSize.b5,
+    lineHeight: fontSize.b5.fontSize + 1,
+    backgroundColor: 'rgba(0,0,0,0.68)',
+    borderRadius: 5,
+    paddingHorizontal: 5,
+    paddingVertical: 2,
+  },
+  frameOptionLoading: {
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  thumbnailSheetActions: {
+    flexDirection: 'row',
+    gap: 10,
+  },
+  uploadThumbnailButton: {
+    flex: 1,
+    minHeight: 48,
+    borderRadius: 16,
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
+    gap: 7,
+  },
+  uploadThumbnailText: {
+    ...fontSize.b5,
+    lineHeight: fontSize.b5.fontSize + 1,
+  },
+  useThumbnailButton: {
+    flex: 1,
+    minHeight: 48,
+    borderRadius: 16,
+    backgroundColor: PRIMARY_COLOR,
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
+    gap: 7,
+  },
+  useThumbnailText: {
+    color: '#fff',
+    ...fontSize.b5,
+    lineHeight: fontSize.b5.fontSize + 1,
   },
 });
 

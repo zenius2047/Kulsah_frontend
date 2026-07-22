@@ -46,7 +46,16 @@ export const endpoints = {
     videoAnalytics: 'creator/videos/analytics',
     video: (video: string | number) => `creator/videos/${video}`,
     videoUpload: (video: string | number) => `creator/videos/${video}/upload`,
+    videoUploadInit: 'creator/videos/uploads/init',
+    videoUploadComplete: (video: string | number) => `creator/videos/${video}/upload/complete`,
+    videoEdits: (video: string | number) => `creator/videos/${video}/edits`,
     videoProgress: (video: string | number) => `creator/videos/${video}/progress`,
+    videoPlaylists: 'creator/video-playlists',
+    videoPlaylist: (playlist: string | number) => `creator/video-playlists/${playlist}`,
+    videoPlaylistVideos: (playlist: string | number) => `creator/video-playlists/${playlist}/videos`,
+    videoPlaylistVideo: (playlist: string | number, video: string | number) =>
+      `creator/video-playlists/${playlist}/videos/${video}`,
+    videoPlaylistBulkVideos: (playlist: string | number) => `creator/video-playlists/${playlist}/videos/bulk`,
   },
   subscription: {
     fanSubscribe: 'fan/subscription-plans',

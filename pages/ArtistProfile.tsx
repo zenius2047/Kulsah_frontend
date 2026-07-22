@@ -20,10 +20,26 @@ import { fontSize } from '../typography';
 import TicketIcon from '../assets/icons/Ticket1.svg';
 import LocalActivity from '../assets/icons/local_activity.svg';
 import LibraryMusic from '../assets/icons/library_music.svg';
-import { parseApiError, useCreatorVideos, useSubscribeToPlan, useSwitchRole, useUser, useWatchedVideos } from '../src';
+import Premium from '../assets/icons/kulsah_premium_icon.svg';
+import {
+  parseApiError,
+  useBulkAddCreatorVideosToPlaylist,
+  useCreateCreatorVideoPlaylist,
+  useCreatorVideoPlaylist,
+  useCreatorVideoPlaylists,
+  useCreatorVideos,
+  useDeleteCreatorVideoPlaylist,
+  useRemoveCreatorVideoFromPlaylist,
+  useSubscribeToPlan,
+  useSwitchRole,
+  useUpdateCreatorVideoPlaylist,
+  useUser,
+  useWatchedVideos,
+  videoApi,
+} from '../src';
 
 
-type Tab = 'Videos' | 'Library' | 'Premium'  | 'Tickets' | 'Events' | 'Challenges' | 'Favorites' | 'Saved';
+type Tab =  'Library' | 'Premium'  | 'Tickets' | 'Events' | 'Challenges' | 'Favorites' | 'Saved' | 'Videos';
 type LibrarySubTab = 'All' | 'Public' | 'Premium' | 'Drafts' | 'Playlist';
 type Billing = 'monthly' | 'annually';
 const { height: SCREEN_HEIGHT, width: SCREEN_WIDTH } = Dimensions.get('screen');
@@ -60,14 +76,98 @@ type LibraryVideo = {
 };
 
 interface Playlist {
-  id: string;
+  id: number;
   title: string;
   videoCount: number;
   views: string;
   timeAgo: string;
   img: string;
-  videoIds?: string[];
+  createdAt: string;
+  updatedAt: string;
 }
+
+const extractResponseList = <T,>(value: unknown, preferredKey?: string): T[] => {
+  if (Array.isArray(value)) return value as T[];
+  if (!value || typeof value !== 'object') return [];
+
+  const record = value as Record<string, unknown>;
+  const preferredValue = preferredKey ? record[preferredKey] : undefined;
+
+  if (Array.isArray(preferredValue)) return preferredValue as T[];
+  if (preferredValue && typeof preferredValue === 'object') {
+    const nestedData = (preferredValue as Record<string, unknown>).data;
+    if (Array.isArray(nestedData)) return nestedData as T[];
+  }
+
+  if (Array.isArray(record.data)) return record.data as T[];
+  if (record.data && typeof record.data === 'object') {
+    const nestedRecord = record.data as Record<string, unknown>;
+    if (preferredKey && Array.isArray(nestedRecord[preferredKey])) return nestedRecord[preferredKey] as T[];
+    if (preferredKey && nestedRecord[preferredKey] && typeof nestedRecord[preferredKey] === 'object') {
+      const nestedPreferredData = (nestedRecord[preferredKey] as Record<string, unknown>).data;
+      if (Array.isArray(nestedPreferredData)) return nestedPreferredData as T[];
+    }
+    if (Array.isArray(nestedRecord.data)) return nestedRecord.data as T[];
+  }
+
+  return [];
+};
+
+const toNumericId = (value: string | number) => {
+  const numericValue = typeof value === 'number' ? value : Number(value);
+  return Number.isFinite(numericValue) ? numericValue : null;
+};
+
+const formatPlaylistDate = (value?: string) => {
+  if (!value) return 'Unknown';
+
+  const date = new Date(value);
+  if (Number.isNaN(date.getTime())) return 'Unknown';
+
+  return date.toLocaleDateString(undefined, {
+    month: 'short',
+    day: 'numeric',
+    year: 'numeric',
+  });
+};
+
+const getFirstImageUri = (...values: unknown[]) => {
+  for (const value of values) {
+    if (typeof value === 'string' && value.trim()) {
+      return value.trim();
+    }
+  }
+
+  return undefined;
+};
+
+const getPlaylistCover = (playlist: { videos?: any[] } & Record<string, any>) => {
+  const firstVideo = playlist.videos?.[0];
+  const nestedVideo = firstVideo?.video;
+
+  return getFirstImageUri(
+    playlist.cover,
+    playlist.cover_image,
+    playlist.coverImage,
+    playlist.thumbnail,
+    playlist.thumbnail_url,
+    playlist.thumbnailUrl,
+    playlist.img,
+    playlist.image,
+    firstVideo?.background,
+    firstVideo?.img,
+    firstVideo?.thumbnail,
+    firstVideo?.thumbnailUrl,
+    firstVideo?.thumbnail_url,
+    firstVideo?.image,
+    nestedVideo?.background,
+    nestedVideo?.img,
+    nestedVideo?.thumbnail,
+    nestedVideo?.thumbnailUrl,
+    nestedVideo?.thumbnail_url,
+    nestedVideo?.image,
+  ) ?? FALLBACK_BANNER;
+};
 
 const INITIAL_SUBSCRIPTION: SubscriptionTier = {
   id: 'default',
@@ -135,27 +235,6 @@ const initialLibraryVideos: LibraryVideo[] = [
   { id: 'dv2', title: 'Cyberpunk Beats Jam [WIP Raw Take]', views: '0', date: 'Just now', duration: '5:40', category: 'Drafts', img: 'https://images.unsplash.com/photo-1511671782779-c97d3d27a1d4?auto=format&fit=crop&q=80&w=400', likes: '0', draft: true },
 ];
 
-const playlists: Playlist[] = [
-  {
-    id: 'pl1',
-    title: 'VIP Acoustic Sessions',
-    videoCount: 3,
-    views: '1.2M views',
-    timeAgo: 'Updated 2 days ago',
-    img: 'https://images.unsplash.com/photo-1514525253361-bee8718a74a2?auto=format&fit=crop&q=80&w=800',
-  },
-  {
-    id: 'pl2',
-    title: 'Behind The Scenes & Vlogs',
-    videoCount: 3,
-    views: '250K views',
-    timeAgo: 'Updated 1 week ago',
-    img: 'https://images.unsplash.com/photo-1598488035139-bdbb2231ce04?auto=format&fit=crop&q=80&w=800',
-  },
-];
-
-
-
 const  ArtistProfile: React.FC = () => {
   const { isDark, theme } = useThemeMode();
   const { width } = useWindowDimensions();
@@ -179,21 +258,22 @@ const  ArtistProfile: React.FC = () => {
   const displayHandle = profileUser?.handle?.trim() || String(displayName).toLowerCase().replace(/\s+/g, '_');
   const displayBanner = profileUser?.banner?.trim() || FALLBACK_BANNER;
   const displayAvatar = profileUser?.avatar?.trim() || FALLBACK_AVATAR;
-  const displayBio = profileUser?.bio?.trim() || 'No bio yet.';
-  const displayRole = profileUser ? (profileUser.role === 'creator' ? 'Creator' : 'Fan') : 'Creator';
+  const displayBio = profileUser?.bio?.trim() || 'This is where you bio will show oo aei.What is Kulsah? I dont know what to type here, so lets just type whatever will come to my head. It is nice to do so, well this is nice though, so far so good';
+  const displayRole = profileUser?.handle ?? "Creator";
   const isVerified = profileUser ? Boolean(profileUser.verified || profileUser.verified_at) : true;
   const followerCount = profileUser?.total_followers ?? (isFollowing ? 14201 : 14200);
   const likeCount = profileUser?.total_likes ?? 84200;
   const subscriberCount = profileUser?.total_subscribers ?? 2842;
   const isFanViewer = !isOwner && currentUser?.role === 'fan';
+  const canManageCreatorLibrary = isOwner || currentUser?.role === 'creator' || profileUser?.role === 'creator';
   // const isOwner = !route.params?.id || route.params?.id === 'Me';
   const tabs = useMemo(() => {
     if (isOwner) {
-      return ['Videos', 'Library', 'Premium',  'Tickets', 'Events', 'Challenges', 'Favorites', 'Saved'] as Tab[];
+      return ['Library', 'Premium',  'Tickets', 'Events', 'Challenges', 'Favorites', 'Saved', 'Videos', ] as Tab[];
     }
     return ['Videos', 'Premium',  'Events', 'Challenges'] as Tab[];
   }, [isOwner]);
-  const [activeTab, setActiveTab] = useState<Tab>('Videos');
+  const [activeTab, setActiveTab] = useState<Tab>('Library');
   const [librarySubTab, setLibrarySubTab] = useState<LibrarySubTab>('All');
   const [selectedSub, setSelectedSub] = useState<SubscriptionTier | null>(null);
   const [isProcessing, setIsProcessing] = useState(false);
@@ -207,15 +287,23 @@ const  ArtistProfile: React.FC = () => {
   const [hideSubscriberCountFromFans, setHideSubscriberCountFromFans] = useState(false);
   const [isRoleSwitchModalOpen, setIsRoleSwitchModalOpen] = useState(false);
   const [libraryVideos, setLibraryVideos] = useState<LibraryVideo[]>(initialLibraryVideos);
-  const [libraryPlaylists, setLibraryPlaylists] = useState<Playlist[]>(playlists);
-  const [activeMenuId, setActiveMenuId] = useState<string | null>(null);
   const [editingVideo, setEditingVideo] = useState<LibraryVideo | null>(null);
   const [editTitleValue, setEditTitleValue] = useState('');
   const [isCreatePlaylistOpen, setIsCreatePlaylistOpen] = useState(false);
   const [playlistTitleValue, setPlaylistTitleValue] = useState('');
+  const [playlistNameError, setPlaylistNameError] = useState('');
+  const [playlistPickerError, setPlaylistPickerError] = useState('');
+  const [editingPlaylist, setEditingPlaylist] = useState<Playlist | null>(null);
+  const [selectedPlaylistId, setSelectedPlaylistId] = useState<number | null>(null);
+  const [playlistPage, setPlaylistPage] = useState(1);
+  const [localPlaylistAdds, setLocalPlaylistAdds] = useState<Playlist[]>([]);
+  const [localDeletedPlaylistIds, setLocalDeletedPlaylistIds] = useState<number[]>([]);
+  const [openingPlaylistId, setOpeningPlaylistId] = useState<number | null>(null);
+  const [activePlaylistMenuId, setActivePlaylistMenuId] = useState<number | null>(null);
   const [isLibrarySelectionMode, setIsLibrarySelectionMode] = useState(false);
   const [selectedLibraryVideoIds, setSelectedLibraryVideoIds] = useState<string[]>([]);
   const [playlistPickerVideoIds, setPlaylistPickerVideoIds] = useState<string[]>([]);
+  const [selectedCreator, setSelectedCreator] = useState<string | null>(null);
   const { mutateAsync: subscribeToPlan } = useSubscribeToPlan();
   const { mutateAsync: switchRole } = useSwitchRole();
   const {
@@ -225,6 +313,23 @@ const  ArtistProfile: React.FC = () => {
     refetch: refetchCreatorVideos,
   } = useCreatorVideos({ per_page: 100 }, isOwner);
   const {
+    data: creatorPlaylistsResponse,
+    isLoading: creatorPlaylistsLoading,
+    error: creatorPlaylistsError,
+    refetch: refetchCreatorPlaylists,
+  } = useCreatorVideoPlaylists({ page: playlistPage, per_page: 20 }, canManageCreatorLibrary);
+  const {
+    data: selectedPlaylistDetail,
+    isLoading: selectedPlaylistLoading,
+    error: selectedPlaylistError,
+    refetch: refetchSelectedPlaylist,
+  } = useCreatorVideoPlaylist(selectedPlaylistId ?? undefined, canManageCreatorLibrary && selectedPlaylistId != null);
+  const { mutateAsync: createCreatorPlaylist, isPending: isCreatingPlaylist } = useCreateCreatorVideoPlaylist();
+  const { mutateAsync: updateCreatorPlaylist, isPending: isUpdatingPlaylist } = useUpdateCreatorVideoPlaylist();
+  const { mutateAsync: deleteCreatorPlaylist, isPending: isDeletingPlaylist } = useDeleteCreatorVideoPlaylist();
+  const { mutateAsync: bulkAddVideosToPlaylist, isPending: isAddingVideosToPlaylist } = useBulkAddCreatorVideosToPlaylist();
+  const { mutateAsync: removeVideoFromPlaylist, isPending: isRemovingVideoFromPlaylist } = useRemoveCreatorVideoFromPlaylist();
+  const {
     data: watchedVideosResponse,
     isLoading: watchedVideosLoading,
     error: watchedVideosError,
@@ -232,13 +337,51 @@ const  ArtistProfile: React.FC = () => {
   } = useWatchedVideos({ per_page: 100 }, isOwner);
   const watchedVideos = useMemo(
     () =>
-      (watchedVideosResponse?.data.videos ?? []).map((item) => ({
+      extractResponseList<any>(watchedVideosResponse, 'videos').map((item) => ({
         id: item.id,
         title: item.title,
         views: item.views ? `${item.views} views` : item.title,
         img: item.img ?? undefined,
       })),
-    [watchedVideosResponse?.data.videos]
+    [watchedVideosResponse]
+  );
+  const libraryPlaylists = useMemo<Playlist[]>(() => {
+    const deletedIds = new Set(localDeletedPlaylistIds);
+    const apiPlaylists = (creatorPlaylistsResponse?.data ?? [])
+      .filter((playlist) => !deletedIds.has(Number(playlist.id)))
+      .map((playlist) => ({
+        id: Number(playlist.id),
+        title: playlist.name,
+        videoCount: playlist.videos_count ?? playlist.videos?.length ?? 0,
+        views: `Created ${formatPlaylistDate(playlist.created_at)}`,
+        timeAgo: `Updated ${formatPlaylistDate(playlist.updated_at)}`,
+        img: getPlaylistCover(playlist),
+        createdAt: formatPlaylistDate(playlist.created_at),
+        updatedAt: formatPlaylistDate(playlist.updated_at),
+      }));
+
+    const apiIds = new Set(apiPlaylists.map((playlist) => playlist.id));
+    const pendingAdds = localPlaylistAdds.filter(
+      (playlist) => !deletedIds.has(playlist.id) && !apiIds.has(playlist.id),
+    );
+
+    return [...pendingAdds, ...apiPlaylists];
+  }, [creatorPlaylistsResponse, localDeletedPlaylistIds, localPlaylistAdds]);
+  const playlistMeta = creatorPlaylistsResponse?.meta;
+  const subscribedCreators = useMemo(
+    () => [
+      {
+        id: 'current',
+        name: displayName,
+        img: displayAvatar,
+        handle: `@${displayHandle}`,
+        premiumCount: libraryVideos.filter((item) => item.premium && !item.draft).length || premiumVideos.length,
+      },
+      { id: 'c1', name: 'Elena Rose', img: 'https://picsum.photos/seed/elena/150', handle: '@elena_r', premiumCount: 12 },
+      { id: 'c2', name: 'Zion King', img: 'https://picsum.photos/seed/zion/150', handle: '@zion_k', premiumCount: 8 },
+      { id: 'c3', name: 'Amara', img: 'https://picsum.photos/seed/amara/150', handle: '@amara_v', premiumCount: 15 },
+    ],
+    [displayAvatar, displayHandle, displayName, libraryVideos],
   );
   useFocusEffect(
     useCallback(() => {
@@ -291,7 +434,7 @@ const  ArtistProfile: React.FC = () => {
     if (!isOwner || !creatorVideosResponse?.data) return;
 
     setLibraryVideos(
-      creatorVideosResponse.data.map((item) => ({
+      extractResponseList<any>(creatorVideosResponse, 'videos').map((item) => ({
         id: String(item.id),
         title: item.title,
         views: item.views,
@@ -304,7 +447,7 @@ const  ArtistProfile: React.FC = () => {
         draft: item.draft,
       })),
     );
-  }, [creatorVideosResponse?.data, isOwner]);
+  }, [creatorVideosResponse, isOwner]);
   useEffect(() => {
     if (!tabs.includes(activeTab)) {
       setActiveTab('Videos');
@@ -316,9 +459,15 @@ const  ArtistProfile: React.FC = () => {
     }
   }, [isOwner, librarySubTab]);
   useEffect(() => {
+    const apiIds = new Set((creatorPlaylistsResponse?.data ?? []).map((playlist) => Number(playlist.id)));
+    if (apiIds.size === 0) return;
+
+    setLocalPlaylistAdds((current) => current.filter((playlist) => !apiIds.has(playlist.id)));
+  }, [creatorPlaylistsResponse]);
+  useEffect(() => {
     setIsLibrarySelectionMode(false);
     setSelectedLibraryVideoIds([]);
-    setActiveMenuId(null);
+    setActivePlaylistMenuId(null);
   }, [librarySubTab]);
 
   const persistLibraryVideos = (videosToPersist: LibraryVideo[]) => {
@@ -332,44 +481,153 @@ const  ArtistProfile: React.FC = () => {
 
   const deleteLibraryVideo = (videoId: string) => {
     Alert.alert('Delete Video', 'Are you sure you want to delete this video from your catalog?', [
-      { text: 'Cancel', style: 'cancel', onPress: () => setActiveMenuId(null) },
+      { text: 'Cancel', style: 'cancel' },
       {
         text: 'Delete',
         style: 'destructive',
         onPress: () => {
           persistLibraryVideos(libraryVideos.filter((video) => video.id !== videoId));
           ping('Video has been deleted successfully');
-          setActiveMenuId(null);
         },
       },
     ]);
   };
 
-  const createLibraryPlaylist = () => {
+  const createLibraryPlaylist = async () => {
     const nextTitle = playlistTitleValue.trim();
     if (!nextTitle) {
-      ping('Playlist title cannot be empty');
+      setPlaylistNameError('Playlist name is required.');
       return;
     }
 
-    const coverVideo = libraryVideos.find((item) => !item.draft) ?? libraryVideos[0];
-    const nextPlaylist: Playlist = {
-      id: `pl-${Date.now()}`,
-      title: nextTitle,
-      videoCount: 0,
-      views: '0 views',
-      timeAgo: 'Created just now',
-      img: coverVideo?.img ?? FALLBACK_BANNER,
-      videoIds: [],
-    };
+    if (nextTitle.length > 255) {
+      setPlaylistNameError('Playlist name must be 255 characters or fewer.');
+      return;
+    }
 
-    setLibraryPlaylists((current) => [nextPlaylist, ...current]);
-    setPlaylistTitleValue('');
-    setIsCreatePlaylistOpen(false);
-    ping('Playlist created');
+    try {
+      setPlaylistNameError('');
+      const created = await createCreatorPlaylist({ name: nextTitle });
+      const createdPlaylist = created.data;
+      if (createdPlaylist?.id != null) {
+        setLocalDeletedPlaylistIds((current) => current.filter((id) => id !== Number(createdPlaylist.id)));
+        setLocalPlaylistAdds((current) => [
+          {
+            id: Number(createdPlaylist.id),
+            title: createdPlaylist.name,
+            videoCount: createdPlaylist.videos_count ?? 0,
+            views: `Created ${formatPlaylistDate(createdPlaylist.created_at)}`,
+            timeAgo: `Updated ${formatPlaylistDate(createdPlaylist.updated_at)}`,
+            img: getPlaylistCover(createdPlaylist),
+            createdAt: formatPlaylistDate(createdPlaylist.created_at),
+            updatedAt: formatPlaylistDate(createdPlaylist.updated_at),
+          },
+          ...current.filter((playlist) => playlist.id !== Number(createdPlaylist.id)),
+        ]);
+      }
+      setPlaylistPage(1);
+      setPlaylistTitleValue('');
+      setIsCreatePlaylistOpen(false);
+      void refetchCreatorPlaylists();
+      ping('Playlist created');
+    } catch (error) {
+      const parsed = parseApiError(error);
+      setPlaylistNameError(parsed.validationErrors?.name?.[0] ?? parsed.message);
+    }
+  };
+
+  const renameLibraryPlaylist = async () => {
+    if (!editingPlaylist) return;
+
+    const nextTitle = playlistTitleValue.trim();
+    if (!nextTitle) {
+      setPlaylistNameError('Playlist name is required.');
+      return;
+    }
+
+    if (nextTitle.length > 255) {
+      setPlaylistNameError('Playlist name must be 255 characters or fewer.');
+      return;
+    }
+
+    try {
+      setPlaylistNameError('');
+      await updateCreatorPlaylist({ playlist: editingPlaylist.id, payload: { name: nextTitle } });
+      setEditingPlaylist(null);
+      setPlaylistTitleValue('');
+      ping('Playlist renamed');
+    } catch (error) {
+      const parsed = parseApiError(error);
+      setPlaylistNameError(parsed.validationErrors?.name?.[0] ?? parsed.message);
+    }
+  };
+
+  const confirmDeleteLibraryPlaylist = (playlist: Playlist) => {
+    Alert.alert('Delete Playlist', `Delete "${playlist.title}"? This will not delete the videos.`, [
+      { text: 'Cancel', style: 'cancel' },
+      {
+        text: 'Delete',
+        style: 'destructive',
+        onPress: async () => {
+          setLocalDeletedPlaylistIds((current) =>
+            current.includes(playlist.id) ? current : [...current, playlist.id],
+          );
+          setLocalPlaylistAdds((current) => current.filter((item) => item.id !== playlist.id));
+          try {
+            await deleteCreatorPlaylist(playlist.id);
+            if (selectedPlaylistId === playlist.id) setSelectedPlaylistId(null);
+            await refetchCreatorPlaylists();
+            ping('Playlist deleted');
+          } catch (error) {
+            setLocalDeletedPlaylistIds((current) => current.filter((id) => id !== playlist.id));
+            const parsed = parseApiError(error);
+            Alert.alert(parsed.title, parsed.message);
+          }
+        },
+      },
+    ]);
+  };
+
+  const openPlaylistInVideoPlayer = async (playlist: Playlist) => {
+    if (playlist.videoCount <= 0) {
+      ping('This playlist has no videos yet');
+      return;
+    }
+
+    try {
+      setOpeningPlaylistId(playlist.id);
+      const response = await videoApi.getCreatorVideoPlaylistPlayback(playlist.id);
+      const playback = response.data;
+      const item = playback.item as any;
+      const firstVideoId = toNumericId(item?.id ?? item?.video_id ?? item?.videoId);
+
+      if (firstVideoId == null && !item?.video) {
+        Alert.alert('Playlist unavailable', 'This playlist does not have a playable first video yet.');
+        return;
+      }
+
+      navigation.navigate('VideoPlayer', {
+        id: firstVideoId ?? item.video,
+        item,
+        next_videos: playback.next_videos ?? [],
+        playlistId: Number(playback.playlist_id ?? playlist.id),
+        playlistName: playback.playlist_name ?? playlist.title,
+      });
+    } catch (error) {
+      const parsed = parseApiError(error);
+      Alert.alert(parsed.title, parsed.message);
+    } finally {
+      setOpeningPlaylistId(null);
+    }
   };
 
   const toggleLibraryVideoSelection = (videoId: string) => {
+    const video = libraryVideos.find((item) => item.id === videoId);
+    if (video?.draft) {
+      ping('Draft videos cannot be added to playlists');
+      return;
+    }
+
     setSelectedLibraryVideoIds((current) =>
       current.includes(videoId)
         ? current.filter((id) => id !== videoId)
@@ -378,45 +636,66 @@ const  ArtistProfile: React.FC = () => {
   };
 
   const openPlaylistPicker = (videoIds: string[]) => {
-    const uniqueVideoIds = Array.from(new Set(videoIds));
+    const draftIds = new Set(libraryVideos.filter((item) => item.draft).map((item) => item.id));
+    const uniqueVideoIds = Array.from(new Set(videoIds)).filter((videoId) => !draftIds.has(videoId));
     if (uniqueVideoIds.length === 0) {
-      ping('Select at least one video');
+      ping('Select at least one non-draft video');
       return;
     }
 
     setPlaylistPickerVideoIds(uniqueVideoIds);
-    setActiveMenuId(null);
   };
 
   const closePlaylistPicker = () => {
     setPlaylistPickerVideoIds([]);
+    setPlaylistPickerError('');
   };
 
-  const moveVideosToPlaylist = (playlistId: string) => {
+  const moveVideosToPlaylist = async (playlistId: number) => {
     const videoIds = playlistPickerVideoIds;
     if (videoIds.length === 0) return;
 
-    setLibraryPlaylists((current) =>
-      current.map((playlist) => {
-        if (playlist.id !== playlistId) return playlist;
+    const numericVideoIds = Array.from(new Set(videoIds.map(toNumericId).filter((id): id is number => id != null)));
+    if (numericVideoIds.length === 0) {
+      setPlaylistPickerError('Selected videos must have numeric IDs.');
+      return;
+    }
 
-        const existingVideoIds = playlist.videoIds ?? [];
-        const nextVideoIds = Array.from(new Set([...existingVideoIds, ...videoIds]));
-        const addedCount = nextVideoIds.length - existingVideoIds.length;
+    if (numericVideoIds.length > 100) {
+      setPlaylistPickerError('You can add up to 100 videos at a time.');
+      return;
+    }
 
-        return {
-          ...playlist,
-          videoIds: nextVideoIds,
-          videoCount: playlist.videoCount + Math.max(addedCount, 0),
-          timeAgo: 'Updated just now',
-        };
-      })
-    );
+    try {
+      setPlaylistPickerError('');
+      await bulkAddVideosToPlaylist({ playlist: playlistId, payload: { video_ids: numericVideoIds } });
+      setSelectedLibraryVideoIds([]);
+      setIsLibrarySelectionMode(false);
+      closePlaylistPicker();
+      ping(`${numericVideoIds.length} video${numericVideoIds.length === 1 ? '' : 's'} added to playlist`);
+    } catch (error) {
+      const parsed = parseApiError(error);
+      setPlaylistPickerError(parsed.validationErrors?.video_ids?.[0] ?? parsed.message);
+    }
+  };
 
-    setSelectedLibraryVideoIds([]);
-    setIsLibrarySelectionMode(false);
-    closePlaylistPicker();
-    ping(`${videoIds.length} video${videoIds.length === 1 ? '' : 's'} moved to playlist`);
+  const removeVideoFromSelectedPlaylist = async (videoId: string | number) => {
+    if (selectedPlaylistId == null) return;
+
+    const numericVideoId = toNumericId(videoId);
+    if (numericVideoId == null) {
+      Alert.alert('Invalid video', 'Video ID must be numeric.');
+      return;
+    }
+
+    try {
+      await removeVideoFromPlaylist({ playlist: selectedPlaylistId, video: numericVideoId });
+      ping('Video removed from playlist');
+      void refetchSelectedPlaylist();
+    } catch (error) {
+      const parsed = parseApiError(error);
+      Alert.alert(parsed.status === 409 ? 'Cannot remove video' : parsed.title, parsed.message);
+    }
   };
 
 
@@ -470,6 +749,42 @@ const PlaylistSection = () => {
   const navigation = useNavigation<any>();
   const { isDark, theme } = useThemeMode();
   const isSubscribed = false;
+  const [openingPlaylistId, setOpeningPlaylistId] = useState<number | null>(null);
+  const { data: playlistsResponse, isLoading, error } = useCreatorVideoPlaylists({ page: 1, per_page: 10 });
+  const sectionPlaylists = (playlistsResponse?.data ?? []).map((playlist) => ({
+    id: Number(playlist.id),
+    title: playlist.name,
+    videoCount: playlist.videos_count ?? playlist.videos?.length ?? 0,
+    views: `Created ${formatPlaylistDate(playlist.created_at)}`,
+    timeAgo: `Updated ${formatPlaylistDate(playlist.updated_at)}`,
+    img: getPlaylistCover(playlist),
+  }));
+
+  if (error || (!isLoading && sectionPlaylists.length === 0)) return null;
+
+  const openPlaylist = async (playlist: (typeof sectionPlaylists)[number]) => {
+    if (playlist.videoCount <= 0) return;
+
+    try {
+      setOpeningPlaylistId(playlist.id);
+      const response = await videoApi.getCreatorVideoPlaylistPlayback(playlist.id);
+      const playback = response.data;
+      const item = playback.item as any;
+      const firstVideoId = toNumericId(item?.id ?? item?.video_id ?? item?.videoId);
+
+      if (firstVideoId == null && !item?.video) return;
+
+      navigation.navigate('VideoPlayer', {
+        id: firstVideoId ?? item.video,
+        item,
+        next_videos: playback.next_videos ?? [],
+        playlistId: Number(playback.playlist_id ?? playlist.id),
+        playlistName: playback.playlist_name ?? playlist.title,
+      });
+    } finally {
+      setOpeningPlaylistId(null);
+    }
+  };
 
   return (
     <View style={styles.container}>
@@ -497,13 +812,15 @@ const PlaylistSection = () => {
         showsHorizontalScrollIndicator={false}
         contentContainerStyle={styles.scrollContent}
       >
-        {playlists.map(item => (
+        {isLoading ? (
+          <View style={[styles.card, { alignItems: 'center', justifyContent: 'center' }]}>
+            <ActivityIndicator size="small" color={PRIMARY_COLOR} />
+          </View>
+        ) : sectionPlaylists.map(item => (
           <Pressable
             key={item.id}
             style={styles.card}
-            onPress={() => {
-              navigation.navigate('PlaylistPlayer', { id: item.id });
-            }}
+            onPress={() => void openPlaylist(item)}
           >
             <View style={styles.thumbnailContainer}>
               <Image
@@ -534,6 +851,11 @@ const PlaylistSection = () => {
                   </View>
                 </View>
               )}
+              {openingPlaylistId === item.id ? (
+                <View style={s.libraryPlaylistOpening}>
+                  <ActivityIndicator size="small" color="#fff" />
+                </View>
+              ) : null}
             </View>
 
             <View style={styles.info}>
@@ -595,10 +917,21 @@ const PlaylistSection = () => {
   );
 };
 
+  const renderEmptyTab = (icon: React.ComponentProps<typeof MaterialIcons>['name'], title: string, description: string) => (
+    <View style={[s.emptyTab, { backgroundColor: faintSurface, borderColor: theme.border }]}>
+      <View style={[s.emptyTabIcon, { backgroundColor: isDark ? 'rgba(255,255,255,0.06)' : theme.surface }]}>
+        <MaterialIcons name={icon} size={28} color={PRIMARY_COLOR} />
+      </View>
+      <Text style={[s.emptyTabTitle, { color: theme.text }]}>{title}</Text>
+      <Text style={[s.emptyTabDescription, { color: theme.textSecondary }]}>{description}</Text>
+    </View>
+  );
+
   const renderGrid = (
     items: Array<{ id: string; title: string; views?: string; img?: string }>,
-    onPressItem?: () => void
-  ) => (
+    onPressItem?: () => void,
+    emptyState?: { icon: React.ComponentProps<typeof MaterialIcons>['name']; title: string; description: string },
+  ) => items.length === 0 && emptyState ? renderEmptyTab(emptyState.icon, emptyState.title, emptyState.description) : (
     <View style={s.videoGridWrap}>
       <View style={[s.videoGrid, { paddingHorizontal: gridHorizontalPadding }]}>
       {items.map((item) => (
@@ -662,12 +995,7 @@ const PlaylistSection = () => {
     }
 
     if (watchedVideos.length === 0) {
-      return (
-        <View style={[s.libraryStateCard, { backgroundColor: faintSurface, borderColor: theme.border }]}>
-          <MaterialIcons name="movie" size={22} color={theme.textSecondary} />
-          <Text style={[s.libraryStateText, { color: theme.textSecondary }]}>Watched videos will appear here.</Text>
-        </View>
-      );
+      return renderEmptyTab('history', 'No watch history yet', 'Videos you watch will appear here, making it easy to return to content you enjoyed.');
     }
 
     return renderGrid(watchedVideos);
@@ -718,7 +1046,7 @@ const PlaylistSection = () => {
         ) : null}
 
         {librarySubTab !== 'Playlist' && canManageLibrary ? (
-          <View style={[s.libraryBulkBar, { backgroundColor: faintSurface, borderColor: theme.border }]}>
+          <View style={[s.libraryBulkBar, ]}>
             <View style={s.libraryBulkCopy}>
               <Text style={[s.libraryBulkTitle, { color: theme.text }]}>
                 {isLibrarySelectionMode ? `${selectedLibraryVideoIds.length} Selected` : 'Manage Videos'}
@@ -772,7 +1100,12 @@ const PlaylistSection = () => {
               </View>
               {canManageLibrary ? (
                 <Pressable
-                  onPress={() => setIsCreatePlaylistOpen(true)}
+                  onPress={() => {
+                    setPlaylistNameError('');
+                    setPlaylistTitleValue('');
+                    setEditingPlaylist(null);
+                    setIsCreatePlaylistOpen(true);
+                  }}
                   style={s.libraryCreatePlaylistButton}
                 >
                   <MaterialIcons name="add" size={18} color="#fff" />
@@ -781,7 +1114,17 @@ const PlaylistSection = () => {
               ) : null}
             </View>
 
-            {libraryPlaylists.length === 0 ? (
+            {creatorPlaylistsLoading ? (
+              <View style={[s.libraryStateCard, { backgroundColor: faintSurface, borderColor: theme.border }]}>
+                <ActivityIndicator size="small" color={PRIMARY_COLOR} />
+                <Text style={[s.libraryStateText, { color: theme.textSecondary }]}>Loading playlists...</Text>
+              </View>
+            ) : creatorPlaylistsError ? (
+              <Pressable onPress={() => void refetchCreatorPlaylists()} style={[s.libraryStateCard, { backgroundColor: faintSurface, borderColor: theme.border }]}>
+                <MaterialIcons name="cloud-off" size={22} color={theme.textSecondary} />
+                <Text style={[s.libraryStateText, { color: theme.textSecondary }]}>Could not load playlists. Tap to retry.</Text>
+              </Pressable>
+            ) : libraryPlaylists.length === 0 ? (
               <View style={[s.libraryStateCard, { backgroundColor: faintSurface, borderColor: theme.border }]}>
                 <MaterialIcons name="playlist-play" size={22} color={theme.textSecondary} />
                 <Text style={[s.libraryStateText, { color: theme.textSecondary }]}>No playlists created yet.</Text>
@@ -791,7 +1134,7 @@ const PlaylistSection = () => {
                 {libraryPlaylists.map((item) => (
                   <Pressable
                     key={item.id}
-                    onPress={() => navigation.navigate('PlaylistPlayer', { id: item.id })}
+                    onPress={() => void openPlaylistInVideoPlayer(item)}
                     style={[s.libraryPlaylistCard, { backgroundColor: isDark ? '#0f172a' : theme.surface, borderColor: isDark ? 'rgba(255,255,255,0.1)' : theme.border }]}
                   >
                     <View style={s.libraryPlaylistCover}>
@@ -801,24 +1144,119 @@ const PlaylistSection = () => {
                         <MaterialIcons name="playlist-play" size={22} color="#fff" />
                         <Text style={s.libraryPlaylistCountText}>{item.videoCount} VIDEOS</Text>
                       </View>
+                      {openingPlaylistId === item.id ? (
+                        <View style={s.libraryPlaylistOpening}>
+                          <ActivityIndicator size="small" color="#fff" />
+                        </View>
+                      ) : null}
                     </View>
                     <View style={s.libraryPlaylistInfo}>
                       <Text numberOfLines={2} style={[s.libraryPlaylistCardTitle, { color: theme.text }]}>{item.title}</Text>
                       <Text numberOfLines={1} style={[s.libraryPlaylistMeta, { color: theme.textSecondary }]}>
                         {item.views} • {item.timeAgo}
                       </Text>
+                      <View style={s.libraryPlaylistActions}>
+                        <Pressable
+                          onPress={(event: any) => {
+                            event?.stopPropagation?.();
+                            setActivePlaylistMenuId((currentId) => currentId === item.id ? null : item.id);
+                          }}
+                          style={[s.libraryPlaylistActionButton, { backgroundColor: faintSurface }]}
+                        >
+                          <MaterialIcons name="more-vert" size={18} color={theme.textSecondary} />
+                        </Pressable>
+                      </View>
+                      {activePlaylistMenuId === item.id ? (
+                        <View style={[s.libraryPlaylistMenu, { backgroundColor: isDark ? '#111827' : theme.card, borderColor: theme.border }]}>
+                          <Pressable
+                            onPress={(event: any) => {
+                              event?.stopPropagation?.();
+                              setActivePlaylistMenuId(null);
+                              void openPlaylistInVideoPlayer(item);
+                            }}
+                            style={s.libraryPlaylistMenuItem}
+                          >
+                            <MaterialIcons name="play-arrow" size={16} color={theme.textSecondary} />
+                            <Text style={[s.libraryPlaylistMenuText, { color: theme.text }]}>Play</Text>
+                          </Pressable>
+                          {canManageLibrary ? (
+                            <>
+                              <Pressable
+                                onPress={(event: any) => {
+                                  event?.stopPropagation?.();
+                                  setActivePlaylistMenuId(null);
+                                  setSelectedPlaylistId(item.id);
+                                }}
+                                style={s.libraryPlaylistMenuItem}
+                              >
+                                <MaterialIcons name="list" size={16} color={theme.textSecondary} />
+                                <Text style={[s.libraryPlaylistMenuText, { color: theme.text }]}>Videos</Text>
+                              </Pressable>
+                              <Pressable
+                                onPress={(event: any) => {
+                                  event?.stopPropagation?.();
+                                  setActivePlaylistMenuId(null);
+                                  setPlaylistNameError('');
+                                  setEditingPlaylist(item);
+                                  setPlaylistTitleValue(item.title);
+                                }}
+                                style={s.libraryPlaylistMenuItem}
+                              >
+                                <MaterialIcons name="edit" size={16} color={theme.textSecondary} />
+                                <Text style={[s.libraryPlaylistMenuText, { color: theme.text }]}>Rename</Text>
+                              </Pressable>
+                              <Pressable
+                                onPress={(event: any) => {
+                                  event?.stopPropagation?.();
+                                  setActivePlaylistMenuId(null);
+                                  confirmDeleteLibraryPlaylist(item);
+                                }}
+                                style={s.libraryPlaylistMenuItem}
+                              >
+                                <MaterialIcons name="delete-outline" size={16} color="#ef4444" />
+                                <Text style={[s.libraryPlaylistMenuText, { color: '#ef4444' }]}>Delete</Text>
+                              </Pressable>
+                            </>
+                          ) : null}
+                        </View>
+                      ) : null}
                     </View>
                   </Pressable>
                 ))}
               </View>
             )}
+
+            {playlistMeta && playlistMeta.last_page > 1 ? (
+              <View style={s.libraryPlaylistPagination}>
+                <Pressable
+                  disabled={playlistMeta.current_page <= 1}
+                  onPress={() => setPlaylistPage((page) => Math.max(1, page - 1))}
+                  style={[s.libraryPaginationButton, { opacity: playlistMeta.current_page <= 1 ? 0.45 : 1, borderColor: theme.border }]}
+                >
+                  <MaterialIcons name="chevron-left" size={18} color={theme.textSecondary} />
+                  <Text style={[s.libraryPaginationText, { color: theme.textSecondary }]}>Prev</Text>
+                </Pressable>
+                <Text style={[s.libraryPaginationText, { color: theme.textSecondary }]}>
+                  {playlistMeta.current_page} / {playlistMeta.last_page}
+                </Text>
+                <Pressable
+                  disabled={playlistMeta.current_page >= playlistMeta.last_page}
+                  onPress={() => setPlaylistPage((page) => Math.min(playlistMeta.last_page, page + 1))}
+                  style={[s.libraryPaginationButton, { opacity: playlistMeta.current_page >= playlistMeta.last_page ? 0.45 : 1, borderColor: theme.border }]}
+                >
+                  <Text style={[s.libraryPaginationText, { color: theme.textSecondary }]}>Next</Text>
+                  <MaterialIcons name="chevron-right" size={18} color={theme.textSecondary} />
+                </Pressable>
+              </View>
+            ) : null}
           </View>
         ) : (
           <View style={s.libraryGrid}>
           {!creatorVideosLoading && filteredLibrary.length === 0 ? (
             <View style={[s.libraryStateCard, { backgroundColor: faintSurface, borderColor: theme.border }]}>
               <MaterialIcons name="video-library" size={22} color={theme.textSecondary} />
-              <Text style={[s.libraryStateText, { color: theme.textSecondary }]}>No videos found for this filter.</Text>
+              <Text style={[s.emptyTabTitle, { color: theme.text }]}>No library videos here</Text>
+              <Text style={[s.libraryStateText, { color: theme.textSecondary }]}>Your uploaded videos will appear in this collection when they match the selected filter.</Text>
             </View>
           ) : null}
           {filteredLibrary.map((item) => {
@@ -833,7 +1271,6 @@ const PlaylistSection = () => {
                     return;
                   }
 
-                  setActiveMenuId(null);
                   if (isLocked) {
                     ping('Unlock the exclusive Galaxy tier to access this library video!');
                     openSubscription();
@@ -850,131 +1287,32 @@ const PlaylistSection = () => {
                   <View style={[s.librarySelectBadge, { backgroundColor: isSelected ? PRIMARY_COLOR : 'rgba(0,0,0,0.58)', borderColor: isSelected ? PRIMARY_COLOR : 'rgba(255,255,255,0.58)' }]}>
                     <MaterialIcons name={isSelected ? 'check' : 'add'} size={16} color="#fff" />
                   </View>
+                ) : canManageLibrary && !item.draft ? (
+                  <Pressable
+                    onPress={(event: any) => {
+                      event?.stopPropagation?.();
+                      openPlaylistPicker([item.id]);
+                    }}
+                    style={s.libraryAddToPlaylistBadge}
+                  >
+                    <MaterialIcons name="playlist-add" size={16} color="#fff" />
+                  </Pressable>
                 ) : null}
 
-                <View style={[s.libraryBadge, { backgroundColor: item.draft ? 'rgba(82,82,91,0.92)' : item.premium ? 'rgba(245,158,11,0.88)' : 'rgba(37,99,235,0.88)', borderStyle: item.draft ? 'dashed' : 'solid' }]}>
-                  <MaterialIcons name={item.draft ? 'drafts' : item.premium ? 'stars' : 'public'} size={10} color="#fff" />
-                  <Text style={s.libraryBadgeText}>{item.draft ? 'Draft' : item.premium ? 'Premium' : 'Public'}</Text>
+                <View style={[s.libraryBadge, { backgroundColor: item.draft ? 'rgba(82,82,91,0.92)' : item.premium ? 'rgba(245, 159, 11, 0.35)' : 'rgba(37,99,235,0.88)', borderStyle: item.draft ? 'dashed' : 'solid'}, item.premium && {borderColor: 'rgba(245,158,11,0.88)'}]}>
+                  {item.premium ? <Premium height={10} width={10}/>:<MaterialIcons name= {item.draft ? 'drafts'  : 'public'} size={10} color="#fff" />}
+                  {/* <Text style={s.libraryBadgeText}>{item.draft ? 'Draft' : item.premium ? 'Premium' : 'Public'}</Text> */}
                 </View>
-
-                {canManageLibrary && !isLibrarySelectionMode ? (
-                  <View style={s.libraryMenuWrap}>
-                    <Pressable
-                      onPress={(event) => {
-                        event.stopPropagation();
-                        setActiveMenuId(activeMenuId === item.id ? null : item.id);
-                      }}
-                      style={s.libraryMenuTrigger}
-                    >
-                      <MaterialIcons name="more-vert" size={20} color="#fff" />
-                    </Pressable>
-
-                    {activeMenuId === item.id ? (
-                      <View style={[s.libraryMenu, { backgroundColor: isDark ? '#09090b' : '#fff', borderColor: isDark ? 'rgba(255,255,255,0.08)' : theme.border }]}>
-                        <Pressable
-                          onPress={(event) => {
-                            event.stopPropagation();
-                            setEditingVideo(item);
-                            setEditTitleValue(item.title);
-                            setActiveMenuId(null);
-                          }}
-                          style={s.libraryMenuItem}
-                        >
-                          <MaterialIcons name="edit" size={15} color={theme.textSecondary} />
-                          <Text style={[s.libraryMenuText, { color: theme.text }]}>Edit Title</Text>
-                        </Pressable>
-                        <Pressable
-                          onPress={(event) => {
-                            event.stopPropagation();
-                            openPlaylistPicker([item.id]);
-                          }}
-                          style={s.libraryMenuItem}
-                        >
-                          <MaterialIcons name="playlist-add" size={15} color={theme.textSecondary} />
-                          <Text style={[s.libraryMenuText, { color: theme.text }]}>Move to Playlist</Text>
-                        </Pressable>
-
-                        {item.draft ? (
-                          <>
-                            <Pressable
-                              onPress={(event) => {
-                                event.stopPropagation();
-                                updateLibraryVideo(item.id, { draft: false, premium: false });
-                                ping('Video published to Public!');
-                                setActiveMenuId(null);
-                              }}
-                              style={s.libraryMenuItem}
-                            >
-                              <MaterialIcons name="public" size={15} color="#2563eb" />
-                              <Text style={[s.libraryMenuText, { color: theme.text }]}>Publish to Public</Text>
-                            </Pressable>
-                            <Pressable
-                              onPress={(event) => {
-                                event.stopPropagation();
-                                updateLibraryVideo(item.id, { draft: false, premium: true });
-                                ping('Video published to Premium!');
-                                setActiveMenuId(null);
-                              }}
-                              style={s.libraryMenuItem}
-                            >
-                              <MaterialIcons name="stars" size={15} color="#f59e0b" />
-                              <Text style={[s.libraryMenuText, { color: theme.text }]}>Publish as Premium</Text>
-                            </Pressable>
-                          </>
-                        ) : (
-                          <>
-                            <Pressable
-                              onPress={(event) => {
-                                event.stopPropagation();
-                                updateLibraryVideo(item.id, { premium: !item.premium });
-                                ping(`Video moved to ${item.premium ? 'Public' : 'Premium'}`);
-                                setActiveMenuId(null);
-                              }}
-                              style={s.libraryMenuItem}
-                            >
-                              <MaterialIcons name={item.premium ? 'public' : 'stars'} size={15} color={theme.textSecondary} />
-                              <Text style={[s.libraryMenuText, { color: theme.text }]}>Move to {item.premium ? 'Public' : 'Premium'}</Text>
-                            </Pressable>
-                            <Pressable
-                              onPress={(event) => {
-                                event.stopPropagation();
-                                updateLibraryVideo(item.id, { draft: true });
-                                ping('Video has been moved to Drafts!');
-                                setActiveMenuId(null);
-                              }}
-                              style={s.libraryMenuItem}
-                            >
-                              <MaterialIcons name="drafts" size={15} color="#71717a" />
-                              <Text style={[s.libraryMenuText, { color: theme.text }]}>Revert to Draft</Text>
-                            </Pressable>
-                          </>
-                        )}
-
-                        <View style={[s.libraryMenuDivider, { backgroundColor: isDark ? 'rgba(255,255,255,0.06)' : 'rgba(15,23,42,0.08)' }]} />
-                        <Pressable
-                          onPress={(event) => {
-                            event.stopPropagation();
-                            deleteLibraryVideo(item.id);
-                          }}
-                          style={s.libraryMenuItem}
-                        >
-                          <MaterialIcons name="delete" size={15} color="#f43f5e" />
-                          <Text style={[s.libraryMenuText, { color: '#e11d48' }]}>Delete Video</Text>
-                        </Pressable>
-                      </View>
-                    ) : null}
-                  </View>
-                ) : null}
 
                 <View style={s.libraryDuration}>
                   <Text style={s.libraryDurationText}>{item.duration}</Text>
                 </View>
 
-                {!isLocked ? (
+                {/* {!isLocked ? (
                   <View style={s.libraryPlay}>
-                    <MaterialIcons name="play-arrow" size={25} color="#fff" />
+                    <MaterialIcons name="play-arrow" size={25} color="blue" />
                   </View>
-                ) : null}
+                ) : null} */}
 
                 {isLocked ? (
                   <View style={s.libraryLockOverlay}>
@@ -986,8 +1324,8 @@ const PlaylistSection = () => {
                 ) : null}
 
                 <View style={s.libraryCardText}>
-                  <Text numberOfLines={1} style={s.libraryMeta}>{item.category || 'Sessions'}</Text>
-                  <Text numberOfLines={1} style={s.libraryTitle}>{item.title}</Text>
+                  {/* <Text numberOfLines={1} style={s.libraryMeta}>{ 'Sessions'}</Text> */}
+                  <Text numberOfLines={1} style={s.libraryTitle}>{item.views}</Text>
                 </View>
               </Pressable>
             );
@@ -1032,24 +1370,76 @@ const PlaylistSection = () => {
           </View>
         </Modal>
 
-        <Modal visible={isCreatePlaylistOpen} transparent animationType="fade" statusBarTranslucent onRequestClose={() => setIsCreatePlaylistOpen(false)}>
+        <Modal
+          visible={isCreatePlaylistOpen || Boolean(editingPlaylist)}
+          transparent
+          animationType="fade"
+          statusBarTranslucent
+          onRequestClose={() => {
+            setIsCreatePlaylistOpen(false);
+            setEditingPlaylist(null);
+            setPlaylistNameError('');
+          }}
+        >
           <View style={s.libraryEditOverlay}>
-            <Pressable style={StyleSheet.absoluteFillObject} onPress={() => setIsCreatePlaylistOpen(false)} />
+            <Pressable
+              style={StyleSheet.absoluteFillObject}
+              onPress={() => {
+                setIsCreatePlaylistOpen(false);
+                setEditingPlaylist(null);
+                setPlaylistNameError('');
+              }}
+            />
             <View style={[s.libraryEditCard, { backgroundColor: isDark ? '#09090b' : theme.card, borderColor: theme.border }]}>
-              <Text style={[s.libraryEditTitle, { color: theme.text }]}>Create Playlist</Text>
+              <Text style={[s.libraryEditTitle, { color: theme.text }]}>
+                {editingPlaylist ? 'Rename Playlist' : 'Create Playlist'}
+              </Text>
               <TextInput
                 value={playlistTitleValue}
-                onChangeText={setPlaylistTitleValue}
-                placeholder="Playlist title"
+                onChangeText={(value) => {
+                  setPlaylistTitleValue(value);
+                  if (playlistNameError) setPlaylistNameError('');
+                }}
+                maxLength={255}
+                placeholder="Playlist name"
                 placeholderTextColor={theme.textSecondary}
                 style={[s.libraryEditInput, { color: theme.text, borderColor: theme.border, backgroundColor: isDark ? 'rgba(255,255,255,0.05)' : 'rgba(15,23,42,0.04)' }]}
               />
+              <View style={s.libraryInputMetaRow}>
+                <Text style={[s.libraryInputError, { color: playlistNameError ? '#ef4444' : theme.textSecondary }]}>
+                  {playlistNameError || 'Name is required.'}
+                </Text>
+                <Text style={[s.libraryInputCounter, { color: theme.textSecondary }]}>
+                  {playlistTitleValue.length}/255
+                </Text>
+              </View>
               <View style={s.libraryEditActions}>
-                <Pressable onPress={() => setIsCreatePlaylistOpen(false)} style={[s.libraryEditButton, { backgroundColor: faintSurface }]}>
+                <Pressable
+                  onPress={() => {
+                    setIsCreatePlaylistOpen(false);
+                    setEditingPlaylist(null);
+                    setPlaylistNameError('');
+                  }}
+                  style={[s.libraryEditButton, { backgroundColor: faintSurface }]}
+                >
                   <Text style={[s.libraryEditButtonText, { color: theme.text }]}>Cancel</Text>
                 </Pressable>
-                <Pressable onPress={createLibraryPlaylist} style={[s.libraryEditButton, s.libraryEditPrimary]}>
-                  <Text style={[s.libraryEditButtonText, { color: '#fff' }]}>Create</Text>
+                <Pressable
+                  disabled={isCreatingPlaylist || isUpdatingPlaylist || !playlistTitleValue.trim()}
+                  onPress={() => editingPlaylist ? void renameLibraryPlaylist() : void createLibraryPlaylist()}
+                  style={[
+                    s.libraryEditButton,
+                    s.libraryEditPrimary,
+                    (!playlistTitleValue.trim() || isCreatingPlaylist || isUpdatingPlaylist) && { opacity: 0.55 },
+                  ]}
+                >
+                  {isCreatingPlaylist || isUpdatingPlaylist ? (
+                    <ActivityIndicator size="small" color="#fff" />
+                  ) : (
+                    <Text style={[s.libraryEditButtonText, { color: '#fff' }]}>
+                      {editingPlaylist ? 'Save' : 'Create'}
+                    </Text>
+                  )}
                 </Pressable>
               </View>
             </View>
@@ -1073,7 +1463,12 @@ const PlaylistSection = () => {
               </View>
 
               <ScrollView showsVerticalScrollIndicator={false} contentContainerStyle={s.libraryPlaylistPickerList}>
-                {libraryPlaylists.length === 0 ? (
+                {creatorPlaylistsLoading ? (
+                  <View style={[s.libraryStateCard, { marginHorizontal: 0, backgroundColor: faintSurface, borderColor: theme.border }]}>
+                    <ActivityIndicator size="small" color={PRIMARY_COLOR} />
+                    <Text style={[s.libraryStateText, { color: theme.textSecondary }]}>Loading playlists...</Text>
+                  </View>
+                ) : libraryPlaylists.length === 0 ? (
                   <View style={[s.libraryStateCard, { marginHorizontal: 0, backgroundColor: faintSurface, borderColor: theme.border }]}>
                     <MaterialIcons name="playlist-play" size={22} color={theme.textSecondary} />
                     <Text style={[s.libraryStateText, { color: theme.textSecondary }]}>Create a playlist first.</Text>
@@ -1082,7 +1477,8 @@ const PlaylistSection = () => {
                   libraryPlaylists.map((playlist) => (
                     <Pressable
                       key={playlist.id}
-                      onPress={() => moveVideosToPlaylist(playlist.id)}
+                      disabled={isAddingVideosToPlaylist}
+                      onPress={() => void moveVideosToPlaylist(playlist.id)}
                       style={[s.libraryPlaylistPickerItem, { backgroundColor: faintSurface, borderColor: theme.border }]}
                     >
                       <Image source={{ uri: playlist.img }} style={s.libraryPlaylistPickerImage} />
@@ -1094,15 +1490,26 @@ const PlaylistSection = () => {
                           {playlist.videoCount} videos • {playlist.timeAgo}
                         </Text>
                       </View>
-                      <MaterialIcons name="chevron-right" size={22} color={theme.textSecondary} />
+                      {isAddingVideosToPlaylist ? (
+                        <ActivityIndicator size="small" color={PRIMARY_COLOR} />
+                      ) : (
+                        <MaterialIcons name="chevron-right" size={22} color={theme.textSecondary} />
+                      )}
                     </Pressable>
                   ))
                 )}
               </ScrollView>
 
+              {playlistPickerError ? (
+                <Text style={s.libraryPickerError}>{playlistPickerError}</Text>
+              ) : null}
+
               <Pressable
                 onPress={() => {
                   closePlaylistPicker();
+                  setPlaylistNameError('');
+                  setPlaylistTitleValue('');
+                  setEditingPlaylist(null);
                   setIsCreatePlaylistOpen(true);
                 }}
                 style={[s.libraryPickerCreateButton, { borderColor: theme.border }]}
@@ -1110,6 +1517,69 @@ const PlaylistSection = () => {
                 <MaterialIcons name="add" size={18} color={PRIMARY_COLOR} />
                 <Text style={[s.libraryPickerCreateText, { color: PRIMARY_COLOR }]}>Create New Playlist</Text>
               </Pressable>
+            </View>
+          </View>
+        </Modal>
+
+        <Modal visible={selectedPlaylistId != null} transparent animationType="fade" statusBarTranslucent onRequestClose={() => setSelectedPlaylistId(null)}>
+          <View style={s.libraryEditOverlay}>
+            <Pressable style={StyleSheet.absoluteFillObject} onPress={() => setSelectedPlaylistId(null)} />
+            <View style={[s.libraryPlaylistPickerCard, { backgroundColor: isDark ? '#09090b' : theme.card, borderColor: theme.border }]}>
+              <View style={s.libraryPlaylistPickerHeader}>
+                <View style={{ flex: 1 }}>
+                  <Text numberOfLines={1} style={[s.libraryEditTitle, { color: theme.text }]}>
+                    {selectedPlaylistDetail?.name ?? 'Playlist'}
+                  </Text>
+                  <Text style={[s.libraryPlaylistPickerMeta, { color: theme.textSecondary }]}>
+                    {selectedPlaylistDetail?.videos_count ?? 0} videos • Updated {formatPlaylistDate(selectedPlaylistDetail?.updated_at)}
+                  </Text>
+                </View>
+                <Pressable onPress={() => setSelectedPlaylistId(null)} style={[s.libraryBulkIconAction, { borderColor: theme.border }]}>
+                  <MaterialIcons name="close" size={18} color={theme.text} />
+                </Pressable>
+              </View>
+
+              {selectedPlaylistLoading ? (
+                <View style={[s.libraryStateCard, { marginHorizontal: 0, backgroundColor: faintSurface, borderColor: theme.border }]}>
+                  <ActivityIndicator size="small" color={PRIMARY_COLOR} />
+                  <Text style={[s.libraryStateText, { color: theme.textSecondary }]}>Loading playlist videos...</Text>
+                </View>
+              ) : selectedPlaylistError ? (
+                <Pressable onPress={() => void refetchSelectedPlaylist()} style={[s.libraryStateCard, { marginHorizontal: 0, backgroundColor: faintSurface, borderColor: theme.border }]}>
+                  <MaterialIcons name="cloud-off" size={22} color={theme.textSecondary} />
+                  <Text style={[s.libraryStateText, { color: theme.textSecondary }]}>Could not load playlist. Tap to retry.</Text>
+                </Pressable>
+              ) : (selectedPlaylistDetail?.videos ?? []).length === 0 ? (
+                <View style={[s.libraryStateCard, { marginHorizontal: 0, backgroundColor: faintSurface, borderColor: theme.border }]}>
+                  <MaterialIcons name="video-library" size={22} color={theme.textSecondary} />
+                  <Text style={[s.libraryStateText, { color: theme.textSecondary }]}>No videos in this playlist yet.</Text>
+                </View>
+              ) : (
+                <ScrollView showsVerticalScrollIndicator={false} contentContainerStyle={s.libraryPlaylistPickerList}>
+                  {(selectedPlaylistDetail?.videos ?? []).map((video: any) => (
+                    <View key={String(video.id)} style={[s.libraryPlaylistVideoItem, { backgroundColor: faintSurface, borderColor: theme.border }]}>
+                      <Image source={{ uri: video.img ?? video.thumbnail ?? video.thumbnail_url ?? FALLBACK_BANNER }} style={s.libraryPlaylistPickerImage} />
+                      <View style={s.libraryPlaylistPickerCopy}>
+                        <Text numberOfLines={1} style={[s.libraryPlaylistPickerTitle, { color: theme.text }]}>
+                          {video.title ?? video.caption ?? `Video ${video.id}`}
+                        </Text>
+                        <Text style={[s.libraryPlaylistPickerMeta, { color: theme.textSecondary }]}>
+                          {video.duration ?? 'Video'} • {video.views ?? video.views_count ?? 0} views
+                        </Text>
+                      </View>
+                      {canManageLibrary ? (
+                        <Pressable
+                          disabled={isRemovingVideoFromPlaylist}
+                          onPress={() => void removeVideoFromSelectedPlaylist(video.id)}
+                          style={[s.libraryRemovePlaylistVideoButton, { opacity: isRemovingVideoFromPlaylist ? 0.5 : 1 }]}
+                        >
+                          <MaterialIcons name="remove-circle-outline" size={20} color="#ef4444" />
+                        </Pressable>
+                      ) : null}
+                    </View>
+                  ))}
+                </ScrollView>
+              )}
             </View>
           </View>
         </Modal>
@@ -1208,9 +1678,18 @@ const PlaylistSection = () => {
             <Text numberOfLines={1} style={s.headerSubtitle}>{isOwner ? 'Your Galaxy' : 'Creator Universe'}</Text>
           </View>
 
+          <View style = {{
+            flexDirection: 'row',
+            gap: 5,
+          }}>
+            {isOwner && <Pressable onPress={()=>{}} style={[s.headerRoundBtn, { backgroundColor: faintSurface, borderColor: theme.border }]}>
+            <MaterialIcons name={'share'} size={20} color={theme.text} />
+          </Pressable>}
+
           <Pressable onPress={isOwner ? () => navigation.navigate('Settings') : share} style={[s.headerRoundBtn, { backgroundColor: faintSurface, borderColor: theme.border }]}>
             <MaterialIcons name={isOwner ? 'settings' : 'share'} size={20} color={theme.text} />
           </Pressable>
+          </View>
         </View>
         <View />
       </View>
@@ -1218,19 +1697,21 @@ const PlaylistSection = () => {
       stickyHeaderIndices={isOwner?[3]:[4]}
       contentContainerStyle={s.content} showsVerticalScrollIndicator={false} keyboardShouldPersistTaps="handled">
         <ImageBackground
-        resizeMode= 'contain'
-        source={{ uri: displayBanner }} style={[s.cover, {width: SCREEN_WIDTH}]}><LinearGradient colors={isDark ? ['rgba(0,0,0,0.1)', '#060913'] : ['rgba(255,255,255,0.06)', '#f8fafc']} style={StyleSheet.absoluteFillObject} /></ImageBackground>
+        resizeMode= 'cover'
+        source={{ uri: displayBanner }} style={[s.cover, {width: SCREEN_WIDTH}]}>
+          {/* <LinearGradient colors={isDark ? ['rgba(0,0,0,0.1)', '#060913'] : ['rgba(255,255,255,0.06)', '#f8fafc']} style={StyleSheet.absoluteFillObject} /> */}
+          </ImageBackground>
         <View style={s.hero}>
-          <View style={[s.avatarWrap, { borderColor: 'rgba(59 130 246 / 0.5)' }]}>
+          <View style={[s.avatarWrap, { borderColor: 'white' }]}>
             <Image source={{ uri: displayAvatar }}
                 style={s.image} />
-                  <Pressable
+                  {/* <Pressable
                   onPress={()=>{
                     navigation.navigate('StreakReward')
                   }}
                   style={[s.fire, { borderColor: theme.screen }]}>
                   <FireIcon height={15} width={15}/><Text style={s.fireText}>5</Text>
-                  </Pressable>
+                  </Pressable> */}
                 </View>
           <View style={{
             flexDirection: 'row',
@@ -1243,7 +1724,7 @@ const PlaylistSection = () => {
             <Text style={[s.name, { color: theme.text }]}>{isOwner ? displayName : routeName}</Text>
             {isVerified ? <VerifiedIcon height={24} width={24} fill={PRIMARY_COLOR}/> : null}
           </View>
-          <Text style={s.role}>{displayRole}</Text>
+          <Text style={[s.role, {color: theme.textSecondary}]}>{displayRole}</Text>
           {/* <View style={s.stats}><Text style={s.stat}>14,200{'\n'}<Text style={s.muted}>Followers</Text></Text><Text style={s.stat}>84.2K{'\n'}<Text style={s.muted}>Likes</Text></Text><Text style={[s.stat, s.purple]}>2,842{'\n'}<Text style={s.purple}>Subscribers</Text></Text></View> */}
           <View style={[s.stats, isTablet && s.statsTablet]}>
             <View style={s.statBlock}>
@@ -1265,7 +1746,7 @@ const PlaylistSection = () => {
               </>
             ) : null}
           </View>
-          <View style={[s.actions, ]}>{isOwner ? <>
+          {/* <View style={[s.actions, ]}>{isOwner ? <>
           <Pressable onPress={() => navigation.navigate('Settings')} style={[s.primary, {width: '30%'}]}>
             <EditIcon height={24} width={24} fill={theme.background}/>
             <Text style={[s.btnText, {color: theme.background}]}>{" "}Edit</Text>
@@ -1284,7 +1765,7 @@ const PlaylistSection = () => {
                         <Pressable onPress={openSubscription} style={[s.primary, {width: '30%'}]}>
                           <Text style={s.btnText}>Subscribe</Text></Pressable>
                           </>}
-                          </View>
+                          </View> */}
           {/* {currentUser?.role !== 'creator' ? (
             <Pressable onPress={() => setIsRoleSwitchModalOpen(true)} style={s.switchCreatorButton}>
               <LinearGradient
@@ -1301,7 +1782,7 @@ const PlaylistSection = () => {
           ) : null} */}
         </View>
 
-        <Text style={[s.bio, { color: theme.textSecondary }]}>{displayBio}</Text>
+        {displayBio === 'No bio yet' ? null : <Text style={[s.bio, { color: theme.textSecondary }]}>{displayBio}</Text>}
 
         {/* <View style={s.membership}><View style={s.membershipHeader}><Text style={s.section}>Membership</Text><View style={s.toggle}><Pressable onPress={() => setBilling('monthly')} style={[s.toggleBtn, billing === 'monthly' && s.toggleOn]}><Text style={s.toggleText}>Monthly</Text></Pressable><Pressable onPress={() => setBilling('annually')} style={[s.toggleBtn, billing === 'annually' && s.toggleOn]}><Text style={s.toggleText}>Yearly</Text></Pressable></View></View><Pressable onPress={() => { setSelectedSub(true); setStep('details'); }} style={s.card}><Text style={s.cardLabel}>{SUB.name}</Text><Text style={s.price}>${price} / {billing === 'monthly' ? 'mo' : 'yr'}</Text>{SUB.perks.map((perk) => <Text key={perk} style={s.perk}>- {perk}</Text>)}</Pressable></View> */}
         {!isOwner &&
@@ -1384,32 +1865,69 @@ const PlaylistSection = () => {
 
         <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={[s.tabs, {backgroundColor: theme.screen}]}>{tabs.map((tab) => <Pressable key={tab} onPress={() => setActiveTab(tab)} style={s.tab}>
           {
-            tab === 'Videos' ? <PlayIcon height={22} width={22} fill={activeTab === tab ? PRIMARY_COLOR : '#69738d'}/>:
-            tab === 'Premium' ? <StarsIcon height={22} width={22} fill={activeTab === tab ? PRIMARY_COLOR : '#69738d'}/>:
-            tab === 'Library' ? <LibraryMusic height={22} width={24} fill={activeTab === tab ? PRIMARY_COLOR : '#69738d'}/>:
-            tab === 'Tickets'? <LocalActivity height={22} width={24} fill={activeTab === tab ? PRIMARY_COLOR : '#69738d'}/>:
-            tab === 'Events'? <CalenderIcon height={22} width={22} fill={activeTab === tab ? PRIMARY_COLOR : '#69738d'}/>:
-            tab === 'Challenges'?<TrophyIcon height={22} width={22} fill={activeTab === tab ? PRIMARY_COLOR : '#69738d'}/>:
-            tab === 'Favorites'? <MaterialIcons name="favorite-border" size={22} color={activeTab === tab ? '#f43f5e' : '#69738d'}/>: <BookmarkIcon height={22} width={22} fill={activeTab === tab ? PRIMARY_COLOR : '#69738d'}/>
+            tab === 'Videos' ? <PlayIcon height={24} width={24} fill={activeTab === tab ? 'black' : '#69738d'}/>:
+            tab === 'Premium' ? <StarsIcon height={24} width={28} fill={activeTab === tab ? 'black' : '#69738d'}/>:
+            tab === 'Library' ? <LibraryMusic height={24} width={28} fill={activeTab === tab ? 'black' : '#69738d'}/>:
+            tab === 'Tickets'? <LocalActivity height={24} width={28} fill={activeTab === tab ? 'black' : '#69738d'}/>:
+            tab === 'Events'? <CalenderIcon height={24} width={24} fill={activeTab === tab ? 'black' : '#69738d'}/>:
+            tab === 'Challenges'?<TrophyIcon height={24} width={24} fill={activeTab === tab ? 'black' : '#69738d'}/>:
+            tab === 'Favorites'? <MaterialIcons name="favorite-border" size={24} color={activeTab === tab ? 'black' : '#69738d'}/>: <BookmarkIcon height={22} width={22} fill={activeTab === tab ? 'black' : '#69738d'}/>
           }
           {/* <MaterialIcons name={{ Videos: 'play-circle', Premium: 'stars', Events: 'calendar-month', Challenges: 'emoji-events', Favorites: 'favorite', Saved: 'bookmark' }[tab]}
-          size={22} color={activeTab === tab ? PRIMARY_COLOR : '#69738d'} /> */}
-          <Text style={[s.tabText, { color: activeTab === tab ? PRIMARY_COLOR : theme.textSecondary }, activeTab === tab && s.tabOn]}>{tab}</Text>
-          {activeTab === tab ? <View style={s.tabIndicator} /> : null}
+          size={22} color={activeTab === tab ? 'black' : '#69738d'} /> */}
+          {activeTab === tab ? <View style={[s.tabIndicator, {backgroundColor: theme.text}]} /> : null}
           </Pressable>)}</ScrollView>
 
         <View style={s.body}>
           {activeTab === 'Videos' ? renderWatchedVideos() : null}
           {activeTab === 'Premium'
-            ? 
-            // renderGrid(premiumVideos, () => {
-            //     if (isOwner) {
-            //       navigation.navigate('CreatorLibrary');
-            //     } else {
-            //       openSubscription();
-            //     }
-            //   })
-            (<View style={{
+            ? (!selectedCreator ? (
+              <View style={s.sectionGroup}>
+                <View style={s.sectionBlock}>
+                  <Text style={[s.sectionEyebrow, { color: theme.textSecondary }]}>Subscribed Creators</Text>
+                  <View style={s.creatorGrid}>
+                    {subscribedCreators.length === 0
+                      ? renderEmptyTab('workspace-premium', 'No premium creators yet', 'Subscribe to a creator to find their exclusive videos and releases here.')
+                      : subscribedCreators.map((creator) => (
+                      <Pressable
+                        key={creator.id}
+                        onPress={() => setSelectedCreator(creator.id)}
+                        style={[s.creatorGridCard, { backgroundColor: isDark ? '#111827' : theme.card, borderColor: theme.border }]}
+                      >
+                        <View style={s.creatorGridImageWrap}>
+                          <Image source={{ uri: creator.img }} style={s.creatorGridImage} />
+                          <LinearGradient
+                            colors={['transparent', 'rgba(0,0,0,0.72)']}
+                            style={StyleSheet.absoluteFillObject}
+                          />
+                          <View style={s.creatorGridDropBadge}>
+                            <Text style={s.creatorGridDropText}>{creator.premiumCount} Videos</Text>
+                          </View>
+                        </View>
+                        <View style={s.creatorGridInfo}>
+                          <View style={{ flex: 1 }}>
+                            <Text numberOfLines={1} style={[s.creatorGridName, { color: theme.text }]}>{creator.name}</Text>
+                            <Text numberOfLines={1} style={[s.creatorGridHandle, { color: theme.textSecondary }]}>{creator.handle}</Text>
+                          </View>
+                          <MaterialIcons name="chevron-right" size={20} color={theme.textSecondary} />
+                        </View>
+                      </Pressable>
+                    ))}
+                  </View>
+                </View>
+              </View>
+            ) : (
+              <View style={[s.sectionGroup, { paddingHorizontal: 0 }]}>
+                <View style={[s.vaultHeader, { paddingHorizontal: 16 }]}>
+                  <Pressable onPress={() => setSelectedCreator(null)} style={s.backRow}>
+                    <MaterialIcons name="chevron-left" size={14} color={PRIMARY_COLOR} />
+                    <Text style={s.backText}>Back to Creators</Text>
+                  </Pressable>
+                  <Text style={[s.sectionEyebrow, { color: theme.textSecondary }]}>
+                    {subscribedCreators.find((creator) => creator.id === selectedCreator)?.name}'s Vault
+                  </Text>
+                </View>
+            <View style={{
               gap: 20,
             }}>
               <Text style={{
@@ -1427,29 +1945,29 @@ const PlaylistSection = () => {
                 <View
                 key = {video.id}
                 style = {{
-                borderRadius: 24,
+                borderRadius: 0,
                 // overflow: 'hidden',
                 // alignSelf: 'flex-start',
                 height: 320,
                 backgroundColor: isDark ? 'rgba(255,255,255,0.05)': theme.card,
-                borderWidth: 1,
+                borderWidth: 0,
                 borderColor: theme.border,
                 // backgroundColor: 'blue',
                 gap: 10,
-                shadowColor: theme.shadow,
+                shadowColor: 'transparent',
                 shadowOffset: {
                   width: 0,
-                  height: 20,
+                  height: 0,
                 },
-                shadowOpacity: 0.1,
-                shadowRadius: 25,
+                shadowOpacity: 0,
+                shadowRadius: 0,
                 marginHorizontal: 16,
-                elevation: 12,
+                elevation: 0,
               }}>
                 <Image source={{ uri : video.img}} style={{
                   height: '55%',
-                  borderTopLeftRadius: 24,
-                  borderTopRightRadius: 24,
+                  borderTopLeftRadius: 0,
+                  borderTopRightRadius: 0,
                 }}/>
                 <View style={{
                   position: 'absolute',
@@ -1457,8 +1975,8 @@ const PlaylistSection = () => {
                   top: 0,
                   left: 0,
                   right: 0,
-                  borderTopLeftRadius: 24,
-                  borderTopRightRadius: 24,
+                  borderTopLeftRadius: 0,
+                  borderTopRightRadius: 0,
                   height: '55%',
                   alignItems: 'center',
                   justifyContent: 'center'
@@ -1696,7 +2214,8 @@ const PlaylistSection = () => {
                   })}
                 </View>
               </View>
-              </View>)
+              </View>
+              </View>))
               : null}
           {activeTab === 'Library' ? renderLibrary() : null}
 
@@ -1705,7 +2224,9 @@ const PlaylistSection = () => {
 
           {activeTab === 'Tickets' ? (
             <View style={[s.stack, {marginHorizontal: 18}]}>
-              {tickets.map((ticket) => (
+              {tickets.length === 0
+                ? renderEmptyTab('confirmation-number', 'No tickets yet', 'Tickets for events you purchase or claim will be kept here for quick access.')
+                : tickets.map((ticket) => (
                 <Pressable
                   key={ticket.id}
                   onPress={() => navigation.navigate('EventDetail')}
@@ -1731,7 +2252,9 @@ const PlaylistSection = () => {
               ))}
             </View>
           ) : null}
-          {activeTab === 'Events' ? <View style={[s.stack, {marginHorizontal: 18}]}>{events.map((item) =>
+          {activeTab === 'Events' ? <View style={[s.stack, {marginHorizontal: 18}]}>{events.length === 0
+            ? renderEmptyTab('event', 'No upcoming events', 'Live shows, meetups, and creator experiences will appear here when they are announced.')
+            : events.map((item) =>
             <Pressable key={item.id} onPress={() => navigation.navigate('EventDetail')} style={[s.banner, { backgroundColor: isDark ? '#0f172a' : theme.surface }]}>
               <Image source={{ uri: item.img }} style={[s.image, {borderRadius: 0}]} />
                 <LinearGradient colors={['transparent', 'rgba(0,0,0,0.9)']} style={StyleSheet.absoluteFillObject} />
@@ -1886,12 +2409,15 @@ const PlaylistSection = () => {
           {activeTab === 'Challenges'
             ? renderGrid(
                 challenges.map((item) => ({ ...item, views: item.meta })),
-                () => navigation.navigate('ChallengeFeed')
+                () => navigation.navigate('ChallengeFeed'),
+                { icon: 'emoji-events', title: 'No active challenges', description: 'Creator challenges and opportunities to participate will appear here.' },
               )
             : null}
-          {activeTab === 'Favorites' ? renderGrid(favorites) : null}
+          {activeTab === 'Favorites' ? renderGrid(favorites, undefined, { icon: 'favorite-border', title: 'No favorites yet', description: 'Videos you favorite will be collected here so you can quickly find them again.' }) : null}
           {activeTab === 'Saved' ?
-          <View style={[s.stack, {marginHorizontal: 18}]}>{sounds.map((sound) =>
+          <View style={[s.stack, {marginHorizontal: 18}]}>{sounds.length === 0
+            ? renderEmptyTab('bookmark-border', 'Nothing saved yet', 'Save sounds and creative inspiration to keep them ready for your next post.')
+            : sounds.map((sound) =>
             <Pressable key={sound.id} onPress={() => navigation.navigate('RecordContent', { sound: {sound}})}
                 style={[s.sound, { backgroundColor: isDark ? 'rgba(255,255,255,0.05)' : theme.surface, borderWidth: isDark ? 0 : 1,
                     borderColor: theme.border }]}>
@@ -2052,25 +2578,29 @@ const s = StyleSheet.create({
   screen: { flex: 1, backgroundColor: '#060913' },
   toast: { position: 'absolute', top: 56, alignSelf: 'center', zIndex: 40, backgroundColor: PRIMARY_COLOR, color: '#fff', paddingHorizontal: 16, paddingVertical: 8, borderRadius: 999, ...fontSize.b4, lineHeight: fontSize.b4.fontSize + 1 },
   icon: { width: 40, height: 40, borderRadius: 20, alignItems: 'center', justifyContent: 'center', backgroundColor: 'rgba(255,255,255,0.06)' },
-  header: { paddingTop: 46, paddingBottom: 7, },
-  headerTopRow: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', marginBottom: 20, paddingHorizontal: 20 },
+  header: { paddingTop: 46, paddingBottom: 0, },
+  headerTopRow: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', marginBottom: 10, paddingHorizontal: 10 },
   headerRoundBtn: { height: 40, width: 40, borderRadius: 20, borderWidth: 1, justifyContent: 'center', alignItems: 'center' },
-  headerTitleWrap: { flex: 1, alignItems: 'center', paddingHorizontal: 10 },
+  headerTitleWrap: { flex: 1, alignItems: 'center', paddingLeft: 40 },
   headerBtn: { width: 40, height: 40, borderRadius: 20, alignItems: 'center', justifyContent: 'center', backgroundColor: 'rgba(255,255,255,0.06)' },
   headerTitle: { textAlign: 'center', color: '#fff', ...fontSize.h1, lineHeight: fontSize.h1.fontSize + 1, letterSpacing: 2, textTransform: 'uppercase' },
   headerSubtitle: { color: PRIMARY_COLOR, marginTop: 4, ...fontSize.h2, lineHeight: fontSize.h2.fontSize + 1, letterSpacing: 1.5, textTransform: 'uppercase' },
-  content: { paddingBottom: 120, }, cover: { height: 180, }, hero: { marginTop: -88, paddingHorizontal: 20, alignItems: 'center' }, avatarWrap: { width: 148, height: 148, borderRadius: 999, borderWidth: 1, borderColor: '#060913', padding: 7}, image: { width: '100%', height: '100%', borderRadius: 999 }, fire: { position: 'absolute', right: 12, bottom: -2, width: 40, height: 40, borderRadius: 999, backgroundColor: '#f97316', borderWidth: 0, borderColor: '#060913', alignItems: 'center', justifyContent: 'center', flexDirection: 'row' }, fireText: { color: '#fff', ...fontSize.n5, lineHeight: fontSize.n5.fontSize + 1 },
-  name: {color: '#fff', ...fontSize.b1, lineHeight: fontSize.b1.fontSize + 2, textTransform: 'uppercase' }, role: { marginTop: 4, color: PRIMARY_COLOR, ...fontSize.b3, lineHeight: fontSize.b3.fontSize + 1, textTransform: 'uppercase', letterSpacing: 1.2 }, stat: { flex: 1, textAlign: 'center', color: '#fff', ...fontSize.n5, lineHeight: fontSize.n5.fontSize + 1 }, muted: { color: '#7d859e', ...fontSize.b5, lineHeight: fontSize.b5.fontSize + 1 }, purple: { color: PRIMARY_COLOR, ...fontSize.b5, lineHeight: fontSize.b5.fontSize + 1 },
+  content: { paddingBottom: 120, }, cover: { height: 120, }, hero: { marginTop: -48, paddingHorizontal: 20, alignItems: 'center' }, avatarWrap: { width: 100, height: 100, borderRadius: 999, borderWidth: 3, borderColor: '#060913', padding: 0}, image: { width: '100%', height: '100%', borderRadius: 999 }, fire: { position: 'absolute', right: -8, bottom: -2, width: 30, height: 30, borderRadius: 999, backgroundColor: '#f97316', borderWidth: 0, borderColor: '#060913', alignItems: 'center', justifyContent: 'center', flexDirection: 'row' }, fireText: { color: '#fff', ...fontSize.n5, lineHeight: fontSize.n5.fontSize + 1 },
+  name: {color: '#fff', ...fontSize.b1, lineHeight: fontSize.b1.fontSize + 2, textTransform: 'uppercase' }, role: { marginTop: 4, color: PRIMARY_COLOR, ...fontSize.b3, lineHeight: fontSize.b3.fontSize + 2, letterSpacing: 1.2 }, stat: { flex: 1, textAlign: 'center', color: '#fff', ...fontSize.n5, lineHeight: fontSize.n5.fontSize + 1 }, muted: { color: '#7d859e', ...fontSize.b5, lineHeight: fontSize.b5.fontSize + 1 }, purple: { color: PRIMARY_COLOR, ...fontSize.b5, lineHeight: fontSize.b5.fontSize + 1 },
   actions: { marginTop: 22, flexDirection: 'row', gap: 10, alignItems: 'center', justifyContent: 'center' },
   action: { height: 56, borderRadius: 24, alignItems: 'center', justifyContent: 'center', flexDirection: 'row', gap: 8 },
   primary: { backgroundColor: PRIMARY_COLOR, minHeight: 36, borderRadius: 34, alignItems: 'center', justifyContent: 'center', flexDirection: 'row', },
   secondary: { height: 36, borderRadius: 34, alignItems: 'center', justifyContent: 'center', backgroundColor: 'rgba(255,255,255,0.06)' }, iconAction: { width: 56, height: 36, borderRadius: 24, alignItems: 'center', justifyContent: 'center', backgroundColor: 'rgba(255,255,255,0.06)' }, btnText: { color: '#fff', ...fontSize.b4, lineHeight: fontSize.b4.fontSize + 4, textTransform: 'uppercase'}, follow: { flex: 1, height: 56, borderRadius: 24, alignItems: 'center', justifyContent: 'center', backgroundColor: 'rgba(255,255,255,0.06)' }, followOn: { backgroundColor: primaryColorAlpha(0.12) }, followText: { color: '#fff', ...fontSize.b5, lineHeight: fontSize.b5.fontSize + 1, textTransform: 'uppercase' }, followTextOn: { color: PRIMARY_COLOR },
-  bio: { paddingHorizontal: 34, marginTop: 18, marginBottom: 18, color: '#8b94ad', ...fontSize.b3, lineHeight: fontSize.b3.fontSize + 6, fontStyle: 'italic', textAlign: 'center' },
+  bio: { paddingHorizontal: 34, marginTop: 18, marginBottom: 18, color: '#8b94ad', ...fontSize.b2, lineHeight: fontSize.b2.fontSize + 6, fontStyle: 'italic', textAlign: 'center' },
   membership: { paddingHorizontal: 16, gap: 14 }, membershipHeader: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', paddingHorizontal: 16 }, section: { color: '#fff', ...fontSize.b2, lineHeight: fontSize.b2.fontSize + 1, textTransform: 'uppercase' }, toggle: { flexDirection: 'row', gap: 6, padding: 6, borderRadius: 18, backgroundColor: 'rgba(255,255,255,0.05)' }, toggleBtn: { minHeight: 34, paddingHorizontal: 10, borderRadius: 12, alignItems: 'center', justifyContent: 'center' }, toggleOn: { backgroundColor: 'rgba(255,255,255,0.08)' }, toggleText: { color: '#8b94ad', ...fontSize.b5, lineHeight: fontSize.b5.fontSize + 1, textTransform: 'uppercase' },
  cardLabel: { color: '#8b94ad', ...fontSize.b5, lineHeight: fontSize.b5.fontSize + 1, textTransform: 'uppercase' }, price: { color: '#fff', ...fontSize.n1, lineHeight: fontSize.n1.fontSize + 1 }, perk: { color: '#d4d8e8', ...fontSize.b4, lineHeight: fontSize.b4.fontSize + 1 },
   tabs: {
     // backgroundColor: 'white',
-    paddingHorizontal: 16, paddingTop: 18, paddingBottom: 6 }, tab: { minWidth: 74, alignItems: 'center', paddingBottom: 14, marginRight: 14 }, tabText: { marginTop: 4, color: '#69738d', ...fontSize.b5, lineHeight: fontSize.b5.fontSize + 1, textTransform: 'uppercase' }, tabOn: { color: PRIMARY_COLOR },
+    paddingHorizontal: 16, 
+    paddingTop: 18, 
+    paddingBottom: 6,
+    gap: 25
+   }, tab: { minWidth: 52, alignItems: 'center', paddingBottom: 14, marginRight: 0 }, tabText: { marginTop: 4, color: '#69738d', ...fontSize.b5, lineHeight: fontSize.b5.fontSize + 1, textTransform: 'uppercase' }, tabOn: { color: 'black' },
   body: {
     // paddingHorizontal: 16,
     paddingTop: 10,
@@ -2079,6 +2609,144 @@ const s = StyleSheet.create({
     // marginBottom: mediumScreen ? 120: 170,
     minHeight: mediumScreen ? SCREEN_HEIGHT * 0.87: SCREEN_HEIGHT * 0.63,
     // marginBottom: 450
+  },
+  emptyTab: { marginHorizontal: 18, marginTop: 12, paddingHorizontal: 28, paddingVertical: 38, borderRadius: 24, borderWidth: 1, alignItems: 'center' },
+  emptyTabIcon: { width: 56, height: 56, borderRadius: 28, alignItems: 'center', justifyContent: 'center', marginBottom: 16 },
+  emptyTabTitle: { ...fontSize.b2, lineHeight: fontSize.b2.fontSize + 3, textAlign: 'center', marginBottom: 8 },
+  emptyTabDescription: { ...fontSize.b4, lineHeight: fontSize.b4.fontSize + 5, textAlign: 'center', maxWidth: 320 },
+  sectionGroup: {
+    gap: 24,
+    paddingHorizontal: 16,
+  },
+  sectionBlock: {
+    gap: 12,
+  },
+  sectionEyebrow: {
+    color: '#71788f',
+    ...fontSize.b5,
+    lineHeight: fontSize.b5.fontSize + 1,
+    textTransform: 'uppercase',
+    letterSpacing: 2.2,
+  },
+  listWrap: {
+    gap: 12,
+  },
+  creatorGrid: {
+    flexDirection: 'row',
+    flexWrap: 'wrap',
+    justifyContent: 'space-between',
+    rowGap: 1,
+    marginHorizontal: -13,
+  },
+  creatorGridCard: {
+    width: '33.1%',
+    borderRadius: 0,
+    borderWidth: 0,
+    overflow: 'hidden',
+  },
+  creatorGridImageWrap: {
+    aspectRatio: 1,
+    backgroundColor: '#0f172a',
+    position: 'relative',
+  },
+  creatorGridImage: {
+    width: '100%',
+    height: '100%',
+  },
+  creatorGridDropBadge: {
+    position: 'absolute',
+    left: 6,
+    bottom: 6,
+    borderRadius: 999,
+    paddingHorizontal: 6,
+    paddingVertical: 4,
+    backgroundColor: 'rgba(0,0,0,0.62)',
+    borderWidth: 1,
+    borderColor: 'rgba(255,255,255,0.14)',
+  },
+  creatorGridDropText: {
+    color: PRIMARY_COLOR,
+    ...fontSize.b5,
+    lineHeight: fontSize.b5.fontSize + 1,
+    textTransform: 'uppercase',
+    letterSpacing: 0.8,
+  },
+  creatorGridInfo: {
+    minHeight: 64,
+    padding: 8,
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 4,
+  },
+  creatorGridName: {
+    ...fontSize.b4,
+    lineHeight: fontSize.b4.fontSize + 2,
+  },
+  creatorGridHandle: {
+    marginTop: 3,
+    ...fontSize.b5,
+    lineHeight: fontSize.b5.fontSize + 1,
+    textTransform: 'uppercase',
+    letterSpacing: 1.1,
+  },
+  listCard: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    borderRadius: 28,
+    backgroundColor: 'rgba(255,255,255,0.05)',
+    borderWidth: 1,
+    borderColor: 'rgba(255,255,255,0.08)',
+  },
+  listLeft: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 12,
+    flex: 1,
+  },
+  listAvatar: {
+    width: 56,
+    height: 56,
+    borderRadius: 18,
+  },
+  listTitle: {
+    color: '#fff',
+    ...fontSize.b4,
+    lineHeight: fontSize.b4.fontSize + 1,
+  },
+  listMeta: {
+    color: '#8f95af',
+    ...fontSize.b5,
+    lineHeight: fontSize.b5.fontSize + 1,
+    textTransform: 'uppercase',
+    letterSpacing: 1.1,
+    marginTop: 2,
+  },
+  creatorRight: {
+    alignItems: 'flex-end',
+    gap: 4,
+  },
+  creatorDropMeta: {
+    color: PRIMARY_COLOR,
+    ...fontSize.b5,
+    lineHeight: fontSize.b5.fontSize + 1,
+    textTransform: 'uppercase',
+    letterSpacing: 1.1,
+  },
+  vaultHeader: {
+    gap: 10,
+  },
+  backRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 6,
+  },
+  backText: {
+    color: PRIMARY_COLOR,
+    ...fontSize.b5,
+    lineHeight: fontSize.b5.fontSize + 1,
+    textTransform: 'uppercase',
+    letterSpacing: 1.1,
   },
   videoGridWrap: { marginHorizontal: -16 },
   videoGrid: { flexDirection: 'row', flexWrap: 'wrap', justifyContent: 'space-between' },
@@ -2517,7 +3185,7 @@ const s = StyleSheet.create({
     minHeight: 62,
     marginHorizontal: 16,
     borderRadius: 18,
-    borderWidth: 1,
+    // borderWidth: 1,
     paddingHorizontal: 12,
     paddingVertical: 10,
     flexDirection: 'row',
@@ -2613,16 +3281,25 @@ const s = StyleSheet.create({
     width: '48.5%',
     borderRadius: 16,
     borderWidth: 1,
-    overflow: 'hidden',
+    // borderRadius: 16
+    // overflow: 'hidden',
   },
   libraryPlaylistCover: {
     height: 118,
     backgroundColor: '#0f172a',
     position: 'relative',
+    borderRadius: 16,
   },
   libraryPlaylistImage: {
     width: '100%',
     height: '100%',
+    borderRadius: 16,
+  },
+  libraryPlaylistOpening: {
+    ...StyleSheet.absoluteFillObject,
+    alignItems: 'center',
+    justifyContent: 'center',
+    backgroundColor: 'rgba(0,0,0,0.42)',
   },
   libraryPlaylistCount: {
     position: 'absolute',
@@ -2634,6 +3311,7 @@ const s = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'center',
     gap: 4,
+    borderRadius: 16
   },
   libraryPlaylistCountText: {
     color: '#fff',
@@ -2657,16 +3335,80 @@ const s = StyleSheet.create({
     ...fontSize.b5,
     lineHeight: fontSize.b5.fontSize + 2,
   },
+  libraryPlaylistActions: {
+    marginTop: 8,
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'flex-end',
+    gap: 8,
+  },
+  libraryPlaylistActionButton: {
+    width: 32,
+    height: 32,
+    borderRadius: 16,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  libraryPlaylistMenu: {
+    position: 'absolute',
+    right: 50,
+    left: 10,
+    top: -85,
+    marginTop: 8,
+    borderRadius: 12,
+    borderWidth: 1,
+    overflow: 'hidden',
+    zIndex: 3,
+    elevation: 10,
+  },
+  libraryPlaylistMenuItem: {
+    minHeight: 38,
+    paddingHorizontal: 10,
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 8,
+  },
+  libraryPlaylistMenuText: {
+    flex: 1,
+    ...fontSize.b5,
+    lineHeight: fontSize.b5.fontSize + 2,
+    textTransform: 'uppercase',
+    letterSpacing: 0.8,
+  },
+  libraryPlaylistPagination: {
+    minHeight: 42,
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    gap: 12,
+  },
+  libraryPaginationButton: {
+    minHeight: 36,
+    borderRadius: 18,
+    borderWidth: 1,
+    paddingHorizontal: 12,
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
+    gap: 4,
+  },
+  libraryPaginationText: {
+    ...fontSize.b5,
+    lineHeight: fontSize.b5.fontSize + 1,
+    textTransform: 'uppercase',
+    letterSpacing: 0.8,
+  },
   libraryGrid: {
     flexDirection: 'row',
     flexWrap: 'wrap',
+    justifyContent: 'flex-start',
     // gap: 1,
     // paddingHorizontal: 3,
     overflow: 'visible',
   },
   libraryCard: {
-    width: '49.9%',
-    height: 300,
+    width: '33.3333%',
+    aspectRatio: 9 / 16,
     overflow: 'hidden',
     borderWidth: 1,
     position: 'relative',
@@ -2688,6 +3430,20 @@ const s = StyleSheet.create({
     justifyContent: 'center',
     zIndex: 12,
   },
+  libraryAddToPlaylistBadge: {
+    position: 'absolute',
+    top: 10,
+    right: 10,
+    width: 34,
+    height: 34,
+    borderRadius: 17,
+    alignItems: 'center',
+    justifyContent: 'center',
+    backgroundColor: 'rgba(0,0,0,0.58)',
+    borderWidth: 1,
+    borderColor: 'rgba(255,255,255,0.22)',
+    zIndex: 12,
+  },
   libraryBadge: {
     position: 'absolute',
     top: 10,
@@ -2697,7 +3453,7 @@ const s = StyleSheet.create({
     gap: 3,
     borderRadius: 999,
     paddingHorizontal: 8,
-    paddingVertical: 4,
+    paddingVertical: 8,
     borderWidth: 1,
     borderColor: 'rgba(255,255,255,0.18)',
     zIndex: 8,
@@ -2937,6 +3693,44 @@ const s = StyleSheet.create({
     ...fontSize.b5,
     lineHeight: fontSize.b5.fontSize + 2,
   },
+  libraryPickerError: {
+    color: '#ef4444',
+    ...fontSize.b5,
+    lineHeight: fontSize.b5.fontSize + 2,
+  },
+  libraryInputMetaRow: {
+    marginTop: -6,
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    gap: 12,
+  },
+  libraryInputError: {
+    flex: 1,
+    ...fontSize.b5,
+    lineHeight: fontSize.b5.fontSize + 2,
+  },
+  libraryInputCounter: {
+    ...fontSize.b5,
+    lineHeight: fontSize.b5.fontSize + 1,
+  },
+  libraryPlaylistVideoItem: {
+    minHeight: 76,
+    borderRadius: 18,
+    borderWidth: 1,
+    padding: 9,
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 10,
+  },
+  libraryRemovePlaylistVideoButton: {
+    width: 38,
+    height: 38,
+    borderRadius: 19,
+    alignItems: 'center',
+    justifyContent: 'center',
+    backgroundColor: 'rgba(239,68,68,0.12)',
+  },
   libraryPickerCreateButton: {
     minHeight: 46,
     borderRadius: 999,
@@ -2960,7 +3754,7 @@ const s = StyleSheet.create({
     bottom: -1,
     height: 2,
     borderRadius: 999,
-    backgroundColor: PRIMARY_COLOR,
+    backgroundColor: 'black',
   },
 });
 
@@ -2999,11 +3793,12 @@ const styles = StyleSheet.create({
   card: {
     width: 260,
     position: 'relative',
+    borderRadius: 0,
   },
 
   thumbnailContainer: {
     aspectRatio: 16 / 9,
-    borderRadius: 16,
+    borderRadius: 0,
     overflow: 'hidden',
     backgroundColor: '#0f172a',
   },
@@ -3140,14 +3935,14 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     paddingVertical: 10,
     paddingHorizontal: 6,
-    borderRadius: 16,
+    borderRadius: 0,
     position: 'relative',
   },
 
   thumbContainer: {
     width: 150,
     aspectRatio: 16 / 9,
-    borderRadius: 18,
+    borderRadius: 0,
     overflow: 'hidden',
     backgroundColor: '#0f172a',
   },

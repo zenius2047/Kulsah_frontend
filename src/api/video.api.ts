@@ -10,7 +10,19 @@ import type {
   CreatorVideosParams,
   CreatorVideosResponse,
   CreatorVideoProgressResponse,
+  CompleteCreatorVideoUploadResponse,
+  BulkAddCreatorVideoPlaylistVideosPayload,
+  CreateCreatorVideoPlaylistPayload,
+  CreatorVideoPlaylistPlaybackResponse,
+  CreatorVideoPlaylistResponse,
+  CreatorVideoPlaylistsParams,
+  CreatorVideoPlaylistsResponse,
+  DeleteCreatorVideoPlaylistResponse,
   FeedVideosParams,
+  InitCreatorVideoUploadPayload,
+  InitCreatorVideoUploadResponse,
+  SubmitCreatorVideoEditsPayload,
+  UpdateCreatorVideoPlaylistPayload,
   UpdateCreatorVideoPayload,
   UpdateCreatorVideoProgressPayload,
   UploadCreatorVideoPayload,
@@ -94,6 +106,21 @@ const createVideoOnlyFormData = ({ video }: UploadCreatorVideoToDraftPayload) =>
   return formData;
 };
 
+const createVideoEditsFormData = ({ overlays, drawingFiles = [] }: SubmitCreatorVideoEditsPayload) => {
+  const formData = new FormData();
+
+  formData.append('overlays', JSON.stringify(overlays));
+  drawingFiles.forEach((file, index) => {
+    formData.append(`drawing_files[${index}]`, {
+      uri: file.uri,
+      name: file.name ?? `drawing-${index}.png`,
+      type: file.type ?? 'image/png',
+    } as any);
+  });
+
+  return formData;
+};
+
 const parseUploadResponse = (responseText: string) => {
   if (!responseText) return {};
 
@@ -150,12 +177,18 @@ export const videoApi = {
     api.get<CreatorVideoDetailResponse>(endpoints.creator.video(video), creatorVideoAuthConfig()),
   createCreatorVideoDraft: (payload: CreateCreatorVideoDraftPayload) =>
     api.post<UploadCreatorVideoResponse>(endpoints.creator.videoDrafts, payload, creatorVideoAuthConfig()),
+  initCreatorVideoUpload: (payload: InitCreatorVideoUploadPayload) =>
+    api.post<InitCreatorVideoUploadResponse>(endpoints.creator.videoUploadInit, payload, creatorVideoAuthConfig()),
+  completeCreatorVideoUpload: (video: string | number) =>
+    api.post<CompleteCreatorVideoUploadResponse>(endpoints.creator.videoUploadComplete(video), {}, creatorVideoAuthConfig()),
+  submitCreatorVideoEdits: (video: string | number, payload: SubmitCreatorVideoEditsPayload) =>
+    api.post<CreatorVideoProgressResponse>(
+      endpoints.creator.videoEdits(video),
+      createVideoEditsFormData(payload),
+      creatorVideoAuthConfig(),
+    ),
   uploadCreatorVideo: (payload: UploadCreatorVideoPayload) =>
-    api.post<UploadCreatorVideoResponse>(endpoints.creator.videos, createVideoFormData(payload), creatorVideoAuthConfig({
-      headers: {
-        'Content-Type': 'multipart/form-data',
-      },
-    })),
+    api.post<UploadCreatorVideoResponse>(endpoints.creator.videos, createVideoFormData(payload), creatorVideoAuthConfig()),
   uploadCreatorVideoToDraft: (
     video: string | number,
     payload: UploadCreatorVideoToDraftPayload,
@@ -168,6 +201,24 @@ export const videoApi = {
     api.get<CreatorVideoProgressResponse>(endpoints.creator.videoProgress(video), creatorVideoAuthConfig()),
   updateCreatorVideoProgress: (video: string | number, payload: UpdateCreatorVideoProgressPayload) =>
     api.patch<CreatorVideoProgressResponse>(endpoints.creator.videoProgress(video), payload, creatorVideoAuthConfig()),
+  getCreatorVideoPlaylists: (params?: CreatorVideoPlaylistsParams) =>
+    api.get<CreatorVideoPlaylistsResponse>(endpoints.creator.videoPlaylists, creatorVideoAuthConfig({ params })),
+  createCreatorVideoPlaylist: (payload: CreateCreatorVideoPlaylistPayload) =>
+    api.post<CreatorVideoPlaylistResponse>(endpoints.creator.videoPlaylists, payload, creatorVideoAuthConfig()),
+  getCreatorVideoPlaylist: (playlist: string | number) =>
+    api.get<CreatorVideoPlaylistResponse>(endpoints.creator.videoPlaylist(playlist), creatorVideoAuthConfig()),
+  getCreatorVideoPlaylistPlayback: (playlist: string | number) =>
+    api.get<CreatorVideoPlaylistPlaybackResponse>(endpoints.creator.videoPlaylistVideos(playlist), creatorVideoAuthConfig()),
+  updateCreatorVideoPlaylist: (playlist: string | number, payload: UpdateCreatorVideoPlaylistPayload) =>
+    api.patch<CreatorVideoPlaylistResponse>(endpoints.creator.videoPlaylist(playlist), payload, creatorVideoAuthConfig()),
+  deleteCreatorVideoPlaylist: (playlist: string | number) =>
+    api.delete<DeleteCreatorVideoPlaylistResponse>(endpoints.creator.videoPlaylist(playlist), creatorVideoAuthConfig()),
+  addCreatorVideoToPlaylist: (playlist: string | number, video: string | number) =>
+    api.post(endpoints.creator.videoPlaylistVideo(playlist, video), {}, creatorVideoAuthConfig()),
+  bulkAddCreatorVideosToPlaylist: (playlist: string | number, payload: BulkAddCreatorVideoPlaylistVideosPayload) =>
+    api.post(endpoints.creator.videoPlaylistBulkVideos(playlist), payload, creatorVideoAuthConfig()),
+  removeCreatorVideoFromPlaylist: (playlist: string | number, video: string | number) =>
+    api.delete(endpoints.creator.videoPlaylistVideo(playlist, video), creatorVideoAuthConfig()),
   getFeedVideos: (params?: FeedVideosParams) => generalApi.getFeed(params),
 };
 
@@ -175,9 +226,21 @@ export const getCreatorVideos = videoApi.getCreatorVideos;
 export const getCreatorVideoAnalytics = videoApi.getCreatorVideoAnalytics;
 export const getCreatorVideo = videoApi.getCreatorVideo;
 export const createCreatorVideoDraft = videoApi.createCreatorVideoDraft;
+export const initCreatorVideoUpload = videoApi.initCreatorVideoUpload;
+export const completeCreatorVideoUpload = videoApi.completeCreatorVideoUpload;
+export const submitCreatorVideoEdits = videoApi.submitCreatorVideoEdits;
 export const uploadCreatorVideo = videoApi.uploadCreatorVideo;
 export const uploadCreatorVideoToDraft = videoApi.uploadCreatorVideoToDraft;
 export const updateCreatorVideo = videoApi.updateCreatorVideo;
 export const getCreatorVideoProgress = videoApi.getCreatorVideoProgress;
 export const updateCreatorVideoProgress = videoApi.updateCreatorVideoProgress;
+export const getCreatorVideoPlaylists = videoApi.getCreatorVideoPlaylists;
+export const createCreatorVideoPlaylist = videoApi.createCreatorVideoPlaylist;
+export const getCreatorVideoPlaylist = videoApi.getCreatorVideoPlaylist;
+export const getCreatorVideoPlaylistPlayback = videoApi.getCreatorVideoPlaylistPlayback;
+export const updateCreatorVideoPlaylist = videoApi.updateCreatorVideoPlaylist;
+export const deleteCreatorVideoPlaylist = videoApi.deleteCreatorVideoPlaylist;
+export const addCreatorVideoToPlaylist = videoApi.addCreatorVideoToPlaylist;
+export const bulkAddCreatorVideosToPlaylist = videoApi.bulkAddCreatorVideosToPlaylist;
+export const removeCreatorVideoFromPlaylist = videoApi.removeCreatorVideoFromPlaylist;
 export const getFeedVideos = videoApi.getFeedVideos;

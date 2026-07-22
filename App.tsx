@@ -514,13 +514,9 @@ const App: React.FC = () => {
   useEffect(() => {
     setHeight(vh);
     setWidth(vw);
-    if(SCREEN_HEIGHT > 880 ){
-      setScreenType(true)
-    }
-    if(SCREEN_WIDTH < 400){
-      setSmallWith(true)
-    }
-  }, [vh]);
+    setScreenType(SCREEN_HEIGHT > 880);
+    setSmallWith(SCREEN_WIDTH < 400);
+  }, [vh, vw]);
 
   useEffect(() => {
     void loadInitialData();

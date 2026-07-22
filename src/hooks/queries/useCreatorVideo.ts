@@ -12,5 +12,5 @@ export const useCreatorVideo = (video?: string | number) =>
       const response = await videoApi.getCreatorVideo(video);
       return response.data.item;
     },
-    enabled: video != null,
+    enabled: !!video,
   });
