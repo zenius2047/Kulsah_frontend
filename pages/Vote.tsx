@@ -322,7 +322,7 @@ const createStyles = (isDark: boolean, theme: ReturnType<typeof useThemeMode>['t
     },
     brand: {
       color: theme.text,
-      ...fontSize.b4, lineHeight: fontSize.b4.fontSize + 1,
+      ...fontSize.b4, lineHeight: fontSize.b4.lineHeight,
       fontStyle: 'italic',
       letterSpacing: 0.6,
     },
@@ -344,7 +344,7 @@ const createStyles = (isDark: boolean, theme: ReturnType<typeof useThemeMode>['t
     },
     walletChipText: {
       color: theme.text,
-      ...fontSize.b5, lineHeight: fontSize.b5.fontSize + 1,
+      ...fontSize.b5, lineHeight: fontSize.b5.lineHeight,
       textTransform: 'uppercase',
       letterSpacing: 0.8,
     },
@@ -394,13 +394,13 @@ const createStyles = (isDark: boolean, theme: ReturnType<typeof useThemeMode>['t
     },
     hotBadgeText: {
       color: isDark ? '#d68cef' : theme.accent,
-      ...fontSize.b5, lineHeight: fontSize.b5.fontSize + 1,
+      ...fontSize.b5, lineHeight: fontSize.b5.lineHeight,
       letterSpacing: 1.1,
       fontStyle: 'italic',
     },
     heroTitle: {
       color: theme.text,
-      ...fontSize.b4, lineHeight: fontSize.b4.fontSize + 1,
+      ...fontSize.b4, lineHeight: fontSize.b4.lineHeight,
     },
     heroSubtitle: {
       color: theme.textSecondary,
@@ -415,12 +415,12 @@ const createStyles = (isDark: boolean, theme: ReturnType<typeof useThemeMode>['t
     },
     modalTitle: {
       color: theme.text,
-      ...fontSize.b4, lineHeight: fontSize.b4.fontSize + 1,
+      ...fontSize.b4, lineHeight: fontSize.b4.lineHeight,
     },
     modalSubtitle: {
       marginTop: 4,
       color: theme.textSecondary,
-      ...fontSize.b5, lineHeight: fontSize.b5.fontSize + 1,
+      ...fontSize.b5, lineHeight: fontSize.b5.lineHeight,
     },
     balancePill: {
       flexDirection: 'row',
@@ -465,7 +465,7 @@ const createStyles = (isDark: boolean, theme: ReturnType<typeof useThemeMode>['t
     },
     balanceText: {
       color: theme.text,
-      ...fontSize.b5, lineHeight: fontSize.b5.fontSize + 1,
+      ...fontSize.b5, lineHeight: fontSize.b5.lineHeight,
     },
     voteInputWrap: {
       flex: 1,
@@ -476,13 +476,13 @@ const createStyles = (isDark: boolean, theme: ReturnType<typeof useThemeMode>['t
     voteInput: {
       minWidth: 90,
       color: theme.text,
-      ...fontSize.b1, lineHeight: fontSize.b1.fontSize + 2,
+      ...fontSize.b1, lineHeight: fontSize.b1.lineHeight,
       paddingVertical: 0,
       includeFontPadding: false,
     },
     voteInputCaption: {
       color: theme.textSecondary,
-      ...fontSize.b5, lineHeight: fontSize.b5.fontSize + 1,
+      ...fontSize.b5, lineHeight: fontSize.b5.lineHeight,
       textTransform: 'uppercase',
       letterSpacing: 1.2,
     },
@@ -494,7 +494,7 @@ const createStyles = (isDark: boolean, theme: ReturnType<typeof useThemeMode>['t
     packLabel: {
       paddingHorizontal: 6,
       color: theme.textMuted,
-      ...fontSize.b5, lineHeight: fontSize.b5.fontSize + 1,
+      ...fontSize.b5, lineHeight: fontSize.b5.lineHeight,
       textTransform: 'uppercase',
       letterSpacing: 1.5,
     },
@@ -539,14 +539,14 @@ const createStyles = (isDark: boolean, theme: ReturnType<typeof useThemeMode>['t
     },
     packCoins: {
       color: theme.text,
-      ...fontSize.b5, lineHeight: fontSize.b5.fontSize + 1,
+      ...fontSize.b5, lineHeight: fontSize.b5.lineHeight,
     },
     packCoinsSelected: {
       color: '#ffffff',
     },
     packPrice: {
       color: theme.textSecondary,
-      ...fontSize.b5, lineHeight: fontSize.b5.fontSize + 1,
+      ...fontSize.b5, lineHeight: fontSize.b5.lineHeight,
       letterSpacing: 0.4,
       textTransform: 'uppercase',
     },
@@ -565,7 +565,7 @@ const createStyles = (isDark: boolean, theme: ReturnType<typeof useThemeMode>['t
     },
     bestValueText: {
       color: isDark ? '#d68cef' : theme.accent,
-      ...fontSize.b5, lineHeight: fontSize.b5.fontSize + 1,
+      ...fontSize.b5, lineHeight: fontSize.b5.lineHeight,
       letterSpacing: 1,
       fontStyle: 'italic',
     },
@@ -587,7 +587,7 @@ const createStyles = (isDark: boolean, theme: ReturnType<typeof useThemeMode>['t
       borderColor: PRIMARY_COLOR,
     },
     packActionText: {
-      ...fontSize.b5, lineHeight: fontSize.b5.fontSize + 1,
+      ...fontSize.b5, lineHeight: fontSize.b5.lineHeight,
       letterSpacing: 0.8,
     },
     packActionTextDefault: {
@@ -614,7 +614,7 @@ const createStyles = (isDark: boolean, theme: ReturnType<typeof useThemeMode>['t
     },
     confirmButtonText: {
       color: '#ffffff',
-      ...fontSize.b5, lineHeight: fontSize.b5.fontSize + 1,
+      ...fontSize.b5, lineHeight: fontSize.b5.lineHeight,
     },
     cancelButton: {
       alignItems: 'center',
@@ -624,7 +624,7 @@ const createStyles = (isDark: boolean, theme: ReturnType<typeof useThemeMode>['t
     },
     cancelButtonText: {
       color: theme.textMuted,
-      ...fontSize.b5, lineHeight: fontSize.b5.fontSize + 1,
+      ...fontSize.b5, lineHeight: fontSize.b5.lineHeight,
       textTransform: 'uppercase',
       letterSpacing: 1.4,
     },

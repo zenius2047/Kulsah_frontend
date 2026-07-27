@@ -178,14 +178,14 @@ const styles = StyleSheet.create({
   },
   title: {
     color: '#fff',
-    ...fontSize.b1, lineHeight: fontSize.b1.fontSize + 2,
+    ...fontSize.b1, lineHeight: fontSize.b1.lineHeight,
     letterSpacing: -1.4,
     textAlign: 'center',
   },
   subtitle: {
     marginTop: 8,
     color: 'rgba(255,255,255,0.5)',
-    ...fontSize.b4, lineHeight: fontSize.b4.fontSize + 1,
+    ...fontSize.b4, lineHeight: fontSize.b4.lineHeight,
     textAlign: 'center',
   },
   scrollContent: {
@@ -248,12 +248,12 @@ const styles = StyleSheet.create({
   cardTitle: {
     color: '#fff',
     ...fontSize.b1,
-    lineHeight: fontSize.b1.fontSize + 2,
+    lineHeight: fontSize.b1.lineHeight,
   },
   cardDesc: {
     marginTop: 4,
     color: 'rgba(255,255,255,0.6)',
-    ...fontSize.b5, lineHeight: fontSize.b5.fontSize + 1,
+    ...fontSize.b5, lineHeight: fontSize.b5.lineHeight,
     textTransform: 'uppercase',
     letterSpacing: 2,
   },
@@ -293,7 +293,7 @@ const styles = StyleSheet.create({
   },
   continueText: {
     color: '#fff',
-    ...fontSize.b1, lineHeight: fontSize.b1.fontSize + 2,
+    ...fontSize.b1, lineHeight: fontSize.b1.lineHeight,
   },
   continueTextDisabled: {
     color: 'rgba(255,255,255,0.22)',

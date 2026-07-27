@@ -1,7 +1,7 @@
 import * as FileSystem from 'expo-file-system/legacy';
 import { NativeModules } from 'react-native';
 import type {
-  CreatorVideoEditOverlay,
+  CreatorVideoTimelineLayer,
   SubmitCreatorVideoEditsPayload,
   VideoDisplayOrientation,
   VideoUploadSource,
@@ -29,6 +29,16 @@ export type BurnInTextSticker = {
   start?: number;
   end?: number;
   fontSize?: number;
+};
+
+export type BurnInSticker = {
+  publicId: string;
+  x: number;
+  y: number;
+  width?: number;
+  height?: number;
+  start?: number;
+  end?: number;
 };
 
 export type BurnInCanvasSize = {
@@ -227,12 +237,16 @@ export const createCreatorVideoEditsPayload = ({
   canvasSize,
   strokes,
   textStickers,
+  stickers = [],
+  trim,
   drawingFiles = [],
 }: Omit<BurnInVideoOverlaysOptions, 'video'> & {
+  stickers?: BurnInSticker[];
+  trim?: { start: number; end: number } | null;
   drawingFiles?: VideoUploadSource[];
 }): SubmitCreatorVideoEditsPayload | null => {
   const targetSize = TARGET_SIZES[orientation];
-  const overlays: CreatorVideoEditOverlay[] = [];
+  const layers: CreatorVideoTimelineLayer[] = [];
 
   textStickers.forEach((sticker) => {
     const text = sticker.text.trim();
@@ -241,19 +255,16 @@ export const createCreatorVideoEditsPayload = ({
     const point = toRenderPoint({ x: sticker.x, y: sticker.y }, canvasSize, targetSize);
     const start = clampTime(sticker.start, 0);
     const end = Math.max(start + 0.1, clampTime(sticker.end, 5));
-    const boxColor = toBackendBoxColor(sticker.backgroundColor);
-
-    overlays.push({
+    layers.push({
       type: 'text',
       text,
+      font: 'Arial',
       x: Math.round(point.x),
       y: Math.round(point.y),
       start,
       end,
-      font_size: Math.max(12, Math.round(sticker.fontSize ?? 48)),
+      size: Math.max(12, Math.round(sticker.fontSize ?? 48)),
       color: sticker.color,
-      box: sticker.backgroundColor !== 'transparent',
-      ...(boxColor ? { box_color: boxColor } : {}),
     });
   });
 
@@ -261,7 +272,7 @@ export const createCreatorVideoEditsPayload = ({
     const drawingStart = Math.min(...strokes.map((stroke) => clampTime(stroke.start, 0)));
     const drawingEnd = Math.max(...strokes.map((stroke) => clampTime(stroke.end, 5)));
 
-    overlays.push({
+    layers.push({
       type: 'drawing',
       file_index: 0,
       x: 0,
@@ -273,10 +284,39 @@ export const createCreatorVideoEditsPayload = ({
     });
   }
 
-  if (!overlays.length) return null;
+  stickers.forEach((sticker) => {
+    const point = toRenderPoint({ x: sticker.x, y: sticker.y }, canvasSize, targetSize);
+    const start = clampTime(sticker.start, 0);
+    const end = Math.max(start + 0.1, clampTime(sticker.end, 5));
+    layers.push({
+      type: 'sticker',
+      public_id: sticker.publicId,
+      x: Math.round(point.x),
+      y: Math.round(point.y),
+      width: sticker.width,
+      height: sticker.height,
+      start,
+      end,
+    });
+  });
+
+  const normalizedTrim = trim && trim.end > trim.start
+    ? { start: clampTime(trim.start, 0), end: clampTime(trim.end, trim.start + 0.1) }
+    : undefined;
+
+  if (!layers.length && !normalizedTrim) return null;
 
   return {
-    overlays,
+    timeline: {
+      layers,
+      ...(normalizedTrim ? { trim: normalizedTrim } : {}),
+      output: {
+        format: 'mp4',
+        quality: 'auto',
+        width: targetSize.width,
+        height: targetSize.height,
+      },
+    },
     drawingFiles,
   };
 };

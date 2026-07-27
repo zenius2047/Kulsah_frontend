@@ -568,7 +568,7 @@ const LiveFeed: React.FC = () => {
             </View>
             <Text style={{
               color: isDark ? '#ffffff' : theme.text,
-              ...fontSize.b4, lineHeight: fontSize.b4.fontSize + 1,
+              ...fontSize.b4, lineHeight: fontSize.b4.lineHeight,
             }}>
               Join this live?
             </Text>
@@ -602,7 +602,7 @@ const LiveFeed: React.FC = () => {
               >
                 <Text style={{
                   color: isDark ? '#ffffff' : theme.text,
-                  ...fontSize.b5, lineHeight: fontSize.b5.fontSize + 1,
+                  ...fontSize.b5, lineHeight: fontSize.b5.lineHeight,
                   textTransform: 'uppercase',
                   letterSpacing: 1.2,
                 }}>
@@ -637,7 +637,7 @@ const styles = StyleSheet.create({
     marginBottom: 14,
   },
   sectionTitle: {
-    ...fontSize.b5, lineHeight: fontSize.b5.fontSize + 1,
+    ...fontSize.b5, lineHeight: fontSize.b5.lineHeight,
     letterSpacing: 2.6,
     textTransform: 'uppercase',
   },
@@ -674,7 +674,7 @@ const styles = StyleSheet.create({
   },
   creatorHandle: {
     marginTop: 10,
-    ...fontSize.b5, lineHeight: fontSize.b5.fontSize + 1,
+    ...fontSize.b5, lineHeight: fontSize.b5.lineHeight,
   },
   feedStack: {
     backgroundColor: 'black',
@@ -726,7 +726,7 @@ const styles = StyleSheet.create({
   },
   liveBadgeText: {
     color: '#ffdad6',
-    ...fontSize.b5, lineHeight: fontSize.b5.fontSize + 1,
+    ...fontSize.b5, lineHeight: fontSize.b5.lineHeight,
     letterSpacing: 2.2,
   },
   viewerBadge: {
@@ -742,7 +742,7 @@ const styles = StyleSheet.create({
   },
   viewerBadgeText: {
     color: '#f8fafc',
-    ...fontSize.b5, lineHeight: fontSize.b5.fontSize + 1,
+    ...fontSize.b5, lineHeight: fontSize.b5.lineHeight,
   },
   bottomOverlay: {
     paddingHorizontal: 20,
@@ -792,7 +792,7 @@ const styles = StyleSheet.create({
   },
   chatUser: {
     color: primaryColorAlpha(0.76),
-    ...fontSize.b5, lineHeight: fontSize.b5.fontSize + 1,
+    ...fontSize.b5, lineHeight: fontSize.b5.lineHeight,
     letterSpacing: 1.1,
     textTransform: 'uppercase',
   },
@@ -804,7 +804,7 @@ const styles = StyleSheet.create({
   },
   chatText: {
     color: '#fff',
-    ...fontSize.b5, lineHeight: fontSize.b5.fontSize + 1,
+    ...fontSize.b5, lineHeight: fontSize.b5.lineHeight,
     marginTop: 2,
   },
   hostRow: {
@@ -825,11 +825,11 @@ const styles = StyleSheet.create({
   },
   hostName: {
     color: '#ffffff',
-    ...fontSize.b4, lineHeight: fontSize.b4.fontSize + 1,
+    ...fontSize.b4, lineHeight: fontSize.b4.lineHeight,
   },
   hostSubtitle: {
     color: '#d1d5db',
-    ...fontSize.b5, lineHeight: fontSize.b5.fontSize + 1,
+    ...fontSize.b5, lineHeight: fontSize.b5.lineHeight,
     marginTop: 2,
   },
   commentComposer: {
@@ -846,7 +846,7 @@ const styles = StyleSheet.create({
   commentInput: {
     flex: 1,
     color: '#fff',
-    ...fontSize.b5, lineHeight: fontSize.b5.fontSize + 1,
+    ...fontSize.b5, lineHeight: fontSize.b5.lineHeight,
   },
   joinButton: {
     alignSelf: 'flex-start',
@@ -862,7 +862,7 @@ const styles = StyleSheet.create({
   },
   joinButtonText: {
     color: '#ffffff',
-    ...fontSize.b5, lineHeight: fontSize.b5.fontSize + 1,
+    ...fontSize.b5, lineHeight: fontSize.b5.lineHeight,
     letterSpacing: 1.8,
     textTransform: 'uppercase',
   },
@@ -887,7 +887,7 @@ const styles = StyleSheet.create({
   },
   metricText: {
     color: '#ffffff',
-    ...fontSize.b5, lineHeight: fontSize.b5.fontSize + 1,
+    ...fontSize.b5, lineHeight: fontSize.b5.lineHeight,
   },
   bottomNav: {
     position: 'absolute',
@@ -921,7 +921,7 @@ const styles = StyleSheet.create({
   },
   navLabel: {
     marginTop: 4,
-    ...fontSize.b5, lineHeight: fontSize.b5.fontSize + 1,
+    ...fontSize.b5, lineHeight: fontSize.b5.lineHeight,
     letterSpacing: 0.8,
     textTransform: 'uppercase',
   },

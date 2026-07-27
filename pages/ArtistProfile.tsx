@@ -794,7 +794,7 @@ const PlaylistSection = () => {
             // marginVertical: 10,
                 fontSize: fontSize.b2.fontSize + 2,
                 fontFamily: fontSize.b2.fontFamily,
-                lineHeight: fontSize.b2.fontSize + 4,
+                lineHeight: fontSize.b2.lineHeight,
                 paddingLeft: 16,
                 color: theme.text,
           }]}>Playlists</Text>
@@ -1083,7 +1083,7 @@ const PlaylistSection = () => {
                 style={s.libraryBulkAction}
               >
                 <MaterialIcons name="checklist" size={17} color="#fff" />
-                <Text style={s.libraryBulkActionText}>Select</Text>
+                {/* <Text style={s.libraryBulkActionText}>Select</Text> */}
               </Pressable>
             )}
           </View>
@@ -1673,7 +1673,7 @@ const PlaylistSection = () => {
             <MaterialIcons name="chevron-left" size={22} color={theme.text} />
           </Pressable>
 
-          <View style={s.headerTitleWrap}>
+          <View style={[s.headerTitleWrap, { paddingLeft: isOwner ? 40 : 0}]}>
             <Text numberOfLines={1} style={[s.headerTitle, { color: theme.text }]}>{isOwner ? 'Profile' : displayName}</Text>
             <Text numberOfLines={1} style={s.headerSubtitle}>{isOwner ? 'Your Galaxy' : 'Creator Universe'}</Text>
           </View>
@@ -1815,7 +1815,7 @@ const PlaylistSection = () => {
                       style = {{
                         color: "rgb(34 197 94)",
                         ...fontSize.b5,
-                        lineHeight: fontSize.b5.fontSize + 1,
+                        lineHeight: fontSize.b5.lineHeight,
                         textTransform: 'uppercase'
                       }}>-15%</Text>
                 </View>
@@ -1853,7 +1853,7 @@ const PlaylistSection = () => {
                   color: theme.text,
                   // fontWeight: 'bold',
                   ...fontSize.b5,
-                  lineHeight: fontSize.b5.fontSize + 1,
+                  lineHeight: fontSize.b5.lineHeight,
                 }}>
                   {billingCycle === 'monthly' ? 'SUBSCRIBE MONTHLY': 'SUBSCRIBE ANNUALLY'}
                 </Text>
@@ -1934,7 +1934,7 @@ const PlaylistSection = () => {
                 // marginVertical: 10,
                 fontSize: fontSize.b2.fontSize+ 2,
                 fontFamily: fontSize.b2.fontFamily,
-                lineHeight: fontSize.b2.fontSize + 3,
+                lineHeight: fontSize.b2.lineHeight,
                 paddingHorizontal: 16,
                 color: theme.text,
               }}>
@@ -2087,7 +2087,7 @@ const PlaylistSection = () => {
                   <Text style={[styles.sectionTitle, {
                  fontSize: fontSize.b2.fontSize + 2,
                 fontFamily: fontSize.b2.fontFamily,
-                lineHeight: fontSize.b2.fontSize + 4,
+                lineHeight: fontSize.b2.lineHeight,
                 color: theme.text,
               }]}>Videos</Text>
 
@@ -2161,14 +2161,14 @@ const PlaylistSection = () => {
                               style={[styles.videoTitle, {
                                 width: '80%',
                                 ...fontSize.b4,
-                                lineHeight: fontSize.b4.fontSize + 2,
+                                lineHeight: fontSize.b4.lineHeight,
                                 color: theme.text,
                               }]}
                             >
                               {item.title}
                             </Text>
 
-                            <Text style={[styles.metaText, {...fontSize.b5, lineHeight: fontSize.b5.fontSize + 1, color: theme.textSecondary}]}>
+                            <Text style={[styles.metaText, {...fontSize.b5, lineHeight: fontSize.b5.lineHeight, color: theme.textSecondary}]}>
                               {item.views} • {item.timeAgo}
                             </Text>
                           </View>
@@ -2296,7 +2296,7 @@ const PlaylistSection = () => {
                           <View style={{
                             marginLeft: 5
                           }}>
-                            <Text style={[{ color: '#ffffff66', width: '100%', ...fontSize.b5, lineHeight: fontSize.b5.fontSize + 1 }]}>Date</Text>
+                            <Text style={[{ color: '#ffffff66', width: '100%', ...fontSize.b5, lineHeight: fontSize.b5.lineHeight }]}>Date</Text>
                           <Text style={[s.sub, { color: '#dbe4f0', width: '70%' }]}>{item.meta}</Text>
                           </View>
                         </View>
@@ -2325,7 +2325,7 @@ const PlaylistSection = () => {
                           <View style={{
                             marginLeft: 5
                           }}>
-                            <Text style={[{ color: '#ffffff66', width: '100%', ...fontSize.b5, lineHeight: fontSize.b5.fontSize + 1 }]}>Location</Text>
+                            <Text style={[{ color: '#ffffff66', width: '100%', ...fontSize.b5, lineHeight: fontSize.b5.lineHeight }]}>Location</Text>
                           <Text style={[s.sub, { color: '#dbe4f0', width: '60%' }]}>{item.location}</Text>
                           </View>
                         </View>
@@ -2344,7 +2344,7 @@ const PlaylistSection = () => {
                         borderWidth: 2,
                         borderColor: '#ffffff1a',
                         borderRadius: 999,
-                        width: isOwner ? 90: 80,
+                        width: isOwner ? 80: 80,
                         height:isOwner ? 50: 40,
                         justifyContent: 'center',
                         alignItems: 'center',
@@ -2356,7 +2356,7 @@ const PlaylistSection = () => {
                             style={{
                               // position: 'absolute',
                               // bottom: 0,
-                              width: isOwner ? 90: 80,
+                              width: isOwner ? 80: 80,
                               height:isOwner ? 50: 40,
                               justifyContent: 'center',
                               alignItems: 'center',
@@ -2365,8 +2365,8 @@ const PlaylistSection = () => {
                           >
                             <Text style={{
                           color: PRIMARY_COLOR,
-                          ...fontSize.b4,
-                          lineHeight: fontSize.b4.fontSize + 1,
+                          ...fontSize.h1,
+                          lineHeight: fontSize.b4.lineHeight,
                         }}>
                           {item.price}
                         </Text>
@@ -2396,7 +2396,7 @@ const PlaylistSection = () => {
                         }}>
                           <Text style={{
                             ...fontSize.b5,
-                            lineHeight: fontSize.b5.fontSize + 1,
+                            lineHeight: fontSize.b5.lineHeight,
                             textAlign: 'center',
                           }}>Get{"\n"}Ticket</Text>
                         </Pressable>}
@@ -2576,31 +2576,31 @@ const PlaylistSection = () => {
 
 const s = StyleSheet.create({
   screen: { flex: 1, backgroundColor: '#060913' },
-  toast: { position: 'absolute', top: 56, alignSelf: 'center', zIndex: 40, backgroundColor: PRIMARY_COLOR, color: '#fff', paddingHorizontal: 16, paddingVertical: 8, borderRadius: 999, ...fontSize.b4, lineHeight: fontSize.b4.fontSize + 1 },
+  toast: { position: 'absolute', top: 56, alignSelf: 'center', zIndex: 40, backgroundColor: PRIMARY_COLOR, color: '#fff', paddingHorizontal: 16, paddingVertical: 8, borderRadius: 999, ...fontSize.b4, lineHeight: fontSize.b4.lineHeight },
   icon: { width: 40, height: 40, borderRadius: 20, alignItems: 'center', justifyContent: 'center', backgroundColor: 'rgba(255,255,255,0.06)' },
   header: { paddingTop: 46, paddingBottom: 0, },
   headerTopRow: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', marginBottom: 10, paddingHorizontal: 10 },
   headerRoundBtn: { height: 40, width: 40, borderRadius: 20, borderWidth: 1, justifyContent: 'center', alignItems: 'center' },
-  headerTitleWrap: { flex: 1, alignItems: 'center', paddingLeft: 40 },
+  headerTitleWrap: { flex: 1, alignItems: 'center', },
   headerBtn: { width: 40, height: 40, borderRadius: 20, alignItems: 'center', justifyContent: 'center', backgroundColor: 'rgba(255,255,255,0.06)' },
-  headerTitle: { textAlign: 'center', color: '#fff', ...fontSize.h1, lineHeight: fontSize.h1.fontSize + 1, letterSpacing: 2, textTransform: 'uppercase' },
-  headerSubtitle: { color: PRIMARY_COLOR, marginTop: 4, ...fontSize.h2, lineHeight: fontSize.h2.fontSize + 1, letterSpacing: 1.5, textTransform: 'uppercase' },
-  content: { paddingBottom: 120, }, cover: { height: 120, }, hero: { marginTop: -48, paddingHorizontal: 20, alignItems: 'center' }, avatarWrap: { width: 100, height: 100, borderRadius: 999, borderWidth: 3, borderColor: '#060913', padding: 0}, image: { width: '100%', height: '100%', borderRadius: 999 }, fire: { position: 'absolute', right: -8, bottom: -2, width: 30, height: 30, borderRadius: 999, backgroundColor: '#f97316', borderWidth: 0, borderColor: '#060913', alignItems: 'center', justifyContent: 'center', flexDirection: 'row' }, fireText: { color: '#fff', ...fontSize.n5, lineHeight: fontSize.n5.fontSize + 1 },
-  name: {color: '#fff', ...fontSize.b1, lineHeight: fontSize.b1.fontSize + 2, textTransform: 'uppercase' }, role: { marginTop: 4, color: PRIMARY_COLOR, ...fontSize.b3, lineHeight: fontSize.b3.fontSize + 2, letterSpacing: 1.2 }, stat: { flex: 1, textAlign: 'center', color: '#fff', ...fontSize.n5, lineHeight: fontSize.n5.fontSize + 1 }, muted: { color: '#7d859e', ...fontSize.b5, lineHeight: fontSize.b5.fontSize + 1 }, purple: { color: PRIMARY_COLOR, ...fontSize.b5, lineHeight: fontSize.b5.fontSize + 1 },
+  headerTitle: { textAlign: 'center', color: '#fff', ...fontSize.h1, lineHeight: fontSize.h1.lineHeight, letterSpacing: 2, textTransform: 'uppercase' },
+  headerSubtitle: { color: PRIMARY_COLOR, marginTop: 4, ...fontSize.b4, lineHeight: fontSize.b4.lineHeight, letterSpacing: 1.5, textTransform: 'uppercase' },
+  content: { paddingBottom: 120, }, cover: { height: 120, }, hero: { marginTop: -48, paddingHorizontal: 20, alignItems: 'center' }, avatarWrap: { width: 100, height: 100, borderRadius: 999, borderWidth: 3, borderColor: '#060913', padding: 0}, image: { width: '100%', height: '100%', borderRadius: 999 }, fire: { position: 'absolute', right: -8, bottom: -2, width: 30, height: 30, borderRadius: 999, backgroundColor: '#f97316', borderWidth: 0, borderColor: '#060913', alignItems: 'center', justifyContent: 'center', flexDirection: 'row' }, fireText: { color: '#fff', ...fontSize.n5, lineHeight: fontSize.n5.lineHeight },
+  name: {color: '#fff', ...fontSize.b1, lineHeight: fontSize.b1.lineHeight, textTransform: 'uppercase' }, role: { marginTop: 4, color: PRIMARY_COLOR, ...fontSize.b3, lineHeight: fontSize.b3.lineHeight, letterSpacing: 1.2 }, stat: { flex: 1, textAlign: 'center', color: '#fff', ...fontSize.n5, lineHeight: fontSize.n5.lineHeight }, muted: { color: '#7d859e', ...fontSize.b5, lineHeight: fontSize.b5.lineHeight }, purple: { color: PRIMARY_COLOR, ...fontSize.b5, lineHeight: fontSize.b5.lineHeight },
   actions: { marginTop: 22, flexDirection: 'row', gap: 10, alignItems: 'center', justifyContent: 'center' },
   action: { height: 56, borderRadius: 24, alignItems: 'center', justifyContent: 'center', flexDirection: 'row', gap: 8 },
   primary: { backgroundColor: PRIMARY_COLOR, minHeight: 36, borderRadius: 34, alignItems: 'center', justifyContent: 'center', flexDirection: 'row', },
-  secondary: { height: 36, borderRadius: 34, alignItems: 'center', justifyContent: 'center', backgroundColor: 'rgba(255,255,255,0.06)' }, iconAction: { width: 56, height: 36, borderRadius: 24, alignItems: 'center', justifyContent: 'center', backgroundColor: 'rgba(255,255,255,0.06)' }, btnText: { color: '#fff', ...fontSize.b4, lineHeight: fontSize.b4.fontSize + 4, textTransform: 'uppercase'}, follow: { flex: 1, height: 56, borderRadius: 24, alignItems: 'center', justifyContent: 'center', backgroundColor: 'rgba(255,255,255,0.06)' }, followOn: { backgroundColor: primaryColorAlpha(0.12) }, followText: { color: '#fff', ...fontSize.b5, lineHeight: fontSize.b5.fontSize + 1, textTransform: 'uppercase' }, followTextOn: { color: PRIMARY_COLOR },
-  bio: { paddingHorizontal: 34, marginTop: 18, marginBottom: 18, color: '#8b94ad', ...fontSize.b2, lineHeight: fontSize.b2.fontSize + 6, fontStyle: 'italic', textAlign: 'center' },
-  membership: { paddingHorizontal: 16, gap: 14 }, membershipHeader: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', paddingHorizontal: 16 }, section: { color: '#fff', ...fontSize.b2, lineHeight: fontSize.b2.fontSize + 1, textTransform: 'uppercase' }, toggle: { flexDirection: 'row', gap: 6, padding: 6, borderRadius: 18, backgroundColor: 'rgba(255,255,255,0.05)' }, toggleBtn: { minHeight: 34, paddingHorizontal: 10, borderRadius: 12, alignItems: 'center', justifyContent: 'center' }, toggleOn: { backgroundColor: 'rgba(255,255,255,0.08)' }, toggleText: { color: '#8b94ad', ...fontSize.b5, lineHeight: fontSize.b5.fontSize + 1, textTransform: 'uppercase' },
- cardLabel: { color: '#8b94ad', ...fontSize.b5, lineHeight: fontSize.b5.fontSize + 1, textTransform: 'uppercase' }, price: { color: '#fff', ...fontSize.n1, lineHeight: fontSize.n1.fontSize + 1 }, perk: { color: '#d4d8e8', ...fontSize.b4, lineHeight: fontSize.b4.fontSize + 1 },
+  secondary: { height: 36, borderRadius: 34, alignItems: 'center', justifyContent: 'center', backgroundColor: 'rgba(255,255,255,0.06)' }, iconAction: { width: 56, height: 36, borderRadius: 24, alignItems: 'center', justifyContent: 'center', backgroundColor: 'rgba(255,255,255,0.06)' }, btnText: { color: '#fff', ...fontSize.b4, lineHeight: fontSize.b4.lineHeight, textTransform: 'uppercase'}, follow: { flex: 1, height: 56, borderRadius: 24, alignItems: 'center', justifyContent: 'center', backgroundColor: 'rgba(255,255,255,0.06)' }, followOn: { backgroundColor: primaryColorAlpha(0.12) }, followText: { color: '#fff', ...fontSize.b5, lineHeight: fontSize.b5.lineHeight, textTransform: 'uppercase' }, followTextOn: { color: PRIMARY_COLOR },
+  bio: { paddingHorizontal: 34, marginTop: 18, marginBottom: 18, color: '#8b94ad', ...fontSize.b1, lineHeight: fontSize.b1.lineHeight, fontFamily: "Inter_600SemiBold", textAlign: 'center',  },
+  membership: { paddingHorizontal: 16, gap: 14 }, membershipHeader: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', paddingHorizontal: 16 }, section: { color: '#fff', ...fontSize.b2, lineHeight: fontSize.b2.lineHeight, textTransform: 'uppercase' }, toggle: { flexDirection: 'row', gap: 6, padding: 6, borderRadius: 18, backgroundColor: 'rgba(255,255,255,0.05)' }, toggleBtn: { minHeight: 34, paddingHorizontal: 10, borderRadius: 12, alignItems: 'center', justifyContent: 'center' }, toggleOn: { backgroundColor: 'rgba(255,255,255,0.08)' }, toggleText: { color: '#8b94ad', ...fontSize.b5, lineHeight: fontSize.b5.lineHeight, textTransform: 'uppercase' },
+ cardLabel: { color: '#8b94ad', ...fontSize.b5, lineHeight: fontSize.b5.lineHeight, textTransform: 'uppercase' }, price: { color: '#fff', ...fontSize.n1, lineHeight: fontSize.n1.lineHeight }, perk: { color: '#d4d8e8', ...fontSize.b4, lineHeight: fontSize.b4.lineHeight },
   tabs: {
     // backgroundColor: 'white',
     paddingHorizontal: 16, 
     paddingTop: 18, 
     paddingBottom: 6,
-    gap: 25
-   }, tab: { minWidth: 52, alignItems: 'center', paddingBottom: 14, marginRight: 0 }, tabText: { marginTop: 4, color: '#69738d', ...fontSize.b5, lineHeight: fontSize.b5.fontSize + 1, textTransform: 'uppercase' }, tabOn: { color: 'black' },
+    gap: 15
+   }, tab: { minWidth: 52, alignItems: 'center', paddingBottom: 14, marginRight: 0 }, tabText: { marginTop: 4, color: '#69738d', ...fontSize.b5, lineHeight: fontSize.b5.lineHeight, textTransform: 'uppercase' }, tabOn: { color: 'black' },
   body: {
     // paddingHorizontal: 16,
     paddingTop: 10,
@@ -2612,8 +2612,8 @@ const s = StyleSheet.create({
   },
   emptyTab: { marginHorizontal: 18, marginTop: 12, paddingHorizontal: 28, paddingVertical: 38, borderRadius: 24, borderWidth: 1, alignItems: 'center' },
   emptyTabIcon: { width: 56, height: 56, borderRadius: 28, alignItems: 'center', justifyContent: 'center', marginBottom: 16 },
-  emptyTabTitle: { ...fontSize.b2, lineHeight: fontSize.b2.fontSize + 3, textAlign: 'center', marginBottom: 8 },
-  emptyTabDescription: { ...fontSize.b4, lineHeight: fontSize.b4.fontSize + 5, textAlign: 'center', maxWidth: 320 },
+  emptyTabTitle: { ...fontSize.b2, lineHeight: fontSize.b2.lineHeight, textAlign: 'center', marginBottom: 8 },
+  emptyTabDescription: { ...fontSize.b4, lineHeight: fontSize.b4.lineHeight, textAlign: 'center', maxWidth: 320 },
   sectionGroup: {
     gap: 24,
     paddingHorizontal: 16,
@@ -2624,7 +2624,7 @@ const s = StyleSheet.create({
   sectionEyebrow: {
     color: '#71788f',
     ...fontSize.b5,
-    lineHeight: fontSize.b5.fontSize + 1,
+    lineHeight: fontSize.b5.lineHeight,
     textTransform: 'uppercase',
     letterSpacing: 2.2,
   },
@@ -2667,7 +2667,7 @@ const s = StyleSheet.create({
   creatorGridDropText: {
     color: PRIMARY_COLOR,
     ...fontSize.b5,
-    lineHeight: fontSize.b5.fontSize + 1,
+    lineHeight: fontSize.b5.lineHeight,
     textTransform: 'uppercase',
     letterSpacing: 0.8,
   },
@@ -2680,12 +2680,12 @@ const s = StyleSheet.create({
   },
   creatorGridName: {
     ...fontSize.b4,
-    lineHeight: fontSize.b4.fontSize + 2,
+    lineHeight: fontSize.b4.lineHeight,
   },
   creatorGridHandle: {
     marginTop: 3,
     ...fontSize.b5,
-    lineHeight: fontSize.b5.fontSize + 1,
+    lineHeight: fontSize.b5.lineHeight,
     textTransform: 'uppercase',
     letterSpacing: 1.1,
   },
@@ -2712,12 +2712,12 @@ const s = StyleSheet.create({
   listTitle: {
     color: '#fff',
     ...fontSize.b4,
-    lineHeight: fontSize.b4.fontSize + 1,
+    lineHeight: fontSize.b4.lineHeight,
   },
   listMeta: {
     color: '#8f95af',
     ...fontSize.b5,
-    lineHeight: fontSize.b5.fontSize + 1,
+    lineHeight: fontSize.b5.lineHeight,
     textTransform: 'uppercase',
     letterSpacing: 1.1,
     marginTop: 2,
@@ -2729,7 +2729,7 @@ const s = StyleSheet.create({
   creatorDropMeta: {
     color: PRIMARY_COLOR,
     ...fontSize.b5,
-    lineHeight: fontSize.b5.fontSize + 1,
+    lineHeight: fontSize.b5.lineHeight,
     textTransform: 'uppercase',
     letterSpacing: 1.1,
   },
@@ -2744,7 +2744,7 @@ const s = StyleSheet.create({
   backText: {
     color: PRIMARY_COLOR,
     ...fontSize.b5,
-    lineHeight: fontSize.b5.fontSize + 1,
+    lineHeight: fontSize.b5.lineHeight,
     textTransform: 'uppercase',
     letterSpacing: 1.1,
   },
@@ -2754,12 +2754,12 @@ const s = StyleSheet.create({
   videoGridImage: { width: '100%', height: '100%' },
   videoGridOverlay: { ...StyleSheet.absoluteFillObject },
   videoGridMeta: { position: 'absolute', left: 8, bottom: 8, flexDirection: 'row', alignItems: 'center', gap: 2 },
-  videoGridMetaText: { color: '#fff', ...fontSize.b5, lineHeight: fontSize.b5.fontSize + 1 },
-  sub: { marginTop: 0, color: '#9ca3af', ...fontSize.b5, lineHeight: fontSize.b5.fontSize + 1, textTransform: 'uppercase' },
-  stack: { gap: 16 }, banner: { height: 230, borderRadius: 40, overflow: 'hidden', backgroundColor: '#0f172a' }, bannerText: { color: '#fff', ...fontSize.b2, lineHeight: fontSize.b2.fontSize + 2, textTransform: 'uppercase', width:'100%' },
-  bannerBottom: { position: 'absolute', left: 18, right: 18, bottom: 18, flexDirection: 'row', justifyContent: 'space-between', height: 90,  }, eventCard: { height: 240, borderRadius: 40, overflow: 'hidden', backgroundColor: '#0f172a' }, chip: { position: 'absolute', top: 18, left: 18, flexDirection: 'row', alignItems: 'center', gap: 6, paddingHorizontal: 12, paddingVertical: 8, borderRadius: 999, backgroundColor: primaryColorAlpha(0.14) }, chipText: { color: PRIMARY_COLOR, ...fontSize.b5, lineHeight: fontSize.b5.fontSize + 1, textTransform: 'uppercase' },
+  videoGridMetaText: { color: '#fff', ...fontSize.b5, lineHeight: fontSize.b5.lineHeight },
+  sub: { marginTop: 0, color: '#9ca3af', ...fontSize.b5, lineHeight: fontSize.b5.lineHeight, textTransform: 'uppercase' },
+  stack: { gap: 16 }, banner: { height: 230, borderRadius: 40, overflow: 'hidden', backgroundColor: '#0f172a' }, bannerText: { color: '#fff', ...fontSize.b2, lineHeight: fontSize.b2.lineHeight, textTransform: 'uppercase', width:'100%' },
+  bannerBottom: { position: 'absolute', left: 18, right: 18, bottom: 18, flexDirection: 'row', justifyContent: 'space-between', height: 90,  }, eventCard: { height: 240, borderRadius: 40, overflow: 'hidden', backgroundColor: '#0f172a' }, chip: { position: 'absolute', top: 18, left: 18, flexDirection: 'row', alignItems: 'center', gap: 6, paddingHorizontal: 12, paddingVertical: 8, borderRadius: 999, backgroundColor: primaryColorAlpha(0.14) }, chipText: { color: PRIMARY_COLOR, ...fontSize.b5, lineHeight: fontSize.b5.lineHeight, textTransform: 'uppercase' },
   sound: { flexDirection: 'row', alignItems: 'center', gap: 12, padding: 14, borderRadius: 28, backgroundColor: 'rgba(255,255,255,0.05)' },
-  play: { width: 58, height: 58, borderRadius: 20, backgroundColor: primaryColorAlpha(0.2), alignItems: 'center', justifyContent: 'center' }, playOn: { backgroundColor: PRIMARY_COLOR }, soundTitle: { color: '#fff', ...fontSize.b4, lineHeight: fontSize.b4.fontSize + 1, textTransform: 'uppercase' }, soundMeta: { marginTop: 4, color: '#8b94ad', ...fontSize.b5, lineHeight: fontSize.b5.fontSize + 1, textTransform: 'uppercase' }, soundUsage: { color: PRIMARY_COLOR, ...fontSize.b5, lineHeight: fontSize.b5.fontSize + 1, textTransform: 'uppercase' },
+  play: { width: 58, height: 58, borderRadius: 20, backgroundColor: primaryColorAlpha(0.2), alignItems: 'center', justifyContent: 'center' }, playOn: { backgroundColor: PRIMARY_COLOR }, soundTitle: { color: '#fff', ...fontSize.b4, lineHeight: fontSize.b4.lineHeight, textTransform: 'uppercase' }, soundMeta: { marginTop: 4, color: '#8b94ad', ...fontSize.b5, lineHeight: fontSize.b5.lineHeight, textTransform: 'uppercase' }, soundUsage: { color: PRIMARY_COLOR, ...fontSize.b5, lineHeight: fontSize.b5.lineHeight, textTransform: 'uppercase' },
   overlay: { flex: 1, backgroundColor: 'rgba(0,0,0,0.8)', justifyContent: 'flex-end' },
   subscriptionModal: {
     borderTopLeftRadius: 40,
@@ -2799,13 +2799,13 @@ const s = StyleSheet.create({
   subscriptionHeaderText: { flex: 1 },
   subscriptionTitle: {
     ...fontSize.b1,
-    lineHeight: fontSize.b1.fontSize + 2,
+    lineHeight: fontSize.b1.lineHeight,
     textTransform: 'uppercase',
   },
   subscriptionMeta: {
     marginTop: 6,
     ...fontSize.b5,
-    lineHeight: fontSize.b5.fontSize + 1,
+    lineHeight: fontSize.b5.lineHeight,
     textTransform: 'uppercase',
     letterSpacing: 1,
   },
@@ -2813,7 +2813,7 @@ const s = StyleSheet.create({
   subscriptionLabel: {
     marginLeft: 4,
     ...fontSize.b5,
-    lineHeight: fontSize.b5.fontSize + 1,
+    lineHeight: fontSize.b5.lineHeight,
     textTransform: 'uppercase',
     letterSpacing: 1.2,
   },
@@ -2837,7 +2837,7 @@ const s = StyleSheet.create({
   subscriptionPerkText: {
     flex: 1,
     ...fontSize.b4,
-    lineHeight: fontSize.b4.fontSize + 2,
+    lineHeight: fontSize.b4.lineHeight,
   },
   balanceCard: {
     marginTop: 4,
@@ -2858,24 +2858,24 @@ const s = StyleSheet.create({
   balanceLabel: {
     color: '#d97706',
     ...fontSize.b5,
-    lineHeight: fontSize.b5.fontSize + 1,
+    lineHeight: fontSize.b5.lineHeight,
     textTransform: 'uppercase',
     letterSpacing: 1,
   },
   balanceSubLabel: {
     ...fontSize.b5,
-    lineHeight: fontSize.b5.fontSize + 1,
+    lineHeight: fontSize.b5.lineHeight,
     textTransform: 'uppercase',
     letterSpacing: 1,
   },
   balanceValue: {
     ...fontSize.n5,
-    lineHeight: fontSize.n5.fontSize + 1,
+    lineHeight: fontSize.n5.lineHeight,
   },
   balanceCost: {
     color: PRIMARY_COLOR,
     ...fontSize.n5,
-    lineHeight: fontSize.n5.fontSize + 1,
+    lineHeight: fontSize.n5.lineHeight,
   },
   subscriptionPrimary: {
     minHeight: 55,
@@ -2893,7 +2893,7 @@ const s = StyleSheet.create({
   subscriptionPrimaryText: {
     color: '#fff',
     ...fontSize.b4,
-    lineHeight: fontSize.b4.fontSize + 1,
+    lineHeight: fontSize.b4.lineHeight,
     textTransform: 'uppercase',
     letterSpacing: 1,
   },
@@ -2915,7 +2915,7 @@ const s = StyleSheet.create({
   successTitle: {
     textAlign: 'center',
     ...fontSize.n1,
-    lineHeight: fontSize.n1.fontSize + 4,
+    lineHeight: fontSize.n1.lineHeight,
     textTransform: 'uppercase',
   },
   switchBtn: {
@@ -2929,12 +2929,12 @@ const s = StyleSheet.create({
     // backgroundColor: '#ffffff14',
   },
   switchBtnOn: { backgroundColor: '#FFFFFF', borderWidth: 0, flexDirection: 'row' },
-  switchText: { color: '#a9a9bd', ...fontSize.b5, lineHeight: fontSize.b5.fontSize + 1, textTransform: 'uppercase' },
+  switchText: { color: '#a9a9bd', ...fontSize.b5, lineHeight: fontSize.b5.lineHeight, textTransform: 'uppercase' },
   switchTextOn: { color: PRIMARY_COLOR },
   cardPrice: {
     color: '#fff',
     ...fontSize.n1,
-    lineHeight: fontSize.n1.fontSize + 6,
+    lineHeight: fontSize.n1.lineHeight,
     // fontWeight: '900',
   },
   card: {
@@ -2951,7 +2951,7 @@ const s = StyleSheet.create({
   cardTitle: {
     color: '#9ea0a5',
     ...fontSize.b5,
-    lineHeight: fontSize.b5.fontSize + 1,
+    lineHeight: fontSize.b5.lineHeight,
     textTransform: 'uppercase',
     // fontWeight: '800',
     letterSpacing: 1.5,
@@ -2960,7 +2960,7 @@ const s = StyleSheet.create({
   saveText: {
     color: '#22c55e',
     ...fontSize.b5,
-    lineHeight: fontSize.b5.fontSize + 1,
+    lineHeight: fontSize.b5.lineHeight,
     textTransform: 'uppercase',
     letterSpacing: 0.5,
   },
@@ -2983,7 +2983,7 @@ const s = StyleSheet.create({
   switchCreatorText: {
     color: '#ffffff',
     ...fontSize.b5,
-    lineHeight: fontSize.b5.fontSize + 1,
+    lineHeight: fontSize.b5.lineHeight,
     textTransform: 'uppercase',
     letterSpacing: 1.2,
   },
@@ -3021,11 +3021,11 @@ const s = StyleSheet.create({
     ...fontSize.b1,
     textTransform: 'uppercase',
     textAlign: 'center',
-    lineHeight: fontSize.b1.fontSize + 4,
+    lineHeight: fontSize.b1.lineHeight,
   },
   roleModalBody: {
     ...fontSize.b3,
-    lineHeight: fontSize.b3.fontSize + 5,
+    lineHeight: fontSize.b3.lineHeight,
     textAlign: 'center',
   },
   roleModalActions: {
@@ -3049,7 +3049,7 @@ const s = StyleSheet.create({
   roleModalPrimaryText: {
     color: '#ffffff',
     ...fontSize.b4,
-    lineHeight: fontSize.b4.fontSize + 1,
+    lineHeight: fontSize.b4.lineHeight,
     textTransform: 'uppercase',
     letterSpacing: 1,
   },
@@ -3063,14 +3063,14 @@ const s = StyleSheet.create({
   },
   roleModalSecondaryText: {
     ...fontSize.b4,
-    lineHeight: fontSize.b4.fontSize + 1,
+    lineHeight: fontSize.b4.lineHeight,
     textTransform: 'uppercase',
     letterSpacing: 1,
   },
   priceSuffix: {
     color: '#818398',
     ...fontSize.b4,
-    lineHeight: fontSize.b4.fontSize + 1,
+    lineHeight: fontSize.b4.lineHeight,
     marginBottom: 8,
     marginLeft: 4,
    },
@@ -3098,11 +3098,11 @@ const s = StyleSheet.create({
   },
   statsTablet: { paddingHorizontal: 24, marginTop: 10 },
   statBlock: { flex: 1, alignItems: 'center' },
-  statValue: { color: '#fff', ...fontSize.n3, lineHeight: fontSize.n3.fontSize + 2 },
+  statValue: { color: '#fff', ...fontSize.n3, lineHeight: fontSize.n3.lineHeight },
   statLabel: {
     color: '#9ea0b6',
     ...fontSize.b4,
-    lineHeight: fontSize.b5.fontSize + 6,
+    lineHeight: fontSize.b5.lineHeight,
     textTransform: 'uppercase',
     letterSpacing: 1.2,
     marginTop: 2,
@@ -3135,12 +3135,12 @@ const s = StyleSheet.create({
   },
   ticketTitle: {
     ...fontSize.b4,
-    lineHeight: fontSize.b4.fontSize + 1,
+    lineHeight: fontSize.b4.lineHeight,
   },
   ticketMeta: {
     marginTop: 2,
     ...fontSize.b5,
-    lineHeight: fontSize.b5.fontSize + 1,
+    lineHeight: fontSize.b5.lineHeight,
     textTransform: 'uppercase',
     letterSpacing: 1.1,
   },
@@ -3161,11 +3161,11 @@ const s = StyleSheet.create({
   libraryStateText: {
     flex: 1,
     ...fontSize.b5,
-    lineHeight: fontSize.b5.fontSize + 3,
+    lineHeight: fontSize.b5.lineHeight,
   },
   librarySubTabs: {
     gap: 8,
-    paddingHorizontal: 16,
+    paddingHorizontal: 10,
     paddingVertical: 2,
   },
   librarySubTab: {
@@ -3176,14 +3176,14 @@ const s = StyleSheet.create({
     justifyContent: 'center',
   },
   librarySubTabText: {
-    ...fontSize.b5,
-    lineHeight: fontSize.b5.fontSize + 1,
+    ...fontSize.tabText,
+    lineHeight: fontSize.tabText.lineHeight,
     textTransform: 'uppercase',
-    letterSpacing: 1.4,
+    letterSpacing: 0.5,
   },
   libraryBulkBar: {
     minHeight: 62,
-    marginHorizontal: 16,
+    marginHorizontal: -10,
     borderRadius: 18,
     // borderWidth: 1,
     paddingHorizontal: 12,
@@ -3197,13 +3197,13 @@ const s = StyleSheet.create({
   },
   libraryBulkTitle: {
     ...fontSize.b4,
-    lineHeight: fontSize.b4.fontSize + 2,
+    lineHeight: fontSize.b4.lineHeight,
     textTransform: 'uppercase',
   },
   libraryBulkMeta: {
     marginTop: 2,
     ...fontSize.b5,
-    lineHeight: fontSize.b5.fontSize + 2,
+    lineHeight: fontSize.b5.lineHeight,
   },
   libraryBulkAction: {
     minHeight: 36,
@@ -3218,7 +3218,7 @@ const s = StyleSheet.create({
   libraryBulkActionText: {
     color: '#fff',
     ...fontSize.b5,
-    lineHeight: fontSize.b5.fontSize + 1,
+    lineHeight: fontSize.b5.lineHeight,
     textTransform: 'uppercase',
     letterSpacing: 1,
   },
@@ -3246,13 +3246,13 @@ const s = StyleSheet.create({
   },
   libraryPlaylistTitle: {
     ...fontSize.b2,
-    lineHeight: fontSize.b2.fontSize + 3,
+    lineHeight: fontSize.b2.lineHeight,
     textTransform: 'uppercase',
   },
   libraryPlaylistSubtitle: {
     marginTop: 3,
     ...fontSize.b5,
-    lineHeight: fontSize.b5.fontSize + 3,
+    lineHeight: fontSize.b5.lineHeight,
   },
   libraryCreatePlaylistButton: {
     minHeight: 38,
@@ -3267,7 +3267,7 @@ const s = StyleSheet.create({
   libraryCreatePlaylistText: {
     color: '#fff',
     ...fontSize.b5,
-    lineHeight: fontSize.b5.fontSize + 1,
+    lineHeight: fontSize.b5.lineHeight,
     textTransform: 'uppercase',
     letterSpacing: 1.2,
   },
@@ -3316,7 +3316,7 @@ const s = StyleSheet.create({
   libraryPlaylistCountText: {
     color: '#fff',
     ...fontSize.b5,
-    lineHeight: fontSize.b5.fontSize + 1,
+    lineHeight: fontSize.b5.lineHeight,
     textTransform: 'uppercase',
     letterSpacing: 0.8,
     textAlign: 'center',
@@ -3329,11 +3329,11 @@ const s = StyleSheet.create({
   },
   libraryPlaylistCardTitle: {
     ...fontSize.b4,
-    lineHeight: fontSize.b4.fontSize + 3,
+    lineHeight: fontSize.b4.lineHeight,
   },
   libraryPlaylistMeta: {
     ...fontSize.b5,
-    lineHeight: fontSize.b5.fontSize + 2,
+    lineHeight: fontSize.b5.lineHeight,
   },
   libraryPlaylistActions: {
     marginTop: 8,
@@ -3371,7 +3371,7 @@ const s = StyleSheet.create({
   libraryPlaylistMenuText: {
     flex: 1,
     ...fontSize.b5,
-    lineHeight: fontSize.b5.fontSize + 2,
+    lineHeight: fontSize.b5.lineHeight,
     textTransform: 'uppercase',
     letterSpacing: 0.8,
   },
@@ -3394,7 +3394,7 @@ const s = StyleSheet.create({
   },
   libraryPaginationText: {
     ...fontSize.b5,
-    lineHeight: fontSize.b5.fontSize + 1,
+    lineHeight: fontSize.b5.lineHeight,
     textTransform: 'uppercase',
     letterSpacing: 0.8,
   },
@@ -3461,7 +3461,7 @@ const s = StyleSheet.create({
   libraryBadgeText: {
     color: '#fff',
     ...fontSize.b5,
-    lineHeight: fontSize.b5.fontSize + 1,
+    lineHeight: fontSize.b5.lineHeight,
     textTransform: 'uppercase',
     letterSpacing: 1,
   },
@@ -3478,7 +3478,7 @@ const s = StyleSheet.create({
   libraryDurationText: {
     color: '#fff',
     ...fontSize.b5,
-    lineHeight: fontSize.b5.fontSize + 1,
+    lineHeight: fontSize.b5.lineHeight,
   },
   libraryPlay: {
     position: 'absolute',
@@ -3517,7 +3517,7 @@ const s = StyleSheet.create({
     color: '#cca514',
     textAlign: 'center',
     ...fontSize.b5,
-    lineHeight: fontSize.b5.fontSize + 1,
+    lineHeight: fontSize.b5.lineHeight,
     textTransform: 'uppercase',
     letterSpacing: 1.2,
   },
@@ -3532,13 +3532,13 @@ const s = StyleSheet.create({
   libraryTitle: {
     color: '#fff',
     ...fontSize.b5,
-    lineHeight: fontSize.b5.fontSize + 2,
+    lineHeight: fontSize.b5.lineHeight,
     textTransform: 'uppercase',
   },
   libraryMeta: {
     color: '#fb7185',
     ...fontSize.b5,
-    lineHeight: fontSize.b5.fontSize + 1,
+    lineHeight: fontSize.b5.lineHeight,
     textTransform: 'uppercase',
     letterSpacing: 0.8,
   },
@@ -3550,7 +3550,7 @@ const s = StyleSheet.create({
   libraryLikes: {
     color: 'rgba(255,255,255,0.72)',
     ...fontSize.b5,
-    lineHeight: fontSize.b5.fontSize + 1,
+    lineHeight: fontSize.b5.lineHeight,
     textTransform: 'uppercase',
   },
   libraryMenuWrap: {
@@ -3590,7 +3590,7 @@ const s = StyleSheet.create({
   },
   libraryMenuText: {
     ...fontSize.b5,
-    lineHeight: fontSize.b5.fontSize + 2,
+    lineHeight: fontSize.b5.lineHeight,
     textTransform: 'uppercase',
     letterSpacing: 0.8,
     flexShrink: 1,
@@ -3616,7 +3616,7 @@ const s = StyleSheet.create({
   },
   libraryEditTitle: {
     ...fontSize.b3,
-    lineHeight: fontSize.b3.fontSize + 3,
+    lineHeight: fontSize.b3.lineHeight,
     textTransform: 'uppercase',
     letterSpacing: 1,
   },
@@ -3626,7 +3626,7 @@ const s = StyleSheet.create({
     borderWidth: 1,
     paddingHorizontal: 14,
     ...fontSize.b4,
-    lineHeight: fontSize.b4.fontSize + 4,
+    lineHeight: fontSize.b4.lineHeight,
   },
   libraryEditActions: {
     flexDirection: 'row',
@@ -3644,7 +3644,7 @@ const s = StyleSheet.create({
   },
   libraryEditButtonText: {
     ...fontSize.b5,
-    lineHeight: fontSize.b5.fontSize + 2,
+    lineHeight: fontSize.b5.lineHeight,
     textTransform: 'uppercase',
     letterSpacing: 1,
   },
@@ -3686,17 +3686,17 @@ const s = StyleSheet.create({
   },
   libraryPlaylistPickerTitle: {
     ...fontSize.b4,
-    lineHeight: fontSize.b4.fontSize + 2,
+    lineHeight: fontSize.b4.lineHeight,
   },
   libraryPlaylistPickerMeta: {
     marginTop: 3,
     ...fontSize.b5,
-    lineHeight: fontSize.b5.fontSize + 2,
+    lineHeight: fontSize.b5.lineHeight,
   },
   libraryPickerError: {
     color: '#ef4444',
     ...fontSize.b5,
-    lineHeight: fontSize.b5.fontSize + 2,
+    lineHeight: fontSize.b5.lineHeight,
   },
   libraryInputMetaRow: {
     marginTop: -6,
@@ -3708,11 +3708,11 @@ const s = StyleSheet.create({
   libraryInputError: {
     flex: 1,
     ...fontSize.b5,
-    lineHeight: fontSize.b5.fontSize + 2,
+    lineHeight: fontSize.b5.lineHeight,
   },
   libraryInputCounter: {
     ...fontSize.b5,
-    lineHeight: fontSize.b5.fontSize + 1,
+    lineHeight: fontSize.b5.lineHeight,
   },
   libraryPlaylistVideoItem: {
     minHeight: 76,
@@ -3743,7 +3743,7 @@ const s = StyleSheet.create({
   },
   libraryPickerCreateText: {
     ...fontSize.b5,
-    lineHeight: fontSize.b5.fontSize + 1,
+    lineHeight: fontSize.b5.lineHeight,
     textTransform: 'uppercase',
     letterSpacing: 1.1,
   },
@@ -3821,7 +3821,7 @@ const styles = StyleSheet.create({
 
   videoCount: {
     color: '#fff',
-    fontSize: 10,
+    fontSize: fontSize.b5.fontSize,
     fontWeight: '800',
     marginTop: 4,
   },
@@ -3857,7 +3857,7 @@ const styles = StyleSheet.create({
   },
 
   meta: {
-    fontSize: 10,
+    fontSize: fontSize.b5.fontSize,
     color: '#71717a',
     marginTop: 4,
   },
@@ -3883,7 +3883,7 @@ const styles = StyleSheet.create({
 
   unlockedText: {
     color: '#10b981',
-    fontSize: 9,
+    fontSize: fontSize.b5.fontSize,
     fontWeight: '800',
   },
 
@@ -3901,7 +3901,7 @@ const styles = StyleSheet.create({
 
   vaultText: {
     color: PRIMARY_COLOR,
-    fontSize: 9,
+    fontSize: fontSize.b5.fontSize,
     fontWeight: '800',
   },
 
@@ -3982,7 +3982,7 @@ const styles = StyleSheet.create({
 
   durationText: {
     color: '#fff',
-    fontSize: 10,
+    fontSize: fontSize.b5.fontSize,
     marginLeft: 2,
     fontWeight: '700',
   },
@@ -4002,7 +4002,7 @@ const styles = StyleSheet.create({
   },
 
   metaText: {
-    fontSize: 11,
+    fontSize: fontSize.b5.fontSize,
     color: '#71717a',
     marginTop: 4,
   },
@@ -4021,7 +4021,7 @@ const styles = StyleSheet.create({
 
   premiumText: {
     color: PRIMARY_COLOR,
-    fontSize: 9,
+    fontSize: fontSize.b5.fontSize,
     fontWeight: '800',
     marginLeft: 4,
   },
@@ -4048,7 +4048,7 @@ const styles = StyleSheet.create({
 
   unlockedPlyaListText: {
     color: '#10b981',
-    fontSize: 9,
+    fontSize: fontSize.b5.fontSize,
     fontWeight: '800',
   },
 

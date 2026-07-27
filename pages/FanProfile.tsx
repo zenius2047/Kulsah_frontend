@@ -762,7 +762,7 @@ const s = StyleSheet.create({
   },
   streakCount: {
     color: '#fff',
-    ...fontSize.b5, lineHeight: fontSize.b5.fontSize + 1,
+    ...fontSize.b5, lineHeight: fontSize.b5.lineHeight,
     marginTop: 1,
   },
   nameWrap: {
@@ -770,11 +770,11 @@ const s = StyleSheet.create({
   },
   name: {
     color: '#fff',
-    ...fontSize.b1, lineHeight: fontSize.b1.fontSize + 2,
+    ...fontSize.b1, lineHeight: fontSize.b1.lineHeight,
   },
   member: {
     color: PRIMARY_COLOR,
-    ...fontSize.b5, lineHeight: fontSize.b5.fontSize + 1,
+    ...fontSize.b5, lineHeight: fontSize.b5.lineHeight,
     textTransform: 'uppercase',
     letterSpacing: 2.5,
     marginTop: 2,
@@ -800,7 +800,7 @@ const s = StyleSheet.create({
   },
   vibeText: {
     color: PRIMARY_COLOR,
-    ...fontSize.b5, lineHeight: fontSize.b5.fontSize + 1,
+    ...fontSize.b5, lineHeight: fontSize.b5.lineHeight,
     textTransform: 'uppercase',
     letterSpacing: 1.2,
   },
@@ -829,11 +829,11 @@ const s = StyleSheet.create({
   },
   statValue: {
     color: '#fff',
-    ...fontSize.b3, lineHeight: fontSize.b3.fontSize + 2,
+    ...fontSize.b3, lineHeight: fontSize.b3.lineHeight,
   },
   statLabel: {
     color: '#8f95af',
-    ...fontSize.b4, lineHeight: fontSize.b4.fontSize + 1,
+    ...fontSize.b4, lineHeight: fontSize.b4.lineHeight,
     textTransform: 'uppercase',
     letterSpacing: 1.2,
     marginTop: 4,
@@ -877,13 +877,13 @@ const s = StyleSheet.create({
   },
   switchRoleTitle: {
     color: '#fff',
-    ...fontSize.b4, lineHeight: fontSize.b4.fontSize + 1,
+    ...fontSize.b4, lineHeight: fontSize.b4.lineHeight,
     textTransform: 'uppercase',
     letterSpacing: 1.3,
   },
   switchRoleMeta: {
     color: 'rgba(255,255,255,0.78)',
-    ...fontSize.b4, lineHeight: fontSize.b4.fontSize + 1,
+    ...fontSize.b4, lineHeight: fontSize.b4.lineHeight,
     textTransform: 'uppercase',
     letterSpacing: 1.1,
     marginTop: 3,
@@ -907,7 +907,7 @@ const s = StyleSheet.create({
   },
   tabText: {
     color: '#6b7280',
-    ...fontSize.b5, lineHeight: fontSize.b5.fontSize + 1,
+    ...fontSize.b5, lineHeight: fontSize.b5.lineHeight,
     textTransform: 'uppercase',
     letterSpacing: 1.2,
     marginTop: 4,
@@ -937,13 +937,13 @@ const s = StyleSheet.create({
   },
   sectionEyebrow: {
     color: '#71788f',
-    ...fontSize.b5, lineHeight: fontSize.b5.fontSize + 1,
+    ...fontSize.b5, lineHeight: fontSize.b5.lineHeight,
     textTransform: 'uppercase',
     letterSpacing: 2.2,
   },
   sectionMini: {
     color: '#71788f',
-    ...fontSize.b5, lineHeight: fontSize.b5.fontSize + 1,
+    ...fontSize.b5, lineHeight: fontSize.b5.lineHeight,
     textTransform: 'uppercase',
     letterSpacing: 1.8,
   },
@@ -974,11 +974,11 @@ const s = StyleSheet.create({
   },
   listTitle: {
     color: '#fff',
-    ...fontSize.b4, lineHeight: fontSize.b4.fontSize + 1,
+    ...fontSize.b4, lineHeight: fontSize.b4.lineHeight,
   },
   listMeta: {
     color: '#8f95af',
-    ...fontSize.b5, lineHeight: fontSize.b5.fontSize + 1,
+    ...fontSize.b5, lineHeight: fontSize.b5.lineHeight,
     textTransform: 'uppercase',
     letterSpacing: 1.1,
     marginTop: 2,
@@ -994,7 +994,7 @@ const s = StyleSheet.create({
   },
   creatorDropMeta: {
     color: PRIMARY_COLOR,
-    ...fontSize.b5, lineHeight: fontSize.b5.fontSize + 1,
+    ...fontSize.b5, lineHeight: fontSize.b5.lineHeight,
     textTransform: 'uppercase',
     letterSpacing: 1.1,
   },
@@ -1033,7 +1033,7 @@ const s = StyleSheet.create({
   },
   videoGridMetaText: {
     color: '#fff',
-    ...fontSize.b5, lineHeight: fontSize.b5.fontSize + 1,
+    ...fontSize.b5, lineHeight: fontSize.b5.lineHeight,
   },
   videoStateCard: {
     marginHorizontal: 16,
@@ -1049,7 +1049,7 @@ const s = StyleSheet.create({
   videoStateText: {
     flex: 1,
     ...fontSize.b5,
-    lineHeight: fontSize.b5.fontSize + 3,
+    lineHeight: fontSize.b5.lineHeight,
   },
   twoColGrid: {
     flexDirection: 'row',
@@ -1129,7 +1129,7 @@ const s = StyleSheet.create({
   },
   premiumTagText: {
     color: '#fff',
-    ...fontSize.b5, lineHeight: fontSize.b5.fontSize + 1,
+    ...fontSize.b5, lineHeight: fontSize.b5.lineHeight,
     textTransform: 'uppercase',
     letterSpacing: 1,
   },
@@ -1161,7 +1161,7 @@ const s = StyleSheet.create({
   },
   playlistCountText: {
     color: '#fff',
-    ...fontSize.b5, lineHeight: fontSize.b5.fontSize + 1,
+    ...fontSize.b5, lineHeight: fontSize.b5.lineHeight,
     textTransform: 'uppercase',
     letterSpacing: 1,
   },
@@ -1171,7 +1171,7 @@ const s = StyleSheet.create({
   artistPremiumHeading: {
     fontSize: fontSize.b2.fontSize + 2,
     fontFamily: fontSize.b2.fontFamily,
-    lineHeight: fontSize.b2.fontSize + 4,
+    lineHeight: fontSize.b2.lineHeight,
     // paddingHorizontal: 16,
   },
   artistRecentCard: {
@@ -1223,7 +1223,7 @@ const s = StyleSheet.create({
   artistDurationText: {
     color: '#fff',
     ...fontSize.b2,
-    lineHeight: fontSize.b2.fontSize + 1,
+    lineHeight: fontSize.b2.lineHeight,
   },
   artistRecentInfo: {
     flexDirection: 'row',
@@ -1243,7 +1243,7 @@ const s = StyleSheet.create({
   artistRecentTitle: {
     fontSize: fontSize.b2.fontSize,
     fontFamily: 'Pogonia_700Bold',
-    lineHeight: fontSize.b2.fontSize + 4,
+    lineHeight: fontSize.b2.lineHeight,
   },
   artistRecentMeta: {
     fontSize: fontSize.b4.fontSize,
@@ -1303,7 +1303,7 @@ const s = StyleSheet.create({
   artistPlaylistCount: {
     color: '#d4d4d8',
     ...fontSize.b5,
-    lineHeight: fontSize.b5.fontSize + 1,
+    lineHeight: fontSize.b5.lineHeight,
     textTransform: 'uppercase',
     textAlign: 'center',
   },
@@ -1320,12 +1320,12 @@ const s = StyleSheet.create({
   },
   artistPlaylistTitle: {
     ...fontSize.b4,
-    lineHeight: fontSize.b4.fontSize + 3,
+    lineHeight: fontSize.b4.lineHeight,
   },
   artistPlaylistMeta: {
     color: '#71717a',
     ...fontSize.b5,
-    lineHeight: fontSize.b5.fontSize + 1,
+    lineHeight: fontSize.b5.lineHeight,
   },
   artistReleaseSection: {
     gap: 10,
@@ -1377,7 +1377,7 @@ const s = StyleSheet.create({
   },
   artistReleaseDurationText: {
     color: '#fff',
-    fontSize: 10,
+    fontSize: fontSize.b5.fontSize,
     fontWeight: '700',
   },
   artistReleaseInfo: {
@@ -1387,13 +1387,13 @@ const s = StyleSheet.create({
   },
   artistReleaseTitle: {
     ...fontSize.b4,
-    lineHeight: fontSize.b4.fontSize + 2,
+    lineHeight: fontSize.b4.lineHeight,
     width: '86%',
   },
   artistReleaseMeta: {
     color: '#71717a',
     ...fontSize.b5,
-    lineHeight: fontSize.b5.fontSize + 1,
+    lineHeight: fontSize.b5.lineHeight,
   },
   artistMoreButton: {
     position: 'absolute',
@@ -1414,17 +1414,17 @@ const s = StyleSheet.create({
   },
   verticalMetaText: {
     color: '#fff',
-    ...fontSize.b5, lineHeight: fontSize.b5.fontSize + 1,
+    ...fontSize.b5, lineHeight: fontSize.b5.lineHeight,
     textTransform: 'uppercase',
     letterSpacing: 1.1,
   },
   gridTitle: {
     color: '#d7dbea',
-    ...fontSize.b5, lineHeight: fontSize.b5.fontSize + 1,
+    ...fontSize.b5, lineHeight: fontSize.b5.lineHeight,
   },
   gridMeta: {
     color: '#8f95af',
-    ...fontSize.b5, lineHeight: fontSize.b5.fontSize + 1,
+    ...fontSize.b5, lineHeight: fontSize.b5.lineHeight,
     textTransform: 'uppercase',
     letterSpacing: 1.2,
   },
@@ -1438,7 +1438,7 @@ const s = StyleSheet.create({
   },
   backText: {
     color: PRIMARY_COLOR,
-    ...fontSize.b5, lineHeight: fontSize.b5.fontSize + 1,
+    ...fontSize.b5, lineHeight: fontSize.b5.lineHeight,
     textTransform: 'uppercase',
     letterSpacing: 1.1,
   },
@@ -1470,11 +1470,11 @@ const s = StyleSheet.create({
   },
   ticketTitle: {
     color: '#fff',
-    ...fontSize.b4, lineHeight: fontSize.b4.fontSize + 1,
+    ...fontSize.b4, lineHeight: fontSize.b4.lineHeight,
   },
   ticketMeta: {
     color: '#8f95af',
-    ...fontSize.b5, lineHeight: fontSize.b5.fontSize + 1,
+    ...fontSize.b5, lineHeight: fontSize.b5.lineHeight,
     textTransform: 'uppercase',
     letterSpacing: 1.1,
     marginTop: 2,
@@ -1545,7 +1545,7 @@ const s = StyleSheet.create({
       justifyContent: 'center',
     },
     roleModalSecondaryText: {
-      ...fontSize.b5, lineHeight: fontSize.b5.fontSize + 1,
+      ...fontSize.b5, lineHeight: fontSize.b5.lineHeight,
       textTransform: 'uppercase',
       letterSpacing: 1.6,
     },
@@ -1564,7 +1564,7 @@ const s = StyleSheet.create({
     },
     roleModalPrimaryText: {
       color: '#ffffff',
-      ...fontSize.b5, lineHeight: fontSize.b5.fontSize + 1,
+      ...fontSize.b5, lineHeight: fontSize.b5.lineHeight,
       textTransform: 'uppercase',
       letterSpacing: 1.8,
     },

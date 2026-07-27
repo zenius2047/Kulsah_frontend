@@ -16,9 +16,7 @@ import { useNavigation, useRoute } from '@react-navigation/native';
 import { MaterialIcons } from '@expo/vector-icons';
 import { GoogleGenAI } from '@google/genai';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
-import { fontScale } from '../fonts';
-import { mediumScreen } from '../types';
-import { fontSize } from './typography';
+import { fontSize } from '../typography';
 
 type CollabTab = 'discover' | 'incoming' | 'outgoing' | 'active';
 type ProjectType = 'Public Feed Track' | 'Premium Locked Release' | 'Event' | 'Live Session' | 'All';
@@ -59,7 +57,14 @@ const TABS: CollabTab[] = ['discover', 'incoming', 'outgoing', 'active'];
 const FILTERS: ProjectType[] = ['All', 'Public Feed Track', 'Premium Locked Release', 'Event', 'Live Session'];
 const DISCOVER_TYPES: Exclude<ProjectType, 'All'>[] = ['Public Feed Track', 'Premium Locked Release'];
 const BRAND = PRIMARY_COLOR;
-const scaledFont = (size: number) => (mediumScreen ? fontScale(size + 4) : fontScale(size));
+const scaledFont = (size: number) => {
+  if (size >= 18) return fontSize.n3.fontSize;
+  if (size >= 15) return fontSize.h1.fontSize;
+  if (size >= 12) return fontSize.b1.fontSize;
+  if (size >= 9) return fontSize.b3.fontSize;
+  if (size >= 8) return fontSize.b4.fontSize;
+  return fontSize.b5.fontSize;
+};
 
 const CollaborationHub: React.FC = () => {
   const { isDark, theme } = useThemeMode();
@@ -253,9 +258,6 @@ const CollaborationHub: React.FC = () => {
       <View style={[styles.header, { backgroundColor: surface, borderBottomColor: border, paddingTop: Platform.OS === 'ios' ? 54 : insets.top }]}>
         <View style={styles.headerTop}>
           <View style={styles.headerLeft}>
-            <Pressable onPress={() => navigation.goBack()}>
-              <MaterialIcons name="chevron-left" size={22} color={theme.text} />
-            </Pressable>
             <Text style={[styles.title, { color: theme.text }]}>Collaboration Hub</Text>
           </View>
           {/* <View style={[styles.neuralPill, { backgroundColor: isDark ? primaryColorAlpha(0.1) : primaryColorAlpha(0.08), borderColor: primaryColorAlpha(0.25) }]}>
@@ -780,9 +782,10 @@ const styles = StyleSheet.create({
     flex: 1,
   },
   title: {
-    fontSize: scaledFont(12),
+    ...fontSize.h1,
+    lineHeight: fontSize.h1.lineHeight,
     textTransform: 'uppercase',
-    letterSpacing: -0.6,
+    letterSpacing: 2,
   },
   neuralPill: {
     paddingHorizontal: 10,
@@ -989,7 +992,7 @@ const styles = StyleSheet.create({
   },
   cardBody: {
     fontSize: scaledFont(9),
-    lineHeight: scaledFont(14),
+    lineHeight: fontSize.b3.lineHeight,
   },
   splitInfo: {
     flexDirection: 'row',

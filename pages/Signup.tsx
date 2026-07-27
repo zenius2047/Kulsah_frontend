@@ -57,8 +57,8 @@ export const SignupVibesStep: React.FC<SignupVibesStepProps> = ({
 
   return (
   <View style={{ gap: 10 }}>
-    <Text style={{ color: theme.text, fontSize: fontSize.b1.fontSize + (mediumScreen ? 4 : 2), fontFamily: fontSize.b1.fontFamily, lineHeight: fontSize.b1.fontSize + 2+ (mediumScreen ? 4 : 2) }}>Inspirations</Text>
-    <Text style={{ color: theme.textSecondary, ...fontSize.b3, lineHeight: fontSize.b3.fontSize + 1 }}>Select your preferred creative orbits.</Text>
+    <Text style={{ color: theme.text, fontSize: fontSize.b1.fontSize + (mediumScreen ? 4 : 2), fontFamily: fontSize.b1.fontFamily, lineHeight: fontSize.b1.lineHeight+ (mediumScreen ? 4 : 2) }}>Inspirations</Text>
+    <Text style={{ color: theme.textSecondary, ...fontSize.b3, lineHeight: fontSize.b3.lineHeight }}>Select your preferred creative orbits.</Text>
     <View style={{ flexDirection: 'row', flexWrap: 'wrap', gap: 10 }}>
       {INSPIRATIONS.map((tag) => {
         const isSelected = selectedVibes.has(tag.id);
@@ -86,7 +86,7 @@ export const SignupVibesStep: React.FC<SignupVibesStepProps> = ({
               top: 0,
               justifyContent: 'flex-end'
               }}>
-              <Text style={{ color: 'white', ...fontSize.b5, lineHeight: fontSize.b5.fontSize + 1 }}>{tag.label}</Text>
+              <Text style={{ color: 'white', ...fontSize.b5, lineHeight: fontSize.b5.lineHeight }}>{tag.label}</Text>
             </View>
           </Pressable>
         );
@@ -206,14 +206,14 @@ const Signup: React.FC<SignupProps> = ({ onLogin }) => {
         ) : (
           <View style={{ width: 24 }} />
         )}
-        <Text style={{ color: 'white', ...fontSize.h1, lineHeight: fontSize.h1.fontSize + 2 }}>KULSAH</Text>
+        <Text style={{ color: 'white', ...fontSize.h1, lineHeight: fontSize.h1.lineHeight }}>KULSAH</Text>
         <View style={{ width: 24 }} />
       </View>
 
       <ScrollView contentContainerStyle={{ paddingHorizontal: 22, paddingBottom: 30 }} keyboardShouldPersistTaps="handled">
         {step === 'welcome' && (
           <View style={{ gap: 18 }}>
-            <Text style={{ color: 'white', ...fontSize.b1, lineHeight: fontSize.b1.fontSize + 2, textTransform: 'uppercase'}}>{'Enter the\nGalaxy.'}</Text>
+            <Text style={{ color: 'white', ...fontSize.b1, lineHeight: fontSize.b1.lineHeight, textTransform: 'uppercase'}}>{'Enter the\nGalaxy.'}</Text>
             <Text style={{
               color: '#ffffff99',
               ...fontSize.b4,
@@ -257,14 +257,14 @@ const Signup: React.FC<SignupProps> = ({ onLogin }) => {
 
         {step === 'name' && (
           <View style={{ gap: 14 }}>
-            <Text style={{ color: 'white', ...fontSize.b1, lineHeight: fontSize.b1.fontSize + 2 }}>YOUR ALIAS</Text>
+            <Text style={{ color: 'white', ...fontSize.b1, lineHeight: fontSize.b1.lineHeight }}>YOUR ALIAS</Text>
             <Text style={{
               color: '#FFFFFF99',
                }}>This is how the galaxy will recognize{'\n'}you.</Text>
             <Text
             style={{
               color: '#94a3b8',
-              ...fontSize.b5, lineHeight: fontSize.b5.fontSize + 1,
+              ...fontSize.b5, lineHeight: fontSize.b5.lineHeight,
               letterSpacing: 4,
               marginTop: 35,
               marginBottom: 10
@@ -285,7 +285,7 @@ const Signup: React.FC<SignupProps> = ({ onLogin }) => {
               }}
               inputStyle={{
                 color: 'white',
-                ...fontSize.b4, lineHeight: fontSize.b4.fontSize + 1,
+                ...fontSize.b4, lineHeight: fontSize.b4.lineHeight,
               }}
             />
               {formData.name.length > 2 && <View
@@ -302,7 +302,7 @@ const Signup: React.FC<SignupProps> = ({ onLogin }) => {
               <Text
               style = {{
                 color: '#cb2bee',
-                ...fontSize.b5, lineHeight: fontSize.b5.fontSize + 1,
+                ...fontSize.b5, lineHeight: fontSize.b5.lineHeight,
                 letterSpacing: 4,
               }}
               >
@@ -328,7 +328,7 @@ const Signup: React.FC<SignupProps> = ({ onLogin }) => {
                   <Text
                   style = {{
                     color: PRIMARY_COLOR,
-                    ...fontSize.b1, lineHeight: fontSize.b1.fontSize + 2,
+                    ...fontSize.b1, lineHeight: fontSize.b1.lineHeight,
                     textAlign: 'center'
                   }}
                   >
@@ -343,7 +343,7 @@ const Signup: React.FC<SignupProps> = ({ onLogin }) => {
                 <Text
                 style={{
                   color: 'white',
-                  ...fontSize.b4, lineHeight: fontSize.b4.fontSize + 1,
+                  ...fontSize.b4, lineHeight: fontSize.b4.lineHeight,
                 }}
                 >
                   {formData.name}
@@ -351,7 +351,7 @@ const Signup: React.FC<SignupProps> = ({ onLogin }) => {
                 <Text style={{
                   color: '#94a3b8',
                   letterSpacing: 1,
-                  ...fontSize.b5, lineHeight: fontSize.b5.fontSize + 1,
+                  ...fontSize.b5, lineHeight: fontSize.b5.lineHeight,
                 }}>
                   NEW ARRIVAL {'#'}0042
                 </Text>
@@ -378,7 +378,7 @@ const Signup: React.FC<SignupProps> = ({ onLogin }) => {
 
         {step === 'credentials' && (
           <View style={{ gap: 14 }}>
-            <Text style={{ color: 'white', ...fontSize.b1, lineHeight: fontSize.b1.fontSize + 2 }}>Uplink Keys</Text>
+            <Text style={{ color: 'white', ...fontSize.b1, lineHeight: fontSize.b1.lineHeight }}>Uplink Keys</Text>
             <Text style={{ color: '#cbd5e1' }}>Synchronize your account with our secure node.</Text>
             <KulsahInputBar
               value={formData.email}
@@ -456,7 +456,7 @@ const Signup: React.FC<SignupProps> = ({ onLogin }) => {
               <VerifyIcon fill='white' height={90} width={90}  strokeWidth={0}/>
             </View>
             </View>
-            <Text style={{ color: 'white', ...fontSize.b1, lineHeight: fontSize.b1.fontSize + 2, textAlign: 'center' }}>{'IDENTITY\nSECURED'}</Text>
+            <Text style={{ color: 'white', ...fontSize.b1, lineHeight: fontSize.b1.lineHeight, textAlign: 'center' }}>{'IDENTITY\nSECURED'}</Text>
             <Text style={{ color: '#cbd5e1', textAlign: 'center' }}>
               Welcome home,{'\n'}<Text style={{ color: PRIMARY_COLOR }}>{formData.name || 'Fan'}</Text>.
             </Text>

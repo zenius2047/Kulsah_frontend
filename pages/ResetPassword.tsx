@@ -290,18 +290,18 @@ const styles = StyleSheet.create({
   },
   title: {
     ...fontSize.b1,
-    lineHeight: fontSize.b1.fontSize + 2,
+    lineHeight: fontSize.b1.lineHeight,
   },
   subtitle: {
     ...fontSize.b4,
-    lineHeight: fontSize.b4.fontSize + 6,
+    lineHeight: fontSize.b4.lineHeight,
   },
   fieldGroup: {
     gap: 8,
   },
   fieldLabel: {
     ...fontSize.b4,
-    lineHeight: fontSize.b4.fontSize + 1,
+    lineHeight: fontSize.b4.lineHeight,
   },
   inputWrap: {
     minHeight: 58,
@@ -320,7 +320,7 @@ const styles = StyleSheet.create({
   input: {
     width: '70%',
     ...fontSize.b3,
-    lineHeight: fontSize.b3.fontSize + 4,
+    lineHeight: fontSize.b3.lineHeight,
   },
   eyeButton: {
     width: '15%',
@@ -330,7 +330,7 @@ const styles = StyleSheet.create({
   errorText: {
     color: '#dc2626',
     ...fontSize.b5,
-    lineHeight: fontSize.b5.fontSize + 2,
+    lineHeight: fontSize.b5.lineHeight,
   },
   primaryButton: {
     marginTop: 6,
@@ -354,7 +354,7 @@ const styles = StyleSheet.create({
   primaryButtonText: {
     color: '#ffffff',
     ...fontSize.b3,
-    lineHeight: fontSize.b3.fontSize + 1,
+    lineHeight: fontSize.b3.lineHeight,
     letterSpacing: 1.2,
   },
   toast: {
@@ -371,7 +371,7 @@ const styles = StyleSheet.create({
     paddingVertical: 10,
     borderRadius: 999,
     ...fontSize.b5,
-    lineHeight: fontSize.b5.fontSize + 1,
+    lineHeight: fontSize.b5.lineHeight,
     textTransform: 'uppercase',
     letterSpacing: 1,
     overflow: 'hidden',

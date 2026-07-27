@@ -13,9 +13,7 @@ import {
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { GoogleGenAI } from '@google/genai';
-import { fontScale } from '../fonts';
-import { mediumScreen } from '../types';
-import { fontSize } from './typography';
+import { fontSize } from '../typography';
 
 type RangeOption = '7d' | '30d' | 'All';
 
@@ -26,8 +24,6 @@ const RANGE_FACTORS: Record<RangeOption, number> = {
 };
 
 const SOURCE_COLORS = [PRIMARY_COLOR, '#3b82f6', '#2ecc71', '#f59e0b'];
-const responsiveFont = (size: number) => (mediumScreen ? fontScale(size - 4) : fontScale(size));
-
 const CreatorAnalytics: React.FC = () => {
   const { isDark, theme } = useThemeMode();
   const navigation = useNavigation<any>();
@@ -151,9 +147,6 @@ const CreatorAnalytics: React.FC = () => {
       <SafeAreaView edges={['top']} style={[s.safeTop, { backgroundColor: headerBackground }]}>
         <View style={[s.header, { borderBottomColor: cardBorder }]}>
           <View style={s.headerLeft}>
-            <Pressable onPress={() => navigation.goBack()} style={[s.iconButton, { backgroundColor: softSurfaceStrong, borderColor: cardBorder }]}>
-              <MaterialIcons name="chevron-left" size={20} color={textPrimary} />
-            </Pressable>
             <Text style={[s.headerTitle, { color: textPrimary }]}>Deep Insights</Text>
           </View>
           <View style={[s.rangeWrap, { backgroundColor: softSurface, borderColor: cardBorder }]}>
@@ -363,7 +356,7 @@ const s = StyleSheet.create({
     borderWidth: 1,
     borderColor: '#ffffff14',
   },
-  headerTitle: { color: '#fff', fontSize: responsiveFont(14) },
+  headerTitle: { color: '#fff', ...fontSize.h1, lineHeight: fontSize.h1.lineHeight, textTransform: 'uppercase', letterSpacing: 2 },
   rangeWrap: {
     flexDirection: 'row',
     backgroundColor: '#ffffff10',
@@ -375,7 +368,7 @@ const s = StyleSheet.create({
   },
   rangePill: { paddingHorizontal: 10, paddingVertical: 6, borderRadius: 10 },
   rangePillActive: { backgroundColor: PRIMARY_COLOR },
-  rangeText: { color: '#9093a7', fontSize: responsiveFont(10), textTransform: 'uppercase' },
+  rangeText: { color: '#9093a7', ...fontSize.tabText, lineHeight: fontSize.tabText.lineHeight, textTransform: 'uppercase' },
   rangeTextActive: { color: '#fff' },
   content: { paddingHorizontal: 16, paddingTop: 14, paddingBottom: 120, gap: 14 },
   metricGrid: { flexDirection: 'row', gap: 8 },
@@ -390,10 +383,11 @@ const s = StyleSheet.create({
     alignItems: 'center',
   },
   metricCardPrimary: { borderColor: primaryColorAlphaHex('44'), backgroundColor: primaryColorAlphaHex('14') },
-  metricValue: { color: '#fff', fontSize: responsiveFont(16) },
+  metricValue: { color: '#fff', ...fontSize.n3, lineHeight: fontSize.n3.lineHeight },
   metricLabel: {
     color: '#8d91a8',
-    fontSize: responsiveFont(8),
+    ...fontSize.b5,
+    lineHeight: fontSize.b5.lineHeight,
     marginTop: 4,
     textTransform: 'uppercase',
     letterSpacing: 1.1,
@@ -419,8 +413,8 @@ const s = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'center',
   },
-  auditTitle: { color: PRIMARY_COLOR, fontSize: responsiveFont(9), letterSpacing: 1.6, textTransform: 'uppercase' },
-  auditSubtitle: { color: primaryColorAlphaHex('99'), fontSize: responsiveFont(7), textTransform: 'uppercase', marginTop: 2 },
+  auditTitle: { color: PRIMARY_COLOR, ...fontSize.mediumTitleText, lineHeight: fontSize.mediumTitleText.lineHeight, letterSpacing: 1.6, textTransform: 'uppercase' },
+  auditSubtitle: { color: primaryColorAlphaHex('99'), ...fontSize.b5, lineHeight: fontSize.b5.lineHeight, textTransform: 'uppercase', marginTop: 2 },
   refreshBtn: {
     width: 34,
     height: 34,
@@ -431,8 +425,8 @@ const s = StyleSheet.create({
   },
   auditText: {
     color: '#f8f8ff',
-    fontSize: responsiveFont(13),
-    lineHeight: 20,
+    ...fontSize.b3,
+    lineHeight: fontSize.b3.lineHeight,
     borderLeftWidth: 2,
     borderLeftColor: primaryColorAlphaHex('77'),
     paddingLeft: 8,
@@ -441,7 +435,8 @@ const s = StyleSheet.create({
   section: { gap: 8 },
   sectionTitle: {
     color: '#8d91a8',
-    fontSize: responsiveFont(9),
+    ...fontSize.mediumTitleText,
+    lineHeight: fontSize.mediumTitleText.lineHeight,
     textTransform: 'uppercase',
     letterSpacing: 2.1,
     paddingHorizontal: 2,
@@ -455,18 +450,19 @@ const s = StyleSheet.create({
     gap: 10,
   },
   rowBlock: { gap: 4 },
-  rowLabel: { color: '#d5d6e2', fontSize: responsiveFont(10) },
+  rowLabel: { color: '#d5d6e2', ...fontSize.b4, lineHeight: fontSize.b4.lineHeight },
   track: { height: 14, backgroundColor: '#ffffff0f', borderRadius: 999, overflow: 'hidden', justifyContent: 'center' },
   fill: { position: 'absolute', left: 0, height: 14, borderRadius: 999, opacity: 0.25 },
   fillThin: { position: 'absolute', left: 0, height: 4, borderRadius: 999 },
   rowValues: { flexDirection: 'row', justifyContent: 'space-between' },
-  rowValue: { color: PRIMARY_COLOR, fontSize: responsiveFont(10) },
-  rowValueMuted: { color: '#60a5fa', fontSize: responsiveFont(10) },
+  rowValue: { color: PRIMARY_COLOR, ...fontSize.b4, lineHeight: fontSize.b4.lineHeight },
+  rowValueMuted: { color: '#60a5fa', ...fontSize.b4, lineHeight: fontSize.b4.lineHeight },
   sourceSection: { flexDirection: 'row', gap: 8, },
   sourceCol: { flex: 1, gap: 8 },
   sectionTitleCenter: {
     color: '#8d91a8',
-    fontSize: responsiveFont(10),
+    ...fontSize.mediumTitleText,
+    lineHeight: fontSize.mediumTitleText.lineHeight,
     textTransform: 'uppercase',
     letterSpacing: 2,
     textAlign: 'center',
@@ -474,21 +470,21 @@ const s = StyleSheet.create({
   pieLegendWrap: { gap: 8 },
   legendRow: { flexDirection: 'row', alignItems: 'center', gap: 6 },
   legendDot: { width: 8, height: 8, borderRadius: 4 },
-  legendName: { color: '#d4d6e4', fontSize: responsiveFont(9), flex: 1 },
-  legendValue: { color: '#fff', fontSize: responsiveFont(10) },
+  legendName: { color: '#d4d6e4', ...fontSize.b5, lineHeight: fontSize.b5.lineHeight, flex: 1 },
+  legendValue: { color: '#fff', ...fontSize.b4, lineHeight: fontSize.b4.lineHeight },
   regionRow: { gap: 3 },
   regionHead: { flexDirection: 'row', justifyContent: 'space-between' },
-  regionCountry: { color: '#d4d6e4', fontSize: responsiveFont(10) },
-  regionPct: { color: PRIMARY_COLOR, fontSize: responsiveFont(10) },
+  regionCountry: { color: '#d4d6e4', ...fontSize.b4, lineHeight: fontSize.b4.lineHeight },
+  regionPct: { color: PRIMARY_COLOR, ...fontSize.b4, lineHeight: fontSize.b4.lineHeight },
   regionTrack: { height: 6, borderRadius: 999, backgroundColor: '#ffffff10', overflow: 'hidden' },
   regionFill: { height: '100%', borderRadius: 999, backgroundColor: primaryColorAlphaHex('88') },
   sectionHeadRow: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center' },
-  totalText: { color: PRIMARY_COLOR, fontSize: responsiveFont(9), textTransform: 'uppercase' },
+  totalText: { color: PRIMARY_COLOR, ...fontSize.b5, lineHeight: fontSize.b5.lineHeight, textTransform: 'uppercase' },
   engagementRow: { flexDirection: 'row', alignItems: 'center', gap: 8 },
-  engagementLabel: { color: '#d4d6e4', fontSize: responsiveFont(10), width: 66 },
+  engagementLabel: { color: '#d4d6e4', ...fontSize.b4, lineHeight: fontSize.b4.lineHeight, width: 66 },
   engagementTrack: { flex: 1, height: 14, borderRadius: 999, backgroundColor: '#ffffff10', overflow: 'hidden' },
   engagementFill: { height: '100%', borderRadius: 999 },
-  engagementValue: { color: '#fff', fontSize: responsiveFont(10), width: 40, textAlign: 'right' },
+  engagementValue: { color: '#fff', ...fontSize.b4, lineHeight: fontSize.b4.lineHeight, width: 40, textAlign: 'right' },
   effCard: {
     borderRadius: 18,
     borderWidth: 1,
@@ -511,11 +507,11 @@ const s = StyleSheet.create({
     borderWidth: 1,
     borderColor: '#ffffff12',
   },
-  effType: { color: '#fff', fontSize: responsiveFont(12) },
-  effMeta: { color: '#8d91a8', fontSize: responsiveFont(8), textTransform: 'uppercase' },
+  effType: { color: '#fff', ...fontSize.b3, lineHeight: fontSize.b3.lineHeight },
+  effMeta: { color: '#8d91a8', ...fontSize.b5, lineHeight: fontSize.b5.lineHeight, textTransform: 'uppercase' },
   effRight: { alignItems: 'flex-end' },
   effValueRow: { flexDirection: 'row', alignItems: 'center', gap: 3 },
-  effValue: { color: '#fff', fontSize: responsiveFont(12) },
+  effValue: { color: '#fff', ...fontSize.b3, lineHeight: fontSize.b3.lineHeight },
 });
 
 export default CreatorAnalytics;

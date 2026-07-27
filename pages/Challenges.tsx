@@ -311,11 +311,11 @@ const createStyles = (isDark: boolean) => {
     headerRoundBtn: { height: 40, width: 40, borderRadius: 20, borderWidth: 1, justifyContent: 'center', alignItems: 'center' },
     headerTitleWrap: { alignItems: 'center' },
     headerTitle: {
-      ...fontSize.h1, lineHeight: fontSize.h1.fontSize + 2,
+      ...fontSize.h1, lineHeight: fontSize.h1.lineHeight,
       textTransform: 'uppercase',
       letterSpacing: 2.2,
     },
-    headerSubtitle: { color: PRIMARY_COLOR, marginTop: 4, ...fontSize.h2, lineHeight: fontSize.h2.fontSize + 1, letterSpacing: 1.5, textTransform: 'uppercase' },
+    headerSubtitle: { color: PRIMARY_COLOR, marginTop: 4, ...fontSize.h2, lineHeight: fontSize.h2.lineHeight, letterSpacing: 1.5, textTransform: 'uppercase' },
     headerSpacer: { width: 40 },
     content: { padding: 20, gap: 18 },
     searchBox: {
@@ -334,7 +334,7 @@ const createStyles = (isDark: boolean) => {
     },
     searchInput: {
       flex: 1,
-      ...fontSize.b3, lineHeight: fontSize.b3.fontSize + 2,
+      ...fontSize.b3, lineHeight: fontSize.b3.lineHeight,
       paddingVertical: 0,
     },
     tabsWrap: {
@@ -357,7 +357,7 @@ const createStyles = (isDark: boolean) => {
     },
     tabButtonIdle: {},
     tabText: {
-      ...fontSize.b4, lineHeight: fontSize.b4.fontSize + 1,
+      ...fontSize.tabText, lineHeight: fontSize.tabText.lineHeight,
       letterSpacing: 1.2,
       textTransform: 'uppercase',
     },
@@ -369,13 +369,13 @@ const createStyles = (isDark: boolean) => {
       gap: 12,
     },
     sectionTitle: {
-      ...fontSize.b5, lineHeight: fontSize.b5.fontSize + 1,
+      ...fontSize.b5, lineHeight: fontSize.b5.lineHeight,
       letterSpacing: 3,
       textTransform: 'uppercase',
     },
     sectionCount: {
       color: PRIMARY_COLOR,
-      ...fontSize.b5, lineHeight: fontSize.b5.fontSize + 1,
+      ...fontSize.b5, lineHeight: fontSize.b5.lineHeight,
       letterSpacing: 1.4,
       textTransform: 'uppercase',
     },
@@ -405,7 +405,7 @@ const createStyles = (isDark: boolean) => {
       gap: 7,
     },
     statusText: {
-      ...fontSize.b5, lineHeight: fontSize.b5.fontSize + 1,
+      ...fontSize.b5, lineHeight: fontSize.b5.lineHeight,
       letterSpacing: 1.5,
       textTransform: 'uppercase',
     },
@@ -418,7 +418,7 @@ const createStyles = (isDark: boolean) => {
     },
     creatorText: {
       color: PRIMARY_COLOR,
-      ...fontSize.b5, lineHeight: fontSize.b5.fontSize + 1,
+      ...fontSize.b5, lineHeight: fontSize.b5.lineHeight,
       letterSpacing: 2.2,
       textTransform: 'uppercase',
       marginBottom: 4,
@@ -448,20 +448,20 @@ const createStyles = (isDark: boolean) => {
     metricDivider: { width: 1, height: 26, backgroundColor: 'rgba(255,255,255,0.12)' },
     metricLabel: {
       color: 'rgba(255,255,255,0.42)',
-      ...fontSize.b5, lineHeight: fontSize.b5.fontSize + 1,
+      ...fontSize.b5, lineHeight: fontSize.b5.lineHeight,
       letterSpacing: 1.1,
       textTransform: 'uppercase',
     },
     metricValue: {
       color: '#ffffff',
-      ...fontSize.b5, lineHeight: fontSize.b5.fontSize + 1,
+      ...fontSize.b5, lineHeight: fontSize.b5.lineHeight,
       textTransform: 'uppercase',
       marginTop: 3,
     },
     rewardText: {
       maxWidth: 120,
       color: PRIMARY_COLOR,
-      ...fontSize.b4, lineHeight: fontSize.b4.fontSize + 1,
+      ...fontSize.b4, lineHeight: fontSize.b4.lineHeight,
       textAlign: 'right',
       textTransform: 'uppercase',
       letterSpacing: 0.8,
@@ -479,7 +479,7 @@ const createStyles = (isDark: boolean) => {
     },
     watchButtonText: {
       color: '#ffffff',
-      ...fontSize.b5, lineHeight: fontSize.b5.fontSize + 1,
+      ...fontSize.b5, lineHeight: fontSize.b5.lineHeight,
       letterSpacing: 1.4,
       textTransform: 'uppercase',
     },
@@ -493,7 +493,7 @@ const createStyles = (isDark: boolean) => {
       gap: 12,
     },
     emptyTitle: {
-      ...fontSize.b4, lineHeight: fontSize.b4.fontSize + 1,
+      ...fontSize.b4, lineHeight: fontSize.b4.lineHeight,
       textAlign: 'center',
     },
     clearButton: {
@@ -507,7 +507,7 @@ const createStyles = (isDark: boolean) => {
     },
     clearButtonText: {
       color: PRIMARY_COLOR,
-      ...fontSize.b5, lineHeight: fontSize.b5.fontSize + 1,
+      ...fontSize.b5, lineHeight: fontSize.b5.lineHeight,
       letterSpacing: 1.2,
       textTransform: 'uppercase',
     },

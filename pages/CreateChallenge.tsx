@@ -353,7 +353,7 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
   },
   headerTitle: {
-    ...fontSize.b3, lineHeight: fontSize.b3.fontSize + 2,
+    ...fontSize.b3, lineHeight: fontSize.b3.lineHeight,
     letterSpacing: 1.4,
   },
   scroll: {
@@ -380,19 +380,19 @@ const styles = StyleSheet.create({
   },
   label: {
     color: '#c084fc',
-    ...fontSize.b4, lineHeight: fontSize.b4.fontSize + 1,
+    ...fontSize.b4, lineHeight: fontSize.b4.lineHeight,
     letterSpacing: 1.6,
     textTransform: 'uppercase',
     marginBottom: 10,
   },
   labelMuted: {
-    ...fontSize.b4, lineHeight: fontSize.b4.fontSize + 1,
+    ...fontSize.b4, lineHeight: fontSize.b4.lineHeight,
     letterSpacing: 1.4,
     textTransform: 'uppercase',
     marginBottom: 12,
   },
   titleInput: {
-    ...fontSize.b1, lineHeight: fontSize.b1.fontSize + 2,
+    ...fontSize.b1, lineHeight: fontSize.b1.lineHeight,
     padding: 0,
   },
   titleUnderline: {
@@ -413,7 +413,7 @@ const styles = StyleSheet.create({
     gap: 8,
   },
   sectionTitle: {
-    ...fontSize.b4, lineHeight: fontSize.b4.fontSize + 1,
+    ...fontSize.b4, lineHeight: fontSize.b4.lineHeight,
     letterSpacing: 1.8,
     textTransform: 'uppercase',
   },
@@ -448,7 +448,7 @@ const styles = StyleSheet.create({
   },
   uploadLabel: {
     color: '#ffffff',
-    ...fontSize.b4, lineHeight: fontSize.b4.fontSize + 1,
+    ...fontSize.b4, lineHeight: fontSize.b4.lineHeight,
     letterSpacing: 1.4,
     textTransform: 'uppercase',
   },
@@ -461,7 +461,7 @@ const styles = StyleSheet.create({
   },
   mediaBadge: {
     color: '#ffffff',
-    ...fontSize.b5, lineHeight: fontSize.b5.fontSize + 1,
+    ...fontSize.b5, lineHeight: fontSize.b5.lineHeight,
     backgroundColor: 'rgba(0,0,0,0.4)',
     paddingHorizontal: 8,
     paddingVertical: 6,
@@ -510,13 +510,13 @@ const styles = StyleSheet.create({
     elevation: 4,
   },
   criteriaTitle: {
-    ...fontSize.b4, lineHeight: fontSize.b4.fontSize + 1,
+    ...fontSize.b4, lineHeight: fontSize.b4.lineHeight,
     letterSpacing: 1.2,
     textTransform: 'uppercase',
     textAlign: 'center',
   },
   criteriaMeta: {
-    ...fontSize.b4, lineHeight: fontSize.b4.fontSize + 1,
+    ...fontSize.b4, lineHeight: fontSize.b4.lineHeight,
     textTransform: 'uppercase',
     textAlign: 'center',
     marginTop: 6,
@@ -528,7 +528,7 @@ const styles = StyleSheet.create({
   },
   inviteCounter: {
     color: '#c084fc',
-    ...fontSize.b4, lineHeight: fontSize.b4.fontSize + 1,
+    ...fontSize.b4, lineHeight: fontSize.b4.lineHeight,
     letterSpacing: 1.2,
   },
   searchCard: {
@@ -543,7 +543,7 @@ const styles = StyleSheet.create({
   },
   searchInput: {
     // flex: 1,
-    ...fontSize.b3, lineHeight: fontSize.b3.fontSize + 2,
+    ...fontSize.b3, lineHeight: fontSize.b3.lineHeight,
     padding: 0,
     // textAlign: 'center'
     // lineHeight: 24,
@@ -579,7 +579,7 @@ const styles = StyleSheet.create({
     backgroundColor: PRIMARY_COLOR,
   },
   creatorHandle: {
-    ...fontSize.b4, lineHeight: fontSize.b4.fontSize + 1,
+    ...fontSize.b4, lineHeight: fontSize.b4.lineHeight,
   },
   addCreatorButton: {
     width: 70,
@@ -592,7 +592,7 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
   },
   browseLabel: {
-    ...fontSize.b5, lineHeight: fontSize.b5.fontSize + 1,
+    ...fontSize.b5, lineHeight: fontSize.b5.lineHeight,
   },
   footerAction: {
     paddingTop: 8,
@@ -615,7 +615,7 @@ const styles = StyleSheet.create({
   },
   launchButtonText: {
     color: '#ffffff',
-    ...fontSize.b4, lineHeight: fontSize.b4.fontSize + 1,
+    ...fontSize.b4, lineHeight: fontSize.b4.lineHeight,
     letterSpacing: 1.8,
     textTransform: 'uppercase',
   },

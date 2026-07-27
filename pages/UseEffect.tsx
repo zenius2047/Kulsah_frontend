@@ -227,7 +227,7 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
   },
   headerTitle: {
-    ...fontSize.b4, lineHeight: fontSize.b4.fontSize + 1,
+    ...fontSize.b4, lineHeight: fontSize.b4.lineHeight,
   },
   scrollContent: {
     paddingBottom: 56,
@@ -278,11 +278,11 @@ const styles = StyleSheet.create({
   },
   effectTitle: {
     ...fontSize.b1,
-    lineHeight: fontSize.b1.fontSize + 2,
+    lineHeight: fontSize.b1.lineHeight,
     textAlign: 'center',
   },
   effectArtist: {
-    ...fontSize.b3, lineHeight: fontSize.b3.fontSize + 2,
+    ...fontSize.b3, lineHeight: fontSize.b3.lineHeight,
     textAlign: 'center',
   },
   metaPill: {
@@ -295,7 +295,7 @@ const styles = StyleSheet.create({
     paddingVertical: 6,
   },
   metaPillText: {
-    ...fontSize.b4, lineHeight: fontSize.b4.fontSize + 1,
+    ...fontSize.b4, lineHeight: fontSize.b4.lineHeight,
   },
   actionRow: {
     flexDirection: 'row',
@@ -327,7 +327,7 @@ const styles = StyleSheet.create({
   },
   actionButtonText: {
     color: '#fff',
-    ...fontSize.b4, lineHeight: fontSize.b4.fontSize + 1,
+    ...fontSize.b4, lineHeight: fontSize.b4.lineHeight,
   },
   sectionHeader: {
     flexDirection: 'row',
@@ -337,7 +337,7 @@ const styles = StyleSheet.create({
     marginBottom: 12,
   },
   sectionTitle: {
-    ...fontSize.b3, lineHeight: fontSize.b3.fontSize + 2,
+    ...fontSize.b3, lineHeight: fontSize.b3.lineHeight,
   },
   sortButton: {
     width: 28,
@@ -371,7 +371,7 @@ const styles = StyleSheet.create({
   },
   cardMetaText: {
     color: '#fff',
-    ...fontSize.b5, lineHeight: fontSize.b5.fontSize + 1,
+    ...fontSize.b5, lineHeight: fontSize.b5.lineHeight,
   },
 });
 

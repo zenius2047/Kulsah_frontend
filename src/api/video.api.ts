@@ -106,12 +106,13 @@ const createVideoOnlyFormData = ({ video }: UploadCreatorVideoToDraftPayload) =>
   return formData;
 };
 
-const createVideoEditsFormData = ({ overlays, drawingFiles = [] }: SubmitCreatorVideoEditsPayload) => {
+const createVideoEditsFormData = ({ timeline, overlays, drawingFiles = [] }: SubmitCreatorVideoEditsPayload) => {
   const formData = new FormData();
 
-  formData.append('overlays', JSON.stringify(overlays));
+  if (timeline) formData.append('timeline', JSON.stringify(timeline));
+  if (overlays?.length) formData.append('overlays', JSON.stringify(overlays));
   drawingFiles.forEach((file, index) => {
-    formData.append(`drawing_files[${index}]`, {
+    formData.append('drawing_files[]', {
       uri: file.uri,
       name: file.name ?? `drawing-${index}.png`,
       type: file.type ?? 'image/png',

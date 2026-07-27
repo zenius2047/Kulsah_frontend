@@ -434,7 +434,7 @@ const styles = StyleSheet.create({
   },
   actionLabel: {
     color: '#ffffff',
-    ...fontSize.b5, lineHeight: fontSize.b5.fontSize + 1,
+    ...fontSize.b5, lineHeight: fontSize.b5.lineHeight,
     textTransform: 'uppercase',
     letterSpacing: 0.8,
   },
@@ -470,7 +470,7 @@ const styles = StyleSheet.create({
   },
   creatorHandle: {
     color: '#ffffff',
-    ...fontSize.b1, lineHeight: fontSize.b1.fontSize + 2,
+    ...fontSize.b1, lineHeight: fontSize.b1.lineHeight,
   },
   caption: {
     color: '#e2e8f0',
@@ -489,7 +489,7 @@ const styles = StyleSheet.create({
   audioText: {
     flex: 1,
     color: '#ffffff',
-    ...fontSize.b4, lineHeight: fontSize.b4.fontSize + 1,
+    ...fontSize.b4, lineHeight: fontSize.b4.lineHeight,
   },
   progressWrap: {
     position: 'absolute',

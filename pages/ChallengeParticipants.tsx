@@ -304,7 +304,7 @@ const styles = StyleSheet.create({
     flex: 1,
     textAlign: 'center',
     color: '#ffffff',
-    ...fontSize.h1, lineHeight: fontSize.h1.fontSize + 1,
+    ...fontSize.h1, lineHeight: fontSize.h1.lineHeight,
   },
   searchWrap: {
     position: 'relative',
@@ -324,7 +324,7 @@ const styles = StyleSheet.create({
     borderWidth: 1,
     color: '#ffffff',
     backgroundColor: '#121212',
-    ...fontSize.b4, lineHeight: fontSize.b4.fontSize + 1,
+    ...fontSize.b4, lineHeight: fontSize.b4.lineHeight,
   },
   filterRow: {
     gap: 8,
@@ -344,7 +344,7 @@ const styles = StyleSheet.create({
     borderColor: 'rgba(255,255,255,0.1)',
   },
   filterText: {
-    ...fontSize.b5, lineHeight: fontSize.b5.fontSize + 1,
+    ...fontSize.b5, lineHeight: fontSize.b5.lineHeight,
   },
   filterTextActive: {
     color: '#ffffff',
@@ -396,7 +396,7 @@ const styles = StyleSheet.create({
   },
   voteText: {
     color: '#ffffff',
-    ...fontSize.b5, lineHeight: fontSize.b5.fontSize + 1,
+    ...fontSize.b5, lineHeight: fontSize.b5.lineHeight,
   },
   cardFooter: {
     position: 'absolute',
@@ -407,7 +407,7 @@ const styles = StyleSheet.create({
   handle: {
     color: '#ffffff',
     opacity: 0.92,
-    ...fontSize.b5, lineHeight: fontSize.b5.fontSize + 1,
+    ...fontSize.b5, lineHeight: fontSize.b5.lineHeight,
   },
   emptyState: {
     alignItems: 'center',
@@ -417,11 +417,11 @@ const styles = StyleSheet.create({
   },
   emptyTitle: {
     color: '#ffffff',
-    ...fontSize.b4, lineHeight: fontSize.b4.fontSize + 1,
+    ...fontSize.b4, lineHeight: fontSize.b4.lineHeight,
   },
   emptyText: {
     color: '#94a3b8',
-    ...fontSize.b4, lineHeight: fontSize.b4.fontSize + 1,
+    ...fontSize.b4, lineHeight: fontSize.b4.lineHeight,
   },
 });
 

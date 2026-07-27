@@ -26,7 +26,7 @@ import GoogleIcon from '../assets/icons/google-svg.svg';
 import AppleIcon from '../assets/icons/apple-logo-svg.svg';
 import KulsahBlack from '../assets/icons/kulsah-black-svg.svg';
 import KulsahWhite from '../assets/icons/kulsah-white-svg.svg';
-import { fontSize } from './typography';
+import { fontSize } from '../typography';
 import DateTimePicker, { type DateTimePickerEvent } from '@react-native-community/datetimepicker';
 import DotTrioLoader from '../components/DotTrioLoader';
 import { authApi, setAuthToken, setUser as setAuthStoreUser } from '../src';
@@ -671,17 +671,17 @@ const EmailPhone: React.FC = () => {
               >
                 <MaterialIcons name="bolt" size={mediumScreen ? 28 : 24} color="#ffffff" />
               </LinearGradient> */}
-              {step === 0 && isCreateAccount && <Text style={[styles.brandTitle, { color: theme.textSecondary, marginTop: 30, fontSize: fontSize.b1.fontSize + (mediumScreen ? 6: 2), lineHeight: fontSize.b1.fontSize + 2 + (mediumScreen ? 6: 2), fontFamily: fontSize.b1.fontFamily, paddingLeft: -22 }]}>Tell us your name</Text>}
+              {step === 0 && isCreateAccount && <Text style={[styles.brandTitle, { color: theme.textSecondary, marginTop: 30, fontSize: fontSize.b1.fontSize + (mediumScreen ? 6: 2), lineHeight: fontSize.b1.lineHeight + (mediumScreen ? 6: 2), fontFamily: fontSize.b1.fontFamily, paddingLeft: -22 }]}>Tell us your name</Text>}
               {step === 0 && isCreateAccount && <Text style={[styles.brandTitle, { color: titleColor, fontSize: fontSize.b1.fontSize + (mediumScreen ? 0: 0), fontFamily: 'Inter_400Regular', paddingLeft: -22 }]}>Tell us your name so fans and creators can recognize you on Kulsah.</Text>}
-              {step === 1 && isCreateAccount && <Text style={[styles.brandTitle, { color: theme.textSecondary, marginTop: 30, fontSize: fontSize.b1.fontSize + (mediumScreen ? 6: 2), lineHeight: fontSize.b1.fontSize + 2 + (mediumScreen ? 6: 2), fontFamily: fontSize.b1.fontFamily, paddingLeft: -22 }]}>Choose a username</Text>}
+              {step === 1 && isCreateAccount && <Text style={[styles.brandTitle, { color: theme.textSecondary, marginTop: 30, fontSize: fontSize.b1.fontSize + (mediumScreen ? 6: 2), lineHeight: fontSize.b1.lineHeight + (mediumScreen ? 6: 2), fontFamily: fontSize.b1.fontFamily, paddingLeft: -22 }]}>Choose a username</Text>}
               {step === 1 && isCreateAccount && <Text style={[styles.brandTitle, { color: titleColor, fontSize: fontSize.b1.fontSize + (mediumScreen ? 0: 0), fontFamily: 'Inter_400Regular', paddingLeft: -22 }]}>Your username is how the galaxy will know you..</Text>}
-              {step === 2 && isCreateAccount && <Text style={[styles.brandTitle, { color: theme.textSecondary, marginTop: 30, fontSize: fontSize.b1.fontSize + (mediumScreen ? 6: 2), lineHeight: fontSize.b1.fontSize + 2 + (mediumScreen ? 6: 2), fontFamily: fontSize.b1.fontFamily, paddingLeft: -22 }]}>When were you born</Text>}
+              {step === 2 && isCreateAccount && <Text style={[styles.brandTitle, { color: theme.textSecondary, marginTop: 30, fontSize: fontSize.b1.fontSize + (mediumScreen ? 6: 2), lineHeight: fontSize.b1.lineHeight + (mediumScreen ? 6: 2), fontFamily: fontSize.b1.fontFamily, paddingLeft: -22 }]}>When were you born</Text>}
               {step === 2 && isCreateAccount && <Text style={[styles.brandTitle, { color: titleColor, fontSize: fontSize.b1.fontSize + (mediumScreen ? 0: 0), fontFamily: 'Inter_400Regular', paddingLeft: -22 }]}>Tell us your date of birth so we can personalize your journey through the Creator Galaxy..</Text>}
-              {step === 3 && isCreateAccount && <Text style={[styles.brandTitle, { color: theme.textSecondary, marginTop: 30, fontSize: fontSize.b1.fontSize + (mediumScreen ? 6: 2), lineHeight: fontSize.b1.fontSize + 2 + (mediumScreen ? 6: 2), fontFamily: fontSize.b1.fontFamily, paddingLeft: -22, paddingRight: -22 }]}>Create a strong password</Text>}
+              {step === 3 && isCreateAccount && <Text style={[styles.brandTitle, { color: theme.textSecondary, marginTop: 30, fontSize: fontSize.b1.fontSize + (mediumScreen ? 6: 2), lineHeight: fontSize.b1.lineHeight + (mediumScreen ? 6: 2), fontFamily: fontSize.b1.fontFamily, paddingLeft: -22, paddingRight: -22 }]}>Create a strong password</Text>}
               {step === 3 && isCreateAccount && <Text style={[styles.brandTitle, { color: titleColor, fontSize: fontSize.b1.fontSize + (mediumScreen ? 0: 0), fontFamily: 'Inter_400Regular', paddingLeft: -22 }]}>Use at least 8 characters with a mix of letters, numbers, and symbols.</Text>}
-              {step === 4 && isCreateAccount && <Text style={[styles.brandTitle, { color: theme.textSecondary, marginTop: 30, fontSize: fontSize.b1.fontSize + (mediumScreen ? 6: 2), lineHeight: fontSize.b1.fontSize + 2 + (mediumScreen ? 6: 2), fontFamily: fontSize.b1.fontFamily, paddingLeft: -22 }]}>Select your gender</Text>}
+              {step === 4 && isCreateAccount && <Text style={[styles.brandTitle, { color: theme.textSecondary, marginTop: 30, fontSize: fontSize.b1.fontSize + (mediumScreen ? 6: 2), lineHeight: fontSize.b1.lineHeight + (mediumScreen ? 6: 2), fontFamily: fontSize.b1.fontFamily, paddingLeft: -22 }]}>Select your gender</Text>}
               {step === 4 && isCreateAccount && <Text style={[styles.brandTitle, { color: titleColor, fontSize: fontSize.b1.fontSize + (mediumScreen ? 0: 0), fontFamily: 'Inter_400Regular', paddingLeft: -22 }]}>This helps us personalize your Kulsah experience.</Text>}
-              {step === 5 && isCreateAccount && <Text style={[styles.brandTitle, { color: theme.textSecondary, marginTop: 30, fontSize: fontSize.b1.fontSize + (mediumScreen ? 6: 2), lineHeight: fontSize.b1.fontSize + 2 + (mediumScreen ? 6: 2), fontFamily: fontSize.b1.fontFamily, paddingLeft: -22 }]}>{Isphone ? "Enter your phone number":"Enter your email"}</Text>}
+              {step === 5 && isCreateAccount && <Text style={[styles.brandTitle, { color: theme.textSecondary, marginTop: 30, fontSize: fontSize.b1.fontSize + (mediumScreen ? 6: 2), lineHeight: fontSize.b1.lineHeight + (mediumScreen ? 6: 2), fontFamily: fontSize.b1.fontFamily, paddingLeft: -22 }]}>{Isphone ? "Enter your phone number":"Enter your email"}</Text>}
               {step === 5 && isCreateAccount && <Text style={[styles.brandTitle, { color: titleColor, fontSize: fontSize.b1.fontSize + (mediumScreen ? 0: 0), fontFamily: 'Inter_400Regular', paddingLeft: -22 }]}>Enter your {Isphone ? 'phone number': 'email address'} to continue creating, earning, connecting, and shining.</Text>}
               {/* {step === 1 && isCreateAccount && <Text style={[styles.brandTitle, { color: titleColor, fontSize: fontSize.b1.fontSize + (mediumScreen ? 0: 0), fontFamily: 'Inter_400Regular', paddingLeft: -22 }]}>Your username is your unique name across the Creator Galaxy.</Text>} */}
               <Pressable onPress={()=>{
@@ -693,7 +693,7 @@ const EmailPhone: React.FC = () => {
                 }, 100);
                 setEmail("")
               }}>
-                {(!isCreateAccount || (step === 5))  && <Text style={[styles.brandSubtitle, { color: PRIMARY_COLOR, marginTop: 20, ...fontSize.b4, lineHeight: fontSize.b4.fontSize + 1 }]}>
+                {(!isCreateAccount || (step === 5))  && <Text style={[styles.brandSubtitle, { color: PRIMARY_COLOR, marginTop: 20, ...fontSize.b4, lineHeight: fontSize.b4.lineHeight }]}>
                 {`Sign In with ${Isphone ? 'email' : 'phone number'} instead ?`}
               </Text>}
               </Pressable>
@@ -1362,7 +1362,7 @@ const styles = StyleSheet.create({
     gap: 14,
   },
   headerTitle: {
-    ...fontSize.b1, lineHeight: fontSize.b1.fontSize + 2,
+    ...fontSize.b1, lineHeight: fontSize.b1.lineHeight,
     letterSpacing: -0.4,
   },
   headerSpacer: {
@@ -1427,12 +1427,12 @@ const styles = StyleSheet.create({
     elevation: 8,
   },
   brandTitle: {
-    ...fontSize.b1, lineHeight: fontSize.b1.fontSize + 2,
+    ...fontSize.b1, lineHeight: fontSize.b1.lineHeight,
     letterSpacing: -0.7,
     marginBottom: 6,
   },
   brandSubtitle: {
-    ...fontSize.b5, lineHeight: fontSize.b5.fontSize + 1,
+    ...fontSize.b5, lineHeight: fontSize.b5.lineHeight,
     textAlign: 'center',
   },
   formBlock: {
@@ -1458,7 +1458,7 @@ const styles = StyleSheet.create({
     width: '70%',
     fontSize: fontSize.b2.fontSize + (mediumScreen ? 6: 2),
     fontFamily: fontSize.b3.fontFamily,
-    lineHeight: fontSize.b2.fontSize + 2 + (mediumScreen ? 8: 4),
+    lineHeight: fontSize.b2.lineHeight + (mediumScreen ? 8: 4),
     alignSelf: 'center',
   },
   genderChevronWrap: {
@@ -1476,7 +1476,7 @@ const styles = StyleSheet.create({
     width: '75%',
     fontSize: fontSize.b2.fontSize + (mediumScreen ? 6: 2), 
     fontFamily: fontSize.b3.fontFamily,
-    lineHeight: fontSize.b2.fontSize + 2 + (mediumScreen ? 8: 4),
+    lineHeight: fontSize.b2.lineHeight + (mediumScreen ? 8: 4),
   },
   primaryButton: {
     borderRadius: 999,
@@ -1500,7 +1500,7 @@ const styles = StyleSheet.create({
   },
   primaryButtonText: {
     color: '#ffffff',
-    ...fontSize.b3, lineHeight: fontSize.b3.fontSize + 1,
+    ...fontSize.b3, lineHeight: fontSize.b3.lineHeight,
     letterSpacing: 1.2,
   },
   helpLink: {
@@ -1508,7 +1508,7 @@ const styles = StyleSheet.create({
     paddingTop: 4,
   },
   helpLinkText: {
-    ...fontSize.b4, lineHeight: fontSize.b4.fontSize + 1,
+    ...fontSize.b4, lineHeight: fontSize.b4.lineHeight,
   },
   forgotPasswordButton: {
     alignSelf: 'flex-end',
@@ -1518,7 +1518,7 @@ const styles = StyleSheet.create({
   forgotPasswordText: {
     color: PRIMARY_COLOR,
     ...fontSize.b5,
-    lineHeight: fontSize.b5.fontSize + 1,
+    lineHeight: fontSize.b5.lineHeight,
   },
   dividerRow: {
     flexDirection: 'row',
@@ -1531,7 +1531,7 @@ const styles = StyleSheet.create({
     height: 1,
   },
   dividerText: {
-    ...fontSize.b5, lineHeight: fontSize.b5.fontSize + 1,
+    ...fontSize.b5, lineHeight: fontSize.b5.lineHeight,
     textTransform: 'uppercase',
     letterSpacing: 2.2,
   },
@@ -1552,7 +1552,7 @@ const styles = StyleSheet.create({
     paddingHorizontal: 12,
   },
   socialText: {
-    ...fontSize.b5, lineHeight: fontSize.b5.fontSize + 1,
+    ...fontSize.b5, lineHeight: fontSize.b5.lineHeight,
   },
   footer: {
     alignItems: 'center',
@@ -1562,13 +1562,13 @@ const styles = StyleSheet.create({
     // backgroundColor: 'pink'
   },
   footerPrompt: {
-    ...fontSize.b5, lineHeight: fontSize.b5.fontSize + 1,
+    ...fontSize.b5, lineHeight: fontSize.b5.lineHeight,
     textTransform: 'uppercase',
     letterSpacing: 1.2,
   },
   footerAction: {
     color: PRIMARY_COLOR,
-    ...fontSize.b4, lineHeight: fontSize.b4.fontSize + 1,
+    ...fontSize.b4, lineHeight: fontSize.b4.lineHeight,
   },
   dropdownBackdrop: {
     flex: 1,
@@ -1592,11 +1592,11 @@ const styles = StyleSheet.create({
   },
   dropdownOptionText: {
     ...fontSize.b3,
-    lineHeight: fontSize.b3.fontSize + 2,
+    lineHeight: fontSize.b3.lineHeight,
   },
   dropdownMetaText: {
     ...fontSize.b5,
-    lineHeight: fontSize.b5.fontSize + 1,
+    lineHeight: fontSize.b5.lineHeight,
   },
 });
 

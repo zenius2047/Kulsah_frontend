@@ -256,17 +256,17 @@ const styles = StyleSheet.create({
   },
   authIconPlaceholderText: {
     color: PRIMARY_COLOR,
-    ...fontSize.b5, lineHeight: fontSize.b5.fontSize + 1,
+    ...fontSize.b5, lineHeight: fontSize.b5.lineHeight,
     // fontWeight: '900',
     textTransform: 'uppercase',
   },
   authButtonText: {
-    ...fontSize.b4, lineHeight: fontSize.b4.fontSize + 1,
+    ...fontSize.b4, lineHeight: fontSize.b4.lineHeight,
     // fontWeight: '800',
   },
   googleError: {
     ...fontSize.b5,
-    lineHeight: fontSize.b5.fontSize + 1,
+    lineHeight: fontSize.b5.lineHeight,
     textAlign: 'center',
     marginTop: -2,
   },
@@ -281,7 +281,7 @@ const styles = StyleSheet.create({
   },
   primaryButtonText: {
     color: '#ffffff',
-    ...fontSize.b4, lineHeight: fontSize.b4.fontSize + 1,
+    ...fontSize.b4, lineHeight: fontSize.b4.lineHeight,
     // fontWeight: '900',
     textTransform: 'uppercase',
     letterSpacing: 1,
@@ -293,7 +293,7 @@ const styles = StyleSheet.create({
     paddingHorizontal: 20,
   },
   secondaryButtonText: {
-    ...fontSize.b4, lineHeight: fontSize.b4.fontSize + 1,
+    ...fontSize.b4, lineHeight: fontSize.b4.lineHeight,
     // fontWeight: '900',
     textTransform: 'uppercase',
     letterSpacing: 1.6,

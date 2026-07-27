@@ -173,12 +173,12 @@ const styles = StyleSheet.create({
   },
   brandTitle: {
     color: '#f7f5f8',
-    ...fontSize.b1, lineHeight: fontSize.b1.fontSize + 2,
+    ...fontSize.b1, lineHeight: fontSize.b1.lineHeight,
     letterSpacing: -1.4,
   },
   brandSubtitle: {
     color: 'rgba(148,163,184,0.8)',
-    ...fontSize.b5, lineHeight: fontSize.b5.fontSize + 1,
+    ...fontSize.b5, lineHeight: fontSize.b5.lineHeight,
     textTransform: 'uppercase',
     letterSpacing: 1.6,
     marginTop: 8,
@@ -205,7 +205,7 @@ const styles = StyleSheet.create({
   },
   cardTitle: {
     color: '#f7f5f8',
-    ...fontSize.b1, lineHeight: fontSize.b1.fontSize + 2,
+    ...fontSize.b1, lineHeight: fontSize.b1.lineHeight,
     textAlign: 'center',
     marginBottom: 24,
   },
@@ -226,7 +226,7 @@ const styles = StyleSheet.create({
   },
   secondaryButtonText: {
     color: '#f7f5f8',
-    ...fontSize.b4, lineHeight: fontSize.b4.fontSize + 1,
+    ...fontSize.b4, lineHeight: fontSize.b4.lineHeight,
   },
   googleMark: {
     width: 24,
@@ -238,11 +238,11 @@ const styles = StyleSheet.create({
   },
   googleMarkText: {
     color: '#f7f5f8',
-    ...fontSize.b4, lineHeight: fontSize.b4.fontSize + 1,
+    ...fontSize.b4, lineHeight: fontSize.b4.lineHeight,
   },
   appleMark: {
     color: '#f7f5f8',
-    ...fontSize.b4, lineHeight: fontSize.b4.fontSize + 1,
+    ...fontSize.b4, lineHeight: fontSize.b4.lineHeight,
   },
   primaryButton: {
     minHeight: 58,
@@ -261,13 +261,13 @@ const styles = StyleSheet.create({
   },
   primaryButtonText: {
     color: '#ffffff',
-    ...fontSize.b4, lineHeight: fontSize.b4.fontSize + 1,
+    ...fontSize.b4, lineHeight: fontSize.b4.lineHeight,
   },
   legalText: {
     marginTop: 24,
     color: '#64748b',
     ...fontSize.b5,
-    lineHeight: fontSize.b1.fontSize + 2,
+    lineHeight: fontSize.b1.lineHeight,
     textAlign: 'center',
     paddingHorizontal: 8,
   },
@@ -283,11 +283,11 @@ const styles = StyleSheet.create({
   },
   creatorPrompt: {
     color: '#94a3b8',
-    ...fontSize.b4, lineHeight: fontSize.b4.fontSize + 1,
+    ...fontSize.b4, lineHeight: fontSize.b4.lineHeight,
   },
   creatorAction: {
     color: PRIMARY_COLOR,
-    ...fontSize.b4, lineHeight: fontSize.b4.fontSize + 1,
+    ...fontSize.b4, lineHeight: fontSize.b4.lineHeight,
   },
   previewGrid: {
     width: '100%',

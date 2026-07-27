@@ -33,7 +33,16 @@ declare module 'expo-font';
 declare module 'expo-linear-gradient';
 
 declare module 'expo-video' {
-  import * as React from 'react';
+    import * as React from 'react';
+
+    export type VideoSource = string | number | null | {
+      uri?: string;
+      assetId?: number;
+      contentType?: 'auto' | 'progressive' | 'hls' | 'dash' | 'smoothStreaming';
+      metadata?: Record<string, string>;
+      headers?: Record<string, string>;
+      useCaching?: boolean;
+    };
 
   export type VideoPlayer = {
     loop: boolean;
@@ -47,7 +56,8 @@ declare module 'expo-video' {
     listenerCount: (...args: any[]) => number;
     play: () => void;
     pause: () => void;
-    replace?: (source: string) => void;
+      replace?: (source: VideoSource) => void;
+      replaceAsync: (source: VideoSource) => Promise<void>;
     [key: string]: any;
   };
 
@@ -56,7 +66,7 @@ declare module 'expo-video' {
     exitFullscreen(): void;
   }
   export function useVideoPlayer(
-    source: string | null,
+      source: VideoSource,
     setup?: (player: VideoPlayer) => void
   ): VideoPlayer;
 }

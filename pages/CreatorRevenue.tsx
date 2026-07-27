@@ -165,9 +165,6 @@ const CreatorRevenue: React.FC = () => {
     <SafeAreaView style={[s.screen, { backgroundColor: theme.screen }]}>
       <View style={[s.header, { backgroundColor: isDark ? 'rgba(6,9,19,0.94)' : 'rgba(255,255,255,0.96)', borderBottomColor: border }]}>
         <View style={s.headerLeft}>
-          <Pressable onPress={() => navigation.goBack()} style={[s.headerButton, { backgroundColor: softBg, borderColor: border }]}>
-            <MaterialIcons name="chevron-left" size={20} color={titleColor} />
-          </Pressable>
           <Text style={[s.headerTitle, { color: titleColor }]}>Galaxy Economy</Text>
         </View>
         <Pressable onPress={() => navigation.navigate('Wallet')} style={[s.headerButton, { backgroundColor: softBg, borderColor: border }]}>
@@ -457,8 +454,9 @@ const s = StyleSheet.create({
     borderWidth: 1,
   },
   headerTitle: {
-    ...fontSize.b1, lineHeight: fontSize.b1.fontSize + 2,
-    textTransform: 'uppercase',
+     ...fontSize.h1, 
+     lineHeight: fontSize.h1.lineHeight, 
+     textTransform: 'uppercase', letterSpacing: 2
   },
   content: {
     padding: 16,
@@ -486,7 +484,7 @@ const s = StyleSheet.create({
     gap: 16,
   },
   microLabel: {
-    ...fontSize.b5, lineHeight: fontSize.b5.fontSize + 1,
+    ...fontSize.b5, lineHeight: fontSize.b5.lineHeight,
     textTransform: 'uppercase',
     letterSpacing: 2,
   },
@@ -498,10 +496,10 @@ const s = StyleSheet.create({
   },
   balanceValue: {
     color: '#22c55e',
-    ...fontSize.b1, lineHeight: fontSize.b1.fontSize + 2,
+    ...fontSize.b1, lineHeight: fontSize.b1.lineHeight,
   },
   balanceUnit: {
-    ...fontSize.b4, lineHeight: fontSize.b4.fontSize + 1,
+    ...fontSize.b4, lineHeight: fontSize.b4.lineHeight,
     marginBottom: 6,
   },
   balanceRight: {
@@ -509,7 +507,7 @@ const s = StyleSheet.create({
   },
   balanceSmallValue: {
     marginTop: 6,
-    ...fontSize.b1, lineHeight: fontSize.b1.fontSize + 2,
+    ...fontSize.b1, lineHeight: fontSize.b1.lineHeight,
   },
   summaryGrid: {
     flexDirection: 'row',
@@ -522,13 +520,13 @@ const s = StyleSheet.create({
     padding: 14,
   },
   summaryLabel: {
-    ...fontSize.b5, lineHeight: fontSize.b5.fontSize + 1,
+    ...fontSize.b5, lineHeight: fontSize.b5.lineHeight,
     textTransform: 'uppercase',
     letterSpacing: 1.2,
   },
   summaryValue: {
     marginTop: 6,
-    ...fontSize.b1, lineHeight: fontSize.b1.fontSize + 2,
+    ...fontSize.b1, lineHeight: fontSize.b1.lineHeight,
   },
   requestButton: {
     height: 58,
@@ -539,7 +537,7 @@ const s = StyleSheet.create({
   },
   requestButtonText: {
     color: '#fff',
-    ...fontSize.b4, lineHeight: fontSize.b4.fontSize + 1,
+    ...fontSize.b4, lineHeight: fontSize.b4.lineHeight,
     textTransform: 'uppercase',
     letterSpacing: 2,
   },
@@ -583,7 +581,7 @@ const s = StyleSheet.create({
   },
   barLabel: {
     marginTop: 8,
-    ...fontSize.b5, lineHeight: fontSize.b5.fontSize + 1,
+    ...fontSize.b5, lineHeight: fontSize.b5.lineHeight,
   },
   distributionCenter: {
     alignItems: 'center',
@@ -607,11 +605,11 @@ const s = StyleSheet.create({
     justifyContent: 'center',
   },
   donutValue: {
-    ...fontSize.b1, lineHeight: fontSize.b1.fontSize + 2,
+    ...fontSize.b1, lineHeight: fontSize.b1.lineHeight,
   },
   donutLabel: {
     marginTop: 4,
-    ...fontSize.b5, lineHeight: fontSize.b5.fontSize + 1,
+    ...fontSize.b5, lineHeight: fontSize.b5.lineHeight,
     textTransform: 'uppercase',
     letterSpacing: 1.4,
   },
@@ -630,11 +628,11 @@ const s = StyleSheet.create({
   },
   distributionName: {
     flex: 1,
-    ...fontSize.b5, lineHeight: fontSize.b5.fontSize + 1,
+    ...fontSize.b5, lineHeight: fontSize.b5.lineHeight,
     textTransform: 'uppercase',
   },
   distributionPercent: {
-    ...fontSize.b4, lineHeight: fontSize.b4.fontSize + 1,
+    ...fontSize.b4, lineHeight: fontSize.b4.lineHeight,
   },
   aiCard: {
     borderRadius: 30,
@@ -663,14 +661,14 @@ const s = StyleSheet.create({
   },
   aiTitle: {
     color: PRIMARY_COLOR,
-    ...fontSize.b4, lineHeight: fontSize.b4.fontSize + 1,
+    ...fontSize.b4, lineHeight: fontSize.b4.lineHeight,
     textTransform: 'uppercase',
     letterSpacing: 2,
   },
   aiMeta: {
     marginTop: 3,
     color: primaryColorAlpha(0.7),
-    ...fontSize.b5, lineHeight: fontSize.b5.fontSize + 1,
+    ...fontSize.b5, lineHeight: fontSize.b5.lineHeight,
     textTransform: 'uppercase',
     letterSpacing: 1.2,
   },
@@ -701,14 +699,14 @@ const s = StyleSheet.create({
     padding: 12,
   },
   aiMetaLabel: {
-    ...fontSize.b5, lineHeight: fontSize.b5.fontSize + 1,
+    ...fontSize.b5, lineHeight: fontSize.b5.lineHeight,
     textTransform: 'uppercase',
     letterSpacing: 1.2,
   },
   aiMetaValue: {
     marginTop: 5,
     color: PRIMARY_COLOR,
-    ...fontSize.b4, lineHeight: fontSize.b4.fontSize + 1,
+    ...fontSize.b4, lineHeight: fontSize.b4.lineHeight,
   },
   transactionsSection: {
     gap: 12,
@@ -721,7 +719,7 @@ const s = StyleSheet.create({
   },
   filterText: {
     color: PRIMARY_COLOR,
-    ...fontSize.b5, lineHeight: fontSize.b5.fontSize + 1,
+    ...fontSize.b5, lineHeight: fontSize.b5.lineHeight,
     textTransform: 'uppercase',
     letterSpacing: 1.4,
   },
@@ -755,7 +753,7 @@ const s = StyleSheet.create({
     flexWrap: 'wrap',
   },
   transactionName: {
-    ...fontSize.b4, lineHeight: fontSize.b4.fontSize + 1,
+    ...fontSize.b4, lineHeight: fontSize.b4.lineHeight,
   },
   statusBadge: {
     borderRadius: 999,
@@ -763,17 +761,17 @@ const s = StyleSheet.create({
     paddingVertical: 3,
   },
   statusBadgeText: {
-    ...fontSize.b5, lineHeight: fontSize.b5.fontSize + 1,
+    ...fontSize.b5, lineHeight: fontSize.b5.lineHeight,
     textTransform: 'uppercase',
   },
   transactionDate: {
     marginTop: 4,
-    ...fontSize.b5, lineHeight: fontSize.b5.fontSize + 1,
+    ...fontSize.b5, lineHeight: fontSize.b5.lineHeight,
     textTransform: 'uppercase',
     letterSpacing: 1.1,
   },
   transactionAmount: {
-    ...fontSize.b3, lineHeight: fontSize.b3.fontSize + 2,
+    ...fontSize.b3, lineHeight: fontSize.b3.lineHeight,
   },
   modalRoot: {
     flex: 1,
@@ -804,11 +802,11 @@ const s = StyleSheet.create({
     marginBottom: 16,
   },
   modalTitle: {
-    ...fontSize.b1, lineHeight: fontSize.b1.fontSize + 2,
+    ...fontSize.b1, lineHeight: fontSize.b1.lineHeight,
     textTransform: 'uppercase',
   },
   modalMeta: {
-    ...fontSize.b5, lineHeight: fontSize.b5.fontSize + 1,
+    ...fontSize.b5, lineHeight: fontSize.b5.lineHeight,
     textTransform: 'uppercase',
     letterSpacing: 1.6,
   },
@@ -819,7 +817,7 @@ const s = StyleSheet.create({
     gap: 10,
   },
   inputLabel: {
-    ...fontSize.b5, lineHeight: fontSize.b5.fontSize + 1,
+    ...fontSize.b5, lineHeight: fontSize.b5.lineHeight,
     textTransform: 'uppercase',
     letterSpacing: 1.6,
   },
@@ -832,12 +830,12 @@ const s = StyleSheet.create({
     paddingHorizontal: 16,
   },
   amountPrefix: {
-    ...fontSize.b1, lineHeight: fontSize.b1.fontSize + 2,
+    ...fontSize.b1, lineHeight: fontSize.b1.lineHeight,
     marginRight: 8,
   },
   amountInput: {
     flex: 1,
-    ...fontSize.b1, lineHeight: fontSize.b1.fontSize + 2,
+    ...fontSize.b1, lineHeight: fontSize.b1.lineHeight,
   },
   amountFooter: {
     flexDirection: 'row',
@@ -845,11 +843,11 @@ const s = StyleSheet.create({
     alignItems: 'center',
   },
   amountHint: {
-    ...fontSize.b5, lineHeight: fontSize.b5.fontSize + 1,
+    ...fontSize.b5, lineHeight: fontSize.b5.lineHeight,
   },
   useMaxText: {
     color: PRIMARY_COLOR,
-    ...fontSize.b5, lineHeight: fontSize.b5.fontSize + 1,
+    ...fontSize.b5, lineHeight: fontSize.b5.lineHeight,
     textTransform: 'uppercase',
     letterSpacing: 1.2,
   },
@@ -880,13 +878,13 @@ const s = StyleSheet.create({
     marginBottom: 10,
   },
   gatewayLabel: {
-    ...fontSize.b5, lineHeight: fontSize.b5.fontSize + 1,
+    ...fontSize.b5, lineHeight: fontSize.b5.lineHeight,
     textAlign: 'center',
     textTransform: 'uppercase',
   },
   gatewaySub: {
     marginTop: 4,
-    ...fontSize.b5, lineHeight: fontSize.b5.fontSize + 1,
+    ...fontSize.b5, lineHeight: fontSize.b5.lineHeight,
     textAlign: 'center',
   },
   momoCard: {
@@ -901,7 +899,7 @@ const s = StyleSheet.create({
     borderRadius: 14,
     borderWidth: 1,
     paddingHorizontal: 14,
-    ...fontSize.b4, lineHeight: fontSize.b4.fontSize + 1,
+    ...fontSize.b4, lineHeight: fontSize.b4.lineHeight,
   },
   progressSection: {
     marginTop: 18,
@@ -915,13 +913,13 @@ const s = StyleSheet.create({
   },
   progressLabel: {
     color: PRIMARY_COLOR,
-    ...fontSize.b5, lineHeight: fontSize.b5.fontSize + 1,
+    ...fontSize.b5, lineHeight: fontSize.b5.lineHeight,
     textTransform: 'uppercase',
     letterSpacing: 1.2,
     flex: 1,
   },
   progressPercent: {
-    ...fontSize.b4, lineHeight: fontSize.b4.fontSize + 1,
+    ...fontSize.b4, lineHeight: fontSize.b4.lineHeight,
   },
   progressTrack: {
     height: 8,
@@ -947,7 +945,7 @@ const s = StyleSheet.create({
     justifyContent: 'center',
   },
   cancelBtnText: {
-    ...fontSize.b5, lineHeight: fontSize.b5.fontSize + 1,
+    ...fontSize.b5, lineHeight: fontSize.b5.lineHeight,
     textTransform: 'uppercase',
     letterSpacing: 1.2,
   },
@@ -961,7 +959,7 @@ const s = StyleSheet.create({
   },
   withdrawBtnText: {
     color: '#fff',
-    ...fontSize.b5, lineHeight: fontSize.b5.fontSize + 1,
+    ...fontSize.b5, lineHeight: fontSize.b5.lineHeight,
     textTransform: 'uppercase',
     letterSpacing: 1.2,
     textAlign: 'center',
@@ -970,7 +968,7 @@ const s = StyleSheet.create({
     marginTop: 18,
     marginBottom: 12,
     textAlign: 'center',
-    ...fontSize.b5, lineHeight: fontSize.b5.fontSize + 1,
+    ...fontSize.b5, lineHeight: fontSize.b5.lineHeight,
     textTransform: 'uppercase',
     letterSpacing: 1.1,
   },

@@ -162,7 +162,7 @@ const styles = StyleSheet.create({
   content: { paddingHorizontal: 16, paddingBottom: 28, paddingTop: 10 },
   section: { marginBottom: 24 },
   sectionTitle: {
-    ...fontSize.b4, lineHeight: fontSize.b4.fontSize + 1,
+    ...fontSize.b4, lineHeight: fontSize.b4.lineHeight,
     letterSpacing: 2,
     marginBottom: 14,
   },
@@ -179,7 +179,7 @@ const styles = StyleSheet.create({
   hotBadge: {
     backgroundColor: primaryColorAlpha(0.2),
     color: PRIMARY_COLOR,
-    ...fontSize.b5, lineHeight: fontSize.b5.fontSize + 1,
+    ...fontSize.b5, lineHeight: fontSize.b5.lineHeight,
     paddingHorizontal: 8,
     paddingVertical: 4,
     borderRadius: 999,
@@ -195,27 +195,27 @@ const styles = StyleSheet.create({
     marginTop: 2,
   },
   titleText: {
-    ...fontSize.b5, lineHeight: fontSize.b5.fontSize + 1,
+    ...fontSize.b5, lineHeight: fontSize.b5.lineHeight,
     marginBottom: 6,
     paddingRight: 70,
   },
   titleSmall: {
-    ...fontSize.b5, lineHeight: fontSize.b5.fontSize + 1,
+    ...fontSize.b5, lineHeight: fontSize.b5.lineHeight,
     marginBottom: 4,
   },
   accentText: { color: PRIMARY_COLOR },
   bodyText: {
     ...fontSize.b5,
-    lineHeight: fontSize.b3.fontSize + 2,
+    lineHeight: fontSize.b3.lineHeight,
     marginBottom: 10,
   },
   inlineText: {
-    ...fontSize.b5, lineHeight: fontSize.b5.fontSize + 1,
+    ...fontSize.b5, lineHeight: fontSize.b5.lineHeight,
     marginBottom: 4,
   },
   strongText: {  },
   timeText: {
-    ...fontSize.b5, lineHeight: fontSize.b5.fontSize + 1,
+    ...fontSize.b5, lineHeight: fontSize.b5.lineHeight,
     textTransform: 'uppercase',
   },
   joinButton: {
@@ -232,7 +232,7 @@ const styles = StyleSheet.create({
   },
   joinButtonText: {
     color: '#ffffff',
-    ...fontSize.b5, lineHeight: fontSize.b5.fontSize + 1,
+    ...fontSize.b5, lineHeight: fontSize.b5.lineHeight,
     textTransform: 'uppercase',
     letterSpacing: 1.3,
   },
@@ -268,12 +268,12 @@ const styles = StyleSheet.create({
   quoteText: {
     ...fontSize.b5,
     fontStyle: 'italic',
-    lineHeight: fontSize.b3.fontSize + 2,
+    lineHeight: fontSize.b3.lineHeight,
   },
   replyText: {
     marginTop: 8,
     color: PRIMARY_COLOR,
-    ...fontSize.b5, lineHeight: fontSize.b5.fontSize + 1,
+    ...fontSize.b5, lineHeight: fontSize.b5.lineHeight,
     textTransform: 'uppercase',
     letterSpacing: 1,
   },
@@ -285,7 +285,7 @@ const styles = StyleSheet.create({
   },
   followButtonText: {
     color: PRIMARY_COLOR,
-    ...fontSize.b5, lineHeight: fontSize.b5.fontSize + 1,
+    ...fontSize.b5, lineHeight: fontSize.b5.lineHeight,
     textTransform: 'uppercase',
     letterSpacing: 1,
   },

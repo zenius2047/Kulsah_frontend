@@ -243,12 +243,12 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
   },
   headerTitle: {
-    ...fontSize.b5, lineHeight: fontSize.b5.fontSize + 1,
+    ...fontSize.b5, lineHeight: fontSize.b5.lineHeight,
     textTransform: 'uppercase',
   },
   headerBrand: {
     color: PRIMARY_COLOR,
-    ...fontSize.b4, lineHeight: fontSize.b4.fontSize + 1,
+    ...fontSize.b4, lineHeight: fontSize.b4.lineHeight,
     letterSpacing: -0.4,
   },
   scroll: {
@@ -289,7 +289,7 @@ const styles = StyleSheet.create({
   },
   heroTag: {
     color: PRIMARY_COLOR,
-    ...fontSize.b5, lineHeight: fontSize.b5.fontSize + 1,
+    ...fontSize.b5, lineHeight: fontSize.b5.lineHeight,
     textTransform: 'uppercase',
     letterSpacing: 1.1,
   },
@@ -327,12 +327,12 @@ const styles = StyleSheet.create({
     elevation: 4,
   },
   criteriaLabel: {
-    ...fontSize.b5, lineHeight: fontSize.b5.fontSize + 1,
+    ...fontSize.b5, lineHeight: fontSize.b5.lineHeight,
     letterSpacing: 1.1,
     textTransform: 'uppercase',
   },
   criteriaTitle: {
-    ...fontSize.b5, lineHeight: fontSize.b5.fontSize + 1,
+    ...fontSize.b5, lineHeight: fontSize.b5.lineHeight,
     marginTop: 4,
   },
   criteriaPill: {
@@ -342,7 +342,7 @@ const styles = StyleSheet.create({
     borderWidth: 1,
   },
   criteriaPillText: {
-    ...fontSize.b5, lineHeight: fontSize.b5.fontSize + 1,
+    ...fontSize.b5, lineHeight: fontSize.b5.lineHeight,
   },
   formSection: {
     gap: 18,
@@ -360,10 +360,10 @@ const styles = StyleSheet.create({
     paddingRight: 16,
   },
   cardTitle: {
-    ...fontSize.b4, lineHeight: fontSize.b4.fontSize + 1,
+    ...fontSize.b4, lineHeight: fontSize.b4.lineHeight,
   },
   cardMeta: {
-    ...fontSize.b4, lineHeight: fontSize.b4.fontSize + 1,
+    ...fontSize.b4, lineHeight: fontSize.b4.lineHeight,
     marginTop: 4,
   },
   detailsCard: {
@@ -376,7 +376,7 @@ const styles = StyleSheet.create({
     gap: 8,
   },
   fieldLabel: {
-    ...fontSize.b5, lineHeight: fontSize.b5.fontSize + 1,
+    ...fontSize.b5, lineHeight: fontSize.b5.lineHeight,
     letterSpacing: 1.2,
     textTransform: 'uppercase',
   },
@@ -385,7 +385,7 @@ const styles = StyleSheet.create({
     paddingHorizontal: 16,
     paddingVertical: 14,
     borderWidth: 1,
-    ...fontSize.b4, lineHeight: fontSize.b4.fontSize + 1,
+    ...fontSize.b4, lineHeight: fontSize.b4.lineHeight,
   },
   textarea: {
     minHeight: 150,
@@ -400,7 +400,7 @@ const styles = StyleSheet.create({
     gap: 14,
   },
   previewHeading: {
-    ...fontSize.b4, lineHeight: fontSize.b4.fontSize + 1,
+    ...fontSize.b4, lineHeight: fontSize.b4.lineHeight,
     paddingHorizontal: 4,
   },
   previewCard: {
@@ -467,7 +467,7 @@ const styles = StyleSheet.create({
   },
   rankPillText: {
     color: '#0a050d',
-    ...fontSize.b5, lineHeight: fontSize.b5.fontSize + 1,
+    ...fontSize.b5, lineHeight: fontSize.b5.lineHeight,
     letterSpacing: 0.8,
   },
   previewTextBlock: {
@@ -476,15 +476,15 @@ const styles = StyleSheet.create({
     marginBottom: 18,
   },
   previewTitle: {
-    ...fontSize.b4, lineHeight: fontSize.b4.fontSize + 1,
+    ...fontSize.b4, lineHeight: fontSize.b4.lineHeight,
     letterSpacing: 0.2,
   },
   previewSubtitle: {
-    ...fontSize.b5, lineHeight: fontSize.b5.fontSize + 1,
+    ...fontSize.b5, lineHeight: fontSize.b5.lineHeight,
   },
   previewLink: {
     color: PRIMARY_COLOR,
-    ...fontSize.b5, lineHeight: fontSize.b5.fontSize + 1,
+    ...fontSize.b5, lineHeight: fontSize.b5.lineHeight,
     textTransform: 'uppercase',
     letterSpacing: 1.2,
   },
@@ -502,7 +502,7 @@ const styles = StyleSheet.create({
   },
   saveButtonText: {
     color: '#ffffff',
-    ...fontSize.b4, lineHeight: fontSize.b4.fontSize + 1,
+    ...fontSize.b4, lineHeight: fontSize.b4.lineHeight,
     textTransform: 'uppercase',
     letterSpacing: 0.2,
   },

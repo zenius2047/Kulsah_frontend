@@ -244,11 +244,11 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
   },
   headerTitle: {
-    ...fontSize.b3, lineHeight: fontSize.b3.fontSize + 2,
+    ...fontSize.b3, lineHeight: fontSize.b3.lineHeight,
   },
   headerBrand: {
     color: PRIMARY_COLOR,
-    ...fontSize.b1, lineHeight: fontSize.b1.fontSize + 2,
+    ...fontSize.b1, lineHeight: fontSize.b1.lineHeight,
     letterSpacing: -0.4,
     marginRight: 12,
   },
@@ -310,7 +310,7 @@ const styles = StyleSheet.create({
   },
   heroPillText: {
     color: '#ffffff',
-    ...fontSize.b4, lineHeight: fontSize.b4.fontSize + 1,
+    ...fontSize.b4, lineHeight: fontSize.b4.lineHeight,
     letterSpacing: 0.8,
     textTransform: 'uppercase',
   },
@@ -350,7 +350,7 @@ const styles = StyleSheet.create({
     borderWidth: 1,
   },
   valueTitle: {
-    ...fontSize.b3, lineHeight: fontSize.b3.fontSize + 2,
+    ...fontSize.b3, lineHeight: fontSize.b3.lineHeight,
   },
   valueText: {
     ...fontSize.b3,
@@ -372,7 +372,7 @@ const styles = StyleSheet.create({
     gap: 4,
   },
   insightTitle: {
-    ...fontSize.b3, lineHeight: fontSize.b3.fontSize + 2,
+    ...fontSize.b3, lineHeight: fontSize.b3.lineHeight,
   },
   insightText: {
     ...fontSize.b3,
@@ -398,7 +398,7 @@ const styles = StyleSheet.create({
   },
   primaryButtonText: {
     color: '#ffffff',
-    ...fontSize.b4, lineHeight: fontSize.b4.fontSize + 1,
+    ...fontSize.b4, lineHeight: fontSize.b4.lineHeight,
     letterSpacing: 1.1,
   },
   secondaryButton: {
@@ -411,7 +411,7 @@ const styles = StyleSheet.create({
     gap: 8,
   },
   secondaryButtonText: {
-    ...fontSize.b4, lineHeight: fontSize.b4.fontSize + 1,
+    ...fontSize.b4, lineHeight: fontSize.b4.lineHeight,
     letterSpacing: 0.8,
   },
   reachSection: {
@@ -425,13 +425,13 @@ const styles = StyleSheet.create({
     paddingHorizontal: 2,
   },
   reachLabel: {
-    ...fontSize.b4, lineHeight: fontSize.b4.fontSize + 1,
+    ...fontSize.b4, lineHeight: fontSize.b4.lineHeight,
     textTransform: 'uppercase',
     letterSpacing: 1.2,
   },
   reachValue: {
     color: PRIMARY_COLOR,
-    ...fontSize.b4, lineHeight: fontSize.b4.fontSize + 1,
+    ...fontSize.b4, lineHeight: fontSize.b4.lineHeight,
     textTransform: 'uppercase',
     letterSpacing: 1.2,
   },

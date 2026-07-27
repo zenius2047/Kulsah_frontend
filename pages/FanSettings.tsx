@@ -32,7 +32,7 @@ import FireIcon from '../assets/icons/fire-svg.svg';
 import { SvgProps } from 'react-native-svg';
 import CoinsIcon from '../assets/icons/coins-svg.svg';
 import CreatorSwitch from '../assets/icons/switch-creator.svg';
-import { fontSize } from './typography';
+import { fontSize } from '../typography';
 import { parseApiError, useSwitchRole, useUpdateProfile, useUploadAvatar } from '../src';
 import type { AvatarUploadSource, User } from '../src';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
@@ -635,12 +635,6 @@ const FanSettings: React.FC<FanSettingsProps> = ({ onLogout, isDarkMode, onToggl
 
   const renderHeader = (title: string, backToMain = true) => (
     <View style={[s.header, { backgroundColor: 'transparent' }]}>
-      <Pressable
-        onPress={() => (backToMain ? setActiveView('main') : navigation.goBack())}
-        style={[s.backButton, { backgroundColor: isDark ? '#ffffff14' : theme.surface }]}
-      >
-        <MaterialIcons name="chevron-left" size={20} color={theme.text} />
-      </Pressable>
       <Text style={[s.headerTitle, { color: theme.text }]}>{title}</Text>
     </View>
   );
@@ -696,7 +690,7 @@ const FanSettings: React.FC<FanSettingsProps> = ({ onLogout, isDarkMode, onToggl
         <View style={s.formBlock}>
           <Text style={[s.label, { color: secondaryText }]}>Galaxy Handle</Text>
           <View style={[s.handleWrap, {borderColor: theme.border, backgroundColor: inputBackground, height: 52, justifyContent: 'center'}]}>
-            <Text style={[s.handlePrefix, { color: PRIMARY_COLOR, fontSize: fontSize.b3.fontSize, lineHeight: fontSize.b3.fontSize + 1, justifyContent: 'center'}]}>@</Text>
+            <Text style={[s.handlePrefix, { color: PRIMARY_COLOR, fontSize: fontSize.b3.fontSize, lineHeight: fontSize.b3.lineHeight, justifyContent: 'center'}]}>@</Text>
             <TextInput
               value={profile.handle}
               onChangeText={(value) => setProfile({ ...profile, handle: value })}
@@ -1515,7 +1509,7 @@ const s = StyleSheet.create({
     justifyContent: 'center',
     backgroundColor: '#eef2ff',
   },
-  headerTitle: { ...fontSize.h1, lineHeight: fontSize.h1.fontSize + 2, textTransform: 'uppercase', color: '#0f172a', letterSpacing: 2 },
+  headerTitle: { ...fontSize.h1, lineHeight: fontSize.h1.lineHeight, textTransform: 'uppercase', color: '#0f172a', letterSpacing: 2 },
   viewWrap: { flex: 1, backgroundColor: '#f8fafc' },
   formCard: { padding: 16, gap: 18, alignItems: 'center' },
   profileAvatarWrap: { alignItems: 'center', marginBottom: 12, },
@@ -1582,7 +1576,7 @@ const s = StyleSheet.create({
     zIndex: 1,
   },
   formBlock: { gap: 8, width: '100%'},
-  label: { ...fontSize.b4, lineHeight: fontSize.b4.fontSize + 1, textTransform: 'uppercase', letterSpacing: 2, color: '#94a3b8' },
+  label: { ...fontSize.b4, lineHeight: fontSize.b4.lineHeight, textTransform: 'uppercase', letterSpacing: 2, color: '#94a3b8' },
   input: {
     height: 52,
     borderRadius: 18,
@@ -1598,7 +1592,7 @@ const s = StyleSheet.create({
   handlePrefix: { position: 'absolute', left: 16, color: PRIMARY_COLOR },
   handleInput: { paddingLeft: 34, },
   rowBetween: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between' },
-  counter: { ...fontSize.b4, lineHeight: fontSize.b4.fontSize + 1, color: '#94a3b8' },
+  counter: { ...fontSize.b4, lineHeight: fontSize.b4.lineHeight, color: '#94a3b8' },
   textArea: {
     minHeight: 120,
     borderRadius: 22,
@@ -1608,7 +1602,7 @@ const s = StyleSheet.create({
     textAlignVertical: 'top',
     backgroundColor: '#fff',
     color: '#334155',
-    ...fontSize.b4, lineHeight: fontSize.b4.fontSize + 1
+    ...fontSize.b4, lineHeight: fontSize.b4.lineHeight
   },
   primaryButton: {
     marginTop: 6,
@@ -1619,7 +1613,7 @@ const s = StyleSheet.create({
     justifyContent: 'center',
     width: '100%'
   },
-  primaryButtonText: { color: '#fff', ...fontSize.b4, lineHeight: fontSize.b4.fontSize + 1, textTransform: 'uppercase', letterSpacing: 2,  },
+  primaryButtonText: { color: '#fff', ...fontSize.b4, lineHeight: fontSize.b4.lineHeight, textTransform: 'uppercase', letterSpacing: 2,  },
   identityContent: { padding: 16, paddingBottom: 120, gap: 20 },
   carouselWrap: { gap: 12 },
   cardSlide: { width: 360, paddingRight: 12 },
@@ -1637,11 +1631,11 @@ const s = StyleSheet.create({
   cardFront: { gap: 16 },
   cardBack: { gap: 14, alignItems: 'center' },
   cardRowBetween: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center' },
-  cardTag: { ...fontSize.b5, lineHeight: fontSize.b5.fontSize + 1, textTransform: 'uppercase', letterSpacing: 3, color: PRIMARY_COLOR },
-  cardName: { ...fontSize.b1, lineHeight: fontSize.b1.fontSize + 2, color: '#0f172a', textTransform: 'uppercase' },
-  cardSub: { ...fontSize.b5, lineHeight: fontSize.b5.fontSize + 1, color: '#94a3b8', textTransform: 'uppercase' },
-  cardTitle: { ...fontSize.b1, lineHeight: fontSize.b1.fontSize + 2, color: '#0f172a', textTransform: 'uppercase' },
-  cardLabel: { ...fontSize.b5, lineHeight: fontSize.b5.fontSize + 1, letterSpacing: 3, color: PRIMARY_COLOR, textTransform: 'uppercase' },
+  cardTag: { ...fontSize.b5, lineHeight: fontSize.b5.lineHeight, textTransform: 'uppercase', letterSpacing: 3, color: PRIMARY_COLOR },
+  cardName: { ...fontSize.b1, lineHeight: fontSize.b1.lineHeight, color: '#0f172a', textTransform: 'uppercase' },
+  cardSub: { ...fontSize.b5, lineHeight: fontSize.b5.lineHeight, color: '#94a3b8', textTransform: 'uppercase' },
+  cardTitle: { ...fontSize.b1, lineHeight: fontSize.b1.lineHeight, color: '#0f172a', textTransform: 'uppercase' },
+  cardLabel: { ...fontSize.b5, lineHeight: fontSize.b5.lineHeight, letterSpacing: 3, color: PRIMARY_COLOR, textTransform: 'uppercase' },
   cardIconBadge: {
     width: 40,
     height: 40,
@@ -1666,14 +1660,14 @@ const s = StyleSheet.create({
     paddingHorizontal: 14,
     paddingVertical: 6,
     borderRadius: 999,
-    ...fontSize.b5, lineHeight: fontSize.b5.fontSize + 1,
+    ...fontSize.b5, lineHeight: fontSize.b5.lineHeight,
     textTransform: 'uppercase',
   },
-  smallLabel: { ...fontSize.b5, lineHeight: fontSize.b5.fontSize + 1, color: '#94a3b8', textTransform: 'uppercase', letterSpacing: 2 },
-  monoText: { ...fontSize.b5, lineHeight: fontSize.b5.fontSize + 1, color: '#64748b' },
+  smallLabel: { ...fontSize.b5, lineHeight: fontSize.b5.lineHeight, color: '#94a3b8', textTransform: 'uppercase', letterSpacing: 2 },
+  monoText: { ...fontSize.b5, lineHeight: fontSize.b5.lineHeight, color: '#64748b' },
   iconRow: { flexDirection: 'row', gap: 8 },
   ticketRow: { flexDirection: 'row', justifyContent: 'space-between' },
-  ticketValue: { ...fontSize.b4, lineHeight: fontSize.b4.fontSize + 1, color: '#0f172a' },
+  ticketValue: { ...fontSize.b4, lineHeight: fontSize.b4.lineHeight, color: '#0f172a' },
   blueText: { color: '#3b82f6' },
   qrBadge: {
     width: 36,
@@ -1712,18 +1706,18 @@ const s = StyleSheet.create({
     backgroundColor: '#f0fdf4',
   },
   tokenDot: { width: 8, height: 8, borderRadius: 4, backgroundColor: PRIMARY_COLOR },
-  tokenText: { ...fontSize.b5, lineHeight: fontSize.b5.fontSize + 1, color: '#7c3aed' },
-  tokenTextAlt: { ...fontSize.b5, lineHeight: fontSize.b5.fontSize + 1, color: '#16a34a' },
-  tokenHint: { ...fontSize.b5, lineHeight: fontSize.b5.fontSize + 1, color: '#94a3b8', textAlign: 'center' },
+  tokenText: { ...fontSize.b5, lineHeight: fontSize.b5.lineHeight, color: '#7c3aed' },
+  tokenTextAlt: { ...fontSize.b5, lineHeight: fontSize.b5.lineHeight, color: '#16a34a' },
+  tokenHint: { ...fontSize.b5, lineHeight: fontSize.b5.lineHeight, color: '#94a3b8', textAlign: 'center' },
   progressBarWrap: { gap: 8 },
   progressTrack: { height: 6, borderRadius: 999, backgroundColor: '#e2e8f0' },
   progressFill: { height: '100%', borderRadius: 999, backgroundColor: PRIMARY_COLOR },
   progressLabels: { flexDirection: 'row', justifyContent: 'space-between' },
-  progressText: { ...fontSize.b5, lineHeight: fontSize.b5.fontSize + 1, textTransform: 'uppercase', color: '#94a3b8' },
+  progressText: { ...fontSize.b5, lineHeight: fontSize.b5.lineHeight, textTransform: 'uppercase', color: '#94a3b8' },
   progressTextActive: { color: PRIMARY_COLOR },
   sectionBlock: { gap: 10 },
-  sectionTitle: { ...fontSize.b5, lineHeight: fontSize.b5.fontSize + 1, textTransform: 'uppercase', letterSpacing: 2, color: '#94a3b8' },
-  sectionBadge: { ...fontSize.b5, lineHeight: fontSize.b5.fontSize + 1, textTransform: 'uppercase', color: PRIMARY_COLOR },
+  sectionTitle: { ...fontSize.b5, lineHeight: fontSize.b5.lineHeight, textTransform: 'uppercase', letterSpacing: 2, color: '#94a3b8' },
+  sectionBadge: { ...fontSize.b5, lineHeight: fontSize.b5.lineHeight, textTransform: 'uppercase', color: PRIMARY_COLOR },
   rail: { marginTop: 6 },
   railCard: {
     width: 170,
@@ -1744,8 +1738,8 @@ const s = StyleSheet.create({
     justifyContent: 'center',
   },
   railIconBlue: { backgroundColor: '#eff6ff' },
-  railTitle: { ...fontSize.b5, lineHeight: fontSize.b5.fontSize + 1, color: '#0f172a' },
-  railMeta: { ...fontSize.b5, lineHeight: fontSize.b5.fontSize + 1, color: '#94a3b8', textTransform: 'uppercase' },
+  railTitle: { ...fontSize.b5, lineHeight: fontSize.b5.lineHeight, color: '#0f172a' },
+  railMeta: { ...fontSize.b5, lineHeight: fontSize.b5.lineHeight, color: '#94a3b8', textTransform: 'uppercase' },
   statusCard: {
     padding: 14,
     borderRadius: 20,
@@ -1765,9 +1759,9 @@ const s = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'center',
   },
-  statusText: { ...fontSize.b4, lineHeight: fontSize.b4.fontSize + 1, color: '#0f172a' },
+  statusText: { ...fontSize.b4, lineHeight: fontSize.b4.lineHeight, color: '#0f172a' },
   statusBadge: {
-    ...fontSize.b5, lineHeight: fontSize.b5.fontSize + 1,
+    ...fontSize.b5, lineHeight: fontSize.b5.lineHeight,
     textTransform: 'uppercase',
     color: PRIMARY_COLOR,
     backgroundColor: '#f5f3ff',
@@ -1789,12 +1783,12 @@ const s = StyleSheet.create({
   },
   walletContent: { gap: 12 },
   walletValue: {
-    ...fontSize.b1, lineHeight: fontSize.b1.fontSize + 2,
+    ...fontSize.b1, lineHeight: fontSize.b1.lineHeight,
     color: '#0f172a',
     marginTop: 4,
   },
   walletUnit: {
-    ...fontSize.b1, lineHeight: fontSize.b1.fontSize + 2,
+    ...fontSize.b1, lineHeight: fontSize.b1.lineHeight,
     color: PRIMARY_COLOR,
   },
   walletActions: {
@@ -1812,7 +1806,7 @@ const s = StyleSheet.create({
   },
   walletPrimaryButtonText: {
     color: '#fff',
-    ...fontSize.b5, lineHeight: fontSize.b5.fontSize + 1,
+    ...fontSize.b5, lineHeight: fontSize.b5.lineHeight,
     textTransform: 'uppercase',
     letterSpacing: 1.5,
   },
@@ -1850,24 +1844,24 @@ const s = StyleSheet.create({
   coinPackBadgeText: {
     color: '#fff',
     ...fontSize.b5,
-    lineHeight: fontSize.b5.fontSize + 1,
+    lineHeight: fontSize.b5.lineHeight,
     textTransform: 'uppercase',
     letterSpacing: 1,
   },
   coinPackCoins: {
     ...fontSize.b1,
-    lineHeight: fontSize.b1.fontSize + 2,
+    lineHeight: fontSize.b1.lineHeight,
   },
   coinPackBonus: {
     color: '#22c55e',
     ...fontSize.b5,
-    lineHeight: fontSize.b5.fontSize + 1,
+    lineHeight: fontSize.b5.lineHeight,
     textTransform: 'uppercase',
     letterSpacing: 1,
   },
   coinPackPrice: {
     ...fontSize.b4,
-    lineHeight: fontSize.b4.fontSize + 1,
+    lineHeight: fontSize.b4.lineHeight,
     textTransform: 'uppercase',
   },
   customCoinCard: {
@@ -1890,7 +1884,7 @@ const s = StyleSheet.create({
     borderWidth: 1,
     paddingHorizontal: 16,
     ...fontSize.b4,
-    lineHeight: fontSize.b4.fontSize + 1,
+    lineHeight: fontSize.b4.lineHeight,
   },
   customCoinButton: {
     width: 52,
@@ -1920,20 +1914,20 @@ const s = StyleSheet.create({
   },
   pendingTopUpLabel: {
     ...fontSize.b5,
-    lineHeight: fontSize.b5.fontSize + 1,
+    lineHeight: fontSize.b5.lineHeight,
     textTransform: 'uppercase',
     letterSpacing: 1.5,
   },
   pendingTopUpTitle: {
     marginTop: 2,
     ...fontSize.b4,
-    lineHeight: fontSize.b4.fontSize + 1,
+    lineHeight: fontSize.b4.lineHeight,
     textTransform: 'uppercase',
   },
   pendingTopUpMeta: {
     marginTop: 2,
     ...fontSize.b5,
-    lineHeight: fontSize.b5.fontSize + 1,
+    lineHeight: fontSize.b5.lineHeight,
   },
   pendingTopUpAmount: {
     alignItems: 'flex-end',
@@ -1941,16 +1935,16 @@ const s = StyleSheet.create({
   },
   pendingTopUpPrice: {
     ...fontSize.b4,
-    lineHeight: fontSize.b4.fontSize + 1,
+    lineHeight: fontSize.b4.lineHeight,
   },
   pendingTopUpChange: {
     ...fontSize.b5,
-    lineHeight: fontSize.b5.fontSize + 1,
+    lineHeight: fontSize.b5.lineHeight,
     textTransform: 'uppercase',
     letterSpacing: 1,
   },
   moreItemsMeta: {
-    ...fontSize.b5, lineHeight: fontSize.b5.fontSize + 1,
+    ...fontSize.b5, lineHeight: fontSize.b5.lineHeight,
     textTransform: 'uppercase',
     letterSpacing: 1.5,
   },
@@ -1979,12 +1973,12 @@ const s = StyleSheet.create({
   },
   giftTextWrap: { flex: 1 },
   giftTitle: {
-    ...fontSize.b4, lineHeight: fontSize.b4.fontSize + 1,
+    ...fontSize.b4, lineHeight: fontSize.b4.lineHeight,
     textTransform: 'uppercase',
   },
   giftDesc: {
     marginTop: 2,
-    ...fontSize.b5, lineHeight: fontSize.b5.fontSize + 1,
+    ...fontSize.b5, lineHeight: fontSize.b5.lineHeight,
   },
   giftRight: {
     alignItems: 'flex-end',
@@ -1992,11 +1986,11 @@ const s = StyleSheet.create({
   },
   giftCount: {
     ...fontSize.b1,
-    lineHeight: fontSize.b1.fontSize + 2,
+    lineHeight: fontSize.b1.lineHeight,
   },
   giftMeta: {
     marginTop: 2,
-    ...fontSize.b5, lineHeight: fontSize.b5.fontSize + 1,
+    ...fontSize.b5, lineHeight: fontSize.b5.lineHeight,
     textTransform: 'uppercase',
     letterSpacing: 1.5,
   },
@@ -2021,12 +2015,12 @@ const s = StyleSheet.create({
     gap: 6,
   },
   marketplaceTitle: {
-    ...fontSize.b4, lineHeight: fontSize.b4.fontSize + 1,
+    ...fontSize.b4, lineHeight: fontSize.b4.lineHeight,
   },
   marketplaceDesc: {
     ...fontSize.b5,
     textAlign: 'center',
-    lineHeight: fontSize.b3.fontSize + 2,
+    lineHeight: fontSize.b3.lineHeight,
   },
   methodCard: {
     padding: 14,
@@ -2047,10 +2041,10 @@ const s = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'center',
   },
-  methodTitle: { ...fontSize.b4, lineHeight: fontSize.b4.fontSize + 1, color: '#0f172a' },
-  methodMeta: { ...fontSize.b5, lineHeight: fontSize.b5.fontSize + 1, color: '#94a3b8', textTransform: 'uppercase' },
+  methodTitle: { ...fontSize.b4, lineHeight: fontSize.b4.lineHeight, color: '#0f172a' },
+  methodMeta: { ...fontSize.b5, lineHeight: fontSize.b5.lineHeight, color: '#94a3b8', textTransform: 'uppercase' },
   methodBadge: {
-    ...fontSize.b5, lineHeight: fontSize.b5.fontSize + 1,
+    ...fontSize.b5, lineHeight: fontSize.b5.lineHeight,
     textTransform: 'uppercase',
     color: PRIMARY_COLOR,
     backgroundColor: '#f5f3ff',
@@ -2067,13 +2061,13 @@ const s = StyleSheet.create({
     alignItems: 'center',
     gap: 8,
   },
-  emptyText: { ...fontSize.b5, lineHeight: fontSize.b5.fontSize + 1, textTransform: 'uppercase', letterSpacing: 2, color: '#94a3b8' },
+  emptyText: { ...fontSize.b5, lineHeight: fontSize.b5.lineHeight, textTransform: 'uppercase', letterSpacing: 2, color: '#94a3b8' },
   mainContent: { padding: 16, paddingBottom: 120, gap: 18 },
   profileHeader: { alignItems: 'center', gap: 12 },
   profileTextWrap: { alignItems: 'center' },
   profileNameRow: { flexDirection: 'row', alignItems: 'center', gap: 2 },
-  profileName: { fontSize: fontSize.b2.fontSize + (mediumScreen? 4:2), fontFamily: fontSize.b2.fontFamily, lineHeight: fontSize.b2.fontSize + (mediumScreen ? 5: 3), color: '#0f172a' },
-  profileHandle: { ...fontSize.b5, lineHeight: fontSize.b5.fontSize + 1, letterSpacing: 0.5, color: PRIMARY_COLOR, textTransform: 'uppercase' },
+  profileName: { ...fontSize.b2, lineHeight: fontSize.b2.lineHeight, color: '#0f172a' },
+  profileHandle: { ...fontSize.b5, lineHeight: fontSize.b5.lineHeight, letterSpacing: 0.5, color: PRIMARY_COLOR, textTransform: 'uppercase' },
   itemRow: {
     marginTop: 8,
     padding: 14,
@@ -2096,8 +2090,8 @@ const s = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'center',
   },
-  itemLabel: { ...fontSize.b4, lineHeight: fontSize.b4.fontSize + 1, color: '#0f172a' },
-  itemDesc: { ...fontSize.b5, lineHeight: fontSize.b5.fontSize + 1, color: '#94a3b8' },
+  itemLabel: { ...fontSize.b4, lineHeight: fontSize.b4.lineHeight, color: '#0f172a' },
+  itemDesc: { ...fontSize.b5, lineHeight: fontSize.b5.lineHeight, color: '#94a3b8' },
   toggle: {
     width: 44,
     height: 24,
@@ -2127,8 +2121,8 @@ const s = StyleSheet.create({
     borderColor: '#fecaca',
     backgroundColor: '#fee2e2',
   },
-  logoutText: { ...fontSize.b4, lineHeight: fontSize.b4.fontSize + 1, color: '#ef4444' },
-  versionText: { ...fontSize.b5, lineHeight: fontSize.b5.fontSize + 1, textTransform: 'uppercase', color: '#94a3b8', letterSpacing: 2 },
+  logoutText: { ...fontSize.b4, lineHeight: fontSize.b4.lineHeight, color: '#ef4444' },
+  versionText: { ...fontSize.b5, lineHeight: fontSize.b5.lineHeight, textTransform: 'uppercase', color: '#94a3b8', letterSpacing: 2 },
   roleModalRoot: {
     flex: 1,
     alignItems: 'center',
@@ -2163,11 +2157,11 @@ const s = StyleSheet.create({
     ...fontSize.b1,
     textTransform: 'uppercase',
     textAlign: 'center',
-    lineHeight: 28,
+    lineHeight: fontSize.b1.lineHeight,
   },
   roleModalBody: {
     ...fontSize.b4,
-    lineHeight: 20,
+    lineHeight: fontSize.b4.lineHeight,
     textAlign: 'center',
   },
   roleModalActions: {
@@ -2184,7 +2178,7 @@ const s = StyleSheet.create({
     justifyContent: 'center',
   },
   roleModalSecondaryText: {
-    ...fontSize.b5, lineHeight: fontSize.b5.fontSize + 1,
+    ...fontSize.b5, lineHeight: fontSize.b5.lineHeight,
     textTransform: 'uppercase',
     letterSpacing: 1.6,
   },
@@ -2203,7 +2197,7 @@ const s = StyleSheet.create({
   },
   roleModalPrimaryText: {
     color: '#ffffff',
-    ...fontSize.b5, lineHeight: fontSize.b5.fontSize + 1,
+    ...fontSize.b5, lineHeight: fontSize.b5.lineHeight,
     textTransform: 'uppercase',
     letterSpacing: 1.8,
   },
@@ -2241,11 +2235,11 @@ const s = StyleSheet.create({
     ...fontSize.b1,
     textTransform: 'uppercase',
     textAlign: 'center',
-    lineHeight: 28,
+    lineHeight: fontSize.b1.lineHeight,
   },
   avatarModalBody: {
     ...fontSize.b4,
-    lineHeight: 20,
+    lineHeight: fontSize.b4.lineHeight,
     textAlign: 'center',
   },
   avatarModalActions: {
@@ -2263,7 +2257,7 @@ const s = StyleSheet.create({
   },
   avatarModalPrimaryText: {
     color: '#ffffff',
-    ...fontSize.b5, lineHeight: fontSize.b5.fontSize + 1,
+    ...fontSize.b5, lineHeight: fontSize.b5.lineHeight,
     textTransform: 'uppercase',
     letterSpacing: 1.8,
   },
@@ -2276,7 +2270,7 @@ const s = StyleSheet.create({
     justifyContent: 'center',
   },
   avatarModalSecondaryText: {
-    ...fontSize.b5, lineHeight: fontSize.b5.fontSize + 1,
+    ...fontSize.b5, lineHeight: fontSize.b5.lineHeight,
     textTransform: 'uppercase',
     letterSpacing: 1.6,
   },
@@ -2315,7 +2309,7 @@ const s = StyleSheet.create({
   avatarCropHeaderButtonText: {
     color: '#fff',
     ...fontSize.b5,
-    lineHeight: fontSize.b5.fontSize + 1,
+    lineHeight: fontSize.b5.lineHeight,
     textTransform: 'uppercase',
     letterSpacing: 1.5,
   },
@@ -2333,7 +2327,7 @@ const s = StyleSheet.create({
   avatarCropSubtitle: {
     ...fontSize.b5,
     textAlign: 'center',
-    lineHeight: fontSize.b5.fontSize + 2,
+    lineHeight: fontSize.b5.lineHeight,
   },
   avatarCropStageShell: {
     alignItems: 'center',
@@ -2394,13 +2388,13 @@ const s = StyleSheet.create({
   },
   avatarCropScaleText: {
     ...fontSize.b3,
-    lineHeight: fontSize.b3.fontSize + 2,
+    lineHeight: fontSize.b3.lineHeight,
     textTransform: 'uppercase',
     letterSpacing: 1.2,
   },
   avatarCropScaleHint: {
     ...fontSize.b5,
-    lineHeight: fontSize.b5.fontSize + 1,
+    lineHeight: fontSize.b5.lineHeight,
     textTransform: 'uppercase',
     letterSpacing: 1.5,
   },

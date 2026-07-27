@@ -63,7 +63,7 @@ const Onboarding: React.FC<OnboardingProps> = ({ onLogin }) => {
             color:
             'white',
             marginTop: 18,
-            ...fontSize.b1, lineHeight: fontSize.b1.fontSize + 2,
+            ...fontSize.b1, lineHeight: fontSize.b1.lineHeight,
             // fontWeight: '900',
             letterSpacing: -1,
             }}>KULSAH</Text>
@@ -71,7 +71,7 @@ const Onboarding: React.FC<OnboardingProps> = ({ onLogin }) => {
             style={{
               color: PRIMARY_COLOR,
               marginTop: 8,
-              ...fontSize.b5, lineHeight: fontSize.b5.fontSize + 1,
+              ...fontSize.b5, lineHeight: fontSize.b5.lineHeight,
               fontWeight: '800',
               letterSpacing: 6,
               textTransform: 'uppercase',
@@ -122,7 +122,7 @@ const Onboarding: React.FC<OnboardingProps> = ({ onLogin }) => {
               flexDirection: 'row'
             }}
           >
-            <Text style={{ color: 'white', ...fontSize.b4, lineHeight: fontSize.b4.fontSize + 1, fontWeight: '900', textTransform: 'uppercase' }}>Join The Galaxy </Text>
+            <Text style={{ color: 'white', ...fontSize.b4, lineHeight: fontSize.b4.lineHeight, fontWeight: '900', textTransform: 'uppercase' }}>Join The Galaxy </Text>
             <MaterialIcons name="arrow-forward" size={34} color='white'></MaterialIcons>
           </Pressable>
 
@@ -137,19 +137,19 @@ const Onboarding: React.FC<OnboardingProps> = ({ onLogin }) => {
               marginBottom: 16,
             }}
           >
-            <Text style={{ color: '#111827', ...fontSize.b1, lineHeight: fontSize.b1.fontSize + 2, fontWeight: '900', textTransform: 'uppercase' }}>Join as Creator</Text>
+            <Text style={{ color: '#111827', ...fontSize.b1, lineHeight: fontSize.b1.lineHeight, fontWeight: '900', textTransform: 'uppercase' }}>Join as Creator</Text>
           </Pressable> */}
 
           <Pressable onPress={() => onLogin('fan')} style={{ alignItems: 'center', paddingVertical: 10 }}>
-            <Text style={{ color: '#94a3b8', ...fontSize.b4, lineHeight: fontSize.b4.fontSize + 1, fontWeight: '800', letterSpacing: 2, textTransform: 'uppercase' }}>
+            <Text style={{ color: '#94a3b8', ...fontSize.b4, lineHeight: fontSize.b4.lineHeight, fontWeight: '800', letterSpacing: 2, textTransform: 'uppercase' }}>
               Sign In to Hub
             </Text>
           </Pressable>
 
           <View style={{ flexDirection: 'row', justifyContent: 'center', gap: 28, marginTop: 10 }}>
-            <Text style={{ color: '#64748b', ...fontSize.b5, lineHeight: fontSize.b5.fontSize + 1, fontWeight: '800', textTransform: 'uppercase' }}>Privacy</Text>
-            <Text style={{ color: '#64748b', ...fontSize.b5, lineHeight: fontSize.b5.fontSize + 1, fontWeight: '800', textTransform: 'uppercase' }}>Security</Text>
-            <Text style={{ color: '#64748b', ...fontSize.b5, lineHeight: fontSize.b5.fontSize + 1, fontWeight: '800', textTransform: 'uppercase' }}>Legal</Text>
+            <Text style={{ color: '#64748b', ...fontSize.b5, lineHeight: fontSize.b5.lineHeight, fontWeight: '800', textTransform: 'uppercase' }}>Privacy</Text>
+            <Text style={{ color: '#64748b', ...fontSize.b5, lineHeight: fontSize.b5.lineHeight, fontWeight: '800', textTransform: 'uppercase' }}>Security</Text>
+            <Text style={{ color: '#64748b', ...fontSize.b5, lineHeight: fontSize.b5.lineHeight, fontWeight: '800', textTransform: 'uppercase' }}>Legal</Text>
           </View>
         </View>
       </View>

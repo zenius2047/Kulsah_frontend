@@ -39,7 +39,7 @@ type EditSubmissionRouteParams = {
   } | null;
 };
 
-type EditorTool = 'none' | 'draw' | 'text';
+type EditorTool = 'none' | 'draw' | 'text' | 'sticker' | 'trim';
 
 type DrawingPoint = {
   x: number;
@@ -65,6 +65,16 @@ type TextSticker = {
   start: number;
   end: number;
   fontSize: number;
+};
+
+type TimelineSticker = {
+  id: string;
+  publicId: string;
+  icon: keyof typeof MaterialIcons.glyphMap;
+  x: number;
+  y: number;
+  start: number;
+  end: number;
 };
 
 type DraggableTextStickerProps = {
@@ -107,7 +117,18 @@ const getOrientationFromTrack = (track?: Record<string, any> | null): VideoDispl
 const quickActions = [
   { id: 'draw', label: 'Draw', icon: 'brush' as const },
   { id: 'text', label: 'Text', icon: 'text-fields' as const },
-  { id: 'music', label: 'Sound', icon: 'music-note' as const },
+  { id: 'sticker', label: 'Sticker', icon: 'emoji-emotions' as const },
+  { id: 'trim', label: 'Trim', icon: 'content-cut' as const },
+];
+
+const STICKER_PRESETS: Array<{
+  publicId: string;
+  label: string;
+  icon: keyof typeof MaterialIcons.glyphMap;
+}> = [
+  { publicId: 'stickers/fire', label: 'Fire', icon: 'local-fire-department' },
+  { publicId: 'stickers/favorite', label: 'Love', icon: 'favorite' },
+  { publicId: 'stickers/star', label: 'Star', icon: 'star' },
 ];
 
 const DRAW_COLORS = ['#fff', PRIMARY_COLOR, '#f97316', '#22c55e', '#38bdf8', '#f43f5e'];
@@ -200,6 +221,7 @@ const EditSubmission: React.FC = () => {
   const [drawingWidth, setDrawingWidth] = useState(5);
   const [strokes, setStrokes] = useState<DrawingStroke[]>([]);
   const [textStickers, setTextStickers] = useState<TextSticker[]>([]);
+  const [timelineStickers, setTimelineStickers] = useState<TimelineSticker[]>([]);
   const [textComposerVisible, setTextComposerVisible] = useState(false);
   const [composerText, setComposerText] = useState('');
   const [composerColor, setComposerColor] = useState('#fff');
@@ -209,6 +231,11 @@ const EditSubmission: React.FC = () => {
   const [composerEnd, setComposerEnd] = useState('5');
   const [drawingStart, setDrawingStart] = useState('0');
   const [drawingEnd, setDrawingEnd] = useState('5');
+  const [stickerStart, setStickerStart] = useState('0');
+  const [stickerEnd, setStickerEnd] = useState('5');
+  const [trimEnabled, setTrimEnabled] = useState(false);
+  const [trimStart, setTrimStart] = useState('0');
+  const [trimEnd, setTrimEnd] = useState('15');
   const [editorCanvasSize, setEditorCanvasSize] = useState({ width: 0, height: 0 });
   const [isRenderingVideo, setIsRenderingVideo] = useState(false);
   const loadedPreviewUriRef = React.useRef<string | null>(null);
@@ -386,12 +413,28 @@ const EditSubmission: React.FC = () => {
       return;
     }
 
-    if (actionId === 'music') {
-      navigation.navigate('Vote');
+    if (actionId === 'sticker' || actionId === 'trim') {
+      setActiveTool((current) => current === actionId ? 'none' : actionId);
       return;
     }
 
     setActiveTool((current) => (current === 'draw' ? 'none' : 'draw'));
+  };
+
+  const addSticker = (preset: (typeof STICKER_PRESETS)[number]) => {
+    const start = Math.max(0, Number(stickerStart) || 0);
+    setTimelineStickers((current) => [
+      ...current,
+      {
+        id: `${Date.now()}-${preset.publicId}`,
+        publicId: preset.publicId,
+        icon: preset.icon,
+        x: Math.max(24, editorCanvasSize.width / 2 - 28),
+        y: Math.max(100, editorCanvasSize.height / 2 - 28),
+        start,
+        end: Math.max(start + 0.1, Number(stickerEnd) || 5),
+      },
+    ]);
   };
 
   const addTextSticker = () => {
@@ -428,6 +471,11 @@ const EditSubmission: React.FC = () => {
 
     if (activeTool === 'text' && textStickers.length > 0) {
       setTextStickers((current) => current.slice(0, -1));
+      return;
+    }
+
+    if (activeTool === 'sticker' && timelineStickers.length > 0) {
+      setTimelineStickers((current) => current.slice(0, -1));
     }
   };
 
@@ -473,15 +521,27 @@ const EditSubmission: React.FC = () => {
     let editPayload: SubmitCreatorVideoEditsPayload | null = null;
 
     try {
+      if (trimEnabled && (Number(trimEnd) || 0) <= (Number(trimStart) || 0)) {
+        Alert.alert('Invalid trim', 'Trim end must be after trim start.');
+        return;
+      }
+
       setIsRenderingVideo(true);
       const drawingFiles = await exportDrawingFiles();
 
-      if (hasVideoOverlays(strokes, textStickers)) {
+      if (hasVideoOverlays(strokes, textStickers) || timelineStickers.length > 0 || trimEnabled) {
         editPayload = createCreatorVideoEditsPayload({
           orientation: previewOrientation,
           canvasSize: editorCanvasSize,
           strokes,
           textStickers,
+          stickers: timelineStickers,
+          trim: trimEnabled
+            ? {
+                start: Math.max(0, Number(trimStart) || 0),
+                end: Math.max(0.1, Number(trimEnd) || 0),
+              }
+            : null,
           drawingFiles,
         });
       }
@@ -592,6 +652,19 @@ const EditSubmission: React.FC = () => {
               onMove={moveTextSticker}
               onPress={editTextSticker}
             />
+          ))}
+          {timelineStickers.map((sticker) => (
+            <Pressable
+              key={sticker.id}
+              onPress={() => {
+                if (activeTool === 'sticker') {
+                  setTimelineStickers((current) => current.filter((item) => item.id !== sticker.id));
+                }
+              }}
+              style={[styles.timelineSticker, { left: sticker.x, top: sticker.y }]}
+            >
+              <MaterialIcons name={sticker.icon} size={48} color="#fff" />
+            </Pressable>
           ))}
         </View>
 
@@ -808,6 +881,37 @@ const EditSubmission: React.FC = () => {
                 </Pressable>
               </View>
             </View>
+          ) : activeTool === 'sticker' ? (
+            <View style={styles.toolPanel}>
+              <View style={styles.stickerPresetRow}>
+                {STICKER_PRESETS.map((preset) => (
+                  <Pressable key={preset.publicId} onPress={() => addSticker(preset)} style={styles.stickerPresetButton}>
+                    <MaterialIcons name={preset.icon} size={28} color="#fff" />
+                    <Text style={styles.quickActionLabel}>{preset.label}</Text>
+                  </Pressable>
+                ))}
+              </View>
+              <View style={styles.timeInputRow}>
+                <TextInput value={stickerStart} onChangeText={setStickerStart} keyboardType="decimal-pad" placeholder="Start" placeholderTextColor="rgba(255,255,255,0.5)" style={styles.timeInput} />
+                <TextInput value={stickerEnd} onChangeText={setStickerEnd} keyboardType="decimal-pad" placeholder="End" placeholderTextColor="rgba(255,255,255,0.5)" style={styles.timeInput} />
+              </View>
+              <View style={styles.toolActions}>
+                <Pressable style={styles.secondaryToolButton} onPress={undoEditorAction}><MaterialIcons name="undo" size={18} color="#fff" /><Text style={styles.secondaryToolText}>Undo</Text></Pressable>
+                <Pressable style={styles.doneButton} onPress={() => setActiveTool('none')}><Text style={styles.doneButtonText}>Done</Text></Pressable>
+              </View>
+            </View>
+          ) : activeTool === 'trim' ? (
+            <View style={styles.toolPanel}>
+              <Text style={styles.toolPanelTitle}>Trim video (seconds)</Text>
+              <View style={styles.timeInputRow}>
+                <TextInput value={trimStart} onChangeText={setTrimStart} keyboardType="decimal-pad" placeholder="Start" placeholderTextColor="rgba(255,255,255,0.5)" style={styles.timeInput} />
+                <TextInput value={trimEnd} onChangeText={setTrimEnd} keyboardType="decimal-pad" placeholder="End" placeholderTextColor="rgba(255,255,255,0.5)" style={styles.timeInput} />
+              </View>
+              <View style={styles.toolActions}>
+                <Pressable style={styles.secondaryToolButton} onPress={() => setTrimEnabled(false)}><Text style={styles.secondaryToolText}>Clear</Text></Pressable>
+                <Pressable style={styles.doneButton} onPress={() => { setTrimEnabled(true); setActiveTool('none'); }}><Text style={styles.doneButtonText}>Apply trim</Text></Pressable>
+              </View>
+            </View>
           ) : params.sound?.title ? (
             <View style={styles.soundPill}>
               <MaterialIcons name="music-note" size={16} color={PRIMARY_COLOR} />
@@ -861,7 +965,7 @@ const styles = StyleSheet.create({
   missingVideoText: {
     color: 'rgba(255,255,255,0.74)',
     ...fontSize.b3,
-    lineHeight: fontSize.b3.fontSize + 2,
+    lineHeight: fontSize.b3.lineHeight,
   },
   header: {
     position: 'absolute',
@@ -894,7 +998,7 @@ const styles = StyleSheet.create({
   headerTitle: {
     color: '#fff',
     ...fontSize.b4,
-    lineHeight: fontSize.b4.fontSize + 1,
+    lineHeight: fontSize.b4.lineHeight,
     fontWeight: '800',
   },
   postButton: {
@@ -913,7 +1017,7 @@ const styles = StyleSheet.create({
   postButtonText: {
     color: '#fff',
     ...fontSize.b3,
-    lineHeight: fontSize.b3.fontSize + 1,
+    lineHeight: fontSize.b3.lineHeight,
     letterSpacing: 0.8,
     // fontWeight: '900',
   },
@@ -961,7 +1065,7 @@ const styles = StyleSheet.create({
   quickActionLabel: {
     color: 'rgba(255,255,255,0.78)',
     ...fontSize.b5,
-    lineHeight: fontSize.b5.fontSize + 1,
+    lineHeight: fontSize.b5.lineHeight,
     textTransform: 'uppercase',
     letterSpacing: 0.8,
   },
@@ -988,7 +1092,7 @@ const styles = StyleSheet.create({
   soundPillText: {
     color: '#fff',
     ...fontSize.b5,
-    lineHeight: fontSize.b5.fontSize + 1,
+    lineHeight: fontSize.b5.lineHeight,
   },
   bottomNextButton: {
     // alignSelf: 'flex-end',
@@ -1024,9 +1128,18 @@ const styles = StyleSheet.create({
     paddingHorizontal: 12,
     paddingVertical: 8,
   },
+  timelineSticker: {
+    position: 'absolute',
+    width: 58,
+    height: 58,
+    borderRadius: 16,
+    alignItems: 'center',
+    justifyContent: 'center',
+    backgroundColor: 'rgba(0,0,0,0.18)',
+  },
   textStickerLabel: {
     ...fontSize.b2,
-    lineHeight: fontSize.b2.fontSize + 4,
+    lineHeight: fontSize.b2.lineHeight,
     fontWeight: '900',
     textAlign: 'center',
     textShadowColor: 'rgba(0,0,0,0.44)',
@@ -1070,7 +1183,7 @@ const styles = StyleSheet.create({
     paddingHorizontal: 14,
     paddingVertical: 10,
     ...fontSize.h2,
-    lineHeight: fontSize.h2.fontSize + 6,
+    lineHeight: fontSize.h2.lineHeight,
     fontWeight: '900',
   },
   composerTray: {
@@ -1088,6 +1201,29 @@ const styles = StyleSheet.create({
     backgroundColor: 'rgba(0,0,0,0.62)',
     padding: 14,
     gap: 14,
+  },
+  toolPanelTitle: {
+    color: '#fff',
+    textAlign: 'center',
+    ...fontSize.b4,
+    lineHeight: fontSize.b4.lineHeight,
+    fontWeight: '800',
+  },
+  stickerPresetRow: {
+    flexDirection: 'row',
+    justifyContent: 'center',
+    gap: 12,
+  },
+  stickerPresetButton: {
+    minWidth: 72,
+    minHeight: 62,
+    borderRadius: 16,
+    alignItems: 'center',
+    justifyContent: 'center',
+    gap: 5,
+    backgroundColor: 'rgba(255,255,255,0.08)',
+    borderWidth: 1,
+    borderColor: 'rgba(255,255,255,0.12)',
   },
   swatchRow: {
     flexDirection: 'row',
@@ -1142,7 +1278,7 @@ const styles = StyleSheet.create({
   fontSizeButtonText: {
     color: '#fff',
     ...fontSize.b5,
-    lineHeight: fontSize.b5.fontSize + 1,
+    lineHeight: fontSize.b5.lineHeight,
     fontWeight: '900',
   },
   timeInputRow: {
@@ -1161,7 +1297,7 @@ const styles = StyleSheet.create({
     borderWidth: 1,
     borderColor: 'rgba(255,255,255,0.12)',
     ...fontSize.b5,
-    lineHeight: fontSize.b5.fontSize + 1,
+    lineHeight: fontSize.b5.lineHeight,
     fontWeight: '800',
   },
   brushButton: {
@@ -1200,7 +1336,7 @@ const styles = StyleSheet.create({
   secondaryToolText: {
     color: '#fff',
     ...fontSize.b5,
-    lineHeight: fontSize.b5.fontSize + 1,
+    lineHeight: fontSize.b5.lineHeight,
     fontWeight: '800',
   },
   doneButton: {
@@ -1214,7 +1350,7 @@ const styles = StyleSheet.create({
   doneButtonText: {
     color: '#fff',
     ...fontSize.b5,
-    lineHeight: fontSize.b5.fontSize + 1,
+    lineHeight: fontSize.b5.lineHeight,
     fontWeight: '900',
   },
 });

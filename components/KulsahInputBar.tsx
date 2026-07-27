@@ -80,7 +80,7 @@ const styles = StyleSheet.create({
     flex: 1,
     minHeight: 29,
     paddingVertical: 0,
-    ...fontSize.b4, lineHeight: fontSize.b4.fontSize + 1,
+    ...fontSize.b4, lineHeight: fontSize.b4.lineHeight,
   },
 });
 

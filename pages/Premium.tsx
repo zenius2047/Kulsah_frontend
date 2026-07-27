@@ -186,13 +186,13 @@ const styles = StyleSheet.create({
   },
   eyebrow: {
     ...fontSize.b5,
-    lineHeight: fontSize.b5.fontSize + 1,
+    lineHeight: fontSize.b5.lineHeight,
     textTransform: 'uppercase',
     letterSpacing: 1.8,
   },
   heroTitle: {
     ...fontSize.n1,
-    lineHeight: fontSize.n1.fontSize + 4,
+    lineHeight: fontSize.n1.lineHeight,
     letterSpacing: 0,
   },
   body: {
@@ -220,7 +220,7 @@ const styles = StyleSheet.create({
   playAllText: {
     color: '#ffffff',
     ...fontSize.b5,
-    lineHeight: fontSize.b5.fontSize + 1,
+    lineHeight: fontSize.b5.lineHeight,
     textTransform: 'uppercase',
     letterSpacing: 1.8,
   },
@@ -258,7 +258,7 @@ const styles = StyleSheet.create({
   metaBadgeText: {
     color: 'rgba(255,255,255,0.82)',
     ...fontSize.b5,
-    lineHeight: fontSize.b5.fontSize + 1,
+    lineHeight: fontSize.b5.lineHeight,
   },
   centerIcon: {
     position: 'absolute',
@@ -283,7 +283,7 @@ const styles = StyleSheet.create({
   tileTitle: {
     color: '#ffffff',
     ...fontSize.b2,
-    lineHeight: fontSize.b2.fontSize + 4,
+    lineHeight: fontSize.b2.lineHeight,
     textTransform: 'uppercase',
     letterSpacing: 0,
   },
@@ -294,7 +294,7 @@ const styles = StyleSheet.create({
   },
   typeText: {
     ...fontSize.b5,
-    lineHeight: fontSize.b5.fontSize + 1,
+    lineHeight: fontSize.b5.lineHeight,
     textTransform: 'uppercase',
     letterSpacing: 1.4,
   },
@@ -319,7 +319,7 @@ const styles = StyleSheet.create({
   lockText: {
     color: '#ffffff',
     ...fontSize.b5,
-    lineHeight: fontSize.b5.fontSize + 6,
+    lineHeight: fontSize.b5.lineHeight,
     textAlign: 'center',
     textTransform: 'uppercase',
     letterSpacing: 1.5,

@@ -19,7 +19,7 @@ import { LinearGradient } from 'expo-linear-gradient';
 import { GoogleGenAI } from '@google/genai';
 import { mediumScreen } from '../types';
 import { useThemeMode, primaryColorAlpha, PRIMARY_COLOR } from "../theme";
-import { fontSize } from './typography';
+import { fontSize } from '../typography';
 
 type Audience = 'all' | 'subs';
 
@@ -468,7 +468,7 @@ const styles = StyleSheet.create({
   },
   toastText: {
     color: '#fff',
-    ...fontSize.b5, lineHeight: fontSize.b5.fontSize + 1,
+    ...fontSize.b5, lineHeight: fontSize.b5.lineHeight,
     letterSpacing: 2.6,
   },
   header: {
@@ -494,7 +494,7 @@ const styles = StyleSheet.create({
   },
   headerTitle: {
     color: '#F8FAFC',
-    ...fontSize.b3, lineHeight: fontSize.b3.fontSize + 2,
+    ...fontSize.b3, lineHeight: fontSize.b3.lineHeight,
     letterSpacing: 0.5,
   },
   headerPostButton: {
@@ -506,7 +506,7 @@ const styles = StyleSheet.create({
   },
   headerPostText: {
     color: PRIMARY_COLOR,
-    ...fontSize.b3, lineHeight: fontSize.b3.fontSize + 2,
+    ...fontSize.b3, lineHeight: fontSize.b3.lineHeight,
     letterSpacing: 0.3,
   },
   scroll: {
@@ -551,7 +551,7 @@ const styles = StyleSheet.create({
   },
   profileName: {
     color: '#F8FAFC',
-    ...fontSize.b1, lineHeight: fontSize.b1.fontSize + 2,
+    ...fontSize.b1, lineHeight: fontSize.b1.lineHeight,
   },
   profileSubRow: {
     flexDirection: 'row',
@@ -567,7 +567,7 @@ const styles = StyleSheet.create({
   },
   profileSubText: {
     color: PRIMARY_COLOR,
-    ...fontSize.b4, lineHeight: fontSize.b4.fontSize + 1,
+    ...fontSize.b4, lineHeight: fontSize.b4.lineHeight,
     letterSpacing: 2.5,
   },
   editorCard: {
@@ -582,7 +582,7 @@ const styles = StyleSheet.create({
     minHeight: 210,
     color: '#F8FAFC',
     ...fontSize.b1,
-    lineHeight: 28,
+    lineHeight: fontSize.b1.lineHeight,
     textAlignVertical: 'top',
   },
   imageGrid: {
@@ -641,7 +641,7 @@ const styles = StyleSheet.create({
   },
   aiButtonText: {
     color: PRIMARY_COLOR,
-    ...fontSize.b5, lineHeight: fontSize.b5.fontSize + 1,
+    ...fontSize.b5, lineHeight: fontSize.b5.lineHeight,
     letterSpacing: 1.8,
   },
   spinIcon: {
@@ -667,7 +667,7 @@ const styles = StyleSheet.create({
   },
   pollTitle: {
     color: PRIMARY_COLOR,
-    ...fontSize.b5, lineHeight: fontSize.b5.fontSize + 1,
+    ...fontSize.b5, lineHeight: fontSize.b5.lineHeight,
     letterSpacing: 2,
   },
   pollOptionsWrap: {
@@ -683,7 +683,7 @@ const styles = StyleSheet.create({
     borderRadius: 14,
     paddingHorizontal: 16,
     color: '#F8FAFC',
-    ...fontSize.b4, lineHeight: fontSize.b4.fontSize + 1,
+    ...fontSize.b4, lineHeight: fontSize.b4.lineHeight,
     backgroundColor: 'rgba(255,255,255,0.05)',
     borderWidth: 1,
     borderColor: 'rgba(255,255,255,0.08)',
@@ -707,7 +707,7 @@ const styles = StyleSheet.create({
   },
   addPollText: {
     color: PRIMARY_COLOR,
-    ...fontSize.b5, lineHeight: fontSize.b5.fontSize + 1,
+    ...fontSize.b5, lineHeight: fontSize.b5.lineHeight,
     letterSpacing: 1.8,
   },
   footer: {
@@ -755,7 +755,7 @@ const styles = StyleSheet.create({
   },
   audienceText: {
     color: '#94A3B8',
-    ...fontSize.b4, lineHeight: fontSize.b4.fontSize + 1,
+    ...fontSize.b4, lineHeight: fontSize.b4.lineHeight,
     letterSpacing: 1.6,
   },
   audienceTextActive: {
@@ -778,7 +778,7 @@ const styles = StyleSheet.create({
   },
   publishButtonText: {
     color: '#fff',
-    ...fontSize.b3, lineHeight: fontSize.b3.fontSize + 2,
+    ...fontSize.b3, lineHeight: fontSize.b3.lineHeight,
   },
   modalRoot: {
     flex: 1,
@@ -814,11 +814,11 @@ const styles = StyleSheet.create({
   },
   modalTitle: {
     color: '#F8FAFC',
-    ...fontSize.b1, lineHeight: fontSize.b1.fontSize + 2,
+    ...fontSize.b1, lineHeight: fontSize.b1.lineHeight,
   },
   modalSectionTitle: {
     color: '#94A3B8',
-    ...fontSize.b5, lineHeight: fontSize.b5.fontSize + 1,
+    ...fontSize.b5, lineHeight: fontSize.b5.lineHeight,
     letterSpacing: 2,
     marginBottom: 12,
   },
@@ -839,7 +839,7 @@ const styles = StyleSheet.create({
     borderColor: 'rgba(255,255,255,0.08)',
   },
   emojiText: {
-    ...fontSize.b1, lineHeight: fontSize.b1.fontSize + 2,
+    ...fontSize.b1, lineHeight: fontSize.b1.lineHeight,
   },
   stickerRow: {
     gap: 12,

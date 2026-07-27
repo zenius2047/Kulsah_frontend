@@ -242,11 +242,11 @@ const styles = StyleSheet.create({
   },
   title: {
     ...fontSize.b1,
-    lineHeight: fontSize.b1.fontSize + 2,
+    lineHeight: fontSize.b1.lineHeight,
   },
   subtitle: {
     ...fontSize.b4,
-    lineHeight: fontSize.b4.fontSize + 6,
+    lineHeight: fontSize.b4.lineHeight,
   },
   modeButton: {
     alignSelf: 'flex-start',
@@ -256,7 +256,7 @@ const styles = StyleSheet.create({
   modeButtonText: {
     color: PRIMARY_COLOR,
     ...fontSize.b4,
-    lineHeight: fontSize.b4.fontSize + 1,
+    lineHeight: fontSize.b4.lineHeight,
   },
   inputWrap: {
     minHeight: 58,
@@ -276,11 +276,11 @@ const styles = StyleSheet.create({
   },
   countryCode: {
     ...fontSize.b3,
-    lineHeight: fontSize.b3.fontSize + 1,
+    lineHeight: fontSize.b3.lineHeight,
   },
   callingCode: {
     ...fontSize.b3,
-    lineHeight: fontSize.b3.fontSize + 1,
+    lineHeight: fontSize.b3.lineHeight,
   },
   iconWrap: {
     width: '15%',
@@ -289,13 +289,13 @@ const styles = StyleSheet.create({
   },
   input: {
     ...fontSize.b3,
-    lineHeight: fontSize.b3.fontSize + 4,
+    lineHeight: fontSize.b3.lineHeight,
   },
   errorText: {
     color: '#dc2626',
     marginTop: 12,
     ...fontSize.b5,
-    lineHeight: fontSize.b5.fontSize + 2,
+    lineHeight: fontSize.b5.lineHeight,
   },
   primaryButton: {
     marginTop: 22,
@@ -319,7 +319,7 @@ const styles = StyleSheet.create({
   primaryButtonText: {
     color: '#ffffff',
     ...fontSize.b3,
-    lineHeight: fontSize.b3.fontSize + 1,
+    lineHeight: fontSize.b3.lineHeight,
     letterSpacing: 1.2,
   },
   dropdownBackdrop: {
@@ -344,11 +344,11 @@ const styles = StyleSheet.create({
   },
   dropdownOptionText: {
     ...fontSize.b3,
-    lineHeight: fontSize.b3.fontSize + 2,
+    lineHeight: fontSize.b3.lineHeight,
   },
   dropdownMetaText: {
     ...fontSize.b5,
-    lineHeight: fontSize.b5.fontSize + 1,
+    lineHeight: fontSize.b5.lineHeight,
   },
   loadingOverlay: {
     flex: 1,

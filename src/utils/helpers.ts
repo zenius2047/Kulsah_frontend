@@ -1,11 +1,10 @@
 import { useEffect, useState } from 'react';
-import { Platform, StyleSheet, useWindowDimensions } from 'react-native';
+import { Dimensions, Platform, StyleSheet, useWindowDimensions } from 'react-native';
 import type { TextStyle } from 'react-native';
 import { configureFonts, MD3DarkTheme, MD3LightTheme } from 'react-native-paper';
 import type { MD3Type } from 'react-native-paper/lib/typescript/types';
 import { PRIMARY_COLOR, THEME_COLORS } from './constants';
 import { darkMode, subscribeDarkMode } from '../store/app.store';
-import { mediumScreen } from '../store/app.store';
 export { PRIMARY_COLOR } from './constants';
 
 const normalizeHexColor = (hexColor: string) => hexColor.replace('#', '');
@@ -41,9 +40,9 @@ const fontConfig: Partial<Record<string, Partial<MD3Type>>> = {
   labelLarge: { fontFamily: 'Inter_500Medium' },
   labelMedium: { fontFamily: 'Inter_500Medium' },
   labelSmall: { fontFamily: 'Inter_400Regular' },
-  bodyLarge: { fontFamily: 'DMSans_400Regular' },
-  bodyMedium: { fontFamily: 'DMSans_400Regular' },
-  bodySmall: { fontFamily: 'DMSans_400Regular' },
+  bodyLarge: { fontFamily: 'Inter_400Regular' },
+  bodyMedium: { fontFamily: 'Inter_400Regular' },
+  bodySmall: { fontFamily: 'Inter_400Regular' },
 };
 
 export const KulsahTheme = {
@@ -81,6 +80,20 @@ export const useThemeMode = () => {
 
 export type TypographyRole = 'display' | 'title' | 'body' | 'subheadline' | 'micro' | 'button';
 
+export type DeviceSizeClass = 'compact' | 'medium' | 'large';
+
+const screen = Dimensions.get('screen');
+const longestScreenSide = Math.max(screen.width, screen.height);
+
+export const DEVICE_SIZE_CLASS: DeviceSizeClass =
+  longestScreenSide <= 830 ? 'compact' : longestScreenSide <= 900 ? 'medium' : 'large';
+
+export const getResponsiveFontSize = (compact: number, medium: number, large: number) => {
+  if (DEVICE_SIZE_CLASS === 'compact') return compact;
+  if (DEVICE_SIZE_CLASS === 'large') return large;
+  return medium;
+};
+
 type NativeTypographyToken = {
   ios: number;
   android: number;
@@ -94,43 +107,43 @@ type NativeTypographyToken = {
 
 export const TYPOGRAPHY_TOKENS: Record<TypographyRole, NativeTypographyToken> = {
   display: {
-    ios: 34,
-    android: 34,
+    ios: getResponsiveFontSize(26, 28, 30),
+    android: getResponsiveFontSize(26, 28, 30),
     weight: '700',
     lineHeightRatio: 1.2,
     letterSpacing: { ios: -0.4, android: 0.4 },
   },
   title: {
-    ios: 20,
-    android: 20,
+    ios: getResponsiveFontSize(16, 18, 20),
+    android: getResponsiveFontSize(16, 18, 20),
     weight: '600',
     lineHeightRatio: 1.4,
     letterSpacing: { ios: -0.32, android: 0.3 },
   },
   body: {
-    ios: 15,
-    android: 14,
+    ios: getResponsiveFontSize(11, 12, 13),
+    android: getResponsiveFontSize(11, 12, 13),
     weight: '400',
     lineHeightRatio: 1.5,
     letterSpacing: { ios: -0.24, android: 0.25 },
   },
   subheadline: {
-    ios: 13,
-    android: 12,
+    ios: getResponsiveFontSize(9, 10, 11),
+    android: getResponsiveFontSize(9, 10, 11),
     weight: '400',
     lineHeightRatio: 1.4,
     letterSpacing: { ios: -0.08, android: 0.4 },
   },
   micro: {
-    ios: 11,
-    android: 11,
+    ios: getResponsiveFontSize(7, 8, 9),
+    android: getResponsiveFontSize(7, 8, 9),
     weight: '400',
     lineHeightRatio: 1.3,
     letterSpacing: { ios: 0.07, android: 0.45 },
   },
   button: {
-    ios: 15,
-    android: 14,
+    ios: getResponsiveFontSize(10, 11, 12),
+    android: getResponsiveFontSize(10, 11, 12),
     weight: '600',
     lineHeightRatio: 1.33,
     letterSpacing: { ios: -0.24, android: 1.25 },
@@ -149,45 +162,145 @@ export const FontFamily = {
 } as const;
 
 export const fontSize = {
+  reactionB1: {
+    fontFamily: 'Inter_700Bold',
+    fontSize: getResponsiveFontSize(16, 17, 18),
+    lineHeight: getResponsiveFontSize(21, 22, 24),
+  },
+  reactionB3: {
+    fontFamily: 'Inter_500Medium',
+    fontSize: getResponsiveFontSize(14, 15, 16),
+    lineHeight: getResponsiveFontSize(20, 21, 24),
+  },
+  reactionB4: {
+    fontFamily: 'Inter_500Medium',
+    fontSize: getResponsiveFontSize(13, 14, 15),
+    lineHeight: getResponsiveFontSize(18, 20, 22),
+  },
+  reactionB5: {
+    fontFamily: 'Inter_500Medium',
+    fontSize: getResponsiveFontSize(11, 12, 13),
+    lineHeight: getResponsiveFontSize(16, 16, 18),
+  },
+  b0: {
+    fontFamily: 'Inter_600SemiBold',
+    fontSize: getResponsiveFontSize(14, 15, 16),
+    lineHeight: getResponsiveFontSize(20, 21, 22),
+  },
+  b0Variant: {
+    fontFamily: 'Inter_600SemiBold',
+    fontSize: getResponsiveFontSize(14, 18, 20),
+    lineHeight: getResponsiveFontSize(16, 19, 21),
+  },
   h1: {
     fontFamily: 'Inter_700Bold',
-    fontSize: mediumScreen ? 16 : 10,
+    fontSize: getResponsiveFontSize(12, 14, 16),
+    lineHeight: getResponsiveFontSize(12, 14, 16),
   },
   h2: {
-    fontFamily: 'Inter_500Medium',
-    fontSize: mediumScreen ? 12 : 8,
+    fontFamily: 'Inter_600SemiBold',
+    fontSize: getResponsiveFontSize(10, 12, 14),
+    lineHeight: getResponsiveFontSize(10, 12, 14),
   },
   b1: {
     fontFamily: 'Inter_700Bold',
-    fontSize: mediumScreen ? 18 : 14,
+    fontSize: getResponsiveFontSize(12, 13, 14),
+    lineHeight: getResponsiveFontSize(17, 18, 20),
   },
   b2: {
     fontFamily: 'Inter_600SemiBold',
-    fontSize: mediumScreen ? 16 : 12,
+    fontSize: getResponsiveFontSize(11, 12, 15),
+    lineHeight: getResponsiveFontSize(17, 20, 21),
   },
   b3: {
     fontFamily: 'Inter_500Medium',
-    fontSize: mediumScreen ? 16 : 12,
+    fontSize: getResponsiveFontSize(12, 14, 16),
+    lineHeight: getResponsiveFontSize(15, 17, 22),
   },
   b4: {
-    fontFamily: 'Poppins_500Medium',
-    fontSize: mediumScreen ? 14 : 10,
+    fontFamily: 'Inter_500Medium',
+    fontSize: getResponsiveFontSize(9, 10, 11),
+    lineHeight: getResponsiveFontSize(14, 16, 18),
   },
   b5: {
-    fontFamily: 'Poppins_500Medium',
-    fontSize: mediumScreen ? 12 : 8,
+    fontFamily: 'Inter_500Medium',
+    fontSize: getResponsiveFontSize(10, 12, 14),
+    lineHeight: getResponsiveFontSize(12, 15, 16),
+  },
+  b5Variant: {
+    fontFamily: 'Inter_600SemiBold',
+    fontSize: getResponsiveFontSize(8, 10, 12),
+    lineHeight: getResponsiveFontSize(9, 11, 15),
+  },
+  b6: {
+    fontFamily: 'Inter_500Medium',
+    fontSize: getResponsiveFontSize(8, 10, 12),
+    lineHeight: getResponsiveFontSize(9, 10, 13),
   },
   n1: {
-    fontFamily: 'PlusJakartaSans_800ExtraBold',
-    fontSize: mediumScreen ? 30 : 26,
+    fontFamily: 'Inter_700Bold',
+    fontSize: getResponsiveFontSize(26, 28, 30),
+    lineHeight: getResponsiveFontSize(32, 34, 37),
   },
   n3: {
-    fontFamily: 'PlusJakartaSans_800ExtraBold',
-    fontSize: mediumScreen ? 18 : 14,
+    fontFamily: 'Inter_700Bold',
+    fontSize: getResponsiveFontSize(16, 18, 20),
+    lineHeight: getResponsiveFontSize(21, 24, 27),
   },
   n5: {
-    fontFamily: 'PlusJakartaSans_800ExtraBold',
-    fontSize: mediumScreen ? 12 : 10,
+    fontFamily: 'Inter_600SemiBold',
+    fontSize: getResponsiveFontSize(8, 9, 10),
+    lineHeight: getResponsiveFontSize(12, 14, 16),
+  },
+  tabText: {
+    fontFamily: 'Inter_600SemiBold',
+    fontSize: getResponsiveFontSize(8, 10, 12),
+    lineHeight: getResponsiveFontSize(10, 12, 14),
+  },
+  mediumTitleText: {
+    fontFamily: 'Inter_600SemiBold',
+    fontSize: getResponsiveFontSize(10, 12, 14),
+    lineHeight: getResponsiveFontSize(12, 12, 14),
+  },
+  nameText: {
+    fontFamily: 'Inter_700Bold',
+    fontSize: getResponsiveFontSize(8, 10, 12),
+    lineHeight: getResponsiveFontSize(9, 11, 13),
+  },
+  handleTextSmall: {
+    fontFamily: "Inter_500Medium",
+    fontSize: getResponsiveFontSize(9, 11, 13),
+    lineHeight: getResponsiveFontSize(10, 12, 12),
+  },
+  handleTextMedium: {
+    fontFamily: "Inter_500Medium",
+    fontSize: getResponsiveFontSize(12, 16, 18),
+    lineHeight: getResponsiveFontSize(13, 17, 19),
+  },
+  creatorStyleText: {
+    fontFamily: "Inter_500Medium",
+    fontSize: getResponsiveFontSize(9, 11, 13),
+    lineHeight: getResponsiveFontSize(10, 12, 15),
+  },
+  tabTextLarge: {
+    fontFamily: "Inter_700Bold",
+    fontSize: getResponsiveFontSize(12, 14, 16),
+    lineHeight: getResponsiveFontSize(15, 14, 16),
+  },
+  badgeTextSmall: {
+    fontFamily: "Inter_700Bold",
+    fontSize: getResponsiveFontSize(6, 8, 10),
+    lineHeight: getResponsiveFontSize(7, 9, 11),
+  },
+  chatNameText:{
+    fontFamily: "Inter_600SemiBold",
+    fontSize: getResponsiveFontSize(13, 15, 17),
+    lineHeight: getResponsiveFontSize(15, 17, 19),
+  },
+  chatMessageText:{
+    fontFamily: "Inter_500Medium",
+    fontSize: getResponsiveFontSize(11, 12, 14),
+    lineHeight: getResponsiveFontSize(12, 13, 15),
   },
 };
 
@@ -302,6 +415,7 @@ export const useTypography = () => {
 
   return {
     fontScale,
+    deviceSizeClass: DEVICE_SIZE_CLASS,
     tokens: TYPOGRAPHY_TOKENS,
     styles: typographyStyles,
     getStyle: createTypographyStyle,

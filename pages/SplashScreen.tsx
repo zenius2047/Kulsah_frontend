@@ -44,14 +44,14 @@ const {isDark, theme} = useThemeMode();
             alignItems: 'flex-end'
         }}>
             <Text style={{
-            ...fontSize.b1, lineHeight: fontSize.b1.fontSize + 2,
+            ...fontSize.b1, lineHeight: fontSize.b1.lineHeight,
             letterSpacing: 0.5,
             color: isDark ? 'white': 'black'
                 }}>
                 ulsah
             </Text>
             <Text style={{
-            ...fontSize.b5, lineHeight: fontSize.b5.fontSize + 1,
+            ...fontSize.b5, lineHeight: fontSize.b5.lineHeight,
             color: isDark ? 'white': 'black',
             letterSpacing: 0.4
                 }}>

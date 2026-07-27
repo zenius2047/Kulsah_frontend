@@ -139,7 +139,7 @@ import PrivacyCentre from './pages/PrivacyCentre';
 
 
 import { typographyStyles } from './fonts';
-import { fontSize } from './typography';
+import { DEVICE_SIZE_CLASS, fontSize } from './typography';
 import VideoPlayer from './pages/VideoPlayer';
 
 const Stack = createNativeStackNavigator();
@@ -155,7 +155,7 @@ TextWithDefaults.defaultProps.allowFontScaling = false;
 // Regression: unstyled text default -> body role, iOS 15pt / Android 14sp, native.
 TextWithDefaults.defaultProps.style = [
   typographyStyles.body,
-  { fontFamily: 'DMSans_400Regular' },
+  { fontFamily: 'Inter_400Regular' },
   TextWithDefaults.defaultProps.style,
 ];
 
@@ -165,7 +165,7 @@ TextInputWithDefaults.defaultProps.includeFontPadding = false;
 TextInputWithDefaults.defaultProps.style = [
   // Regression: unstyled input text default -> body role, iOS 15pt / Android 14sp, native.
   typographyStyles.body,
-  { fontFamily: 'DMSans_400Regular' },
+  { fontFamily: 'Inter_400Regular' },
   TextInputWithDefaults.defaultProps.style,
 ];
 
@@ -476,6 +476,15 @@ const App: React.FC = () => {
   const { height: vh, width:vw } = useWindowDimensions();
   const [visible, setVisible] = useState(false);
 
+  useEffect(() => {
+    console.log('[Device]', {
+      phoneType: DEVICE_SIZE_CLASS,
+      platform: Platform.OS,
+      screenWidth: SCREEN_WIDTH,
+      screenHeight: SCREEN_HEIGHT,
+    });
+  }, []);
+
 
   const onTap = () => {
     setVisible(true);
@@ -770,7 +779,7 @@ const styles = StyleSheet.create({
     bottom: 0,
     borderTopWidth: 0,
     height: SCREEN_HEIGHT * 0.08,
-    ...fontSize.b4, lineHeight: fontSize.b4.fontSize + 1,
+    ...fontSize.b4, lineHeight: fontSize.b4.lineHeight,
     // backgroundColor: 'blue'
   },
   creatorCreateTabOuter: {

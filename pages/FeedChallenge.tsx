@@ -639,7 +639,7 @@ const FeedChallenge: React.FC = () => {
           })}
           // ListFooterComponent={() => (
           //             <View style={{ height: SCREEN_HEIGHT * 0.08, justifyContent: 'center', alignItems: 'center', backgroundColor: 'gold' }}>
-          //               <Text style={{ color: '#94a3b8', ...fontSize.b5, lineHeight: fontSize.b5.fontSize + 1 }}>Syncing more galaxy feed...</Text>
+          //               <Text style={{ color: '#94a3b8', ...fontSize.b5, lineHeight: fontSize.b5.lineHeight }}>Syncing more galaxy feed...</Text>
           //             </View>
           //           )}
           onViewableItemsChanged={onViewRef.current}
@@ -828,7 +828,7 @@ const styles = StyleSheet.create({
   },
   voteActionLabel: {
     color: '#ffffff',
-    ...fontSize.b5, lineHeight: fontSize.b5.fontSize + 1,
+    ...fontSize.b5, lineHeight: fontSize.b5.lineHeight,
     textTransform: 'uppercase',
   },
   voteMeta: {
@@ -847,11 +847,11 @@ const styles = StyleSheet.create({
   },
   voteCostText: {
     color: PRIMARY_COLOR,
-    ...fontSize.b5, lineHeight: fontSize.b5.fontSize + 1,
+    ...fontSize.b5, lineHeight: fontSize.b5.lineHeight,
   },
   railCount: {
     color: '#ffffff',
-    ...fontSize.b5, lineHeight: fontSize.b5.fontSize + 1,
+    ...fontSize.b5, lineHeight: fontSize.b5.lineHeight,
   },
   bottomInfo: {
     position: 'absolute',
@@ -872,7 +872,7 @@ const styles = StyleSheet.create({
   captionWrap: {},
   handleText: {
     color: '#ffffff',
-    ...fontSize.b1, lineHeight: fontSize.b1.fontSize + 2,
+    ...fontSize.b1, lineHeight: fontSize.b1.lineHeight,
   },
   captionText: {
     color: 'rgba(255,255,255,0.92)',
@@ -882,7 +882,7 @@ const styles = StyleSheet.create({
   moreLessText: {
     color: '#ffffff',
     marginTop: 1,
-    ...fontSize.b5, lineHeight: fontSize.b5.fontSize + 1,
+    ...fontSize.b5, lineHeight: fontSize.b5.lineHeight,
   },
   soundRow: {
     flexDirection: 'row',
@@ -923,7 +923,7 @@ const styles = StyleSheet.create({
   },
   entryBadgeText: {
     color: PRIMARY_COLOR,
-    ...fontSize.b5, lineHeight: fontSize.b5.fontSize + 1,
+    ...fontSize.b5, lineHeight: fontSize.b5.lineHeight,
     textTransform: 'uppercase',
     letterSpacing: 1.2,
   },
@@ -953,12 +953,12 @@ const styles = StyleSheet.create({
   },
   voteSuccessTitle: {
     color: '#ffffff',
-    ...fontSize.b1, lineHeight: fontSize.b1.fontSize + 2,
+    ...fontSize.b1, lineHeight: fontSize.b1.lineHeight,
     textTransform: 'uppercase',
   },
   voteSuccessSubtitle: {
     color: '#6ee7b7',
-    ...fontSize.b5, lineHeight: fontSize.b5.fontSize + 1,
+    ...fontSize.b5, lineHeight: fontSize.b5.lineHeight,
     textTransform: 'uppercase',
     letterSpacing: 2,
   },
@@ -1008,7 +1008,7 @@ const styles = StyleSheet.create({
   },
   balancePillText: {
     color: '#ffffff',
-    ...fontSize.b5, lineHeight: fontSize.b5.fontSize + 1,
+    ...fontSize.b5, lineHeight: fontSize.b5.lineHeight,
   },
   addCoinButton: {
     width: 20,
@@ -1042,7 +1042,7 @@ const styles = StyleSheet.create({
   topUpSuccessTitle: {
     color: '#ffffff',
     ...fontSize.b5,
-    lineHeight: fontSize.b5.fontSize + 1,
+    lineHeight: fontSize.b5.lineHeight,
     textTransform: 'uppercase',
     letterSpacing: 1.2,
   },
@@ -1050,7 +1050,7 @@ const styles = StyleSheet.create({
     marginTop: 2,
     color: 'rgba(255,255,255,0.82)',
     ...fontSize.b5,
-    lineHeight: fontSize.b5.fontSize + 1,
+    lineHeight: fontSize.b5.lineHeight,
   },
   feedLiveWrap: {
     flexDirection: 'row',
@@ -1065,7 +1065,7 @@ const styles = StyleSheet.create({
   },
   feedLabel: {
     color: '#ffffff',
-    ...fontSize.b5, lineHeight: fontSize.b5.fontSize + 1,
+    ...fontSize.b5, lineHeight: fontSize.b5.lineHeight,
     textTransform: 'uppercase',
     letterSpacing: 1,
   },
@@ -1090,7 +1090,7 @@ const styles = StyleSheet.create({
   },
   backToOrbitText: {
     color: '#ffffff',
-    ...fontSize.b5, lineHeight: fontSize.b5.fontSize + 1,
+    ...fontSize.b5, lineHeight: fontSize.b5.lineHeight,
     textTransform: 'uppercase',
     letterSpacing: 1.8,
   },

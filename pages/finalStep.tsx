@@ -13,7 +13,7 @@ import { LinearGradient } from 'expo-linear-gradient';
 import { MaterialIcons } from '@expo/vector-icons';
 import { useNavigation } from '@react-navigation/native';
 import { mediumScreen } from '../types';
-import { fontSize } from './typography';
+import { fontSize } from '../typography';
 
 const PREVIEW_IMAGE =
   'https://lh3.googleusercontent.com/aida-public/AB6AXuD4p7h11bg5U9Z6RSsPsIfQk-rlU3SruP7pi_FImXVehBiQsAwlOuVbyN142vLLex2bMPo6nnXl3vH53AZcipo_URsznvwCtv41wCTYP9RB4vvJMkuvoRMiiJ8XexsgadolwG-XWhAbTtvYnHWgiRB8C159wxZB3iXLdeOKxMfaF_NqvzxB3_F7B5GVjO5RgJmOhaPPy2ojQu109ZNEFr2nFpJiYhPuKbpRTzu4nVAoh5GhAjWJTOcWwC3sFCkcuFBMGTSlvdTnNth9';
@@ -292,7 +292,7 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
   },
   headerTitle: {
-    ...fontSize.b3, lineHeight: fontSize.b3.fontSize + 2,
+    ...fontSize.b3, lineHeight: fontSize.b3.lineHeight,
     letterSpacing: -0.3,
   },
   scroll: {
@@ -318,17 +318,17 @@ const styles = StyleSheet.create({
   },
   stepBadgeText: {
     color: PRIMARY_COLOR,
-    ...fontSize.b4, lineHeight: fontSize.b4.fontSize + 1,
+    ...fontSize.b4, lineHeight: fontSize.b4.lineHeight,
     textTransform: 'uppercase',
     letterSpacing: 1,
   },
   heroTitle: {
     ...fontSize.b3,
-    lineHeight: 40,
+    lineHeight: fontSize.b3.lineHeight,
   },
   heroSubtitle: {
     ...fontSize.b3,
-    lineHeight: 22,
+    lineHeight: fontSize.b3.lineHeight,
     maxWidth: 420,
   },
   mainStack: {
@@ -345,7 +345,7 @@ const styles = StyleSheet.create({
   },
   sectionEyebrow: {
     color: PRIMARY_COLOR,
-    ...fontSize.b4, lineHeight: fontSize.b4.fontSize + 1,
+    ...fontSize.b4, lineHeight: fontSize.b4.lineHeight,
     letterSpacing: 1.4,
     textTransform: 'uppercase',
   },
@@ -386,7 +386,7 @@ const styles = StyleSheet.create({
   },
   hotPillText: {
     color: '#ffffff',
-    ...fontSize.b4, lineHeight: fontSize.b4.fontSize + 1,
+    ...fontSize.b4, lineHeight: fontSize.b4.lineHeight,
   },
   enteredPill: {
     paddingHorizontal: 12,
@@ -398,7 +398,7 @@ const styles = StyleSheet.create({
   },
   enteredPillText: {
     color: '#ffffff',
-    ...fontSize.b4, lineHeight: fontSize.b4.fontSize + 1,
+    ...fontSize.b4, lineHeight: fontSize.b4.lineHeight,
   },
   previewBody: {
     padding: 20,
@@ -406,11 +406,11 @@ const styles = StyleSheet.create({
   },
   previewTitle: {
     ...fontSize.b3,
-    lineHeight: 32,
+    lineHeight: fontSize.b3.lineHeight,
   },
   previewDescription: {
     ...fontSize.b3,
-    lineHeight: 20,
+    lineHeight: fontSize.b3.lineHeight,
   },
   joiningRow: {
     flexDirection: 'row',
@@ -442,11 +442,11 @@ const styles = StyleSheet.create({
   },
   avatarCountText: {
     color: '#ffffff',
-    ...fontSize.b5, lineHeight: fontSize.b5.fontSize + 1,
+    ...fontSize.b5, lineHeight: fontSize.b5.lineHeight,
   },
   joiningText: {
     color: PRIMARY_COLOR,
-    ...fontSize.b4, lineHeight: fontSize.b4.fontSize + 1,
+    ...fontSize.b4, lineHeight: fontSize.b4.lineHeight,
   },
   bentoGrid: {
     gap: 14,
@@ -476,21 +476,21 @@ const styles = StyleSheet.create({
     backgroundColor: primaryColorAlpha(0.12),
   },
   infoLabel: {
-    ...fontSize.b3, lineHeight: fontSize.b3.fontSize + 2,
+    ...fontSize.b3, lineHeight: fontSize.b3.lineHeight,
     textTransform: 'uppercase',
     letterSpacing: 1.1,
   },
   infoTitle: {
     ...fontSize.b1,
-    lineHeight: 26,
+    lineHeight: fontSize.b1.lineHeight,
   },
   infoText: {
     ...fontSize.b3,
-    lineHeight: 18,
+    lineHeight: fontSize.b3.lineHeight,
   },
   rewardValue: {
     color: '#ffade8',
-    ...fontSize.b3, lineHeight: fontSize.b3.fontSize + 2,
+    ...fontSize.b3, lineHeight: fontSize.b3.lineHeight,
   },
   rewardChip: {
     alignSelf: 'flex-start',
@@ -504,7 +504,7 @@ const styles = StyleSheet.create({
   },
   rewardChipText: {
     color: '#cbd5e1',
-    ...fontSize.b4, lineHeight: fontSize.b4.fontSize + 1,
+    ...fontSize.b4, lineHeight: fontSize.b4.lineHeight,
   },
   checklistCard: {
     position: 'relative',
@@ -529,7 +529,7 @@ const styles = StyleSheet.create({
     gap: 10,
   },
   checklistTitle: {
-    ...fontSize.b1, lineHeight: fontSize.b1.fontSize + 2,
+    ...fontSize.b1, lineHeight: fontSize.b1.lineHeight,
   },
   checklistList: {
     gap: 20,
@@ -549,10 +549,10 @@ const styles = StyleSheet.create({
   },
   checklistItemTitle: {
     color: '#ffffff',
-    ...fontSize.b3, lineHeight: fontSize.b3.fontSize + 2,
+    ...fontSize.b3, lineHeight: fontSize.b3.lineHeight,
   },
   checklistItemSubtitle: {
-    ...fontSize.b4, lineHeight: fontSize.b4.fontSize + 1,
+    ...fontSize.b4, lineHeight: fontSize.b4.lineHeight,
   },
   costSection: {
     paddingTop: 20,
@@ -565,10 +565,10 @@ const styles = StyleSheet.create({
     justifyContent: 'space-between',
   },
   costLabel: {
-    ...fontSize.b3, lineHeight: fontSize.b3.fontSize + 2,
+    ...fontSize.b3, lineHeight: fontSize.b3.lineHeight,
   },
   costValue: {
-    ...fontSize.b4, lineHeight: fontSize.b4.fontSize + 1,
+    ...fontSize.b4, lineHeight: fontSize.b4.lineHeight,
   },
   totalRow: {
     flexDirection: 'row',
@@ -576,11 +576,11 @@ const styles = StyleSheet.create({
     justifyContent: 'space-between',
   },
   totalLabel: {
-    ...fontSize.b3, lineHeight: fontSize.b3.fontSize + 2,
+    ...fontSize.b3, lineHeight: fontSize.b3.lineHeight,
   },
   totalValue: {
     color: PRIMARY_COLOR,
-    ...fontSize.b3, lineHeight: fontSize.b3.fontSize + 2,
+    ...fontSize.b3, lineHeight: fontSize.b3.lineHeight,
   },
   launchButton: {
     flexDirection: 'row',
@@ -598,11 +598,11 @@ const styles = StyleSheet.create({
   },
   launchButtonText: {
     color: '#ffffff',
-    ...fontSize.b4, lineHeight: fontSize.b4.fontSize + 1,
+    ...fontSize.b4, lineHeight: fontSize.b4.lineHeight,
   },
   disclaimer: {
     ...fontSize.b4,
-    lineHeight: 16,
+    lineHeight: fontSize.b4.lineHeight,
     textAlign: 'center',
     textTransform: 'uppercase',
     letterSpacing: 0.8,
@@ -620,7 +620,7 @@ const styles = StyleSheet.create({
     borderWidth: 1,
   },
   editButtonText: {
-    ...fontSize.b3, lineHeight: fontSize.b3.fontSize + 2,
+    ...fontSize.b3, lineHeight: fontSize.b3.lineHeight,
   },
   draftButton: {
     alignItems: 'center',
@@ -628,7 +628,7 @@ const styles = StyleSheet.create({
     paddingVertical: 16,
   },
   draftButtonText: {
-    ...fontSize.b3, lineHeight: fontSize.b3.fontSize + 2,
+    ...fontSize.b3, lineHeight: fontSize.b3.lineHeight,
   },
 });
 

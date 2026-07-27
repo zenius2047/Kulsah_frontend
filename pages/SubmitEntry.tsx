@@ -23,6 +23,8 @@ import { MaterialIcons } from '@expo/vector-icons';
 import { useNavigation, useRoute } from '@react-navigation/native';
 import { fontSize } from './typography';
 import {
+  hasCreatorVideoEdits,
+  getVideoProcessingState,
   parseApiError,
   useCreatorVideoDirectUpload,
   useUpdateCreatorVideo,
@@ -66,13 +68,13 @@ const contentTypeOptions: Array<{
   { value: 'behind_the_scenes', label: 'BTS', icon: 'movie-filter' },
 ];
 
-const getUploadLabel = (status: string, progress: number) => {
-  if (status === 'initializing') return 'Initializing upload...';
-  if (status === 'uploading') return `Uploading ${progress}%`;
-  if (status === 'finalizing') return 'Completing upload...';
-  if (status === 'submitting_edits') return 'Submitting edits...';
-  if (status === 'processing') return 'Upload complete';
-  if (status === 'ready') return 'Ready';
+const getUploadLabel = (status: string, progress: number, hasEdits: boolean) => {
+  if (status === 'initializing') return 'Preparing upload...';
+  if (status === 'uploading') return `Uploading original video ${progress}%`;
+  if (status === 'finalizing') return 'Completing original upload...';
+  if (status === 'submitting_edits') return 'Upload complete · rendering edits queued...';
+  if (status === 'processing') return hasEdits ? 'Render processing...' : 'Video processing...';
+  if (status === 'ready') return 'Finished';
   if (status === 'failed') return 'Upload failed';
   return 'Starting...';
 };
@@ -105,7 +107,7 @@ const SubmitEntry: React.FC = () => {
   const directUpload = useCreatorVideoDirectUpload();
   const { mutateAsync: updateCreatorVideo, isPending: isUpdating } = useUpdateCreatorVideo();
   const [uploadedVideoId, setUploadedVideoId] = useState<string | number | undefined>(params.uploadedVideoId);
-  const [editSubmitStatus, setEditSubmitStatus] = useState<'idle' | 'submitting_edits' | 'ready' | 'failed'>('idle');
+  const [editSubmitStatus, setEditSubmitStatus] = useState<'idle' | 'submitting_edits' | 'processing' | 'ready' | 'failed'>('idle');
   const [editSubmitError, setEditSubmitError] = useState<string | null>(null);
   const [title, setTitle] = useState('');
   const [description, setDescription] = useState('');
@@ -137,9 +139,14 @@ const SubmitEntry: React.FC = () => {
         : editSubmitStatus !== 'idle' || uploadedVideoId != null
           ? 100
           : params.uploadProgressPercentage ?? 0;
-  const uploadLabel = getUploadLabel(progressStatus, progressPercentage);
+  const uploadLabel = getUploadLabel(progressStatus, progressPercentage, hasCreatorVideoEdits(editPayload));
   const uploadIsTerminal = progressStatus === 'ready' || progressStatus === 'processing' || progressStatus === 'failed';
-  const postIsBusy = directUpload.isActive || isUpdating || editSubmitStatus === 'submitting_edits' || autoUploadPending;
+  const postIsBusy =
+    directUpload.isActive ||
+    (hasCreatorVideoEdits(editPayload) && directUpload.status === 'processing') ||
+    isUpdating ||
+    (editSubmitStatus === 'submitting_edits' || editSubmitStatus === 'processing') ||
+    autoUploadPending;
   const selectedVisibility: VideoVisibility = subscribersOnly ? 'premium' : 'public';
   const autoUploadStartedRef = React.useRef(false);
   const editSubmitStartedRef = React.useRef(false);
@@ -161,7 +168,7 @@ const SubmitEntry: React.FC = () => {
           contentType: contentTypes,
           visibility: selectedVisibility,
           orientation: previewOrientation,
-        }, editPayload ? { edits: editPayload } : undefined);
+        }, editPayload ? { edits: editPayload, waitForProcessing: true } : undefined);
 
         setUploadedVideoId(result.video.id);
         navigation.setParams?.({
@@ -190,15 +197,31 @@ const SubmitEntry: React.FC = () => {
   ]);
 
   useEffect(() => {
-    if (params.autoStartUpload || !uploadedVideoId || !editPayload?.overlays.length || editSubmitStartedRef.current) return;
+    if (params.autoStartUpload || !uploadedVideoId || !hasCreatorVideoEdits(editPayload) || editSubmitStartedRef.current) return;
 
     editSubmitStartedRef.current = true;
+    const pendingEditPayload = editPayload;
+    let cancelled = false;
 
     const submitEdits = async () => {
       try {
         setEditSubmitStatus('submitting_edits');
         setEditSubmitError(null);
-        await videoApi.submitCreatorVideoEdits(uploadedVideoId, editPayload);
+        await videoApi.submitCreatorVideoEdits(uploadedVideoId, pendingEditPayload!);
+        setEditSubmitStatus('processing');
+
+        while (!cancelled) {
+          const response = await videoApi.getCreatorVideoProgress(uploadedVideoId);
+          const processing = response.data.data;
+          const { isReady, hasFailed } = getVideoProcessingState(processing);
+
+          if (isReady) break;
+          if (hasFailed) throw new Error(processing.error || processing.message || 'Video rendering failed.');
+
+          await new Promise((resolve) => setTimeout(resolve, 3000));
+        }
+
+        if (cancelled) return;
         setEditSubmitStatus('ready');
         navigation.setParams?.({ editPayload: null });
       } catch (caughtError) {
@@ -209,6 +232,10 @@ const SubmitEntry: React.FC = () => {
     };
 
     void submitEdits();
+
+    return () => {
+      cancelled = true;
+    };
   }, [editPayload, navigation, params.autoStartUpload, uploadedVideoId]);
 
   useEffect(() => {
@@ -341,7 +368,7 @@ const SubmitEntry: React.FC = () => {
           contentType: contentTypes,
           visibility: selectedVisibility,
           orientation: previewOrientation,
-        }, editPayload ? { edits: editPayload } : undefined);
+        }, editPayload ? { edits: editPayload, waitForProcessing: true } : undefined);
       }
 
       Alert.alert('Posted', uploadedVideoId != null ? 'Your video details were saved.' : 'Your video uploaded. Processing will continue in the background.', [
@@ -373,27 +400,6 @@ const SubmitEntry: React.FC = () => {
         behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
         keyboardVerticalOffset={Platform.OS === 'ios' ? 0 : 24}
       >
-        <View
-          style={[
-            styles.header,
-            {
-              backgroundColor: isDark ? 'rgba(255,255,255,0.05)' : 'rgba(255,255,255,0.82)',
-              borderBottomColor: theme.border,
-            },
-          ]}
-        >
-          <View style={styles.headerLeft}>
-            <Pressable onPress={() => navigation.goBack()}>
-              <MaterialIcons name="close" size={22} color={theme.textSecondary} />
-            </Pressable>
-            <Text style={[styles.headerTitle, { color: theme.text }]}>Create Pulse</Text>
-          </View>
-
-          {/* <Pressable style={styles.headerPostButton}>
-            <Text style={styles.headerPostText}>Post</Text>
-          </Pressable> */}
-        </View>
-
         <ScrollView
           keyboardShouldPersistTaps="handled"
           keyboardDismissMode="interactive"
@@ -736,39 +742,8 @@ const styles = StyleSheet.create({
   keyboardAvoidingView: {
     flex: 1,
   },
-  header: {
-    position: 'absolute',
-    top: 0,
-    left: 0,
-    right: 0,
-    zIndex: 20,
-    height: 94,
-    paddingHorizontal: 20,
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'space-between',
-    borderBottomWidth: 1,
-    paddingTop: 34,
-  },
-  headerLeft: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: 12,
-  },
-  headerTitle: {
-    ...fontSize.b4, lineHeight: fontSize.b4.fontSize + 1,
-  },
-  headerPostButton: {
-    paddingHorizontal: 16,
-    paddingVertical: 10,
-    borderRadius: 999,
-  },
-  headerPostText: {
-    color: PRIMARY_COLOR,
-    ...fontSize.b4, lineHeight: fontSize.b4.fontSize + 1,
-  },
   content: {
-    paddingTop: 108,
+    paddingTop: 20,
     paddingHorizontal: 20,
     paddingBottom: 120,
     gap: 28,
@@ -806,7 +781,7 @@ const styles = StyleSheet.create({
   missingPreviewText: {
     color: 'rgba(255,255,255,0.76)',
     ...fontSize.b4,
-    lineHeight: fontSize.b4.fontSize + 1,
+    lineHeight: fontSize.b4.lineHeight,
   },
   previewShade: {
     ...StyleSheet.absoluteFillObject,
@@ -846,7 +821,7 @@ const styles = StyleSheet.create({
   thumbnailHintText: {
     color: '#fff',
     ...fontSize.b5,
-    lineHeight: fontSize.b5.fontSize + 1,
+    lineHeight: fontSize.b5.lineHeight,
     textTransform: 'uppercase',
     letterSpacing: 0.4,
   },
@@ -867,7 +842,7 @@ const styles = StyleSheet.create({
   videoPreviewButtonText: {
     color: '#fff',
     ...fontSize.b5,
-    lineHeight: fontSize.b5.fontSize + 1,
+    lineHeight: fontSize.b5.lineHeight,
     textTransform: 'uppercase',
     letterSpacing: 0.6,
   },
@@ -882,7 +857,7 @@ const styles = StyleSheet.create({
   },
   previewDurationText: {
     color: '#fff',
-    ...fontSize.b5, lineHeight: fontSize.b5.fontSize + 1,
+    ...fontSize.b5, lineHeight: fontSize.b5.lineHeight,
     letterSpacing: 0.7,
   },
   formColumn: {
@@ -895,7 +870,7 @@ const styles = StyleSheet.create({
   },
   inputLabel: {
     marginLeft: 4,
-    ...fontSize.b5, lineHeight: fontSize.b5.fontSize + 1,
+    ...fontSize.b5, lineHeight: fontSize.b5.lineHeight,
     textTransform: 'uppercase',
     letterSpacing: 0.8,
   },
@@ -903,7 +878,7 @@ const styles = StyleSheet.create({
     borderRadius: 12,
     paddingHorizontal: 12,
     paddingVertical: 10,
-    ...fontSize.b4, lineHeight: fontSize.b4.fontSize + 2,
+    ...fontSize.b4, lineHeight: fontSize.b4.lineHeight,
   },
   textArea: {
     minHeight: 78,
@@ -911,7 +886,7 @@ const styles = StyleSheet.create({
     paddingHorizontal: 12,
     paddingVertical: 10,
     textAlignVertical: 'top',
-    ...fontSize.b4, lineHeight: fontSize.b4.fontSize + 1,
+    ...fontSize.b4, lineHeight: fontSize.b4.lineHeight,
   },
   section: {
     gap: 12,
@@ -923,7 +898,7 @@ const styles = StyleSheet.create({
     paddingHorizontal: 2,
   },
   sectionTitle: {
-    ...fontSize.b4, lineHeight: fontSize.b4.fontSize + 1,
+    ...fontSize.b4, lineHeight: fontSize.b4.lineHeight,
   },
   progressCard: {
     borderRadius: 18,
@@ -939,7 +914,7 @@ const styles = StyleSheet.create({
   },
   progressStatus: {
     ...fontSize.b5,
-    lineHeight: fontSize.b5.fontSize + 1,
+    lineHeight: fontSize.b5.lineHeight,
     textTransform: 'uppercase',
   },
   progressTrack: {
@@ -954,11 +929,11 @@ const styles = StyleSheet.create({
   },
   progressHint: {
     ...fontSize.b5,
-    lineHeight: fontSize.b5.fontSize + 3,
+    lineHeight: fontSize.b5.lineHeight,
   },
   sectionHint: {
     color: PRIMARY_COLOR,
-    ...fontSize.b5, lineHeight: fontSize.b5.fontSize + 1,
+    ...fontSize.b5, lineHeight: fontSize.b5.lineHeight,
     textTransform: 'uppercase',
     letterSpacing: 0.8,
   },
@@ -988,7 +963,7 @@ const styles = StyleSheet.create({
   },
   contentTypeText: {
     ...fontSize.b4,
-    lineHeight: fontSize.b4.fontSize + 1,
+    lineHeight: fontSize.b4.lineHeight,
     fontWeight: '800',
   },
   permissionsCard: {
@@ -1018,11 +993,11 @@ const styles = StyleSheet.create({
     borderWidth: 1,
   },
   permissionTitle: {
-    ...fontSize.b5, lineHeight: fontSize.b5.fontSize + 1,
+    ...fontSize.b5, lineHeight: fontSize.b5.lineHeight,
   },
   permissionSubtitle: {
     marginTop: 2,
-    ...fontSize.b5, lineHeight: fontSize.b5.fontSize + 1,
+    ...fontSize.b5, lineHeight: fontSize.b5.lineHeight,
   },
   advancedButton: {
     flexDirection: 'row',
@@ -1032,7 +1007,7 @@ const styles = StyleSheet.create({
     paddingVertical: 4,
   },
   advancedText: {
-    ...fontSize.b5, lineHeight: fontSize.b5.fontSize + 1,
+    ...fontSize.b5, lineHeight: fontSize.b5.lineHeight,
     textTransform: 'uppercase',
     letterSpacing: 1,
   },
@@ -1058,7 +1033,7 @@ const styles = StyleSheet.create({
   },
   postVideoText: {
     color: '#fff',
-    ...fontSize.b4, lineHeight: fontSize.b4.fontSize + 1,
+    ...fontSize.b4, lineHeight: fontSize.b4.lineHeight,
     letterSpacing: 1.1,
   },
   thumbnailModal: {
@@ -1082,12 +1057,12 @@ const styles = StyleSheet.create({
   },
   thumbnailSheetTitle: {
     ...fontSize.b3,
-    lineHeight: fontSize.b3.fontSize + 2,
+    lineHeight: fontSize.b3.lineHeight,
   },
   thumbnailSheetSubtitle: {
     marginTop: 3,
     ...fontSize.b5,
-    lineHeight: fontSize.b5.fontSize + 3,
+    lineHeight: fontSize.b5.lineHeight,
   },
   sheetCloseButton: {
     width: 38,
@@ -1123,7 +1098,7 @@ const styles = StyleSheet.create({
   thumbnailHeroBadgeText: {
     color: '#fff',
     ...fontSize.b5,
-    lineHeight: fontSize.b5.fontSize + 1,
+    lineHeight: fontSize.b5.lineHeight,
     textTransform: 'uppercase',
     letterSpacing: 0.7,
   },
@@ -1154,7 +1129,7 @@ const styles = StyleSheet.create({
     bottom: 6,
     color: '#fff',
     ...fontSize.b5,
-    lineHeight: fontSize.b5.fontSize + 1,
+    lineHeight: fontSize.b5.lineHeight,
     backgroundColor: 'rgba(0,0,0,0.68)',
     borderRadius: 5,
     paddingHorizontal: 5,
@@ -1179,7 +1154,7 @@ const styles = StyleSheet.create({
   },
   uploadThumbnailText: {
     ...fontSize.b5,
-    lineHeight: fontSize.b5.fontSize + 1,
+    lineHeight: fontSize.b5.lineHeight,
   },
   useThumbnailButton: {
     flex: 1,
@@ -1194,7 +1169,7 @@ const styles = StyleSheet.create({
   useThumbnailText: {
     color: '#fff',
     ...fontSize.b5,
-    lineHeight: fontSize.b5.fontSize + 1,
+    lineHeight: fontSize.b5.lineHeight,
   },
 });
 

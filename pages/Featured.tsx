@@ -13,7 +13,7 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 import { LinearGradient } from 'expo-linear-gradient';
 import { MaterialIcons } from '@expo/vector-icons';
 import { mediumScreen } from '../types';
-import { fontSize } from './typography';
+import { fontSize } from '../typography';
 
 type CreatorCard = {
   id: string;
@@ -349,7 +349,7 @@ const styles = StyleSheet.create({
   },
   brandName: {
     color: '#fff',
-    ...fontSize.b1, lineHeight: fontSize.b1.fontSize + 2,
+    ...fontSize.b1, lineHeight: fontSize.b1.lineHeight,
     textTransform: 'uppercase',
     letterSpacing: -0.6,
   },
@@ -377,7 +377,7 @@ const styles = StyleSheet.create({
   },
   sidebarTitle: {
     color: PRIMARY_COLOR,
-    ...fontSize.b1, lineHeight: fontSize.b1.fontSize + 2,
+    ...fontSize.b1, lineHeight: fontSize.b1.lineHeight,
     marginBottom: 24,
     paddingHorizontal: 12,
   },
@@ -397,7 +397,7 @@ const styles = StyleSheet.create({
   },
   sidebarText: {
     color: '#94A3B8',
-    ...fontSize.b4, lineHeight: fontSize.b4.fontSize + 1,
+    ...fontSize.b4, lineHeight: fontSize.b4.lineHeight,
   },
   sidebarTextActive: {
     color: '#fff',
@@ -426,7 +426,7 @@ const styles = StyleSheet.create({
   },
   mobileTabText: {
     color: '#94A3B8',
-    ...fontSize.b4, lineHeight: fontSize.b4.fontSize + 1,
+    ...fontSize.b4, lineHeight: fontSize.b4.lineHeight,
     textTransform: 'uppercase',
     letterSpacing: 0.7,
   },
@@ -484,7 +484,7 @@ const styles = StyleSheet.create({
   },
   hotBadgeText: {
     color: PRIMARY_COLOR,
-    ...fontSize.b4, lineHeight: fontSize.b4.fontSize + 1,
+    ...fontSize.b4, lineHeight: fontSize.b4.lineHeight,
     letterSpacing: 1.2,
   },
   verifiedWrap: {
@@ -494,17 +494,17 @@ const styles = StyleSheet.create({
   },
   verifiedText: {
     color: 'rgba(248,250,252,0.82)',
-    ...fontSize.b3, lineHeight: fontSize.b3.fontSize + 2,
+    ...fontSize.b3, lineHeight: fontSize.b3.lineHeight,
   },
   heroTitle: {
     color: '#fff',
-    ...fontSize.b3, lineHeight: fontSize.b3.fontSize + 2,
+    ...fontSize.b3, lineHeight: fontSize.b3.lineHeight,
     // lineHeight: 34,
     marginBottom: 12,
   },
   heroDescription: {
     color: '#CBD5E1',
-    ...fontSize.b3, lineHeight: fontSize.b3.fontSize + 2,
+    ...fontSize.b3, lineHeight: fontSize.b3.lineHeight,
     // lineHeight: 22,
     // maxWidth: '95%',
   },
@@ -518,20 +518,20 @@ const styles = StyleSheet.create({
   },
   prizeLabel: {
     color: '#94A3B8',
-    ...fontSize.b4, lineHeight: fontSize.b4.fontSize + 1,
+    ...fontSize.b4, lineHeight: fontSize.b4.lineHeight,
     textTransform: 'uppercase',
     letterSpacing: 1.2,
     marginBottom: 6,
   },
   prizeValue: {
     color: '#fff',
-    ...fontSize.b1, lineHeight: fontSize.b1.fontSize + 2,
+    ...fontSize.b1, lineHeight: fontSize.b1.lineHeight,
     marginBottom: 6,
     letterSpacing: -1
   },
   prizeTime: {
     color: PRIMARY_COLOR,
-    ...fontSize.b4, lineHeight: fontSize.b4.fontSize + 1,
+    ...fontSize.b4, lineHeight: fontSize.b4.lineHeight,
     textTransform: 'uppercase',
     marginBottom: 16,
     textAlign: 'center'
@@ -549,7 +549,7 @@ const styles = StyleSheet.create({
   },
   joinButtonText: {
     color: '#fff',
-    ...fontSize.b4, lineHeight: fontSize.b4.fontSize + 1,
+    ...fontSize.b4, lineHeight: fontSize.b4.lineHeight,
     letterSpacing: 0.6,
   },
   sectionHeader: {
@@ -560,11 +560,11 @@ const styles = StyleSheet.create({
   },
   sectionTitle: {
     color: '#fff',
-    ...fontSize.b1, lineHeight: fontSize.b1.fontSize + 2,
+    ...fontSize.b1, lineHeight: fontSize.b1.lineHeight,
   },
   sectionLink: {
     color: PRIMARY_COLOR,
-    ...fontSize.b4, lineHeight: fontSize.b4.fontSize + 1,
+    ...fontSize.b4, lineHeight: fontSize.b4.lineHeight,
     textTransform: 'uppercase',
     letterSpacing: 1.4,
   },
@@ -601,20 +601,20 @@ const styles = StyleSheet.create({
   },
   exclusiveLabel: {
     color: PRIMARY_COLOR,
-    ...fontSize.b4, lineHeight: fontSize.b4.fontSize + 1,
+    ...fontSize.b4, lineHeight: fontSize.b4.lineHeight,
     textTransform: 'uppercase',
     letterSpacing: 1.6,
     marginBottom: 8,
   },
   largeCardTitle: {
     color: '#fff',
-    ...fontSize.b1, lineHeight: fontSize.b1.fontSize + 2,
+    ...fontSize.b1, lineHeight: fontSize.b1.lineHeight,
     marginBottom: 8,
   },
   largeCardDescription: {
     color: '#CBD5E1',
     ...fontSize.b3,
-    lineHeight: 18,
+    lineHeight: fontSize.b3.lineHeight,
     maxWidth: 360,
     marginBottom: 18,
   },
@@ -643,11 +643,11 @@ const styles = StyleSheet.create({
   },
   stackAvatarCountText: {
     color: '#fff',
-    ...fontSize.b5, lineHeight: fontSize.b5.fontSize + 1,
+    ...fontSize.b5, lineHeight: fontSize.b5.lineHeight,
   },
   activeCreatorsText: {
     color: '#94A3B8',
-    ...fontSize.b4, lineHeight: fontSize.b4.fontSize + 1,
+    ...fontSize.b4, lineHeight: fontSize.b4.lineHeight,
     textTransform: 'uppercase',
     letterSpacing: 1.4,
   },
@@ -678,13 +678,13 @@ const styles = StyleSheet.create({
   progressCardTitle: {
     color: '#fff',
     ...fontSize.b1,
-    lineHeight: 28,
+    lineHeight: fontSize.b1.lineHeight,
     marginBottom: 10,
   },
   progressCardDescription: {
     color: '#94A3B8',
     ...fontSize.b4,
-    lineHeight: 21,
+    lineHeight: fontSize.b4.lineHeight,
     marginBottom: 24,
   },
   progressArea: {
@@ -708,13 +708,13 @@ const styles = StyleSheet.create({
   },
   progressLabel: {
     color: '#64748B',
-    ...fontSize.b5, lineHeight: fontSize.b5.fontSize + 1,
+    ...fontSize.b5, lineHeight: fontSize.b5.lineHeight,
     textTransform: 'uppercase',
     letterSpacing: 1.2,
   },
   progressValue: {
     color: '#fff',
-    ...fontSize.b4, lineHeight: fontSize.b4.fontSize + 1,
+    ...fontSize.b4, lineHeight: fontSize.b4.lineHeight,
   },
   creatorRail: {
     gap: 14,
@@ -743,14 +743,14 @@ const styles = StyleSheet.create({
   },
   creatorTitle: {
     color: '#fff',
-    ...fontSize.b5, lineHeight: fontSize.b5.fontSize + 1,
+    ...fontSize.b5, lineHeight: fontSize.b5.lineHeight,
     textTransform: 'uppercase',
     letterSpacing: 0.6,
     marginBottom: 4,
   },
   creatorHandle: {
     color: '#CBD5E1',
-    ...fontSize.b4, lineHeight: fontSize.b4.fontSize + 1,
+    ...fontSize.b4, lineHeight: fontSize.b4.lineHeight,
   },
   submitCard: {
     width: 160,
@@ -769,7 +769,7 @@ const styles = StyleSheet.create({
     textTransform: 'uppercase',
     letterSpacing: 1.2,
     textAlign: 'center',
-    lineHeight: 16,
+    lineHeight: fontSize.b5.lineHeight,
   },
   fab: {
     position: 'absolute',

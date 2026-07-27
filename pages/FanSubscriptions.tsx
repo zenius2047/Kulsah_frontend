@@ -108,9 +108,6 @@ const FanSubscriptions: React.FC = () => {
     <SafeAreaView style={[s.screen, { backgroundColor: theme.screen }]}>
       <View style={[s.header, { backgroundColor: isDark ? 'rgba(6,9,19,0.94)' : 'rgba(255,255,255,0.96)', borderBottomColor: border }]}>
         <View style={s.headerLeft}>
-          <Pressable onPress={() => navigation.goBack()} style={[s.headerButton, { backgroundColor: softBg, borderColor: border }]}>
-            <MaterialIcons name="chevron-left" size={20} color={titleColor} />
-          </Pressable>
           <Text style={[s.headerTitle, { color: titleColor }]}>Active Support</Text>
         </View>
         <View style={s.headerBadge}>
@@ -267,8 +264,10 @@ const s = StyleSheet.create({
     justifyContent: 'center',
   },
   headerTitle: {
-    ...fontSize.b1, lineHeight: fontSize.b1.fontSize + 2,
+    ...fontSize.h1,
+    lineHeight: fontSize.h1.lineHeight,
     textTransform: 'uppercase',
+    letterSpacing: 2,
   },
   headerBadge: {
     paddingHorizontal: 12,
@@ -280,7 +279,7 @@ const s = StyleSheet.create({
   },
   headerBadgeText: {
     color: PRIMARY_COLOR,
-    ...fontSize.b5, lineHeight: fontSize.b5.fontSize + 1,
+    ...fontSize.b5, lineHeight: fontSize.b5.lineHeight,
     textTransform: 'uppercase',
     letterSpacing: 1.2,
   },
@@ -329,7 +328,7 @@ const s = StyleSheet.create({
     gap: 6,
   },
   name: {
-    ...fontSize.b1, lineHeight: fontSize.b1.fontSize + 2,
+    ...fontSize.b1, lineHeight: fontSize.b1.lineHeight,
   },
   planChip: {
     alignSelf: 'flex-start',
@@ -339,7 +338,7 @@ const s = StyleSheet.create({
     borderRadius: 999,
   },
   planChipText: {
-    ...fontSize.b5, lineHeight: fontSize.b5.fontSize + 1,
+    ...fontSize.b5, lineHeight: fontSize.b5.lineHeight,
     textTransform: 'uppercase',
     letterSpacing: 1.2,
   },
@@ -347,7 +346,7 @@ const s = StyleSheet.create({
     gap: 10,
   },
   microLabel: {
-    ...fontSize.b5, lineHeight: fontSize.b5.fontSize + 1,
+    ...fontSize.b5, lineHeight: fontSize.b5.lineHeight,
     textTransform: 'uppercase',
     letterSpacing: 1.8,
   },
@@ -363,7 +362,7 @@ const s = StyleSheet.create({
     borderWidth: 1,
   },
   perkText: {
-    ...fontSize.b5, lineHeight: fontSize.b5.fontSize + 1,
+    ...fontSize.b5, lineHeight: fontSize.b5.lineHeight,
   },
   billingGrid: {
     flexDirection: 'row',
@@ -374,12 +373,12 @@ const s = StyleSheet.create({
   },
   billingValue: {
     marginTop: 4,
-    ...fontSize.b4, lineHeight: fontSize.b4.fontSize + 1,
+    ...fontSize.b4, lineHeight: fontSize.b4.lineHeight,
   },
   priceValue: {
     marginTop: 4,
     color: PRIMARY_COLOR,
-    ...fontSize.b3, lineHeight: fontSize.b3.fontSize + 2,
+    ...fontSize.b3, lineHeight: fontSize.b3.lineHeight,
   },
   actionsRow: {
     flexDirection: 'row',
@@ -395,7 +394,7 @@ const s = StyleSheet.create({
   },
   visitButtonText: {
     color: '#fff',
-    ...fontSize.b5, lineHeight: fontSize.b5.fontSize + 1,
+    ...fontSize.b5, lineHeight: fontSize.b5.lineHeight,
     textTransform: 'uppercase',
     letterSpacing: 1.2,
   },
@@ -408,7 +407,7 @@ const s = StyleSheet.create({
     justifyContent: 'center',
   },
   manageButtonText: {
-    ...fontSize.b5, lineHeight: fontSize.b5.fontSize + 1,
+    ...fontSize.b5, lineHeight: fontSize.b5.lineHeight,
     textTransform: 'uppercase',
     letterSpacing: 1.2,
   },
@@ -427,7 +426,7 @@ const s = StyleSheet.create({
   },
   discoverText: {
     color: PRIMARY_COLOR,
-    ...fontSize.b5, lineHeight: fontSize.b5.fontSize + 1,
+    ...fontSize.b5, lineHeight: fontSize.b5.lineHeight,
     textTransform: 'uppercase',
     letterSpacing: 1.8,
   },
@@ -470,13 +469,13 @@ const s = StyleSheet.create({
     height: '100%',
   },
   modalTitle: {
-    ...fontSize.b1, lineHeight: fontSize.b1.fontSize + 2,
+    ...fontSize.b1, lineHeight: fontSize.b1.lineHeight,
     textTransform: 'uppercase',
   },
   modalMeta: {
     marginTop: 4,
     color: PRIMARY_COLOR,
-    ...fontSize.b5, lineHeight: fontSize.b5.fontSize + 1,
+    ...fontSize.b5, lineHeight: fontSize.b5.lineHeight,
     textTransform: 'uppercase',
     letterSpacing: 1.8,
   },
@@ -513,7 +512,7 @@ const s = StyleSheet.create({
     gap: 10,
   },
   actionText: {
-    ...fontSize.b4, lineHeight: fontSize.b4.fontSize + 1,
+    ...fontSize.b4, lineHeight: fontSize.b4.lineHeight,
   },
   cancelSubscriptionButton: {
     marginTop: 6,
@@ -528,7 +527,7 @@ const s = StyleSheet.create({
   },
   cancelSubscriptionText: {
     color: '#ef4444',
-    ...fontSize.b5, lineHeight: fontSize.b5.fontSize + 1,
+    ...fontSize.b5, lineHeight: fontSize.b5.lineHeight,
     textTransform: 'uppercase',
     letterSpacing: 1.2,
   },

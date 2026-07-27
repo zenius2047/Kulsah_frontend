@@ -338,14 +338,14 @@ const styles = StyleSheet.create({
     alignItems: 'center',
   },
   headerTitle: {
-    ...fontSize.h1, lineHeight: fontSize.h1.fontSize + 2,
+    ...fontSize.h1, lineHeight: fontSize.h1.lineHeight,
     textTransform: 'uppercase',
     letterSpacing: 2,
   },
   headerSubtitle: {
     color: PRIMARY_COLOR,
     marginTop: 4,
-    ...fontSize.h2, lineHeight: fontSize.h2.fontSize + 1,
+    ...fontSize.h2, lineHeight: fontSize.h2.lineHeight,
     textTransform: 'uppercase',
     letterSpacing: 1.5,
   },
@@ -367,7 +367,7 @@ const styles = StyleSheet.create({
   },
   searchInput: {
     flex: 1,
-    ...fontSize.b3, lineHeight: fontSize.b3.fontSize + 2,
+    ...fontSize.b3, lineHeight: fontSize.b3.lineHeight,
   },
   filterScroll: {
     gap: 10,
@@ -389,7 +389,7 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
   },
   filterChipText: {
-    ...fontSize.b5, lineHeight: fontSize.b5.fontSize + 1,
+    ...fontSize.tabText, lineHeight: fontSize.tabText.lineHeight,
     textTransform: 'uppercase',
     letterSpacing: 1.2,
   },
@@ -428,12 +428,12 @@ const styles = StyleSheet.create({
   },
   rankLabel: {
     color: '#64748b',
-    ...fontSize.b5, lineHeight: fontSize.b5.fontSize + 1,
+    ...fontSize.b5, lineHeight: fontSize.b5.lineHeight,
     textTransform: 'uppercase',
     letterSpacing: 1.2,
   },
   rankValue: {
-    ...fontSize.b4, lineHeight: fontSize.b4.fontSize + 1,
+    ...fontSize.b4, lineHeight: fontSize.b4.lineHeight,
   },
   playOverlay: {
     ...StyleSheet.absoluteFillObject,
@@ -471,13 +471,13 @@ const styles = StyleSheet.create({
   },
   tagText: {
     color: '#ffffff',
-    ...fontSize.b5, lineHeight: fontSize.b5.fontSize + 1,
+    ...fontSize.b5, lineHeight: fontSize.b5.lineHeight,
     textTransform: 'uppercase',
     letterSpacing: 1.1,
   },
   videoTitle: {
     color: '#ffffff',
-    ...fontSize.b3, lineHeight: fontSize.b3.fontSize + 2,
+    ...fontSize.b3, lineHeight: fontSize.b3.lineHeight,
     textTransform: 'uppercase',
     width: '86%',
   },
@@ -520,13 +520,13 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
   },
   metaLabel: {
-    ...fontSize.b5, lineHeight: fontSize.b5.fontSize + 1,
+    ...fontSize.b5, lineHeight: fontSize.b5.lineHeight,
     textTransform: 'uppercase',
     letterSpacing: 1.2,
     marginBottom: 4,
   },
   creatorName: {
-    ...fontSize.b5, lineHeight: fontSize.b5.fontSize + 1,
+    ...fontSize.b5, lineHeight: fontSize.b5.lineHeight,
     textTransform: 'uppercase',
   },
   impactWrap: {
@@ -534,7 +534,7 @@ const styles = StyleSheet.create({
   },
   impactValue: {
     color: PRIMARY_COLOR,
-    ...fontSize.b4, lineHeight: fontSize.b4.fontSize + 1,
+    ...fontSize.b4, lineHeight: fontSize.b4.lineHeight,
     textTransform: 'uppercase',
   },
   emptyState: {
@@ -551,16 +551,16 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
   },
   emptyTitle: {
-    ...fontSize.b4, lineHeight: fontSize.b4.fontSize + 1,
+    ...fontSize.b4, lineHeight: fontSize.b4.lineHeight,
     textTransform: 'uppercase',
   },
   emptyBody: {
-    ...fontSize.b5, lineHeight: fontSize.b5.fontSize + 1,
+    ...fontSize.b5, lineHeight: fontSize.b5.lineHeight,
     textAlign: 'center',
   },
   resetText: {
     color: PRIMARY_COLOR,
-    ...fontSize.b5, lineHeight: fontSize.b5.fontSize + 1,
+    ...fontSize.b5, lineHeight: fontSize.b5.lineHeight,
     textTransform: 'uppercase',
     letterSpacing: 1.2,
     marginTop: 8,

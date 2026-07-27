@@ -215,19 +215,19 @@ const styles = StyleSheet.create({
     alignItems: 'center',
   },
   title: {
-    ...fontSize.b1, lineHeight: fontSize.b1.fontSize + 2,
+    ...fontSize.b1, lineHeight: fontSize.b1.lineHeight,
     letterSpacing: -1.4,
     textAlign: 'center',
   },
   subtitle: {
     marginTop: 8,
-    ...fontSize.b3, lineHeight: fontSize.b3.fontSize + 2,
+    ...fontSize.b3, lineHeight: fontSize.b3.lineHeight,
     textAlign: 'center',
   },
   errorText: {
     marginTop: 10,
     ...fontSize.b5,
-    lineHeight: fontSize.b5.fontSize + 2,
+    lineHeight: fontSize.b5.lineHeight,
     textAlign: 'center',
   },
   scrollContent: {
@@ -290,12 +290,12 @@ const styles = StyleSheet.create({
   cardTitle: {
     color: '#fff',
     ...fontSize.b1,
-    lineHeight: fontSize.b1.fontSize + 2,
+    lineHeight: fontSize.b1.lineHeight,
   },
   cardDesc: {
     // marginTop: 4,
     color: 'rgba(255,255,255,0.6)',
-    ...fontSize.b4, lineHeight: fontSize.b4.fontSize + 1,
+    ...fontSize.b4, lineHeight: fontSize.b4.lineHeight,
     textTransform: 'uppercase',
     // letterSpacing: 0.5,
   },

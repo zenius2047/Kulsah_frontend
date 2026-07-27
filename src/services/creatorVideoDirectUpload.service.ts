@@ -1,6 +1,7 @@
 import * as FileSystem from 'expo-file-system/legacy';
 import api from '../api/client';
 import { endpoints } from '../api/endpoints';
+import { hasCreatorVideoEdits } from '../types/video.types';
 import type {
   CompleteCreatorVideoUploadResponse,
   CreatorVideo,
@@ -13,6 +14,7 @@ import type {
   UploadCreatorVideoPayload,
   VideoUploadSource,
 } from '../types/video.types';
+import { getVideoProcessingState } from '../utils/video';
 
 export type CreatorVideoDirectUploadStage =
   | Exclude<CreatorVideoUploadStatus, 'idle'>
@@ -221,9 +223,10 @@ const getCompletedVideo = async (videoId: string | number, fallback: CreatorVide
 const submitEdits = async (videoId: string | number, payload: SubmitCreatorVideoEditsPayload) => {
   const formData = new FormData();
 
-  formData.append('overlays', JSON.stringify(payload.overlays));
+  if (payload.timeline) formData.append('timeline', JSON.stringify(payload.timeline));
+  if (payload.overlays?.length) formData.append('overlays', JSON.stringify(payload.overlays));
   payload.drawingFiles?.forEach((file, index) => {
-    formData.append(`drawing_files[${index}]`, {
+    formData.append('drawing_files[]', {
       uri: file.uri,
       name: file.name ?? `drawing-${index}.png`,
       type: file.type ?? 'image/png',
@@ -244,11 +247,12 @@ const pollProcessing = async (
 
     const response = await api.get<{ data: CreatorVideoProgress }>(endpoints.creator.videoProgress(videoId));
     const processing = response.data.data;
+    const { isReady, hasFailed } = getVideoProcessingState(processing);
     const backendProgress = clamp(processing.progress_percentage ?? 0);
-    const mappedProgress = processing.status === 'ready' ? 100 : 90 + backendProgress * 0.1;
+    const mappedProgress = isReady ? 100 : 90 + backendProgress * 0.1;
 
     options.onProgress?.({
-      stage: processing.status === 'ready' ? 'ready' : processing.status === 'failed' ? 'failed' : 'processing',
+      stage: isReady ? 'ready' : hasFailed ? 'failed' : 'processing',
       progress: clamp(mappedProgress),
       backendProgress,
       videoId,
@@ -256,9 +260,9 @@ const pollProcessing = async (
       message: `Processing ${backendProgress}%`,
     });
 
-    if (processing.status === 'ready') return processing;
+    if (isReady) return processing;
 
-    if (processing.status === 'failed') {
+    if (hasFailed) {
       throw new Error(processing.error || processing.message || 'Video processing failed.');
     }
 
@@ -352,7 +356,7 @@ export const uploadCreatorVideoDirect = async (
     message: 'Upload finalized',
   });
 
-  if (options.edits?.overlays.length) {
+  if (hasCreatorVideoEdits(options.edits)) {
     options.onProgress?.({
       stage: 'submitting_edits',
       progress: 100,
@@ -361,7 +365,7 @@ export const uploadCreatorVideoDirect = async (
       message: 'Submitting edits',
     });
 
-    await submitEdits(completedVideo.id, options.edits);
+    await submitEdits(completedVideo.id, options.edits!);
   }
 
   if (!options.waitForProcessing) {

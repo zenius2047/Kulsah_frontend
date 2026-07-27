@@ -14,6 +14,14 @@
       },
       "oauth_client": [
         {
+          "client_id": "66968860440-hllt8684ui8sib99ka9hvuj86qfgar2n.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.godfreddevsorganization.kulsah",
+            "certificate_hash": "8516bb2827d76dac15e80d16e2874548e993c7f6"
+          }
+        },
+        {
           "client_id": "66968860440-s6r9b0jd7s0fvb2rpmqltk3qq02u290n.apps.googleusercontent.com",
           "client_type": 3
         }

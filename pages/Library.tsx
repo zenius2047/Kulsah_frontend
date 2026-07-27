@@ -250,7 +250,7 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
   },
   headerTitle: {
-    ...fontSize.b4, lineHeight: fontSize.b4.fontSize + 1,
+    ...fontSize.b4, lineHeight: fontSize.b4.lineHeight,
   },
   selectButton: {
     backgroundColor: PRIMARY_COLOR,
@@ -265,7 +265,7 @@ const styles = StyleSheet.create({
   },
   selectButtonText: {
     color: '#fff',
-    ...fontSize.b5, lineHeight: fontSize.b5.fontSize + 1,
+    ...fontSize.b5, lineHeight: fontSize.b5.lineHeight,
   },
   content: {
     paddingTop: 124,
@@ -289,7 +289,7 @@ const styles = StyleSheet.create({
     borderColor: primaryColorAlpha(0.3),
   },
   filterChipText: {
-    ...fontSize.b5, lineHeight: fontSize.b5.fontSize + 1,
+    ...fontSize.b5, lineHeight: fontSize.b5.lineHeight,
     textTransform: 'uppercase',
     letterSpacing: 0.8,
   },
@@ -327,7 +327,7 @@ const styles = StyleSheet.create({
   },
   durationText: {
     color: '#fff',
-    ...fontSize.b5, lineHeight: fontSize.b5.fontSize + 1,
+    ...fontSize.b5, lineHeight: fontSize.b5.lineHeight,
   },
   selectedBadge: {
     position: 'absolute',

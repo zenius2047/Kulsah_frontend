@@ -25,6 +25,7 @@ const Arena :React.FC = ({route}:any)=>{
     const { isDark, theme } = useThemeMode();
     const [activeTab, setActiveTab] = useState<ArenaTab>('community');
     const [isDiscoverSwipeAreaActive, setIsDiscoverSwipeAreaActive] = useState(false);
+    const [updateBadgeWidths, setUpdateBadgeWidths] = useState<Partial<Record<ArenaTab, number>>>({});
     const navigation = useNavigation<any>();
     const insets = useSafeAreaInsets();
     const styles = useMemo(() => createStyles(), []);
@@ -139,24 +140,37 @@ const Arena :React.FC = ({route}:any)=>{
         <Pressable
         key={item}
         onPress={()=>setActiveTab(item)}
-        style={styles.tabButton}>
-        <Text style={{
+        style={[styles.tabButton,]}>
+        <View style={{
+          flexDirection: 'row'
+        }}>
+          <Text style={{
             // color: activeTab == item ? theme.accent : theme.textSecondary,
-            ...fontSize.b1,
+            ...fontSize.tabTextLarge,
             color: isActive ? isDark ? '#ffffff': '#000000': isDark ? '#ffffff5d':'#0000005d',
-            textTransform: 'capitalize',
+            textTransform: 'uppercase',
             // // fontSize: fontSize.b1.fontSize,
             marginBottom: 5
         }}>
             {item}
         </Text>
         <View
+          onLayout={({ nativeEvent }) => {
+            const badgeWidth = nativeEvent.layout.width;
+            setUpdateBadgeWidths((currentWidths) =>
+              currentWidths[item] === badgeWidth
+                ? currentWidths
+                : { ...currentWidths, [item]: badgeWidth }
+            );
+          }}
           style={[
             styles.updateBadge,
             {
               backgroundColor: isActive ? PRIMARY_COLOR : isDark ? 'rgba(255,255,255,0.08)' : 'rgba(15,23,42,0.08)',
               borderColor: isActive ? PRIMARY_COLOR : theme.border,
-              right: item === 'discover' ? -10 : -20,
+              marginTop: -5,
+              marginLeft: 2.5
+              // right: item === 'discover' ? 0 : -8,
             },
           ]}
         >
@@ -169,11 +183,13 @@ const Arena :React.FC = ({route}:any)=>{
             {updateCount}
           </Text>
         </View>
+        </View>
         {isActive && <View
         style={{
             height: 2,
             width: 50,
             backgroundColor: PRIMARY_COLOR,
+            marginLeft: -(updateBadgeWidths[item] ?? 15)
 
         }}
         />}
@@ -199,7 +215,7 @@ const createStyles = () => StyleSheet.create({
         ...fontSize.h2,
         color: PRIMARY_COLOR,
         marginTop: 4,
-        // // ...fontSize.b5, lineHeight: fontSize.b5.fontSize + 1,
+        // // ...fontSize.b5, lineHeight: fontSize.b5.lineHeight,
         letterSpacing: 1.5,
         textTransform: 'uppercase',
     },
@@ -222,14 +238,14 @@ const createStyles = () => StyleSheet.create({
         alignItems: 'center',
         minWidth: 92,
         paddingTop: 8,
-        position: 'relative',
+        // position: 'relative',
     },
     updateBadge: {
-        position: 'absolute',
-        top: 0,
+        // position: 'absolute',
+        // top: 0,
         
-        minWidth: 20,
-        height: 20,
+        minWidth: 15,
+        height: 15,
         borderRadius: 999,
         // borderWidth: 1,
         paddingHorizontal: 3,
@@ -237,8 +253,8 @@ const createStyles = () => StyleSheet.create({
         justifyContent: 'center',
     },
     updateBadgeText: {
-        ...fontSize.h2,
-        lineHeight: fontSize.h2.fontSize + 1,
+        ...fontSize.badgeTextSmall,
+        lineHeight: fontSize.b5.lineHeight,
     },
 });
 

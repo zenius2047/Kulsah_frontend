@@ -296,7 +296,7 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
   },
   headerTitle: {
-    ...fontSize.b1, lineHeight: fontSize.b1.fontSize + 2,
+    ...fontSize.b1, lineHeight: fontSize.b1.lineHeight,
   },
   scroll: {
     flex: 1,
@@ -322,10 +322,10 @@ const styles = StyleSheet.create({
     alignItems: 'center',
   },
   chartValue: {
-    ...fontSize.b1, lineHeight: fontSize.b1.fontSize + 2,
+    ...fontSize.b1, lineHeight: fontSize.b1.lineHeight,
   },
   chartLabel: {
-    ...fontSize.b4, lineHeight: fontSize.b4.fontSize + 1,
+    ...fontSize.b4, lineHeight: fontSize.b4.lineHeight,
     textTransform: 'uppercase',
     letterSpacing: 1.2,
   },
@@ -356,12 +356,12 @@ const styles = StyleSheet.create({
     backgroundColor: PRIMARY_COLOR,
   },
   legendLabel: {
-    ...fontSize.b5, lineHeight: fontSize.b5.fontSize + 1,
+    ...fontSize.b5, lineHeight: fontSize.b5.lineHeight,
     textTransform: 'uppercase',
     letterSpacing: 0.9,
   },
   legendValue: {
-    ...fontSize.b1, lineHeight: fontSize.b1.fontSize + 2,
+    ...fontSize.b1, lineHeight: fontSize.b1.lineHeight,
   },
   glassCard: {
     borderRadius: 22,
@@ -378,14 +378,14 @@ const styles = StyleSheet.create({
   },
   estimateLabel: {
     color: PRIMARY_COLOR,
-    ...fontSize.b5, lineHeight: fontSize.b5.fontSize + 1,
+    ...fontSize.b5, lineHeight: fontSize.b5.lineHeight,
     textTransform: 'uppercase',
     letterSpacing: 1.2,
     marginBottom: 4,
   },
   estimateValue: {
     color: '#ffffff',
-    ...fontSize.b1, lineHeight: fontSize.b1.fontSize + 2,
+    ...fontSize.b1, lineHeight: fontSize.b1.lineHeight,
   },
   editButton: {
     width: 36,
@@ -445,7 +445,7 @@ const styles = StyleSheet.create({
   },
   sliderScaleText: {
     color: '#64748b',
-    ...fontSize.b5, lineHeight: fontSize.b5.fontSize + 1,
+    ...fontSize.b5, lineHeight: fontSize.b5.lineHeight,
     textTransform: 'uppercase',
     letterSpacing: 1.1,
   },
@@ -453,7 +453,7 @@ const styles = StyleSheet.create({
     gap: 14,
   },
   breakdownHeading: {
-    ...fontSize.b4, lineHeight: fontSize.b4.fontSize + 1,
+    ...fontSize.b4, lineHeight: fontSize.b4.lineHeight,
     textTransform: 'uppercase',
     letterSpacing: 2,
     paddingHorizontal: 4,
@@ -493,12 +493,12 @@ const styles = StyleSheet.create({
     gap: 12,
   },
   breakdownTitle: {
-    ...fontSize.b4, lineHeight: fontSize.b4.fontSize + 1,
+    ...fontSize.b4, lineHeight: fontSize.b4.lineHeight,
     flex: 1,
   },
   breakdownAmount: {
     color: '#ffffff',
-    ...fontSize.b1, lineHeight: fontSize.b1.fontSize + 2,
+    ...fontSize.b1, lineHeight: fontSize.b1.lineHeight,
   },
   breakdownText: {
     ...fontSize.b3,
@@ -527,7 +527,7 @@ const styles = StyleSheet.create({
   },
   footerButtonText: {
     color: '#ffffff',
-    ...fontSize.b4, lineHeight: fontSize.b4.fontSize + 1,
+    ...fontSize.b4, lineHeight: fontSize.b4.lineHeight,
     textTransform: 'uppercase',
     letterSpacing: 1.5,
   },

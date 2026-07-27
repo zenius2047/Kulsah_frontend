@@ -132,9 +132,6 @@ const HelpCentre: React.FC = () => {
       >
         <View style={[styles.header, { backgroundColor: isDark ? 'rgba(18,18,26,0.92)' : 'rgba(255,255,255,0.94)', borderBottomColor: border }]}>
           <View style={styles.headerLeft}>
-            <Pressable onPress={() => navigation.goBack()} style={[styles.iconButton, { backgroundColor: softSurface }]}>
-              <MaterialIcons name="chevron-left" size={22} color={theme.text} />
-            </Pressable>
             <View style={styles.headerCopy}>
               <Text style={[styles.headerTitle, { color: theme.text }]}>Help Centre</Text>
               {/* <Text style={[styles.headerSubtitle, { color: muted }]}>Support & Protocol Docs</Text> */}
@@ -348,16 +345,15 @@ const styles = StyleSheet.create({
     flex: 1,
   },
   headerTitle: {
-    ...fontSize.b2,
-    lineHeight: fontSize.b2.fontSize + 2,
+    ...fontSize.h1,
+    lineHeight: fontSize.h1.lineHeight,
     textTransform: 'uppercase',
     letterSpacing: 2,
-    fontWeight: '900',
   },
   headerSubtitle: {
     marginTop: 2,
     ...fontSize.n5,
-    lineHeight: fontSize.n5.fontSize + 1,
+    lineHeight: fontSize.n5.lineHeight,
     textTransform: 'uppercase',
     letterSpacing: 1.5,
     fontWeight: '800',
@@ -388,7 +384,7 @@ const styles = StyleSheet.create({
   searchInput: {
     flex: 1,
     ...fontSize.b4,
-    lineHeight: fontSize.b4.fontSize + 2,
+    lineHeight: fontSize.b4.lineHeight,
     fontWeight: '700',
     paddingVertical: 0,
   },
@@ -397,7 +393,7 @@ const styles = StyleSheet.create({
   },
   sectionLabel: {
     ...fontSize.n5,
-    lineHeight: fontSize.n5.fontSize + 1,
+    lineHeight: fontSize.n5.lineHeight,
     textTransform: 'uppercase',
     letterSpacing: 2,
     fontWeight: '900',
@@ -418,7 +414,7 @@ const styles = StyleSheet.create({
   },
   categoryText: {
     ...fontSize.n5,
-    lineHeight: fontSize.n5.fontSize + 1,
+    lineHeight: fontSize.n5.lineHeight,
     textTransform: 'uppercase',
     letterSpacing: 1,
     fontWeight: '900',
@@ -432,7 +428,7 @@ const styles = StyleSheet.create({
   articleCount: {
     color: PRIMARY_COLOR,
     ...fontSize.n5,
-    lineHeight: fontSize.n5.fontSize + 1,
+    lineHeight: fontSize.n5.lineHeight,
     textTransform: 'uppercase',
     letterSpacing: 1,
     fontWeight: '900',
@@ -457,7 +453,7 @@ const styles = StyleSheet.create({
   faqQuestion: {
     flex: 1,
     ...fontSize.b4,
-    lineHeight: fontSize.b4.fontSize + 3,
+    lineHeight: fontSize.b4.lineHeight,
     fontWeight: '900',
     textTransform: 'uppercase',
   },
@@ -469,7 +465,7 @@ const styles = StyleSheet.create({
   },
   faqAnswer: {
     ...fontSize.b4,
-    lineHeight: fontSize.b4.fontSize + 7,
+    lineHeight: fontSize.b4.lineHeight,
   },
   emptyCard: {
     borderWidth: 1,
@@ -481,13 +477,13 @@ const styles = StyleSheet.create({
   },
   emptyTitle: {
     ...fontSize.b4,
-    lineHeight: fontSize.b4.fontSize + 2,
+    lineHeight: fontSize.b4.lineHeight,
     textTransform: 'uppercase',
     fontWeight: '800',
   },
   emptyBody: {
     ...fontSize.b5,
-    lineHeight: fontSize.b5.fontSize + 4,
+    lineHeight: fontSize.b5.lineHeight,
     textAlign: 'center',
   },
   supportCard: {
@@ -510,7 +506,7 @@ const styles = StyleSheet.create({
   },
   supportTitle: {
     ...fontSize.b4,
-    lineHeight: fontSize.b4.fontSize + 2,
+    lineHeight: fontSize.b4.lineHeight,
     textTransform: 'uppercase',
     letterSpacing: 1.2,
     fontWeight: '900',
@@ -518,7 +514,7 @@ const styles = StyleSheet.create({
   supportSubtitle: {
     marginTop: 2,
     ...fontSize.n5,
-    lineHeight: fontSize.n5.fontSize + 1,
+    lineHeight: fontSize.n5.lineHeight,
     textTransform: 'uppercase',
     letterSpacing: 1,
     fontWeight: '800',
@@ -529,7 +525,7 @@ const styles = StyleSheet.create({
   inputLabel: {
     marginLeft: 4,
     ...fontSize.n5,
-    lineHeight: fontSize.n5.fontSize + 1,
+    lineHeight: fontSize.n5.lineHeight,
     textTransform: 'uppercase',
     letterSpacing: 1.2,
     fontWeight: '900',
@@ -540,7 +536,7 @@ const styles = StyleSheet.create({
     borderWidth: 1,
     paddingHorizontal: 14,
     ...fontSize.b4,
-    lineHeight: fontSize.b4.fontSize + 2,
+    lineHeight: fontSize.b4.lineHeight,
     fontWeight: '700',
   },
   textarea: {
@@ -550,7 +546,7 @@ const styles = StyleSheet.create({
     paddingHorizontal: 14,
     paddingVertical: 12,
     ...fontSize.b4,
-    lineHeight: fontSize.b4.fontSize + 6,
+    lineHeight: fontSize.b4.lineHeight,
   },
   selectButton: {
     height: 46,
@@ -565,7 +561,7 @@ const styles = StyleSheet.create({
   selectText: {
     flex: 1,
     ...fontSize.b5,
-    lineHeight: fontSize.b5.fontSize + 2,
+    lineHeight: fontSize.b5.lineHeight,
     fontWeight: '800',
   },
   selectMenu: {
@@ -579,7 +575,7 @@ const styles = StyleSheet.create({
   },
   selectOptionText: {
     ...fontSize.b5,
-    lineHeight: fontSize.b5.fontSize + 2,
+    lineHeight: fontSize.b5.lineHeight,
     fontWeight: '800',
   },
   submitButton: {
@@ -593,7 +589,7 @@ const styles = StyleSheet.create({
   submitText: {
     color: '#ffffff',
     ...fontSize.n5,
-    lineHeight: fontSize.n5.fontSize + 1,
+    lineHeight: fontSize.n5.lineHeight,
     textTransform: 'uppercase',
     letterSpacing: 1.4,
     fontWeight: '900',
@@ -617,7 +613,7 @@ const styles = StyleSheet.create({
     flexShrink: 1,
     color: '#ffffff',
     ...fontSize.n5,
-    lineHeight: fontSize.n5.fontSize + 3,
+    lineHeight: fontSize.n5.lineHeight,
     textTransform: 'uppercase',
     letterSpacing: 0.8,
     fontWeight: '900',

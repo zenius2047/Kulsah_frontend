@@ -165,7 +165,7 @@ const navigation = useNavigation<any>()
             }}>
                 <BadgeIcon height={34} width={34} fill={PRIMARY_COLOR}/>
             <Text style={{
-                ...fontSize.b1, lineHeight: fontSize.b1.fontSize + 2,
+                ...fontSize.b1, lineHeight: fontSize.b1.lineHeight,
                 color: !isDark ? 'black': 'white',
             }}>
                 Arena
@@ -199,7 +199,7 @@ const navigation = useNavigation<any>()
                 }}>
                  <Text style={{
                     color: activeTab === tab ? isDark ? '#ffffff': '#000000': isDark ? '#ffffff5d':'#0000005d',
-                    ...fontSize.b1, lineHeight: fontSize.b1.fontSize + 2,
+                    ...fontSize.b1, lineHeight: fontSize.b1.lineHeight,
                     marginBottom: 10,
                  }}>
                     {tab}
@@ -261,13 +261,13 @@ const navigation = useNavigation<any>()
             </View>
             <View>
                 <Text style={{
-                    ...fontSize.b1, lineHeight: fontSize.b1.fontSize + 2,
+                    ...fontSize.b1, lineHeight: fontSize.b1.lineHeight,
                     color: isDark ? 'white': 'black',
                 }}>
                     {content.creator}
                 </Text>
                 <Text style={{
-                    ...fontSize.b4, lineHeight: fontSize.b4.fontSize + 1,
+                    ...fontSize.b4, lineHeight: fontSize.b4.lineHeight,
                     color: isDark ? 'grey': 'black',
                 }}>
                     by @{content.username}
@@ -287,7 +287,7 @@ const navigation = useNavigation<any>()
                 numberOfLines={1}
                 style={{
                     color: PRIMARY_COLOR,
-                    ...fontSize.b3, lineHeight: fontSize.b3.fontSize + 2,
+                    ...fontSize.b3, lineHeight: fontSize.b3.lineHeight,
                 }}>
                     {content.tag}
                 </Text>
@@ -321,7 +321,7 @@ const navigation = useNavigation<any>()
             }}>
             <Text style={{
                 color: isDark ? 'grey' : 'black',
-                ...fontSize.b3, lineHeight: fontSize.b3.fontSize + 2,
+                ...fontSize.b3, lineHeight: fontSize.b3.lineHeight,
                 // paddingHorizontal: 12,
                 // paddingTop: 12,
             }}>
@@ -329,7 +329,7 @@ const navigation = useNavigation<any>()
             </Text>
             <Text style={{
                 color: isDark ? item===3 ? PRIMARY_COLOR:'white' : item===3 ? PRIMARY_COLOR:'black',
-                ...fontSize.b4, lineHeight: fontSize.b4.fontSize + 1,
+                ...fontSize.b4, lineHeight: fontSize.b4.lineHeight,
                 paddingHorizontal: 12,
             }}>
                 {item === 1 ? content.entries: item===2 ? content.views: content.timeLeft}
@@ -347,7 +347,7 @@ const navigation = useNavigation<any>()
         }}>
             <Text style={{
                 color: isDark ? 'grey': 'black',
-                ...fontSize.b4, lineHeight: fontSize.b4.fontSize + 1,
+                ...fontSize.b4, lineHeight: fontSize.b4.lineHeight,
             }}>
                 RECENT PARTICIPANTS
             </Text>
@@ -358,7 +358,7 @@ const navigation = useNavigation<any>()
              >
                 <Text style={{
                 color: 'purple',
-                ...fontSize.b4, lineHeight: fontSize.b4.fontSize + 1,
+                ...fontSize.b4, lineHeight: fontSize.b4.lineHeight,
              }}>
                 VIEW ALL
             </Text>

@@ -20,7 +20,7 @@ import { SafeAreaView, useSafeAreaInsets } from 'react-native-safe-area-context'
 import { mediumScreen } from '../types';
 import PaymentSuccess from '../assets/icons/payment-success.svg'
 import PaymentGateway from '../components/PaymentGateway';
-import { fontSize } from './typography';
+import { fontSize } from '../typography';
 
 interface TicketTier {
   id: string;
@@ -426,18 +426,18 @@ const styles = StyleSheet.create({
   },
   headerText: { marginLeft: 12, flex: 1 },
   headerTitle: {
-    ...fontSize.b3, lineHeight: fontSize.b3.fontSize + 2,
+    ...fontSize.b3, lineHeight: fontSize.b3.lineHeight,
     textTransform: 'uppercase',
   },
   headerSubtitle: {
-    ...fontSize.b5, lineHeight: fontSize.b5.fontSize + 1,
+    ...fontSize.b5, lineHeight: fontSize.b5.lineHeight,
     textTransform: 'uppercase',
     letterSpacing: 1.8,
     marginTop: 2,
   },
   stepBlock: { alignItems: 'flex-end', marginLeft: 8 },
   stepLabel: {
-    ...fontSize.b5, lineHeight: fontSize.b5.fontSize + 1,
+    ...fontSize.b5, lineHeight: fontSize.b5.lineHeight,
     textTransform: 'uppercase',
     letterSpacing: 1.4,
   },
@@ -446,7 +446,7 @@ const styles = StyleSheet.create({
   content: { padding: 16, paddingBottom: 180, gap: 16 },
   sectionHeader: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between' },
   sectionEyebrow: {
-    ...fontSize.b5, lineHeight: fontSize.b5.fontSize + 1,
+    ...fontSize.b5, lineHeight: fontSize.b5.lineHeight,
     textTransform: 'uppercase',
     letterSpacing: 2.2,
   },
@@ -461,7 +461,7 @@ const styles = StyleSheet.create({
   },
   liveDot: { width: 6, height: 6, borderRadius: 3 },
   venueBadgeText: {
-    ...fontSize.b5, lineHeight: fontSize.b5.fontSize + 1,
+    ...fontSize.b5, lineHeight: fontSize.b5.lineHeight,
     textTransform: 'uppercase',
   },
   mapCard: {
@@ -481,7 +481,7 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
   },
   stageText: {
-    ...fontSize.b5, lineHeight: fontSize.b5.fontSize + 1,
+    ...fontSize.b5, lineHeight: fontSize.b5.lineHeight,
     textTransform: 'uppercase',
     letterSpacing: 3,
   },
@@ -510,7 +510,7 @@ const styles = StyleSheet.create({
   zoneMezz: { borderColor: '#22c55e24' },
   zoneMezzActive: { backgroundColor: '#22c55e22', borderColor: '#22c55e88' },
   zoneText: {
-    ...fontSize.b5, lineHeight: fontSize.b5.fontSize + 1,
+    ...fontSize.b5, lineHeight: fontSize.b5.lineHeight,
     textTransform: 'uppercase',
     letterSpacing: 1.8,
   },
@@ -524,17 +524,17 @@ const styles = StyleSheet.create({
   },
   aiHeader: { flexDirection: 'row', alignItems: 'center', gap: 8 },
   aiTitle: {
-    ...fontSize.b5, lineHeight: fontSize.b5.fontSize + 1,
+    ...fontSize.b5, lineHeight: fontSize.b5.lineHeight,
     textTransform: 'uppercase',
     letterSpacing: 1.8,
   },
   aiDescription: {
     ...fontSize.b5,
-    lineHeight: 18,
+    lineHeight: fontSize.b5.lineHeight,
   },
   aiSuggestion: {
     ...fontSize.b4,
-    lineHeight: 20,
+    lineHeight: fontSize.b4.lineHeight,
     fontStyle: 'italic',
   },
   aiButton: {
@@ -545,7 +545,7 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
   },
   aiButtonText: {
-    ...fontSize.b5, lineHeight: fontSize.b5.fontSize + 1,
+    ...fontSize.b5, lineHeight: fontSize.b5.lineHeight,
     textTransform: 'uppercase',
     letterSpacing: 1.2,
   },
@@ -566,21 +566,21 @@ const styles = StyleSheet.create({
   tierTitleRow: { flexDirection: 'row', alignItems: 'center', gap: 8 },
   tierDot: { width: 10, height: 10, borderRadius: 5 },
   tierName: {
-    ...fontSize.b4, lineHeight: fontSize.b4.fontSize + 1,
+    ...fontSize.b4, lineHeight: fontSize.b4.lineHeight,
     textTransform: 'uppercase',
   },
   tierDescription: {
     ...fontSize.b5,
-    lineHeight: 16,
+    lineHeight: fontSize.b5.lineHeight,
     marginTop: 6,
   },
   tierPrice: {
-    ...fontSize.b3, lineHeight: fontSize.b3.fontSize + 2,
+    ...fontSize.b3, lineHeight: fontSize.b3.lineHeight,
   },
   tierBottomRow: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', gap: 12 },
   verifiedRow: { flexDirection: 'row', alignItems: 'center', gap: 6 },
   verifiedText: {
-    ...fontSize.b5, lineHeight: fontSize.b5.fontSize + 1,
+    ...fontSize.b5, lineHeight: fontSize.b5.lineHeight,
     textTransform: 'uppercase',
     letterSpacing: 1.4,
   },
@@ -597,7 +597,7 @@ const styles = StyleSheet.create({
   quantityText: {
     minWidth: 20,
     textAlign: 'center',
-    ...fontSize.b4, lineHeight: fontSize.b4.fontSize + 1,
+    ...fontSize.b4, lineHeight: fontSize.b4.lineHeight,
   },
   paymentModalRoot: {
     flex: 1,
@@ -643,13 +643,13 @@ const styles = StyleSheet.create({
   },
   paymentEyebrow: {
     ...fontSize.b5,
-    lineHeight: fontSize.b5.fontSize + 1,
+    lineHeight: fontSize.b5.lineHeight,
     textTransform: 'uppercase',
     letterSpacing: 1.6,
   },
   paymentTitle: {
     ...fontSize.b4,
-    lineHeight: fontSize.b4.fontSize + 1,
+    lineHeight: fontSize.b4.lineHeight,
     textTransform: 'uppercase',
     marginTop: 4,
   },
@@ -669,7 +669,7 @@ const styles = StyleSheet.create({
   },
   paymentMethodText: {
     ...fontSize.b5,
-    lineHeight: fontSize.b5.fontSize + 1,
+    lineHeight: fontSize.b5.lineHeight,
     textTransform: 'uppercase',
     textAlign: 'center',
   },
@@ -691,7 +691,7 @@ const styles = StyleSheet.create({
   },
   providerText: {
     ...fontSize.b5,
-    lineHeight: fontSize.b5.fontSize + 1,
+    lineHeight: fontSize.b5.lineHeight,
     textTransform: 'uppercase',
     textAlign: 'center',
   },
@@ -701,7 +701,7 @@ const styles = StyleSheet.create({
     borderWidth: 1,
     paddingHorizontal: 14,
     ...fontSize.b4,
-    lineHeight: fontSize.b4.fontSize + 1,
+    lineHeight: fontSize.b4.lineHeight,
   },
   cardFieldRow: {
     flexDirection: 'row',
@@ -724,16 +724,16 @@ const styles = StyleSheet.create({
   },
   walletText: {
     ...fontSize.b4,
-    lineHeight: fontSize.b4.fontSize + 1,
+    lineHeight: fontSize.b4.lineHeight,
   },
   walletHint: {
     ...fontSize.b5,
-    lineHeight: 17,
+    lineHeight: fontSize.b5.lineHeight,
   },
   paymentError: {
     color: '#ef4444',
     ...fontSize.b5,
-    lineHeight: fontSize.b5.fontSize + 1,
+    lineHeight: fontSize.b5.lineHeight,
     textTransform: 'uppercase',
     letterSpacing: 0.8,
   },
@@ -751,16 +751,16 @@ const styles = StyleSheet.create({
   footerHidden: { opacity: 0 },
   footerTopRow: { flexDirection: 'row', alignItems: 'flex-end', justifyContent: 'space-between', gap: 12 },
   totalLabel: {
-    ...fontSize.b5, lineHeight: fontSize.b5.fontSize + 1,
+    ...fontSize.b5, lineHeight: fontSize.b5.lineHeight,
     textTransform: 'uppercase',
     letterSpacing: 1.6,
   },
   totalPrice: {
-    ...fontSize.b1, lineHeight: fontSize.b1.fontSize + 2,
+    ...fontSize.b1, lineHeight: fontSize.b1.lineHeight,
     marginTop: 4,
   },
   totalTickets: {
-    ...fontSize.b5, lineHeight: fontSize.b5.fontSize + 1,
+    ...fontSize.b5, lineHeight: fontSize.b5.lineHeight,
     textTransform: 'uppercase',
   },
   socialProof: { flexDirection: 'row', marginLeft: 8 },
@@ -782,7 +782,7 @@ const styles = StyleSheet.create({
   purchaseButtonText: {
     color: '#ffffff',
     ...fontSize.b4,
-    lineHeight: 14,
+    lineHeight: fontSize.b4.lineHeight,
     textTransform: 'uppercase',
     letterSpacing: 1.3,
   },
@@ -802,13 +802,13 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
   },
   successTitle: {
-    ...fontSize.b1, lineHeight: fontSize.b1.fontSize + 2,
+    ...fontSize.b1, lineHeight: fontSize.b1.lineHeight,
     textTransform: 'uppercase',
     textAlign: 'center',
   },
   successBody: {
     ...fontSize.b4,
-    lineHeight: 20,
+    lineHeight: fontSize.b4.lineHeight,
     textAlign: 'center',
     maxWidth: 280,
     marginTop: 12,
@@ -825,7 +825,7 @@ const styles = StyleSheet.create({
   },
   primaryButtonText: {
     color: '#ffffff',
-    ...fontSize.b4, lineHeight: fontSize.b4.fontSize + 1,
+    ...fontSize.b4, lineHeight: fontSize.b4.lineHeight,
     textTransform: 'uppercase',
     letterSpacing: 1.2,
   },

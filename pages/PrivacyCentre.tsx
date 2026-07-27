@@ -120,9 +120,6 @@ const PrivacyCentre: React.FC = () => {
     <SafeAreaView style={[styles.safeArea, { backgroundColor: theme.screen }]} edges={['top']}>
       <View style={[styles.header, { backgroundColor: isDark ? 'rgba(18,18,26,0.92)' : 'rgba(255,255,255,0.94)', borderBottomColor: border }]}>
         <View style={styles.headerLeft}>
-          <Pressable onPress={() => navigation.goBack()} style={[styles.iconButton, { backgroundColor: softSurface }]}>
-            <MaterialIcons name="chevron-left" size={22} color={theme.text} />
-          </Pressable>
           <View style={styles.headerCopy}>
             <Text style={[styles.headerTitle, { color: theme.text }]}>Privacy Centre</Text>
             {/* <Text style={[styles.headerSubtitle, { color: muted }]}>Control your footprint</Text> */}
@@ -304,16 +301,15 @@ const styles = StyleSheet.create({
     flex: 1,
   },
   headerTitle: {
-    ...fontSize.b2,
-    lineHeight: fontSize.b2.fontSize + 2,
+    ...fontSize.h1,
+    lineHeight: fontSize.h1.lineHeight,
     textTransform: 'uppercase',
     letterSpacing: 2,
-    fontWeight: '900',
   },
   headerSubtitle: {
     marginTop: 2,
     ...fontSize.n5,
-    lineHeight: fontSize.n5.fontSize + 1,
+    lineHeight: fontSize.n5.lineHeight,
     textTransform: 'uppercase',
     letterSpacing: 1.4,
     fontWeight: '800',
@@ -349,14 +345,14 @@ const styles = StyleSheet.create({
   securityText: {
     color: PRIMARY_COLOR,
     ...fontSize.n5,
-    lineHeight: fontSize.n5.fontSize + 1,
+    lineHeight: fontSize.n5.lineHeight,
     textTransform: 'uppercase',
     letterSpacing: 1.2,
     fontWeight: '900',
   },
   introText: {
     ...fontSize.b5,
-    lineHeight: fontSize.b5.fontSize + 7,
+    lineHeight: fontSize.b5.lineHeight,
     fontWeight: '600',
   },
   section: {
@@ -364,7 +360,7 @@ const styles = StyleSheet.create({
   },
   sectionLabel: {
     ...fontSize.n5,
-    lineHeight: fontSize.n5.fontSize + 1,
+    lineHeight: fontSize.n5.lineHeight,
     textTransform: 'uppercase',
     letterSpacing: 2,
     fontWeight: '900',
@@ -400,13 +396,13 @@ const styles = StyleSheet.create({
   },
   protocolTitle: {
     ...fontSize.b4,
-    lineHeight: fontSize.b4.fontSize + 3,
+    lineHeight: fontSize.b4.lineHeight,
     textTransform: 'uppercase',
     fontWeight: '900',
   },
   protocolBody: {
     ...fontSize.b5,
-    lineHeight: fontSize.b5.fontSize + 6,
+    lineHeight: fontSize.b5.lineHeight,
     fontWeight: '600',
   },
   switchTrack: {
@@ -450,21 +446,21 @@ const styles = StyleSheet.create({
   },
   archiveTitle: {
     ...fontSize.b4,
-    lineHeight: fontSize.b4.fontSize + 3,
+    lineHeight: fontSize.b4.lineHeight,
     textTransform: 'uppercase',
     fontWeight: '900',
   },
   eraseTitle: {
     color: '#ef4444',
     ...fontSize.b4,
-    lineHeight: fontSize.b4.fontSize + 3,
+    lineHeight: fontSize.b4.lineHeight,
     textTransform: 'uppercase',
     fontWeight: '900',
   },
   archiveBody: {
     marginTop: 5,
     ...fontSize.b5,
-    lineHeight: fontSize.b5.fontSize + 6,
+    lineHeight: fontSize.b5.lineHeight,
     fontWeight: '600',
   },
   exportButton: {
@@ -481,7 +477,7 @@ const styles = StyleSheet.create({
   exportButtonText: {
     color: '#3b82f6',
     ...fontSize.n5,
-    lineHeight: fontSize.n5.fontSize + 1,
+    lineHeight: fontSize.n5.lineHeight,
     textTransform: 'uppercase',
     letterSpacing: 1.1,
     fontWeight: '900',
@@ -500,7 +496,7 @@ const styles = StyleSheet.create({
   eraseButtonText: {
     color: '#ef4444',
     ...fontSize.n5,
-    lineHeight: fontSize.n5.fontSize + 1,
+    lineHeight: fontSize.n5.lineHeight,
     textTransform: 'uppercase',
     letterSpacing: 1.1,
     fontWeight: '900',
@@ -525,7 +521,7 @@ const styles = StyleSheet.create({
   },
   progressLabel: {
     ...fontSize.n5,
-    lineHeight: fontSize.n5.fontSize + 1,
+    lineHeight: fontSize.n5.lineHeight,
     textTransform: 'uppercase',
     letterSpacing: 1,
     fontWeight: '900',
@@ -562,14 +558,14 @@ const styles = StyleSheet.create({
   },
   modalTitle: {
     ...fontSize.b1,
-    lineHeight: fontSize.b1.fontSize + 3,
+    lineHeight: fontSize.b1.lineHeight,
     textTransform: 'uppercase',
     textAlign: 'center',
     fontWeight: '900',
   },
   modalBody: {
     ...fontSize.b4,
-    lineHeight: fontSize.b4.fontSize + 7,
+    lineHeight: fontSize.b4.lineHeight,
     textAlign: 'center',
   },
   modalActions: {
@@ -586,7 +582,7 @@ const styles = StyleSheet.create({
   confirmButtonText: {
     color: '#ffffff',
     ...fontSize.n5,
-    lineHeight: fontSize.n5.fontSize + 1,
+    lineHeight: fontSize.n5.lineHeight,
     textTransform: 'uppercase',
     letterSpacing: 1.2,
     fontWeight: '900',
@@ -600,7 +596,7 @@ const styles = StyleSheet.create({
   },
   abortButtonText: {
     ...fontSize.n5,
-    lineHeight: fontSize.n5.fontSize + 1,
+    lineHeight: fontSize.n5.lineHeight,
     textTransform: 'uppercase',
     letterSpacing: 1.2,
     fontWeight: '900',
@@ -613,7 +609,7 @@ const styles = StyleSheet.create({
   purgingText: {
     color: '#ef4444',
     ...fontSize.n5,
-    lineHeight: fontSize.n5.fontSize + 1,
+    lineHeight: fontSize.n5.lineHeight,
     textTransform: 'uppercase',
     letterSpacing: 1.2,
     fontWeight: '900',
@@ -638,7 +634,7 @@ const styles = StyleSheet.create({
     flexShrink: 1,
     color: '#ffffff',
     ...fontSize.n5,
-    lineHeight: fontSize.n5.fontSize + 3,
+    lineHeight: fontSize.n5.lineHeight,
     textTransform: 'uppercase',
     letterSpacing: 0.8,
     fontWeight: '900',

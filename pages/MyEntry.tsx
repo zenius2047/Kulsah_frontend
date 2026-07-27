@@ -287,14 +287,14 @@ const styles = StyleSheet.create({
   },
   liveLabel: {
     color: PRIMARY_COLOR,
-    ...fontSize.b5, lineHeight: fontSize.b5.fontSize + 1,
+    ...fontSize.b5, lineHeight: fontSize.b5.lineHeight,
     textTransform: 'uppercase',
     letterSpacing: 2,
     marginBottom: 8,
   },
   pageTitle: {
     color: '#F8FAFC',
-    ...fontSize.b1, lineHeight: fontSize.b1.fontSize + 2,
+    ...fontSize.b1, lineHeight: fontSize.b1.lineHeight,
   },
   timerPill: {
     alignSelf: 'flex-start',
@@ -324,7 +324,7 @@ const styles = StyleSheet.create({
   },
   timerText: {
     color: '#94A3B8',
-    ...fontSize.b4, lineHeight: fontSize.b4.fontSize + 1,
+    ...fontSize.b4, lineHeight: fontSize.b4.lineHeight,
     textTransform: 'uppercase',
     letterSpacing: 0.8,
   },
@@ -389,13 +389,13 @@ const styles = StyleSheet.create({
   },
   videoStatLabel: {
     color: '#94A3B8',
-    ...fontSize.b5, lineHeight: fontSize.b5.fontSize + 1,
+    ...fontSize.b5, lineHeight: fontSize.b5.lineHeight,
     textTransform: 'uppercase',
     letterSpacing: 1,
   },
   videoStatValue: {
     color: '#fff',
-    ...fontSize.b1, lineHeight: fontSize.b1.fontSize + 2,
+    ...fontSize.b1, lineHeight: fontSize.b1.lineHeight,
   },
   videoDivider: {
     width: 1,
@@ -427,7 +427,7 @@ const styles = StyleSheet.create({
   },
   voterText: {
     color: '#94A3B8',
-    ...fontSize.b4, lineHeight: fontSize.b4.fontSize + 1,
+    ...fontSize.b4, lineHeight: fontSize.b4.lineHeight,
   },
   actionRow: {
     flexDirection: 'row',
@@ -444,7 +444,7 @@ const styles = StyleSheet.create({
   },
   secondaryButtonText: {
     color: '#E2E8F0',
-    ...fontSize.b4, lineHeight: fontSize.b4.fontSize + 1,
+    ...fontSize.b4, lineHeight: fontSize.b4.lineHeight,
   },
   primaryButton: {
     paddingHorizontal: 24,
@@ -454,7 +454,7 @@ const styles = StyleSheet.create({
   },
   primaryButtonText: {
     color: '#fff',
-    ...fontSize.b4, lineHeight: fontSize.b4.fontSize + 1,
+    ...fontSize.b4, lineHeight: fontSize.b4.lineHeight,
   },
   insightsGrid: {
     gap: 16,
@@ -474,7 +474,7 @@ const styles = StyleSheet.create({
   },
   insightTitle: {
     color: '#F8FAFC',
-    ...fontSize.b4, lineHeight: fontSize.b4.fontSize + 1,
+    ...fontSize.b4, lineHeight: fontSize.b4.lineHeight,
   },
   chartArea: {
     height: 128,
@@ -502,17 +502,17 @@ const styles = StyleSheet.create({
   },
   chartLabelText: {
     color: '#64748B',
-    ...fontSize.b5, lineHeight: fontSize.b5.fontSize + 1,
+    ...fontSize.b5, lineHeight: fontSize.b5.lineHeight,
     textTransform: 'uppercase',
   },
   insightSubtitle: {
     color: '#94A3B8',
-    ...fontSize.b4, lineHeight: fontSize.b4.fontSize + 1,
+    ...fontSize.b4, lineHeight: fontSize.b4.lineHeight,
     marginBottom: 16,
   },
   rewardValue: {
     color: '#fff',
-    ...fontSize.b1, lineHeight: fontSize.b1.fontSize + 2,
+    ...fontSize.b1, lineHeight: fontSize.b1.lineHeight,
     fontStyle: 'italic',
     marginBottom: 14,
   },
@@ -529,7 +529,7 @@ const styles = StyleSheet.create({
   },
   rewardHint: {
     color: '#64748B',
-    ...fontSize.b5, lineHeight: fontSize.b5.fontSize + 1,
+    ...fontSize.b5, lineHeight: fontSize.b5.lineHeight,
     textTransform: 'uppercase',
     letterSpacing: 1,
     marginTop: 10,
@@ -542,7 +542,7 @@ const styles = StyleSheet.create({
   },
   pendingTitle: {
     color: '#F8FAFC',
-    ...fontSize.b4, lineHeight: fontSize.b4.fontSize + 1,
+    ...fontSize.b4, lineHeight: fontSize.b4.lineHeight,
   },
   pendingPill: {
     paddingHorizontal: 12,
@@ -552,7 +552,7 @@ const styles = StyleSheet.create({
   },
   pendingPillText: {
     color: '#ffb781',
-    ...fontSize.b5, lineHeight: fontSize.b5.fontSize + 1,
+    ...fontSize.b5, lineHeight: fontSize.b5.lineHeight,
     textTransform: 'uppercase',
     letterSpacing: 1,
   },
@@ -592,12 +592,12 @@ const styles = StyleSheet.create({
   },
   pendingEntryTitle: {
     color: '#F8FAFC',
-    ...fontSize.b4, lineHeight: fontSize.b4.fontSize + 1,
+    ...fontSize.b4, lineHeight: fontSize.b4.lineHeight,
     marginBottom: 4,
   },
   pendingEntryTime: {
     color: '#64748B',
-    ...fontSize.b4, lineHeight: fontSize.b4.fontSize + 1,
+    ...fontSize.b4, lineHeight: fontSize.b4.lineHeight,
   },
   pendingProgressWrap: {
     gap: 8,
@@ -620,11 +620,11 @@ const styles = StyleSheet.create({
   },
   pendingProgressValue: {
     color: '#ffb781',
-    ...fontSize.b5, lineHeight: fontSize.b5.fontSize + 1,
+    ...fontSize.b5, lineHeight: fontSize.b5.lineHeight,
   },
   pendingStatus: {
     color: '#94A3B8',
-    ...fontSize.b5, lineHeight: fontSize.b5.fontSize + 1,
+    ...fontSize.b5, lineHeight: fontSize.b5.lineHeight,
     textTransform: 'uppercase',
     letterSpacing: 1,
   },
@@ -635,7 +635,7 @@ const styles = StyleSheet.create({
   },
   pendingQueueText: {
     color: '#64748B',
-    ...fontSize.b5, lineHeight: fontSize.b5.fontSize + 1,
+    ...fontSize.b5, lineHeight: fontSize.b5.lineHeight,
     textTransform: 'uppercase',
     letterSpacing: 0.8,
     fontStyle: 'italic',
@@ -649,7 +649,7 @@ const styles = StyleSheet.create({
   },
   guideTitle: {
     color: PRIMARY_COLOR,
-    ...fontSize.b5, lineHeight: fontSize.b5.fontSize + 1,
+    ...fontSize.b5, lineHeight: fontSize.b5.lineHeight,
     textTransform: 'uppercase',
     letterSpacing: 2,
     marginBottom: 14,
@@ -663,7 +663,7 @@ const styles = StyleSheet.create({
   guideText: {
     flex: 1,
     color: '#CBD5E1',
-    ...fontSize.b4, lineHeight: fontSize.b4.fontSize + 1,
+    ...fontSize.b4, lineHeight: fontSize.b4.lineHeight,
   },
 });
 

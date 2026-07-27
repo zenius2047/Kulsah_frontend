@@ -614,7 +614,7 @@ const s = StyleSheet.create({
     paddingHorizontal: 10,
   },
   headerTitle: {
-    ...fontSize.b1, lineHeight: fontSize.b1.fontSize + 2,
+    ...fontSize.b1, lineHeight: fontSize.b1.lineHeight,
     textTransform: 'uppercase',
   },
   headerSubRow: {
@@ -631,7 +631,7 @@ const s = StyleSheet.create({
   },
   headerSubText: {
     color: PRIMARY_COLOR,
-    ...fontSize.b5, lineHeight: fontSize.b5.fontSize + 1,
+    ...fontSize.b5, lineHeight: fontSize.b5.lineHeight,
     textTransform: 'uppercase',
     letterSpacing: 1.8,
   },
@@ -656,7 +656,7 @@ const s = StyleSheet.create({
   },
   searchInput: {
     flex: 1,
-    ...fontSize.b4, lineHeight: fontSize.b4.fontSize + 1,
+    ...fontSize.b4, lineHeight: fontSize.b4.lineHeight,
   },
   categoriesRow: {
     paddingTop: 14,
@@ -676,7 +676,7 @@ const s = StyleSheet.create({
     borderColor: PRIMARY_COLOR,
   },
   categoryText: {
-    ...fontSize.b4, lineHeight: fontSize.b4.fontSize + 1,
+    ...fontSize.b4, lineHeight: fontSize.b4.lineHeight,
     textTransform: 'uppercase',
     letterSpacing: 1.4,
   },
@@ -710,13 +710,13 @@ const s = StyleSheet.create({
   },
   productName: {
     color: '#fff',
-    ...fontSize.b4, lineHeight: fontSize.b4.fontSize + 1,
+    ...fontSize.b4, lineHeight: fontSize.b4.lineHeight,
     textTransform: 'uppercase',
   },
   productPrice: {
     marginTop: 3,
     color: PRIMARY_COLOR,
-    ...fontSize.b4, lineHeight: fontSize.b4.fontSize + 1,
+    ...fontSize.b4, lineHeight: fontSize.b4.lineHeight,
   },
   buyButton: {
     marginTop: 10,
@@ -727,7 +727,7 @@ const s = StyleSheet.create({
     justifyContent: 'center',
   },
   buyButtonText: {
-    ...fontSize.b4, lineHeight: fontSize.b4.fontSize + 1,
+    ...fontSize.b4, lineHeight: fontSize.b4.lineHeight,
     textTransform: 'uppercase',
     letterSpacing: 1.4,
   },
@@ -746,7 +746,7 @@ const s = StyleSheet.create({
   },
   emptyTitle: {
     marginTop: 16,
-    ...fontSize.b4, lineHeight: fontSize.b4.fontSize + 1,
+    ...fontSize.b4, lineHeight: fontSize.b4.lineHeight,
     textTransform: 'uppercase',
     letterSpacing: 1.4,
     textAlign: 'center',
@@ -762,7 +762,7 @@ const s = StyleSheet.create({
   },
   resetButtonText: {
     color: PRIMARY_COLOR,
-    ...fontSize.b5, lineHeight: fontSize.b5.fontSize + 1,
+    ...fontSize.b5, lineHeight: fontSize.b5.lineHeight,
     textTransform: 'uppercase',
     letterSpacing: 1.4,
   },
@@ -798,12 +798,12 @@ const s = StyleSheet.create({
     gap: 12,
   },
   sheetTitle: {
-    ...fontSize.b1, lineHeight: fontSize.b1.fontSize + 2,
+    ...fontSize.b1, lineHeight: fontSize.b1.lineHeight,
     textTransform: 'uppercase',
   },
   sheetCaption: {
     marginTop: 4,
-    ...fontSize.b5, lineHeight: fontSize.b5.fontSize + 1,
+    ...fontSize.b5, lineHeight: fontSize.b5.lineHeight,
     textTransform: 'uppercase',
     letterSpacing: 1.6,
   },
@@ -838,7 +838,7 @@ const s = StyleSheet.create({
   },
   detailPriceTagText: {
     color: PRIMARY_COLOR,
-    ...fontSize.b5, lineHeight: fontSize.b5.fontSize + 1,
+    ...fontSize.b5, lineHeight: fontSize.b5.lineHeight,
   },
   detailBlock: {
     paddingTop: 20,
@@ -851,13 +851,13 @@ const s = StyleSheet.create({
   },
   detailCategory: {
     color: PRIMARY_COLOR,
-    ...fontSize.b4, lineHeight: fontSize.b4.fontSize + 1,
+    ...fontSize.b4, lineHeight: fontSize.b4.lineHeight,
     textTransform: 'uppercase',
     letterSpacing: 2,
   },
   detailName: {
     marginTop: 4,
-    ...fontSize.b1, lineHeight: fontSize.b1.fontSize + 2,
+    ...fontSize.b1, lineHeight: fontSize.b1.lineHeight,
     textTransform: 'uppercase',
   },
   issuerWrap: {
@@ -865,13 +865,13 @@ const s = StyleSheet.create({
     justifyContent: 'flex-end',
   },
   issuerLabel: {
-    ...fontSize.b4, lineHeight: fontSize.b4.fontSize + 1,
+    ...fontSize.b4, lineHeight: fontSize.b4.lineHeight,
     textTransform: 'uppercase',
     letterSpacing: 1.2,
   },
   issuerValue: {
     marginTop: 4,
-    ...fontSize.b3, lineHeight: fontSize.b3.fontSize + 2,
+    ...fontSize.b3, lineHeight: fontSize.b3.lineHeight,
   },
   descriptionCard: {
     borderRadius: 24,
@@ -892,7 +892,7 @@ const s = StyleSheet.create({
     gap: 12,
   },
   inventoryLabel: {
-    ...fontSize.b4, lineHeight: fontSize.b4.fontSize + 1,
+    ...fontSize.b4, lineHeight: fontSize.b4.lineHeight,
     textTransform: 'uppercase',
     letterSpacing: 1.2,
   },
@@ -911,7 +911,7 @@ const s = StyleSheet.create({
   },
   quantityValue: {
     textAlign: 'center',
-    ...fontSize.b3, lineHeight: fontSize.b3.fontSize + 2,
+    ...fontSize.b3, lineHeight: fontSize.b3.lineHeight,
   },
   detailActions: {
     flexDirection: 'row',
@@ -929,7 +929,7 @@ const s = StyleSheet.create({
   },
   primaryCtaText: {
     color: '#fff',
-    ...fontSize.b4, lineHeight: fontSize.b4.fontSize + 1,
+    ...fontSize.b4, lineHeight: fontSize.b4.lineHeight,
     textTransform: 'uppercase',
     letterSpacing: 1.2,
   },
@@ -946,7 +946,7 @@ const s = StyleSheet.create({
   },
   confirmButtonText: {
     color: '#fff',
-    ...fontSize.b4, lineHeight: fontSize.b4.fontSize + 1,
+    ...fontSize.b4, lineHeight: fontSize.b4.lineHeight,
     textTransform: 'uppercase',
     letterSpacing: 1.4,
   },
@@ -984,22 +984,22 @@ const s = StyleSheet.create({
     justifyContent: 'space-between',
   },
   reviewName: {
-    ...fontSize.b4, lineHeight: fontSize.b4.fontSize + 1,
+    ...fontSize.b4, lineHeight: fontSize.b4.lineHeight,
     textTransform: 'uppercase',
   },
   reviewArtist: {
     marginTop: 4,
-    ...fontSize.b5, lineHeight: fontSize.b5.fontSize + 1,
+    ...fontSize.b5, lineHeight: fontSize.b5.lineHeight,
     textTransform: 'uppercase',
     letterSpacing: 1.2,
   },
   reviewAmount: {
     color: PRIMARY_COLOR,
-    ...fontSize.b4, lineHeight: fontSize.b4.fontSize + 1,
+    ...fontSize.b4, lineHeight: fontSize.b4.lineHeight,
   },
   removeText: {
     color: '#ef4444',
-    ...fontSize.b5, lineHeight: fontSize.b5.fontSize + 1,
+    ...fontSize.b5, lineHeight: fontSize.b5.lineHeight,
     textTransform: 'uppercase',
   },
   totalBlock: {
@@ -1012,20 +1012,20 @@ const s = StyleSheet.create({
     alignItems: 'center',
   },
   totalLabel: {
-    ...fontSize.b4, lineHeight: fontSize.b4.fontSize + 1,
+    ...fontSize.b4, lineHeight: fontSize.b4.lineHeight,
     textTransform: 'uppercase',
     letterSpacing: 1.2,
   },
   totalValue: {
-    ...fontSize.b4, lineHeight: fontSize.b4.fontSize + 1,
+    ...fontSize.b4, lineHeight: fontSize.b4.lineHeight,
   },
   totalMainLabel: {
-    ...fontSize.b3, lineHeight: fontSize.b3.fontSize + 2,
+    ...fontSize.b3, lineHeight: fontSize.b3.lineHeight,
     textTransform: 'uppercase',
   },
   totalMainValue: {
     color: PRIMARY_COLOR,
-    ...fontSize.b1, lineHeight: fontSize.b1.fontSize + 2,
+    ...fontSize.b1, lineHeight: fontSize.b1.lineHeight,
   },
   divider: {
     height: 1,
@@ -1052,13 +1052,13 @@ const s = StyleSheet.create({
     flex: 1,
   },
   paymentTitle: {
-    ...fontSize.b5, lineHeight: fontSize.b5.fontSize + 1,
+    ...fontSize.b5, lineHeight: fontSize.b5.lineHeight,
     textTransform: 'uppercase',
     letterSpacing: 1.2,
   },
   paymentMeta: {
     marginTop: 4,
-    ...fontSize.b4, lineHeight: fontSize.b4.fontSize + 1,
+    ...fontSize.b4, lineHeight: fontSize.b4.lineHeight,
   },
   momoExtras: {
     marginTop: 16,
@@ -1086,15 +1086,15 @@ const s = StyleSheet.create({
   },
   providerBadgeText: {
     color: '#fff',
-    ...fontSize.b5, lineHeight: fontSize.b5.fontSize + 1,
+    ...fontSize.b5, lineHeight: fontSize.b5.lineHeight,
   },
   providerText: {
-    ...fontSize.b5, lineHeight: fontSize.b5.fontSize + 1,
+    ...fontSize.b5, lineHeight: fontSize.b5.lineHeight,
     textTransform: 'uppercase',
     textAlign: 'center',
   },
   inputLabel: {
-    ...fontSize.b5, lineHeight: fontSize.b5.fontSize + 1,
+    ...fontSize.b5, lineHeight: fontSize.b5.lineHeight,
     textTransform: 'uppercase',
     letterSpacing: 1.2,
   },
@@ -1108,7 +1108,7 @@ const s = StyleSheet.create({
   },
   input: {
     flex: 1,
-    ...fontSize.b4, lineHeight: fontSize.b4.fontSize + 1,
+    ...fontSize.b4, lineHeight: fontSize.b4.lineHeight,
   },
   verifiedRow: {
     flexDirection: 'row',
@@ -1123,7 +1123,7 @@ const s = StyleSheet.create({
   },
   verifiedText: {
     color: '#22c55e',
-    ...fontSize.b5, lineHeight: fontSize.b5.fontSize + 1,
+    ...fontSize.b5, lineHeight: fontSize.b5.lineHeight,
     textTransform: 'uppercase',
   },
   processingRow: {
@@ -1145,7 +1145,7 @@ const s = StyleSheet.create({
   },
   successTitle: {
     marginTop: 24,
-    ...fontSize.b1, lineHeight: fontSize.b1.fontSize + 2,
+    ...fontSize.b1, lineHeight: fontSize.b1.lineHeight,
     textTransform: 'uppercase',
     textAlign: 'center',
   },
@@ -1165,13 +1165,13 @@ const s = StyleSheet.create({
     alignItems: 'center',
   },
   orderLabel: {
-    ...fontSize.b5, lineHeight: fontSize.b5.fontSize + 1,
+    ...fontSize.b5, lineHeight: fontSize.b5.lineHeight,
     textTransform: 'uppercase',
     letterSpacing: 1.2,
   },
   orderValue: {
     marginTop: 8,
-    ...fontSize.b4, lineHeight: fontSize.b4.fontSize + 1,
+    ...fontSize.b4, lineHeight: fontSize.b4.lineHeight,
     textTransform: 'uppercase',
   },
   backOrbitButton: {
@@ -1183,7 +1183,7 @@ const s = StyleSheet.create({
     justifyContent: 'center',
   },
   backOrbitButtonText: {
-    ...fontSize.b4, lineHeight: fontSize.b4.fontSize + 1,
+    ...fontSize.b4, lineHeight: fontSize.b4.lineHeight,
     textTransform: 'uppercase',
     letterSpacing: 1.4,
   },

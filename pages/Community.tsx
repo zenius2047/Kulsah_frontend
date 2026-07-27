@@ -96,7 +96,7 @@ const seedPosts: CommunityPost[] = [
     viewerCount: 1240,
     likes: 3200,
     comments: 45,
-    time: 'LIVE NOW',
+    time: 'live now',
     isLiked: false,
     type: 'live',
     isFollowing: false,
@@ -447,7 +447,7 @@ const Community: React.FC<{ embedded?: boolean }> = ({ embedded = false }) => {
                   </View>
                   <View>
                     <View style={styles.handleMetaRow}>
-                      <Text style={[styles.handleText, { color: theme.text }]}>@{post.handle}</Text>
+                      <Text style={[styles.handleText, { color: theme.text, marginBottom: 2}]}>@{post.handle}</Text>
                       {!post.isVerified ? (
                           <MaterialIcons name="verified" size={16} color='#33aae4'/>
                         ) : null}
@@ -464,7 +464,7 @@ const Community: React.FC<{ embedded?: boolean }> = ({ embedded = false }) => {
               }}>
                 
                 <Pressable style={styles.followMetaAction} onPress={() => void toggleFollow(post.id)} hitSlop={8}>
-                        <Text style={[styles.followStateText, { color: post.isFollowing ? mutedText : '#1877f2', fontFamily: 'Inter_700Bold', fontSize: fontSize.b4.fontSize }]}>
+                        <Text style={[styles.followStateText, { color: post.isFollowing ? mutedText : '#1877f2', fontFamily: 'Inter_500Medium', fontSize: fontSize.b3.fontSize }]}>
                           {post.isFollowing ? 'Following' : 'Follow'}
                         </Text>
                       </Pressable>
@@ -533,7 +533,7 @@ const Community: React.FC<{ embedded?: boolean }> = ({ embedded = false }) => {
                     </View>
                   </View>
                 ) : (
-                  <Text style={[styles.postContent, { color: theme.text }]}>{post.content}</Text>
+                  <Text style={[styles.postContent, { color: theme.textSecondary }]}>{post.content}</Text>
                 )}
               </View>
 
@@ -776,14 +776,14 @@ const styles = StyleSheet.create({
   },
   headerTitle: {
     color: '#fff',
-    ...fontSize.h1, lineHeight: fontSize.b3.fontSize + 2,
+    ...fontSize.h1, lineHeight: fontSize.b3.lineHeight,
     letterSpacing: 2,
     textTransform: 'uppercase',
   },
   headerSubtitle: {
     color: PRIMARY_COLOR,
     marginTop: 4,
-    ...fontSize.h2, lineHeight: fontSize.h2.fontSize + 1,
+    ...fontSize.h2, lineHeight: fontSize.h2.lineHeight,
     letterSpacing: 1.5,
     textTransform: 'uppercase',
   },
@@ -812,17 +812,18 @@ const styles = StyleSheet.create({
   handleMetaRow: { flexDirection: 'row', alignItems: 'center', gap: 6,},
   followMetaAction: { flexDirection: 'row', alignItems: 'center', gap: 4 },
   handleText: {
-    ...fontSize.b2,
+    ...fontSize.handleTextMedium,
     color: '#fff',
-    // // ...fontSize.b3, lineHeight: fontSize.b3.fontSize + 2
+    letterSpacing: 0.25
+    // // ...fontSize.b3, lineHeight: fontSize.b3.lineHeight
    },
   followStateText: { 
-    // ...fontSize.b4, lineHeight: fontSize.b4.fontSize + 1,
+    // ...fontSize.b4, lineHeight: fontSize.b4.lineHeight,
     // ...fontSize.b2,
-    lineHeight: fontSize.b2.fontSize+4,
+    lineHeight: fontSize.b2.lineHeight,
    },
   timeText: { 
-    ...fontSize.b3,
+    ...fontSize.b5,
     color: '#94a3b8', letterSpacing: 0.4 },
   optionsWrap: { position: 'relative',},
   optionsMenu: {
@@ -839,13 +840,13 @@ const styles = StyleSheet.create({
     overflow: 'hidden',
   },
   optionItem: { flexDirection: 'row', alignItems: 'center', gap: 8, paddingVertical: 11, paddingHorizontal: 12 },
-  optionText: { color: '#cbd5e1', ...fontSize.b3, lineHeight: fontSize.b3.fontSize + 2 },
-  deleteText: { color: '#ef4444', ...fontSize.b3, lineHeight: fontSize.b3.fontSize + 2 },
+  optionText: { color: '#cbd5e1', ...fontSize.b3, lineHeight: fontSize.b3.lineHeight },
+  deleteText: { color: '#ef4444', ...fontSize.b3, lineHeight: fontSize.b3.lineHeight },
   postContentWrap: { paddingHorizontal: 16, paddingVertical: 12 },
   postContent: { 
     ...fontSize.b3,
     color: '#e2e8f0', 
-    // ...fontSize.b1, lineHeight: fontSize.b1.fontSize + 2, 
+    // ...fontSize.b1, lineHeight: fontSize.b1.lineHeight,
     // lineHeight: fontSize.b2.fontSize + (Platform.OS === 'ios' ? 8: 4), 
    },
   editInput: {
@@ -857,7 +858,7 @@ const styles = StyleSheet.create({
     color: '#fff',
     textAlignVertical: 'top',
     padding: 12,
-    ...fontSize.b1, lineHeight: fontSize.b1.fontSize + 2,
+    ...fontSize.b1, lineHeight: fontSize.b1.lineHeight,
   },
   editActions: { flexDirection: 'row', gap: 8 },
   editCancel: {
@@ -870,8 +871,8 @@ const styles = StyleSheet.create({
     alignItems: 'center',
   },
   editSave: { flex: 1, height: 42, borderRadius: 12, backgroundColor: PRIMARY_COLOR, justifyContent: 'center', alignItems: 'center' },
-  editCancelText: { color: '#fff', ...fontSize.b4, lineHeight: fontSize.b4.fontSize + 1, letterSpacing: 1.4 },
-  editSaveText: { color: '#fff', ...fontSize.b4, lineHeight: fontSize.b4.fontSize + 1, letterSpacing: 1.4 },
+  editCancelText: { color: '#fff', ...fontSize.b4, lineHeight: fontSize.b4.lineHeight, letterSpacing: 1.4 },
+  editSaveText: { color: '#fff', ...fontSize.b4, lineHeight: fontSize.b4.lineHeight, letterSpacing: 1.4 },
   mediaWrap: {
     marginHorizontal: 12,
     marginBottom: 12,
@@ -1006,15 +1007,15 @@ const styles = StyleSheet.create({
   commentRow: { flexDirection: 'row', gap: 8 },
   commentAvatar: { height: 30, width: 30, borderRadius: 15, marginTop: 2 },
   commentBubble: { backgroundColor: 'rgba(255,255,255,0.07)', borderRadius: 16, paddingHorizontal: 12, paddingVertical: 8 },
-  commentHandle: { color: '#fff', ...fontSize.b4, lineHeight: fontSize.b4.fontSize + 1, marginBottom: 3 },
-  commentText: { color: '#e2e8f0', ...fontSize.b3, lineHeight: fontSize.b3.fontSize + 2 },
+  commentHandle: { color: '#fff', ...fontSize.b4, lineHeight: fontSize.b4.lineHeight, marginBottom: 3 },
+  commentText: { color: '#e2e8f0', ...fontSize.b3, lineHeight: fontSize.b3.lineHeight },
   commentMeta: { flexDirection: 'row', alignItems: 'center', gap: 14, paddingLeft: 8, marginTop: 4 },
-  commentMetaBtn: { color: '#94a3b8', ...fontSize.b4, lineHeight: fontSize.b4.fontSize + 1 },
-  commentTime: { color: '#64748b', ...fontSize.b4, lineHeight: fontSize.b4.fontSize + 1 },
+  commentMetaBtn: { color: '#94a3b8', ...fontSize.b4, lineHeight: fontSize.b4.lineHeight },
+  commentTime: { color: '#64748b', ...fontSize.b4, lineHeight: fontSize.b4.lineHeight },
   moreComments: { paddingLeft: 38 },
-  moreCommentsText: { color: '#94a3b8', ...fontSize.b4, lineHeight: fontSize.b4.fontSize + 1 },
+  moreCommentsText: { color: '#94a3b8', ...fontSize.b4, lineHeight: fontSize.b4.lineHeight },
   footerLoader: { alignItems: 'center', gap: 8, opacity: 0.6, paddingVertical: 18 },
-  footerText: { color: '#cbd5e1', ...fontSize.b4, lineHeight: fontSize.b4.fontSize + 1, letterSpacing: 1.4 },
+  footerText: { color: '#cbd5e1', ...fontSize.b4, lineHeight: fontSize.b4.lineHeight, letterSpacing: 1.4 },
   modalRoot: { flex: 1, justifyContent: 'flex-end' },
   modalBackdrop: { ...StyleSheet.absoluteFillObject, backgroundColor: 'rgba(0,0,0,0.65)' },
   modalCard: {
@@ -1028,9 +1029,9 @@ const styles = StyleSheet.create({
     borderColor: 'rgba(255,255,255,0.08)',
   },
   modalGrabber: { alignSelf: 'center', width: 42, height: 5, borderRadius: 4, backgroundColor: '#374151', marginBottom: 16 },
-  modalTitle: { color: '#fff', ...fontSize.b1, lineHeight: fontSize.b1.fontSize + 2, marginBottom: 12 },
+  modalTitle: { color: '#fff', ...fontSize.b1, lineHeight: fontSize.b1.lineHeight, marginBottom: 12 },
   modalHeaderRow: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', marginBottom: 14 },
-  modalSubtitle: { ...fontSize.b4, lineHeight: fontSize.b4.fontSize + 1, letterSpacing: 0.6 },
+  modalSubtitle: { ...fontSize.b4, lineHeight: fontSize.b4.lineHeight, letterSpacing: 0.6 },
   modalCloseBtn: {
     height: 36,
     width: 36,
@@ -1050,7 +1051,7 @@ const styles = StyleSheet.create({
   },
   modalPostAvatar: { height: 44, width: 44, borderRadius: 22 },
   modalPostCopy: { flex: 1, gap: 3 },
-  modalPostArtist: { ...fontSize.b3, lineHeight: fontSize.b3.fontSize + 2 },
+  modalPostArtist: { ...fontSize.b3, lineHeight: fontSize.b3.lineHeight },
   modalPostSnippet: { ...fontSize.b4,lineHeight: 18 },
   modalCommentsScroll: { maxHeight: 280, marginBottom: 14 },
   modalCommentsContent: { gap: 12, paddingBottom: 6 },
@@ -1059,10 +1060,10 @@ const styles = StyleSheet.create({
   modalCommentBody: { flex: 1, gap: 6 },
   modalCommentBubble: { borderRadius: 18, borderWidth: 1, paddingHorizontal: 12, paddingVertical: 10 },
   modalCommentTopline: { flexDirection: 'row', alignItems: 'center', gap: 8, marginBottom: 4, flexWrap: 'wrap' },
-  modalCommentAuthor: { ...fontSize.b4, lineHeight: fontSize.b4.fontSize + 1 },
-  modalCommentHandle: { ...fontSize.b4, lineHeight: fontSize.b4.fontSize + 1 },
+  modalCommentAuthor: { ...fontSize.b4, lineHeight: fontSize.b4.lineHeight },
+  modalCommentHandle: { ...fontSize.b4, lineHeight: fontSize.b4.lineHeight },
   modalCommentText: { ...fontSize.b4,lineHeight: 20 },
-  modalCommentTime: { ...fontSize.b4, lineHeight: fontSize.b4.fontSize + 1, paddingLeft: 8 },
+  modalCommentTime: { ...fontSize.b4, lineHeight: fontSize.b4.lineHeight, paddingLeft: 8 },
   modalEmptyState: {
     borderWidth: 1,
     borderRadius: 20,
@@ -1071,12 +1072,12 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     gap: 8,
   },
-  modalEmptyTitle: { ...fontSize.b3, lineHeight: fontSize.b3.fontSize + 2 },
+  modalEmptyTitle: { ...fontSize.b3, lineHeight: fontSize.b3.lineHeight },
   modalEmptyText: { ...fontSize.b4,textAlign: 'center', lineHeight: 18 },
   modalComposer: { borderWidth: 1, borderRadius: 22, padding: 14 },
   modalComposerHeader: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', marginBottom: 10 },
-  modalComposerTitle: { ...fontSize.b4, lineHeight: fontSize.b4.fontSize + 1 },
-  modalComposerHint: { ...fontSize.b4, lineHeight: fontSize.b4.fontSize + 1, letterSpacing: 1.2, textTransform: 'uppercase' },
+  modalComposerTitle: { ...fontSize.b4, lineHeight: fontSize.b4.lineHeight },
+  modalComposerHint: { ...fontSize.b4, lineHeight: fontSize.b4.lineHeight, letterSpacing: 1.2, textTransform: 'uppercase' },
   modalInput: {
     borderRadius: 16,
     minHeight: 100,
@@ -1098,8 +1099,8 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     backgroundColor: 'rgba(255,255,255,0.04)',
   },
-  emojiText: { ...fontSize.b1, lineHeight: fontSize.b1.fontSize + 2 },
-  stickerTitle: { marginTop: 14, color: '#94a3b8', ...fontSize.b4, lineHeight: fontSize.b4.fontSize + 1, letterSpacing: 1.4 },
+  emojiText: { ...fontSize.b1, lineHeight: fontSize.b1.lineHeight },
+  stickerTitle: { marginTop: 14, color: '#94a3b8', ...fontSize.b4, lineHeight: fontSize.b4.lineHeight, letterSpacing: 1.4 },
   stickerRow: { gap: 10, paddingVertical: 10 },
   stickerBtn: {
     height: 56,
@@ -1122,8 +1123,8 @@ const styles = StyleSheet.create({
   },
   modalPost: { flex: 1, height: 50, borderRadius: 14, backgroundColor: PRIMARY_COLOR, justifyContent: 'center', alignItems: 'center' },
   modalPostDisabled: { opacity: 0.45 },
-  modalCancelText: { color: '#fff', ...fontSize.b4, lineHeight: fontSize.b4.fontSize + 1, letterSpacing: 1.4 },
-  modalPostText: { color: '#fff', ...fontSize.b4, lineHeight: fontSize.b4.fontSize + 1, letterSpacing: 1.4 },
+  modalCancelText: { color: '#fff', ...fontSize.b4, lineHeight: fontSize.b4.lineHeight, letterSpacing: 1.4 },
+  modalPostText: { color: '#fff', ...fontSize.b4, lineHeight: fontSize.b4.lineHeight, letterSpacing: 1.4 },
   fab: {
     position: 'absolute',
     right: 20,

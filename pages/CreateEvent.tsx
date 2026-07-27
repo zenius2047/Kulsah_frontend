@@ -326,7 +326,7 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
   },
   headerTitle: {
-    ...fontSize.b3, lineHeight: fontSize.b3.fontSize + 2,
+    ...fontSize.b3, lineHeight: fontSize.b3.lineHeight,
     letterSpacing: 3.2,
   },
   headerSpacer: {
@@ -387,7 +387,7 @@ const styles = StyleSheet.create({
   },
   newVideoTitle: {
     color: '#000000',
-    ...fontSize.b3, lineHeight: fontSize.b3.fontSize + 2,
+    ...fontSize.b3, lineHeight: fontSize.b3.lineHeight,
   },
   draftCard: {
     flex: 1,
@@ -408,11 +408,11 @@ const styles = StyleSheet.create({
   },
   draftCount: {
     color: '#ffffff',
-    ...fontSize.b1, lineHeight: fontSize.b1.fontSize + 2,
+    ...fontSize.b1, lineHeight: fontSize.b1.lineHeight,
   },
   draftLabel: {
     color: '#ffffff',
-    ...fontSize.b4, lineHeight: fontSize.b4.fontSize + 1,
+    ...fontSize.b4, lineHeight: fontSize.b4.lineHeight,
     letterSpacing: 1.2,
   },
   actionsColumn: {
@@ -438,7 +438,7 @@ const styles = StyleSheet.create({
     flex: 1,
   },
   actionTitle: {
-    ...fontSize.b3, lineHeight: fontSize.b3.fontSize + 2,
+    ...fontSize.b3, lineHeight: fontSize.b3.lineHeight,
     marginBottom: 4,
   },
   actionDescription: {
@@ -455,7 +455,7 @@ const styles = StyleSheet.create({
     marginBottom: 18,
   },
   templatesTitle: {
-    ...fontSize.b1, lineHeight: fontSize.b1.fontSize + 2,
+    ...fontSize.b1, lineHeight: fontSize.b1.lineHeight,
     letterSpacing: -0.6,
   },
   searchButton: {
@@ -474,7 +474,7 @@ const styles = StyleSheet.create({
     alignItems: 'center',
   },
   tabText: {
-    ...fontSize.b1, lineHeight: fontSize.b1.fontSize + 2,
+    ...fontSize.b1, lineHeight: fontSize.b1.lineHeight,
     marginBottom: 12,
   },
   tabTextActive: {
@@ -533,19 +533,19 @@ const styles = StyleSheet.create({
   },
   templateName: {
     color: '#ffffff',
-    ...fontSize.b4, lineHeight: fontSize.b4.fontSize + 1,
+    ...fontSize.b4, lineHeight: fontSize.b4.lineHeight,
     letterSpacing: 0.6,
   },
   templateMeta: {
-    ...fontSize.b4, lineHeight: fontSize.b4.fontSize + 1,
+    ...fontSize.b4, lineHeight: fontSize.b4.lineHeight,
     marginTop: 3,
   },
   soundSectionTitle: {
-    ...fontSize.b1, lineHeight: fontSize.b1.fontSize + 2,
+    ...fontSize.b1, lineHeight: fontSize.b1.lineHeight,
   },
   seeAllText: {
     color: PRIMARY_COLOR,
-    ...fontSize.b3, lineHeight: fontSize.b3.fontSize + 2,
+    ...fontSize.b3, lineHeight: fontSize.b3.lineHeight,
     letterSpacing: 1,
     textTransform: 'uppercase',
   },
@@ -566,11 +566,11 @@ const styles = StyleSheet.create({
     flex: 1,
   },
   soundTitle: {
-    ...fontSize.b3, lineHeight: fontSize.b3.fontSize + 2,
+    ...fontSize.b3, lineHeight: fontSize.b3.lineHeight,
     marginBottom: 4,
   },
   soundMeta: {
-    ...fontSize.b3, lineHeight: fontSize.b3.fontSize + 2,
+    ...fontSize.b3, lineHeight: fontSize.b3.lineHeight,
   },
   soundAddButton: {
     width: 32,

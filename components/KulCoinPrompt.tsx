@@ -78,7 +78,7 @@ const KulCoinPrompt: React.FC<KulCoinPromptProps> = ({
             <Text
               style={{
                 color: theme.text,
-                ...fontSize.b1, lineHeight: fontSize.b1.fontSize + 2,
+                ...fontSize.b1, lineHeight: fontSize.b1.lineHeight,
                 textTransform: 'uppercase',
                 textAlign: 'center',
                 marginBottom: 8,
@@ -124,7 +124,7 @@ const KulCoinPrompt: React.FC<KulCoinPromptProps> = ({
                 <Text
                   style={{
                     color: '#fff',
-                    ...fontSize.b5, lineHeight: fontSize.b5.fontSize + 1,
+                    ...fontSize.b5, lineHeight: fontSize.b5.lineHeight,
                     textTransform: 'uppercase',
                     letterSpacing: 2,
                   }}
@@ -147,7 +147,7 @@ const KulCoinPrompt: React.FC<KulCoinPromptProps> = ({
                 <Text
                   style={{
                     color: isDark ? 'rgba(255,255,255,0.6)' : '#64748b',
-                    ...fontSize.b5, lineHeight: fontSize.b5.fontSize + 1,
+                    ...fontSize.b5, lineHeight: fontSize.b5.lineHeight,
                     textTransform: 'uppercase',
                     letterSpacing: 2,
                   }}
@@ -175,7 +175,7 @@ const KulCoinPrompt: React.FC<KulCoinPromptProps> = ({
               <Text
                 style={{
                   color: '#22c55e',
-                  ...fontSize.b5, lineHeight: fontSize.b5.fontSize + 1,
+                  ...fontSize.b5, lineHeight: fontSize.b5.lineHeight,
                   textTransform: 'uppercase',
                   letterSpacing: 1.4,
                 }}

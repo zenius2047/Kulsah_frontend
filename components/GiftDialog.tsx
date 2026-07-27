@@ -347,7 +347,7 @@ const styles = StyleSheet.create({
     paddingHorizontal: 16,
   },
   fakeInputText: {
-    ...fontSize.b5, lineHeight: fontSize.b5.fontSize + 1,
+    ...fontSize.b5, lineHeight: fontSize.b5.lineHeight,
   },
   toolbar: {
     flexDirection: 'row',
@@ -409,7 +409,7 @@ const styles = StyleSheet.create({
     backgroundColor: PRIMARY_COLOR,
   },
   categoryChipText: {
-    ...fontSize.b5, lineHeight: fontSize.b5.fontSize + 1,
+    ...fontSize.b5, lineHeight: fontSize.b5.lineHeight,
     textTransform: 'uppercase',
     letterSpacing: 1.4,
   },
@@ -445,14 +445,14 @@ const styles = StyleSheet.create({
     height: '100%',
   },
   giftEmoji: {
-    ...fontSize.b1, lineHeight: fontSize.b1.fontSize + 2,
+    ...fontSize.b1, lineHeight: fontSize.b1.lineHeight,
   },
   giftCopy: {
     alignItems: 'center',
     gap: 2,
   },
   giftName: {
-    ...fontSize.b5, lineHeight: fontSize.b5.fontSize + 1,
+    ...fontSize.b5, lineHeight: fontSize.b5.lineHeight,
     textAlign: 'center',
   },
   giftPriceRow: {
@@ -461,7 +461,7 @@ const styles = StyleSheet.create({
     gap: 2,
   },
   giftPrice: {
-    ...fontSize.b5, lineHeight: fontSize.b5.fontSize + 1,
+    ...fontSize.b5, lineHeight: fontSize.b5.lineHeight,
     textTransform: 'uppercase',
   },
   footer: {
@@ -473,7 +473,7 @@ const styles = StyleSheet.create({
   },
   rechargeLabel: {
     color: '#f43f5e',
-    ...fontSize.b4, lineHeight: fontSize.b4.fontSize + 1,
+    ...fontSize.b4, lineHeight: fontSize.b4.lineHeight,
     textTransform: 'uppercase',
     letterSpacing: 1.3,
     // marginBottom: 8,
@@ -499,11 +499,11 @@ const styles = StyleSheet.create({
   },
   balanceCoinText: {
     color: '#78350f',
-    ...fontSize.b5, lineHeight: fontSize.b5.fontSize + 1,
+    ...fontSize.b5, lineHeight: fontSize.b5.lineHeight,
   },
   balanceValue: {
     ...fontSize.b4,
-    lineHeight: fontSize.b4.fontSize + 10
+    lineHeight: fontSize.b4.lineHeight
   },
   sendButton: {
     minHeight: 48,
@@ -520,7 +520,7 @@ const styles = StyleSheet.create({
     backgroundColor: 'rgba(148,163,184,0.18)',
   },
   sendButtonText: {
-    ...fontSize.b5, lineHeight: fontSize.b5.fontSize + 1,
+    ...fontSize.b5, lineHeight: fontSize.b5.lineHeight,
     textTransform: 'uppercase',
     letterSpacing: 1.5,
   },

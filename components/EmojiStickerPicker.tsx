@@ -332,7 +332,7 @@ const styles = StyleSheet.create({
     },
   },
   tabText: {
-    ...fontSize.b5, lineHeight: fontSize.b5.fontSize + 1,
+    ...fontSize.b5, lineHeight: fontSize.b5.lineHeight,
     textTransform: 'uppercase',
     letterSpacing: 1.4,
   },
@@ -361,7 +361,7 @@ const styles = StyleSheet.create({
   searchInput: {
     flex: 1,
     minHeight: 40,
-    ...fontSize.b5, lineHeight: fontSize.b5.fontSize + 1,
+    ...fontSize.b5, lineHeight: fontSize.b5.lineHeight,
   },
   scrollContent: {
     padding: 16,
@@ -380,7 +380,7 @@ const styles = StyleSheet.create({
     padding: 5
   },
   emojiText: {
-    ...fontSize.b1, lineHeight: fontSize.b1.fontSize + 2,
+    ...fontSize.b1, lineHeight: fontSize.b1.lineHeight,
     // lineHeight: 22
   },
   stickerGrid: {
@@ -412,7 +412,7 @@ const styles = StyleSheet.create({
   },
   stickerLabel: {
     color: '#ffffff',
-    ...fontSize.b5, lineHeight: fontSize.b5.fontSize + 1,
+    ...fontSize.b5, lineHeight: fontSize.b5.lineHeight,
     textTransform: 'uppercase',
     letterSpacing: 1.2,
     textAlign: 'center',
@@ -424,13 +424,13 @@ const styles = StyleSheet.create({
   },
   footerText: {
     textAlign: 'center',
-    ...fontSize.b5, lineHeight: fontSize.b5.fontSize + 1,
+    ...fontSize.b5, lineHeight: fontSize.b5.lineHeight,
     textTransform: 'uppercase',
     letterSpacing: 2.4,
   },
   emptyText: {
     textAlign: 'center',
-    ...fontSize.b5, lineHeight: fontSize.b5.fontSize + 1,
+    ...fontSize.b5, lineHeight: fontSize.b5.lineHeight,
     paddingVertical: 18,
     textTransform: 'uppercase',
     letterSpacing: 1.2,

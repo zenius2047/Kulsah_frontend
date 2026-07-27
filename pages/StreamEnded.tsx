@@ -182,7 +182,7 @@ const styles = StyleSheet.create({
     flex: 1,
     color: '#fff',
     textAlign: 'center',
-    ...fontSize.b4, lineHeight: fontSize.b4.fontSize + 1,
+    ...fontSize.b4, lineHeight: fontSize.b4.lineHeight,
   },
   scrollContent: {
     paddingBottom: 28,
@@ -216,7 +216,7 @@ const styles = StyleSheet.create({
   },
   recordedPillText: {
     color: '#c924eb',
-    ...fontSize.b5, lineHeight: fontSize.b5.fontSize + 1,
+    ...fontSize.b5, lineHeight: fontSize.b5.lineHeight,
     letterSpacing: 1.2,
     textTransform: 'uppercase',
   },
@@ -231,19 +231,19 @@ const styles = StyleSheet.create({
   },
   heroSubtitle: {
     color: 'rgba(255,255,255,0.7)',
-    ...fontSize.b4, lineHeight: fontSize.b4.fontSize + 1,
+    ...fontSize.b4, lineHeight: fontSize.b4.lineHeight,
     marginTop: 8,
   },
   sectionTitle: {
     color: '#fff',
-    ...fontSize.b1, lineHeight: fontSize.b1.fontSize + 2,
+    ...fontSize.b1, lineHeight: fontSize.b1.lineHeight,
     marginTop: 20,
     marginHorizontal: 16,
     marginBottom: 12,
   },
   sectionTitleSpaced: {
     color: '#fff',
-    ...fontSize.b1, lineHeight: fontSize.b1.fontSize + 2,
+    ...fontSize.b1, lineHeight: fontSize.b1.lineHeight,
     marginTop: 26,
     marginHorizontal: 16,
     marginBottom: 12,
@@ -269,11 +269,11 @@ const styles = StyleSheet.create({
   },
   statLabel: {
     color: 'rgba(255,255,255,0.8)',
-    ...fontSize.b4, lineHeight: fontSize.b4.fontSize + 1,
+    ...fontSize.b4, lineHeight: fontSize.b4.lineHeight,
   },
   statValue: {
     color: '#fff',
-    ...fontSize.b1, lineHeight: fontSize.b1.fontSize + 2,
+    ...fontSize.b1, lineHeight: fontSize.b1.lineHeight,
   },
   eventCard: {
     marginHorizontal: 16,
@@ -298,7 +298,7 @@ const styles = StyleSheet.create({
   },
   presaleBadgeText: {
     color: '#fff',
-    ...fontSize.b5, lineHeight: fontSize.b5.fontSize + 1,
+    ...fontSize.b5, lineHeight: fontSize.b5.lineHeight,
     textTransform: 'uppercase',
   },
   eventContent: {
@@ -311,12 +311,12 @@ const styles = StyleSheet.create({
   },
   eventDate: {
     color: '#c924eb',
-    ...fontSize.b4, lineHeight: fontSize.b4.fontSize + 1,
+    ...fontSize.b4, lineHeight: fontSize.b4.lineHeight,
     marginTop: 12,
   },
   eventVenue: {
     color: '#bf92c8',
-    ...fontSize.b4, lineHeight: fontSize.b4.fontSize + 1,
+    ...fontSize.b4, lineHeight: fontSize.b4.lineHeight,
     marginTop: 4,
   },
   ticketButton: {
@@ -329,7 +329,7 @@ const styles = StyleSheet.create({
   },
   ticketButtonText: {
     color: '#fff',
-    ...fontSize.b4, lineHeight: fontSize.b4.fontSize + 1,
+    ...fontSize.b4, lineHeight: fontSize.b4.lineHeight,
   },
   recommendationsRow: {
     paddingHorizontal: 16,
@@ -364,16 +364,16 @@ const styles = StyleSheet.create({
   },
   playCountText: {
     color: '#fff',
-    ...fontSize.b5, lineHeight: fontSize.b5.fontSize + 1,
+    ...fontSize.b5, lineHeight: fontSize.b5.lineHeight,
   },
   recommendationTitle: {
     color: '#fff',
-    ...fontSize.b4, lineHeight: fontSize.b4.fontSize + 1,
+    ...fontSize.b4, lineHeight: fontSize.b4.lineHeight,
     marginTop: 10,
   },
   recommendationGenre: {
     color: '#bf92c8',
-    ...fontSize.b5, lineHeight: fontSize.b5.fontSize + 1,
+    ...fontSize.b5, lineHeight: fontSize.b5.lineHeight,
     marginTop: 4,
   },
   profileButton: {
@@ -392,7 +392,7 @@ const styles = StyleSheet.create({
   },
   profileButtonText: {
     color: '#fff',
-    ...fontSize.b4, lineHeight: fontSize.b4.fontSize + 1,
+    ...fontSize.b4, lineHeight: fontSize.b4.lineHeight,
   },
 });
 

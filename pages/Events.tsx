@@ -507,14 +507,14 @@ const styles = StyleSheet.create({
     alignItems: 'center',
   },
   headerTitle: {
-    ...fontSize.h1, lineHeight: fontSize.h1.fontSize + 2,
+    ...fontSize.h1, lineHeight: fontSize.h1.lineHeight,
     textTransform: 'uppercase',
     letterSpacing: 2,
   },
   headerSubtitle: {
     color: PRIMARY_COLOR,
     marginTop: 4,
-    ...fontSize.h2, lineHeight: fontSize.h2.fontSize + 1,
+    ...fontSize.h2, lineHeight: fontSize.h2.lineHeight,
     textTransform: 'uppercase',
     letterSpacing: 1.5,
   },
@@ -536,7 +536,7 @@ const styles = StyleSheet.create({
   },
   searchInput: {
     flex: 1,
-    ...fontSize.b3, lineHeight: fontSize.b3.fontSize + 2,
+    ...fontSize.b3, lineHeight: fontSize.b3.lineHeight,
   },
   filterScroll: {
     gap: 10,
@@ -558,7 +558,7 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
   },
   filterChipText: {
-    ...fontSize.b5, lineHeight: fontSize.b5.fontSize + 1,
+    ...fontSize.tabText, lineHeight: fontSize.tabText.lineHeight,
     textTransform: 'uppercase',
     letterSpacing: 1.2,
   },
@@ -569,13 +569,13 @@ const styles = StyleSheet.create({
     alignItems: 'center',
   },
   monthTitle: {
-    ...fontSize.b1, lineHeight: fontSize.b1.fontSize + 2,
+    ...fontSize.b1, lineHeight: fontSize.b1.lineHeight,
     textTransform: 'uppercase',
   },
   monthYear: {
     marginTop: 4,
     color: PRIMARY_COLOR,
-    ...fontSize.b5, lineHeight: fontSize.b5.fontSize + 1,
+    ...fontSize.b5, lineHeight: fontSize.b5.lineHeight,
     textTransform: 'uppercase',
     letterSpacing: 2,
   },
@@ -627,13 +627,13 @@ const styles = StyleSheet.create({
   },
   dateBadgeMonth: {
     color: '#64748b',
-    ...fontSize.b5, lineHeight: fontSize.b5.fontSize + 1,
+    ...fontSize.b5, lineHeight: fontSize.b5.lineHeight,
     textTransform: 'uppercase',
     letterSpacing: 1.2,
   },
   dateBadgeDay: {
     color: PRIMARY_COLOR,
-    ...fontSize.b1, lineHeight: fontSize.b1.fontSize + 2,
+    ...fontSize.b1, lineHeight: fontSize.b1.lineHeight,
   },
   typeBadge: {
     position: 'absolute',
@@ -645,7 +645,7 @@ const styles = StyleSheet.create({
   },
   typeBadgeText: {
     color: '#ffffff',
-    ...fontSize.b5, lineHeight: fontSize.b5.fontSize + 1,
+    ...fontSize.b5, lineHeight: fontSize.b5.lineHeight,
     textTransform: 'uppercase',
     letterSpacing: 1.2,
   },
@@ -663,13 +663,13 @@ const styles = StyleSheet.create({
   },
   locationText: {
     color: 'rgba(255,255,255,0.82)',
-    ...fontSize.b5, lineHeight: fontSize.b5.fontSize + 1,
+    ...fontSize.b5, lineHeight: fontSize.b5.lineHeight,
     textTransform: 'uppercase',
     letterSpacing: 1.1,
   },
   eventTitle: {
     color: '#ffffff',
-    ...fontSize.b1, lineHeight: fontSize.b1.fontSize + 2,
+    ...fontSize.b1, lineHeight: fontSize.b1.lineHeight,
     width: '82%',
     textTransform: 'uppercase',
   },
@@ -713,13 +713,13 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
   },
   metaLabel: {
-    ...fontSize.b5, lineHeight: fontSize.b5.fontSize + 1,
+    ...fontSize.b5, lineHeight: fontSize.b5.lineHeight,
     textTransform: 'uppercase',
     letterSpacing: 1.2,
     marginBottom: 4,
   },
   creatorName: {
-    ...fontSize.b5, lineHeight: fontSize.b5.fontSize + 1,
+    ...fontSize.b5, lineHeight: fontSize.b5.lineHeight,
     textTransform: 'uppercase',
   },
   ticketCopy: {
@@ -727,7 +727,7 @@ const styles = StyleSheet.create({
   },
   ticketPrice: {
     color: PRIMARY_COLOR,
-    ...fontSize.b4, lineHeight: fontSize.b4.fontSize + 1,
+    ...fontSize.b4, lineHeight: fontSize.b4.lineHeight,
     textTransform: 'uppercase',
   },
   ctaButton: {
@@ -739,7 +739,7 @@ const styles = StyleSheet.create({
     gap: 8,
   },
   ctaText: {
-    ...fontSize.b5, lineHeight: fontSize.b5.fontSize + 1,
+    ...fontSize.b5, lineHeight: fontSize.b5.lineHeight,
     textTransform: 'uppercase',
     letterSpacing: 1.3,
   },
@@ -757,11 +757,11 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
   },
   emptyTitle: {
-    ...fontSize.b4, lineHeight: fontSize.b4.fontSize + 1,
+    ...fontSize.b4, lineHeight: fontSize.b4.lineHeight,
     textTransform: 'uppercase',
   },
   emptyBody: {
-    ...fontSize.b5, lineHeight: fontSize.b5.fontSize + 1,
+    ...fontSize.b5, lineHeight: fontSize.b5.lineHeight,
   },
   modalRoot: {
     flex: 1,
@@ -781,12 +781,12 @@ const styles = StyleSheet.create({
     padding: 24,
   },
   modalTitle: {
-    ...fontSize.b1, lineHeight: fontSize.b1.fontSize + 2,
+    ...fontSize.b1, lineHeight: fontSize.b1.lineHeight,
     textTransform: 'uppercase',
     marginBottom: 6,
   },
   modalSubtitle: {
-    ...fontSize.b5, lineHeight: fontSize.b5.fontSize + 1,
+    ...fontSize.b5, lineHeight: fontSize.b5.lineHeight,
     marginBottom: 22,
   },
   modalSummary: {
@@ -804,19 +804,19 @@ const styles = StyleSheet.create({
     gap: 12,
   },
   modalRowLabel: {
-    ...fontSize.b5, lineHeight: fontSize.b5.fontSize + 1,
+    ...fontSize.b5, lineHeight: fontSize.b5.lineHeight,
     textTransform: 'uppercase',
     letterSpacing: 1.2,
   },
   modalRowValue: {
     flex: 1,
     textAlign: 'right',
-    ...fontSize.b5, lineHeight: fontSize.b5.fontSize + 1,
+    ...fontSize.b5, lineHeight: fontSize.b5.lineHeight,
     textTransform: 'uppercase',
   },
   modalPrice: {
     color: PRIMARY_COLOR,
-    ...fontSize.b5, lineHeight: fontSize.b5.fontSize + 1,
+    ...fontSize.b5, lineHeight: fontSize.b5.lineHeight,
     textTransform: 'uppercase',
   },
   modalActions: {
@@ -840,13 +840,13 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
   },
   modalButtonTextSecondary: {
-    ...fontSize.b5, lineHeight: fontSize.b5.fontSize + 1,
+    ...fontSize.b5, lineHeight: fontSize.b5.lineHeight,
     textTransform: 'uppercase',
     letterSpacing: 1.2,
   },
   modalButtonTextPrimary: {
     color: '#ffffff',
-    ...fontSize.b5, lineHeight: fontSize.b5.fontSize + 1,
+    ...fontSize.b5, lineHeight: fontSize.b5.lineHeight,
     textTransform: 'uppercase',
     letterSpacing: 1.2,
   },
@@ -865,12 +865,12 @@ const styles = StyleSheet.create({
     backgroundColor: 'rgba(34,197,94,0.12)',
   },
   successTitle: {
-    ...fontSize.b1, lineHeight: fontSize.b1.fontSize + 2,
+    ...fontSize.b1, lineHeight: fontSize.b1.lineHeight,
     textTransform: 'uppercase',
   },
   successBody: {
     textAlign: 'center',
-    ...fontSize.b5, lineHeight: fontSize.b5.fontSize + 1,
+    ...fontSize.b5, lineHeight: fontSize.b5.lineHeight,
   },
 });
 

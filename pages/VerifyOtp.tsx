@@ -425,7 +425,7 @@ const styles = StyleSheet.create({
   },
   brandText: {
     color: '#ffffff',
-    ...fontSize.b1, lineHeight: fontSize.b1.fontSize + 2,
+    ...fontSize.b1, lineHeight: fontSize.b1.lineHeight,
     letterSpacing: -0.8,
     paddingVertical: 2,
   },
@@ -461,13 +461,13 @@ const styles = StyleSheet.create({
     marginBottom: 36,
   },
   title: {
-    ...fontSize.b1, lineHeight: fontSize.b1.fontSize + 2,
+    ...fontSize.b1, lineHeight: fontSize.b1.lineHeight,
     letterSpacing: -1,
     marginBottom: 10,
   },
   subtitle: {
     ...fontSize.b4,
-    lineHeight: fontSize.b1.fontSize + 2,
+    lineHeight: fontSize.b1.lineHeight,
     textAlign: 'center',
     paddingHorizontal: 8,
   },
@@ -494,10 +494,10 @@ const styles = StyleSheet.create({
     overflow: 'hidden',
   },
   otpDigit: {
-    ...fontSize.b1, lineHeight: fontSize.b1.fontSize + 2,
+    ...fontSize.b1, lineHeight: fontSize.b1.lineHeight,
   },
   otpPlaceholder: {
-    ...fontSize.b1, lineHeight: fontSize.b1.fontSize + 2,
+    ...fontSize.b1, lineHeight: fontSize.b1.lineHeight,
   },
   cursor: {
     width: 2,
@@ -517,11 +517,11 @@ const styles = StyleSheet.create({
     opacity: 0.7,
   },
   resendText: {
-    ...fontSize.b4, lineHeight: fontSize.b4.fontSize + 1,
+    ...fontSize.b4, lineHeight: fontSize.b4.lineHeight,
   },
   resendAction: {
     color: PRIMARY_COLOR,
-    ...fontSize.b4, lineHeight: fontSize.b4.fontSize + 1,
+    ...fontSize.b4, lineHeight: fontSize.b4.lineHeight,
   },
   resendActionDisabled: {
     color: '#94a3b8',
@@ -529,7 +529,7 @@ const styles = StyleSheet.create({
   errorText: {
     color: '#dc2626',
     ...fontSize.b5,
-    lineHeight: fontSize.b5.fontSize + 2,
+    lineHeight: fontSize.b5.lineHeight,
     textAlign: 'center',
     marginTop: -12,
     marginBottom: 18,
@@ -556,7 +556,7 @@ const styles = StyleSheet.create({
   },
   primaryButtonText: {
     color: '#ffffff',
-    ...fontSize.b3, lineHeight: fontSize.b3.fontSize + 2,
+    ...fontSize.b3, lineHeight: fontSize.b3.lineHeight,
   },
   keypadWrap: {
     borderTopWidth: 1,
@@ -584,7 +584,7 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
   },
   keyText: {
-    ...fontSize.b1, lineHeight: fontSize.b1.fontSize + 2,
+    ...fontSize.b1, lineHeight: fontSize.b1.lineHeight,
   },
 });
 

@@ -362,7 +362,7 @@ const styles = StyleSheet.create({
     minWidth: 68,
   },
   walletText: {
-    ...fontSize.b5, lineHeight: fontSize.b5.fontSize + 1,
+    ...fontSize.b5, lineHeight: fontSize.b5.lineHeight,
     letterSpacing: 0.6,
   },
   logoWrap: {
@@ -372,7 +372,7 @@ const styles = StyleSheet.create({
   },
   logoText: {
     color: '#ffffff',
-    ...fontSize.b3, lineHeight: fontSize.b3.fontSize + 2,
+    ...fontSize.b3, lineHeight: fontSize.b3.lineHeight,
     letterSpacing: 1.4,
   },
   profileButton: {
@@ -414,19 +414,19 @@ const styles = StyleSheet.create({
   },
   flashPillText: {
     color: '#f0abfc',
-    ...fontSize.b5, lineHeight: fontSize.b5.fontSize + 1,
+    ...fontSize.b5, lineHeight: fontSize.b5.lineHeight,
     letterSpacing: 1,
     textTransform: 'uppercase',
   },
   heroTitle: {
     color: '#ffffff',
     ...fontSize.b1,
-    lineHeight: fontSize.b1.fontSize + 2,
+    lineHeight: fontSize.b1.lineHeight,
     letterSpacing: -0.8,
   },
   heroSubtitle: {
     color: '#d1d5db',
-    ...fontSize.b5, lineHeight: fontSize.b5.fontSize + 1,
+    ...fontSize.b5, lineHeight: fontSize.b5.lineHeight,
     maxWidth: '72%',
   },
   heroButton: {
@@ -441,7 +441,7 @@ const styles = StyleSheet.create({
   },
   heroButtonText: {
     color: '#ffffff',
-    ...fontSize.b5, lineHeight: fontSize.b5.fontSize + 1,
+    ...fontSize.b5, lineHeight: fontSize.b5.lineHeight,
     letterSpacing: 0.8,
   },
   section: {
@@ -453,12 +453,12 @@ const styles = StyleSheet.create({
     justifyContent: 'space-between',
   },
   sectionTitle: {
-    ...fontSize.b3, lineHeight: fontSize.b3.fontSize + 2,
+    ...fontSize.b3, lineHeight: fontSize.b3.lineHeight,
     letterSpacing: -0.4,
   },
   sectionLink: {
     color: '#c084fc',
-    ...fontSize.b5, lineHeight: fontSize.b5.fontSize + 1,
+    ...fontSize.b5, lineHeight: fontSize.b5.lineHeight,
     textTransform: 'uppercase',
     letterSpacing: 1,
   },
@@ -497,11 +497,11 @@ const styles = StyleSheet.create({
     resizeMode: 'contain',
   },
   packTitle: {
-    ...fontSize.b4, lineHeight: fontSize.b4.fontSize + 1,
+    ...fontSize.b4, lineHeight: fontSize.b4.lineHeight,
   },
   packSubtitle: {
     marginTop: 2,
-    ...fontSize.b5, lineHeight: fontSize.b5.fontSize + 1,
+    ...fontSize.b5, lineHeight: fontSize.b5.lineHeight,
   },
   priceButton: {
     borderWidth: 1,
@@ -514,7 +514,7 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
   },
   priceText: {
-    ...fontSize.b5, lineHeight: fontSize.b5.fontSize + 1,
+    ...fontSize.b5, lineHeight: fontSize.b5.lineHeight,
   },
   featuredPriceButton: {
     borderRadius: 999,
@@ -531,7 +531,7 @@ const styles = StyleSheet.create({
   },
   featuredPriceText: {
     color: '#ffffff',
-    ...fontSize.b5, lineHeight: fontSize.b5.fontSize + 1,
+    ...fontSize.b5, lineHeight: fontSize.b5.lineHeight,
   },
   popularTag: {
     position: 'absolute',
@@ -544,7 +544,7 @@ const styles = StyleSheet.create({
   },
   popularTagText: {
     color: '#ffffff',
-    ...fontSize.b5, lineHeight: fontSize.b5.fontSize + 1,
+    ...fontSize.b5, lineHeight: fontSize.b5.lineHeight,
     textTransform: 'uppercase',
     letterSpacing: 0.8,
   },
@@ -553,12 +553,12 @@ const styles = StyleSheet.create({
     gap: 10,
   },
   filterText: {
-    ...fontSize.b5, lineHeight: fontSize.b5.fontSize + 1,
+    ...fontSize.b5, lineHeight: fontSize.b5.lineHeight,
     textTransform: 'uppercase',
     letterSpacing: 0.8,
   },
   filterTextActive: {
-    ...fontSize.b5, lineHeight: fontSize.b5.fontSize + 1,
+    ...fontSize.b5, lineHeight: fontSize.b5.lineHeight,
     textTransform: 'uppercase',
     letterSpacing: 0.8,
   },
@@ -597,7 +597,7 @@ const styles = StyleSheet.create({
   },
   hotTagText: {
     color: '#ffffff',
-    ...fontSize.b5, lineHeight: fontSize.b5.fontSize + 1,
+    ...fontSize.b5, lineHeight: fontSize.b5.lineHeight,
     letterSpacing: 0.6,
   },
   giftMeta: {
@@ -606,7 +606,7 @@ const styles = StyleSheet.create({
     gap: 4,
   },
   giftName: {
-    ...fontSize.b5, lineHeight: fontSize.b5.fontSize + 1,
+    ...fontSize.b5, lineHeight: fontSize.b5.lineHeight,
     textAlign: 'center',
   },
   giftPriceRow: {
@@ -621,7 +621,7 @@ const styles = StyleSheet.create({
   },
   giftPrice: {
     color: '#c084fc',
-    ...fontSize.b5, lineHeight: fontSize.b5.fontSize + 1,
+    ...fontSize.b5, lineHeight: fontSize.b5.lineHeight,
   },
   giftButton: {
     width: '100%',
@@ -632,7 +632,7 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
   },
   giftButtonText: {
-    ...fontSize.b5, lineHeight: fontSize.b5.fontSize + 1,
+    ...fontSize.b5, lineHeight: fontSize.b5.lineHeight,
     textTransform: 'uppercase',
     letterSpacing: 1,
   },
@@ -649,7 +649,7 @@ const styles = StyleSheet.create({
   },
   giftButtonPrimaryText: {
     color: '#ffffff',
-    ...fontSize.b5, lineHeight: fontSize.b5.fontSize + 1,
+    ...fontSize.b5, lineHeight: fontSize.b5.lineHeight,
     textTransform: 'uppercase',
     letterSpacing: 1,
   },

@@ -190,9 +190,6 @@ const TermsPolicies: React.FC = () => {
     <SafeAreaView style={[styles.safeArea, { backgroundColor: theme.screen }]} edges={['top']}>
       <View style={[styles.header, { backgroundColor: isDark ? 'rgba(18,18,26,0.92)' : 'rgba(255,255,255,0.94)', borderBottomColor: border }]}>
         <View style={styles.headerLeft}>
-          <Pressable onPress={() => navigation.goBack()} style={[styles.iconButton, { backgroundColor: softSurface }]}>
-            <MaterialIcons name="chevron-left" size={22} color={theme.text} />
-          </Pressable>
           <View style={styles.headerCopy}>
             <Text style={[styles.headerTitle, { color: theme.text }]}>Terms & Policies</Text>
             {/* <Text style={[styles.headerSubtitle, { color: muted }]}>Ecosystem Charter</Text> */}
@@ -262,16 +259,15 @@ const styles = StyleSheet.create({
     flex: 1,
   },
   headerTitle: {
-    ...fontSize.b2,
-    lineHeight: fontSize.b2.fontSize + 2,
+    ...fontSize.h1,
+    lineHeight: fontSize.h1.lineHeight,
     textTransform: 'uppercase',
     letterSpacing: 2,
-    fontWeight: '900',
   },
   headerSubtitle: {
     marginTop: 2,
     ...fontSize.n5,
-    lineHeight: fontSize.n5.fontSize + 1,
+    lineHeight: fontSize.n5.lineHeight,
     textTransform: 'uppercase',
     letterSpacing: 1.4,
     fontWeight: '800',
@@ -303,7 +299,7 @@ const styles = StyleSheet.create({
   },
   tabText: {
     ...fontSize.n5,
-    lineHeight: fontSize.n5.fontSize + 1,
+    lineHeight: fontSize.n5.lineHeight,
     textTransform: 'uppercase',
     letterSpacing: 1.1,
     fontWeight: '900',
@@ -316,20 +312,20 @@ const styles = StyleSheet.create({
   },
   contentTitle: {
     ...fontSize.b2,
-    lineHeight: fontSize.b2.fontSize + 3,
+    lineHeight: fontSize.b2.lineHeight,
     textTransform: 'uppercase',
     fontWeight: '900',
   },
   contentMeta: {
     ...fontSize.n5,
-    lineHeight: fontSize.n5.fontSize + 1,
+    lineHeight: fontSize.n5.lineHeight,
     textTransform: 'uppercase',
     letterSpacing: 1.2,
     fontWeight: '800',
   },
   leadText: {
     ...fontSize.b4,
-    lineHeight: fontSize.b4.fontSize + 8,
+    lineHeight: fontSize.b4.lineHeight,
   },
   cardList: {
     gap: 14,
@@ -342,13 +338,13 @@ const styles = StyleSheet.create({
   },
   cardTitle: {
     ...fontSize.b4,
-    lineHeight: fontSize.b4.fontSize + 3,
+    lineHeight: fontSize.b4.lineHeight,
     textTransform: 'uppercase',
     fontWeight: '900',
   },
   cardBody: {
     ...fontSize.b5,
-    lineHeight: fontSize.b5.fontSize + 7,
+    lineHeight: fontSize.b5.lineHeight,
     fontWeight: '600',
   },
   badge: {
@@ -361,7 +357,7 @@ const styles = StyleSheet.create({
   badgeText: {
     color: PRIMARY_COLOR,
     ...fontSize.n5,
-    lineHeight: fontSize.n5.fontSize + 1,
+    lineHeight: fontSize.n5.lineHeight,
     textTransform: 'uppercase',
     letterSpacing: 1,
     fontWeight: '900',
@@ -385,7 +381,7 @@ const styles = StyleSheet.create({
   commerceTitle: {
     color: PRIMARY_COLOR,
     ...fontSize.b4,
-    lineHeight: fontSize.b4.fontSize + 3,
+    lineHeight: fontSize.b4.lineHeight,
     textTransform: 'uppercase',
     fontWeight: '900',
   },
@@ -400,7 +396,7 @@ const styles = StyleSheet.create({
   ruleText: {
     flex: 1,
     ...fontSize.b5,
-    lineHeight: fontSize.b5.fontSize + 7,
+    lineHeight: fontSize.b5.lineHeight,
     fontWeight: '600',
   },
   registryCard: {
@@ -413,7 +409,7 @@ const styles = StyleSheet.create({
   },
   registryTitle: {
     ...fontSize.n5,
-    lineHeight: fontSize.n5.fontSize + 1,
+    lineHeight: fontSize.n5.lineHeight,
     textTransform: 'uppercase',
     letterSpacing: 1.2,
     fontWeight: '900',
@@ -421,7 +417,7 @@ const styles = StyleSheet.create({
   },
   registryBody: {
     ...fontSize.n5,
-    lineHeight: fontSize.n5.fontSize + 5,
+    lineHeight: fontSize.n5.lineHeight,
     textTransform: 'uppercase',
     letterSpacing: 0.8,
     fontWeight: '800',

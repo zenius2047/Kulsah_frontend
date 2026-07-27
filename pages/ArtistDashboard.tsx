@@ -268,14 +268,14 @@ const ArtistDashboard: React.FC<ArtistDashboardProps> = ({ onToggleRole }) => {
         >
         <Text style={{
           letterSpacing: 2,
-          ...fontSize.b5, lineHeight: fontSize.b5.fontSize + 1,
+          ...fontSize.b5, lineHeight: fontSize.b5.lineHeight,
           color: '#ffffff4d',
         }}>
           COLLABORATION HUB
         </Text>
         <Text style={{
           letterSpacing: 2,
-          ...fontSize.b5, lineHeight: fontSize.b5.fontSize + 1,
+          ...fontSize.b5, lineHeight: fontSize.b5.lineHeight,
           color: PRIMARY_COLOR,
         }}>
           VIEW ALL
@@ -340,14 +340,14 @@ const ArtistDashboard: React.FC<ArtistDashboardProps> = ({ onToggleRole }) => {
               <Text style={{
                 color: '#ffffff4d',
                 textTransform: 'uppercase',
-                ...fontSize.b5, lineHeight: fontSize.b5.fontSize + 1
+                ...fontSize.b5, lineHeight: fontSize.b5.lineHeight
               }}>
               {item.type}
             </Text>
             <Text style={{
                 color: '#ffffff',
                 // textTransform: 'uppercase',
-                ...fontSize.b4, lineHeight: fontSize.b4.fontSize + 1,
+                ...fontSize.b4, lineHeight: fontSize.b4.lineHeight,
 
               }}>
               {item.partner}
@@ -361,7 +361,7 @@ const ArtistDashboard: React.FC<ArtistDashboardProps> = ({ onToggleRole }) => {
               <Text style={{
                 color: PRIMARY_COLOR,
                 textTransform: 'uppercase',
-                ...fontSize.b5, lineHeight: fontSize.b5.fontSize + 1
+                ...fontSize.b5, lineHeight: fontSize.b5.lineHeight
               }}>
                 CHAT
               </Text>
@@ -374,7 +374,7 @@ const ArtistDashboard: React.FC<ArtistDashboardProps> = ({ onToggleRole }) => {
                 <Text style={{
                 color: '#ffffff66',
                 textTransform: 'uppercase',
-                ...fontSize.b5, lineHeight: fontSize.b5.fontSize + 1
+                ...fontSize.b5, lineHeight: fontSize.b5.lineHeight
               }}>
                 Details
               </Text>
@@ -442,14 +442,14 @@ const s = StyleSheet.create({
   avatar: { width: 56, height: 56, borderRadius: 16, borderWidth: 1, borderColor: '#ffffff20' },
   consoleLabel: {
     color: '#fff',
-    ...fontSize.b1, lineHeight: fontSize.b1.fontSize + 2,
+    ...fontSize.b1, lineHeight: fontSize.b1.lineHeight,
     // fontWeight: '900',
     // textTransform: 'uppercase',
     letterSpacing: 0.8,
   },
   commander: {
     color: '#ffffff66',
-    ...fontSize.b5, lineHeight: fontSize.b5.fontSize + 1,
+    ...fontSize.b5, lineHeight: fontSize.b5.lineHeight,
     marginTop: 2,
     // fontWeight: '700',
     letterSpacing: 1,
@@ -482,8 +482,8 @@ const s = StyleSheet.create({
     backgroundColor: '#ffffff20',
   },
   liveInnerRow: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center' },
-  liveTitle: { color: '#fff', fontWeight: '900', ...fontSize.b4, lineHeight: fontSize.b4.fontSize + 1, textTransform: 'uppercase' },
-  liveSubtitle: { color: '#ffffffd2', ...fontSize.b5, lineHeight: fontSize.b5.fontSize + 1, marginTop: 2, fontWeight: '700' },
+  liveTitle: { color: '#fff', fontWeight: '900', ...fontSize.b4, lineHeight: fontSize.b4.lineHeight, textTransform: 'uppercase' },
+  liveSubtitle: { color: '#ffffffd2', ...fontSize.b5, lineHeight: fontSize.b5.lineHeight, marginTop: 2, fontWeight: '700' },
   liveIconWrap: {
     width: 44,
     height: 44,
@@ -526,12 +526,12 @@ const s = StyleSheet.create({
   actionTitle: {
     color: '#fff',
     // fontWeight: '800',
-    ...fontSize.b1, lineHeight: fontSize.b1.fontSize + 2,
+    ...fontSize.b1, lineHeight: fontSize.b1.lineHeight,
     letterSpacing: -0.5
   },
   actionMeta: {
     color: '#ffffff66',
-    ...fontSize.b5, lineHeight: fontSize.b5.fontSize + 1,
+    ...fontSize.b5, lineHeight: fontSize.b5.lineHeight,
     textTransform: 'uppercase',
     marginTop: 2 },
   dualRow: { flexDirection: 'row', gap: 10, paddingHorizontal: 16, marginVertical : 20 },
@@ -577,7 +577,7 @@ const s = StyleSheet.create({
   },
   compactTitle: {
     color: '#fff',
-    ...fontSize.b5, lineHeight: fontSize.b5.fontSize + 1,
+    ...fontSize.b5, lineHeight: fontSize.b5.lineHeight,
     // fontWeight: '900',
     // lineHeight: 16,
     marginTop: 5
@@ -586,7 +586,7 @@ const s = StyleSheet.create({
   compactTitleAlt: { color: '#818cf8' },
   compactMeta: {
     color: '#e5e7eb',
-    ...fontSize.b5, lineHeight: fontSize.b5.fontSize + 1,
+    ...fontSize.b5, lineHeight: fontSize.b5.lineHeight,
     // fontWeight: '700',
     textTransform: 'uppercase',
     letterSpacing: 1,
@@ -606,7 +606,7 @@ const s = StyleSheet.create({
   aiHeader: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between' },
   aiTitleRow: { flexDirection: 'row', alignItems: 'center', gap: 8 },
   aiTitle: {
-    ...fontSize.b5, lineHeight: fontSize.b5.fontSize + 1,
+    ...fontSize.b5, lineHeight: fontSize.b5.lineHeight,
     color: PRIMARY_COLOR,
     textTransform: 'uppercase',
     letterSpacing: 2
@@ -634,7 +634,7 @@ const s = StyleSheet.create({
   aiButtonDisabled: { opacity: 0.55 },
   aiButtonText: {
     color: '#fff',
-    ...fontSize.b5, lineHeight: fontSize.b5.fontSize + 1,
+    ...fontSize.b5, lineHeight: fontSize.b5.lineHeight,
     // fontWeight: '900',
     textTransform: 'uppercase',
     letterSpacing: 1 },
@@ -667,19 +667,19 @@ const s = StyleSheet.create({
   },
   metricGrowth: {
     color: '#22c55e',
-    ...fontSize.b5, lineHeight: fontSize.b5.fontSize + 1,
+    ...fontSize.b5, lineHeight: fontSize.b5.lineHeight,
     fontWeight: '900',
     textTransform: 'uppercase',
     letterSpacing: 0.8,
   },
   metricValue: {
     color: '#fff',
-    ...fontSize.b1, lineHeight: fontSize.b1.fontSize + 2,
+    ...fontSize.b1, lineHeight: fontSize.b1.lineHeight,
     // fontWeight: '900'
    },
   metricLabel: {
     color: '#FFFFFF66',
-    ...fontSize.b5, lineHeight: fontSize.b5.fontSize + 1,
+    ...fontSize.b5, lineHeight: fontSize.b5.lineHeight,
     textTransform: 'uppercase',
     letterSpacing: 1,
     // fontWeight: '700',
@@ -692,15 +692,15 @@ const s = StyleSheet.create({
     padding: 14,
     gap: 10,
   },
-  chartTitle: { color: '#fff', ...fontSize.b4, lineHeight: fontSize.b4.fontSize + 1, fontWeight: '900', textTransform: 'uppercase' },
+  chartTitle: { color: '#fff', ...fontSize.b4, lineHeight: fontSize.b4.lineHeight, fontWeight: '900', textTransform: 'uppercase' },
   chartList: { gap: 10 },
   chartRowWrap: { gap: 5 },
   chartRowHeader: { flexDirection: 'row', justifyContent: 'space-between' },
-  chartDay: { color: '#c7cade', ...fontSize.b4, lineHeight: fontSize.b4.fontSize + 1, fontWeight: '700' },
-  chartViews: { color: '#8e91a6', ...fontSize.b5, lineHeight: fontSize.b5.fontSize + 1 },
+  chartDay: { color: '#c7cade', ...fontSize.b4, lineHeight: fontSize.b4.lineHeight, fontWeight: '700' },
+  chartViews: { color: '#8e91a6', ...fontSize.b5, lineHeight: fontSize.b5.lineHeight },
   barTrack: { height: 6, backgroundColor: '#1f2435', borderRadius: 999, overflow: 'hidden' },
   barFill: { height: '100%', backgroundColor: '#2563eb', borderRadius: 999 },
-  chartTotal: { color: '#d6daee', fontWeight: '800', marginTop: 4, ...fontSize.b4, lineHeight: fontSize.b4.fontSize + 1 },
+  chartTotal: { color: '#d6daee', fontWeight: '800', marginTop: 4, ...fontSize.b4, lineHeight: fontSize.b4.lineHeight },
   switchWrap: { paddingTop: 6, alignItems: 'center' },
   switchButton: {
     borderRadius: 20,
@@ -714,7 +714,7 @@ const s = StyleSheet.create({
     justifyContent: 'center',
     gap: 8,
   },
-  switchText: { color: '#9ea0b6', ...fontSize.b4, lineHeight: fontSize.b4.fontSize + 1, fontWeight: '800', textTransform: 'uppercase', letterSpacing: 1 },
+  switchText: { color: '#9ea0b6', ...fontSize.b4, lineHeight: fontSize.b4.lineHeight, fontWeight: '800', textTransform: 'uppercase', letterSpacing: 1 },
 });
 
 export default ArtistDashboard;

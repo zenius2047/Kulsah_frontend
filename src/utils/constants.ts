@@ -7,7 +7,7 @@ export const THEME_COLORS = {
     surface: 'rgba(255,255,255,0.05)',
     card: '#111827',
     text: '#ffffff',
-    textSecondary: '#94a3b8',
+    textSecondary: '#71717a',
     textMuted: '#6b7280',
     border: 'rgba(255,255,255,0.1)',
     accent: PRIMARY_COLOR,

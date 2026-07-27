@@ -56,10 +56,76 @@ export type CreatorVideoDrawingEditOverlay = {
 
 export type CreatorVideoEditOverlay = CreatorVideoTextEditOverlay | CreatorVideoDrawingEditOverlay;
 
+export type CreatorVideoTimelineTextLayer = {
+  type: 'text';
+  text: string;
+  font?: string;
+  size?: number;
+  color?: string;
+  x?: number;
+  y?: number;
+  start?: number;
+  end?: number | null;
+};
+
+export type CreatorVideoTimelineDrawingLayer = {
+  type: 'drawing';
+  asset_url?: string;
+  file_index?: number;
+  x?: number;
+  y?: number;
+  width?: number;
+  height?: number;
+  start?: number;
+  end?: number | null;
+};
+
+export type CreatorVideoTimelineStickerLayer = {
+  type: 'sticker';
+  public_id: string;
+  x?: number;
+  y?: number;
+  width?: number;
+  height?: number;
+  start?: number;
+  end?: number | null;
+};
+
+export type CreatorVideoTimelineLayer =
+  | CreatorVideoTimelineTextLayer
+  | CreatorVideoTimelineDrawingLayer
+  | CreatorVideoTimelineStickerLayer;
+
+export type CreatorVideoEditTimeline = {
+  layers: CreatorVideoTimelineLayer[];
+  filters?: {
+    brightness?: number;
+    contrast?: number;
+    saturation?: number;
+  };
+  trim?: {
+    start: number;
+    end: number;
+  };
+  output?: {
+    format?: string;
+    quality?: string | number;
+    width?: number;
+    height?: number;
+  };
+};
+
 export type SubmitCreatorVideoEditsPayload = {
-  overlays: CreatorVideoEditOverlay[];
+  timeline?: CreatorVideoEditTimeline;
+  /** Retained for older API responses and in-flight navigation state. */
+  overlays?: CreatorVideoEditOverlay[];
   drawingFiles?: VideoUploadSource[];
 };
+
+export const hasCreatorVideoEdits = (
+  payload?: SubmitCreatorVideoEditsPayload | null,
+): payload is SubmitCreatorVideoEditsPayload =>
+  Boolean(payload?.timeline?.layers.length || payload?.timeline?.trim || payload?.overlays?.length);
 
 export type UpdateCreatorVideoProgressPayload = {
   progress_percentage: number;
@@ -82,10 +148,15 @@ export type CreatorVideo = {
   is_premium?: boolean;
   cdn_url?: string | null;
   stream_url?: string | null;
+  streaming_url?: string | null;
+  rendered_url?: string | null;
   thumbnail?: string | null;
+  poster_url?: string | null;
   duration?: number | null;
   status?: string | null;
+  render_status?: string | null;
   progress_percentage?: number | null;
+  render_completed_at?: string | null;
   views_count?: number;
   hashtags?: string[];
   mentions?: string[];
@@ -139,7 +210,15 @@ export type CompleteCreatorVideoUploadResponse = {
 export type CreatorVideoProgress = {
   video_id: string | number;
   status: string;
+  render_status?: string | null;
   progress_percentage: number;
+  streaming_url?: string | null;
+  stream_url?: string | null;
+  cdn_url?: string | null;
+  rendered_url?: string | null;
+  poster_url?: string | null;
+  thumbnail?: string | null;
+  render_completed_at?: string | null;
   error?: string | null;
   message?: string | null;
 };
@@ -156,6 +235,14 @@ export type CreatorVideoListItem = {
   duration: string;
   category: string;
   img: string;
+  poster_url?: string | null;
+  thumbnail?: string | null;
+  thumbnail_url?: string | null;
+  video?: string | null;
+  streaming_url?: string | null;
+  stream_url?: string | null;
+  cdn_url?: string | null;
+  rendered_url?: string | null;
   likes: string;
   premium: boolean;
   draft: boolean;
@@ -259,6 +346,17 @@ export type CreatorVideoDetailItem = {
   caption: string;
   background: string;
   video: string;
+  poster_url?: string | null;
+  thumbnail?: string | null;
+  thumbnail_url?: string | null;
+  streaming_url?: string | null;
+  stream_url?: string | null;
+  cdn_url?: string | null;
+  rendered_url?: string | null;
+  status?: string | null;
+  render_status?: string | null;
+  progress_percentage?: number | null;
+  render_completed_at?: string | null;
   likes: string;
   comments_count: string;
   comments: unknown[];

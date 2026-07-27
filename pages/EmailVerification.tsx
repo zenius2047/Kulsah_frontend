@@ -203,11 +203,11 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
   },
   brandText: {
-    ...fontSize.b1, lineHeight: fontSize.b1.fontSize + 2,
+    ...fontSize.b1, lineHeight: fontSize.b1.lineHeight,
     letterSpacing: -0.8,
   },
   headerTitle: {
-    ...fontSize.b3, lineHeight: fontSize.b3.fontSize + 2,
+    ...fontSize.b3, lineHeight: fontSize.b3.lineHeight,
     letterSpacing: -0.3,
   },
   content: {
@@ -256,19 +256,19 @@ const styles = StyleSheet.create({
     marginBottom: 34,
   },
   title: {
-    ...fontSize.b1, lineHeight: fontSize.b1.fontSize + 2,
+    ...fontSize.b1, lineHeight: fontSize.b1.lineHeight,
     letterSpacing: -1,
     textAlign: 'center',
     marginBottom: 12,
   },
   subtitle: {
-    ...fontSize.b3, lineHeight: fontSize.b3.fontSize + 2,
+    ...fontSize.b3, lineHeight: fontSize.b3.lineHeight,
     textAlign: 'center',
     marginBottom: 4,
   },
   emailText: {
     color: PRIMARY_COLOR,
-    ...fontSize.b3, lineHeight: fontSize.b3.fontSize + 2,
+    ...fontSize.b3, lineHeight: fontSize.b3.lineHeight,
     textAlign: 'center',
   },
   actionBlock: {
@@ -291,7 +291,7 @@ const styles = StyleSheet.create({
   },
   primaryText: {
     color: '#ffffff',
-    ...fontSize.b3, lineHeight: fontSize.b3.fontSize + 2,
+    ...fontSize.b3, lineHeight: fontSize.b3.lineHeight,
     letterSpacing: 1.1,
     textTransform: 'uppercase',
   },
@@ -310,7 +310,7 @@ const styles = StyleSheet.create({
     height: 1,
   },
   dividerText: {
-    ...fontSize.b5, lineHeight: fontSize.b5.fontSize + 1,
+    ...fontSize.b5, lineHeight: fontSize.b5.lineHeight,
     textTransform: 'uppercase',
     letterSpacing: 1.5,
   },
@@ -321,7 +321,7 @@ const styles = StyleSheet.create({
   },
   resendText: {
     color: PRIMARY_COLOR,
-    ...fontSize.b3, lineHeight: fontSize.b3.fontSize + 2,
+    ...fontSize.b3, lineHeight: fontSize.b3.lineHeight,
   },
   infoCard: {
     marginTop: 36,
@@ -341,14 +341,14 @@ const styles = StyleSheet.create({
     flex: 1,
   },
   infoTitle: {
-    ...fontSize.b5, lineHeight: fontSize.b5.fontSize + 1,
+    ...fontSize.b5, lineHeight: fontSize.b5.lineHeight,
     textTransform: 'uppercase',
     letterSpacing: 1.6,
     marginBottom: 6,
   },
   infoText: {
     ...fontSize.b4,
-    lineHeight: fontSize.b4.fontSize + 1,
+    lineHeight: fontSize.b4.lineHeight,
   },
 });
 

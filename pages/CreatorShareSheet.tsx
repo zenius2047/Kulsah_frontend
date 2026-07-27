@@ -244,13 +244,13 @@ const styles = StyleSheet.create({
     paddingHorizontal: 16,
   },
   sectionTitle: {
-    ...fontSize.b4, lineHeight: fontSize.b4.fontSize + 1,
+    ...fontSize.b4, lineHeight: fontSize.b4.lineHeight,
     paddingHorizontal: 16,
 
   },
   sectionAccent: {
     color: '#d915d2',
-    ...fontSize.b5, lineHeight: fontSize.b5.fontSize + 1,
+    ...fontSize.b5, lineHeight: fontSize.b5.lineHeight,
     textTransform: 'uppercase',
     letterSpacing: 1.4,
   },
@@ -293,7 +293,7 @@ const styles = StyleSheet.create({
     borderColor: '#0a050d',
   },
   friendName: {
-    ...fontSize.b5, lineHeight: fontSize.b5.fontSize + 1,
+    ...fontSize.b5, lineHeight: fontSize.b5.lineHeight,
   },
   platformRow: {
     gap: 16,
@@ -314,7 +314,7 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
   },
   platformLabel: {
-    ...fontSize.b5, lineHeight: fontSize.b5.fontSize + 1,
+    ...fontSize.b5, lineHeight: fontSize.b5.lineHeight,
     textTransform: 'uppercase',
     letterSpacing: 0.7,
     textAlign: 'center',

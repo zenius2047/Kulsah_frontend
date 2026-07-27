@@ -300,12 +300,12 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
   },
   headerTitle: {
-    ...fontSize.b3, lineHeight: fontSize.b3.fontSize + 2,
+    ...fontSize.b3, lineHeight: fontSize.b3.lineHeight,
     letterSpacing: 0.8,
   },
   headerBrand: {
     color: PRIMARY_COLOR,
-    ...fontSize.b1, lineHeight: fontSize.b1.fontSize + 2,
+    ...fontSize.b1, lineHeight: fontSize.b1.lineHeight,
     letterSpacing: -0.4,
   },
   scroll: {
@@ -331,7 +331,7 @@ const styles = StyleSheet.create({
   },
   challengeBadgeText: {
     color: PRIMARY_COLOR,
-    ...fontSize.b4, lineHeight: fontSize.b4.fontSize + 1,
+    ...fontSize.b4, lineHeight: fontSize.b4.lineHeight,
     textTransform: 'uppercase',
     letterSpacing: 0.9,
   },
@@ -380,14 +380,14 @@ const styles = StyleSheet.create({
     marginBottom: 14,
   },
   strategyTitle: {
-    ...fontSize.b3, lineHeight: fontSize.b3.fontSize + 2,
+    ...fontSize.b3, lineHeight: fontSize.b3.lineHeight,
     marginBottom: 4,
   },
   strategyTitleMuted: {
     color: '#94a3b8',
   },
   strategyMeta: {
-    ...fontSize.b4, lineHeight: fontSize.b4.fontSize + 1,
+    ...fontSize.b4, lineHeight: fontSize.b4.lineHeight,
     letterSpacing: 1.2,
     textTransform: 'uppercase',
   },
@@ -400,13 +400,13 @@ const styles = StyleSheet.create({
     justifyContent: 'space-between',
   },
   sectionTitle: {
-    ...fontSize.b4, lineHeight: fontSize.b4.fontSize + 1,
+    ...fontSize.b4, lineHeight: fontSize.b4.lineHeight,
     letterSpacing: 1.4,
     textTransform: 'uppercase',
   },
   sectionHint: {
     color: PRIMARY_COLOR,
-    ...fontSize.b4, lineHeight: fontSize.b4.fontSize + 1,
+    ...fontSize.b4, lineHeight: fontSize.b4.lineHeight,
     letterSpacing: 1.1,
   },
   rewardList: {
@@ -444,7 +444,7 @@ const styles = StyleSheet.create({
     gap: 8,
   },
   rewardTitle: {
-    ...fontSize.b3, lineHeight: fontSize.b3.fontSize + 2,
+    ...fontSize.b3, lineHeight: fontSize.b3.lineHeight,
     flex: 1,
   },
   hotBadge: {
@@ -455,7 +455,7 @@ const styles = StyleSheet.create({
   },
   hotBadgeText: {
     color: '#deb7ff',
-    ...fontSize.b4, lineHeight: fontSize.b4.fontSize + 1,
+    ...fontSize.b4, lineHeight: fontSize.b4.lineHeight,
     letterSpacing: 0.5,
   },
   rewardDescription: {
@@ -475,12 +475,12 @@ const styles = StyleSheet.create({
     marginBottom: 8,
   },
   customLabel: {
-    ...fontSize.b4, lineHeight: fontSize.b4.fontSize + 1,
+    ...fontSize.b4, lineHeight: fontSize.b4.lineHeight,
     letterSpacing: 1.1,
     textTransform: 'uppercase',
   },
   customInput: {
-    ...fontSize.b3, lineHeight: fontSize.b3.fontSize + 2,
+    ...fontSize.b3, lineHeight: fontSize.b3.lineHeight,
     padding: 0,
   },
   tipCard: {
@@ -527,7 +527,7 @@ const styles = StyleSheet.create({
   },
   ctaText: {
     color: '#fff',
-    ...fontSize.b4, lineHeight: fontSize.b4.fontSize + 1,
+    ...fontSize.b4, lineHeight: fontSize.b4.lineHeight,
     letterSpacing: 2,
     textTransform: 'uppercase',
   },

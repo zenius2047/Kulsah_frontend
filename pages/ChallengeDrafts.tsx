@@ -461,7 +461,7 @@ const styles = StyleSheet.create({
   },
   headerTitle: {
     ...fontSize.b2,
-    lineHeight: fontSize.b2.fontSize + 2,
+    lineHeight: fontSize.b2.lineHeight,
     textTransform: 'uppercase',
     letterSpacing: 0.3,
   },
@@ -493,12 +493,12 @@ const styles = StyleSheet.create({
   },
   emptyTitle: {
     ...fontSize.b3,
-    lineHeight: fontSize.b3.fontSize + 2,
+    lineHeight: fontSize.b3.lineHeight,
     textTransform: 'uppercase',
   },
   emptyCopy: {
     ...fontSize.b5,
-    lineHeight: fontSize.b5.fontSize + 4,
+    lineHeight: fontSize.b5.lineHeight,
     textTransform: 'uppercase',
     letterSpacing: 1,
     textAlign: 'center',
@@ -515,7 +515,7 @@ const styles = StyleSheet.create({
   startButtonText: {
     color: '#fff',
     ...fontSize.b5,
-    lineHeight: fontSize.b5.fontSize + 1,
+    lineHeight: fontSize.b5.lineHeight,
     textTransform: 'uppercase',
     letterSpacing: 1.2,
   },
@@ -543,12 +543,12 @@ const styles = StyleSheet.create({
   },
   draftTitle: {
     ...fontSize.b3,
-    lineHeight: fontSize.b3.fontSize + 2,
+    lineHeight: fontSize.b3.lineHeight,
     textTransform: 'uppercase',
   },
   draftDesc: {
     ...fontSize.b5,
-    lineHeight: fontSize.b5.fontSize + 4,
+    lineHeight: fontSize.b5.lineHeight,
   },
   draftMeta: {
     gap: 5,
@@ -563,14 +563,14 @@ const styles = StyleSheet.create({
   rewardText: {
     color: PRIMARY_COLOR,
     ...fontSize.b5,
-    lineHeight: fontSize.b5.fontSize + 1,
+    lineHeight: fontSize.b5.lineHeight,
     textTransform: 'uppercase',
     letterSpacing: 0.8,
     flexShrink: 1,
   },
   editedText: {
     ...fontSize.b5,
-    lineHeight: fontSize.b5.fontSize + 1,
+    lineHeight: fontSize.b5.lineHeight,
     textTransform: 'uppercase',
     letterSpacing: 0.8,
   },
@@ -589,7 +589,7 @@ const styles = StyleSheet.create({
   resumeText: {
     color: PRIMARY_COLOR,
     ...fontSize.b5,
-    lineHeight: fontSize.b5.fontSize + 1,
+    lineHeight: fontSize.b5.lineHeight,
     textTransform: 'uppercase',
     letterSpacing: 1,
   },
@@ -611,12 +611,12 @@ const styles = StyleSheet.create({
   },
   hintTitle: {
     ...fontSize.b3,
-    lineHeight: fontSize.b3.fontSize + 2,
+    lineHeight: fontSize.b3.lineHeight,
     textTransform: 'uppercase',
   },
   hintCopy: {
     ...fontSize.b5,
-    lineHeight: fontSize.b5.fontSize + 3,
+    lineHeight: fontSize.b5.lineHeight,
     textTransform: 'uppercase',
     letterSpacing: 1,
     textAlign: 'center',
@@ -640,7 +640,7 @@ const styles = StyleSheet.create({
   toastText: {
     color: '#fff',
     ...fontSize.b5,
-    lineHeight: fontSize.b5.fontSize + 1,
+    lineHeight: fontSize.b5.lineHeight,
     textTransform: 'uppercase',
     letterSpacing: 0.8,
   },
@@ -672,7 +672,7 @@ const styles = StyleSheet.create({
   composerTitle: {
     color: '#fff',
     ...fontSize.b4,
-    lineHeight: fontSize.b4.fontSize + 2,
+    lineHeight: fontSize.b4.lineHeight,
     textTransform: 'uppercase',
     letterSpacing: 1.4,
     flexShrink: 1,
@@ -722,21 +722,21 @@ const styles = StyleSheet.create({
     paddingHorizontal: 8,
     paddingVertical: 3,
     ...fontSize.b5,
-    lineHeight: fontSize.b5.fontSize + 1,
+    lineHeight: fontSize.b5.lineHeight,
     textTransform: 'uppercase',
     letterSpacing: 0.8,
   },
   coverTitle: {
     color: '#fff',
     ...fontSize.b3,
-    lineHeight: fontSize.b3.fontSize + 2,
+    lineHeight: fontSize.b3.lineHeight,
     textTransform: 'uppercase',
   },
   fieldLabel: {
     marginLeft: 4,
     color: 'rgba(255,255,255,0.42)',
     ...fontSize.b5,
-    lineHeight: fontSize.b5.fontSize + 1,
+    lineHeight: fontSize.b5.lineHeight,
     textTransform: 'uppercase',
     letterSpacing: 1.2,
   },
@@ -749,7 +749,7 @@ const styles = StyleSheet.create({
     paddingHorizontal: 14,
     color: '#fff',
     ...fontSize.b4,
-    lineHeight: fontSize.b4.fontSize + 4,
+    lineHeight: fontSize.b4.lineHeight,
   },
   textArea: {
     height: 96,
@@ -777,7 +777,7 @@ const styles = StyleSheet.create({
   durationText: {
     color: 'rgba(255,255,255,0.55)',
     ...fontSize.b5,
-    lineHeight: fontSize.b5.fontSize + 1,
+    lineHeight: fontSize.b5.lineHeight,
     textTransform: 'uppercase',
     letterSpacing: 1,
   },
@@ -847,7 +847,7 @@ const styles = StyleSheet.create({
   secondaryActionText: {
     color: '#fff',
     ...fontSize.b5,
-    lineHeight: fontSize.b5.fontSize + 1,
+    lineHeight: fontSize.b5.lineHeight,
     textTransform: 'uppercase',
     letterSpacing: 1,
   },
@@ -864,7 +864,7 @@ const styles = StyleSheet.create({
   launchButtonText: {
     color: '#fff',
     ...fontSize.b5,
-    lineHeight: fontSize.b5.fontSize + 1,
+    lineHeight: fontSize.b5.lineHeight,
     textTransform: 'uppercase',
     letterSpacing: 0.8,
   },
@@ -918,21 +918,21 @@ const styles = StyleSheet.create({
   celebrateKicker: {
     color: PRIMARY_COLOR,
     ...fontSize.b5,
-    lineHeight: fontSize.b5.fontSize + 1,
+    lineHeight: fontSize.b5.lineHeight,
     textTransform: 'uppercase',
     letterSpacing: 3,
   },
   celebrateTitle: {
     color: '#fff',
     ...fontSize.b1,
-    lineHeight: fontSize.b1.fontSize + 4,
+    lineHeight: fontSize.b1.lineHeight,
     textTransform: 'uppercase',
     textAlign: 'center',
   },
   celebrateCopy: {
     color: '#94a3b8',
     ...fontSize.b5,
-    lineHeight: fontSize.b5.fontSize + 4,
+    lineHeight: fontSize.b5.lineHeight,
     textTransform: 'uppercase',
     letterSpacing: 1,
     textAlign: 'center',
@@ -957,14 +957,14 @@ const styles = StyleSheet.create({
   receiptLabel: {
     color: 'rgba(255,255,255,0.4)',
     ...fontSize.b5,
-    lineHeight: fontSize.b5.fontSize + 1,
+    lineHeight: fontSize.b5.lineHeight,
     textTransform: 'uppercase',
     letterSpacing: 1,
   },
   receiptValue: {
     color: '#fff',
     ...fontSize.b5,
-    lineHeight: fontSize.b5.fontSize + 1,
+    lineHeight: fontSize.b5.lineHeight,
     flexShrink: 1,
   },
   dashboardButton: {
@@ -978,7 +978,7 @@ const styles = StyleSheet.create({
   dashboardButtonText: {
     color: '#000',
     ...fontSize.b5,
-    lineHeight: fontSize.b5.fontSize + 1,
+    lineHeight: fontSize.b5.lineHeight,
     textTransform: 'uppercase',
     letterSpacing: 1.5,
   },
@@ -997,7 +997,7 @@ const styles = StyleSheet.create({
   shareButtonText: {
     color: '#fff',
     ...fontSize.b5,
-    lineHeight: fontSize.b5.fontSize + 1,
+    lineHeight: fontSize.b5.lineHeight,
     textTransform: 'uppercase',
     letterSpacing: 1,
   },

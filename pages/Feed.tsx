@@ -26,6 +26,7 @@ import { MaterialIcons } from '@expo/vector-icons';
 import { SafeAreaView, useSafeAreaInsets } from 'react-native-safe-area-context';
 // import { ResizeMode, Video } from 'expo-video';
 import { useVideoPlayer, VideoView } from 'expo-video';
+import { getVideoPlaybackUrl, getVideoPoster, getVideoSource } from '../src/utils/video';
 import { TurnCoverage } from '@google/genai/web';
 import { useEvent } from 'expo';
 import { NativeStackScreenProps } from '@react-navigation/native-stack';
@@ -58,6 +59,7 @@ import {
 import type { CreatorSubscriptionPlan } from '../src';
 
 const KULCOIN_ICON = require('../assets/coin.png');
+const CAPTION_MORE_THRESHOLD = 50;
 
 export interface FeedItem {
   id: string;
@@ -194,7 +196,7 @@ const LiveFeedCreatorAvatar: React.FC<{
             <Text
               style={{
                 ...fontSize.b5,
-                lineHeight: fontSize.b5.fontSize + 1,
+                lineHeight: fontSize.b5.lineHeight,
                 color: 'white',
               }}
             >
@@ -284,11 +286,13 @@ const mapFeedVideoToItem = (rawValue: unknown, index: number): FeedItem | null =
   const raw = asRecord(rawValue);
   const creator = asRecord(raw.creator ?? raw.user ?? raw.owner ?? raw.author ?? raw.artist);
   const videoValue = asRecord(raw.video);
-  const video = firstString(
-    raw.video,
-    raw.videoUrl,
-    raw.video_url,
-    raw.videoURL,
+  const video = getVideoPlaybackUrl({
+    streaming_url: firstString(raw.streaming_url, videoValue.streaming_url) || null,
+    stream_url: firstString(raw.stream_url, videoValue.stream_url) || null,
+    video: firstString(raw.video, raw.videoUrl, raw.video_url, raw.videoURL) || null,
+    cdn_url: firstString(raw.cdn_url, videoValue.cdn_url) || null,
+    rendered_url: firstString(raw.rendered_url, videoValue.rendered_url) || null,
+  }) ?? firstString(
     raw.videoPath,
     raw.video_path,
     raw.mediaUrl,
@@ -299,7 +303,7 @@ const mapFeedVideoToItem = (rawValue: unknown, index: number): FeedItem | null =
     raw.path,
     asRecord(raw.videoFile).url,
     videoValue.url,
-    videoValue.secure_url
+    videoValue.secure_url,
   );
 
   if (!video) return null;
@@ -332,7 +336,12 @@ const mapFeedVideoToItem = (rawValue: unknown, index: number): FeedItem | null =
     handle: handle || 'kulsah_creator',
     avatar: firstString(raw.avatar, raw.avatarUrl, raw.avatar_url, creator.avatar, creator.avatarUrl, creator.avatar_url, FALLBACK_FEED_AVATAR),
     caption: firstString(raw.caption, raw.description, raw.title, 'New video from Kulsah'),
-    background: firstString(raw.background, raw.thumbnail, raw.thumbnailUrl, raw.thumbnail_url, raw.cover, raw.coverUrl, raw.cover_url, FALLBACK_FEED_BACKGROUND),
+    background: getVideoPoster({
+      poster_url: firstString(raw.poster_url, videoValue.poster_url) || null,
+      thumbnail: firstString(raw.thumbnail, raw.thumbnailUrl) || null,
+      background: firstString(raw.background) || null,
+      thumbnail_url: firstString(raw.thumbnail_url, videoValue.thumbnail_url) || null,
+    }) ?? firstString(raw.cover, raw.coverUrl, raw.cover_url, FALLBACK_FEED_BACKGROUND),
     video,
     likes: formatFeedCount(raw.likes ?? raw.likesCount ?? raw.like_count),
     comments: formatFeedCount(raw.comments ?? raw.commentsCount ?? raw.comment_count),
@@ -420,7 +429,7 @@ const FeedQuickMenuModal: React.FC<{
                       color: textPrimary,
                       textTransform: 'uppercase',
                       letterSpacing: 1,
-                      ...fontSize.b5, lineHeight: fontSize.b5.fontSize + 1,
+                      ...fontSize.b5, lineHeight: fontSize.b5.lineHeight,
                     }}
                   >
                     {action.label}
@@ -447,7 +456,7 @@ const FeedQuickMenuModal: React.FC<{
                   }}
                 >
                   <MaterialIcons name={row.icon as any} size={22} color={iconTone} />
-                  <Text style={{ color: textPrimary, ...fontSize.b4, lineHeight: fontSize.b4.fontSize + 1 }}>
+                  <Text style={{ color: textPrimary, ...fontSize.b4, lineHeight: fontSize.b4.lineHeight }}>
                     {row.label}
                   </Text>
                 </Pressable>
@@ -466,7 +475,7 @@ const FeedQuickMenuModal: React.FC<{
               >
                 <View style={{ flexDirection: 'row', alignItems: 'center', gap: 14 }}>
                   <MaterialIcons name={'auto-graph' as any} size={22} color={iconTone} />
-                  <Text style={{ color: textPrimary, ...fontSize.b4, lineHeight: fontSize.b4.fontSize + 1 }}>
+                  <Text style={{ color: textPrimary, ...fontSize.b4, lineHeight: fontSize.b4.lineHeight }}>
                     Auto-scroll
                   </Text>
                   <View
@@ -479,7 +488,7 @@ const FeedQuickMenuModal: React.FC<{
                       paddingVertical: 2,
                     }}
                   >
-                    <Text style={{ color: PRIMARY_COLOR, ...fontSize.b5, lineHeight: fontSize.b5.fontSize + 1 }}>NEW</Text>
+                    <Text style={{ color: PRIMARY_COLOR, ...fontSize.b5, lineHeight: fontSize.b5.lineHeight }}>NEW</Text>
                   </View>
                 </View>
                 <View
@@ -509,7 +518,7 @@ const FeedQuickMenuModal: React.FC<{
                 }}
               >
                 <MaterialIcons name={'qr-code' as any} size={22} color={iconTone} />
-                <Text style={{ color: textPrimary, ...fontSize.b4, lineHeight: fontSize.b4.fontSize + 1 }}>
+                <Text style={{ color: textPrimary, ...fontSize.b4, lineHeight: fontSize.b4.lineHeight }}>
                   QR code
                 </Text>
               </Pressable>
@@ -534,7 +543,7 @@ const FeedQuickMenuModal: React.FC<{
                   }}
                 >
                   <MaterialIcons name={row.icon as any} size={22} color={row.tint ?? iconTone} />
-                  <Text style={{ color: textPrimary, ...fontSize.b4, lineHeight: fontSize.b4.fontSize + 1 }}>
+                  <Text style={{ color: textPrimary, ...fontSize.b4, lineHeight: fontSize.b4.lineHeight }}>
                     {row.label}
                   </Text>
                 </Pressable>
@@ -559,7 +568,7 @@ const FeedQuickMenuModal: React.FC<{
                   }}
                 >
                   <MaterialIcons name={row.icon as any} size={22} color={iconTone} />
-                  <Text style={{ color: textPrimary, ...fontSize.b4, lineHeight: fontSize.b4.fontSize + 1 }}>
+                  <Text style={{ color: textPrimary, ...fontSize.b4, lineHeight: fontSize.b4.lineHeight }}>
                     {row.label}
                   </Text>
                 </Pressable>
@@ -653,7 +662,7 @@ const FeedSubscriptionModal: React.FC<{
                   style={{
                     textAlign: 'center',
                     color: theme.text,
-                    ...fontSize.b1, lineHeight: fontSize.b1.fontSize + 2,
+                    ...fontSize.b1, lineHeight: fontSize.b1.lineHeight,
                     textTransform: 'uppercase',
                   }}
                 >
@@ -674,7 +683,7 @@ const FeedSubscriptionModal: React.FC<{
                   <Text
                     style={{
                       color: '#fff',
-                      ...fontSize.b4, lineHeight: fontSize.b4.fontSize + 1,
+                      ...fontSize.b4, lineHeight: fontSize.b4.lineHeight,
                       textTransform: 'uppercase',
                       letterSpacing: 2,
                     }}
@@ -686,20 +695,20 @@ const FeedSubscriptionModal: React.FC<{
             ) : isLoadingPlans ? (
               <View style={{ paddingVertical: 36, rowGap: 12, alignItems: 'center' }}>
                 <ActivityIndicator color={PRIMARY_COLOR} />
-                <Text style={{ color: theme.text, ...fontSize.b2, lineHeight: fontSize.b2.fontSize + 3, textAlign: 'center' }}>
+                <Text style={{ color: theme.text, ...fontSize.b2, lineHeight: fontSize.b2.lineHeight, textAlign: 'center' }}>
                   Loading Subscription
                 </Text>
-                <Text style={{ color: theme.textSecondary, ...fontSize.b4, lineHeight: fontSize.b4.fontSize + 4, textAlign: 'center' }}>
+                <Text style={{ color: theme.textSecondary, ...fontSize.b4, lineHeight: fontSize.b4.lineHeight, textAlign: 'center' }}>
                   Checking this creator's active plan.
                 </Text>
               </View>
             ) : parsedPlansError ? (
               <View style={{ paddingVertical: 34, rowGap: 12, alignItems: 'center' }}>
                 <MaterialIcons name="error-outline" size={42} color="#ef4444" />
-                <Text style={{ color: theme.text, ...fontSize.b2, lineHeight: fontSize.b2.fontSize + 3, textAlign: 'center' }}>
+                <Text style={{ color: theme.text, ...fontSize.b2, lineHeight: fontSize.b2.lineHeight, textAlign: 'center' }}>
                   {parsedPlansError.title}
                 </Text>
-                <Text style={{ color: theme.textSecondary, ...fontSize.b4, lineHeight: fontSize.b4.fontSize + 4, textAlign: 'center' }}>
+                <Text style={{ color: theme.textSecondary, ...fontSize.b4, lineHeight: fontSize.b4.lineHeight, textAlign: 'center' }}>
                   {parsedPlansError.message}
                 </Text>
                 <Pressable
@@ -716,17 +725,17 @@ const FeedSubscriptionModal: React.FC<{
                   }}
                 >
                   {isRefetchingPlans ? <ActivityIndicator size="small" color="#fff" /> : (
-                    <Text style={{ color: '#fff', ...fontSize.b4, lineHeight: fontSize.b4.fontSize + 1 }}>Retry</Text>
+                    <Text style={{ color: '#fff', ...fontSize.b4, lineHeight: fontSize.b4.lineHeight }}>Retry</Text>
                   )}
                 </Pressable>
               </View>
             ) : !plan ? (
               <View style={{ paddingVertical: 34, rowGap: 12, alignItems: 'center' }}>
                 <MaterialIcons name="workspace-premium" size={42} color={PRIMARY_COLOR} />
-                <Text style={{ color: theme.text, ...fontSize.b2, lineHeight: fontSize.b2.fontSize + 3, textAlign: 'center' }}>
+                <Text style={{ color: theme.text, ...fontSize.b2, lineHeight: fontSize.b2.lineHeight, textAlign: 'center' }}>
                   No Subscription Plan
                 </Text>
-                <Text style={{ color: theme.textSecondary, ...fontSize.b4, lineHeight: fontSize.b4.fontSize + 4, textAlign: 'center' }}>
+                <Text style={{ color: theme.textSecondary, ...fontSize.b4, lineHeight: fontSize.b4.lineHeight, textAlign: 'center' }}>
                   {selection.creatorName} has not published a subscription plan yet.
                 </Text>
               </View>
@@ -751,7 +760,7 @@ const FeedSubscriptionModal: React.FC<{
                     <Text
                       style={{
                         color: theme.text,
-                        ...fontSize.b1, lineHeight: fontSize.b1.fontSize + 2,
+                        ...fontSize.b1, lineHeight: fontSize.b1.lineHeight,
                         textTransform: 'uppercase',
                       }}
                     >
@@ -761,7 +770,7 @@ const FeedSubscriptionModal: React.FC<{
                       style={{
                         marginTop: 6,
                         color: theme.textSecondary,
-                        ...fontSize.b5, lineHeight: fontSize.b5.fontSize + 1,
+                        ...fontSize.b5, lineHeight: fontSize.b5.lineHeight,
                         textTransform: 'uppercase',
                         letterSpacing: 2,
                       }}
@@ -776,7 +785,7 @@ const FeedSubscriptionModal: React.FC<{
                     style={{
                       marginLeft: 4,
                       color: theme.textSecondary,
-                      ...fontSize.b5, lineHeight: fontSize.b5.fontSize + 1,
+                      ...fontSize.b5, lineHeight: fontSize.b5.lineHeight,
                       textTransform: 'uppercase',
                       letterSpacing: 3,
                     }}
@@ -796,7 +805,7 @@ const FeedSubscriptionModal: React.FC<{
                     <Text
                       style={{
                         color: theme.text,
-                        ...fontSize.b4, lineHeight: fontSize.b4.fontSize + 5,
+                        ...fontSize.b4, lineHeight: fontSize.b4.lineHeight,
                       }}
                     >
                       {plan.description || 'No description added yet.'}
@@ -819,7 +828,7 @@ const FeedSubscriptionModal: React.FC<{
                       <Text
                         style={{
                           color: '#d97706',
-                          ...fontSize.b5, lineHeight: fontSize.b5.fontSize + 1,
+                          ...fontSize.b5, lineHeight: fontSize.b5.lineHeight,
                           textTransform: 'uppercase',
                           letterSpacing: 2,
                         }}
@@ -829,7 +838,7 @@ const FeedSubscriptionModal: React.FC<{
                       <Text
                         style={{
                           color: theme.text,
-                          ...fontSize.b1, lineHeight: fontSize.b1.fontSize + 2,
+                          ...fontSize.b1, lineHeight: fontSize.b1.lineHeight,
                         }}
                       >
                         {coinBalance} KC
@@ -839,7 +848,7 @@ const FeedSubscriptionModal: React.FC<{
                       <Text
                         style={{
                           color: theme.textSecondary,
-                          ...fontSize.b5, lineHeight: fontSize.b5.fontSize + 1,
+                          ...fontSize.b5, lineHeight: fontSize.b5.lineHeight,
                           textTransform: 'uppercase',
                           letterSpacing: 1.5,
                         }}
@@ -849,7 +858,7 @@ const FeedSubscriptionModal: React.FC<{
                       <Text
                         style={{
                           color: PRIMARY_COLOR,
-                          ...fontSize.b1, lineHeight: fontSize.b1.fontSize + 2,
+                          ...fontSize.b1, lineHeight: fontSize.b1.lineHeight,
                         }}
                       >
                         -{plan.price} KC
@@ -877,7 +886,7 @@ const FeedSubscriptionModal: React.FC<{
                       <Text
                         style={{
                           color: '#fff',
-                          ...fontSize.b4, lineHeight: fontSize.b4.fontSize + 1,
+                          ...fontSize.b4, lineHeight: fontSize.b4.lineHeight,
                           textTransform: 'uppercase',
                           letterSpacing: 2,
                         }}
@@ -898,7 +907,7 @@ const FeedSubscriptionModal: React.FC<{
 };
 
 
-export const VideoFeedItem: React.FC<{
+type VideoFeedItemProps = {
   item: FeedItem;
   isPlaying: boolean;
   onSubscribe: (item: FeedItem) => void;
@@ -912,7 +921,9 @@ export const VideoFeedItem: React.FC<{
   coinBalance: number;
   onBalanceChange: (nextBalance: number) => void;
   isCreatorViewer: boolean;
-}> = ({
+};
+
+const VideoFeedItemComponent: React.FC<VideoFeedItemProps> = ({
   item,
   onSubscribe,
   onFollow,
@@ -949,6 +960,7 @@ export const VideoFeedItem: React.FC<{
   const viewTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   const [lineNumber, setLineNumber] = useState(1);
   const [more, setMore] = useState(true);
+  const captionExceedsThreshold = item.caption.trim().length > CAPTION_MORE_THRESHOLD;
   const insets = useSafeAreaInsets();
   // const [videoSize, setVideoSize] = useState({ width: 0, height: 0 });
 
@@ -965,7 +977,7 @@ export const VideoFeedItem: React.FC<{
   const togglePlayPause = () => {
     // console.log("Video is tapped");
     // console.log("The value of more:", more);
-    if(!more){
+    if(captionExceedsThreshold && !more){
       setMore(true);
       setLineNumber(1);
     }else{
@@ -1001,7 +1013,7 @@ export const VideoFeedItem: React.FC<{
     p.timeUpdateEventInterval = 0.2;
   }, []);
 
-  const player = useVideoPlayer(item.video, configurePlayer);
+  const player = useVideoPlayer(getVideoSource(item.video), configurePlayer);
 
   // const [currentPlayer, setCurrentPlayer] = useState(player);
   // const [videoDimensions, setVideoDimensions] = useState({
@@ -1066,6 +1078,12 @@ export const VideoFeedItem: React.FC<{
   }, [timeUpdate?.currentTime, isScrubbing]);
 
   useEffect(() => {
+    if (!isPlaying) {
+      rotateValue.stopAnimation();
+      rotateValue.setValue(0);
+      return;
+    }
+
     const spinAnimation = Animated.loop(
       Animated.timing(rotateValue, {
         toValue: 1,
@@ -1080,7 +1098,7 @@ export const VideoFeedItem: React.FC<{
       spinAnimation.stop();
       rotateValue.setValue(0);
     };
-  }, [rotateValue]);
+  }, [isPlaying, rotateValue]);
 
   useEffect(() => {
     return () => {
@@ -1132,7 +1150,7 @@ export const VideoFeedItem: React.FC<{
   } else {
     player.pause();
   }
-}, [isFocused, isPlaying, item, onRecordView, playVideo, player]);
+}, [isFocused, isPlaying, playVideo, player]);
 
 useEffect(() => {
   if (viewTimerRef.current) {
@@ -1296,7 +1314,7 @@ useEffect(() => {
 
         {/* {!item.isSubscribed && (
           <Pressable onPress={() => onSubscribe(item.id)} style={{ marginBottom: 16 }}>
-            <Text style={{ color: 'white', ...fontSize.b4, lineHeight: fontSize.b4.fontSize + 1 }}>Add</Text>
+            <Text style={{ color: 'white', ...fontSize.b4, lineHeight: fontSize.b4.lineHeight }}>Add</Text>
           </Pressable>
         )} */}
 
@@ -1371,7 +1389,7 @@ useEffect(() => {
               <MaterialIcons name="star" size={36} color={item.isSubscribed ? PRIMARY_COLOR : 'white'} />
             </View>
           </View>
-          <Text style={{ color: item.isSubscribed ? PRIMARY_COLOR : 'white', ...fontSize.b4, lineHeight: fontSize.b4.fontSize + 1 }}>
+          <Text style={{ color: item.isSubscribed ? PRIMARY_COLOR : 'white', ...fontSize.b4, lineHeight: fontSize.b4.lineHeight }}>
             {item.isSubscribed ? 'SUBBED' : 'Sub'}
           </Text>
         </Pressable> */}
@@ -1414,7 +1432,7 @@ useEffect(() => {
           elevation: 4,
           alignItems: 'center' }}>
           <MaterialIcons name="more-horiz" size={30} color="white" />
-          {/* <Text style={{ color: 'white', ...fontSize.b4, lineHeight: fontSize.b4.fontSize + 1 }}>More</Text> */}
+          {/* <Text style={{ color: 'white', ...fontSize.b4, lineHeight: fontSize.b4.lineHeight }}>More</Text> */}
         </Pressable>
 
         <View style={
@@ -1450,7 +1468,7 @@ useEffect(() => {
             style={{
               ...fontSize.b2,
               color: '#ffffffcc',
-              lineHeight: fontSize.b2.fontSize + 2,
+              lineHeight: fontSize.b2.lineHeight,
               // 
             }}>
               Style {" • "}{" Kulsah"}
@@ -1475,7 +1493,7 @@ useEffect(() => {
                 <Text
               numberOfLines={1}
               style={{
-                ...fontSize.b2,
+                ...fontSize.b0,
                 color: 'white',
                 }}>@{item.handle}</Text>
               </View>
@@ -1489,7 +1507,7 @@ useEffect(() => {
           </Pressable>
           {item.isPremium && (
             // <View style={{ borderRadius: 6,  borderWidth: 1, paddingHorizontal: 6, justifyContent: 'center', alignItems: 'center', paddingVertical: 3, borderColor: 'white' }}>
-            //   <Text style={{ color: '#fff', fontWeight: 'bold', ...fontSize.b5, lineHeight: fontSize.b5.fontSize + 1 }}>Premium</Text>
+            //   <Text style={{ color: '#fff', fontWeight: 'bold', ...fontSize.b5, lineHeight: fontSize.b5.lineHeight }}>Premium</Text>
             // </View>
             <Premium height={20} width={20}/>
           )}
@@ -1510,7 +1528,7 @@ useEffect(() => {
               paddingVertical: 3,
             }}
           >
-            <Text style={{fontSize: fontSize.b3.fontSize - 3, fontFamily: 'DMSans_600SemiBold',  color: '#fff',  }}>
+            <Text style={{fontSize: fontSize.b3.fontSize - 3, fontFamily: 'Inter_600SemiBold',  color: '#fff',  }}>
               {item.isSubscribed ? 'Subscribed' : 'Subscribe'}
             </Text>
           </Pressable>
@@ -1534,7 +1552,7 @@ useEffect(() => {
           {item.caption}
         </Text>
           </View>
-        {more && <Pressable
+        {captionExceedsThreshold && more && <Pressable
         onPress={()=>{
           setLineNumber(99);
           setMore(false);
@@ -1697,16 +1715,16 @@ useEffect(() => {
           </View>
 
           {/* <View style={{ flexDirection: 'row', justifyContent: 'space-between', marginTop: 3 }}>
-            <Text style={{ color: '#cbd5e1', ...fontSize.b5, lineHeight: fontSize.b5.fontSize + 1 }}>
+            <Text style={{ color: '#cbd5e1', ...fontSize.b5, lineHeight: fontSize.b5.lineHeight }}>
               {formatTime(effectiveCurrentTime)}
             </Text>
-            <Text style={{ color: '#cbd5e1', ...fontSize.b5, lineHeight: fontSize.b5.fontSize + 1 }}>
+            <Text style={{ color: '#cbd5e1', ...fontSize.b5, lineHeight: fontSize.b5.lineHeight }}>
               {formatTime(duration)}
             </Text>
           </View> */}
         </View>
 
-        {/* <Text style={{ color: '#cbd5e1', marginTop: 6, ...fontSize.b5, lineHeight: fontSize.b5.fontSize + 1 }}>{isPlaying ? 'Playing' : 'Paused'} preview</Text> */}
+        {/* <Text style={{ color: '#cbd5e1', marginTop: 6, ...fontSize.b5, lineHeight: fontSize.b5.lineHeight }}>{isPlaying ? 'Playing' : 'Paused'} preview</Text> */}
       </View>
 
       {/* Comments modal */}
@@ -1740,6 +1758,8 @@ useEffect(() => {
     </View>
   );
 };
+
+export const VideoFeedItem = React.memo(VideoFeedItemComponent);
 
 const Feed: React.FC = () => {
   const { isDark, theme } = useThemeMode();
@@ -2931,7 +2951,7 @@ const Feed: React.FC = () => {
       <ErrorBoundary
         fallback={
           <View style={{ flex: 1, alignItems: 'center', justifyContent: 'center', paddingHorizontal: 24, backgroundColor: 'black' }}>
-            <Text style={{ color: 'white', ...fontSize.b1, lineHeight: fontSize.b1.fontSize + 2, textAlign: 'center' }}>
+            <Text style={{ color: 'white', ...fontSize.b1, lineHeight: fontSize.b1.lineHeight, textAlign: 'center' }}>
               This post could not be loaded
             </Text>
             <Text style={{ color: '#94a3b8', marginTop: 8, textAlign: 'center' }}>
@@ -2958,6 +2978,22 @@ const Feed: React.FC = () => {
       </ErrorBoundary>
     </View>
   ), [activeIndex, coinBalance, feedItemHeight, handleFollow, handleRecordView, handleSubscribe, handleToggleBookmark, handleToggleLike, handleToggleMute, isCreatorViewer, isGlobalMuted]);
+
+  const keyExtractor = useCallback((item: FeedItem) => item.id, []);
+
+  const renderFeedFooter = useCallback(() => (
+    <View style={{ height: SCREEN_HEIGHT * (Platform.OS === 'ios' ? 0.08 : 0.07) + (Platform.OS === 'ios' ? 0 : insets.bottom), justifyContent: 'center', alignItems: 'center', backgroundColor: 'black' }}>
+      {isFetchingNextPage ? <ActivityIndicator size="small" color={PRIMARY_COLOR} /> : null}
+    </View>
+  ), [insets.bottom, isFetchingNextPage]);
+
+  const refreshFeed = useCallback(() => {
+    void refetchFeed();
+  }, [refetchFeed]);
+
+  const loadNextFeedPage = useCallback(() => {
+    if (hasNextPage && !isFetchingNextPage) void fetchNextPage();
+  }, [fetchNextPage, hasNextPage, isFetchingNextPage]);
 
   return (
     <SafeAreaView
@@ -3034,10 +3070,10 @@ const Feed: React.FC = () => {
                     <View style={{justifyContent: 'center', alignItems: 'center'}}>
                       <Text style={[{ 
                         color: "#94a3b8", 
-                        fontSize: smallWidth ? fontSize.b3.fontSize : fontSize.b2.fontSize-(2),
-                        fontFamily: 'DMSans_600SemiBold',
+                        fontSize: fontSize.b2.fontSize,
+                        fontFamily: 'Inter_600SemiBold',
                         letterSpacing: -0.2, marginBottom: 5 }, 
-                        activeTab === "foryou" && {color: 'white', letterSpacing: 1, fontFamily: 'DMSans_700Bold'}]}>
+                        activeTab === "foryou" && {color: 'white', letterSpacing: 1, fontFamily: 'Inter_700Bold'}]}>
                         FOR YOU
                       </Text>
                       {activeTab === "foryou" && <View style={{
@@ -3052,10 +3088,10 @@ const Feed: React.FC = () => {
                     <View style={{alignItems: 'center', justifyContent: 'center'}}>
                       <Text style={[{
                         color: "#94a3b8", 
-                        fontSize: smallWidth ? fontSize.b3.fontSize : fontSize.b2.fontSize-(2),
-                        fontFamily: 'DMSans_600SemiBold',
+                        fontSize: fontSize.b2.fontSize,
+                        fontFamily: 'Inter_600SemiBold',
                         marginBottom: 5 }, 
-                        activeTab === "following" && {color: 'white', letterSpacing: 1, fontFamily: 'DMSans_700Bold'}]}>
+                        activeTab === "following" && {color: 'white', letterSpacing: 1, fontFamily: 'Inter_700Bold'}]}>
                         FOLLOWING
                       </Text>
                       {activeTab === "following" && <View style={{
@@ -3068,7 +3104,7 @@ const Feed: React.FC = () => {
                   </Pressable>
                   {/* <Pressable onPress={() => setActiveTab("challenges")} style={{ justifyContent: 'center', alignItems: 'center',}}>
                     <View style={{ justifyContent: 'center', alignItems: 'center',}}>
-                      <Text style={[{ color: "#94a3b8", ...fontSize.b5, lineHeight: fontSize.b5.fontSize + 1, marginBottom: 5 }, activeTab === "challenges" && {color: 'white', letterSpacing: 1, marginBottom: 5}]}>
+                      <Text style={[{ color: "#94a3b8", ...fontSize.b5, lineHeight: fontSize.b5.lineHeight, marginBottom: 5 }, activeTab === "challenges" && {color: 'white', letterSpacing: 1, marginBottom: 5}]}>
                         CHALLENGES
                       </Text>
                       {activeTab === "challenges" && <View style={{
@@ -3083,10 +3119,10 @@ const Feed: React.FC = () => {
                     <View style={{ justifyContent: 'center', alignItems: 'center',}}>
                       <Text style={[{
                         color: "#94a3b8",
-                        fontSize: smallWidth ? fontSize.b3.fontSize : fontSize.b2.fontSize-(2),
-                        fontFamily: 'DMSans_600SemiBold',
+                        fontSize: fontSize.b2.fontSize,
+                        fontFamily: 'Inter_600SemiBold',
                         marginBottom: 5 },
-                        activeTab === "premium" && {color: 'white', letterSpacing: 1, fontFamily: 'DMSans_700Bold', marginBottom: 5}]}>
+                        activeTab === "premium" && {color: 'white', letterSpacing: 1, fontFamily: 'Inter_700Bold', marginBottom: 5}]}>
                         PREMIUM
                       </Text>
                       {activeTab === "premium" && <View style={{
@@ -3126,7 +3162,7 @@ const Feed: React.FC = () => {
               style={{
                 color: '#f97316',
                 fontSize: smallWidth ? fontSize.b3.fontSize+2 : fontSize.b2.fontSize+2,
-                fontFamily: 'DMSans_600SemiBold',
+                fontFamily: 'Inter_600SemiBold',
               }}>
                 3
               </Text>
@@ -3137,21 +3173,21 @@ const Feed: React.FC = () => {
       {isFeedLoading ? (
         <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center', backgroundColor: 'black', paddingHorizontal: 24 }}>
           <ActivityIndicator size="large" color={PRIMARY_COLOR} />
-          <Text style={{ color: '#94a3b8', marginTop: 12, ...fontSize.b4, lineHeight: fontSize.b4.fontSize + 1 }}>
+          <Text style={{ color: '#94a3b8', marginTop: 12, ...fontSize.b4, lineHeight: fontSize.b4.lineHeight }}>
             Loading your galaxy feed...
           </Text>
         </View>
       ) : isFeedError ? (
         <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center', backgroundColor: 'black', paddingHorizontal: 24 }}>
           <MaterialIcons name="wifi-off" size={42} color={PRIMARY_COLOR} />
-          <Text style={{ color: 'white', marginTop: 14, ...fontSize.b1, lineHeight: fontSize.b1.fontSize + 2, textAlign: 'center' }}>
+          <Text style={{ color: 'white', marginTop: 14, ...fontSize.b1, lineHeight: fontSize.b1.lineHeight, textAlign: 'center' }}>
             Feed could not load
           </Text>
-          <Text style={{ color: '#94a3b8', marginTop: 8, textAlign: 'center', ...fontSize.b4, lineHeight: fontSize.b4.fontSize + 1 }}>
+          <Text style={{ color: '#94a3b8', marginTop: 8, textAlign: 'center', ...fontSize.b4, lineHeight: fontSize.b4.lineHeight }}>
             {getApiErrorMessage(feedError)}
           </Text>
           <Pressable onPress={() => void refetchFeed()} style={{ marginTop: 18, paddingHorizontal: 18, paddingVertical: 10, borderRadius: 999, backgroundColor: PRIMARY_COLOR }}>
-            <Text style={{ color: 'white', ...fontSize.b4, lineHeight: fontSize.b4.fontSize + 1 }}>Retry</Text>
+            <Text style={{ color: 'white', ...fontSize.b4, lineHeight: fontSize.b4.lineHeight }}>Retry</Text>
           </Pressable>
         </View>
       ) : displayedItems.length > 0 ? (
@@ -3170,27 +3206,17 @@ const Feed: React.FC = () => {
           <FlatList
             ref={feedListRef}
             data={displayedItems}
-            keyExtractor={(item) => item.id}
+            keyExtractor={keyExtractor}
             renderItem={renderFeedItem}
             showsVerticalScrollIndicator={false}
             snapToInterval={feedItemHeight}
             snapToAlignment="start"
             decelerationRate="fast"
             disableIntervalMomentum
-            ListFooterComponent={() => (
-              <View style={{ height: SCREEN_HEIGHT * (Platform.OS === 'ios' ? 0.08 : 0.07) + (Platform.OS === 'ios' ? 0 : insets.bottom), justifyContent: 'center', alignItems: 'center', backgroundColor: 'black' }}>
-                {isFetchingNextPage ? (
-                  <ActivityIndicator size="small" color={PRIMARY_COLOR} />
-                ) : null}
-              </View>
-            )}
+            ListFooterComponent={renderFeedFooter}
             refreshing={isFeedRefetching}
-            onRefresh={() => void refetchFeed()}
-            onEndReached={() => {
-              if (hasNextPage && !isFetchingNextPage) {
-                void fetchNextPage();
-              }
-            }}
+            onRefresh={refreshFeed}
+            onEndReached={loadNextFeedPage}
             onEndReachedThreshold={0.6}
             getItemLayout={(_, index) => ({
               length: feedItemHeight,
@@ -3203,11 +3229,12 @@ const Feed: React.FC = () => {
             initialNumToRender={2}
             windowSize={3}
             maxToRenderPerBatch={2}
+            updateCellsBatchingPeriod={75}
           />
         </View>
       ) : (
         <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center', paddingHorizontal: 24, backgroundColor: 'black' }}>
-          <Text style={{ color: 'white', ...fontSize.b1, lineHeight: fontSize.b1.fontSize + 2, fontWeight: '800', textAlign: 'center' }}>
+          <Text style={{ color: 'white', ...fontSize.b1, lineHeight: fontSize.b1.lineHeight, fontWeight: '800', textAlign: 'center' }}>
             {emptyFeedState.title}
           </Text>
           <Text style={{ ...fontSize.b1, color: '#94a3b8', marginTop: 8, textAlign: 'center' }}>
@@ -3284,7 +3311,7 @@ const Feed: React.FC = () => {
             style={{
               ...fontSize.b4,
               color: '#fff',
-              lineHeight: fontSize.b4.fontSize + 1,
+              lineHeight: fontSize.b4.lineHeight,
             }}
           >
             {followToast}

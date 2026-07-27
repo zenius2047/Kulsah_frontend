@@ -22,7 +22,7 @@ import { useNavigation } from '@react-navigation/native';
 import { GoogleGenAI } from '@google/genai';
 import GiftDialog, { GiftSelection } from '../components/GiftDialog';
 import { mediumScreen } from '../types';
-import { fontSize } from './typography';
+import { fontSize } from '../typography';
 
 interface ChatMessage {
   id: number;
@@ -480,14 +480,14 @@ const styles = StyleSheet.create({
   },
   permissionTitle: {
     color: '#fff',
-    ...fontSize.b1, lineHeight: fontSize.b1.fontSize + 2,
+    ...fontSize.b1, lineHeight: fontSize.b1.lineHeight,
     marginTop: 18,
     marginBottom: 8,
   },
   permissionText: {
     color: 'rgba(255,255,255,0.75)',
     ...fontSize.b3,
-    lineHeight: 20,
+    lineHeight: fontSize.b3.lineHeight,
     textAlign: 'center',
     marginTop: 10,
   },
@@ -501,7 +501,7 @@ const styles = StyleSheet.create({
   },
   permissionButtonText: {
     color: '#fff',
-    ...fontSize.b3, lineHeight: fontSize.b3.fontSize + 2,
+    ...fontSize.b3, lineHeight: fontSize.b3.lineHeight,
   },
   topHud: {
     paddingHorizontal: 0,
@@ -532,7 +532,7 @@ const styles = StyleSheet.create({
   },
   liveTime: {
     color: '#fff',
-    ...fontSize.b4, lineHeight: fontSize.b4.fontSize + 1,
+    ...fontSize.b4, lineHeight: fontSize.b4.lineHeight,
     letterSpacing: 2.4,
   },
   topActions: {
@@ -563,7 +563,7 @@ const styles = StyleSheet.create({
   },
   endSessionText: {
     color: '#fff',
-    ...fontSize.b4, lineHeight: fontSize.b4.fontSize + 1,
+    ...fontSize.b4, lineHeight: fontSize.b4.lineHeight,
     letterSpacing: 1.8,
     textTransform: 'uppercase',
   },
@@ -584,13 +584,13 @@ const styles = StyleSheet.create({
   },
   statLabel: {
     color: 'rgba(255,255,255,0.38)',
-    ...fontSize.b4, lineHeight: fontSize.b4.fontSize + 1,
+    ...fontSize.b4, lineHeight: fontSize.b4.lineHeight,
     letterSpacing: 1.6,
     textTransform: 'uppercase',
   },
   statValue: {
     color: '#fff',
-    ...fontSize.b3, lineHeight: fontSize.b3.fontSize + 2,
+    ...fontSize.b3, lineHeight: fontSize.b3.lineHeight,
     marginTop: 2,
   },
   aiAuditWrap: {
@@ -623,14 +623,14 @@ const styles = StyleSheet.create({
   },
   aiKicker: {
     color: PRIMARY_COLOR,
-    ...fontSize.b5, lineHeight: fontSize.b5.fontSize + 1,
+    ...fontSize.b5, lineHeight: fontSize.b5.lineHeight,
     letterSpacing: 2.4,
     textTransform: 'uppercase',
   },
   aiText: {
     color: 'rgba(255,255,255,0.92)',
     ...fontSize.b4,
-    lineHeight: 21,
+    lineHeight: fontSize.b4.lineHeight,
     paddingRight: 24,
   },
   bottomZone: {
@@ -680,7 +680,7 @@ const styles = StyleSheet.create({
   },
   chatUser: {
     color: primaryColorAlpha(0.76),
-    ...fontSize.b4, lineHeight: fontSize.b4.fontSize + 1,
+    ...fontSize.b4, lineHeight: fontSize.b4.lineHeight,
     letterSpacing: 1.4,
     textTransform: 'uppercase',
   },
@@ -693,7 +693,7 @@ const styles = StyleSheet.create({
   chatText: {
     color: '#fff',
     ...fontSize.b4,
-    lineHeight: 17,
+    lineHeight: fontSize.b4.lineHeight,
     marginTop: 2,
   },
   sideHud: {
@@ -764,7 +764,7 @@ const styles = StyleSheet.create({
   broadcastInput: {
     flex: 1,
     color: '#fff',
-    ...fontSize.b3, lineHeight: fontSize.b3.fontSize + 2,
+    ...fontSize.b3, lineHeight: fontSize.b3.lineHeight,
   },
   moreButton: {
     width: 56,
@@ -808,12 +808,12 @@ const styles = StyleSheet.create({
   },
   sheetTitle: {
     color: '#fff',
-    ...fontSize.b1, lineHeight: fontSize.b1.fontSize + 2,
+    ...fontSize.b1, lineHeight: fontSize.b1.lineHeight,
     textAlign: 'center',
   },
   sheetSubtitle: {
     color: 'rgba(255,255,255,0.38)',
-    ...fontSize.b4, lineHeight: fontSize.b4.fontSize + 1,
+    ...fontSize.b4, lineHeight: fontSize.b4.lineHeight,
     marginTop: 6,
     letterSpacing: 1.6,
     textTransform: 'uppercase',
@@ -836,13 +836,13 @@ const styles = StyleSheet.create({
   },
   successText: {
     color: '#22c55e',
-    ...fontSize.b1, lineHeight: fontSize.b1.fontSize + 2,
+    ...fontSize.b1, lineHeight: fontSize.b1.lineHeight,
     letterSpacing: 4,
     textTransform: 'uppercase',
   },
   amountLabel: {
     color: 'rgba(255,255,255,0.4)',
-    ...fontSize.b4, lineHeight: fontSize.b4.fontSize + 1,
+    ...fontSize.b4, lineHeight: fontSize.b4.lineHeight,
     letterSpacing: 2.6,
     textTransform: 'uppercase',
     marginBottom: 12,
@@ -868,7 +868,7 @@ const styles = StyleSheet.create({
   },
   amountButtonText: {
     color: 'rgba(255,255,255,0.7)',
-    ...fontSize.b3, lineHeight: fontSize.b3.fontSize + 2,
+    ...fontSize.b3, lineHeight: fontSize.b3.lineHeight,
   },
   amountButtonTextActive: {
     color: '#fff',
@@ -882,7 +882,7 @@ const styles = StyleSheet.create({
     borderColor: 'rgba(255,255,255,0.08)',
     color: '#fff',
     textAlign: 'center',
-    ...fontSize.b3, lineHeight: fontSize.b3.fontSize + 2,
+    ...fontSize.b3, lineHeight: fontSize.b3.lineHeight,
   },
   simInfoCard: {
     marginTop: 18,
@@ -894,7 +894,7 @@ const styles = StyleSheet.create({
   },
   simInfoKicker: {
     color: PRIMARY_COLOR,
-    ...fontSize.b4, lineHeight: fontSize.b4.fontSize + 1,
+    ...fontSize.b4, lineHeight: fontSize.b4.lineHeight,
     letterSpacing: 1.8,
     textTransform: 'uppercase',
     marginBottom: 8,
@@ -902,7 +902,7 @@ const styles = StyleSheet.create({
   simInfoText: {
     color: 'rgba(255,255,255,0.72)',
     ...fontSize.b3,
-    lineHeight: 19,
+    lineHeight: fontSize.b3.lineHeight,
   },
   confirmButton: {
     marginTop: 18,
@@ -919,7 +919,7 @@ const styles = StyleSheet.create({
   },
   confirmButtonText: {
     color: '#fff',
-    ...fontSize.b1, lineHeight: fontSize.b1.fontSize + 2,
+    ...fontSize.b1, lineHeight: fontSize.b1.lineHeight,
   },
   modalCenterRoot: {
     flex: 1,
@@ -953,7 +953,7 @@ const styles = StyleSheet.create({
   },
   confirmTitle: {
     color: '#fff',
-    ...fontSize.b1, lineHeight: fontSize.b1.fontSize + 2,
+    ...fontSize.b1, lineHeight: fontSize.b1.lineHeight,
     textTransform: 'uppercase',
     marginBottom: 12,
     textAlign: 'center',
@@ -961,7 +961,7 @@ const styles = StyleSheet.create({
   confirmText: {
     color: 'rgba(255,255,255,0.68)',
     ...fontSize.b3,
-    lineHeight: 15,
+    lineHeight: fontSize.b3.lineHeight,
     textAlign: 'center',
     marginBottom: 24,
   },
@@ -976,7 +976,7 @@ const styles = StyleSheet.create({
   },
   shutdownButtonText: {
     color: '#fff',
-    ...fontSize.b3, lineHeight: fontSize.b3.fontSize + 2,
+    ...fontSize.b3, lineHeight: fontSize.b3.lineHeight,
     letterSpacing: 1.4,
     textTransform: 'uppercase',
   },
@@ -991,7 +991,7 @@ const styles = StyleSheet.create({
   },
   keepStreamingText: {
     color: 'rgba(255,255,255,0.7)',
-    ...fontSize.b3, lineHeight: fontSize.b3.fontSize + 2,
+    ...fontSize.b3, lineHeight: fontSize.b3.lineHeight,
     letterSpacing: 1.4,
     textTransform: 'uppercase',
   },

@@ -118,8 +118,7 @@ const Inbox: React.FC = () => {
   return (
     <SafeAreaView style={[styles.safeArea, { backgroundColor: shell }]} edges={['left', 'right']}>
       <View style={[styles.screen, { backgroundColor: shell }]}>
-        <ScrollView contentContainerStyle={styles.content} showsVerticalScrollIndicator={false} keyboardShouldPersistTaps="handled">
-          <View style={[styles.topUtilityRow, {backgroundColor: 'transparent', paddingTop: Platform.OS == 'ios' ? 54: insets.top,}]}>
+         <View style={[styles.topUtilityRow, {backgroundColor: 'transparent', paddingTop: Platform.OS == 'ios' ? 54: insets.top, marginHorizontal: 16}]}>
             {/* <View style={styles.headerLeft}>
                           
                         </View> */}
@@ -148,6 +147,17 @@ const Inbox: React.FC = () => {
             </Pressable>
           </View>
 
+          <View style={[styles.searchRow, { backgroundColor: card, borderColor: border, marginHorizontal: 16 }]}>
+            <MaterialIcons name="search" size={20} color={subtle} />
+            <TextInput
+              placeholder="Search creators, fans or collaborations..."
+              placeholderTextColor={subtle}
+              style={[styles.searchInput, { color: theme.text }]}
+            />
+          </View>
+        <ScrollView contentContainerStyle={styles.content} showsVerticalScrollIndicator={false} keyboardShouldPersistTaps="handled">
+         
+
           {/* {user?.role === "creator" && <>
           <View style={styles.sectionHeaderRow}>
             <Text style={[styles.sectionTitle, { color: subtle }]}>COLLABORATORS</Text>
@@ -171,16 +181,9 @@ const Inbox: React.FC = () => {
 
           
 
-          <View style={[styles.searchRow, { backgroundColor: card, borderColor: border }]}>
-            <MaterialIcons name="search" size={20} color={subtle} />
-            <TextInput
-              placeholder="Search creators, fans or collaborations..."
-              placeholderTextColor={subtle}
-              style={[styles.searchInput, { color: theme.text }]}
-            />
-          </View>
+          
 
-          <Text style={[styles.sectionTitle, { color: subtle, marginTop: 18, marginBottom: 14 }]}>DIRECT MESSAGES</Text>
+          {/* <Text style={[styles.sectionTitle, { color: subtle, marginTop: 18, marginBottom: 14 }]}>DIRECT MESSAGES</Text> */}
 
           <View style={styles.chatList}>
             {chatList.map((chat) => (
@@ -229,8 +232,8 @@ const Inbox: React.FC = () => {
 const styles = StyleSheet.create({
   safeArea: { flex: 1 },
   screen: { flex: 1 },
-  content: { paddingHorizontal: 16, paddingBottom: 120 },
-  topUtilityRow: { alignItems: 'flex-end', marginBottom: 24, paddingBottom: 24, flexDirection: 'row', justifyContent: 'space-between', marginHorizontal: -16, paddingHorizontal: 16, },
+  content: { paddingHorizontal: 6, paddingBottom: 120 },
+  topUtilityRow: { alignItems: 'flex-end', marginBottom: 0, paddingBottom: 14, flexDirection: 'row', justifyContent: 'space-between', marginHorizontal: 0, paddingHorizontal: 0, },
   notificationButton: {
     width: 42,
     height: 42,
@@ -249,31 +252,31 @@ const styles = StyleSheet.create({
     backgroundColor: PRIMARY_COLOR,
   },
   sectionHeaderRow: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', marginTop: 8, marginBottom: 12 },
-  sectionTitle: { ...fontSize.b4, lineHeight: fontSize.b4.fontSize + 1, letterSpacing: 0.8, textTransform: 'uppercase' },
-  seeAll: { color: PRIMARY_COLOR, ...fontSize.b5, lineHeight: fontSize.b5.fontSize + 1, textTransform: 'uppercase' },
+  sectionTitle: { ...fontSize.b4, lineHeight: fontSize.b4.lineHeight, letterSpacing: 0.8, textTransform: 'uppercase' },
+  seeAll: { color: PRIMARY_COLOR, ...fontSize.b5, lineHeight: fontSize.b5.lineHeight, textTransform: 'uppercase' },
   collabRow: { gap: 14, paddingBottom: 6 },
   collabItem: { alignItems: 'center', width: 74, gap: 6,},
   collabAvatarWrap: { width: 64, height: 64, borderRadius: 32, borderWidth: 2, padding: 2, },
   collabAvatarWrapGradient: { borderColor: PRIMARY_COLOR },
   collabAvatar: { width: '100%', height: '100%', borderRadius: 30 },
   liveDot: { position: 'absolute', right: 2, bottom: 2, width: 12, height: 12, borderRadius: 6, backgroundColor: '#10b981', borderWidth: 2, borderColor: '#0a050d' },
-  collabName: { ...fontSize.b5, lineHeight: fontSize.b5.fontSize + 1, textTransform: 'uppercase' },
+  collabName: { ...fontSize.b5, lineHeight: fontSize.b5.lineHeight, textTransform: 'uppercase' },
   searchRow: { marginTop: 12, minHeight: 52, borderWidth: 1, borderRadius: 999, flexDirection: 'row', alignItems: 'center', gap: 8, paddingHorizontal: 12 },
-  searchInput: { flex: 1, ...fontSize.b3, lineHeight: fontSize.b3.fontSize + 2 },
+  searchInput: { flex: 1, ...fontSize.b3, lineHeight: fontSize.b3.lineHeight },
   chatList: { gap: 10 },
   chatCard: { padding: 12, flexDirection: 'row', alignItems: 'center', gap: 12 },
   chatAvatarWrap: { width: 56, height: 56, position: 'relative' },
   chatAvatar: { width: '100%', height: '100%', borderRadius: 28, borderWidth: 1, borderColor: 'rgba(255,255,255,0.1)' },
   chatAvatarUnread: { borderColor: PRIMARY_COLOR, borderWidth: 2 },
   vipBadge: { position: 'absolute', bottom: -2, right: -2, borderRadius: 8, backgroundColor: PRIMARY_COLOR, paddingHorizontal: 4, paddingVertical: 1 },
-  vipText: { color: '#fff', ...fontSize.b5, lineHeight: fontSize.b5.fontSize + 1 },
+  vipText: { color: '#fff', ...fontSize.b5, lineHeight: fontSize.b5.lineHeight },
   chatBody: { flex: 1 },
   chatTopRow: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', marginBottom: 4 },
   chatNameRow: { flexDirection: 'row', alignItems: 'center', gap: 6, flex: 1 },
-  chatName: { ...fontSize.b3, lineHeight: fontSize.b3.fontSize + 1 },
+  chatName: { ...fontSize.chatNameText, lineHeight: fontSize.chatNameText.lineHeight },
   unreadDot: { width: 8, height: 8, borderRadius: 4, backgroundColor: PRIMARY_COLOR },
-  chatTime: { ...fontSize.b5, lineHeight: fontSize.b5.fontSize + 1, textTransform: 'uppercase' },
-  chatMessage: { ...fontSize.b4, lineHeight: fontSize.b4.fontSize + 2 },
+  chatTime: { ...fontSize.tabText, lineHeight: fontSize.tabText.lineHeight, },
+  chatMessage: { ...fontSize.chatMessageText, lineHeight: fontSize.chatMessageText.lineHeight },
   headerLeft: {
     flexDirection: 'row',
     alignItems: 'center',
@@ -290,7 +293,7 @@ const styles = StyleSheet.create({
   title: {
       // color: '#F8FAFC',
       ...fontSize.h1,
-      lineHeight: fontSize.h1.fontSize + 2,
+      lineHeight: fontSize.h1.lineHeight,
       // fontWeight: '900',
       letterSpacing: 2,
     },
@@ -301,7 +304,7 @@ const styles = StyleSheet.create({
     subtitle: {
       // color: '#D946EF',
       ...fontSize.h2,
-      lineHeight: fontSize.h2.fontSize + 1,
+      lineHeight: fontSize.h2.lineHeight,
       // fontWeight: '900',
       letterSpacing: 1.5,
       marginTop: 2,

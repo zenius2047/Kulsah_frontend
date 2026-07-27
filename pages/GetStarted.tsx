@@ -243,14 +243,14 @@ const s = StyleSheet.create({
   },
   badgeText: {
     color: PRIMARY_COLOR,
-    ...fontSize.b4, lineHeight: fontSize.b4.fontSize + 1,
+    ...fontSize.b4, lineHeight: fontSize.b4.lineHeight,
     letterSpacing: 2,
     textTransform: 'uppercase',
   },
   title: {
     color: '#f8fafc',
     ...fontSize.b1,
-    lineHeight: fontSize.b1.fontSize + 2,
+    lineHeight: fontSize.b1.lineHeight,
     textAlign: 'center',
     letterSpacing: -1.2,
     maxWidth: 300,
@@ -261,7 +261,7 @@ const s = StyleSheet.create({
   },
   titleAccent: {
     ...fontSize.b1,
-    lineHeight: fontSize.b1.fontSize + 2,
+    lineHeight: fontSize.b1.lineHeight,
     textAlign: 'center',
     letterSpacing: -1.2,
     fontStyle: 'italic',
@@ -298,13 +298,13 @@ const s = StyleSheet.create({
   },
   featureTitle: {
     color: '#f8fafc',
-    ...fontSize.b3, lineHeight: fontSize.b3.fontSize + 2,
+    ...fontSize.b3, lineHeight: fontSize.b3.lineHeight,
   },
   featureBody: {
     marginTop: 3,
     color: '#d0c1d8',
     ...fontSize.b4,
-    lineHeight: fontSize.b3.fontSize + 2,
+    lineHeight: fontSize.b3.lineHeight,
   },
   footerBlock: {
     marginTop: 14,
@@ -334,11 +334,11 @@ const s = StyleSheet.create({
   },
   avatarMoreText: {
     color: '#f8fafc',
-    ...fontSize.b5, lineHeight: fontSize.b5.fontSize + 1,
+    ...fontSize.b5, lineHeight: fontSize.b5.lineHeight,
   },
   communityText: {
     color: '#94a3b8',
-    ...fontSize.b4, lineHeight: fontSize.b4.fontSize + 1,
+    ...fontSize.b4, lineHeight: fontSize.b4.lineHeight,
     textTransform: 'uppercase',
     letterSpacing: 1.7,
   },
@@ -362,7 +362,7 @@ const s = StyleSheet.create({
   },
   ctaText: {
     color: '#ffffff',
-    ...fontSize.b3, lineHeight: fontSize.b3.fontSize + 2,
+    ...fontSize.b3, lineHeight: fontSize.b3.lineHeight,
     textTransform: 'uppercase',
     letterSpacing: 1,
   },
@@ -370,7 +370,7 @@ const s = StyleSheet.create({
     color: 'rgba(208,193,216,0.65)',
     textAlign: 'center',
     ...fontSize.b4,
-    lineHeight: fontSize.b3.fontSize + 2,
+    lineHeight: fontSize.b3.lineHeight,
     paddingHorizontal: 8,
   },
 });

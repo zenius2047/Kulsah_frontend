@@ -56,7 +56,7 @@ class ErrorBoundary extends React.Component<ErrorBoundaryProps, ErrorBoundarySta
         <Text
           style={{
             color: '#fff',
-            ...fontSize.b1, lineHeight: fontSize.b1.fontSize + 2,
+            ...fontSize.b1, lineHeight: fontSize.b1.lineHeight,
             textAlign: 'center',
           }}
         >

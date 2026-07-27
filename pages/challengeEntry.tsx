@@ -187,7 +187,7 @@ const styles = StyleSheet.create({
     flex: 1,
     textAlign: 'center',
     color: '#F8FAFC',
-    ...fontSize.b4, lineHeight: fontSize.b4.fontSize + 1,
+    ...fontSize.b4, lineHeight: fontSize.b4.lineHeight,
   },
   headerRight: {
     width: 40,
@@ -241,13 +241,13 @@ const styles = StyleSheet.create({
   },
   liveBadgeText: {
     color: '#fff',
-    ...fontSize.b5, lineHeight: fontSize.b5.fontSize + 1,
+    ...fontSize.b5, lineHeight: fontSize.b5.lineHeight,
     textTransform: 'uppercase',
     letterSpacing: 0.6,
   },
   entryCount: {
     color: 'rgba(217, 21, 210, 0.82)',
-    ...fontSize.b5, lineHeight: fontSize.b5.fontSize + 1,
+    ...fontSize.b5, lineHeight: fontSize.b5.lineHeight,
   },
   heroTitle: {
     color: '#fff',
@@ -278,11 +278,11 @@ const styles = StyleSheet.create({
   },
   sectionTitle: {
     color: '#F8FAFC',
-    ...fontSize.b4, lineHeight: fontSize.b4.fontSize + 1,
+    ...fontSize.b4, lineHeight: fontSize.b4.lineHeight,
   },
   seeAll: {
     color: PRIMARY_COLOR,
-    ...fontSize.b5, lineHeight: fontSize.b5.fontSize + 1,
+    ...fontSize.b5, lineHeight: fontSize.b5.lineHeight,
   },
   audioCard: {
     flexDirection: 'row',
@@ -316,12 +316,12 @@ const styles = StyleSheet.create({
   },
   audioTitle: {
     color: '#F8FAFC',
-    ...fontSize.b5, lineHeight: fontSize.b5.fontSize + 1,
+    ...fontSize.b5, lineHeight: fontSize.b5.lineHeight,
     marginBottom: 4,
   },
   audioMeta: {
     color: '#94A3B8',
-    ...fontSize.b5, lineHeight: fontSize.b5.fontSize + 1,
+    ...fontSize.b5, lineHeight: fontSize.b5.lineHeight,
   },
   uploadSection: {
     flexDirection: 'row',
@@ -371,12 +371,12 @@ const styles = StyleSheet.create({
   },
   recordLabel: {
     color: '#fff',
-    ...fontSize.b4, lineHeight: fontSize.b4.fontSize + 1,
+    ...fontSize.b4, lineHeight: fontSize.b4.lineHeight,
     textAlign: 'center',
   },
   libraryLabel: {
     color: '#F8FAFC',
-    ...fontSize.b4, lineHeight: fontSize.b4.fontSize + 1,
+    ...fontSize.b4, lineHeight: fontSize.b4.lineHeight,
     textAlign: 'center',
   },
 });

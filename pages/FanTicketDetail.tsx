@@ -196,13 +196,13 @@ const styles = StyleSheet.create({
     paddingHorizontal: 12,
   },
   headerKicker: {
-    ...fontSize.b5, lineHeight: fontSize.b5.fontSize + 1,
+    ...fontSize.b5, lineHeight: fontSize.b5.lineHeight,
     textTransform: 'uppercase',
     letterSpacing: 2.5,
   },
   headerTitle: {
     marginTop: 4,
-    ...fontSize.b4, lineHeight: fontSize.b4.fontSize + 1,
+    ...fontSize.b4, lineHeight: fontSize.b4.lineHeight,
     textTransform: 'uppercase',
     maxWidth: 180,
   },
@@ -244,13 +244,13 @@ const styles = StyleSheet.create({
   },
   artistName: {
     color: '#fff',
-    ...fontSize.b1, lineHeight: fontSize.b1.fontSize + 2,
+    ...fontSize.b1, lineHeight: fontSize.b1.lineHeight,
     textTransform: 'uppercase',
   },
   artistSub: {
     marginTop: 2,
     color: 'rgba(255,255,255,0.72)',
-    ...fontSize.b5, lineHeight: fontSize.b5.fontSize + 1,
+    ...fontSize.b5, lineHeight: fontSize.b5.lineHeight,
     textTransform: 'uppercase',
     letterSpacing: 1.2,
   },
@@ -262,7 +262,7 @@ const styles = StyleSheet.create({
   },
   verifiedText: {
     color: '#fff',
-    ...fontSize.b5, lineHeight: fontSize.b5.fontSize + 1,
+    ...fontSize.b5, lineHeight: fontSize.b5.lineHeight,
     textTransform: 'uppercase',
     letterSpacing: 1.6,
   },
@@ -279,17 +279,17 @@ const styles = StyleSheet.create({
     marginBottom: 20,
   },
   detailLabel: {
-    ...fontSize.b5, lineHeight: fontSize.b5.fontSize + 1,
+    ...fontSize.b5, lineHeight: fontSize.b5.lineHeight,
     textTransform: 'uppercase',
     letterSpacing: 1.8,
     marginBottom: 4,
   },
   detailValue: {
-    ...fontSize.b4, lineHeight: fontSize.b4.fontSize + 1,
+    ...fontSize.b4, lineHeight: fontSize.b4.lineHeight,
   },
   detailSub: {
     marginTop: 3,
-    ...fontSize.b5, lineHeight: fontSize.b5.fontSize + 1,
+    ...fontSize.b5, lineHeight: fontSize.b5.lineHeight,
   },
   qrSection: {
     alignItems: 'center',
@@ -315,13 +315,13 @@ const styles = StyleSheet.create({
   scanTitle: {
     marginTop: 22,
     color: '#0f172a',
-    ...fontSize.b4, lineHeight: fontSize.b4.fontSize + 1,
+    ...fontSize.b4, lineHeight: fontSize.b4.lineHeight,
     letterSpacing: 5,
     textTransform: 'uppercase',
   },
   scanHint: {
     marginTop: 8,
-    ...fontSize.b5, lineHeight: fontSize.b5.fontSize + 1,
+    ...fontSize.b5, lineHeight: fontSize.b5.lineHeight,
     textTransform: 'uppercase',
     letterSpacing: 1.8,
     textAlign: 'center',
@@ -338,7 +338,7 @@ const styles = StyleSheet.create({
     gap: 2,
   },
   ticketCode: {
-    ...fontSize.b5, lineHeight: fontSize.b5.fontSize + 1,
+    ...fontSize.b5, lineHeight: fontSize.b5.lineHeight,
     letterSpacing: 0.6,
   },
   nfcBadge: {
@@ -366,7 +366,7 @@ const styles = StyleSheet.create({
     gap: 10,
   },
   actionText: {
-    ...fontSize.b5, lineHeight: fontSize.b5.fontSize + 1,
+    ...fontSize.b5, lineHeight: fontSize.b5.lineHeight,
     textTransform: 'uppercase',
   },
   perfLeft: {

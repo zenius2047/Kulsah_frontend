@@ -268,9 +268,6 @@ const CreatorEvents: React.FC = () => {
     <View style={[styles.screen, { backgroundColor: screenBg }]}>
       <View style={[styles.header, { backgroundColor: shellBg, borderBottomColor: border }]}>
         <View style={styles.headerLeft}>
-          <Pressable onPress={() => navigation.goBack()} style={[styles.iconBtn, { borderColor: border, backgroundColor: iconBtnBg }]}>
-            <MaterialIcons name="chevron-left" size={20} color={textPrimary} />
-          </Pressable>
           <Text style={[styles.headerTitle, { color: textPrimary }]}>Event Studio</Text>
         </View>
         <Pressable onPress={() => openEditor()} style={styles.addBtn}>
@@ -559,7 +556,7 @@ const CreatorEvents: React.FC = () => {
                     <Text style={{
                       fontFamily: 'Pogonia_500Medium',
                       fontSize: fontSize.b4.fontSize,
-                      lineHeight: fontSize.b4.fontSize + 1,
+                      lineHeight: fontSize.b4.lineHeight,
                       color: textMuted
                     }}>
                       Ticket Price
@@ -579,7 +576,7 @@ const CreatorEvents: React.FC = () => {
                     <Text  style={{
                       fontFamily: 'Pogonia_500Medium',
                       fontSize: fontSize.b4.fontSize,
-                      lineHeight: fontSize.b4.fontSize + 1,
+                      lineHeight: fontSize.b4.lineHeight,
                       color: textMuted
                     }}>
                       Event Capacity
@@ -659,7 +656,7 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     alignItems: 'center',
   },
-  headerTitle: { ...fontSize.b3, lineHeight: fontSize.b3.fontSize + 2 },
+  headerTitle: {  ...fontSize.h1, lineHeight: fontSize.h1.lineHeight, textTransform: 'uppercase', letterSpacing: 2 },
   addBtn: {
     width: 36,
     height: 36,
@@ -677,10 +674,10 @@ const styles = StyleSheet.create({
     padding: 14,
   },
   statPrimary: { borderColor: primaryColorAlpha(0.35), backgroundColor: primaryColorAlpha(0.12) },
-  statLabel: { ...fontSize.b4, lineHeight: fontSize.b4.fontSize + 1, letterSpacing: 1.1 },
-  statValue: { ...fontSize.b1, lineHeight: fontSize.b1.fontSize + 2, marginTop: 2 },
-  statSub: { color: '#22c55e', ...fontSize.b4, lineHeight: fontSize.b4.fontSize + 1, marginTop: 2 },
-  sectionTitle: { ...fontSize.b4, lineHeight: fontSize.b4.fontSize + 1, letterSpacing: 2, marginTop: 6 },
+  statLabel: { ...fontSize.b4, lineHeight: fontSize.b4.lineHeight, letterSpacing: 1.1 },
+  statValue: { ...fontSize.b1, lineHeight: fontSize.b1.lineHeight, marginTop: 2 },
+  statSub: { color: '#22c55e', ...fontSize.b4, lineHeight: fontSize.b4.lineHeight, marginTop: 2 },
+  sectionTitle: { ...fontSize.b4, lineHeight: fontSize.b4.lineHeight, letterSpacing: 2, marginTop: 6 },
   eventCard: {
     borderRadius: 28,
     borderWidth: 1,
@@ -707,23 +704,23 @@ const styles = StyleSheet.create({
     paddingHorizontal: 10,
     paddingVertical: 4,
   },
-  statusTextVisual: { color: '#fff', ...fontSize.b5, lineHeight: fontSize.b5.fontSize + 1, letterSpacing: 1 },
+  statusTextVisual: { color: '#fff', ...fontSize.b5, lineHeight: fontSize.b5.lineHeight, letterSpacing: 1 },
   visualTitleWrap: { position: 'absolute', left: 16, right: 16, bottom: 14 },
-  visualTitle: { color: '#fff', ...fontSize.h2, lineHeight: fontSize.h2.fontSize + 2 },
+  visualTitle: { color: '#fff', ...fontSize.h2, lineHeight: fontSize.h2.lineHeight },
   visualDateRow: { flexDirection: 'row', alignItems: 'center', gap: 6, marginTop: 4 },
-  visualDate: { color: 'rgba(255,255,255,0.82)', ...fontSize.b5, lineHeight: fontSize.b5.fontSize + 1, letterSpacing: 1 },
+  visualDate: { color: 'rgba(255,255,255,0.82)', ...fontSize.b5, lineHeight: fontSize.b5.lineHeight, letterSpacing: 1 },
   eventBody: { padding: 16, gap: 16 },
   eventMetaRow: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'flex-start', gap: 12 },
   eventLocationWrap: { flex: 1, minWidth: 0 },
   eventLocationLine: { flexDirection: 'row', alignItems: 'center', gap: 4 },
   eventRevenueWrap: { alignItems: 'flex-end' },
-  revenueAccent: { color: PRIMARY_COLOR, ...fontSize.b3, lineHeight: fontSize.b3.fontSize + 2 },
-  revenueLabel: { ...fontSize.b5, lineHeight: fontSize.b5.fontSize + 1, letterSpacing: 0.5 },
+  revenueAccent: { color: PRIMARY_COLOR, ...fontSize.b3, lineHeight: fontSize.b3.lineHeight },
+  revenueLabel: { ...fontSize.b5, lineHeight: fontSize.b5.lineHeight, letterSpacing: 0.5 },
   ticketBlock: { gap: 8 },
   ticketSalesRow: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'flex-end', gap: 12 },
-  ticketSalesTitle: { ...fontSize.b4, lineHeight: fontSize.b4.fontSize + 1, letterSpacing: 1 },
-  ticketSalesMeta: { ...fontSize.b5, lineHeight: fontSize.b5.fontSize + 1, letterSpacing: 0.6, marginTop: 2 },
-  ticketSalesPercent: { ...fontSize.b2, lineHeight: fontSize.b2.fontSize + 2 },
+  ticketSalesTitle: { ...fontSize.b4, lineHeight: fontSize.b4.lineHeight, letterSpacing: 1 },
+  ticketSalesMeta: { ...fontSize.b5, lineHeight: fontSize.b5.lineHeight, letterSpacing: 0.6, marginTop: 2 },
+  ticketSalesPercent: { ...fontSize.b2, lineHeight: fontSize.b2.lineHeight },
   eventFooter: {
     paddingTop: 12,
     borderTopWidth: 1,
@@ -743,21 +740,21 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     gap: 5,
   },
-  activeTicketText: { color: PRIMARY_COLOR, ...fontSize.b5, lineHeight: fontSize.b5.fontSize + 1, letterSpacing: 0.8 },
+  activeTicketText: { color: PRIMARY_COLOR, ...fontSize.b5, lineHeight: fontSize.b5.lineHeight, letterSpacing: 0.8 },
   actionRow: { flexDirection: 'row', alignItems: 'center', gap: 6 },
   eventActionButton: { width: 34, height: 34, borderRadius: 12, alignItems: 'center', justifyContent: 'center' },
   eventTop: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'flex-start' },
-  eventTitle: { ...fontSize.b1, lineHeight: fontSize.b1.fontSize + 2 },
-  eventVenue: { ...fontSize.b4, lineHeight: fontSize.b4.fontSize + 1, marginTop: 2 },
+  eventTitle: { ...fontSize.b1, lineHeight: fontSize.b1.lineHeight },
+  eventVenue: { ...fontSize.b4, lineHeight: fontSize.b4.lineHeight, marginTop: 2 },
   statusPill: { borderRadius: 999, borderWidth: 1, paddingHorizontal: 8, paddingVertical: 3 },
   statusLive: { borderColor: 'rgba(34,197,94,0.35)', backgroundColor: 'rgba(34,197,94,0.12)' },
   statusDraft: { borderColor: 'rgba(255,255,255,0.15)', backgroundColor: 'rgba(255,255,255,0.06)' },
-  statusText: { ...fontSize.b4, lineHeight: fontSize.b4.fontSize + 1, letterSpacing: 1 },
+  statusText: { ...fontSize.b4, lineHeight: fontSize.b4.lineHeight, letterSpacing: 1 },
   typePill: { alignSelf: 'flex-start', borderRadius: 8, paddingHorizontal: 8, paddingVertical: 4, backgroundColor: primaryColorAlpha(0.15) },
-  typeText: { color: PRIMARY_COLOR, ...fontSize.b4, lineHeight: fontSize.b4.fontSize + 1, letterSpacing: 1 },
+  typeText: { color: PRIMARY_COLOR, ...fontSize.b4, lineHeight: fontSize.b4.lineHeight, letterSpacing: 1 },
   occupancyRow: { flexDirection: 'row', justifyContent: 'space-between', marginBottom: 6 },
-  occupancyText: { ...fontSize.b4, lineHeight: fontSize.b4.fontSize + 1 },
-  occupancyValue: { color: PRIMARY_COLOR, ...fontSize.b4, lineHeight: fontSize.b4.fontSize + 1 },
+  occupancyText: { ...fontSize.b4, lineHeight: fontSize.b4.lineHeight },
+  occupancyValue: { color: PRIMARY_COLOR, ...fontSize.b4, lineHeight: fontSize.b4.lineHeight },
   progressTrack: { height: 7, borderRadius: 5, overflow: 'hidden' },
   progressFill: { height: '100%', backgroundColor: PRIMARY_COLOR },
   eventBottom: {
@@ -769,7 +766,7 @@ const styles = StyleSheet.create({
     alignItems: 'center',
   },
   revenueWrap: { flexDirection: 'row', alignItems: 'center', gap: 6 },
-  revenueText: { ...fontSize.b3, lineHeight: fontSize.b3.fontSize + 2 },
+  revenueText: { ...fontSize.b3, lineHeight: fontSize.b3.lineHeight },
   eventActions: { flexDirection: 'row', alignItems: 'center', gap: 6 },
   scanBtn: {
     height: 28,
@@ -782,7 +779,7 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     gap: 4,
   },
-  scanText: { color: PRIMARY_COLOR, ...fontSize.b5, lineHeight: fontSize.b5.fontSize + 1 },
+  scanText: { color: PRIMARY_COLOR, ...fontSize.b5, lineHeight: fontSize.b5.lineHeight },
   menuBtn: { width: 28, height: 28, borderRadius: 14, justifyContent: 'center', alignItems: 'center' },
   archiveCard: {
     borderRadius: 16,
@@ -793,8 +790,8 @@ const styles = StyleSheet.create({
     alignItems: 'center',
   },
   archiveLeft: { flexDirection: 'row', alignItems: 'center', gap: 8 },
-  archiveText: { ...fontSize.b4, lineHeight: fontSize.b4.fontSize + 1 },
-  archiveStatus: { ...fontSize.b4, lineHeight: fontSize.b4.fontSize + 1 },
+  archiveText: { ...fontSize.b4, lineHeight: fontSize.b4.lineHeight },
+  archiveStatus: { ...fontSize.b4, lineHeight: fontSize.b4.lineHeight },
   modalKeyboardAvoiding: { flex: 1 },
   modalRoot: { flex: 1, justifyContent: 'flex-end' },
   modalBackdrop: { ...StyleSheet.absoluteFillObject },
@@ -808,12 +805,12 @@ const styles = StyleSheet.create({
   },
   grabber: { alignSelf: 'center', width: 40, height: 5, borderRadius: 3, marginBottom: 10 },
   modalHeader: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', marginBottom: 8 },
-  modalTitle: { ...fontSize.b1, lineHeight: fontSize.b1.fontSize + 2 },
-  inputLabel: { ...fontSize.b5, lineHeight: fontSize.b5.fontSize + 1, letterSpacing: 1.4 },
+  modalTitle: { ...fontSize.b1, lineHeight: fontSize.b1.lineHeight },
+  inputLabel: { ...fontSize.b5, lineHeight: fontSize.b5.lineHeight, letterSpacing: 1.4 },
   coverBox: { height: 160, borderRadius: 22, borderWidth: 1, overflow: 'hidden' },
   coverImg: { width: '100%', height: '100%' },
   coverPlaceholder: { flex: 1, justifyContent: 'center', alignItems: 'center', gap: 6 },
-  coverText: { ...fontSize.b5, lineHeight: fontSize.b5.fontSize + 1 },
+  coverText: { ...fontSize.b5, lineHeight: fontSize.b5.lineHeight },
   typeRow: { flexDirection: 'row', gap: 6 },
   typeBtn: {
     flex: 1,
@@ -824,18 +821,18 @@ const styles = StyleSheet.create({
     alignItems: 'center',
   },
   typeBtnActive: { backgroundColor: PRIMARY_COLOR, borderColor: PRIMARY_COLOR },
-  typeBtnText: { ...fontSize.b4, lineHeight: fontSize.b4.fontSize + 1 },
+  typeBtnText: { ...fontSize.b4, lineHeight: fontSize.b4.lineHeight },
   typeBtnTextActive: { color: '#fff' },
   input: {
     height: 48,
     borderRadius: 14,
     borderWidth: 1,
     paddingHorizontal: 12,
-    ...fontSize.b5, lineHeight: fontSize.b5.fontSize + 1,
+    ...fontSize.b5, lineHeight: fontSize.b5.lineHeight,
   },
   locationHeader: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between' },
   verifiedTag: { flexDirection: 'row', alignItems: 'center', gap: 4 },
-  verifiedText: { color: '#22c55e', ...fontSize.b5, lineHeight: fontSize.b5.fontSize + 1 },
+  verifiedText: { color: '#22c55e', ...fontSize.b5, lineHeight: fontSize.b5.lineHeight },
   locationRow: { flexDirection: 'row', gap: 6, alignItems: 'center' },
   mapBtn: {
     width: 48,
@@ -857,7 +854,7 @@ const styles = StyleSheet.create({
     gap: 6,
     alignSelf: 'flex-start',
   },
-  mapsLinkText: { color: PRIMARY_COLOR, ...fontSize.b5, lineHeight: fontSize.b5.fontSize + 1 },
+  mapsLinkText: { color: PRIMARY_COLOR, ...fontSize.b5, lineHeight: fontSize.b5.lineHeight },
   aiCard: {
     borderRadius: 24,
     borderWidth: 1,
@@ -866,8 +863,8 @@ const styles = StyleSheet.create({
   },
   aiHeader: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center' },
   aiTitleRow: { flexDirection: 'row', alignItems: 'center', gap: 8 },
-  aiTitle: { color: PRIMARY_COLOR, ...fontSize.b5, lineHeight: fontSize.b5.fontSize + 1, letterSpacing: 1.2 },
-  aiBody: { ...fontSize.b4, lineHeight: fontSize.b4.fontSize + 6 },
+  aiTitle: { color: PRIMARY_COLOR, ...fontSize.b5, lineHeight: fontSize.b5.lineHeight, letterSpacing: 1.2 },
+  aiBody: { ...fontSize.b4, lineHeight: fontSize.b4.lineHeight },
   aiButton: {
     height: 44,
     borderRadius: 14,
@@ -877,10 +874,10 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     alignItems: 'center',
   },
-  aiButtonText: { color: PRIMARY_COLOR, ...fontSize.b5, lineHeight: fontSize.b5.fontSize + 1, letterSpacing: 1 },
+  aiButtonText: { color: PRIMARY_COLOR, ...fontSize.b5, lineHeight: fontSize.b5.lineHeight, letterSpacing: 1 },
   descInput: { minHeight: 100, textAlignVertical: 'top', paddingTop: 12 },
   tierHeader: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center' },
-  addTierText: { color: PRIMARY_COLOR, ...fontSize.b5, lineHeight: fontSize.b5.fontSize + 1 },
+  addTierText: { color: PRIMARY_COLOR, ...fontSize.b5, lineHeight: fontSize.b5.lineHeight },
   tierCard: {
     borderRadius: 18,
     borderWidth: 1,
@@ -896,7 +893,7 @@ const styles = StyleSheet.create({
     paddingHorizontal: 10,
     justifyContent: 'center',
     paddingTop: 8,
-    ...fontSize.b4, lineHeight: fontSize.b4.fontSize + 1,
+    ...fontSize.b4, lineHeight: fontSize.b4.lineHeight,
   },
   tierRow: { flexDirection: 'row', gap: 6 },
   modalFooter: {
@@ -919,9 +916,9 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     alignItems: 'center',
   },
-  draftText: { ...fontSize.b4, lineHeight: fontSize.b4.fontSize + 1, letterSpacing: 1 },
+  draftText: { ...fontSize.b4, lineHeight: fontSize.b4.lineHeight, letterSpacing: 1 },
   launchBtn: { flex: 2, height: 50, borderRadius: 14, backgroundColor: PRIMARY_COLOR, justifyContent: 'center', alignItems: 'center' },
-  launchText: { color: '#fff', ...fontSize.b4, lineHeight: fontSize.b4.fontSize + 1, letterSpacing: 1.1 },
+  launchText: { color: '#fff', ...fontSize.b4, lineHeight: fontSize.b4.lineHeight, letterSpacing: 1.1 },
 });
 
 export default CreatorEvents;

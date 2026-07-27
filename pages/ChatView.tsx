@@ -297,9 +297,9 @@ const ChatView: React.FC = () => {
 
       <View style={[styles.header, { backgroundColor: headerBg, borderBottomColor: border }]}>
         <View style={styles.headerRow}>
-          <Pressable onPress={() => navigation.goBack()} style={[styles.iconBtn, { backgroundColor: iconBtnBg, borderColor: iconBtnBorder }]}>
+          {/* <Pressable onPress={() => navigation.goBack()} style={[styles.iconBtn, { backgroundColor: iconBtnBg, borderColor: iconBtnBorder }]}>
             <MaterialIcons name="chevron-left" size={20} color={primaryText} />
-          </Pressable>
+          </Pressable> */}
 
           <View style={styles.profileWrap}>
             <Image source={{ uri: `https://picsum.photos/seed/${id}/100` }} style={styles.profileAvatar} />
@@ -537,8 +537,8 @@ const styles = StyleSheet.create({
   },
   callTop: { alignItems: 'center', gap: 10 },
   callAvatar: { width: 132, height: 132, borderRadius: 36, borderWidth: 3, borderColor: primaryColorAlpha(0.35) },
-  callName: { ...fontSize.b1, lineHeight: fontSize.b1.fontSize + 2 },
-  callStatus: { color: PRIMARY_COLOR, ...fontSize.b5, lineHeight: fontSize.b5.fontSize + 1, letterSpacing: 2 },
+  callName: { ...fontSize.b1, lineHeight: fontSize.b1.lineHeight },
+  callStatus: { color: PRIMARY_COLOR, ...fontSize.b5, lineHeight: fontSize.b5.lineHeight, letterSpacing: 2 },
   callActions: { flexDirection: 'row', alignItems: 'center', gap: 24 },
   callBtn: {
     width: 58,
@@ -570,8 +570,8 @@ const styles = StyleSheet.create({
   profileWrap: { position: 'relative' },
   profileAvatar: { width: 42, height: 42, borderRadius: 21, borderWidth: 2, borderColor: primaryColorAlpha(0.5) },
   onlineDot: { position: 'absolute', right: -1, bottom: -1, width: 10, height: 10, borderRadius: 5, backgroundColor: '#22c55e' },
-  userName: { ...fontSize.b5, lineHeight: fontSize.b5.fontSize + 1 },
-  userSub: { ...fontSize.b5, lineHeight: fontSize.b5.fontSize + 1 },
+  userName: { ...fontSize.h1, lineHeight: fontSize.b5.lineHeight },
+  userSub: { ...fontSize.tabText, lineHeight: fontSize.tabText.lineHeight },
   metaCard: {
     marginTop: 10,
     borderRadius: 16,
@@ -583,8 +583,8 @@ const styles = StyleSheet.create({
     justifyContent: 'space-between',
     gap: 8,
   },
-  metaLabel: { ...fontSize.b5, lineHeight: fontSize.b5.fontSize + 1, letterSpacing: 1 },
-  metaValue: { ...fontSize.b5, lineHeight: fontSize.b5.fontSize + 1 },
+  metaLabel: { ...fontSize.b5, lineHeight: fontSize.b5.lineHeight, letterSpacing: 1 },
+  metaValue: { ...fontSize.b5, lineHeight: fontSize.b5.lineHeight },
   metaDivider: { width: 1, height: 20 },
   messages: { flex: 1, paddingHorizontal: 14, paddingTop: 10 },
   msgRow: { marginBottom: 14 },
@@ -592,7 +592,7 @@ const styles = StyleSheet.create({
   msgMine: { backgroundColor: PRIMARY_COLOR },
   msgOther: { backgroundColor: 'rgba(255, 255, 255, 0.08)', borderWidth: 1, borderColor: 'rgba(255,255,255,0.06)' },
   msgText: { ...fontSize.b3, lineHeight: 19 },
-  msgMeta: { marginTop: 5, ...fontSize.b5, lineHeight: fontSize.b5.fontSize + 1 },
+  msgMeta: { marginTop: 5, ...fontSize.b5, lineHeight: fontSize.b5.lineHeight },
   dropBubble: {
     maxWidth: '86%',
     borderRadius: 24,
@@ -604,8 +604,8 @@ const styles = StyleSheet.create({
   },
   dropThumb: { borderRadius: 14, backgroundColor: '#000', height: 120, justifyContent: 'center', alignItems: 'center' },
   playButton: { width: 66, height: 66, borderRadius: 33, backgroundColor: primaryColorAlpha(0.24), borderWidth: 1, borderColor: primaryColorAlpha(0.5), alignItems: 'center', justifyContent: 'center' },
-  dropTitle: { color: PRIMARY_COLOR, ...fontSize.b5, lineHeight: fontSize.b5.fontSize + 1 },
-  dropName: { ...fontSize.b5, lineHeight: fontSize.b5.fontSize + 1 },
+  dropTitle: { color: PRIMARY_COLOR, ...fontSize.b5, lineHeight: fontSize.b5.lineHeight },
+  dropName: { ...fontSize.b5, lineHeight: fontSize.b5.lineHeight },
   tipBubble: {
     maxWidth: '86%',
     borderRadius: 24,
@@ -617,8 +617,8 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
   },
-  tipLabel: { color: '#22c55e', ...fontSize.b5, lineHeight: fontSize.b5.fontSize + 1 },
-  tipAmount: { ...fontSize.b4, lineHeight: fontSize.b4.fontSize + 1 },
+  tipLabel: { color: '#22c55e', ...fontSize.b5, lineHeight: fontSize.b5.lineHeight },
+  tipAmount: { ...fontSize.b4, lineHeight: fontSize.b4.lineHeight },
   giftBubble: {
     maxWidth: '86%',
     borderRadius: 24,
@@ -644,21 +644,21 @@ const styles = StyleSheet.create({
     height: '100%',
   },
   giftBubbleEmoji: {
-    ...fontSize.b1, lineHeight: fontSize.b1.fontSize + 2,
+    ...fontSize.b1, lineHeight: fontSize.b1.lineHeight,
   },
   giftBubbleLabel: {
     color: PRIMARY_COLOR,
-    ...fontSize.b5, lineHeight: fontSize.b5.fontSize + 1,
+    ...fontSize.b5, lineHeight: fontSize.b5.lineHeight,
     textTransform: 'uppercase',
     letterSpacing: 1.2,
   },
   giftBubbleName: {
     marginTop: 2,
-    ...fontSize.b4, lineHeight: fontSize.b4.fontSize + 1,
+    ...fontSize.b4, lineHeight: fontSize.b4.lineHeight,
   },
   giftBubblePrice: {
     marginTop: 2,
-    ...fontSize.b5, lineHeight: fontSize.b5.fontSize + 1,
+    ...fontSize.b5, lineHeight: fontSize.b5.lineHeight,
     textTransform: 'uppercase',
   },
   stickerBubble: {
@@ -682,8 +682,8 @@ const styles = StyleSheet.create({
     gap: 4,
   },
   toolItem: { flexDirection: 'row', alignItems: 'center', gap: 10, padding: 10, borderRadius: 14 },
-  toolTitle: { ...fontSize.b5, lineHeight: fontSize.b5.fontSize + 1 },
-  toolSub: { ...fontSize.b5, lineHeight: fontSize.b5.fontSize + 1 },
+  toolTitle: { ...fontSize.b5, lineHeight: fontSize.b5.lineHeight },
+  toolSub: { ...fontSize.b5, lineHeight: fontSize.b5.lineHeight },
   footer: {
     paddingTop: 6,
     paddingHorizontal: 12,
@@ -692,7 +692,7 @@ const styles = StyleSheet.create({
   },
   repliesRow: { gap: 8, paddingVertical: 6 },
   replyChip: { borderRadius: 999, borderWidth: 1, paddingHorizontal: 12, paddingVertical: 8 },
-  replyText: { color: PRIMARY_COLOR, ...fontSize.b5, lineHeight: fontSize.b5.fontSize + 1 },
+  replyText: { color: PRIMARY_COLOR, ...fontSize.b5, lineHeight: fontSize.b5.lineHeight },
   emojiPanel: {
     borderRadius: 16,
     borderWidth: 1,
@@ -709,7 +709,7 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     alignItems: 'center',
   },
-  emojiText: { ...fontSize.b1, lineHeight: fontSize.b1.fontSize + 2 },
+  emojiText: { ...fontSize.b1, lineHeight: fontSize.b1.lineHeight },
   stickerBtn: { width: 44, height: 44, borderRadius: 12, overflow: 'hidden', borderWidth: 1 },
   stickerBtnImg: { width: '100%', height: '100%' },
   inputRow: { flexDirection: 'row', alignItems: 'center', gap: 8 },
@@ -733,7 +733,7 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     gap: 8,
   },
-  input: { flex: 1, ...fontSize.b5, lineHeight: fontSize.b5.fontSize + 1 },
+  input: { flex: 1, ...fontSize.b5, lineHeight: fontSize.b5.lineHeight },
   inputActions: { flexDirection: 'row' },
   inputIcon: { width: 32, height: 32, borderRadius: 16, alignItems: 'center', justifyContent: 'center' },
   inputSendButton: { width: 36, height: 36, borderRadius: 12, backgroundColor: PRIMARY_COLOR, justifyContent: 'center', alignItems: 'center' },

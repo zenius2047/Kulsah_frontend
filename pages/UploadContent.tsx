@@ -302,7 +302,7 @@ const UploadContent: React.FC = () => {
                   <Text style={{
                     color: 'white',
                     fontWeight: 'bold',
-                    ...fontSize.b4, lineHeight: fontSize.b4.fontSize + 1,
+                    ...fontSize.b4, lineHeight: fontSize.b4.lineHeight,
 
                   }}>  LIVE PREVIEW</Text>
                 </View>
@@ -336,7 +336,7 @@ const UploadContent: React.FC = () => {
                 <Text style={{
                   color: '#rgba(255 255 255 / 0.7)',
                   fontWeight: '700',
-                  ...fontSize.b5, lineHeight: fontSize.b5.fontSize + 1,
+                  ...fontSize.b5, lineHeight: fontSize.b5.lineHeight,
                   marginTop: 10
                 }}>
                   Connect with your fans instantly
@@ -373,7 +373,7 @@ const UploadContent: React.FC = () => {
               <Text
               style={{
                 color: '#64748b',
-                ...fontSize.b5, lineHeight: fontSize.b5.fontSize + 1,
+                ...fontSize.b5, lineHeight: fontSize.b5.lineHeight,
                 fontWeight: '900',
                 marginTop: 6,
               }}
@@ -403,7 +403,7 @@ const UploadContent: React.FC = () => {
               <Text
               style={{
                 color: '#64748b',
-                ...fontSize.b5, lineHeight: fontSize.b5.fontSize + 1,
+                ...fontSize.b5, lineHeight: fontSize.b5.lineHeight,
                 fontWeight: '900',
                 marginTop: 6,
               }}
@@ -433,7 +433,7 @@ const UploadContent: React.FC = () => {
               <Text
               style={{
                 color: '#64748b',
-                ...fontSize.b5, lineHeight: fontSize.b5.fontSize + 1,
+                ...fontSize.b5, lineHeight: fontSize.b5.lineHeight,
                 fontWeight: '900',
                 marginTop: 6,
               }}
@@ -452,7 +452,7 @@ const UploadContent: React.FC = () => {
           <Text style={{
             color: '#FFFFFF66',
             fontWeight: '900',
-            ...fontSize.b5, lineHeight: fontSize.b5.fontSize + 1,
+            ...fontSize.b5, lineHeight: fontSize.b5.lineHeight,
             letterSpacing: 3
           }}>
             RECENT MEDIA
@@ -462,7 +462,7 @@ const UploadContent: React.FC = () => {
           <Text style={{
             color: PRIMARY_COLOR,
             fontWeight: '900',
-            ...fontSize.b5, lineHeight: fontSize.b5.fontSize + 1,
+            ...fontSize.b5, lineHeight: fontSize.b5.lineHeight,
             letterSpacing: 3
           }}>
             VIEW ALL
@@ -582,14 +582,14 @@ const UploadContent: React.FC = () => {
                 <Text
                 style={{
                   color: '#FFFFFF99',
-                  ...fontSize.b5, lineHeight: fontSize.b5.fontSize + 1,
+                  ...fontSize.b5, lineHeight: fontSize.b5.lineHeight,
                   fontWeight: '900'
                 }}
                 >0:12</Text>
                 <Text
                 style={{
                   color: '#FFFFFF99',
-                  ...fontSize.b5, lineHeight: fontSize.b5.fontSize + 1,
+                  ...fontSize.b5, lineHeight: fontSize.b5.lineHeight,
                   fontWeight: '900'
                 }}
                 >0:45</Text>
@@ -776,12 +776,12 @@ const s = StyleSheet.create({
     backgroundColor: '#00000066'
   },
   chipActive: { backgroundColor: PRIMARY_COLOR, borderColor: PRIMARY_COLOR },
-  chipText: { color: '#ffffffb3', ...fontSize.b5, lineHeight: fontSize.b5.fontSize + 1, fontWeight: '900' },
+  chipText: { color: '#ffffffb3', ...fontSize.b5, lineHeight: fontSize.b5.lineHeight, fontWeight: '900' },
   chipTextActive: { color: PRIMARY_COLOR },
   panel: { backgroundColor: '#15151A', borderRadius: 12, padding: 12, gap: 10 },
   panelTitle: { color: PRIMARY_COLOR, fontWeight: '800' },
-  text: { color: '#eee', ...fontSize.b4, lineHeight: fontSize.b4.fontSize + 1 },
-  muted: { color: '#8A8A8F', ...fontSize.b5, lineHeight: fontSize.b5.fontSize + 1 },
+  text: { color: '#eee', ...fontSize.b4, lineHeight: fontSize.b4.lineHeight },
+  muted: { color: '#8A8A8F', ...fontSize.b5, lineHeight: fontSize.b5.lineHeight },
   input: { backgroundColor: '#15151A', borderRadius: 12, color: '#fff', padding: 12, borderWidth: 1, borderColor: '#333' },
   primary: { flex: 1, height: 64, backgroundColor: PRIMARY_COLOR, borderRadius: 32, alignItems: 'center', justifyContent: 'center', flexDirection: 'row' },
   primaryText: { color: '#fff', fontWeight: '800' },
@@ -790,9 +790,9 @@ const s = StyleSheet.create({
   secondaryText: { color: '#ddd', fontWeight: '700' },
   typeChip: { borderWidth: 1, borderColor: '#333', borderRadius: 999, paddingHorizontal: 12, paddingVertical: 8 },
   typeChipActive: { backgroundColor: PRIMARY_COLOR, borderColor: PRIMARY_COLOR },
-  typeChipText: { color: '#ddd', ...fontSize.b5, lineHeight: fontSize.b5.fontSize + 1, textTransform: 'capitalize' },
+  typeChipText: { color: '#ddd', ...fontSize.b5, lineHeight: fontSize.b5.lineHeight, textTransform: 'capitalize' },
   typeChipTextActive: { color: '#fff' },
-  errorText: { color: '#f87171', ...fontSize.b4, lineHeight: fontSize.b4.fontSize + 4 },
+  errorText: { color: '#f87171', ...fontSize.b4, lineHeight: fontSize.b4.lineHeight },
   progressPanel: { width: '100%', borderRadius: 16, borderWidth: 1, borderColor: '#333', backgroundColor: '#15151A', padding: 14, gap: 10 },
   progressTrack: { height: 9, borderRadius: 999, backgroundColor: '#2A2A30', overflow: 'hidden' },
   progressFill: { height: '100%', borderRadius: 999, backgroundColor: PRIMARY_COLOR },
@@ -802,7 +802,7 @@ const s = StyleSheet.create({
   sound: { width: 80, height: 80, borderRadius: 12, marginBottom: 4 },
   modal: { flex: 1, backgroundColor: 'rgba(0,0,0,0.9)', alignItems: 'center', justifyContent: 'center', gap: 12, padding: 24 },
   center: { flex: 1, alignItems: 'center', justifyContent: 'center', gap: 12, padding: 24 },
-  title: { color: '#fff', fontWeight: '900', ...fontSize.b1, lineHeight: fontSize.b1.fontSize + 2, textAlign: 'center' },
+  title: { color: '#fff', fontWeight: '900', ...fontSize.b1, lineHeight: fontSize.b1.lineHeight, textAlign: 'center' },
 });
 
 export default UploadContent;

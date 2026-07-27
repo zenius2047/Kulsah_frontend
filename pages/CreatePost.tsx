@@ -138,7 +138,7 @@ const styles = StyleSheet.create({
     flex: 1,
     paddingHorizontal: 16,
     color: '#F8FAFC',
-    ...fontSize.b4, lineHeight: fontSize.b4.fontSize + 1,
+    ...fontSize.b4, lineHeight: fontSize.b4.lineHeight,
   },
   postChip: {
     paddingHorizontal: 16,
@@ -148,7 +148,7 @@ const styles = StyleSheet.create({
   },
   postChipText: {
     color: PRIMARY_COLOR,
-    ...fontSize.b4, lineHeight: fontSize.b4.fontSize + 1,
+    ...fontSize.b4, lineHeight: fontSize.b4.lineHeight,
   },
   scroll: {
     flex: 1,
@@ -173,11 +173,11 @@ const styles = StyleSheet.create({
   },
   name: {
     color: '#F8FAFC',
-    ...fontSize.b4, lineHeight: fontSize.b4.fontSize + 1,
+    ...fontSize.b4, lineHeight: fontSize.b4.lineHeight,
   },
   subtitle: {
     color: primaryColorAlpha(0.75),
-    ...fontSize.b5, lineHeight: fontSize.b5.fontSize + 1,
+    ...fontSize.b5, lineHeight: fontSize.b5.lineHeight,
     marginTop: 4,
   },
   input: {
@@ -212,7 +212,7 @@ const styles = StyleSheet.create({
   },
   uploadTitle: {
     color: '#F8FAFC',
-    ...fontSize.b1, lineHeight: fontSize.b1.fontSize + 2,
+    ...fontSize.b1, lineHeight: fontSize.b1.lineHeight,
     marginBottom: 8,
   },
   uploadText: {
@@ -237,7 +237,7 @@ const styles = StyleSheet.create({
   },
   browseButtonText: {
     color: '#fff',
-    ...fontSize.b4, lineHeight: fontSize.b4.fontSize + 1,
+    ...fontSize.b4, lineHeight: fontSize.b4.lineHeight,
     textAlign: 'center',
   },
   bottomActions: {
@@ -272,7 +272,7 @@ const styles = StyleSheet.create({
   },
   publishButtonText: {
     color: '#fff',
-    ...fontSize.b1, lineHeight: fontSize.b1.fontSize + 2,
+    ...fontSize.b1, lineHeight: fontSize.b1.lineHeight,
   },
 });
 

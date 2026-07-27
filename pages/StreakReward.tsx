@@ -54,12 +54,6 @@ const StreakReward: React.FC = () => {
     <SafeAreaView style={[styles.safeArea, { backgroundColor: shell }]} edges={['top', 'left', 'right']}>
       <View style={[styles.screen, { backgroundColor: shell }]}>
         <View style={[styles.header, { backgroundColor: headerBg, borderBottomColor: border }]}>
-          <Pressable
-            onPress={() => navigation.goBack()}
-            style={[styles.backBtn, { backgroundColor: softBg, borderColor: border }]}
-          >
-            <MaterialIcons name="chevron-left" size={22} color={textPrimary} />
-          </Pressable>
           <Text style={[styles.headerTitle, { color: textPrimary }]}>STREAK REWARDS</Text>
         </View>
 
@@ -189,9 +183,10 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
   },
   headerTitle: {
-    ...fontSize.b4, lineHeight: fontSize.b4.fontSize + 1,
-    textTransform: 'uppercase',
-    letterSpacing: 0.4,
+     ...fontSize.h1,
+     lineHeight: fontSize.h1.lineHeight, 
+     textTransform: 'uppercase', 
+     letterSpacing: 2
   },
   content: { padding: 20, paddingBottom: 40 },
   section: { marginBottom: 26 },
@@ -223,25 +218,25 @@ const styles = StyleSheet.create({
     marginBottom: 14,
   },
   streakCount: {
-    ...fontSize.b1, lineHeight: fontSize.b1.fontSize + 2,
+    ...fontSize.b1, lineHeight: fontSize.b1.lineHeight,
   },
   streakLabel: {
     marginTop: 2,
     color: '#f97316',
-    ...fontSize.b5, lineHeight: fontSize.b5.fontSize + 1,
+    ...fontSize.b5, lineHeight: fontSize.b5.lineHeight,
     letterSpacing: 3.5,
   },
   streakDesc: {
     marginTop: 12,
     textAlign: 'center',
     ...fontSize.b5,
-    lineHeight: fontSize.b3.fontSize + 2,
+    lineHeight: fontSize.b3.lineHeight,
     maxWidth: 220,
   },
   sectionTitle: {
     marginBottom: 12,
     marginLeft: 2,
-    ...fontSize.b5, lineHeight: fontSize.b5.fontSize + 1,
+    ...fontSize.b5, lineHeight: fontSize.b5.lineHeight,
     letterSpacing: 2.5,
   },
   list: { gap: 10 },
@@ -260,12 +255,12 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
   },
   rewardName: {
-    ...fontSize.b4, lineHeight: fontSize.b4.fontSize + 1,
+    ...fontSize.b4, lineHeight: fontSize.b4.lineHeight,
     textTransform: 'uppercase',
   },
   rewardDays: {
     marginTop: 2,
-    ...fontSize.b5, lineHeight: fontSize.b5.fontSize + 1,
+    ...fontSize.b5, lineHeight: fontSize.b5.lineHeight,
     letterSpacing: 1.2,
   },
   unlockedPill: {
@@ -280,10 +275,10 @@ const styles = StyleSheet.create({
   },
   daysLeftWrap: { alignItems: 'flex-end' },
   daysLeftValue: {
-    ...fontSize.b4, lineHeight: fontSize.b4.fontSize + 1,
+    ...fontSize.b4, lineHeight: fontSize.b4.lineHeight,
   },
   daysLeftLabel: {
-    ...fontSize.b5, lineHeight: fontSize.b5.fontSize + 1,
+    ...fontSize.b5, lineHeight: fontSize.b5.lineHeight,
     letterSpacing: 1.2,
   },
   progressTrack: {
@@ -307,14 +302,14 @@ const styles = StyleSheet.create({
     gap: 8,
   },
   infoTitle: {
-    ...fontSize.b5, lineHeight: fontSize.b5.fontSize + 1,
+    ...fontSize.b5, lineHeight: fontSize.b5.lineHeight,
     letterSpacing: 1.6,
     textTransform: 'uppercase',
   },
   infoBody: {
     textAlign: 'center',
     ...fontSize.b5,
-    lineHeight: fontSize.b3.fontSize + 2,
+    lineHeight: fontSize.b3.lineHeight,
   },
 });
 

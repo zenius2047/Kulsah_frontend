@@ -146,9 +146,6 @@ const MembershipTiers: React.FC = () => {
     <SafeAreaView style={[s.screen, { backgroundColor: theme.screen }]} edges={[]}>
       <View style={[s.header, { backgroundColor: isDark ? 'rgba(31, 16, 34, 0.78)' : theme.card, borderBottomColor: theme.border }]}>
         <View style={s.headerLeft}>
-          <Pressable onPress={() => navigation.goBack()} style={[s.iconButton, { backgroundColor: isDark ? '#ffffff14' : theme.surface }]}>
-            <MaterialIcons name="chevron-left" size={20} color={theme.text} />
-          </Pressable>
           <Text style={[s.headerTitle, { color: theme.text }]}>Galaxy Economy</Text>
         </View>
       </View>
@@ -362,8 +359,7 @@ const s = StyleSheet.create({
     justifyContent: 'center',
   },
   headerTitle: {
-    ...fontSize.b3, lineHeight: fontSize.b3.fontSize + 2,
-    textTransform: 'uppercase',
+     ...fontSize.h1, lineHeight: fontSize.h1.lineHeight, textTransform: 'uppercase', letterSpacing: 2
   },
   aiButton: {
     width: 42,
@@ -396,13 +392,13 @@ const s = StyleSheet.create({
   heroMetrics: { flexDirection: 'row', justifyContent: 'space-between', gap: 12 },
   metricRight: { alignItems: 'flex-end' },
   metricLabel: {
-    ...fontSize.b4, lineHeight: fontSize.b4.fontSize + 1,
+    ...fontSize.b4, lineHeight: fontSize.b4.lineHeight,
     letterSpacing: 2,
     textTransform: 'uppercase',
   },
   metricValue: {
     marginTop: 4,
-    ...fontSize.b1, lineHeight: fontSize.b1.fontSize + 2,
+    ...fontSize.b1, lineHeight: fontSize.b1.lineHeight,
   },
   progressTrack: {
     marginTop: 18,
@@ -419,7 +415,7 @@ const s = StyleSheet.create({
   metaRow: { marginTop: 14, flexDirection: 'row', justifyContent: 'space-between', gap: 12 },
   microText: {
     flex: 1,
-    ...fontSize.b5, lineHeight: fontSize.b5.fontSize + 1,
+    ...fontSize.b5, lineHeight: fontSize.b5.lineHeight,
     textTransform: 'uppercase',
     letterSpacing: 1,
   },
@@ -427,7 +423,7 @@ const s = StyleSheet.create({
   sectionHeader: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', gap: 12 },
   sectionTitle: {
     paddingHorizontal: 4,
-    ...fontSize.b4, lineHeight: fontSize.b4.fontSize + 1,
+    ...fontSize.b4, lineHeight: fontSize.b4.lineHeight,
     textTransform: 'uppercase',
     letterSpacing: 3,
   },
@@ -442,7 +438,7 @@ const s = StyleSheet.create({
   },
   addSubscriptionText: {
     color: '#fff',
-    ...fontSize.b5, lineHeight: fontSize.b5.fontSize + 1,
+    ...fontSize.b5, lineHeight: fontSize.b5.lineHeight,
     textTransform: 'uppercase',
     letterSpacing: 1.2,
   },
@@ -454,11 +450,11 @@ const s = StyleSheet.create({
   },
   rowBetween: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', gap: 12 },
   tierName: {
-    ...fontSize.b1, lineHeight: fontSize.b1.fontSize + 2,
+    ...fontSize.b1, lineHeight: fontSize.b1.lineHeight,
   },
   tierCaption: {
     marginTop: 4,
-    ...fontSize.b5, lineHeight: fontSize.b5.fontSize + 1,
+    ...fontSize.b5, lineHeight: fontSize.b5.lineHeight,
     textTransform: 'uppercase',
     letterSpacing: 2,
   },
@@ -474,15 +470,15 @@ const s = StyleSheet.create({
     gap: 4,
   },
   priceDollar: {
-    ...fontSize.b3, lineHeight: fontSize.b3.fontSize + 2,
+    ...fontSize.b3, lineHeight: fontSize.b3.lineHeight,
   },
   priceInput: {
     minWidth: 54,
-    ...fontSize.b4, lineHeight: fontSize.b4.fontSize + 1,
+    ...fontSize.b4, lineHeight: fontSize.b4.lineHeight,
     padding: 0,
   },
   priceValue: {
-    ...fontSize.b4, lineHeight: fontSize.b4.fontSize + 1,
+    ...fontSize.b4, lineHeight: fontSize.b4.lineHeight,
   },
   stateCard: {
     borderRadius: 30,
@@ -492,11 +488,11 @@ const s = StyleSheet.create({
     gap: 12,
   },
   stateTitle: {
-    ...fontSize.b2, lineHeight: fontSize.b2.fontSize + 3,
+    ...fontSize.b2, lineHeight: fontSize.b2.lineHeight,
     textAlign: 'center',
   },
   stateText: {
-    ...fontSize.b4, lineHeight: fontSize.b4.fontSize + 5,
+    ...fontSize.b4, lineHeight: fontSize.b4.lineHeight,
     textAlign: 'center',
   },
   secondaryActionButton: {
@@ -510,19 +506,19 @@ const s = StyleSheet.create({
   },
   secondaryActionText: {
     color: '#fff',
-    ...fontSize.b5, lineHeight: fontSize.b5.fontSize + 1,
+    ...fontSize.b5, lineHeight: fontSize.b5.lineHeight,
     textTransform: 'uppercase',
     letterSpacing: 1.3,
   },
   descriptionSection: { gap: 10 },
   descriptionHeader: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', gap: 10 },
   descriptionLabel: {
-    ...fontSize.b5, lineHeight: fontSize.b5.fontSize + 1,
+    ...fontSize.b5, lineHeight: fontSize.b5.lineHeight,
     textTransform: 'uppercase',
     letterSpacing: 2,
   },
   descriptionText: {
-    ...fontSize.b4, lineHeight: fontSize.b4.fontSize + 5,
+    ...fontSize.b4, lineHeight: fontSize.b4.lineHeight,
   },
   editChip: {
     width: 34,
@@ -543,10 +539,10 @@ const s = StyleSheet.create({
   },
   statsRow: { flexDirection: 'row', alignItems: 'center', gap: 16, flex: 1 },
   statValue: {
-    ...fontSize.b1, lineHeight: fontSize.b1.fontSize + 2,
+    ...fontSize.b1, lineHeight: fontSize.b1.lineHeight,
   },
   statLabel: {
-    ...fontSize.b4, lineHeight: fontSize.b4.fontSize + 1,
+    ...fontSize.b4, lineHeight: fontSize.b4.lineHeight,
     textTransform: 'uppercase',
   },
   divider: { width: 1, height: 34 },
@@ -580,7 +576,7 @@ const s = StyleSheet.create({
   publishButtonDisabled: { opacity: 0.8 },
   publishText: {
     color: '#fff',
-    ...fontSize.b3, lineHeight: fontSize.b3.fontSize + 2,
+    ...fontSize.b3, lineHeight: fontSize.b3.lineHeight,
     textTransform: 'uppercase',
     letterSpacing: 2,
   },
@@ -612,7 +608,7 @@ const s = StyleSheet.create({
   },
   modalHeader: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', marginBottom: 18 },
   modalTitle: {
-    ...fontSize.b1, lineHeight: fontSize.b1.fontSize + 2,
+    ...fontSize.b1, lineHeight: fontSize.b1.lineHeight,
   },
   modalClose: {
     width: 38,
@@ -625,7 +621,7 @@ const s = StyleSheet.create({
   modalContent: { paddingBottom: 8, gap: 18 },
   fieldBlock: { gap: 10 },
   fieldLabel: {
-    ...fontSize.b4, lineHeight: fontSize.b4.fontSize + 1,
+    ...fontSize.b4, lineHeight: fontSize.b4.lineHeight,
     textTransform: 'uppercase',
     letterSpacing: 2,
     marginLeft: 4,
@@ -635,7 +631,7 @@ const s = StyleSheet.create({
     borderRadius: 18,
     borderWidth: 1,
     paddingHorizontal: 16,
-    ...fontSize.b4, lineHeight: fontSize.b4.fontSize + 1,
+    ...fontSize.b4, lineHeight: fontSize.b4.lineHeight,
   },
   textArea: {
     minHeight: 118,
@@ -643,7 +639,7 @@ const s = StyleSheet.create({
     borderWidth: 1,
     paddingHorizontal: 16,
     paddingVertical: 14,
-    ...fontSize.b4, lineHeight: fontSize.b4.fontSize + 5,
+    ...fontSize.b4, lineHeight: fontSize.b4.lineHeight,
   },
   priceEditorWrap: {
     height: 60,
@@ -655,11 +651,11 @@ const s = StyleSheet.create({
     gap: 6,
   },
   editorDollar: {
-    ...fontSize.b1, lineHeight: fontSize.b1.fontSize + 2,
+    ...fontSize.b1, lineHeight: fontSize.b1.lineHeight,
   },
   priceEditorInput: {
     flex: 1,
-    ...fontSize.b1, lineHeight: fontSize.b1.fontSize + 2,
+    ...fontSize.b1, lineHeight: fontSize.b1.lineHeight,
     padding: 0,
   },
   syncButton: {
@@ -674,7 +670,7 @@ const s = StyleSheet.create({
   },
   syncButtonText: {
     color: '#fff',
-    ...fontSize.b4, lineHeight: fontSize.b4.fontSize + 1,
+    ...fontSize.b4, lineHeight: fontSize.b4.lineHeight,
     textTransform: 'uppercase',
     letterSpacing: 1.4,
   },

@@ -1,6 +1,6 @@
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { MaterialIcons } from '@expo/vector-icons';
-import { useNavigation } from '@react-navigation/native';
+import { useNavigation, useRoute } from '@react-navigation/native';
 import * as ImagePicker from 'expo-image-picker';
 import * as ImageManipulator from 'expo-image-manipulator';
 import React, { useCallback, useEffect, useMemo, useState } from 'react';
@@ -39,7 +39,7 @@ import VerifiedIcon from '../assets/icons/verified-svg.svg';
 import HandShakeIcon from '../assets/icons/handshake-svg.svg';
 import FireIcon from '../assets/icons/fire-svg.svg';
 import { mediumScreen, setDark, setUser, user } from '../types';
-import { fontSize } from './typography';
+import { fontSize } from '../typography';
 import { parseApiError, useUploadAvatar, useUploadBanner } from '../src';
 import type { AvatarUploadSource } from '../src';
 import HelpCentre from '../assets/icons/help_center.svg';
@@ -48,7 +48,7 @@ import Terms from '../assets/icons/gravel.svg';
 import TrophyIcon from '../assets/icons/trophy-svg.svg';
 import CalenderIcon from '../assets/icons/calendar-svg.svg';
 
-type SettingsSubView = 'main' | 'tags' | 'identity';
+type SettingsSubView = 'main' | 'tags' | 'identity' | 'avatar' | 'banner' | 'switch-fan' | 'signal-encryption';
 
 interface CreatorSettingsProps {
   onLogout?: () => void;
@@ -167,7 +167,12 @@ const createBannerCropData = async (asset: ImagePicker.ImagePickerAsset, offsetY
 const CreatorSettings: React.FC<CreatorSettingsProps> = ({ onLogout, isDarkMode, onToggleTheme, onToggleRole }) => {
   const { isDark, theme } = useThemeMode();
   const navigation = useNavigation<any>();
-  const [activeSubView, setActiveSubView] = useState<SettingsSubView>('main');
+  const route = useRoute<any>();
+  const activeSubView = (route.params?.view as SettingsSubView | undefined) ?? 'main';
+  const openSettingsPage = useCallback(
+    (view: Exclude<SettingsSubView, 'main'>) => navigation.push('Settings', { view }),
+    [navigation],
+  );
 
   const [bio, setBio] = useState('Exploring the nexus of synthwave and soul. Join the journey.');
   const [handle, setHandle] = useState('@elena_rose_cre8');
@@ -385,16 +390,16 @@ const CreatorSettings: React.FC<CreatorSettingsProps> = ({ onLogout, isDarkMode,
             label: 'Switch to Fan',
             icon: 'person-outline',
             desc: 'Return to fan experience',
-            action: fanToggle,
+            action: () => openSettingsPage('switch-fan'),
           },
         ] as SettingItem[],
       },
       {
         title: 'Visual Identity',
         items: [
-          { label: 'Update Avatar', icon: AccountIcon, desc: imageUploadDescription || 'Change your main profile photo', action: () => pickProfileImage('avatar') },
-          { label: 'Banner Aesthetic', icon: ImageIcon, desc: imageUploadDescription || 'Customize your profile header image', action: () => pickProfileImage('banner') },
-          { label: 'Identity & Bio', icon: EditIcon, desc: 'Manage your @handle and story', action: () => setActiveSubView('identity') },
+          { label: 'Update Avatar', icon: AccountIcon, desc: imageUploadDescription || 'Change your main profile photo', action: () => openSettingsPage('avatar') },
+          { label: 'Banner Aesthetic', icon: ImageIcon, desc: imageUploadDescription || 'Customize your profile header image', action: () => openSettingsPage('banner') },
+          { label: 'Identity & Bio', icon: EditIcon, desc: 'Manage your @handle and story', action: () => openSettingsPage('identity') },
           { label: 'Streak Rewards', icon: FireIcon, desc: 'View your galaxy milestones', action: () => {
             navigation.navigate('StreakReward')
           } },
@@ -414,7 +419,7 @@ const CreatorSettings: React.FC<CreatorSettingsProps> = ({ onLogout, isDarkMode,
           { label: 'Collaboration Hub', icon: HandShakeIcon, desc: 'Find and manage creative partnerships', action: () => {
             navigation.navigate('ConnectHub')
           } },
-          { label: 'Discovery Tags', icon: SellIcon, desc: 'Edit genres and SEO keywords', action: () => setActiveSubView('tags') },
+          { label: 'Discovery Tags', icon: SellIcon, desc: 'Edit genres and SEO keywords', action: () => openSettingsPage('tags') },
           {
             label: 'Events Visibility',
             icon: EventIcon,
@@ -439,7 +444,7 @@ const CreatorSettings: React.FC<CreatorSettingsProps> = ({ onLogout, isDarkMode,
             enabled: twoFactor,
             onToggle: () => setTwoFactor((prev) => !prev),
           },
-          { label: 'Signal Encryption', icon: VpnKeyIcon, desc: 'Private key management', action: () => Alert.alert('Coming Soon') },
+          { label: 'Signal Encryption', icon: VpnKeyIcon, desc: 'Private key management', action: () => openSettingsPage('signal-encryption') },
         ] as SettingItem[],
       },
       {
@@ -489,7 +494,7 @@ const CreatorSettings: React.FC<CreatorSettingsProps> = ({ onLogout, isDarkMode,
         ] as SettingItem[],
       },
     ],
-    [contentProtection, exclusiveMode, hideSubs, imageUploadDescription, isDark, onToggleRole, pickProfileImage, shakeToRefreshEnabled, showEvents, twoFactor],
+    [contentProtection, exclusiveMode, hideSubs, imageUploadDescription, isDark, onToggleRole, openSettingsPage, shakeToRefreshEnabled, showEvents, twoFactor],
   );
 
   const renderHeader = (title: string, onBack: () => void) => (
@@ -497,17 +502,15 @@ const CreatorSettings: React.FC<CreatorSettingsProps> = ({ onLogout, isDarkMode,
        backgroundColor: 'transparent',
         }]}>
       <View style={s.headerLeft}>
-        <Pressable onPress={onBack} style={[s.iconButton, { backgroundColor: isDark ? '#ffffff14' : theme.surface }]}>
-          <MaterialIcons name="chevron-left" size={20} color={theme.text} />
-        </Pressable>
         <Text style={[s.headerTitle, { color: theme.text }]}>{title}</Text>
       </View>
       {activeSubView === 'main' ? (
-        <Pressable onPress={() => navigation.navigate('/dashboard')} style={[s.donePill, { borderColor: theme.border, backgroundColor: isDark ? primaryColorAlphaHex('1f') : theme.accentSoft }]}>
-          <Text style={s.donePillText}>Done</Text>
-        </Pressable>
+        // <Pressable onPress={() => navigation.navigate('/dashboard')} style={[s.donePill, { borderColor: theme.border, backgroundColor: isDark ? primaryColorAlphaHex('1f') : theme.accentSoft }]}>
+        //   <Text style={s.donePillText}>Done</Text>
+        // </Pressable>
+        <></>
       ) : (
-        <Pressable onPress={() => setActiveSubView('main')}>
+        <Pressable onPress={onBack}>
           <Text style={s.saveText}>Save</Text>
         </Pressable>
       )}
@@ -516,7 +519,7 @@ const CreatorSettings: React.FC<CreatorSettingsProps> = ({ onLogout, isDarkMode,
 
   const renderIdentityView = () => (
     <View style={[s.screen, { backgroundColor: theme.screen }]}>
-      {renderHeader('Identity & Bio', () => setActiveSubView('main'))}
+      {renderHeader('Identity & Bio', () => navigation.goBack())}
       <ScrollView contentContainerStyle={s.subContent} showsVerticalScrollIndicator={false} keyboardShouldPersistTaps="handled">
         <View style={s.formBlock}>
           <Text style={[s.inputLabel, { color: theme.textSecondary }]}>Creator Handle</Text>
@@ -572,7 +575,7 @@ const CreatorSettings: React.FC<CreatorSettingsProps> = ({ onLogout, isDarkMode,
 
   const renderTagsView = () => (
     <View style={[s.screen, { backgroundColor: theme.screen }]}>
-      {renderHeader('Discovery Tags', () => setActiveSubView('main'))}
+      {renderHeader('Discovery Tags', () => navigation.goBack())}
       <ScrollView contentContainerStyle={s.subContent} showsVerticalScrollIndicator={false} keyboardShouldPersistTaps="handled">
         <Text style={[s.sectionHeading, { color: theme.textSecondary }]}>Algorithm Alignment</Text>
 
@@ -598,8 +601,80 @@ const CreatorSettings: React.FC<CreatorSettingsProps> = ({ onLogout, isDarkMode,
     </View>
   );
 
+  const renderImageView = (type: 'avatar' | 'banner') => {
+    const isAvatar = type === 'avatar';
+    return (
+      <View style={[s.screen, { backgroundColor: theme.screen }]}>
+        {renderHeader(isAvatar ? 'Update Avatar' : 'Banner Aesthetic', () => navigation.goBack())}
+        <ScrollView contentContainerStyle={s.subContent} showsVerticalScrollIndicator={false}>
+          <View style={[s.imagePreviewCard, { backgroundColor: isDark ? '#ffffff08' : theme.card, borderColor: theme.border }]}>
+            <Image
+              source={{ uri: isAvatar ? avatarImage : bannerImage }}
+              style={isAvatar ? s.avatarPreview : s.bannerPreview}
+            />
+            <Text style={[s.imagePageTitle, { color: theme.text }]}>
+              {isAvatar ? 'Your profile photo' : 'Your profile banner'}
+            </Text>
+            <Text style={[s.imagePageDescription, { color: theme.textSecondary }]}>
+              {isAvatar
+                ? 'Choose a clear image that represents your creator identity.'
+                : 'Choose and crop the image displayed across the top of your creator profile.'}
+            </Text>
+            <Pressable
+              disabled={isImageUploading}
+              onPress={() => void pickProfileImage(type)}
+              style={[s.pagePrimaryButton, isImageUploading && s.pagePrimaryButtonDisabled]}
+            >
+              <MaterialIcons name="photo-library" size={18} color="#fff" />
+              <Text style={s.pagePrimaryButtonText}>
+                {isImageUploading ? 'Uploading…' : `Choose ${isAvatar ? 'Photo' : 'Banner'}`}
+              </Text>
+            </Pressable>
+          </View>
+        </ScrollView>
+      </View>
+    );
+  };
+
+  const renderSwitchFanView = () => (
+    <View style={[s.screen, { backgroundColor: theme.screen }]}>
+      {renderHeader('Switch to Fan', () => navigation.goBack())}
+      <ScrollView contentContainerStyle={s.subContent} showsVerticalScrollIndicator={false}>
+        <View style={[s.actionPageCard, { backgroundColor: isDark ? '#ffffff08' : theme.card, borderColor: theme.border }]}>
+          <MaterialIcons name="person-outline" size={44} color={PRIMARY_COLOR} />
+          <Text style={[s.imagePageTitle, { color: theme.text }]}>Return to the fan experience?</Text>
+          <Text style={[s.imagePageDescription, { color: theme.textSecondary }]}>
+            Your creator profile and content remain available. You can switch back to creator mode later.
+          </Text>
+          <Pressable onPress={() => void fanToggle()} style={s.pagePrimaryButton}>
+            <Text style={s.pagePrimaryButtonText}>Switch to Fan</Text>
+          </Pressable>
+        </View>
+      </ScrollView>
+    </View>
+  );
+
+  const renderSignalEncryptionView = () => (
+    <View style={[s.screen, { backgroundColor: theme.screen }]}>
+      {renderHeader('Signal Encryption', () => navigation.goBack())}
+      <ScrollView contentContainerStyle={s.subContent} showsVerticalScrollIndicator={false}>
+        <View style={[s.actionPageCard, { backgroundColor: isDark ? '#ffffff08' : theme.card, borderColor: theme.border }]}>
+          <VpnKeyIcon width={44} height={44} fill={PRIMARY_COLOR} />
+          <Text style={[s.imagePageTitle, { color: theme.text }]}>Private key management</Text>
+          <Text style={[s.imagePageDescription, { color: theme.textSecondary }]}>
+            Encryption-key controls are being prepared for a future Kulsah update.
+          </Text>
+        </View>
+      </ScrollView>
+    </View>
+  );
+
   if (activeSubView === 'identity') return renderIdentityView();
   if (activeSubView === 'tags') return renderTagsView();
+  if (activeSubView === 'avatar') return renderImageView('avatar');
+  if (activeSubView === 'banner') return renderImageView('banner');
+  if (activeSubView === 'switch-fan') return renderSwitchFanView();
+  if (activeSubView === 'signal-encryption') return renderSignalEncryptionView();
 
   return (
     <View style={[s.screen, { backgroundColor: theme.screen }]}>
@@ -612,7 +687,7 @@ const CreatorSettings: React.FC<CreatorSettingsProps> = ({ onLogout, isDarkMode,
         </ImageBackground> */}
 
         <View style={s.profileTop}>
-          <Pressable onPress={() => pickProfileImage('avatar')} style={[s.avatarWrap, {backgroundColor: theme.screen }]}>
+          <Pressable onPress={() => openSettingsPage('avatar')} style={[s.avatarWrap, {backgroundColor: theme.screen }]}>
             <Image source={{ uri: avatarImage }} style={s.avatar} />
             <View style={[s.avatarEdit, {borderColor: theme.screen}]}>
               <MaterialIcons name="edit" size={13} color="#fff" />
@@ -730,14 +805,14 @@ const s = StyleSheet.create({
   content: { paddingBottom: 120 },
   cropBackdrop: { flex: 1, justifyContent: 'center', padding: 20, backgroundColor: '#000000b8' },
   cropCard: { borderRadius: 24, padding: 16, gap: 14 },
-  cropTitle: { ...fontSize.h2, lineHeight: fontSize.h2.fontSize + 3 },
-  cropDescription: { ...fontSize.b4, lineHeight: fontSize.b4.fontSize + 5 },
+  cropTitle: { ...fontSize.h2, lineHeight: fontSize.h2.lineHeight },
+  cropDescription: { ...fontSize.b4, lineHeight: fontSize.b4.lineHeight },
   bannerCropStage: { width: BANNER_CROP_WIDTH, height: BANNER_HEIGHT, alignSelf: 'center', overflow: 'hidden', backgroundColor: '#111827', borderRadius: 12 },
   cropOutline: { ...StyleSheet.absoluteFillObject, borderWidth: 2, borderColor: PRIMARY_COLOR, borderRadius: 12 },
   cropActions: { flexDirection: 'row', gap: 10, justifyContent: 'flex-end' },
   cropButton: { minHeight: 46, paddingHorizontal: 16, borderRadius: 14, borderWidth: 1, alignItems: 'center', justifyContent: 'center' },
   cropSaveButton: { flex: 1, borderColor: PRIMARY_COLOR, backgroundColor: PRIMARY_COLOR },
-  cropButtonText: { ...fontSize.b4, lineHeight: fontSize.b4.fontSize + 2, fontWeight: '700' },
+  cropButtonText: { ...fontSize.b4, lineHeight: fontSize.b4.lineHeight, fontWeight: '700' },
   header: {
     paddingTop: 50,
     paddingHorizontal: 16,
@@ -758,7 +833,7 @@ const s = StyleSheet.create({
     justifyContent: 'center',
     backgroundColor: '#ffffff14',
   },
-  headerTitle: { color: '#fff', ...fontSize.h1, lineHeight: fontSize.h1.fontSize + 2, textTransform: 'uppercase', letterSpacing: 2 },
+  headerTitle: { color: '#fff', ...fontSize.h1, lineHeight: fontSize.h1.lineHeight, textTransform: 'uppercase', letterSpacing: 2 },
   donePill: {
     paddingHorizontal: 10,
     paddingVertical: 6,
@@ -769,11 +844,11 @@ const s = StyleSheet.create({
   },
   donePillText: {
     color: PRIMARY_COLOR,
-    ...fontSize.b5, lineHeight: fontSize.b5.fontSize + 1,
+    ...fontSize.b5, lineHeight: fontSize.b5.lineHeight,
     textTransform: 'uppercase',
     letterSpacing: 1,
   },
-  saveText: { color: PRIMARY_COLOR, ...fontSize.b5, lineHeight: fontSize.b5.fontSize + 1, fontWeight: '900', textTransform: 'uppercase' },
+  saveText: { color: PRIMARY_COLOR, ...fontSize.b5, lineHeight: fontSize.b5.lineHeight, fontWeight: '900', textTransform: 'uppercase' },
   banner: { height: 180, marginHorizontal: 16, marginTop: 12, borderRadius: 22, overflow: 'hidden' },
   bannerImage: { borderRadius: 22 },
   bannerShade: { ...StyleSheet.absoluteFillObject, backgroundColor: '#0000004f' },
@@ -816,10 +891,10 @@ const s = StyleSheet.create({
   },
   profileNameBlock: { paddingBottom: 10 },
   nameRow: { flexDirection: 'row', alignItems: 'center', gap: 2, justifyContent: 'center', marginBottom: 5},
-  profileName: { color: '#fff', fontSize: fontSize.b2.fontSize + (mediumScreen? 4:2), fontFamily: fontSize.b2.fontFamily, lineHeight: fontSize.b2.fontSize + (mediumScreen ? 5: 3)},
+  profileName: { color: '#fff', ...fontSize.b2, lineHeight: fontSize.b2.lineHeight },
   profileHandle: {
     color: PRIMARY_COLOR,
-    ...fontSize.b5, lineHeight: fontSize.b5.fontSize + 1,
+    ...fontSize.b5, lineHeight: fontSize.b5.lineHeight,
     textTransform: 'uppercase',
     letterSpacing: 0.5,
     marginTop: 0,
@@ -827,7 +902,7 @@ const s = StyleSheet.create({
   sectionBlock: { marginTop: 18, paddingHorizontal: 16 },
   sectionTitle: {
     color: '#8b90a8',
-    ...fontSize.b5, lineHeight: fontSize.b5.fontSize + 1,
+    ...fontSize.b5, lineHeight: fontSize.b5.lineHeight,
     textTransform: 'uppercase',
     letterSpacing: 2.0,
     marginBottom: 8,
@@ -856,8 +931,8 @@ const s = StyleSheet.create({
     borderColor: 'rgba(0 0 0 / 0.05)',
   },
   itemCopy: { flex: 1, gap: 4 },
-  itemLabel: { color: '#fff', ...fontSize.b3, lineHeight: fontSize.b3.fontSize + 2 },
-  itemDesc: { color: '#8e91a6', marginTop: 0, ...fontSize.b5, lineHeight: fontSize.b5.fontSize + 1 },
+  itemLabel: { color: '#fff', ...fontSize.b3, lineHeight: fontSize.b3.lineHeight },
+  itemDesc: { color: '#8e91a6', marginTop: 0, ...fontSize.b5, lineHeight: fontSize.b5.lineHeight },
   footerActions: { paddingHorizontal: 16, marginTop: 22, gap: 10 },
   signOutBtn: {
     height: 58,
@@ -870,7 +945,7 @@ const s = StyleSheet.create({
     flexDirection: 'row',
     gap: 8,
   },
-  signOutText: { color: '#fff', ...fontSize.b4, lineHeight: fontSize.b4.fontSize + 1 },
+  signOutText: { color: '#fff', ...fontSize.b4, lineHeight: fontSize.b4.lineHeight },
   deactivateBtn: {
     height: 58,
     borderRadius: 22,
@@ -882,21 +957,68 @@ const s = StyleSheet.create({
     flexDirection: 'row',
     gap: 8,
   },
-  deactivateText: { color: '#ef4444', ...fontSize.b4, lineHeight: fontSize.b4.fontSize + 1 },
+  deactivateText: { color: '#ef4444', ...fontSize.b4, lineHeight: fontSize.b4.lineHeight },
   versionText: {
     marginTop: 2,
     color: '#70758f',
     textAlign: 'center',
-    ...fontSize.b5, lineHeight: fontSize.b5.fontSize + 1,
+    ...fontSize.b5, lineHeight: fontSize.b5.lineHeight,
     letterSpacing: 1.5,
     textTransform: 'uppercase',
     fontWeight: '900',
   },
   subContent: { paddingHorizontal: 16, paddingTop: 16, paddingBottom: 120, gap: 14 },
+  imagePreviewCard: {
+    borderRadius: 24,
+    borderWidth: 1,
+    padding: 20,
+    alignItems: 'center',
+    gap: 14,
+  },
+  actionPageCard: {
+    borderRadius: 24,
+    borderWidth: 1,
+    paddingHorizontal: 20,
+    paddingVertical: 32,
+    alignItems: 'center',
+    gap: 14,
+  },
+  avatarPreview: { width: 132, height: 132, borderRadius: 66 },
+  bannerPreview: { width: '100%', height: 140, borderRadius: 18 },
+  imagePageTitle: {
+    ...fontSize.b2,
+    lineHeight: fontSize.b2.lineHeight,
+    textAlign: 'center',
+    textTransform: 'uppercase',
+  },
+  imagePageDescription: {
+    ...fontSize.b4,
+    lineHeight: fontSize.b4.lineHeight,
+    textAlign: 'center',
+  },
+  pagePrimaryButton: {
+    minHeight: 50,
+    width: '100%',
+    marginTop: 6,
+    borderRadius: 18,
+    paddingHorizontal: 18,
+    backgroundColor: PRIMARY_COLOR,
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
+    gap: 8,
+  },
+  pagePrimaryButtonDisabled: { opacity: 0.6 },
+  pagePrimaryButtonText: {
+    color: '#fff',
+    ...fontSize.b4,
+    lineHeight: fontSize.b4.lineHeight,
+    textTransform: 'uppercase',
+  },
   formBlock: { gap: 8 },
   inputLabel: {
     color: '#8b90a8',
-    ...fontSize.b4, lineHeight: fontSize.b4.fontSize + 1,
+    ...fontSize.b4, lineHeight: fontSize.b4.lineHeight,
     textTransform: 'uppercase',
     letterSpacing: 2,
     paddingHorizontal: 3,
@@ -913,12 +1035,13 @@ const s = StyleSheet.create({
   },
   inputPrefix: {
     color: PRIMARY_COLOR,
-    fontWeight: '900',
+    // fontWeight: '900',
     textTransform: 'uppercase',
-    ...fontSize.b4, lineHeight: fontSize.b4.fontSize + 1,
-    marginRight: 6,
+    ...fontSize.b1, lineHeight: fontSize.b1.lineHeight,
+    marginRight: 0,
+    fontFamily: "Inter_500Medium",
   },
-  inputWithPrefix: { flex: 1, color: '#fff', fontWeight: '700', ...fontSize.b4, lineHeight: fontSize.b4.fontSize + 1, paddingVertical: 0 },
+  inputWithPrefix: { flex: 1, color: '#fff', ...fontSize.b1, lineHeight: fontSize.b1.lineHeight, paddingVertical: 0, fontFamily: "Inter_500Medium" },
   input: {
     height: 54,
     borderRadius: 16,
@@ -926,18 +1049,19 @@ const s = StyleSheet.create({
     borderColor: '#ffffff1a',
     backgroundColor: '#ffffff08',
     color: '#fff',
-    ...fontSize.b4, lineHeight: fontSize.b4.fontSize + 1,
+    ...fontSize.b1, lineHeight: fontSize.b1.lineHeight,
     paddingHorizontal: 14,
+    fontFamily: "Inter_500Medium"
   },
   helpText: {
     color: '#7f849f',
-    ...fontSize.b4, lineHeight: fontSize.b4.fontSize + 1,
+    ...fontSize.b4, lineHeight: fontSize.b4.lineHeight,
     textTransform: 'uppercase',
     letterSpacing: 1,
     paddingHorizontal: 3,
   },
   rowBetween: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center' },
-  counterText: { color: '#8f95af', ...fontSize.b5, lineHeight: fontSize.b5.fontSize + 1 },
+  counterText: { color: '#8f95af', ...fontSize.b5, lineHeight: fontSize.b5.lineHeight },
   counterWarn: { color: '#ef4444' },
   textarea: {
     minHeight: 120,
@@ -946,8 +1070,9 @@ const s = StyleSheet.create({
     borderColor: '#ffffff1a',
     backgroundColor: '#ffffff08',
     color: '#fff',
-    ...fontSize.b4,
-    lineHeight: 20,
+    ...fontSize.b1,
+    lineHeight: fontSize.b1.lineHeight,
+    fontFamily: 'Inter_500Medium',
     paddingHorizontal: 14,
     paddingVertical: 12,
   },
@@ -958,10 +1083,10 @@ const s = StyleSheet.create({
     backgroundColor: primaryColorAlphaHex('14'),
     padding: 14,
   },
-  noteText: { color: '#c5c9de', ...fontSize.b4,fontStyle: 'italic', lineHeight: 18 },
+  noteText: { color: '#c5c9de', ...fontSize.b4, lineHeight: fontSize.b4.lineHeight },
   sectionHeading: {
     color: '#8b90a8',
-    ...fontSize.b5, lineHeight: fontSize.b5.fontSize + 1,
+    ...fontSize.b5, lineHeight: fontSize.b5.lineHeight,
     textTransform: 'uppercase',
     letterSpacing: 2.5,
     paddingHorizontal: 3,
@@ -969,7 +1094,7 @@ const s = StyleSheet.create({
   },
   fieldName: {
     color: '#8f95af',
-    ...fontSize.b5, lineHeight: fontSize.b5.fontSize + 1,
+    ...fontSize.b5, lineHeight: fontSize.b5.lineHeight,
     textTransform: 'uppercase',
     letterSpacing: 1.4,
     paddingHorizontal: 3,
@@ -986,7 +1111,7 @@ const s = StyleSheet.create({
   tagChipOn: { backgroundColor: PRIMARY_COLOR, borderColor: PRIMARY_COLOR },
   tagText: {
     color: '#a8adc4',
-    ...fontSize.b5, lineHeight: fontSize.b5.fontSize + 1,
+    ...fontSize.b5, lineHeight: fontSize.b5.lineHeight,
     textTransform: 'uppercase',
     letterSpacing: 1.1,
   },

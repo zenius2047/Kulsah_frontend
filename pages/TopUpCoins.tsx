@@ -155,7 +155,7 @@ const TopUpCoins: React.FC = () => {
         <Text
           style={{
             color: theme.text,
-            ...fontSize.b1, lineHeight: fontSize.b1.fontSize + 2,
+            ...fontSize.b1, lineHeight: fontSize.b1.lineHeight,
             textTransform: 'uppercase',
           }}
         >
@@ -181,7 +181,7 @@ const TopUpCoins: React.FC = () => {
           <Text
             style={{
               color: PRIMARY_COLOR,
-              ...fontSize.b5, lineHeight: fontSize.b5.fontSize + 1,
+              ...fontSize.b5, lineHeight: fontSize.b5.lineHeight,
               textTransform: 'uppercase',
               letterSpacing: 3,
             }}
@@ -196,7 +196,7 @@ const TopUpCoins: React.FC = () => {
                 <Text
                   style={{
                     color: theme.text,
-                    ...fontSize.b1, lineHeight: fontSize.b1.fontSize + 2,
+                    ...fontSize.b1, lineHeight: fontSize.b1.lineHeight,
                   }}
                 >
                   {currentCoins.toLocaleString()}
@@ -209,7 +209,7 @@ const TopUpCoins: React.FC = () => {
             style={{
               marginTop: 8,
               color: subtleText,
-              ...fontSize.b5, lineHeight: fontSize.b5.fontSize + 1,
+              ...fontSize.b5, lineHeight: fontSize.b5.lineHeight,
             }}
           >
             Kulcoins for Creator Support
@@ -221,7 +221,7 @@ const TopUpCoins: React.FC = () => {
             style={{
               marginLeft: 8,
               color: sectionLabel,
-              ...fontSize.b5, lineHeight: fontSize.b5.fontSize + 1,
+              ...fontSize.b5, lineHeight: fontSize.b5.lineHeight,
               textTransform: 'uppercase',
               letterSpacing: 3,
             }}
@@ -263,7 +263,7 @@ const TopUpCoins: React.FC = () => {
                       <Text
                         style={{
                           color: '#fff',
-                          ...fontSize.b5, lineHeight: fontSize.b5.fontSize + 1,
+                          ...fontSize.b5, lineHeight: fontSize.b5.lineHeight,
                           textTransform: 'uppercase',
                           letterSpacing: 1.5,
                         }}
@@ -290,7 +290,7 @@ const TopUpCoins: React.FC = () => {
                   <Text
                     style={{
                       color: theme.text,
-                      ...fontSize.b1, lineHeight: fontSize.b1.fontSize + 2,
+                      ...fontSize.b1, lineHeight: fontSize.b1.lineHeight,
                     }}
                   >
                     {pkg.coins.toLocaleString()}
@@ -301,7 +301,7 @@ const TopUpCoins: React.FC = () => {
                       style={{
                         marginTop: 3,
                         color: '#4ade80',
-                        ...fontSize.b5, lineHeight: fontSize.b5.fontSize + 1,
+                        ...fontSize.b5, lineHeight: fontSize.b5.lineHeight,
                         textTransform: 'uppercase',
                       }}
                     >
@@ -321,7 +321,7 @@ const TopUpCoins: React.FC = () => {
                     <Text
                       style={{
                         color: '#fff',
-                        ...fontSize.b5, lineHeight: fontSize.b5.fontSize + 1,
+                        ...fontSize.b5, lineHeight: fontSize.b5.lineHeight,
                       }}
                     >
                       {pkg.price} GHS
@@ -351,7 +351,7 @@ const TopUpCoins: React.FC = () => {
             <Text
               style={{
                 color: '#fff',
-                ...fontSize.b3, lineHeight: fontSize.b3.fontSize + 2,
+                ...fontSize.b3, lineHeight: fontSize.b3.lineHeight,
               }}
             >
               Confirm Purchase
@@ -412,7 +412,7 @@ const TopUpCoins: React.FC = () => {
           <Text
             style={{
               color: theme.text,
-              ...fontSize.b1, lineHeight: fontSize.b1.fontSize + 2,
+              ...fontSize.b1, lineHeight: fontSize.b1.lineHeight,
               textTransform: 'uppercase',
               marginBottom: 8,
               textAlign: 'center',
@@ -423,7 +423,7 @@ const TopUpCoins: React.FC = () => {
           <Text
             style={{
               color: successBody,
-              ...fontSize.b5, lineHeight: fontSize.b5.fontSize + 1,
+              ...fontSize.b5, lineHeight: fontSize.b5.lineHeight,
               textAlign: 'center',
             }}
           >
@@ -448,7 +448,7 @@ const TopUpCoins: React.FC = () => {
             <Text
               style={{
                 color: theme.text,
-                ...fontSize.b4, lineHeight: fontSize.b4.fontSize + 1,
+                ...fontSize.b4, lineHeight: fontSize.b4.lineHeight,
               }}
             >
               {currentCoins.toLocaleString()} Coins

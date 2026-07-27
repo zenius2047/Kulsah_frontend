@@ -175,7 +175,7 @@ const styles = StyleSheet.create({
   },
   topTitle: {
     color: '#F8FAFC',
-    ...fontSize.b1, lineHeight: fontSize.b1.fontSize + 2,
+    ...fontSize.b1, lineHeight: fontSize.b1.lineHeight,
     letterSpacing: -0.5,
   },
   backgroundLeaks: {
@@ -225,7 +225,7 @@ const styles = StyleSheet.create({
   },
   congratsText: {
     color: PRIMARY_COLOR,
-    ...fontSize.b4, lineHeight: fontSize.b4.fontSize + 1,
+    ...fontSize.b4, lineHeight: fontSize.b4.lineHeight,
     letterSpacing: 1.5,
   },
   heroTitle: {
@@ -316,12 +316,12 @@ const styles = StyleSheet.create({
   },
   name: {
     color: '#F8FAFC',
-    ...fontSize.b1, lineHeight: fontSize.b1.fontSize + 2,
+    ...fontSize.b1, lineHeight: fontSize.b1.lineHeight,
     marginBottom: 4,
   },
   handle: {
     color: PRIMARY_COLOR,
-    ...fontSize.b4, lineHeight: fontSize.b4.fontSize + 1,
+    ...fontSize.b4, lineHeight: fontSize.b4.lineHeight,
     marginBottom: 20,
   },
   divider: {
@@ -336,13 +336,13 @@ const styles = StyleSheet.create({
   },
   challengeLabel: {
     color: '#94A3B8',
-    ...fontSize.b5, lineHeight: fontSize.b5.fontSize + 1,
+    ...fontSize.b5, lineHeight: fontSize.b5.lineHeight,
     letterSpacing: 1.8,
     marginBottom: 6,
   },
   challengeTitle: {
     color: '#F8FAFC',
-    ...fontSize.b1, lineHeight: fontSize.b1.fontSize + 2,
+    ...fontSize.b1, lineHeight: fontSize.b1.lineHeight,
     textAlign: 'center',
   },
   rewardGrid: {
@@ -360,14 +360,14 @@ const styles = StyleSheet.create({
   },
   rewardLabel: {
     color: '#94A3B8',
-    ...fontSize.b5, lineHeight: fontSize.b5.fontSize + 1,
+    ...fontSize.b5, lineHeight: fontSize.b5.lineHeight,
     letterSpacing: 1.2,
     marginTop: 8,
     marginBottom: 6,
   },
   rewardValue: {
     color: '#F8FAFC',
-    ...fontSize.b1, lineHeight: fontSize.b1.fontSize + 2,
+    ...fontSize.b1, lineHeight: fontSize.b1.lineHeight,
   },
   primaryButton: {
     width: '100%',
@@ -388,7 +388,7 @@ const styles = StyleSheet.create({
   },
   primaryButtonText: {
     color: '#fff',
-    ...fontSize.b1, lineHeight: fontSize.b1.fontSize + 2,
+    ...fontSize.b1, lineHeight: fontSize.b1.lineHeight,
     letterSpacing: 1.4,
   },
   secondaryButton: {
@@ -406,7 +406,7 @@ const styles = StyleSheet.create({
   },
   secondaryButtonText: {
     color: '#CBD5E1',
-    ...fontSize.b4, lineHeight: fontSize.b4.fontSize + 1,
+    ...fontSize.b4, lineHeight: fontSize.b4.lineHeight,
     letterSpacing: 0.8,
     textTransform: 'uppercase',
   },
@@ -418,7 +418,7 @@ const styles = StyleSheet.create({
   },
   completedLabel: {
     color: '#64748B',
-    ...fontSize.b5, lineHeight: fontSize.b5.fontSize + 1,
+    ...fontSize.b5, lineHeight: fontSize.b5.lineHeight,
     letterSpacing: 2.2,
     textAlign: 'center',
     marginBottom: 16,

@@ -67,7 +67,7 @@ const SignupVibes: React.FC = () => {
         >
           <MaterialIcons name="chevron-left" color={theme.text} size={24} />
         </Pressable>
-        <Text style={{ color: theme.text, fontSize: fontSize.h1.fontSize + (mediumScreen ? 10: 6), fontFamily: fontSize.h1.fontFamily, lineHeight: fontSize.h1.fontSize + 2 + (mediumScreen ? 10: 6) }}>KULSAH</Text>
+        <Text style={{ color: theme.text, fontSize: fontSize.h1.fontSize + (mediumScreen ? 10: 6), fontFamily: fontSize.h1.fontFamily, lineHeight: fontSize.h1.lineHeight + (mediumScreen ? 10: 6) }}>KULSAH</Text>
         <View style={{ width: 24 }} />
       </View>
 

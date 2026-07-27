@@ -28,7 +28,7 @@ const WEB_CLIENT_ID =
 const IOS_CLIENT_ID =
   '66968860440-rh81s6n5gocqdfh8g7617i7h9cnllljl.apps.googleusercontent.com';
 const ANDROID_CLIENT_ID =
-  '66968860440-ui82okljl18ds1fssmci9p52v3011it1.apps.googleusercontent.com';
+  '66968860440-hllt8684ui8sib99ka9hvuj86qfgar2n.apps.googleusercontent.com';
 const ANDROID_PACKAGE_NAME = 'com.godfreddevsorganization.kulsah';
 const ANDROID_SIGNING_SHA1 = '85:16:BB:28:27:D7:6D:AC:15:E8:0D:16:E2:87:45:48:E9:93:C7:F6';
 const ANDROID_SIGNING_SHA256 =

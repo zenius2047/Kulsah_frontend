@@ -21,7 +21,7 @@ import { useThemeMode, PRIMARY_COLOR, primaryColorAlpha } from "../theme";
 import { mediumScreen, user } from '../types';
 import KulsahInputBar from '../components/KulsahInputBar';
 import DotTrioLoader from '../components/DotTrioLoader';
-import { fontSize } from './typography';
+import { fontSize } from '../typography';
 
 interface Comment {
   id: string;
@@ -388,7 +388,7 @@ const CommunityPostDetail: React.FC = () => {
           </View>
 
           <View style={styles.postContentWrap}>
-            <Text style={[styles.postContent, { color: theme.text }]}>{post.content}</Text>
+            <Text style={[styles.postContent, { color: theme.textSecondary }]}>{post.content}</Text>
           </View>
 
           {post.isLive && post.videoUrl ? <DetailLivePreview videoUrl={post.videoUrl} viewerCount={post.viewerCount} /> : null}
@@ -626,8 +626,8 @@ const styles = StyleSheet.create({
     alignItems: 'center',
   },
   headerCopy: { flex: 1 },
-  headerTitle: { ...fontSize.h1, lineHeight: fontSize.h1.fontSize + 2 },
-  headerSubtitle: { ...fontSize.h2, lineHeight: fontSize.h2.fontSize + 1 },
+  headerTitle: { ...fontSize.h1, lineHeight: fontSize.h1.lineHeight },
+  headerSubtitle: { ...fontSize.h2, lineHeight: fontSize.h2.lineHeight },
   scrollBody: { paddingBottom: 96 },
   feedCard: {overflow: 'hidden'},
   postHeader: {
@@ -643,16 +643,16 @@ const styles = StyleSheet.create({
   avatar: { width: 42, height: 42, borderRadius: 21 },
   authorTextWrap: { flex: 1, gap: 2 },
   authorNameRow: { flexDirection: 'row', alignItems: 'center', gap: 4 },
-  authorName: { ...fontSize.b4, lineHeight: fontSize.b4.fontSize + 1 },
+  authorName: { ...fontSize.handleTextMedium, lineHeight: fontSize.handleTextMedium.lineHeight },
   metaRow: { flexDirection: 'row', alignItems: 'center', gap: 4 },
-  handleSubtext: { ...fontSize.b5, lineHeight: fontSize.b5.fontSize + 1 },
-  metaDot: { ...fontSize.b4, lineHeight: fontSize.b4.fontSize + 1 },
+  handleSubtext: { ...fontSize.b5, lineHeight: fontSize.b5.lineHeight },
+  metaDot: { ...fontSize.b4, lineHeight: fontSize.b4.lineHeight },
   headerActions: { flexDirection: 'row', alignItems: 'center', gap: 8 },
   followBtn: { minHeight: 32, paddingHorizontal: 12, borderRadius: 999, justifyContent: 'center', alignItems: 'center' },
-  followBtnText: { ...fontSize.b5, lineHeight: fontSize.b5.fontSize + 1 },
+  followBtnText: { ...fontSize.b5, lineHeight: fontSize.b5.lineHeight },
   iconBtn: { width: 32, height: 32, borderRadius: 16, justifyContent: 'center', alignItems: 'center' },
   postContentWrap: { paddingHorizontal: 12, paddingBottom: 12 },
-  postContent: { ...fontSize.b3,lineHeight: 22 },
+  postContent: { ...fontSize.b3, lineHeight: fontSize.b3.lineHeight,},
   mediaWrap: { height: 280, marginBottom: 12, overflow: 'hidden' },
   video: { width: '100%', height: '100%' },
   videoLoaderOverlay: {
@@ -664,9 +664,9 @@ const styles = StyleSheet.create({
   liveBadges: { position: 'absolute', top: 10, left: 10, flexDirection: 'row', gap: 8 },
   livePill: { flexDirection: 'row', alignItems: 'center', gap: 5, borderRadius: 999, backgroundColor: '#ef4444', paddingHorizontal: 10, paddingVertical: 5 },
   liveDot: { height: 6, width: 6, borderRadius: 3, backgroundColor: '#fff' },
-  livePillText: { color: '#fff', ...fontSize.b4, lineHeight: fontSize.b4.fontSize + 1, letterSpacing: 1 },
+  livePillText: { color: '#fff', ...fontSize.b4, lineHeight: fontSize.b4.lineHeight, letterSpacing: 1 },
   viewerPill: { flexDirection: 'row', alignItems: 'center', gap: 4, borderRadius: 999, backgroundColor: 'rgba(0,0,0,0.42)', paddingHorizontal: 10, paddingVertical: 5, borderWidth: 1, borderColor: 'rgba(255,255,255,0.22)' },
-  viewerText: { color: '#fff', ...fontSize.b4, lineHeight: fontSize.b4.fontSize + 1 },
+  viewerText: { color: '#fff', ...fontSize.b4, lineHeight: fontSize.b4.lineHeight },
   imageStack: { marginBottom: 12 },
   imageGrid: { flexDirection: 'row', flexWrap: 'wrap', justifyContent: 'space-between', rowGap: 6, paddingHorizontal: 12 },
   singleImageFrame: { width: '100%', height: 320, borderRadius: 20, overflow: 'hidden', borderWidth: 1 },
@@ -679,9 +679,9 @@ const styles = StyleSheet.create({
   pollFill: { position: 'absolute', left: 0, top: 0, bottom: 0, backgroundColor: primaryColorAlpha(0.08) },
   pollFillSelected: { backgroundColor: primaryColorAlpha(0.16) },
   pollContent: { flex: 1, flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', paddingHorizontal: 12 },
-  pollText: { ...fontSize.b3, lineHeight: fontSize.b3.fontSize + 2 },
-  pollPercent: { ...fontSize.b4, lineHeight: fontSize.b4.fontSize + 1 },
-  pollFoot: { ...fontSize.b4, lineHeight: fontSize.b4.fontSize + 1 },
+  pollText: { ...fontSize.b3, lineHeight: fontSize.b3.lineHeight },
+  pollPercent: { ...fontSize.b4, lineHeight: fontSize.b4.lineHeight },
+  pollFoot: { ...fontSize.b4, lineHeight: fontSize.b4.lineHeight },
   reactionSummary: {
     borderTopWidth: 1,
     borderBottomWidth: 1,
@@ -693,24 +693,24 @@ const styles = StyleSheet.create({
   },
   reactionLeft: { flexDirection: 'row', alignItems: 'center', gap: 6 },
   likeBadge: { width: 20, height: 20, borderRadius: 10, backgroundColor: PRIMARY_COLOR, alignItems: 'center', justifyContent: 'center' },
-  reactionSummaryText: { ...fontSize.b5, lineHeight: fontSize.b5.fontSize + 1 },
+  reactionSummaryText: { ...fontSize.b5, lineHeight: fontSize.b5.lineHeight },
   actionBar: { flexDirection: 'row', alignItems: 'center', paddingHorizontal: 12, paddingVertical: 6, gap: 15 },
   actionItem: { minHeight: 42, borderRadius: 8, flexDirection: 'row', alignItems: 'center', justifyContent: 'center', gap: 4 },
-  actionText: { ...fontSize.b5, lineHeight: fontSize.b5.fontSize + 1 },
+  actionText: { ...fontSize.b5, lineHeight: fontSize.b5.lineHeight },
   commentsSection: { paddingHorizontal: 12, paddingTop: 12, paddingBottom: 20 },
   commentsHeader: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', paddingBottom: 12, borderBottomWidth: 1 },
-  commentsTitle: { ...fontSize.b4, lineHeight: fontSize.b4.fontSize + 1 },
+  commentsTitle: { ...fontSize.b1, lineHeight: fontSize.b1.lineHeight },
   commentsStack: { gap: 14, paddingTop: 14 },
   commentRow: { flexDirection: 'row', gap: 8 },
   commentAvatar: { width: 34, height: 34, borderRadius: 17, marginTop: 2 },
   commentContentWrap: { flex: 1 },
   commentBubble: { borderRadius: 18, paddingHorizontal: 12, paddingVertical: 10 },
-  commentHandle: { ...fontSize.b4, lineHeight: fontSize.b4.fontSize + 1, marginBottom: 3 },
-  commentTextBody: { ...fontSize.b3,lineHeight: 20 },
+  commentHandle: { ...fontSize.b4, lineHeight: fontSize.b4.lineHeight, marginBottom: 3 },
+  commentTextBody: { ...fontSize.b3, lineHeight: fontSize.b3.lineHeight },
   commentMetaRow: { flexDirection: 'row', alignItems: 'center', gap: 12, paddingLeft: 10, marginTop: 6 },
-  commentMetaText: { ...fontSize.b5, lineHeight: fontSize.b5.fontSize + 1 },
+  commentMetaText: { ...fontSize.b5, lineHeight: fontSize.b5.lineHeight },
   emptyComments: { minHeight: 120, alignItems: 'center', justifyContent: 'center', gap: 10 },
-  emptyCommentsText: { textAlign: 'center', ...fontSize.b4, lineHeight: fontSize.b4.fontSize + 1 },
+  emptyCommentsText: { textAlign: 'center', ...fontSize.b4, lineHeight: fontSize.b4.lineHeight },
   bottomComposer: {
     borderTopWidth: 1,
     paddingHorizontal: 12,
@@ -734,16 +734,16 @@ const styles = StyleSheet.create({
     marginBottom: 10,
   },
   replyingInfo: { flexDirection: 'row', alignItems: 'center', gap: 8 },
-  replyingText: { ...fontSize.b5, lineHeight: fontSize.b5.fontSize + 1 },
+  replyingText: { ...fontSize.b5, lineHeight: fontSize.b5.lineHeight },
   replyingTarget: {  },
-  bottomComposerInput: { maxHeight: 90, paddingVertical: 4, ...fontSize.b3, lineHeight: fontSize.b3.fontSize + 2 },
+  bottomComposerInput: { maxHeight: 90, paddingVertical: 4, ...fontSize.b3, lineHeight: fontSize.b3.lineHeight },
   sendBtn: { width: 32, height: 32, borderRadius: 16, alignItems: 'center', justifyContent: 'center' },
   inputActions: { flexDirection: 'row' },
   inputIcon: { width: 32, height: 32, borderRadius: 16, alignItems: 'center', justifyContent: 'center' },
   sendButton: { width: 36, height: 36, borderRadius: 12, alignItems: 'center', justifyContent: 'center', backgroundColor: PRIMARY_COLOR },
   emptyState: { flex: 1, justifyContent: 'center', alignItems: 'center', paddingHorizontal: 24, gap: 12 },
-  emptyTitle: { ...fontSize.b1, lineHeight: fontSize.b1.fontSize + 2, textTransform: 'uppercase' },
-  emptyText: { textAlign: 'center', ...fontSize.b3,lineHeight: 20 },
+  emptyTitle: { ...fontSize.b1, lineHeight: fontSize.b1.lineHeight, textTransform: 'uppercase' },
+  emptyText: { textAlign: 'center', ...fontSize.b3, lineHeight: fontSize.b3.lineHeight },
   imageModalRoot: { flex: 1, backgroundColor: 'rgba(0,0,0,0.96)' },
   imageModalBackdrop: { ...StyleSheet.absoluteFillObject },
   imageModalHeader: {
@@ -777,11 +777,11 @@ const styles = StyleSheet.create({
   replyRow: { flexDirection: 'row', gap: 10 },
   replyAvatar: { width: 32, height: 32, borderRadius: 16 },
   replyMain: { flex: 1 },
-  replyHandle: { ...fontSize.b5, lineHeight: fontSize.b5.fontSize + 1 },
-  replyTime: { ...fontSize.b5, lineHeight: fontSize.b5.fontSize + 1 },
-  replyBody: { ...fontSize.b5,lineHeight: 15 },
+  replyHandle: { ...fontSize.b5, lineHeight: fontSize.b5.lineHeight },
+  replyTime: { ...fontSize.b5, lineHeight: fontSize.b5.lineHeight },
+  replyBody: { ...fontSize.b5, lineHeight: fontSize.b5.lineHeight },
   replyActions: { flexDirection: 'row', gap: 16, marginTop: 6 },
-  replyActionText: { ...fontSize.b5, lineHeight: fontSize.b5.fontSize + 1 },
+  replyActionText: { ...fontSize.b5, lineHeight: fontSize.b5.lineHeight },
 });
 
 export default CommunityPostDetail;

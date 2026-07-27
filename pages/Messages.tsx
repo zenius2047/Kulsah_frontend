@@ -307,13 +307,13 @@ const styles = StyleSheet.create({
   },
   title: {
     color: '#F8FAFC',
-    ...fontSize.b1, lineHeight: fontSize.b1.fontSize + 2,
+    ...fontSize.b1, lineHeight: fontSize.b1.lineHeight,
     fontWeight: '900',
     letterSpacing: 0.5,
   },
   subtitle: {
     color: '#D946EF',
-    ...fontSize.b4, lineHeight: fontSize.b4.fontSize + 1,
+    ...fontSize.b4, lineHeight: fontSize.b4.lineHeight,
     fontWeight: '900',
     letterSpacing: 2.5,
     marginTop: 2,
@@ -358,20 +358,20 @@ const styles = StyleSheet.create({
   },
   summaryLabel: {
     color: '#64748B',
-    ...fontSize.b4, lineHeight: fontSize.b4.fontSize + 1,
+    ...fontSize.b4, lineHeight: fontSize.b4.lineHeight,
     fontWeight: '900',
     letterSpacing: 1.8,
   },
   summaryLabelActive: {
     color: '#D946EF',
-    ...fontSize.b4, lineHeight: fontSize.b4.fontSize + 1,
+    ...fontSize.b4, lineHeight: fontSize.b4.lineHeight,
     fontWeight: '900',
     letterSpacing: 1.8,
     textAlign: 'right',
   },
   summaryValue: {
     color: '#F8FAFC',
-    ...fontSize.b4, lineHeight: fontSize.b4.fontSize + 1,
+    ...fontSize.b4, lineHeight: fontSize.b4.lineHeight,
     fontWeight: '700',
     marginTop: 2,
   },
@@ -390,7 +390,7 @@ const styles = StyleSheet.create({
   searchInput: {
     flex: 1,
     color: '#F8FAFC',
-    ...fontSize.b1, lineHeight: fontSize.b1.fontSize + 2,
+    ...fontSize.b1, lineHeight: fontSize.b1.lineHeight,
     fontWeight: '500',
   },
   tabsWrap: {
@@ -407,7 +407,7 @@ const styles = StyleSheet.create({
   },
   tabText: {
     color: '#64748B',
-    ...fontSize.b4, lineHeight: fontSize.b4.fontSize + 1,
+    ...fontSize.b4, lineHeight: fontSize.b4.lineHeight,
     fontWeight: '900',
     letterSpacing: 2.2,
     textTransform: 'uppercase',
@@ -510,14 +510,14 @@ const styles = StyleSheet.create({
   },
   name: {
     color: '#F8FAFC',
-    ...fontSize.b3, lineHeight: fontSize.b3.fontSize + 2,
+    ...fontSize.b3, lineHeight: fontSize.b3.lineHeight,
     fontWeight: '900',
     textTransform: 'uppercase',
     flexShrink: 1,
   },
   pitchBadge: {
     color: '#D946EF',
-    ...fontSize.b4, lineHeight: fontSize.b4.fontSize + 1,
+    ...fontSize.b4, lineHeight: fontSize.b4.lineHeight,
     fontWeight: '900',
     letterSpacing: 1.1,
     borderWidth: 1,
@@ -529,7 +529,7 @@ const styles = StyleSheet.create({
   },
   time: {
     color: '#64748B',
-    ...fontSize.b4, lineHeight: fontSize.b4.fontSize + 1,
+    ...fontSize.b4, lineHeight: fontSize.b4.lineHeight,
     fontWeight: '900',
     letterSpacing: 1.4,
   },
@@ -538,7 +538,7 @@ const styles = StyleSheet.create({
   },
   message: {
     color: '#94A3B8',
-    ...fontSize.b3, lineHeight: fontSize.b3.fontSize + 2,
+    ...fontSize.b3, lineHeight: fontSize.b3.lineHeight,
     fontWeight: '500',
   },
   messageUnread: {
@@ -553,7 +553,7 @@ const styles = StyleSheet.create({
   },
   metaTier: {
     color: '#D946EF',
-    ...fontSize.b4, lineHeight: fontSize.b4.fontSize + 1,
+    ...fontSize.b4, lineHeight: fontSize.b4.lineHeight,
     fontWeight: '900',
     letterSpacing: 1.3,
   },
@@ -565,7 +565,7 @@ const styles = StyleSheet.create({
   },
   metaLtv: {
     color: '#4ADE80',
-    ...fontSize.b4, lineHeight: fontSize.b4.fontSize + 1,
+    ...fontSize.b4, lineHeight: fontSize.b4.lineHeight,
     fontWeight: '900',
     letterSpacing: 1.3,
   },
@@ -581,7 +581,7 @@ const styles = StyleSheet.create({
   },
   emptyText: {
     color: '#64748B',
-    ...fontSize.b4, lineHeight: fontSize.b4.fontSize + 1,
+    ...fontSize.b4, lineHeight: fontSize.b4.lineHeight,
     fontWeight: '900',
     letterSpacing: 2,
   },

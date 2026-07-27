@@ -220,12 +220,12 @@ const styles = StyleSheet.create({
   },
   pageTitle: {
     color: '#F8FAFC',
-    ...fontSize.b1, lineHeight: fontSize.b1.fontSize + 2,
+    ...fontSize.b1, lineHeight: fontSize.b1.lineHeight,
     marginBottom: 8,
   },
   pageSubtitle: {
     color: '#94A3B8',
-    ...fontSize.b4, lineHeight: fontSize.b4.fontSize + 1,
+    ...fontSize.b4, lineHeight: fontSize.b4.lineHeight,
   },
   timelineWrap: {
     position: 'relative',
@@ -297,7 +297,7 @@ const styles = StyleSheet.create({
   },
   dateText: {
     color: '#64748B',
-    ...fontSize.b5, lineHeight: fontSize.b5.fontSize + 1,
+    ...fontSize.b5, lineHeight: fontSize.b5.lineHeight,
     textTransform: 'uppercase',
     letterSpacing: 1.1,
   },
@@ -319,7 +319,7 @@ const styles = StyleSheet.create({
     backgroundColor: 'rgba(255,255,255,0.05)',
   },
   statusPillText: {
-    ...fontSize.b5, lineHeight: fontSize.b5.fontSize + 1,
+    ...fontSize.b5, lineHeight: fontSize.b5.lineHeight,
     textTransform: 'uppercase',
   },
   statusPillTextWinner: {
@@ -333,12 +333,12 @@ const styles = StyleSheet.create({
   },
   cardTitle: {
     color: '#F8FAFC',
-    ...fontSize.b4, lineHeight: fontSize.b4.fontSize + 1,
+    ...fontSize.b4, lineHeight: fontSize.b4.lineHeight,
     marginBottom: 8,
   },
   cardDescription: {
     color: '#94A3B8',
-    ...fontSize.b4, lineHeight: fontSize.b4.fontSize + 1,
+    ...fontSize.b4, lineHeight: fontSize.b4.lineHeight,
     marginBottom: 18,
   },
   statsRow: {
@@ -351,14 +351,14 @@ const styles = StyleSheet.create({
   },
   statLabel: {
     color: '#64748B',
-    ...fontSize.b5, lineHeight: fontSize.b5.fontSize + 1,
+    ...fontSize.b5, lineHeight: fontSize.b5.lineHeight,
     textTransform: 'uppercase',
     letterSpacing: 1,
     marginBottom: 4,
   },
   statValue: {
     color: '#F8FAFC',
-    ...fontSize.b4, lineHeight: fontSize.b4.fontSize + 1,
+    ...fontSize.b4, lineHeight: fontSize.b4.lineHeight,
   },
   rewardWinner: {
     color: PRIMARY_COLOR,
@@ -387,7 +387,7 @@ const styles = StyleSheet.create({
   },
   viewEntryText: {
     color: PRIMARY_COLOR,
-    ...fontSize.b4, lineHeight: fontSize.b4.fontSize + 1,
+    ...fontSize.b4, lineHeight: fontSize.b4.lineHeight,
     textTransform: 'uppercase',
     letterSpacing: 0.8,
   },

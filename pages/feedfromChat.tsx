@@ -338,10 +338,10 @@ const styles = StyleSheet.create({
     justifyContent: "center",
   },
   railAction: { marginTop: 16, alignItems: "center" },
-  railText: { color: "white", ...fontSize.b4, lineHeight: fontSize.b4.fontSize + 1, fontWeight: "700", marginTop: 4 },
+  railText: { color: "white", ...fontSize.b4, lineHeight: fontSize.b4.lineHeight, fontWeight: "700", marginTop: 4 },
   bottomMeta: { position: "absolute", left: 14, right: 80, bottom: 56 },
   handleRow: { flexDirection: "row", alignItems: "center", gap: 8 },
-  handleText: { color: "white", fontWeight: "800", ...fontSize.b4, lineHeight: fontSize.b4.fontSize + 1 },
+  handleText: { color: "white", fontWeight: "800", ...fontSize.b4, lineHeight: fontSize.b4.lineHeight },
   premiumPill: {
     borderRadius: 8,
     borderWidth: 1,
@@ -350,7 +350,7 @@ const styles = StyleSheet.create({
     paddingHorizontal: 8,
     paddingVertical: 2,
   },
-  premiumText: { color: "#22c55e", ...fontSize.b5, lineHeight: fontSize.b5.fontSize + 1, fontWeight: "800" },
+  premiumText: { color: "#22c55e", ...fontSize.b5, lineHeight: fontSize.b5.lineHeight, fontWeight: "800" },
   caption: { color: "white", marginTop: 8, ...fontSize.b4,fontWeight: "600", lineHeight: 18 },
   ticketBtn: {
     marginTop: 10,
@@ -370,7 +370,7 @@ const styles = StyleSheet.create({
     maxHeight: "70%",
   },
   commentHeader: { flexDirection: "row", justifyContent: "space-between", marginBottom: 12 },
-  commentHeaderText: { color: "white", fontWeight: "700", ...fontSize.b5, lineHeight: fontSize.b5.fontSize + 1 },
+  commentHeaderText: { color: "white", fontWeight: "700", ...fontSize.b5, lineHeight: fontSize.b5.lineHeight },
   commentItem: { flexDirection: "row", marginBottom: 14 },
   commentAvatar: { width: 36, height: 36, borderRadius: 18, marginRight: 10 },
   commentUser: { color: "white", fontWeight: "700" },
@@ -421,7 +421,7 @@ const styles = StyleSheet.create({
   tabBtn: { paddingHorizontal: 4, paddingVertical: 4 },
   tabPill: { borderRadius: 16, paddingHorizontal: 10, paddingVertical: 6 },
   tabPillActive: { backgroundColor: "rgba(255,255,255,0.22)" },
-  tabText: { color: "#94a3b8", ...fontSize.b5, lineHeight: fontSize.b5.fontSize + 1, fontWeight: "800" },
+  tabText: { color: "#94a3b8", ...fontSize.b5, lineHeight: fontSize.b5.lineHeight, fontWeight: "800" },
   tabTextActive: { color: "white" },
 });
 

@@ -506,7 +506,7 @@ const styles = StyleSheet.create({
   },
   permissionTitle: {
     color: '#fff',
-    ...fontSize.b1, lineHeight: fontSize.b1.fontSize + 2,
+    ...fontSize.b1, lineHeight: fontSize.b1.lineHeight,
     marginTop: 18,
     marginBottom: 8,
     width: '100%',
@@ -531,7 +531,7 @@ const styles = StyleSheet.create({
   },
   permissionButtonText: {
     color: '#fff',
-    ...fontSize.b4, lineHeight: fontSize.b4.fontSize + 1,
+    ...fontSize.b4, lineHeight: fontSize.b4.lineHeight,
   },
   topArea: {
     paddingHorizontal: 16,
@@ -554,13 +554,13 @@ const styles = StyleSheet.create({
   },
   progressLabel: {
     color: 'rgba(255,255,255,0.85)',
-    ...fontSize.b5, lineHeight: fontSize.b5.fontSize + 1,
+    ...fontSize.b5, lineHeight: fontSize.b5.lineHeight,
     textTransform: 'uppercase',
     letterSpacing: 1,
   },
   progressTime: {
     color: '#fff',
-    ...fontSize.b4, lineHeight: fontSize.b4.fontSize + 1,
+    ...fontSize.b4, lineHeight: fontSize.b4.lineHeight,
   },
   progressTrack: {
     height: 6,
@@ -612,7 +612,7 @@ const styles = StyleSheet.create({
   },
   soundButtonText: {
     color: '#fff',
-    ...fontSize.b4, lineHeight: fontSize.b4.fontSize + 1,
+    ...fontSize.b4, lineHeight: fontSize.b4.lineHeight,
     maxWidth: '85%',
   },
   sideRailWrap: {
@@ -646,7 +646,7 @@ const styles = StyleSheet.create({
   },
   sideLabel: {
     color: '#fff',
-    ...fontSize.b5, lineHeight: fontSize.b5.fontSize + 1,
+    ...fontSize.b5, lineHeight: fontSize.b5.lineHeight,
     textTransform: 'uppercase',
     marginTop: 2,
   },
@@ -701,7 +701,7 @@ const styles = StyleSheet.create({
   filterText: {
     marginTop: 8,
     color: 'rgba(255,255,255,0.7)',
-    ...fontSize.b4, lineHeight: fontSize.b4.fontSize + 1,
+    ...fontSize.b4, lineHeight: fontSize.b4.lineHeight,
   },
   filterTextActive: {
     color: PRIMARY_COLOR,
@@ -740,7 +740,7 @@ const styles = StyleSheet.create({
   },
   utilityLabel: {
     color: '#fff',
-    ...fontSize.b5, lineHeight: fontSize.b5.fontSize + 1,
+    ...fontSize.b5, lineHeight: fontSize.b5.lineHeight,
     textTransform: 'uppercase',
     marginTop: 8,
   },
@@ -791,7 +791,7 @@ const styles = StyleSheet.create({
     bottom: -22,
     color: '#fff',
     ...fontSize.b5,
-    lineHeight: fontSize.b5.fontSize + 1,
+    lineHeight: fontSize.b5.lineHeight,
     textTransform: 'uppercase',
   },
   effectsCircle: {
@@ -816,7 +816,7 @@ const styles = StyleSheet.create({
   },
   modeText: {
     color: 'rgba(255,255,255,0.4)',
-    ...fontSize.b4, lineHeight: fontSize.b4.fontSize + 1,
+    ...fontSize.b4, lineHeight: fontSize.b4.lineHeight,
   },
   modeTextActive: {
     color: '#fff',

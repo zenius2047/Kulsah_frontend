@@ -283,20 +283,20 @@ const styles = StyleSheet.create({
   },
   warningText: {
     color: PRIMARY_COLOR,
-    ...fontSize.h2, lineHeight: fontSize.h2.fontSize + 1,
+    ...fontSize.h2, lineHeight: fontSize.h2.lineHeight,
     textAlign: 'center',
     textTransform: 'uppercase',
     letterSpacing: 1.2,
   },
   drawerTitle: {
     color: '#ffffff',
-    ...fontSize.h1, lineHeight: fontSize.h1.fontSize + 2,
+    ...fontSize.h1, lineHeight: fontSize.h1.lineHeight,
     textAlign: 'center',
     textTransform: 'uppercase',
   },
   drawerBalance: {
     color: 'rgba(255,255,255,0.45)',
-    ...fontSize.h2, lineHeight: fontSize.h2.fontSize + 2,
+    ...fontSize.h2, lineHeight: fontSize.h2.lineHeight,
     textAlign: 'center',
     textTransform: 'uppercase',
     letterSpacing: 2,
@@ -344,13 +344,13 @@ const styles = StyleSheet.create({
   },
   customTitle: {
     color: '#ffffff',
-    ...fontSize.h1, lineHeight: fontSize.h1.fontSize + 2,
+    ...fontSize.h1, lineHeight: fontSize.h1.lineHeight,
     textAlign: 'center',
     textTransform: 'uppercase',
   },
   customSubtitle: {
     color: 'rgba(255,255,255,0.48)',
-    ...fontSize.h2, lineHeight: fontSize.h2.fontSize + 2,
+    ...fontSize.h2, lineHeight: fontSize.h2.lineHeight,
     textAlign: 'center',
   },
   customInputWrap: {
@@ -366,18 +366,18 @@ const styles = StyleSheet.create({
   },
   customCurrency: {
     color: PRIMARY_COLOR,
-    ...fontSize.b5, lineHeight: fontSize.b5.fontSize + 1,
+    ...fontSize.b5, lineHeight: fontSize.b5.lineHeight,
     textTransform: 'uppercase',
   },
   customInput: {
     flex: 1,
     color: '#ffffff',
-    ...fontSize.b4, lineHeight: fontSize.b4.fontSize + 1,
+    ...fontSize.b4, lineHeight: fontSize.b4.lineHeight,
     paddingVertical: 0,
   },
   customEstimate: {
     color: 'rgba(255,255,255,0.56)',
-    ...fontSize.b5, lineHeight: fontSize.b5.fontSize + 1,
+    ...fontSize.b5, lineHeight: fontSize.b5.lineHeight,
   },
   bestValueChip: {
     position: 'absolute',
@@ -390,7 +390,7 @@ const styles = StyleSheet.create({
   },
   bestValueText: {
     color: '#ffffff',
-    ...fontSize.b5, lineHeight: fontSize.b5.fontSize + 1,
+    ...fontSize.b5, lineHeight: fontSize.b5.lineHeight,
     textTransform: 'uppercase',
     letterSpacing: 1,
   },
@@ -409,11 +409,11 @@ const styles = StyleSheet.create({
   },
   packageCoins: {
     color: '#ffffff',
-    ...fontSize.b1, lineHeight: fontSize.b1.fontSize + 2,
+    ...fontSize.b1, lineHeight: fontSize.b1.lineHeight,
   },
   packageLabel: {
     color: 'rgba(255,255,255,0.42)',
-    ...fontSize.b5, lineHeight: fontSize.b5.fontSize + 1,
+    ...fontSize.b5, lineHeight: fontSize.b5.lineHeight,
     textTransform: 'uppercase',
     letterSpacing: 1.4,
   },
@@ -435,7 +435,7 @@ const styles = StyleSheet.create({
   },
   purchaseButtonText: {
     color: '#ffffff',
-    ...fontSize.b5, lineHeight: fontSize.b5.fontSize + 1,
+    ...fontSize.b5, lineHeight: fontSize.b5.lineHeight,
   },
   cancelTransactionButton: {
     alignItems: 'center',
@@ -444,7 +444,7 @@ const styles = StyleSheet.create({
   },
   cancelTransactionText: {
     color: 'rgba(255,255,255,0.26)',
-    ...fontSize.b5, lineHeight: fontSize.b5.fontSize + 1,
+    ...fontSize.b5, lineHeight: fontSize.b5.lineHeight,
     textTransform: 'uppercase',
     letterSpacing: 2,
   },
@@ -465,12 +465,12 @@ const styles = StyleSheet.create({
   paymentTitle: {
     color: '#ffffff',
     textAlign: 'center',
-    ...fontSize.h1, lineHeight: fontSize.h1.fontSize + 2,
+    ...fontSize.h1, lineHeight: fontSize.h1.lineHeight,
     textTransform: 'uppercase',
   },
   paymentSubtitle: {
     textAlign: 'center',
-    ...fontSize.h2, lineHeight: fontSize.h2.fontSize + 2,
+    ...fontSize.h2, lineHeight: fontSize.h2.lineHeight,
     textTransform: 'uppercase',
     letterSpacing: 1.4,
   },
@@ -490,15 +490,15 @@ const styles = StyleSheet.create({
   },
   paymentLabel: {
     color: 'rgba(255,255,255,0.5)',
-    ...fontSize.b5, lineHeight: fontSize.b5.fontSize + 1,
+    ...fontSize.b5, lineHeight: fontSize.b5.lineHeight,
   },
   paymentValue: {
     color: '#ffffff',
-    ...fontSize.b5, lineHeight: fontSize.b5.fontSize + 1,
+    ...fontSize.b5, lineHeight: fontSize.b5.lineHeight,
   },
   paymentAccent: {
     color: PRIMARY_COLOR,
-    ...fontSize.b5, lineHeight: fontSize.b5.fontSize + 1,
+    ...fontSize.b5, lineHeight: fontSize.b5.lineHeight,
   },
   paymentMethodRow: {
     flexDirection: 'row',
@@ -515,7 +515,7 @@ const styles = StyleSheet.create({
     gap: 6,
   },
   paymentMethodText: {
-    ...fontSize.b5, lineHeight: fontSize.b5.fontSize + 1,
+    ...fontSize.b5, lineHeight: fontSize.b5.lineHeight,
     textTransform: 'uppercase',
     letterSpacing: 1,
   },
@@ -537,12 +537,12 @@ const styles = StyleSheet.create({
     paddingHorizontal: 6,
   },
   providerText: {
-    ...fontSize.b5, lineHeight: fontSize.b5.fontSize + 1,
+    ...fontSize.b5, lineHeight: fontSize.b5.lineHeight,
     textAlign: 'center',
     textTransform: 'uppercase',
   },
   paymentInputLabel: {
-    ...fontSize.b5, lineHeight: fontSize.b5.fontSize + 1,
+    ...fontSize.b5, lineHeight: fontSize.b5.lineHeight,
     textTransform: 'uppercase',
     letterSpacing: 1.2,
   },
@@ -554,7 +554,7 @@ const styles = StyleSheet.create({
   },
   paymentInput: {
     flex: 1,
-    ...fontSize.b4, lineHeight: fontSize.b4.fontSize + 1,
+    ...fontSize.b4, lineHeight: fontSize.b4.lineHeight,
     paddingVertical: 0,
   },
   cardFieldRow: {
@@ -573,7 +573,7 @@ const styles = StyleSheet.create({
   },
   paymentError: {
     color: '#ef4444',
-    ...fontSize.b5, lineHeight: fontSize.b5.fontSize + 1,
+    ...fontSize.b5, lineHeight: fontSize.b5.lineHeight,
     marginBottom: 10,
     textAlign: 'center',
   },
@@ -587,7 +587,7 @@ const styles = StyleSheet.create({
   },
   cancelPaymentText: {
     color: 'rgba(255,255,255,0.5)',
-    ...fontSize.b5, lineHeight: fontSize.b5.fontSize + 1,
+    ...fontSize.b5, lineHeight: fontSize.b5.lineHeight,
     textTransform: 'uppercase',
     letterSpacing: 1.4,
   },
