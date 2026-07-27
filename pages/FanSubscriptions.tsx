@@ -108,7 +108,7 @@ const FanSubscriptions: React.FC = () => {
     <SafeAreaView style={[s.screen, { backgroundColor: theme.screen }]}>
       <View style={[s.header, { backgroundColor: isDark ? 'rgba(6,9,19,0.94)' : 'rgba(255,255,255,0.96)', borderBottomColor: border }]}>
         <View style={s.headerLeft}>
-          <Text style={[s.headerTitle, { color: titleColor }]}>Active Support</Text>
+          <Text style={[s.headerTitle, { color: titleColor }]}>Active Subscriptions</Text>
         </View>
         <View style={s.headerBadge}>
           <Text style={s.headerBadgeText}>{subscriptions.length} Active</Text>
@@ -373,7 +373,8 @@ const s = StyleSheet.create({
   },
   billingValue: {
     marginTop: 4,
-    ...fontSize.b4, lineHeight: fontSize.b4.lineHeight,
+    ...fontSize.b2, lineHeight: fontSize.b2.lineHeight,
+    fontFamily: "Poppins_500Medium"
   },
   priceValue: {
     marginTop: 4,
@@ -512,7 +513,7 @@ const s = StyleSheet.create({
     gap: 10,
   },
   actionText: {
-    ...fontSize.b4, lineHeight: fontSize.b4.lineHeight,
+    ...fontSize.b3, lineHeight: fontSize.b3.lineHeight,
   },
   cancelSubscriptionButton: {
     marginTop: 6,

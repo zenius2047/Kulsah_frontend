@@ -1883,8 +1883,8 @@ const s = StyleSheet.create({
     borderRadius: 18,
     borderWidth: 1,
     paddingHorizontal: 16,
-    ...fontSize.b4,
-    lineHeight: fontSize.b4.lineHeight,
+    ...fontSize.b3,
+    lineHeight: fontSize.b3.lineHeight,
   },
   customCoinButton: {
     width: 52,
@@ -1973,7 +1973,7 @@ const s = StyleSheet.create({
   },
   giftTextWrap: { flex: 1 },
   giftTitle: {
-    ...fontSize.b4, lineHeight: fontSize.b4.lineHeight,
+    ...fontSize.tabTextLarge, lineHeight: fontSize.b4.lineHeight, fontFamily: 'Poppins_500Medium',
     textTransform: 'uppercase',
   },
   giftDesc: {

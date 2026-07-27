@@ -424,7 +424,7 @@ const CreatorEvents: React.FC = () => {
               </Pressable>
             </View>
 
-            <ScrollView showsVerticalScrollIndicator={false} contentContainerStyle={{ gap: 12, paddingBottom: 120 }} keyboardShouldPersistTaps="handled">
+            <ScrollView showsVerticalScrollIndicator={false} contentContainerStyle={{ gap: 12, paddingBottom: 150 }} keyboardShouldPersistTaps="handled">
               <Text style={[styles.inputLabel, { color: textMuted }]}>PROMOTIONAL COVER</Text>
               <Pressable
                 style={[styles.coverBox, { borderColor: softBorder, backgroundColor: inputBg }]}
@@ -674,7 +674,7 @@ const styles = StyleSheet.create({
     padding: 14,
   },
   statPrimary: { borderColor: primaryColorAlpha(0.35), backgroundColor: primaryColorAlpha(0.12) },
-  statLabel: { ...fontSize.b4, lineHeight: fontSize.b4.lineHeight, letterSpacing: 1.1 },
+  statLabel: { ...fontSize.tabText, lineHeight: fontSize.tabText.lineHeight, letterSpacing: 1.1 },
   statValue: { ...fontSize.b1, lineHeight: fontSize.b1.lineHeight, marginTop: 2 },
   statSub: { color: '#22c55e', ...fontSize.b4, lineHeight: fontSize.b4.lineHeight, marginTop: 2 },
   sectionTitle: { ...fontSize.b4, lineHeight: fontSize.b4.lineHeight, letterSpacing: 2, marginTop: 6 },

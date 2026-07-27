@@ -210,7 +210,7 @@ const ClaimPrize: React.FC = () => {
           </View>
           <Pressable style={styles.primaryBtn} onPress={() => setClaimStep(2)}>
             <Text style={styles.primaryBtnText}>CONTINUE</Text>
-            <MaterialIcons name="arrow-forward" size={18} color="#fff" />
+            {/* <MaterialIcons name="arrow-forward" size={18} color="#fff" /> */}
           </Pressable>
         </View>
       );
@@ -354,11 +354,11 @@ const ClaimPrize: React.FC = () => {
       )}
 
       <View style={styles.header}>
-        <Pressable onPress={() => navigation.goBack()} style={styles.headerBtn}>
+        {/* <Pressable onPress={() => navigation.goBack()} style={styles.headerBtn}>
           <MaterialIcons name="arrow-back" size={22} color={iconColor} />
-        </Pressable>
+        </Pressable> */}
         <Text style={styles.headerTitle}>WINNER ANNOUNCED</Text>
-        <View style={styles.headerBtn} />
+        {/* <View style={styles.headerBtn} /> */}
       </View>
 
       <ScrollView contentContainerStyle={styles.content} showsVerticalScrollIndicator={false}>
@@ -373,8 +373,8 @@ const ClaimPrize: React.FC = () => {
         </View>
 
         <View style={styles.victoryCard}>
-          <View style={styles.cardGlowOne} />
-          <View style={styles.cardGlowTwo} />
+          {/* <View style={styles.cardGlowOne} />
+          <View style={styles.cardGlowTwo} /> */}
           <View style={styles.avatarStage}>
             <LinearGradient colors={[PRIMARY_COLOR, primaryColorAlpha(0.78), primaryColorAlpha(0.5)]} style={styles.avatarRing}>
               <Image source={{ uri: activeWin.userAvatar }} style={styles.avatar} />
@@ -548,7 +548,7 @@ const createStyles = (isDark: boolean, theme: ReturnType<typeof useThemeMode>['t
     justifyContent: 'center',
   },
   winnerName: { color: titleText, ...fontSize.b1, lineHeight: fontSize.b1.lineHeight, textTransform: 'uppercase' },
-  winnerHandle: { color: PRIMARY_COLOR, ...fontSize.b4, lineHeight: fontSize.b4.lineHeight, marginTop: 4 },
+  winnerHandle: { color: PRIMARY_COLOR, ...fontSize.b2, lineHeight: fontSize.b2.lineHeight, marginTop: 4 },
   divider: { width: '100%', height: 1, backgroundColor: faintBorder, marginVertical: 20 },
   challengeLabel: { color: mutedText, ...fontSize.b5, lineHeight: fontSize.b5.lineHeight, letterSpacing: 1.8 },
   challengeTitle: { color: titleText, ...fontSize.b2, lineHeight: fontSize.b2.lineHeight, textAlign: 'center', marginTop: 8 },
@@ -609,7 +609,7 @@ const createStyles = (isDark: boolean, theme: ReturnType<typeof useThemeMode>['t
   },
   grabber: { alignSelf: 'center', width: 42, height: 5, borderRadius: 3, backgroundColor: isDark ? 'rgba(255,255,255,0.22)' : 'rgba(15,23,42,0.18)', marginBottom: 12 },
   modalHeader: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', marginBottom: 10 },
-  modalHeaderText: { color: titleText, ...fontSize.b4, lineHeight: fontSize.b4.lineHeight, letterSpacing: 1.6 },
+  modalHeaderText: { color: titleText, ...fontSize.mediumTitleText, lineHeight: fontSize.mediumTitleText.lineHeight, letterSpacing: 0.2 },
   closeBtn: { width: 34, height: 34, borderRadius: 17, backgroundColor: softSurface, alignItems: 'center', justifyContent: 'center' },
   modalScroll: { paddingBottom: 28 },
   modalSection: { gap: 14 },
@@ -618,15 +618,15 @@ const createStyles = (isDark: boolean, theme: ReturnType<typeof useThemeMode>['t
   modalTitle: { color: titleText, ...fontSize.b1, lineHeight: fontSize.b1.lineHeight, textAlign: 'center', letterSpacing: 1 },
   modalSubtitle: { color: secondaryText, ...fontSize.b5, lineHeight: 16, textAlign: 'center' },
   claimSummary: { borderRadius: 22, borderWidth: 1, borderColor: faintBorder, backgroundColor: softerSurface, padding: 16, gap: 6 },
-  claimLabel: { color: mutedText, ...fontSize.b5, lineHeight: fontSize.b5.lineHeight, letterSpacing: 1.3 },
-  claimValue: { color: titleText, ...fontSize.b4, lineHeight: fontSize.b4.lineHeight, marginBottom: 6 },
+  claimLabel: { color: mutedText, ...fontSize.b1, lineHeight: fontSize.b1.lineHeight, letterSpacing: 0.3, fontFamily: 'Poppins_500Medium'},
+  claimValue: { color: titleText, ...fontSize.b3, lineHeight: fontSize.b3.lineHeight, marginBottom: 6 },
   primaryBtn: { height: 54, borderRadius: 18, backgroundColor: PRIMARY_COLOR, flexDirection: 'row', alignItems: 'center', justifyContent: 'center', gap: 8 },
   primaryBtnCompact: { flex: 1, height: 52, borderRadius: 17, backgroundColor: PRIMARY_COLOR, alignItems: 'center', justifyContent: 'center' },
   primaryBtnText: { color: '#fff', ...fontSize.b5, lineHeight: fontSize.b5.lineHeight, letterSpacing: 1.3 },
   secondaryBtn: { flex: 1, height: 52, borderRadius: 17, borderWidth: 1, borderColor: border, alignItems: 'center', justifyContent: 'center' },
   secondaryBtnText: { color: secondaryText, ...fontSize.b5, lineHeight: fontSize.b5.lineHeight, letterSpacing: 1.2 },
   modalActions: { flexDirection: 'row', gap: 10, marginTop: 4 },
-  input: { height: 50, borderRadius: 16, borderWidth: 1, borderColor: border, backgroundColor: softSurface, color: titleText, paddingHorizontal: 14, ...fontSize.b4, lineHeight: fontSize.b4.lineHeight },
+  input: { height: 50, borderRadius: 16, borderWidth: 1, borderColor: border, backgroundColor: softSurface, color: titleText, paddingHorizontal: 14, ...fontSize.b3, lineHeight: fontSize.b3.lineHeight },
   textarea: { minHeight: 96, paddingTop: 12 },
   inputRow: { flexDirection: 'row', gap: 10 },
   sizeRow: { flexDirection: 'row', gap: 8 },

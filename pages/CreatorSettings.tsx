@@ -748,15 +748,15 @@ const CreatorSettings: React.FC<CreatorSettingsProps> = ({ onLogout, isDarkMode,
         ))}
 
         <View style={s.footerActions}>
-          <Pressable onPress={logout} style={[s.signOutBtn, { backgroundColor: isDark ? '#ffffff12' : theme.surface, borderColor: theme.border }]}>
-            <MaterialIcons name="logout" size={18} color={theme.text} />
-            <Text style={[s.signOutText, { color: theme.text }]}>Sign Out of Kulsah</Text>
+          <Pressable onPress={logout} style={[s.deactivateBtn, {}]}>
+            {/* <MaterialIcons name="logout" size={18} color={theme.text} /> */}
+            <Text style={[s.signOutText, { color: "#ef4444" }]}>Sign Out of Kulsah</Text>
           </Pressable>
 
-          <Pressable style={s.deactivateBtn} onPress={() => Alert.alert('Coming Soon', 'Deactivate Studio flow is not wired yet.') }>
+          {/* <Pressable style={s.deactivateBtn} onPress={() => Alert.alert('Coming Soon', 'Deactivate Studio flow is not wired yet.') }>
             <MaterialIcons name="delete-forever" size={18} color="#ef4444" />
             <Text style={s.deactivateText}>Deactivate Studio</Text>
-          </Pressable>
+          </Pressable> */}
 
           <Text style={[s.versionText, { color: theme.textMuted }]}>Creator Protocol v2.5.0</Text>
         </View>
@@ -891,11 +891,11 @@ const s = StyleSheet.create({
   },
   profileNameBlock: { paddingBottom: 10 },
   nameRow: { flexDirection: 'row', alignItems: 'center', gap: 2, justifyContent: 'center', marginBottom: 5},
-  profileName: { color: '#fff', ...fontSize.b2, lineHeight: fontSize.b2.lineHeight },
+  profileName: { color: '#fff', ...fontSize.b0Variant, lineHeight: fontSize.b0Variant.lineHeight-2, fontFamily: 'Inter_500Medium' },
   profileHandle: {
     color: PRIMARY_COLOR,
     ...fontSize.b5, lineHeight: fontSize.b5.lineHeight,
-    textTransform: 'uppercase',
+    // textTransform: 'uppercase',
     letterSpacing: 0.5,
     marginTop: 0,
   },
@@ -945,7 +945,7 @@ const s = StyleSheet.create({
     flexDirection: 'row',
     gap: 8,
   },
-  signOutText: { color: '#fff', ...fontSize.b4, lineHeight: fontSize.b4.lineHeight },
+  signOutText: { color: '#fff', ...fontSize.b1, lineHeight: fontSize.b1.lineHeight + 1, fontFamily: "Poppins_500Medium" },
   deactivateBtn: {
     height: 58,
     borderRadius: 22,

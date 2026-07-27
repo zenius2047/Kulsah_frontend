@@ -511,7 +511,14 @@ const PlayerModal = ({
   if (!submission) return null;
 
   return (
-    <Modal visible={visible} transparent animationType="fade" onRequestClose={onClose}>
+    <Modal
+      visible={visible}
+      transparent
+      animationType="fade"
+      statusBarTranslucent
+      navigationBarTranslucent
+      onRequestClose={onClose}
+    >
       <View style={styles.modalRoot}>
         <View style={styles.playerCard}>
           <View style={styles.playerTop}>
@@ -609,8 +616,8 @@ const createStyles = (isDark: boolean) => {
     headerSpacer: { width: 40 },
     headerIconButton: { width: 40, height: 40, borderRadius: 20, alignItems: 'center', justifyContent: 'center' },
     headerCopy: { flex: 1, alignItems: 'center' },
-    headerTitle: { ...fontSize.b4, lineHeight: fontSize.b4.lineHeight, textTransform: 'uppercase', letterSpacing: 2.2 },
-    headerSubtitle: { color: PRIMARY_COLOR, ...fontSize.b5, lineHeight: fontSize.b5.lineHeight, textTransform: 'uppercase', letterSpacing: 1 },
+    headerTitle: { ...fontSize.h1, lineHeight: fontSize.h1.lineHeight, textTransform: 'uppercase', letterSpacing: 2.2 },
+    headerSubtitle: { color: PRIMARY_COLOR, ...fontSize.h2, lineHeight: fontSize.h2.lineHeight, textTransform: 'uppercase', letterSpacing: 1 },
     toast: { position: 'absolute', top: 78, left: 34, right: 34, zIndex: 20, borderRadius: 14, backgroundColor: 'rgba(0,0,0,0.9)', borderWidth: 1, borderColor: primaryColorAlpha(0.25), paddingHorizontal: 14, paddingVertical: 11 },
     toastText: { color: '#fff', ...fontSize.b5, lineHeight: fontSize.b5.lineHeight, textAlign: 'center', textTransform: 'uppercase', letterSpacing: 1.1 },
     content: { padding: 20, gap: 18 },
@@ -625,7 +632,7 @@ const createStyles = (isDark: boolean) => {
     tab: { minHeight: 34, paddingHorizontal: 14, borderRadius: 999, alignItems: 'center', justifyContent: 'center', borderWidth: 1 },
     tabSelected: { backgroundColor: PRIMARY_COLOR, borderColor: 'transparent' },
     tabIdle: { backgroundColor: card, borderColor: border },
-    tabText: { ...fontSize.b5, lineHeight: fontSize.b5.lineHeight, letterSpacing: 1.2, textTransform: 'uppercase' },
+    tabText: { ...fontSize.tabText, lineHeight: fontSize.tabText.lineHeight, letterSpacing: 1.2, textTransform: 'uppercase' },
     clearText: { ...fontSize.b5, lineHeight: fontSize.b5.lineHeight },
     controlRow: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', gap: 10 },
     segmentWrap: { flex: 1, borderRadius: 14, borderWidth: 1, padding: 4, flexDirection: 'row', gap: 4 },
@@ -653,9 +660,9 @@ const createStyles = (isDark: boolean) => {
     userAvatar: { width: 22, height: 22, borderRadius: 11 },
     userName: { color: text, flexShrink: 1, ...fontSize.b5, lineHeight: fontSize.b5.lineHeight, textTransform: 'uppercase', letterSpacing: 0.8 },
     userHandle: { color: muted, flexShrink: 1, ...fontSize.b5, lineHeight: fontSize.b5.lineHeight },
-    submissionTitle: { color: text, ...fontSize.b5, lineHeight: fontSize.b5.lineHeight, textTransform: 'uppercase' },
+    submissionTitle: { color: text, ...fontSize.b4, lineHeight: fontSize.b4.lineHeight, textTransform: 'uppercase' },
     metaRow: { flexDirection: 'row', alignItems: 'center', gap: 8 },
-    submittedAt: { color: muted, ...fontSize.b5, lineHeight: fontSize.b5.lineHeight, textTransform: 'uppercase', letterSpacing: 0.8 },
+    submittedAt: { color: muted, ...fontSize.b4, lineHeight: fontSize.b4.lineHeight, textTransform: 'uppercase', letterSpacing: 0.8 },
     shortlistPill: { color: '#f59e0b', borderWidth: 1, borderColor: 'rgba(245,158,11,0.22)', backgroundColor: 'rgba(245,158,11,0.1)', paddingHorizontal: 6, paddingVertical: 2, borderRadius: 5, ...fontSize.b5, lineHeight: fontSize.b5.lineHeight, textTransform: 'uppercase' },
     performanceRow: { flexDirection: 'row', alignItems: 'center', gap: 14, marginTop: 2 },
     metricMini: { flexDirection: 'row', alignItems: 'center', gap: 4 },

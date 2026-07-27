@@ -232,6 +232,7 @@ const CreatorTabs = ({ isDarkMode }: TabsProps) => {
         tabBarInactiveTintColor: '#8E8E93',
         sceneStyle: { backgroundColor: '#000' },
         tabBarLabelStyle:{
+          transform: 'uppercase',
         },
         tabBarStyle: [
           styles.tabBar,
@@ -780,7 +781,8 @@ const styles = StyleSheet.create({
     borderTopWidth: 0,
     height: SCREEN_HEIGHT * 0.08,
     ...fontSize.b4, lineHeight: fontSize.b4.lineHeight,
-    // backgroundColor: 'blue'
+    // backgroundColor: 'blue',
+    transform : 'uppercase'
   },
   creatorCreateTabOuter: {
     width: 66,

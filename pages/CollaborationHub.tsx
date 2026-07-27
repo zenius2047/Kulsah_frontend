@@ -57,15 +57,6 @@ const TABS: CollabTab[] = ['discover', 'incoming', 'outgoing', 'active'];
 const FILTERS: ProjectType[] = ['All', 'Public Feed Track', 'Premium Locked Release', 'Event', 'Live Session'];
 const DISCOVER_TYPES: Exclude<ProjectType, 'All'>[] = ['Public Feed Track', 'Premium Locked Release'];
 const BRAND = PRIMARY_COLOR;
-const scaledFont = (size: number) => {
-  if (size >= 18) return fontSize.n3.fontSize;
-  if (size >= 15) return fontSize.h1.fontSize;
-  if (size >= 12) return fontSize.b1.fontSize;
-  if (size >= 9) return fontSize.b3.fontSize;
-  if (size >= 8) return fontSize.b4.fontSize;
-  return fontSize.b5.fontSize;
-};
-
 const CollaborationHub: React.FC = () => {
   const { isDark, theme } = useThemeMode();
   const navigation = useNavigation<any>();
@@ -774,6 +765,7 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'space-between',
     marginBottom: 18,
+    marginTop: 20,
   },
   headerLeft: {
     flexDirection: 'row',
@@ -795,7 +787,7 @@ const styles = StyleSheet.create({
   },
   neuralText: {
     color: BRAND,
-    fontSize: scaledFont(7),
+    ...fontSize.b5, lineHeight: fontSize.b5.lineHeight,
     textTransform: 'uppercase',
     letterSpacing: 1.4,
   },
@@ -811,9 +803,9 @@ const styles = StyleSheet.create({
     position: 'relative',
   },
   tabText: {
-    fontSize: scaledFont(8),
+    ...fontSize.tabTextLarge,
     textTransform: 'uppercase',
-    letterSpacing: 2.2,
+    letterSpacing: 0.2,
   },
   badge: {
     minWidth: 16,
@@ -826,14 +818,14 @@ const styles = StyleSheet.create({
   },
   badgeText: {
     color: '#fff',
-    fontSize: scaledFont(6.5),
+    ...fontSize.b5, lineHeight: fontSize.b5.lineHeight,
   },
   tabUnderline: {
     position: 'absolute',
     left: 0,
     right: 0,
     bottom: 0,
-    height: 4,
+    height: 2,
     borderRadius: 999,
     backgroundColor: BRAND,
   },
@@ -848,15 +840,15 @@ const styles = StyleSheet.create({
     gap: 6,
   },
   sectionKicker: {
-    fontSize: scaledFont(7.5),
+    ...fontSize.b5, lineHeight: fontSize.b5.lineHeight,
     textTransform: 'uppercase',
     letterSpacing: 2.6,
   },
   helperText: {
-    fontSize: scaledFont(10),
+    ...fontSize.b3, lineHeight: fontSize.b3.lineHeight,
   },
   helperTextCentered: {
-    fontSize: scaledFont(10),
+    ...fontSize.b3, lineHeight: fontSize.b3.lineHeight,
     textAlign: 'center',
     maxWidth: 260,
   },
@@ -871,7 +863,7 @@ const styles = StyleSheet.create({
   },
   input: {
     flex: 1,
-    fontSize: scaledFont(11),
+    ...fontSize.b3, lineHeight: fontSize.b3.lineHeight,
     paddingHorizontal: 10,
   },
   aiBtn: {
@@ -924,25 +916,25 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
   },
   partnerName: {
-    fontSize: scaledFont(11),
+    ...fontSize.b3, lineHeight: fontSize.b3.lineHeight,
     textTransform: 'uppercase',
   },
   partnerMeta: {
-    fontSize: scaledFont(7),
+    ...fontSize.b5, lineHeight: fontSize.b5.lineHeight,
     textTransform: 'uppercase',
     letterSpacing: 1.3,
     marginTop: 4,
   },
   partnerBio: {
-    fontSize: scaledFont(8.5),
+    ...fontSize.b4, lineHeight: fontSize.b4.lineHeight,
     marginTop: 6,
   },
   matchText: {
     color: BRAND,
-    fontSize: scaledFont(15),
+    ...fontSize.h1, lineHeight: fontSize.h1.lineHeight,
   },
   smallMeta: {
-    fontSize: scaledFont(6.5),
+    ...fontSize.b5, lineHeight: fontSize.b5.lineHeight,
     textTransform: 'uppercase',
     letterSpacing: 1.4,
   },
@@ -957,7 +949,7 @@ const styles = StyleSheet.create({
     paddingVertical: 10,
   },
   filterChipText: {
-    fontSize: scaledFont(7),
+    ...fontSize.b5, lineHeight: fontSize.b5.lineHeight,
     textTransform: 'uppercase',
   },
   requestCard: {
@@ -983,16 +975,15 @@ const styles = StyleSheet.create({
     paddingHorizontal: 8,
     paddingVertical: 3,
     overflow: 'hidden',
-    fontSize: scaledFont(6.4),
+    ...fontSize.b5, lineHeight: fontSize.b5.lineHeight,
     textTransform: 'uppercase',
   },
   cardTitle: {
-    fontSize: scaledFont(10.5),
+    ...fontSize.b3, lineHeight: fontSize.b3.lineHeight,
     textTransform: 'uppercase',
   },
   cardBody: {
-    fontSize: scaledFont(9),
-    lineHeight: fontSize.b3.lineHeight,
+    ...fontSize.b3, lineHeight: fontSize.b3.lineHeight,
   },
   splitInfo: {
     flexDirection: 'row',
@@ -1007,7 +998,7 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
   },
   splitText: {
-    fontSize: scaledFont(9),
+    ...fontSize.b3, lineHeight: fontSize.b3.lineHeight,
     textTransform: 'uppercase',
   },
   secondaryMiniBtn: {
@@ -1020,7 +1011,7 @@ const styles = StyleSheet.create({
   },
   secondaryMiniBtnText: {
     color: BRAND,
-    fontSize: scaledFont(7.5),
+    ...fontSize.b5, lineHeight: fontSize.b5.lineHeight,
     textTransform: 'uppercase',
   },
   actionRow: {
@@ -1038,7 +1029,7 @@ const styles = StyleSheet.create({
   },
   primaryActionText: {
     color: '#fff',
-    fontSize: scaledFont(8.5),
+    ...fontSize.b4, lineHeight: fontSize.b4.lineHeight,
     textTransform: 'uppercase',
     letterSpacing: 1.4,
   },
@@ -1058,7 +1049,7 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
   },
   statusBannerText: {
-    fontSize: scaledFont(7.5),
+    ...fontSize.b5, lineHeight: fontSize.b5.lineHeight,
     textTransform: 'uppercase',
     letterSpacing: 1.4,
   },
@@ -1078,7 +1069,7 @@ const styles = StyleSheet.create({
     backgroundColor: BRAND,
   },
   progressText: {
-    fontSize: scaledFont(6.6),
+    ...fontSize.b5, lineHeight: fontSize.b5.lineHeight,
     textTransform: 'uppercase',
   },
   followUpBtn: {
@@ -1092,7 +1083,7 @@ const styles = StyleSheet.create({
     gap: 8,
   },
   followUpText: {
-    fontSize: scaledFont(7.5),
+    ...fontSize.b5, lineHeight: fontSize.b5.lineHeight,
     textTransform: 'uppercase',
   },
   withdrawBtn: {
@@ -1105,7 +1096,7 @@ const styles = StyleSheet.create({
   },
   withdrawText: {
     color: '#ef4444',
-    fontSize: scaledFont(7.5),
+    ...fontSize.b5, lineHeight: fontSize.b5.lineHeight,
     textTransform: 'uppercase',
   },
   greenAction: {
@@ -1119,7 +1110,7 @@ const styles = StyleSheet.create({
   },
   greenActionText: {
     color: '#fff',
-    fontSize: scaledFont(7.5),
+    ...fontSize.b5, lineHeight: fontSize.b5.lineHeight,
     textTransform: 'uppercase',
   },
   statusPill: {
@@ -1129,7 +1120,7 @@ const styles = StyleSheet.create({
     paddingVertical: 6,
   },
   statusPillText: {
-    fontSize: scaledFont(6.5),
+    ...fontSize.b5, lineHeight: fontSize.b5.lineHeight,
     textTransform: 'uppercase',
   },
   emptyState: {
@@ -1139,7 +1130,7 @@ const styles = StyleSheet.create({
     gap: 12,
   },
   emptyText: {
-    fontSize: scaledFont(8),
+    ...fontSize.b4, lineHeight: fontSize.b4.lineHeight,
     textTransform: 'uppercase',
     letterSpacing: 1.4,
   },
@@ -1198,12 +1189,12 @@ const styles = StyleSheet.create({
     borderRadius: 26,
   },
   modalTitle: {
-    fontSize: scaledFont(18),
+    ...fontSize.n3, lineHeight: fontSize.n3.lineHeight,
     textTransform: 'uppercase',
   },
   modalAccent: {
     color: BRAND,
-    fontSize: scaledFont(7.5),
+    ...fontSize.b5, lineHeight: fontSize.b5.lineHeight,
     textTransform: 'uppercase',
     letterSpacing: 1.8,
     marginTop: 4,
@@ -1222,11 +1213,11 @@ const styles = StyleSheet.create({
     gap: 14,
   },
   rangeLabel: {
-    fontSize: scaledFont(8),
+    ...fontSize.b4, lineHeight: fontSize.b4.lineHeight,
   },
   rangeValue: {
     color: BRAND,
-    fontSize: scaledFont(14),
+    ...fontSize.b1, lineHeight: fontSize.b1.lineHeight,
   },
   rangeWrap: {
     flexDirection: 'row',
@@ -1243,14 +1234,14 @@ const styles = StyleSheet.create({
     borderRadius: 24,
     borderWidth: 1,
     padding: 16,
-    fontSize: scaledFont(10),
+    ...fontSize.b3, lineHeight: fontSize.b3.lineHeight,
   },
   textField: {
     minHeight: 54,
     borderRadius: 18,
     borderWidth: 1,
     paddingHorizontal: 16,
-    fontSize: scaledFont(10),
+    ...fontSize.b3, lineHeight: fontSize.b3.lineHeight,
   },
   modalPrimaryBtn: {
     minHeight: 56,
@@ -1262,7 +1253,7 @@ const styles = StyleSheet.create({
   },
   modalPrimaryText: {
     color: '#fff',
-    fontSize: scaledFont(8.5),
+    ...fontSize.b4, lineHeight: fontSize.b4.lineHeight,
     textTransform: 'uppercase',
     letterSpacing: 1.8,
   },
@@ -1292,7 +1283,7 @@ const styles = StyleSheet.create({
     gap: 8,
   },
   protocolText: {
-    fontSize: scaledFont(7.4),
+    ...fontSize.b5, lineHeight: fontSize.b5.lineHeight,
     textTransform: 'uppercase',
   },
   toneRow: {
@@ -1305,8 +1296,9 @@ const styles = StyleSheet.create({
     paddingVertical: 10,
   },
   toneChipText: {
-    fontSize: scaledFont(7.4),
+    ...fontSize.b5, lineHeight: fontSize.b5.lineHeight,
   },
 });
 
 export default CollaborationHub;
+
