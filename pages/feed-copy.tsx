@@ -266,7 +266,7 @@ const VideoFeedItem: React.FC<{
               <Pressable onPress={() => setShowEmojiTray((v) => !v)}>
                 <MaterialIcons name="mood" size={20} color={showEmojiTray ? PRIMARY_COLOR : '#71717a'} />
               </Pressable>
-              <TextInput
+              <TextInput includeFontPadding={false}
                 style={styles.input}
                 value={commentText}
                 onChangeText={setCommentText}
@@ -378,7 +378,7 @@ const FeedCopy: React.FC = () => {
 
   return (
     <View style={[styles.screen, { backgroundColor: theme.screen }]}>
-      <StatusBar translucent barStyle="light-content" backgroundColor="transparent" />
+      <StatusBar translucent barStyle={isDark ? 'light-content' : 'dark-content'} backgroundColor="transparent" />
 
       <View style={styles.header}>
         <Pressable style={styles.circle} onPress={() => navigation.navigate('Discover')}>

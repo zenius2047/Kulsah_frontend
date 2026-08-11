@@ -22,6 +22,7 @@ import type {
   InitCreatorVideoUploadPayload,
   InitCreatorVideoUploadResponse,
   SubmitCreatorVideoEditsPayload,
+  SubmitCreatorVideoEditsResponse,
   UpdateCreatorVideoPlaylistPayload,
   UpdateCreatorVideoPayload,
   UpdateCreatorVideoProgressPayload,
@@ -30,6 +31,7 @@ import type {
   UploadCreatorVideoToDraftPayload,
   VideoUploadSource,
 } from '../types/video.types';
+import { createVideoProjectV3FormData } from '../services/videoProjectSubmission.service';
 
 const creatorVideoAuthConfig = (config: AxiosRequestConfig = {}): AxiosRequestConfig => {
   const token = useAuthStore.getState().token;
@@ -37,6 +39,7 @@ const creatorVideoAuthConfig = (config: AxiosRequestConfig = {}): AxiosRequestCo
   return {
     ...config,
     headers: {
+      Accept: 'application/json',
       ...config.headers,
       ...(token ? { Authorization: `Bearer ${token}` } : {}),
     },
@@ -106,21 +109,6 @@ const createVideoOnlyFormData = ({ video }: UploadCreatorVideoToDraftPayload) =>
   return formData;
 };
 
-const createVideoEditsFormData = ({ timeline, overlays, drawingFiles = [] }: SubmitCreatorVideoEditsPayload) => {
-  const formData = new FormData();
-
-  if (timeline) formData.append('timeline', JSON.stringify(timeline));
-  if (overlays?.length) formData.append('overlays', JSON.stringify(overlays));
-  drawingFiles.forEach((file, index) => {
-    formData.append('drawing_files[]', {
-      uri: file.uri,
-      name: file.name ?? `drawing-${index}.png`,
-      type: file.type ?? 'image/png',
-    } as any);
-  });
-
-  return formData;
-};
 
 const parseUploadResponse = (responseText: string) => {
   if (!responseText) return {};
@@ -183,9 +171,9 @@ export const videoApi = {
   completeCreatorVideoUpload: (video: string | number) =>
     api.post<CompleteCreatorVideoUploadResponse>(endpoints.creator.videoUploadComplete(video), {}, creatorVideoAuthConfig()),
   submitCreatorVideoEdits: (video: string | number, payload: SubmitCreatorVideoEditsPayload) =>
-    api.post<CreatorVideoProgressResponse>(
+    api.post<SubmitCreatorVideoEditsResponse>(
       endpoints.creator.videoEdits(video),
-      createVideoEditsFormData(payload),
+      createVideoProjectV3FormData(payload),
       creatorVideoAuthConfig(),
     ),
   uploadCreatorVideo: (payload: UploadCreatorVideoPayload) =>

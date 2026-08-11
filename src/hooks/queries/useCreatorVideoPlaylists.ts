@@ -11,8 +11,7 @@ export const useCreatorVideoPlaylists = (params?: CreatorVideoPlaylistsParams, e
     queryKey: [...CREATOR_VIDEO_PLAYLISTS_QUERY_KEY, params],
     queryFn: async () => {
       const response = await videoApi.getCreatorVideoPlaylists(params);
-      console.log('this is the data return from getting playlists:', response.data);
-      console.log('this is the payload of a video in pl:', response.data.data[0].videos);
+      console.log('[Playlists] Fetch response:', response.data);
       return response.data;
     },
     enabled,

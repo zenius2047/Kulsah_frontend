@@ -103,20 +103,20 @@ export const VoteSheetContent: React.FC<VoteSheetContentProps> = ({ onClose, she
     <View style={[styles.sheetRoot, sheetMode && styles.sheetRootOverlay]}>
       {!sheetMode ? <View style={styles.backdrop} /> : null}
       <View style={[styles.modalCard, sheetMode && styles.sheetCard, { backgroundColor: screenBackground, borderColor: ringColor }]}>
-        <View style={[styles.header, { backgroundColor: headerBackground, borderBottomColor: isDark ? 'rgba(255,255,255,0.08)' : theme.border }]}>
-          <Pressable style={styles.headerButton} onPress={onClose}>
+        <View style={[styles.header, { backgroundColor: headerBackground}]}>
+          {/* <Pressable style={styles.headerButton} onPress={onClose}>
             <MaterialIcons name="close" size={24} color={theme.text} />
-          </Pressable>
+          </Pressable> */}
           <Text style={[styles.headerTitle, { color: theme.text }]}>Sound Select</Text>
-          <Pressable style={styles.headerButton}>
+          {/* <Pressable style={styles.headerButton}>
             <MaterialIcons name="search" size={24} color={theme.text} />
-          </Pressable>
+          </Pressable> */}
         </View>
 
         <ScrollView contentContainerStyle={styles.content} showsVerticalScrollIndicator={false} keyboardShouldPersistTaps="handled">
           <View style={[styles.searchWrap, { backgroundColor: isDark ? 'rgba(255,255,255,0.05)' : theme.surface, borderColor: ringColor }]}>
             <MaterialIcons name="search" size={20} color={subtleText} />
-            <TextInput
+            <TextInput includeFontPadding={false}
               value={query}
               onChangeText={setQuery}
               placeholder="Search for sounds"
@@ -263,10 +263,9 @@ const styles = StyleSheet.create({
   header: {
     flexDirection: 'row',
     alignItems: 'center',
-    justifyContent: 'space-between',
+    justifyContent: 'center',
     paddingHorizontal: 18,
     paddingVertical: 14,
-    borderBottomWidth: 1,
   },
   headerButton: {
     width: 40,
@@ -277,7 +276,7 @@ const styles = StyleSheet.create({
     backgroundColor: 'rgba(255,255,255,0.06)',
   },
   headerTitle: {
-    ...fontSize.b4, lineHeight: fontSize.b4.lineHeight,
+    ...fontSize.h1, lineHeight: fontSize.h1.lineHeight,
   },
   content: {
     paddingHorizontal: 24,
@@ -295,8 +294,9 @@ const styles = StyleSheet.create({
     marginBottom: 12,
   },
   searchInput: {
-    flex: 1,
-    ...fontSize.b5, lineHeight: fontSize.b5.lineHeight,
+    // flex: 1,
+    ...fontSize.b3, lineHeight: fontSize.b3.lineHeight,
+    includeFontPadding: false,
   },
   tabsScroll: {
     marginBottom: 24,

@@ -149,7 +149,7 @@ const Inbox: React.FC = () => {
 
           <View style={[styles.searchRow, { backgroundColor: card, borderColor: border, marginHorizontal: 16 }]}>
             <MaterialIcons name="search" size={20} color={subtle} />
-            <TextInput
+            <TextInput includeFontPadding={false}
               placeholder="Search creators, fans or collaborations..."
               placeholderTextColor={subtle}
               style={[styles.searchInput, { color: theme.text }]}

@@ -162,8 +162,9 @@ const ClaimPrize: React.FC = () => {
       setActiveWinIndex(0);
       setClaimStep(4);
       setClaiming(false);
+      closeClaim();
       triggerToast(`Claim successful for ${selectedSub.challengeTitle}`);
-    }, 1000);
+    }, 5000);
   };
 
   const closeClaim = () => {
@@ -222,7 +223,7 @@ const ClaimPrize: React.FC = () => {
           <View style={styles.modalSection}>
             <Text style={styles.modalTitle}>DIGITAL DELIVERY</Text>
             <Text style={styles.modalSubtitle}>Choose where your access code and bundle link should arrive.</Text>
-            <TextInput value={redeemEmail} onChangeText={setRedeemEmail} placeholder="Email address" placeholderTextColor={placeholderColor} style={styles.input} />
+            <TextInput includeFontPadding={false} value={redeemEmail} onChangeText={setRedeemEmail} placeholder="Email address" placeholderTextColor={placeholderColor} style={styles.input} />
             <View style={styles.modalActions}>
               <Pressable style={styles.secondaryBtn} onPress={() => setClaimStep(1)}><Text style={styles.secondaryBtnText}>BACK</Text></Pressable>
               <Pressable style={styles.primaryBtnCompact} onPress={() => setClaimStep(3)}><Text style={styles.primaryBtnText}>NEXT</Text></Pressable>
@@ -236,11 +237,11 @@ const ClaimPrize: React.FC = () => {
           <View style={styles.modalSection}>
             <Text style={styles.modalTitle}>SHIPMENT DETAILS</Text>
             <Text style={styles.modalSubtitle}>Send the prize to the right planetary coordinate.</Text>
-            <TextInput value={shippingName} onChangeText={setShippingName} placeholder="Recipient name" placeholderTextColor={placeholderColor} style={styles.input} />
-            <TextInput value={shippingAddress} onChangeText={setShippingAddress} placeholder="Street address" placeholderTextColor={placeholderColor} style={styles.input} />
+            <TextInput includeFontPadding={false} value={shippingName} onChangeText={setShippingName} placeholder="Recipient name" placeholderTextColor={placeholderColor} style={styles.input} />
+            <TextInput includeFontPadding={false} value={shippingAddress} onChangeText={setShippingAddress} placeholder="Street address" placeholderTextColor={placeholderColor} style={styles.input} />
             <View style={styles.inputRow}>
-              <TextInput value={shippingCity} onChangeText={setShippingCity} placeholder="City" placeholderTextColor={placeholderColor} style={[styles.input, { flex: 1 }]} />
-              <TextInput value={shippingCountry} onChangeText={setShippingCountry} placeholder="Country" placeholderTextColor={placeholderColor} style={[styles.input, { flex: 1 }]} />
+              <TextInput includeFontPadding={false} value={shippingCity} onChangeText={setShippingCity} placeholder="City" placeholderTextColor={placeholderColor} style={[styles.input, { flex: 1 }]} />
+              <TextInput includeFontPadding={false} value={shippingCountry} onChangeText={setShippingCountry} placeholder="Country" placeholderTextColor={placeholderColor} style={[styles.input, { flex: 1 }]} />
             </View>
             <View style={styles.sizeRow}>
               {['S', 'M', 'L', 'XL'].map((size) => (
@@ -262,8 +263,8 @@ const ClaimPrize: React.FC = () => {
           <View style={styles.modalSection}>
             <Text style={styles.modalTitle}>CREATOR COORDINATION</Text>
             <Text style={styles.modalSubtitle}>Tell the creator where to coordinate your custom reward.</Text>
-            <TextInput value={recipientHandle} onChangeText={setRecipientHandle} placeholder="@handle or email" placeholderTextColor={placeholderColor} style={styles.input} />
-            <TextInput value={customNotes} onChangeText={setCustomNotes} placeholder="Preferred dates, notes, or questions..." placeholderTextColor={placeholderColor} multiline textAlignVertical="top" style={[styles.input, styles.textarea]} />
+            <TextInput includeFontPadding={false} value={recipientHandle} onChangeText={setRecipientHandle} placeholder="@handle or email" placeholderTextColor={placeholderColor} style={styles.input} />
+            <TextInput includeFontPadding={false} value={customNotes} onChangeText={setCustomNotes} placeholder="Preferred dates, notes, or questions..." placeholderTextColor={placeholderColor} multiline textAlignVertical="top" style={[styles.input, styles.textarea]} />
             <View style={styles.modalActions}>
               <Pressable style={styles.secondaryBtn} onPress={() => setClaimStep(1)}><Text style={styles.secondaryBtnText}>BACK</Text></Pressable>
               <Pressable style={styles.primaryBtnCompact} onPress={() => setClaimStep(3)}><Text style={styles.primaryBtnText}>NEXT</Text></Pressable>
@@ -295,14 +296,14 @@ const ClaimPrize: React.FC = () => {
           <Text style={styles.modalSubtitle}>Review the last details before the reward leaves the dock.</Text>
           {isMoney && payoutMethod === 'momo' && (
             <>
-              <TextInput value={momoProvider} onChangeText={setMomoProvider} placeholder="MoMo provider" placeholderTextColor={placeholderColor} style={styles.input} />
-              <TextInput value={phoneOrAccount} onChangeText={setPhoneOrAccount} placeholder="+233 24 123 4567" placeholderTextColor={placeholderColor} keyboardType="phone-pad" style={styles.input} />
+              <TextInput includeFontPadding={false} value={momoProvider} onChangeText={setMomoProvider} placeholder="MoMo provider" placeholderTextColor={placeholderColor} style={styles.input} />
+              <TextInput includeFontPadding={false} value={phoneOrAccount} onChangeText={setPhoneOrAccount} placeholder="+233 24 123 4567" placeholderTextColor={placeholderColor} keyboardType="phone-pad" style={styles.input} />
             </>
           )}
           {isMoney && payoutMethod === 'bank' && (
             <>
-              <TextInput value={bankName} onChangeText={setBankName} placeholder="Bank name" placeholderTextColor={placeholderColor} style={styles.input} />
-              <TextInput value={phoneOrAccount} onChangeText={setPhoneOrAccount} placeholder="Account number" placeholderTextColor={placeholderColor} style={styles.input} />
+              <TextInput includeFontPadding={false} value={bankName} onChangeText={setBankName} placeholder="Bank name" placeholderTextColor={placeholderColor} style={styles.input} />
+              <TextInput includeFontPadding={false} value={phoneOrAccount} onChangeText={setPhoneOrAccount} placeholder="Account number" placeholderTextColor={placeholderColor} style={styles.input} />
             </>
           )}
           <View style={styles.reviewCard}>
@@ -496,11 +497,12 @@ const createStyles = (isDark: boolean, theme: ReturnType<typeof useThemeMode>['t
     borderWidth: 1,
     borderColor: primaryColorAlpha(0.35),
     backgroundColor: isDark ? '#1e1330' : theme.card,
-    padding: 12,
+    paddingVertical: 12,
+    paddingHorizontal: 16,
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'center',
-    gap: 8,
+    gap: 2,
   },
   toastText: { color: titleText, ...fontSize.b5, lineHeight: fontSize.b5.lineHeight, textTransform: 'uppercase', letterSpacing: 0.8 },
   content: { padding: 20, paddingBottom: 60, alignItems: 'center' },

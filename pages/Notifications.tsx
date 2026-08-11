@@ -16,8 +16,8 @@ import { fontSize } from './typography';
 const Notifications: React.FC = () => {
   const { isDark, theme } = useThemeMode();
 
-  const shell = isDark ? '#0a050d' : theme.background;
-  const card = isDark ? 'rgba(255,255,255,0.03)' : theme.card;
+  const shell = isDark ? '#060913' : theme.background;
+  const card = isDark ? 'rgba(255,255,255,0.05)' : theme.card;
   const border = isDark ? 'rgba(255,255,255,0.1)' : theme.border;
   const textPrimary = isDark ? '#f7f5f8' : theme.text;
   const textMuted = isDark ? '#94a3b8' : theme.textSecondary;
@@ -110,7 +110,9 @@ const Notifications: React.FC = () => {
                   style={[styles.avatar, { borderColor: border }]}
                 />
                 <View>
-                  <Text style={[styles.inlineText, { color: textPrimary }]}>
+                  <Text
+                  numberOfLines={2}
+                  style={[styles.inlineText, { color: textPrimary }]}>
                     <Text style={styles.strongText}>Alex.VFX </Text>
                     <Text style={{ color: textMuted }}>mentioned you in a comment</Text>
                   </Text>
@@ -136,18 +138,23 @@ const Notifications: React.FC = () => {
                     }}
                     style={[styles.avatar, { borderColor: border }]}
                   />
-                  <View>
-                    <Text style={[styles.inlineText, { color: textPrimary }]}>
+                  <View style={{
+                    overflow: 'hidden'
+                  }}>
+                    <Text 
+                    numberOfLines = {2}
+                    style={[styles.inlineText, { color: textPrimary }]}>
                       <Text style={styles.strongText}>Synth.Pop </Text>
                       <Text style={{ color: textMuted }}>started following you</Text>
                     </Text>
                     <Text style={[styles.timeText, { color: sectionLabel }]}>10h ago</Text>
                   </View>
                 </View>
-                <Pressable style={[styles.followButton, { borderColor: PRIMARY_COLOR }]}>
+                
+              </View>
+              <Pressable style={[styles.followButton, { borderColor: PRIMARY_COLOR }]}>
                   <Text style={styles.followButtonText}>Follow Back</Text>
                 </Pressable>
-              </View>
             </View>
           </View>
         </ScrollView>
@@ -162,7 +169,7 @@ const styles = StyleSheet.create({
   content: { paddingHorizontal: 16, paddingBottom: 28, paddingTop: 10 },
   section: { marginBottom: 24 },
   sectionTitle: {
-    ...fontSize.b4, lineHeight: fontSize.b4.lineHeight,
+    ...fontSize.mediumTitleText, lineHeight: fontSize.mediumTitleText.lineHeight,
     letterSpacing: 2,
     marginBottom: 14,
   },
@@ -171,6 +178,7 @@ const styles = StyleSheet.create({
     borderRadius: 18,
     padding: 14,
     marginBottom: 10,
+    overflow: 'hidden'
   },
   rowStart: { flexDirection: 'row', alignItems: 'flex-start', gap: 12 },
   rowBetween: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', gap: 8 },
@@ -278,16 +286,21 @@ const styles = StyleSheet.create({
     letterSpacing: 1,
   },
   followButton: {
+    position: 'absolute',
+    right: 10,
+    bottom: 10,
+    alignSelf: 'baseline',
     borderWidth: 1,
     borderRadius: 999,
     paddingHorizontal: mediumScreen ? 12:10,
     paddingVertical: 8,
+    // width: '20%'
   },
   followButtonText: {
     color: PRIMARY_COLOR,
-    ...fontSize.b5, lineHeight: fontSize.b5.lineHeight,
+    ...fontSize.b5Variant, lineHeight: fontSize.b5Variant.lineHeight,
     textTransform: 'uppercase',
-    letterSpacing: 1,
+    letterSpacing: 0.2,
   },
 });
 

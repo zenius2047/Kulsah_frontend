@@ -72,7 +72,7 @@ const VibePickert: React.FC = () => {
 
         <View style={[styles.header, { paddingTop: insets.top + 48 }]}>
           <Text style={styles.title}>Pick your vibe</Text>
-          <Text style={styles.subtitle}>Select 1 or more vibe to personalize your galaxy.</Text>
+          <Text style={styles.subtitle}>vibe to personalize your galaxy.</Text>
         </View>
 
         <ScrollView

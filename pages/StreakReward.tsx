@@ -41,14 +41,14 @@ const StreakReward: React.FC = () => {
     setStreak(getStreakData());
   }, []);
 
-  const shell = isDark ? '#0a050d' : theme.background;
-  const headerBg = isDark ? 'rgba(10,5,13,0.8)' : 'rgba(255,255,255,0.92)';
-  const border = isDark ? 'rgba(255,255,255,0.08)' : theme.border;
-  const card = isDark ? 'rgba(255,255,255,0.04)' : theme.card;
+  const shell = isDark ? '#060913' : theme.background;
+  const headerBg = isDark ? 'rgba(6,9,19,0.94)' : 'rgba(255,255,255,0.92)';
+  const border = isDark ? 'rgba(255,255,255,0.1)' : theme.border;
+  const card = isDark ? 'rgba(255,255,255,0.05)' : theme.card;
   const textPrimary = isDark ? '#ffffff' : theme.text;
   const textMuted = isDark ? '#94a3b8' : theme.textSecondary;
   const labelMuted = isDark ? 'rgba(255,255,255,0.35)' : theme.textMuted;
-  const softBg = isDark ? 'rgba(255,255,255,0.04)' : 'rgba(15,23,42,0.04)';
+  const softBg = isDark ? 'rgba(255,255,255,0.06)' : 'rgba(15,23,42,0.04)';
 
   return (
     <SafeAreaView style={[styles.safeArea, { backgroundColor: shell }]} edges={['top', 'left', 'right']}>
@@ -59,7 +59,7 @@ const StreakReward: React.FC = () => {
 
         <ScrollView contentContainerStyle={styles.content} showsVerticalScrollIndicator={false}>
           <View style={styles.section}>
-            <View style={styles.fireGlow} pointerEvents="none" />
+            {/* <View style={styles.fireGlow} pointerEvents="none" /> */}
             <View style={[styles.streakCard, { backgroundColor: card, borderColor: 'rgba(249,115,22,0.25)' }]}>
               <View style={styles.fireIconWrap}>
                 <MaterialIcons name="local-fire-department" size={52} color="#ffffff" />

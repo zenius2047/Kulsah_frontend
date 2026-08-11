@@ -177,7 +177,7 @@ const MarketPlace: React.FC = () => {
 
         <View style={[s.searchWrap, { backgroundColor: isDark ? 'rgba(255,255,255,0.05)' : theme.surface, borderColor: theme.border }]}>
           <MaterialIcons name="search" size={20} color={theme.textSecondary} />
-          <TextInput
+          <TextInput includeFontPadding={false}
             value={searchQuery}
             onChangeText={setSearchQuery}
             placeholder="Search Artifacts & Assets..."
@@ -515,7 +515,7 @@ const MarketPlace: React.FC = () => {
 
                         <Text style={[s.inputLabel, { color: theme.textMuted }]}>MoMo Number</Text>
                         <View style={[s.inputWrap, { backgroundColor: isDark ? 'rgba(255,255,255,0.05)' : theme.card, borderColor: theme.border }]}>
-                          <TextInput
+                          <TextInput includeFontPadding={false}
                             value={phoneNumber}
                             onChangeText={setPhoneNumber}
                             placeholder="024XXXXXXX"

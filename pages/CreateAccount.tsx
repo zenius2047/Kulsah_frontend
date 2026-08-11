@@ -13,7 +13,7 @@ import {
   View,
 } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
-import { PRIMARY_COLOR, primaryColorAlpha } from "../theme";
+import { PRIMARY_COLOR, primaryColorAlpha, useThemeMode } from "../theme";
 import { fontSize } from './typography';
 
 const heroImage =
@@ -28,12 +28,13 @@ const previewImages = [
 
 const CreateAccount: React.FC = () => {
   const navigation = useNavigation<any>();
+  const { isDark } = useThemeMode();
   const { width } = useWindowDimensions();
   const showPreviewGrid = width >= 768;
 
   return (
     <View style={styles.screen}>
-      <StatusBar barStyle="light-content" translucent backgroundColor="transparent" />
+      <StatusBar barStyle={isDark ? 'light-content' : 'dark-content'} translucent backgroundColor="transparent" />
 
       <ImageBackground source={{ uri: heroImage }} style={styles.background} imageStyle={styles.backgroundImage}>
         <LinearGradient

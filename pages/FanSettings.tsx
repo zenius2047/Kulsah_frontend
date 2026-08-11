@@ -679,7 +679,7 @@ const FanSettings: React.FC<FanSettingsProps> = ({ onLogout, isDarkMode, onToggl
 
         <View style={s.formBlock}>
           <Text style={[s.label, { color: secondaryText }]}>Display Name</Text>
-          <TextInput
+          <TextInput includeFontPadding={false}
             value={profile.name}
             onChangeText={(value) => setProfile({ ...profile, name: value })}
             style={[s.input, { borderColor: theme.border, backgroundColor: inputBackground, color: theme.text }]}
@@ -691,7 +691,7 @@ const FanSettings: React.FC<FanSettingsProps> = ({ onLogout, isDarkMode, onToggl
           <Text style={[s.label, { color: secondaryText }]}>Galaxy Handle</Text>
           <View style={[s.handleWrap, {borderColor: theme.border, backgroundColor: inputBackground, height: 52, justifyContent: 'center'}]}>
             <Text style={[s.handlePrefix, { color: PRIMARY_COLOR, fontSize: fontSize.b3.fontSize, lineHeight: fontSize.b3.lineHeight, justifyContent: 'center'}]}>@</Text>
-            <TextInput
+            <TextInput includeFontPadding={false}
               value={profile.handle}
               onChangeText={(value) => setProfile({ ...profile, handle: value })}
               style={[s.input, s.handleInput, { color: theme.text, borderRadius: 0, borderWidth: 0, height: 40 }]}
@@ -705,7 +705,7 @@ const FanSettings: React.FC<FanSettingsProps> = ({ onLogout, isDarkMode, onToggl
             <Text style={[s.label, { color: secondaryText }]}>Bio</Text>
             <Text style={[s.counter, { color: secondaryText }]}>{profile.bio.length}/160</Text>
           </View>
-          <TextInput
+          <TextInput includeFontPadding={false}
             value={profile.bio}
             onChangeText={(value) => setProfile({ ...profile, bio: value })}
             maxLength={160}
@@ -1237,7 +1237,7 @@ const FanSettings: React.FC<FanSettingsProps> = ({ onLogout, isDarkMode, onToggl
                 <Text style={[s.giftDesc, { color: secondaryText }]}>Enter the exact number of coins you want.</Text>
               </View>
               <View style={s.customCoinRow}>
-                <TextInput
+                <TextInput includeFontPadding={false}
                   value={customCoinAmount}
                   onChangeText={(value) => setCustomCoinAmount(value.replace(/[^0-9]/g, ''))}
                   keyboardType="number-pad"
@@ -1584,15 +1584,29 @@ const s = StyleSheet.create({
     borderColor: '#e2e8f0',
     paddingHorizontal: 16,
     backgroundColor: 'fff',
-    ...fontSize.b4, lineHeight: fontSize.b4.fontSize ,
+    ...fontSize.b1,
+    lineHeight: fontSize.b1.lineHeight,
+    fontFamily: 'Inter_500Medium',
     color: '#0f172a',
   },
   handleWrap: { position: 'relative', justifyContent: 'center', borderRadius: 18,
     borderWidth: 1, },
-  handlePrefix: { position: 'absolute', left: 16, color: PRIMARY_COLOR },
-  handleInput: { paddingLeft: 34, },
+  handlePrefix: {
+    position: 'absolute',
+    left: 16,
+    color: PRIMARY_COLOR,
+    ...fontSize.b1,
+    lineHeight: fontSize.b1.lineHeight,
+    fontFamily: 'Inter_500Medium',
+  },
+  handleInput: {
+    paddingLeft: 34,
+    ...fontSize.b1,
+    lineHeight: fontSize.b1.lineHeight,
+    fontFamily: 'Inter_500Medium',
+  },
   rowBetween: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between' },
-  counter: { ...fontSize.b4, lineHeight: fontSize.b4.lineHeight, color: '#94a3b8' },
+  counter: { ...fontSize.b5, lineHeight: fontSize.b5.lineHeight, color: '#94a3b8' },
   textArea: {
     minHeight: 120,
     borderRadius: 22,
@@ -1602,7 +1616,9 @@ const s = StyleSheet.create({
     textAlignVertical: 'top',
     backgroundColor: '#fff',
     color: '#334155',
-    ...fontSize.b4, lineHeight: fontSize.b4.lineHeight
+    ...fontSize.b1,
+    lineHeight: fontSize.b1.lineHeight,
+    fontFamily: 'Inter_500Medium',
   },
   primaryButton: {
     marginTop: 6,
@@ -1759,7 +1775,7 @@ const s = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'center',
   },
-  statusText: { ...fontSize.b4, lineHeight: fontSize.b4.lineHeight, color: '#0f172a' },
+  statusText: { ...fontSize.b2, lineHeight: fontSize.b2.lineHeight, color: '#0f172a', fontFamily: 'Poppins_500Medium' },
   statusBadge: {
     ...fontSize.b5, lineHeight: fontSize.b5.lineHeight,
     textTransform: 'uppercase',
@@ -2066,8 +2082,13 @@ const s = StyleSheet.create({
   profileHeader: { alignItems: 'center', gap: 12 },
   profileTextWrap: { alignItems: 'center' },
   profileNameRow: { flexDirection: 'row', alignItems: 'center', gap: 2 },
-  profileName: { ...fontSize.b2, lineHeight: fontSize.b2.lineHeight, color: '#0f172a' },
-  profileHandle: { ...fontSize.b5, lineHeight: fontSize.b5.lineHeight, letterSpacing: 0.5, color: PRIMARY_COLOR, textTransform: 'uppercase' },
+  profileName: {
+    ...fontSize.b0Variant,
+    lineHeight: fontSize.b0Variant.lineHeight - 2,
+    color: '#0f172a',
+    fontFamily: 'Inter_500Medium',
+  },
+  profileHandle: { ...fontSize.b5, lineHeight: fontSize.b5.lineHeight, letterSpacing: 0.5, color: PRIMARY_COLOR },
   itemRow: {
     marginTop: 8,
     padding: 14,
@@ -2090,8 +2111,8 @@ const s = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'center',
   },
-  itemLabel: { ...fontSize.b4, lineHeight: fontSize.b4.lineHeight, color: '#0f172a' },
-  itemDesc: { ...fontSize.b5, lineHeight: fontSize.b5.lineHeight, color: '#94a3b8' },
+  itemLabel: { ...fontSize.b3, lineHeight: fontSize.b3.lineHeight, color: '#0f172a' },
+  itemDesc: { ...fontSize.b5, lineHeight: fontSize.b5.lineHeight+ 2, color: '#94a3b8' },
   toggle: {
     width: 44,
     height: 24,
@@ -2121,8 +2142,20 @@ const s = StyleSheet.create({
     borderColor: '#fecaca',
     backgroundColor: '#fee2e2',
   },
-  logoutText: { ...fontSize.b4, lineHeight: fontSize.b4.lineHeight, color: '#ef4444' },
-  versionText: { ...fontSize.b5, lineHeight: fontSize.b5.lineHeight, textTransform: 'uppercase', color: '#94a3b8', letterSpacing: 2 },
+  logoutText: {
+    ...fontSize.b1,
+    lineHeight: fontSize.b1.lineHeight + 1,
+    color: '#ef4444',
+    fontFamily: 'Poppins_500Medium',
+  },
+  versionText: {
+    ...fontSize.b5,
+    lineHeight: fontSize.b5.lineHeight,
+    textTransform: 'uppercase',
+    color: '#94a3b8',
+    letterSpacing: 1.5,
+    fontWeight: '900',
+  },
   roleModalRoot: {
     flex: 1,
     alignItems: 'center',
@@ -2160,8 +2193,9 @@ const s = StyleSheet.create({
     lineHeight: fontSize.b1.lineHeight,
   },
   roleModalBody: {
-    ...fontSize.b4,
-    lineHeight: fontSize.b4.lineHeight,
+    ...fontSize.b3,
+    lineHeight: fontSize.b3.lineHeight,
+    fontFamily: 'Poppins_500Medium',
     textAlign: 'center',
   },
   roleModalActions: {

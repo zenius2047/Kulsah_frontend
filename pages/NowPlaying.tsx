@@ -200,7 +200,7 @@ const NowPlaying: React.FC = () => {
 
         <View>
           <View>
-            <TextInput 
+            <TextInput includeFontPadding={false} 
               type="range"
               min="0"
               max={duration || 100}

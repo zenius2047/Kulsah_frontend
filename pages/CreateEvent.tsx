@@ -145,7 +145,7 @@ const CreateEvent: React.FC = () => {
             ))}
           </ScrollView> */}
 
-          <View style={styles.heroRow}>
+          {/* <View style={styles.heroRow}>
             <Pressable style={styles.newVideoCard}>
               <View style={styles.addBadge}>
                 <MaterialIcons name="add" size={22} color="#ffffff" />
@@ -164,7 +164,7 @@ const CreateEvent: React.FC = () => {
                 <Text style={styles.draftLabel}>DRAFTS</Text>
               </View>
             </Pressable>
-          </View>
+          </View> */}
 
           <View style={styles.actionsColumn}>
             {actionCards.map((card) => (

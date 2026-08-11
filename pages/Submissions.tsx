@@ -2,7 +2,6 @@ import { MaterialIcons } from '@expo/vector-icons';
 import { LinearGradient } from 'expo-linear-gradient';
 import React, { useEffect, useMemo, useState } from 'react';
 import {
-  ActivityIndicator,
   Image,
   ImageBackground,
   Modal,
@@ -18,6 +17,7 @@ import { SafeAreaView, useSafeAreaInsets } from 'react-native-safe-area-context'
 import { PRIMARY_COLOR, primaryColorAlpha, useThemeMode } from '../theme';
 import { useNavigation } from '@react-navigation/native';
 import { fontSize } from './typography';
+import { ListSkeleton } from '../components/PageSkeleton';
 
 type SubmissionTab =
   | 'all'
@@ -214,7 +214,7 @@ const Submissions: React.FC = () => {
 
         <View style={[styles.searchBox, { backgroundColor: isDark ? '#18181b' : '#ffffff', borderColor: isDark ? '#27272a' : '#e2e8f0', marginHorizontal: 20 }]}>
           <MaterialIcons name="search" size={20} color={theme.textMuted} />
-          <TextInput
+          <TextInput includeFontPadding={false}
             value={searchQuery}
             onChangeText={setSearchQuery}
             placeholder="Search by participant or challenge..."
@@ -281,9 +281,7 @@ const Submissions: React.FC = () => {
         </View>
 
         {loading ? (
-          <View style={styles.loadingWrap}>
-            <ActivityIndicator color={PRIMARY_COLOR} />
-          </View>
+          <ListSkeleton isDark={isDark} count={5} />
         ) : filteredSubmissions.length === 0 ? (
           <View style={[styles.emptyCard, { backgroundColor: isDark ? 'rgba(255,255,255,0.05)' : '#f8fafc', borderColor: theme.border }]}>
             <MaterialIcons name="playlist-remove" size={34} color={theme.textMuted} />

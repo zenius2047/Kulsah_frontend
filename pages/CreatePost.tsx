@@ -58,7 +58,7 @@ const CreatePost: React.FC = () => {
             </View>
           </View>
 
-          <TextInput
+          <TextInput includeFontPadding={false}
             multiline
             placeholder="What's happening in your world?"
             placeholderTextColor="#64748B"

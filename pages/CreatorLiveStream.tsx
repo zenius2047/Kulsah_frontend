@@ -377,7 +377,7 @@ const CreatorLiveStream: React.FC = () => {
 
             <View style={[styles.broadcastRow]}>
               <BlurView intensity={28} tint="dark" style={styles.broadcastInputWrap}>
-                <TextInput
+                <TextInput includeFontPadding={false}
                   value={broadcastText}
                   onChangeText={setBroadcastText}
                   placeholder="Broadcast a system alert..."

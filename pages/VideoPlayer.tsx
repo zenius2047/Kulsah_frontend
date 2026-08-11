@@ -646,6 +646,11 @@ const VideoPlayer: React.FC = () => {
   const episodeIndex = routePlaylistVideos.findIndex((item) => item.id === video.id);
   const episodeNumber = episodeIndex >= 0 ? episodeIndex + 1 : 1;
   const episodeTotal = Math.max(routePlaylistVideos.length, upNextVideos.length + 1, 1);
+  const episodeVideos = routePlaylistVideos.length > 0
+    ? routePlaylistVideos
+    : [video, ...upNextVideos].filter(
+        (item, index, items) => item.id && items.findIndex((entry) => entry.id === item.id) === index,
+      );
   const likeCount = video.likes || '0';
   const commentCount = video.comments || String(comments.length);
   const saveCount = route.params?.item?.saves || route.params?.item?.bookmarks || '0';
@@ -697,7 +702,7 @@ const VideoPlayer: React.FC = () => {
 
   return (
     <SafeAreaView style={styles.shortPlayerRoot} edges={[]}>
-      <StatusBar barStyle="light-content" backgroundColor="transparent" translucent />
+      <StatusBar barStyle={isDark ? 'light-content' : 'dark-content'} backgroundColor="transparent" translucent />
       {toast ? <View style={[styles.toast, { top: insets.top + 12 }]}><Text style={styles.toastText}>{toast}</Text></View> : null}
       <View
         style={styles.shortVideoStage}
@@ -721,9 +726,9 @@ const VideoPlayer: React.FC = () => {
           maxToRenderPerBatch={2}
           updateCellsBatchingPeriod={75}
         /> : null}
-        <Pressable accessibilityRole="button" accessibilityLabel="Go back" onPress={() => navigation.goBack()} style={[styles.shortBackButton, { top: insets.top + 12 }]}>
+        {/* <Pressable accessibilityRole="button" accessibilityLabel="Go back" onPress={() => navigation.goBack()} style={[styles.shortBackButton, { top: insets.top + 12 }]}>
           <MaterialIcons name="chevron-left" size={42} color="#fff" />
-        </Pressable>
+        </Pressable> */}
 
         <View style={{ display: 'none' }} pointerEvents="none">
           <Text numberOfLines={2} style={styles.shortTitle}>{video.title || 'Kulsah Video'}</Text>
@@ -743,6 +748,98 @@ const VideoPlayer: React.FC = () => {
           <MaterialIcons name="keyboard-arrow-up" size={27} color="#d7d7d7" style={styles.episodeChevron} />
         </Pressable>
       </View> : null}
+
+      <Modal
+        visible={queueOpen && isPlaylist}
+        transparent
+        animationType="slide"
+        statusBarTranslucent
+        onRequestClose={() => setQueueOpen(false)}
+      >
+        <View style={styles.episodeModalRoot}>
+          <Pressable
+            accessibilityRole="button"
+            accessibilityLabel="Close episode list"
+            style={styles.episodeModalBackdrop}
+            onPress={() => setQueueOpen(false)}
+          />
+          <View style={[styles.episodeSheet, { paddingBottom: Math.max(insets.bottom, 14) }]}>
+            <View style={styles.episodeSheetHandle} />
+            <View style={styles.episodeSheetHeader}>
+              <View style={styles.episodeSheetHeading}>
+                <Text style={styles.episodeSheetTitle}>Episodes</Text>
+                <Text numberOfLines={1} style={styles.episodeSheetSubtitle}>
+                  {route.params?.playlistName || `${episodeVideos.length} videos`}
+                </Text>
+              </View>
+              <Pressable
+                accessibilityRole="button"
+                accessibilityLabel="Close"
+                hitSlop={10}
+                onPress={() => setQueueOpen(false)}
+                style={styles.episodeSheetClose}
+              >
+                <MaterialIcons name="close" size={22} color="#f1f1f1" />
+              </Pressable>
+            </View>
+
+            <ScrollView
+              showsVerticalScrollIndicator={false}
+              contentContainerStyle={styles.episodeList}
+            >
+              {episodeVideos.map((item, index) => {
+                const isCurrentEpisode = item.id === video.id;
+
+                return (
+                  <Pressable
+                    key={item.id}
+                    onPress={() => playVideoItem(item)}
+                    style={({ pressed }) => [
+                      styles.episodeRow,
+                      isCurrentEpisode && styles.episodeRowActive,
+                      pressed && styles.episodeRowPressed,
+                    ]}
+                  >
+                    <View style={styles.episodeThumbnailWrap}>
+                      {item.img ? (
+                        <Image source={{ uri: item.img }} style={styles.episodeThumbnail} />
+                      ) : (
+                        <View style={[styles.episodeThumbnail, styles.episodeThumbnailFallback]}>
+                          <MaterialIcons name="play-arrow" size={24} color="#a1a1a1" />
+                        </View>
+                      )}
+                      <View style={styles.episodeNumberBadge}>
+                        <Text style={styles.episodeNumberText}>{index + 1}</Text>
+                      </View>
+                    </View>
+
+                    <View style={styles.episodeRowCopy}>
+                      <Text
+                        numberOfLines={2}
+                        style={[styles.episodeRowTitle, isCurrentEpisode && styles.episodeRowTitleActive]}
+                      >
+                        {item.title || `Episode ${index + 1}`}
+                      </Text>
+                      <Text numberOfLines={1} style={styles.episodeRowMeta}>
+                        Episode {index + 1}{item.duration ? `  ·  ${item.duration}` : ''}
+                      </Text>
+                    </View>
+
+                    {isCurrentEpisode ? (
+                      <View style={styles.nowPlayingWrap}>
+                        <MaterialIcons name="equalizer" size={20} color="#fe2c55" />
+                        <Text style={styles.nowPlayingText}>Playing</Text>
+                      </View>
+                    ) : (
+                      <MaterialIcons name="play-arrow" size={25} color="#8a8a8a" />
+                    )}
+                  </Pressable>
+                );
+              })}
+            </ScrollView>
+          </View>
+        </View>
+      </Modal>
     </SafeAreaView>
   );
 };
@@ -777,10 +874,73 @@ const styles = StyleSheet.create({
   shortTrack: { position: 'absolute', left: 0, right: 0, bottom: -8, height: 16, zIndex: 10, justifyContent: 'center' },
   shortTrackFill: { height: 3, backgroundColor: '#e6e6e6' },
   shortTrackThumb: { position: 'absolute', width: 7, height: 7, marginLeft: -3.5, borderRadius: 4, backgroundColor: '#fff' },
-  playerDock: { minHeight: 84, backgroundColor: '#050505', flexDirection: 'row', alignItems: 'center', gap: 10, paddingHorizontal: 16, paddingTop: 10 },
-  episodePill: { flex: 1, height: 56, borderRadius: 29, backgroundColor: '#202020', flexDirection: 'row', alignItems: 'center', paddingHorizontal: 22, gap: 8 },
+  playerDock: { minHeight: 40, backgroundColor: '#050505', flexDirection: 'row', alignItems: 'center', gap: 10, paddingHorizontal: 16, paddingTop: 5 },
+  episodePill: { flex: 1, height: 36, borderRadius: 29, backgroundColor: '#202020', flexDirection: 'row', alignItems: 'center', paddingHorizontal: 22, gap: 8 },
   episodeText: { color: '#d7d7d7', ...fontSize.h2, fontFamily: 'Inter_500Medium' },
   episodeChevron: { marginLeft: 'auto' },
+  episodeModalRoot: { flex: 1, justifyContent: 'flex-end' },
+  episodeModalBackdrop: { ...StyleSheet.absoluteFillObject, backgroundColor: 'rgba(0,0,0,0.58)' },
+  episodeSheet: {
+    maxHeight: '72%',
+    minHeight: '42%',
+    backgroundColor: '#181818',
+    borderTopLeftRadius: 14,
+    borderTopRightRadius: 14,
+    overflow: 'hidden',
+  },
+  episodeSheetHandle: {
+    width: 36,
+    height: 4,
+    borderRadius: 2,
+    alignSelf: 'center',
+    marginTop: 8,
+    backgroundColor: '#555',
+  },
+  episodeSheetHeader: {
+    minHeight: 68,
+    paddingHorizontal: 16,
+    flexDirection: 'row',
+    alignItems: 'center',
+    borderBottomWidth: StyleSheet.hairlineWidth,
+    borderBottomColor: '#333',
+  },
+  episodeSheetHeading: { flex: 1, alignItems: 'center', paddingLeft: 38 },
+  episodeSheetTitle: { color: '#f5f5f5', ...fontSize.b2, fontFamily: 'Inter_600SemiBold' },
+  episodeSheetSubtitle: { marginTop: 2, color: '#8f8f8f', ...fontSize.b5 },
+  episodeSheetClose: { width: 38, height: 38, alignItems: 'center', justifyContent: 'center' },
+  episodeList: { paddingVertical: 8 },
+  episodeRow: {
+    minHeight: 82,
+    paddingHorizontal: 16,
+    paddingVertical: 9,
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 12,
+  },
+  episodeRowActive: { backgroundColor: '#262626' },
+  episodeRowPressed: { backgroundColor: '#303030' },
+  episodeThumbnailWrap: { width: 92, height: 58, borderRadius: 4, overflow: 'hidden' },
+  episodeThumbnail: { width: '100%', height: '100%', resizeMode: 'cover' },
+  episodeThumbnailFallback: { backgroundColor: '#282828', alignItems: 'center', justifyContent: 'center' },
+  episodeNumberBadge: {
+    position: 'absolute',
+    left: 5,
+    bottom: 5,
+    minWidth: 20,
+    height: 20,
+    borderRadius: 3,
+    paddingHorizontal: 4,
+    alignItems: 'center',
+    justifyContent: 'center',
+    backgroundColor: 'rgba(0,0,0,0.72)',
+  },
+  episodeNumberText: { color: '#fff', ...fontSize.b5, fontFamily: 'Inter_600SemiBold' },
+  episodeRowCopy: { flex: 1 },
+  episodeRowTitle: { color: '#efefef', ...fontSize.b4, lineHeight: fontSize.b4.lineHeight },
+  episodeRowTitleActive: { color: '#fff', fontFamily: 'Inter_600SemiBold' },
+  episodeRowMeta: { marginTop: 5, color: '#8f8f8f', ...fontSize.b5 },
+  nowPlayingWrap: { width: 48, alignItems: 'center', gap: 2 },
+  nowPlayingText: { color: '#fe2c55', ...fontSize.b5 },
   dockCircle: { width: 57, height: 57, borderRadius: 29, backgroundColor: '#202020', alignItems: 'center', justifyContent: 'center' },
   speedText: { color: '#d7d7d7', ...fontSize.h2, fontFamily: 'Inter_500Medium' },
   safeArea: { flex: 1 }, toast: { position: 'absolute', left: 24, right: 24, zIndex: 40, alignItems: 'center' }, toastText: { color: '#fff', ...fontSize.b5, lineHeight: fontSize.b5.lineHeight, textTransform: 'uppercase', letterSpacing: 1.6, backgroundColor: PRIMARY_COLOR, paddingHorizontal: 18, paddingVertical: 10, borderRadius: 999 },

@@ -17,7 +17,8 @@
       "supportsTablet": true,
       "bundleIdentifier": "com.godfreddevsorganization.kulsah",
       "infoPlist": {
-        "ITSAppUsesNonExemptEncryption": false
+        "ITSAppUsesNonExemptEncryption": false,
+        "UIViewControllerBasedStatusBarAppearance": true
       }
     },
     "android": {

@@ -13,6 +13,15 @@ import {
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { GoogleGenAI } from '@google/genai';
+import Svg, {
+  Circle,
+  Defs,
+  Line,
+  LinearGradient as SvgLinearGradient,
+  Path,
+  Stop,
+  Text as SvgText,
+} from 'react-native-svg';
 import { fontSize } from '../typography';
 
 type RangeOption = '7d' | '30d' | 'All';
@@ -24,6 +33,18 @@ const RANGE_FACTORS: Record<RangeOption, number> = {
 };
 
 const SOURCE_COLORS = [PRIMARY_COLOR, '#3b82f6', '#2ecc71', '#f59e0b'];
+const GROWTH_CHART = { width: 320, top: 18, bottom: 138, left: 20, right: 300 };
+
+type ChartPoint = { x: number; y: number };
+
+const getSmoothPath = (points: ChartPoint[]) =>
+  points.reduce((path, point, index) => {
+    if (index === 0) return `M ${point.x} ${point.y}`;
+    const previous = points[index - 1];
+    const midpoint = (previous.x + point.x) / 2;
+    return `${path} C ${midpoint} ${previous.y}, ${midpoint} ${point.y}, ${point.x} ${point.y}`;
+  }, '');
+
 const CreatorAnalytics: React.FC = () => {
   const { isDark, theme } = useThemeMode();
   const navigation = useNavigation<any>();
@@ -36,6 +57,7 @@ const CreatorAnalytics: React.FC = () => {
     { name: 'Week 2', subs: 2350, active: 1950 },
     { name: 'Week 3', subs: 2600, active: 2200 },
     { name: 'Week 4', subs: 2842, active: 2400 },
+    { name: 'Week 5', subs: 3120, active: 2660 },
   ];
 
   const engagementData = [
@@ -87,6 +109,37 @@ const CreatorAnalytics: React.FC = () => {
     [adjustedGrowth],
   );
 
+  const growthChart = useMemo(() => {
+    const chartHeight = GROWTH_CHART.bottom - GROWTH_CHART.top;
+    const chartWidth = GROWTH_CHART.right - GROWTH_CHART.left;
+    const xStep = chartWidth / Math.max(adjustedGrowth.length - 1, 1);
+    const toY = (value: number) =>
+      GROWTH_CHART.bottom - (value / maxGrowth) * chartHeight;
+    const subsPoints = adjustedGrowth.map((point, index) => ({
+      x: GROWTH_CHART.left + index * xStep,
+      y: toY(point.subs),
+    }));
+    const activePoints = adjustedGrowth.map((point, index) => ({
+      x: GROWTH_CHART.left + index * xStep,
+      y: toY(point.active),
+    }));
+    const subsPath = getSmoothPath(subsPoints);
+
+    return {
+      subsPoints,
+      activePoints,
+      subsPath,
+      activePath: getSmoothPath(activePoints),
+      areaPath: `${subsPath} L ${subsPoints.at(-1)?.x ?? GROWTH_CHART.right} ${GROWTH_CHART.bottom} L ${GROWTH_CHART.left} ${GROWTH_CHART.bottom} Z`,
+    };
+  }, [adjustedGrowth, maxGrowth]);
+
+  const communityGrowthPercent = useMemo(() => {
+    const first = adjustedGrowth[0]?.subs ?? 0;
+    const last = adjustedGrowth.at(-1)?.subs ?? first;
+    return first > 0 ? ((last - first) / first) * 100 : 0;
+  }, [adjustedGrowth]);
+
   const maxEngagement = useMemo(
     () => Math.max(...adjustedEngagement.map((item) => item.value), 1),
     [adjustedEngagement],
@@ -126,11 +179,11 @@ const CreatorAnalytics: React.FC = () => {
   }, []);
 
   const shellBackground = isDark ? '#060913' : theme.background;
-  const headerBackground = isDark ? '#1f1022d4' : 'rgba(255,255,255,0.94)';
-  const cardBackground = isDark ? '#1f1022bf' : theme.card;
-  const cardBorder = isDark ? '#ffffff12' : theme.border;
-  const softSurface = isDark ? '#ffffff10' : theme.surface;
-  const softSurfaceStrong = isDark ? '#ffffff12' : theme.surface;
+  const headerBackground = isDark ? 'rgba(6,9,19,0.94)' : 'rgba(255,255,255,0.94)';
+  const cardBackground = isDark ? 'rgba(255,255,255,0.05)' : theme.card;
+  const cardBorder = isDark ? 'rgba(255,255,255,0.1)' : theme.border;
+  const softSurface = isDark ? 'rgba(255,255,255,0.06)' : theme.surface;
+  const softSurfaceStrong = isDark ? 'rgba(255,255,255,0.08)' : theme.surface;
   const textPrimary = isDark ? '#fff' : theme.text;
   const textSecondary = isDark ? '#d4d6e4' : theme.textSecondary;
   const textMuted = isDark ? '#8d91a8' : theme.textMuted;
@@ -213,23 +266,101 @@ const CreatorAnalytics: React.FC = () => {
         <View style={s.section}>
           <Text style={[s.sectionTitle, { color: textMuted }]}>Community Growth</Text>
           <View style={[s.panel, { borderColor: cardBorder, backgroundColor: cardBackground }]}>
-            {adjustedGrowth.map((point) => {
-              const subsWidth = `${Math.max((point.subs / maxGrowth) * 100, 6)}%` as `${number}%`;
-              const activeWidth = `${Math.max((point.active / maxGrowth) * 100, 6)}%` as `${number}%`;
-              return (
-                <View key={point.name} style={s.rowBlock}>
-                  <Text style={[s.rowLabel, { color: textSecondary }]}>{point.name}</Text>
-                  <View style={[s.track, { backgroundColor: trackBackground }]}>
-                    <View style={[s.fill, { width: subsWidth, backgroundColor: accent }]} />
-                    <View style={[s.fillThin, { width: activeWidth, backgroundColor: '#3b82f6' }]} />
-                  </View>
-                  <View style={s.rowValues}>
-                    <Text style={[s.rowValue, { color: accent }]}>Subs {point.subs.toLocaleString()}</Text>
-                    <Text style={[s.rowValueMuted, { color: blueMuted }]}>Active {point.active.toLocaleString()}</Text>
-                  </View>
-                </View>
-              );
-            })}
+            <View style={s.growthSummary}>
+              <View>
+                <Text style={[s.growthTotal, { color: textPrimary }]}>
+                  {adjustedGrowth.at(-1)?.subs.toLocaleString()}
+                </Text>
+                <Text style={[s.growthCaption, { color: textMuted }]}>Total community</Text>
+              </View>
+              <View style={[s.growthBadge, { backgroundColor: primaryColorAlpha(0.12) }]}>
+                <MaterialIcons name="trending-up" size={15} color={accent} />
+                <Text style={[s.growthBadgeText, { color: accent }]}>
+                  +{communityGrowthPercent.toFixed(1)}%
+                </Text>
+              </View>
+            </View>
+
+            <View style={s.growthLegend}>
+              <View style={s.growthLegendItem}>
+                <View style={[s.growthLegendDot, { backgroundColor: accent }]} />
+                <Text style={[s.growthLegendText, { color: textSecondary }]}>Subscribers</Text>
+              </View>
+              <View style={s.growthLegendItem}>
+                <View style={[s.growthLegendDot, { backgroundColor: '#3b82f6' }]} />
+                <Text style={[s.growthLegendText, { color: textSecondary }]}>Active</Text>
+              </View>
+            </View>
+
+            <Svg width="100%" height={190} viewBox={`0 0 ${GROWTH_CHART.width} 180`}>
+              <Defs>
+                <SvgLinearGradient id="subscriberArea" x1="0" y1="0" x2="0" y2="1">
+                  <Stop offset="0" stopColor={accent} stopOpacity="0.38" />
+                  <Stop offset="1" stopColor={accent} stopOpacity="0.02" />
+                </SvgLinearGradient>
+              </Defs>
+              {[GROWTH_CHART.top, 58, 98, GROWTH_CHART.bottom].map((y) => (
+                <Line
+                  key={y}
+                  x1={GROWTH_CHART.left}
+                  x2={GROWTH_CHART.right}
+                  y1={y}
+                  y2={y}
+                  stroke={trackBackground}
+                  strokeWidth={1}
+                />
+              ))}
+              <Path d={growthChart.areaPath} fill="url(#subscriberArea)" />
+              <Path
+                d={growthChart.subsPath}
+                fill="none"
+                stroke={accent}
+                strokeWidth={3}
+                strokeLinecap="round"
+              />
+              <Path
+                d={growthChart.activePath}
+                fill="none"
+                stroke="#3b82f6"
+                strokeWidth={2.2}
+                strokeLinecap="round"
+              />
+              {growthChart.subsPoints.map((point, index) => (
+                <Circle
+                  key={`subs-${adjustedGrowth[index].name}`}
+                  cx={point.x}
+                  cy={point.y}
+                  r={4}
+                  fill={cardBackground}
+                  stroke={accent}
+                  strokeWidth={2.5}
+                />
+              ))}
+              {growthChart.activePoints.map((point, index) => (
+                <Circle
+                  key={`active-${adjustedGrowth[index].name}`}
+                  cx={point.x}
+                  cy={point.y}
+                  r={3}
+                  fill={cardBackground}
+                  stroke="#3b82f6"
+                  strokeWidth={2}
+                />
+              ))}
+              {adjustedGrowth.map((point, index) => (
+                <SvgText
+                  key={point.name}
+                  x={growthChart.subsPoints[index].x}
+                  y={163}
+                  fill={textMuted}
+                  fontFamily="Poppins_500Medium"
+                  fontSize={8}
+                  textAnchor="middle"
+                >
+                  {`W${index + 1}`}
+                </SvgText>
+              ))}
+            </Svg>
           </View>
         </View>
 
@@ -334,7 +465,7 @@ const CreatorAnalytics: React.FC = () => {
 
 const s = StyleSheet.create({
   screen: { flex: 1, backgroundColor: '#060913' },
-  safeTop: { backgroundColor: '#1f1022d4' },
+  safeTop: { backgroundColor: 'rgba(6,9,19,0.94)' },
   header: {
     paddingHorizontal: 16,
     paddingVertical: 12,
@@ -377,17 +508,17 @@ const s = StyleSheet.create({
     borderRadius: 18,
     borderWidth: 1,
     borderColor: '#ffffff12',
-    backgroundColor: '#1f1022bf',
+    backgroundColor: 'rgba(255,255,255,0.05)',
     paddingVertical: 12,
     paddingHorizontal: 8,
     alignItems: 'center',
   },
   metricCardPrimary: { borderColor: primaryColorAlphaHex('44'), backgroundColor: primaryColorAlphaHex('14') },
-  metricValue: { color: '#fff', ...fontSize.n3, lineHeight: fontSize.n3.lineHeight },
+  metricValue: { color: '#fff', ...fontSize.n3, lineHeight: fontSize.n3.lineHeight, fontFamily: 'PlusJakartaSans_600SemiBold' },
   metricLabel: {
     color: '#8d91a8',
-    ...fontSize.b5,
-    lineHeight: fontSize.b5.lineHeight,
+    ...fontSize.b5Variant,
+    lineHeight: fontSize.b5Variant.lineHeight,
     marginTop: 4,
     textTransform: 'uppercase',
     letterSpacing: 1.1,
@@ -397,7 +528,7 @@ const s = StyleSheet.create({
     borderRadius: 24,
     borderWidth: 1,
     borderColor: primaryColorAlphaHex('44'),
-    backgroundColor: '#1f1022e6',
+    backgroundColor: 'rgba(255,255,255,0.05)',
     padding: 14,
     gap: 10,
   },
@@ -445,9 +576,56 @@ const s = StyleSheet.create({
     borderRadius: 20,
     borderWidth: 1,
     borderColor: '#ffffff12',
-    backgroundColor: '#1f1022bf',
+    backgroundColor: 'rgba(255,255,255,0.05)',
     padding: 12,
     gap: 10,
+  },
+  growthSummary: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+  },
+  growthTotal: {
+    ...fontSize.n3,
+    lineHeight: fontSize.n3.lineHeight,
+  },
+  growthCaption: {
+    ...fontSize.b5,
+    lineHeight: fontSize.b5.lineHeight,
+    textTransform: 'uppercase',
+    letterSpacing: 1,
+    marginTop: 2,
+  },
+  growthBadge: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 4,
+    paddingHorizontal: 9,
+    paddingVertical: 6,
+    borderRadius: 999,
+  },
+  growthBadgeText: {
+    ...fontSize.b5,
+    lineHeight: fontSize.b5.lineHeight,
+  },
+  growthLegend: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 14,
+  },
+  growthLegendItem: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 5,
+  },
+  growthLegendDot: {
+    width: 7,
+    height: 7,
+    borderRadius: 4,
+  },
+  growthLegendText: {
+    ...fontSize.b5,
+    lineHeight: fontSize.b5.lineHeight,
   },
   rowBlock: { gap: 4 },
   rowLabel: { color: '#d5d6e2', ...fontSize.b4, lineHeight: fontSize.b4.lineHeight },
@@ -489,7 +667,7 @@ const s = StyleSheet.create({
     borderRadius: 18,
     borderWidth: 1,
     borderColor: '#ffffff12',
-    backgroundColor: '#1f1022bf',
+    backgroundColor: 'rgba(255,255,255,0.05)',
     padding: 12,
     flexDirection: 'row',
     alignItems: 'center',

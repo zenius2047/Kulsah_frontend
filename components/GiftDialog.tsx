@@ -226,7 +226,9 @@ const GiftDialog: React.FC<GiftDialogProps> = ({
             </ScrollView>
 
             <ScrollView
+              style={styles.giftScroll}
               showsVerticalScrollIndicator={false}
+              nestedScrollEnabled
               contentContainerStyle={styles.grid}
             >
               {items.map((item) => {
@@ -322,6 +324,7 @@ const styles = StyleSheet.create({
     borderTopLeftRadius: 32,
     borderTopRightRadius: 32,
     borderTopWidth: 1,
+    height: '88%',
     maxHeight: '88%',
     overflow: 'hidden',
   },
@@ -335,6 +338,8 @@ const styles = StyleSheet.create({
     marginBottom: 6,
   },
   content: {
+    flex: 1,
+    minHeight: 0,
     paddingHorizontal: 16,
     paddingBottom: 8,
     gap: 18,
@@ -417,15 +422,20 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     flexWrap: 'wrap',
     gap: 10,
-    paddingBottom: 6,
+    paddingBottom: 12,
+  },
+  giftScroll: {
+    flex: 1,
+    minHeight: '70%',
   },
   giftCard: {
-    width: '23%',
+    width: '31%',
     borderRadius: 24,
     paddingVertical: 12,
     paddingHorizontal: 6,
     alignItems: 'center',
     gap: 8,
+    backgroundColor: 'blue'
   },
   giftCardSelected: {
     backgroundColor: 'rgba(255,255,255,0.08)',
@@ -465,11 +475,14 @@ const styles = StyleSheet.create({
     textTransform: 'uppercase',
   },
   footer: {
+    flexShrink: 0,
     borderTopWidth: 1,
     paddingTop: 14,
+    paddingBottom: 2,
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'space-between',
+    gap: 12,
   },
   rechargeLabel: {
     color: '#f43f5e',
@@ -480,6 +493,7 @@ const styles = StyleSheet.create({
 
   },
   balancePill: {
+    flexShrink: 1,
     flexDirection: 'row',
     alignItems: 'center',
     gap: 8,
@@ -506,8 +520,9 @@ const styles = StyleSheet.create({
     lineHeight: fontSize.b4.lineHeight
   },
   sendButton: {
-    minHeight: 48,
-    minWidth: 110,
+    flexShrink: 0,
+    minHeight: 38,
+    minWidth: 90,
     borderRadius: 16,
     alignItems: 'center',
     justifyContent: 'center',

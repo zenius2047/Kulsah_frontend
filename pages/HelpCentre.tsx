@@ -116,7 +116,7 @@ const HelpCentre: React.FC = () => {
     setTimeout(() => setShowToast(false), 4000);
   };
 
-  const surface = isDark ? '#12121a' : theme.card;
+  const surface = isDark ? 'rgba(255,255,255,0.05)' : theme.card;
   const softSurface = isDark ? 'rgba(255,255,255,0.06)' : theme.surface;
   const glassSurface = isDark ? 'rgba(255,255,255,0.05)' : '#ffffff';
   const border = isDark ? 'rgba(255,255,255,0.1)' : theme.border;
@@ -130,7 +130,7 @@ const HelpCentre: React.FC = () => {
         behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
         keyboardVerticalOffset={Platform.OS === 'ios' ? 12 : 0}
       >
-        <View style={[styles.header, { backgroundColor: isDark ? 'rgba(18,18,26,0.92)' : 'rgba(255,255,255,0.94)', borderBottomColor: border }]}>
+        <View style={[styles.header, { backgroundColor: isDark ? 'rgba(6,9,19,0.94)' : 'rgba(255,255,255,0.94)', borderBottomColor: border }]}>
           <View style={styles.headerLeft}>
             <View style={styles.headerCopy}>
               <Text style={[styles.headerTitle, { color: theme.text }]}>Help Centre</Text>
@@ -150,7 +150,7 @@ const HelpCentre: React.FC = () => {
           <View style={styles.searchBlock}>
             <View style={[styles.searchWrap, { backgroundColor: surface, borderColor: border }]}>
               <MaterialIcons name="search" size={21} color={muted} />
-              <TextInput
+              <TextInput includeFontPadding={false}
                 value={searchQuery}
                 onChangeText={setSearchQuery}
                 placeholder="Search help topics, FAQs..."
@@ -263,7 +263,7 @@ const HelpCentre: React.FC = () => {
 
               <View style={styles.formBlock}>
                 <Text style={[styles.inputLabel, { color: muted }]}>Subject</Text>
-                <TextInput
+                <TextInput includeFontPadding={false}
                   value={ticketSubject}
                   onChangeText={setTicketSubject}
                   placeholder="Summarize the request..."
@@ -274,7 +274,7 @@ const HelpCentre: React.FC = () => {
 
               <View style={styles.formBlock}>
                 <Text style={[styles.inputLabel, { color: muted }]}>Message Space</Text>
-                <TextInput
+                <TextInput includeFontPadding={false}
                   value={ticketMessage}
                   onChangeText={setTicketMessage}
                   placeholder="Detail your inquiry coordinates..."
@@ -320,9 +320,9 @@ const styles = StyleSheet.create({
     flex: 1,
   },
   header: {
-    minHeight: 72,
+    minHeight: 42,
     paddingHorizontal: 20,
-    paddingVertical: 12,
+    paddingVertical: 6,
     borderBottomWidth: 1,
     flexDirection: 'row',
     alignItems: 'center',
@@ -374,7 +374,7 @@ const styles = StyleSheet.create({
   },
   searchWrap: {
     height: 54,
-    borderRadius: 16,
+    borderRadius: 999,
     borderWidth: 1,
     paddingHorizontal: 16,
     flexDirection: 'row',
@@ -383,17 +383,17 @@ const styles = StyleSheet.create({
   },
   searchInput: {
     flex: 1,
-    ...fontSize.b4,
-    lineHeight: fontSize.b4.lineHeight,
-    fontWeight: '700',
-    paddingVertical: 0,
+    ...fontSize.b3,
+    lineHeight: fontSize.b3.lineHeight,
+    // fontWeight: '700',
+    // paddingVertical: 0,
   },
   section: {
     gap: 12,
   },
   sectionLabel: {
-    ...fontSize.n5,
-    lineHeight: fontSize.n5.lineHeight,
+    ...fontSize.mediumTitleText,
+    lineHeight: fontSize.mediumTitleText.lineHeight,
     textTransform: 'uppercase',
     letterSpacing: 2,
     fontWeight: '900',
@@ -406,15 +406,15 @@ const styles = StyleSheet.create({
   categoryChip: {
     height: 42,
     paddingHorizontal: 14,
-    borderRadius: 13,
+    borderRadius: 999,
     borderWidth: 1,
     flexDirection: 'row',
     alignItems: 'center',
     gap: 6,
   },
   categoryText: {
-    ...fontSize.n5,
-    lineHeight: fontSize.n5.lineHeight,
+    ...fontSize.tabText,
+    lineHeight: fontSize.tabText.lineHeight,
     textTransform: 'uppercase',
     letterSpacing: 1,
     fontWeight: '900',
@@ -427,8 +427,8 @@ const styles = StyleSheet.create({
   },
   articleCount: {
     color: PRIMARY_COLOR,
-    ...fontSize.n5,
-    lineHeight: fontSize.n5.lineHeight,
+    ...fontSize.tabText,
+    lineHeight: fontSize.tabText.lineHeight,
     textTransform: 'uppercase',
     letterSpacing: 1,
     fontWeight: '900',
@@ -437,12 +437,12 @@ const styles = StyleSheet.create({
     gap: 10,
   },
   faqCard: {
-    borderRadius: 22,
+    borderRadius: 24,
     borderWidth: 1,
     overflow: 'hidden',
   },
   faqButton: {
-    minHeight: 64,
+    minHeight: 34,
     paddingHorizontal: 18,
     paddingVertical: 16,
     flexDirection: 'row',
@@ -452,9 +452,9 @@ const styles = StyleSheet.create({
   },
   faqQuestion: {
     flex: 1,
-    ...fontSize.b4,
-    lineHeight: fontSize.b4.lineHeight,
-    fontWeight: '900',
+    ...fontSize.b2,
+    lineHeight: fontSize.b2.lineHeight,
+    // fontWeight: '900',
     textTransform: 'uppercase',
   },
   faqAnswerWrap: {
@@ -464,8 +464,10 @@ const styles = StyleSheet.create({
     paddingBottom: 18,
   },
   faqAnswer: {
-    ...fontSize.b4,
-    lineHeight: fontSize.b4.lineHeight,
+    ...fontSize.b2,
+    lineHeight: fontSize.b2.lineHeight,
+    fontFamily: 'Poppins_500Medium',
+    textAlign: 'justify'
   },
   emptyCard: {
     borderWidth: 1,
@@ -505,39 +507,40 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
   },
   supportTitle: {
-    ...fontSize.b4,
-    lineHeight: fontSize.b4.lineHeight,
+    ...fontSize.b1,
+    lineHeight: fontSize.b1.lineHeight,
     textTransform: 'uppercase',
     letterSpacing: 1.2,
-    fontWeight: '900',
+    // fontWeight: '900',
   },
   supportSubtitle: {
     marginTop: 2,
-    ...fontSize.n5,
-    lineHeight: fontSize.n5.lineHeight,
+    ...fontSize.b2,
+    lineHeight: fontSize.b2.lineHeight,
     textTransform: 'uppercase',
     letterSpacing: 1,
-    fontWeight: '800',
+    // fontWeight: '800',
   },
   formBlock: {
     gap: 6,
   },
   inputLabel: {
     marginLeft: 4,
-    ...fontSize.n5,
-    lineHeight: fontSize.n5.lineHeight,
+    ...fontSize.tabText,
+    lineHeight: fontSize.tabText.lineHeight,
     textTransform: 'uppercase',
     letterSpacing: 1.2,
-    fontWeight: '900',
+    // fontWeight: '900',
   },
   input: {
     minHeight: 46,
     borderRadius: 14,
     borderWidth: 1,
     paddingHorizontal: 14,
-    ...fontSize.b4,
-    lineHeight: fontSize.b4.lineHeight,
-    fontWeight: '700',
+    ...fontSize.b2,
+    lineHeight: fontSize.b2.lineHeight,
+    fontFamily: "Poppins_500Medium"
+    // fontWeight: '700',
   },
   textarea: {
     minHeight: 110,
@@ -545,8 +548,9 @@ const styles = StyleSheet.create({
     borderWidth: 1,
     paddingHorizontal: 14,
     paddingVertical: 12,
-    ...fontSize.b4,
-    lineHeight: fontSize.b4.lineHeight,
+    ...fontSize.b2,
+    lineHeight: fontSize.b2.lineHeight,
+    fontFamily: 'Poppins_500Medium'
   },
   selectButton: {
     height: 46,
@@ -562,7 +566,7 @@ const styles = StyleSheet.create({
     flex: 1,
     ...fontSize.b5,
     lineHeight: fontSize.b5.lineHeight,
-    fontWeight: '800',
+    // fontWeight: '800',
   },
   selectMenu: {
     borderWidth: 1,
@@ -576,11 +580,11 @@ const styles = StyleSheet.create({
   selectOptionText: {
     ...fontSize.b5,
     lineHeight: fontSize.b5.lineHeight,
-    fontWeight: '800',
+    // fontWeight: '800',
   },
   submitButton: {
     height: 48,
-    borderRadius: 17,
+    borderRadius: 999,
     backgroundColor: PRIMARY_COLOR,
     alignItems: 'center',
     justifyContent: 'center',
@@ -588,11 +592,11 @@ const styles = StyleSheet.create({
   },
   submitText: {
     color: '#ffffff',
-    ...fontSize.n5,
-    lineHeight: fontSize.n5.lineHeight,
+    ...fontSize.tabText,
+    lineHeight: fontSize.tabText.lineHeight,
     textTransform: 'uppercase',
     letterSpacing: 1.4,
-    fontWeight: '900',
+    // fontWeight: '900',
   },
   toast: {
     position: 'absolute',
@@ -612,12 +616,13 @@ const styles = StyleSheet.create({
   toastText: {
     flexShrink: 1,
     color: '#ffffff',
-    ...fontSize.n5,
-    lineHeight: fontSize.n5.lineHeight,
+    ...fontSize.tabText,
+    lineHeight: fontSize.tabText.lineHeight,
     textTransform: 'uppercase',
     letterSpacing: 0.8,
-    fontWeight: '900',
+    // fontWeight: '900',
     textAlign: 'center',
+    fontFamily: 'Poppins_500Medium'
   },
 });
 

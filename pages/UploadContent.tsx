@@ -650,7 +650,7 @@ const UploadContent: React.FC = () => {
                   <Text style={s.text}>Enable captions</Text>
                   <Switch value={captionsEnabled} onValueChange={setCaptionsEnabled} />
                 </View>
-                {captionsEnabled && <TextInput style={s.input} value={captionText} onChangeText={setCaptionText} placeholder="Overlay text" placeholderTextColor="#777" />}
+                {captionsEnabled && <TextInput includeFontPadding={false} style={s.input} value={captionText} onChangeText={setCaptionText} placeholder="Overlay text" placeholderTextColor="#777" />}
               </View>
             )}
 
@@ -680,8 +680,8 @@ const UploadContent: React.FC = () => {
         {step === 'post' && (
           <>
             <Image source={{ uri: thumbnail }} style={s.preview} />
-            <TextInput style={s.input} value={title} onChangeText={setTitle} placeholder="Title (optional)" placeholderTextColor="#777" maxLength={255} />
-            <TextInput style={[s.input, { minHeight: 100 }]} multiline value={caption} onChangeText={setCaption} placeholder="What's happening?" placeholderTextColor="#777" />
+            <TextInput includeFontPadding={false} style={s.input} value={title} onChangeText={setTitle} placeholder="Title (optional)" placeholderTextColor="#777" maxLength={255} />
+            <TextInput includeFontPadding={false} style={[s.input, { minHeight: 100 }]} multiline value={caption} onChangeText={setCaption} placeholder="What's happening?" placeholderTextColor="#777" />
             <View style={s.panel}>
               <Text style={s.panelTitle}>Content type</Text>
               <View style={s.rowWrap}>

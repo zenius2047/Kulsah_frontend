@@ -163,7 +163,7 @@ const Messages: React.FC = () => {
 
           <View style={[styles.searchWrap, { borderColor: theme.border, backgroundColor: isDark ? 'rgba(255,255,255,0.03)' : theme.surface }]}>
             <MaterialIcons name="search" size={20} color={theme.textSecondary} />
-            <TextInput
+            <TextInput includeFontPadding={false}
               value={search}
               onChangeText={setSearch}
               placeholder="Search fans or collaborators..."

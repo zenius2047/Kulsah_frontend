@@ -305,7 +305,7 @@ const PlaylistPlayer: React.FC = () => {
             <Text style={[styles.sectionTitle, { color: theme.text }]}>Comments</Text>
             <View style={[styles.composer, { backgroundColor: isDark ? 'rgba(2,6,23,0.68)' : '#f8fafc', borderColor: border }]}>
               <Pressable onPress={() => setShowEmojiPicker((value) => !value)} style={[styles.moodButton, { backgroundColor: showEmojiPicker ? PRIMARY_COLOR : 'transparent' }]}><MaterialIcons name="mood" size={20} color={showEmojiPicker ? '#fff' : muted} /></Pressable>
-              <TextInput value={commentText} onChangeText={setCommentText} onSubmitEditing={handlePostComment} placeholder="Join the sound discussion..." placeholderTextColor={muted} style={[styles.input, { color: theme.text }]} />
+              <TextInput includeFontPadding={false} value={commentText} onChangeText={setCommentText} onSubmitEditing={handlePostComment} placeholder="Join the sound discussion..." placeholderTextColor={muted} style={[styles.input, { color: theme.text }]} />
               <Pressable onPress={handlePostComment} disabled={!commentText.trim()}><Text style={[styles.sendText, { color: commentText.trim() ? PRIMARY_COLOR : muted }]}>Send</Text></Pressable>
             </View>
 

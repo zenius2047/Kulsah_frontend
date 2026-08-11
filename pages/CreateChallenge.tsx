@@ -107,7 +107,7 @@ const CreateChallenge: React.FC = () => {
           <View style={styles.section}>
             <View style={[styles.glassCard, { backgroundColor: cardBg, borderColor: cardBorder }]}>
               <Text style={styles.label}>Challenge Title</Text>
-              <TextInput
+              <TextInput includeFontPadding={false}
                 value={challengeTitle}
                 onChangeText={setChallengeTitle}
                 placeholder="Enter an electric title..."
@@ -124,7 +124,7 @@ const CreateChallenge: React.FC = () => {
 
             <View style={[styles.glassCard, { backgroundColor: cardBg, borderColor: cardBorder }]}>
               <Text style={[styles.labelMuted, { color: subtle }]}>Rules & Guidelines</Text>
-              <TextInput
+              <TextInput includeFontPadding={false}
                 value={rules}
                 onChangeText={setRules}
                 placeholder="Define the game... No filters? Best lighting? 15 seconds max?"
@@ -244,7 +244,7 @@ const CreateChallenge: React.FC = () => {
 
             <View style={[styles.searchCard, { backgroundColor: cardBg, borderColor: cardBorder }]}>
               <MaterialIcons name="search" size={20} color={subtle} />
-              <TextInput
+              <TextInput includeFontPadding={false}
                 value={search}
                 onChangeText={setSearch}
                 placeholder="Search handles or names..."

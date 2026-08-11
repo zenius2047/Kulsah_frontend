@@ -11,8 +11,9 @@ import KulsahInputBar from '../components/KulsahInputBar';
 import KulcoinTopUpDrawer from '../components/KulcoinTopUpDrawer';
 import EmptyStateComment from '../assets/icons/Comment VECTOR.svg';
 import { fontSize } from './typography';
-import { useAddCommentMutation, useLikeCommentMutation, useReplyToCommentMutation, useVideoComments } from '../src';
+import { formatCommunityRelativeTime, useAddCommentMutation, useAddCommunityComment, useCommunityComments, useLikeCommentMutation, useReplyToCommentMutation, useVideoComments } from '../src';
 import type { GeneralComment } from '../src/types/general.types';
+import type { CommunityComment } from '../src/types/community.types';
 import { parseApiError } from '../src/utils/apiError';
 
 
@@ -40,6 +41,13 @@ type ReactionComment = {
     text: string;
     time: string;
   } | null;
+  replies?: Array<{
+    id: string;
+    handle: string;
+    avatar: string;
+    text: string;
+    time: string;
+  }>;
 };
 
 const commentsSeed: ReactionComment[] = [
@@ -48,13 +56,13 @@ const commentsSeed: ReactionComment[] = [
     handle: '@pixel_warrior',
     avatar: 'https://picsum.photos/seed/pixel-warrior/120',
     text: 'That drop was absolutely legendary! The lighting sync is next level tonight. Fire.',
-    time: '2m',
+    time: '2min',
     likes: 12,
     reply: {
       handle: '@luna_codes',
       avatar: 'https://picsum.photos/seed/luna-codes/120',
       text: "Totally agree! Who's the VJ?",
-      time: '1m',
+      time: '1min',
     },
   },
   {
@@ -62,7 +70,7 @@ const commentsSeed: ReactionComment[] = [
     handle: '@serena_vibe',
     avatar: 'https://picsum.photos/seed/serena-vibe/120',
     text: 'Can we talk about the visuals? Neon Pulse never misses. Best stream of the month!',
-    time: '5m',
+    time: '5min',
     likes: 42,
     verified: true,
   },
@@ -76,9 +84,11 @@ const CURRENT_USER = {
 type ReactionsProps = {
   onClose: () => void;
   videoId?: string | number;
+  postId?: string | number;
   title?: string;
   currentBalance?: number;
   onBalanceChange?: (nextBalance: number) => void;
+  communityComments?: CommunityComment[];
 };
 
 const normalizeHandle = (handle?: string | null) => {
@@ -93,7 +103,7 @@ const mapApiComment = (comment: GeneralComment): ReactionComment => ({
   text: comment.text ?? comment.body ?? '',
   stickerUrl: comment.stickerUrl ?? undefined,
   gift: comment.gift ? (comment.gift as GiftSelection) : undefined,
-  time: comment.time ?? 'now',
+  time: formatCommunityRelativeTime(comment.created_at ?? comment.time ?? 'now'),
   likes: Number(comment.likes ?? 0),
   verified: Boolean(comment.verified),
   reply: comment.reply
@@ -101,9 +111,26 @@ const mapApiComment = (comment: GeneralComment): ReactionComment => ({
         handle: normalizeHandle(comment.reply.handle),
         avatar: comment.reply.avatar || 'https://picsum.photos/seed/reply-avatar/120',
         text: comment.reply.text,
-        time: comment.reply.time,
+        time: formatCommunityRelativeTime(comment.reply.time),
       }
     : null,
+});
+
+const mapCommunityComment = (comment: CommunityComment): ReactionComment => ({
+  id: String(comment.id),
+  handle: normalizeHandle(comment.author.handle),
+  avatar: comment.author.avatar_url || 'https://picsum.photos/seed/comment-avatar/120',
+  text: comment.content ?? comment.body ?? '',
+  time: formatCommunityRelativeTime(comment.created_at),
+  likes: Number(comment.stats?.likes_count ?? 0),
+  verified: comment.author.is_verified,
+  replies: (comment.replies ?? []).map((reply) => ({
+    id: String(reply.id),
+    handle: normalizeHandle(reply.author.handle),
+    avatar: reply.author.avatar_url || 'https://picsum.photos/seed/reply-avatar/120',
+    text: reply.content ?? reply.body ?? '',
+    time: formatCommunityRelativeTime(reply.created_at),
+  })),
 });
 
 const getCommentErrorMessage = (error: unknown) => {
@@ -114,16 +141,18 @@ const getCommentErrorMessage = (error: unknown) => {
 const Reactions: React.FC<ReactionsProps> = ({
   onClose,
   videoId,
+  postId,
   title = 'Reactions',
   currentBalance,
   onBalanceChange,
+  communityComments,
 }) => {
   const { isDark, theme } = useThemeMode();
   const insets = useSafeAreaInsets();
   // const [activeTab, setActiveTab] = useState<ReactionTab>(null);
   const [replyingTo, setReplyingTo] = useState<ReplyTarget | null>(null);
   const [message, setMessage] = useState('');
-  const [comments, setComments] = useState<ReactionComment[]>(videoId ? [] : commentsSeed);
+  const [comments, setComments] = useState<ReactionComment[]>(videoId || postId ? [] : commentsSeed);
   const [likedCommentIds, setLikedCommentIds] = useState<Set<string>>(new Set());
   const [pendingLikeIds, setPendingLikeIds] = useState<Set<string>>(new Set());
   const [pickerOpen, setIsPickerOpen] = useState(false);
@@ -136,6 +165,10 @@ const Reactions: React.FC<ReactionsProps> = ({
   const replyToCommentMutation = useReplyToCommentMutation();
   const likeCommentMutation = useLikeCommentMutation();
   const commentsQuery = useVideoComments(videoId, { per_page: 20 }, Boolean(videoId));
+  const communityCommentsQuery = useCommunityComments(communityComments === undefined ? postId : undefined, 20);
+  const communityCommentMutation = useAddCommunityComment(postId ?? '');
+  const activeCommentsQuery = postId ? communityCommentsQuery : commentsQuery;
+  const hasEmbeddedCommunityComments = postId !== undefined && communityComments !== undefined;
 
   const shellBackground = isDark ? 'rgba(10,5,13,0.92)' : 'rgba(255,255,255,0.96)';
   const cardBackground = isDark ? 'rgba(255,255,255,0.04)' : 'rgba(15,23,42,0.04)';
@@ -146,14 +179,13 @@ const Reactions: React.FC<ReactionsProps> = ({
   const sheetHeight = useMemo(() => 0.85, []);
   const [keyboardHeight, setKeyboardHeight] = useState(0);
   const coinBalance = currentBalance ?? localCoinBalance;
-  const isSendingMessage = addCommentMutation.isPending || replyToCommentMutation.isPending || sendingMessageRef.current;
+  const isSendingMessage = addCommentMutation.isPending || replyToCommentMutation.isPending || communityCommentMutation.isPending || sendingMessageRef.current;
   const hasTypedMessage = message.trim().length > 0;
 
   useEffect(() => {
     const showSubscription = Keyboard.addListener(
       'keyboardDidShow',
       (e) => {
-        console.log("it's showing the keyboard");
         setKeyboardHeight(e.endCoordinates.height);
       }
     );
@@ -161,7 +193,6 @@ const Reactions: React.FC<ReactionsProps> = ({
     const hideSubscription = Keyboard.addListener(
       'keyboardDidHide',
       () => {
-        console.log("Keyboard disappears")
         setKeyboardHeight(0);
       }
     );
@@ -182,12 +213,24 @@ const Reactions: React.FC<ReactionsProps> = ({
     });
   }, [commentsQuery.data, videoId]);
 
+  useEffect(() => {
+    if (!postId) return;
+    const payloadComments = communityComments
+      ?? communityCommentsQuery.data?.pages.flatMap((page: any) => page.data as CommunityComment[]);
+    if (!payloadComments) return;
+    const apiComments = payloadComments.map(mapCommunityComment);
+    setComments((current) => {
+      const optimisticComments = current.filter((comment) => comment.optimistic);
+      return [...optimisticComments, ...apiComments];
+    });
+  }, [communityComments, communityCommentsQuery.data, postId]);
+
   const createComment = (overrides: Partial<ReactionComment>): ReactionComment => ({
     id: `comment-${Date.now()}`,
     handle: CURRENT_USER.handle,
     avatar: CURRENT_USER.avatar,
     text: '',
-    time: 'now',
+    time: 'Now',
     likes: 0,
     ...overrides,
   });
@@ -210,6 +253,36 @@ const Reactions: React.FC<ReactionsProps> = ({
     }
     setMessage('');
 
+    if (postId) {
+      try {
+        const response = await communityCommentMutation.mutateAsync({
+          body: nextMessage,
+          ...(replyingTo ? { parent_id: replyingTo.id } : {}),
+        });
+        const nextComment = mapCommunityComment(response);
+        setComments((prev) => {
+          if (replyingTo) {
+            return prev.map((comment) => comment.id === replyingTo.id ? {
+              ...comment,
+              replies: [
+                ...(comment.replies ?? []),
+                { id: nextComment.id, handle: nextComment.handle, avatar: nextComment.avatar, text: nextComment.text, time: nextComment.time },
+              ],
+            } : comment);
+          }
+          return prev.map((comment) => comment.id === optimisticComment?.id ? nextComment : comment);
+        });
+        setReplyingTo(null);
+        void communityCommentsQuery.refetch();
+      } catch (error) {
+        if (optimisticComment) setComments((prev) => prev.filter((comment) => comment.id !== optimisticComment.id));
+        Alert.alert('Comment failed', getCommentErrorMessage(error));
+      } finally {
+        sendingMessageRef.current = false;
+      }
+      return;
+    }
+
     if (!videoId) {
       if (replyingTo) {
         setComments((prev) =>
@@ -221,7 +294,7 @@ const Reactions: React.FC<ReactionsProps> = ({
                     handle: CURRENT_USER.handle,
                     avatar: CURRENT_USER.avatar,
                     text: nextMessage,
-                    time: 'now',
+                    time: 'Now',
                   },
                 }
               : comment
@@ -388,11 +461,16 @@ const Reactions: React.FC<ReactionsProps> = ({
       </Pressable>
 
       <KeyboardAvoidingView
-        style={styles.keyboardShell}
+        style={[
+          styles.keyboardShell,
+          Platform.OS === 'android' && keyboardHeight > 0
+            ? { paddingBottom: Math.max(0, keyboardHeight + insets.bottom) }
+            : null,
+        ]}
         behavior={Platform.OS === 'ios' ? 'padding' : undefined}
         keyboardVerticalOffset={0}
       >
-      <View style={[styles.sheet, { height: `${sheetHeight * 100}%`, backgroundColor: shellBackground, borderTopColor: softBorder, maxHeight: keyboardHeight > 0 ? Platform.OS === 'ios' ?'90%': '70%': '60%' }]}>
+      <View style={[styles.sheet, { height: `${sheetHeight * 100}%`, backgroundColor: shellBackground, borderTopColor: softBorder }]}>
         {pickerOpen &&
             <View style={{
               position: 'absolute',
@@ -437,28 +515,29 @@ const Reactions: React.FC<ReactionsProps> = ({
         </View> */}
 
         <ScrollView
+          style={styles.commentsScroll}
           showsVerticalScrollIndicator={false}
           contentContainerStyle={[
             styles.content,
-            (commentsQuery.isLoading || comments.length === 0 || commentsQuery.isError) && styles.emptyContent,
+            ((!hasEmbeddedCommunityComments && activeCommentsQuery.isLoading) || comments.length === 0 || (!hasEmbeddedCommunityComments && activeCommentsQuery.isError)) && styles.emptyContent,
           ]}
           keyboardShouldPersistTaps="always"
           keyboardDismissMode="none"
         >
-          {commentsQuery.isLoading ? (
+          {!hasEmbeddedCommunityComments && activeCommentsQuery.isLoading ? (
             <View style={styles.emptyState}>
               <ActivityIndicator color={PRIMARY_COLOR} />
               <Text style={[styles.emptyBody, { color: secondary }]}>Loading comments...</Text>
             </View>
-          ) : commentsQuery.isError ? (
+          ) : !hasEmbeddedCommunityComments && activeCommentsQuery.isError ? (
             <View style={styles.emptyState}>
               <EmptyStateComment width={160} height={160} />
               <Text style={[styles.emptyTitle, { color: theme.text }]}>Comments Unavailable</Text>
               <Text style={[styles.emptyBody, { color: secondary }]}>
-                {getCommentErrorMessage(commentsQuery.error)}
+                {getCommentErrorMessage(activeCommentsQuery.error)}
               </Text>
               <Pressable
-                onPress={() => void commentsQuery.refetch()}
+                onPress={() => void activeCommentsQuery.refetch()}
                 style={[styles.loadMoreButton, { borderColor: softBorder }]}
               >
                 <Text style={[styles.loadMoreText, { color: PRIMARY_COLOR }]}>Try Again</Text>
@@ -533,36 +612,38 @@ const Reactions: React.FC<ReactionsProps> = ({
                     </View>
                   </View>
 
-                  {comment.reply ? (
+                  {(comment.replies?.length || comment.reply) ? (
                     <View style={styles.replyWrap}>
                       <View style={[styles.replyLine, { backgroundColor: primaryColorAlpha(0.28) }]} />
-                      <View style={styles.replyRow}>
-                        <Image source={{ uri: comment.reply.avatar }} style={styles.replyAvatar} />
+                      {(comment.replies?.length ? comment.replies : comment.reply ? [{ ...comment.reply, id: `${comment.id}-reply` }] : []).map((reply) => (
+                      <View key={reply.id} style={styles.replyRow}>
+                        <Image source={{ uri: reply.avatar }} style={styles.replyAvatar} />
                         <View style={styles.replyMain}>
                           <View style={styles.commentMetaRow}>
-                            <Text style={[styles.replyHandle, { color: theme.text }]}>{comment.reply.handle}</Text>
-                            <Text style={[styles.replyTime, { color: muted }]}>{comment.reply.time}</Text>
+                            <Text style={[styles.replyHandle, { color: theme.text }]}>{reply.handle}</Text>
+                            <Text style={[styles.replyTime, { color: muted }]}>{reply.time}</Text>
                           </View>
                           <Text style={[styles.replyBody, { color: commentText }]}>
                             <Text style={{ color: PRIMARY_COLOR }}>{comment.handle} </Text>
-                            {comment.reply.text}
+                            {reply.text}
                           </Text>
                           <View style={styles.replyActions}>
                             <Text style={[styles.replyActionText, { color: muted }]}>Reply</Text>
                           </View>
                         </View>
                       </View>
+                      ))}
                     </View>
                   ) : null}
                 </View>
               ))}
-              {commentsQuery.hasNextPage ? (
+              {activeCommentsQuery.hasNextPage ? (
                 <Pressable
-                  disabled={commentsQuery.isFetchingNextPage}
-                  onPress={() => void commentsQuery.fetchNextPage()}
+                  disabled={activeCommentsQuery.isFetchingNextPage}
+                  onPress={() => void activeCommentsQuery.fetchNextPage()}
                   style={[styles.loadMoreButton, { borderColor: softBorder }]}
                 >
-                  {commentsQuery.isFetchingNextPage ? (
+                  {activeCommentsQuery.isFetchingNextPage ? (
                     <ActivityIndicator color={PRIMARY_COLOR} />
                   ) : (
                     <Text style={[styles.loadMoreText, { color: PRIMARY_COLOR }]}>Load More</Text>
@@ -578,7 +659,7 @@ const Reactions: React.FC<ReactionsProps> = ({
             styles.inputShell,
             {
               borderTopColor: softBorder,
-              paddingBottom: 20
+              paddingBottom: Math.max(insets.bottom, 12),
             },
           ]}
         >
@@ -599,7 +680,7 @@ const Reactions: React.FC<ReactionsProps> = ({
           <KulsahInputBar
               value={message}
               onChangeText={setMessage}
-              placeholder="Join the discussion..."
+              placeholder="Join the discussion"
               placeholderTextColor={muted}
               containerStyle={{ backgroundColor: cardBackground, borderColor: softBorder }}
               rightAccessory={(
@@ -697,6 +778,9 @@ const styles = StyleSheet.create({
     // overflow: 'hidden',
     // maxHeight: '70%',
     // height: '60%'
+  },
+  commentsScroll: {
+    flex: 1,
   },
   header: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', paddingHorizontal: 24, paddingVertical: 18 },
   iconButton: { width: 40, height: 40, borderRadius: 20, alignItems: 'center', justifyContent: 'center' },

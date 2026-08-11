@@ -99,21 +99,21 @@ const Arena :React.FC = ({route}:any)=>{
              <View style={{
                // backgroundColor: 'blue',
                flexDirection: 'row',
-               justifyContent: 'space-between',
+               justifyContent: 'center',
               //  marginBottom: 15,
-               paddingHorizontal: 20,
+              //  paddingHorizontal: 20,
                paddingBottom: 24,
              }}>
-                       <Pressable onPress={() => navigation.goBack()} style={[styles.headerRoundBtn, { backgroundColor: faintSurface, borderColor: theme.border }]}>
+                       {/* <Pressable onPress={() => navigation.goBack()} style={[styles.headerRoundBtn, { backgroundColor: faintSurface, borderColor: theme.border }]}>
                          <MaterialIcons name="chevron-left" size={22} color={theme.text} />
-                       </Pressable>
+                       </Pressable> */}
                
                        <View style={styles.headerTitleWrap}>
                          <Text style={[styles.headerTitle, { color: theme.text }]}>Arena</Text>
                          <Text style={styles.headerSubtitle}>Galaxy Space</Text>
                        </View>
                
-                       <View style={styles.headerSpacer} />
+                       {/* <View style={styles.headerSpacer} /> */}
                        {/* <Pressable onPress={() => navigation.navigate('Inbox')} style={[styles.headerRoundBtn, { backgroundColor: faintSurface, borderColor: softBorder }]}>
                          <MaterialIcons name="notifications-none" size={22} color={theme.text} />
                        </Pressable> */}

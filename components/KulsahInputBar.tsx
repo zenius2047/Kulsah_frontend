@@ -42,7 +42,7 @@ const KulsahInputBar = React.forwardRef<TextInput, KulsahInputBarProps>(
     return (
       <View style={[styles.inputRow, { backgroundColor, borderColor }, containerStyle]}>
         {leftAccessory}
-        <TextInput
+        <TextInput includeFontPadding={false}
           ref={ref}
           placeholderTextColor={placeholderTextColor ?? theme.textMuted}
           onBlur={(event) => {
@@ -80,7 +80,7 @@ const styles = StyleSheet.create({
     flex: 1,
     minHeight: 29,
     paddingVertical: 0,
-    ...fontSize.b4, lineHeight: fontSize.b4.lineHeight,
+    ...fontSize.b3, lineHeight: fontSize.b3.lineHeight,
   },
 });
 

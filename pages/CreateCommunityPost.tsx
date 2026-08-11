@@ -1,5 +1,6 @@
 import React, { useEffect, useMemo, useState } from 'react';
 import {
+  ActivityIndicator,
   Alert,
   Image,
   Modal,
@@ -17,9 +18,11 @@ import { useNavigation } from '@react-navigation/native';
 import { MaterialIcons } from '@expo/vector-icons';
 import { LinearGradient } from 'expo-linear-gradient';
 import { GoogleGenAI } from '@google/genai';
+import * as ImagePicker from 'expo-image-picker';
 import { mediumScreen } from '../types';
 import { useThemeMode, primaryColorAlpha, PRIMARY_COLOR } from "../theme";
 import { fontSize } from '../typography';
+import { isCommunityVideo, parseApiError, useCreateCommunityPost, validateCommunityPost, type CommunityMediaSource, type CreateCommunityPostPayload } from '../src';
 
 type Audience = 'all' | 'subs';
 
@@ -27,6 +30,7 @@ interface StoredUser {
   name?: string;
   handle?: string;
   avatar?: string;
+  role?: 'creator' | 'fan';
 }
 
 interface PollOption {
@@ -71,9 +75,13 @@ const CreateCommunityPost: React.FC = () => {
   const [showEmojiPicker, setShowEmojiPicker] = useState(false);
   const [showPollEditor, setShowPollEditor] = useState(false);
   const [pollOptions, setPollOptions] = useState<string[]>(['', '']);
-  const [attachedImages, setAttachedImages] = useState<string[]>([]);
+  const [pollClosesAt, setPollClosesAt] = useState('');
+  const [attachedImages, setAttachedImages] = useState<CommunityMediaSource[]>([]);
+  const [uploadProgress, setUploadProgress] = useState(0);
   const [showToast, setShowToast] = useState(false);
   const [user, setUser] = useState<StoredUser>({});
+  const [userLoaded, setUserLoaded] = useState(false);
+  const createPost = useCreateCommunityPost(setUploadProgress);
 
   useEffect(() => {
     const loadUser = async () => {
@@ -84,6 +92,8 @@ const CreateCommunityPost: React.FC = () => {
         }
       } catch (error) {
         console.error('Failed to load current user for community post', error);
+      } finally {
+        setUserLoaded(true);
       }
     };
 
@@ -91,15 +101,42 @@ const CreateCommunityPost: React.FC = () => {
   }, []);
 
   const canPublish = useMemo(() => {
-    const hasPoll = showPollEditor && pollOptions.some((option) => option.trim().length > 0);
+    const hasPoll = showPollEditor && pollOptions.filter((option) => option.trim().length > 0).length >= 2;
     return Boolean(content.trim() || attachedImages.length > 0 || hasPoll);
   }, [attachedImages.length, content, pollOptions, showPollEditor]);
 
-  const promptImageUpload = () => {
-    Alert.alert(
-      'Image Upload Placeholder',
-      'This screen is ready for native image uploads, but `expo-image-picker` is not installed in this project yet. I can wire that in next if you want.',
-    );
+  const promptImageUpload = async () => {
+    const permission = await ImagePicker.requestMediaLibraryPermissionsAsync();
+    if (!permission.granted) {
+      Alert.alert('Media access required', 'Allow access to your library to attach images or videos.');
+      return;
+    }
+    const alreadyHasVideo = attachedImages.some(isCommunityVideo);
+    const result = await ImagePicker.launchImageLibraryAsync({
+      mediaTypes: ['images', 'videos'],
+      allowsMultipleSelection: true,
+      selectionLimit: alreadyHasVideo ? Math.max(1, 4 - attachedImages.length) : 0,
+      quality: 0.9,
+    });
+    if (result.canceled) return;
+    const selectedMedia: CommunityMediaSource[] = result.assets.map((asset) => ({
+      uri: asset.uri,
+      name: asset.fileName,
+      type: asset.mimeType || (asset.type === 'video' ? 'video/mp4' : 'image/jpeg'),
+    }));
+    const combinedMedia = [...attachedImages, ...selectedMedia];
+    const videoCount = combinedMedia.filter(isCommunityVideo).length;
+
+    if (videoCount > 4) {
+      Alert.alert('Video limit reached', 'You can attach no more than four videos to a post.');
+      return;
+    }
+    if (videoCount > 0 && combinedMedia.length > 4) {
+      Alert.alert('Media limit reached', 'A post containing pictures and videos can have no more than four media items.');
+      return;
+    }
+
+    setAttachedImages(combinedMedia);
   };
 
   const generateAiSpark = async () => {
@@ -124,39 +161,45 @@ const CreateCommunityPost: React.FC = () => {
     setTargetAudience('all');
     setShowPollEditor(false);
     setPollOptions(['', '']);
+    setPollClosesAt('');
     setAttachedImages([]);
+    setUploadProgress(0);
   };
 
   const handlePublish = async () => {
     if (!canPublish || isPosting) return;
 
+    if (user.role && user.role !== 'creator') {
+      Alert.alert('Creator account required', 'Only creators can publish community posts.');
+      return;
+    }
+
+    const cleanedPollOptions = pollOptions.map((option) => option.trim()).filter(Boolean);
+    if (showPollEditor && cleanedPollOptions.length < 2) {
+      Alert.alert('Add poll options', 'A poll requires at least two options.');
+      return;
+    }
+
     setIsPosting(true);
 
-    const newPost: CommunityPost = {
-      id: Date.now().toString(),
-      artist: user.name || 'Alex Rivera',
-      handle: (user.handle || 'alex_rivera').replace('@', ''),
-      avatar: user.avatar || DEFAULT_AVATAR,
-      content,
-      images: attachedImages.length > 0 ? attachedImages : undefined,
-      likes: 0,
-      comments: 0,
-      commentList: [],
-      time: 'Just now',
-      isLiked: false,
-      type: attachedImages.length > 0 ? 'image' : showPollEditor ? 'poll' : 'text',
-      pollOptions: showPollEditor
-        ? pollOptions
-            .filter((option) => option.trim())
-            .map((option) => ({ text: option.trim(), votes: 0 }))
-        : undefined,
-      targetAudience,
-    };
-
     try {
-      const existingRaw = await AsyncStorage.getItem(STORAGE_KEY);
-      const existingPosts = existingRaw ? (JSON.parse(existingRaw) as CommunityPost[]) : [];
-      await AsyncStorage.setItem(STORAGE_KEY, JSON.stringify([newPost, ...existingPosts]));
+      const hasVideo = attachedImages.some(isCommunityVideo);
+      const payload: CreateCommunityPostPayload = {
+        type: showPollEditor ? 'poll' : hasVideo ? 'video' : attachedImages.length ? 'image' : 'text',
+        content: content.trim() || undefined,
+        audience: targetAudience === 'subs' ? 'subscribers' : 'public',
+        media: attachedImages.length ? attachedImages : undefined,
+        poll: showPollEditor ? {
+          options: cleanedPollOptions,
+          closes_at: pollClosesAt.trim() || null,
+        } : undefined,
+      };
+      const validationErrors = validateCommunityPost(payload);
+      if (validationErrors.length) {
+        Alert.alert('Check your post', validationErrors[0]);
+        return;
+      }
+      await createPost.mutateAsync(payload);
       setShowToast(true);
       resetComposer();
       setTimeout(() => {
@@ -166,7 +209,8 @@ const CreateCommunityPost: React.FC = () => {
         });
       }, 1400);
     } catch (error) {
-      Alert.alert('Could not publish', 'Something went wrong while saving your post. Please try again.');
+      const parsed = parseApiError(error);
+      Alert.alert(parsed.title, parsed.message);
     } finally {
       setIsPosting(false);
     }
@@ -177,7 +221,7 @@ const CreateCommunityPost: React.FC = () => {
   };
 
   const sendSticker = (stickerUrl: string) => {
-    setAttachedImages((prev) => [...prev, stickerUrl].slice(0, 4));
+    setContent((current) => `${current}${current ? ' ' : ''}${stickerUrl}`);
     setShowEmojiPicker(false);
   };
 
@@ -208,8 +252,12 @@ const CreateCommunityPost: React.FC = () => {
     return (
       <View style={styles.imageGrid}>
         {attachedImages.map((img, index) => (
-          <View key={`${img}-${index}`} style={[styles.imageCard, { borderColor: attachmentCardBorder }]}>
-            <Image source={{ uri: img }} style={styles.attachmentImage} />
+          <View key={`${img.uri}-${index}`} style={[styles.imageCard, { borderColor: attachmentCardBorder }]}>
+            {img.type?.startsWith('video/') ? (
+              <View style={[styles.attachmentImage, { alignItems: 'center', justifyContent: 'center', backgroundColor: addCardBackground }]}>
+                <MaterialIcons name="play-circle-filled" size={42} color={theme.accent} />
+              </View>
+            ) : <Image source={{ uri: img.uri }} style={styles.attachmentImage} />}
             <Pressable
               onPress={() => setAttachedImages((prev) => prev.filter((_, idx) => idx !== index))}
               style={styles.removeImageButton}
@@ -250,6 +298,20 @@ const CreateCommunityPost: React.FC = () => {
   const inputBackground = isDark ? 'rgba(255,255,255,0.05)' : theme.surface;
   const chipBackground = isDark ? 'rgba(255,255,255,0.05)' : theme.surface;
   const handleColor = isDark ? '#475569' : '#cbd5e1';
+
+  if (!userLoaded) {
+    return <View style={[styles.safeArea, { backgroundColor: theme.screen, alignItems: 'center', justifyContent: 'center' }]}><ActivityIndicator color={PRIMARY_COLOR} /></View>;
+  }
+
+  if (user.role !== 'creator') {
+    return (
+      <View style={[styles.safeArea, { backgroundColor: theme.screen, alignItems: 'center', justifyContent: 'center', padding: 24, gap: 12 }]}>
+        <MaterialIcons name="lock" size={40} color={PRIMARY_COLOR} />
+        <Text style={[styles.headerTitle, { color: theme.text, textAlign: 'center' }]}>CREATOR ACCOUNT REQUIRED</Text>
+        <Pressable onPress={() => navigation.goBack()}><Text style={{ color: PRIMARY_COLOR }}>Go back</Text></Pressable>
+      </View>
+    );
+  }
 
   return (
     <SafeAreaView style={[styles.safeArea, { backgroundColor: theme.background }]} edges={['top', 'left', 'right']}>
@@ -298,7 +360,7 @@ const CreateCommunityPost: React.FC = () => {
           </View>
 
           <View style={[styles.editorCard, { backgroundColor: editorSurface, borderColor: editorBorder }]}>
-            <TextInput
+            <TextInput includeFontPadding={false}
               value={content}
               onChangeText={setContent}
               multiline
@@ -342,7 +404,7 @@ const CreateCommunityPost: React.FC = () => {
               <View style={styles.pollOptionsWrap}>
                 {pollOptions.map((option, index) => (
                   <View key={`poll-${index}`} style={styles.pollOptionRow}>
-                    <TextInput
+                    <TextInput includeFontPadding={false}
                       value={option}
                       onChangeText={(value) => updatePollOption(index, value)}
                       placeholder={`Option ${index + 1}`}
@@ -362,6 +424,14 @@ const CreateCommunityPost: React.FC = () => {
                     <Text style={styles.addPollText}>+ ADD OPTION</Text>
                   </Pressable>
                 )}
+                <TextInput
+                  value={pollClosesAt}
+                  onChangeText={setPollClosesAt}
+                  placeholder="Optional closing date (ISO 8601)"
+                  placeholderTextColor={placeholderColor}
+                  autoCapitalize="none"
+                  style={[styles.pollInput, { color: titleColor, backgroundColor: inputBackground, borderColor: editorBorder }]}
+                />
               </View>
             </View>
           )}
@@ -404,6 +474,9 @@ const CreateCommunityPost: React.FC = () => {
           >
             <Text style={styles.publishButtonText}>{isPosting ? 'PUBLISHING...' : 'PUBLISH'}</Text>
           </Pressable>
+          {isPosting && uploadProgress > 0 ? (
+            <Text style={[styles.audienceText, { color: mutedText, textAlign: 'center' }]}>Uploading {uploadProgress}%</Text>
+          ) : null}
         </View>
 
         <Modal visible={showEmojiPicker} transparent animationType="slide" statusBarTranslucent onRequestClose={() => setShowEmojiPicker(false)}>

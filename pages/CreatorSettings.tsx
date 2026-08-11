@@ -408,6 +408,7 @@ const CreatorSettings: React.FC<CreatorSettingsProps> = ({ onLogout, isDarkMode,
       {
         title: 'Monetization Hub',
         items: [
+          { label: 'Community Hub', icon: 'groups', desc: 'Understand subscribers, followers, and creator connections', path: 'Subscribers' },
           { label: 'Membership Tiers', icon: StarsIcon, desc: 'Manage pricing and exclusive perks', path: 'MembershipTiers' },
           { label: 'Claim Prize', icon: TrophyIcon, desc: 'Claim challenge rewards & prizes', path: 'ClaimPrize' },
           { label: 'Manage Events', icon: CalenderIcon, desc: 'Create and edit your events', path: 'CreatorEvents' },
@@ -525,7 +526,7 @@ const CreatorSettings: React.FC<CreatorSettingsProps> = ({ onLogout, isDarkMode,
           <Text style={[s.inputLabel, { color: theme.textSecondary }]}>Creator Handle</Text>
           <View style={[s.inputWrapRow, { borderColor: theme.border, backgroundColor: isDark ? '#ffffff08' : theme.surface }]}>
             <Text style={s.inputPrefix}>@</Text>
-            <TextInput
+            <TextInput includeFontPadding={false}
               value={handle.startsWith('@') ? handle.slice(1) : handle}
               onChangeText={(value) => setHandle(`@${value.replace(/^@/, '')}`)}
               placeholder="handle"
@@ -538,7 +539,7 @@ const CreatorSettings: React.FC<CreatorSettingsProps> = ({ onLogout, isDarkMode,
 
         <View style={s.formBlock}>
           <Text style={[s.inputLabel, { color: theme.textSecondary }]}>Display Name</Text>
-          <TextInput
+          <TextInput includeFontPadding={false}
             value={name}
             onChangeText={setName}
             placeholder="Your Stage Name"
@@ -552,7 +553,7 @@ const CreatorSettings: React.FC<CreatorSettingsProps> = ({ onLogout, isDarkMode,
             <Text style={[s.inputLabel, { color: theme.textSecondary }]}>Story / Bio</Text>
             <Text style={[s.counterText, bio.length > 160 && s.counterWarn]}>{bio.length}/160</Text>
           </View>
-          <TextInput
+          <TextInput includeFontPadding={false}
             value={bio}
             onChangeText={setBio}
             maxLength={160}
@@ -931,8 +932,8 @@ const s = StyleSheet.create({
     borderColor: 'rgba(0 0 0 / 0.05)',
   },
   itemCopy: { flex: 1, gap: 4 },
-  itemLabel: { color: '#fff', ...fontSize.b3, lineHeight: fontSize.b3.lineHeight },
-  itemDesc: { color: '#8e91a6', marginTop: 0, ...fontSize.b5, lineHeight: fontSize.b5.lineHeight },
+  itemLabel: { color: '#fff', ...fontSize.b3, lineHeight: fontSize.b3.lineHeight + 2 },
+  itemDesc: { color: '#8e91a6', marginTop: 0, ...fontSize.b5, lineHeight: fontSize.b5.lineHeight + 2},
   footerActions: { paddingHorizontal: 16, marginTop: 22, gap: 10 },
   signOutBtn: {
     height: 58,

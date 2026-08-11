@@ -13,7 +13,7 @@ import {
 } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
 import type { UserRole } from '../types';
-import { PRIMARY_COLOR, primaryColorAlpha } from "../theme";
+import { PRIMARY_COLOR, primaryColorAlpha, useThemeMode } from "../theme";
 import { fontSize } from './typography';
 
 interface LoginProps {
@@ -29,10 +29,11 @@ const previewImages = [
 
 const Login: React.FC<LoginProps> = ({ onLogin }) => {
   const navigation = useNavigation<any>();
+  const { isDark } = useThemeMode();
 
   return (
     <View style={styles.screen}>
-      <StatusBar barStyle="light-content" translucent backgroundColor="transparent" />
+      <StatusBar barStyle={isDark ? 'light-content' : 'dark-content'} translucent backgroundColor="transparent" />
 
       <ImageBackground
         source={{

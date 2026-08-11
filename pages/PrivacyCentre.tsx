@@ -78,7 +78,7 @@ const PrivacyCentre: React.FC = () => {
     }, 2000);
   };
 
-  const surface = isDark ? '#12121a' : theme.card;
+  const surface = isDark ? 'rgba(255,255,255,0.05)' : theme.card;
   const softSurface = isDark ? 'rgba(255,255,255,0.06)' : theme.surface;
   const cardSurface = isDark ? 'rgba(255,255,255,0.05)' : '#ffffff';
   const border = isDark ? 'rgba(255,255,255,0.1)' : theme.border;
@@ -118,7 +118,7 @@ const PrivacyCentre: React.FC = () => {
 
   return (
     <SafeAreaView style={[styles.safeArea, { backgroundColor: theme.screen }]} edges={['top']}>
-      <View style={[styles.header, { backgroundColor: isDark ? 'rgba(18,18,26,0.92)' : 'rgba(255,255,255,0.94)', borderBottomColor: border }]}>
+      <View style={[styles.header, { backgroundColor: isDark ? 'rgba(6,9,19,0.94)' : 'rgba(255,255,255,0.94)', borderBottomColor: border }]}>
         <View style={styles.headerLeft}>
           <View style={styles.headerCopy}>
             <Text style={[styles.headerTitle, { color: theme.text }]}>Privacy Centre</Text>
@@ -276,9 +276,9 @@ const styles = StyleSheet.create({
     flex: 1,
   },
   header: {
-    minHeight: 72,
+    minHeight: 42,
     paddingHorizontal: 20,
-    paddingVertical: 12,
+    paddingVertical: 6,
     borderBottomWidth: 1,
     flexDirection: 'row',
     alignItems: 'center',
@@ -344,8 +344,8 @@ const styles = StyleSheet.create({
   },
   securityText: {
     color: PRIMARY_COLOR,
-    ...fontSize.n5,
-    lineHeight: fontSize.n5.lineHeight,
+    ...fontSize.tabText,
+    lineHeight: fontSize.tabText.lineHeight,
     textTransform: 'uppercase',
     letterSpacing: 1.2,
     fontWeight: '900',
@@ -359,8 +359,8 @@ const styles = StyleSheet.create({
     gap: 14,
   },
   sectionLabel: {
-    ...fontSize.n5,
-    lineHeight: fontSize.n5.lineHeight,
+    ...fontSize.mediumTitleText,
+    lineHeight: fontSize.mediumTitleText.lineHeight,
     textTransform: 'uppercase',
     letterSpacing: 2,
     fontWeight: '900',

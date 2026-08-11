@@ -444,7 +444,7 @@ const BoostEntryDialog = ({
                           })}
                         </View>
                         <Text style={[styles.boostInputLabel, { color: muted }]}>Mobile Money Phone Number</Text>
-                        <TextInput
+                        <TextInput includeFontPadding={false}
                           value={phoneNumber}
                           onChangeText={setPhoneNumber}
                           keyboardType="phone-pad"
@@ -466,15 +466,15 @@ const BoostEntryDialog = ({
                     {paymentMethod === 'card' ? (
                       <View style={styles.boostStack}>
                         <Text style={[styles.boostInputLabel, { color: muted }]}>Card Number</Text>
-                        <TextInput value={cardNumber} onChangeText={setCardNumber} keyboardType="number-pad" maxLength={19} placeholder="4111 2222 3333 4444" placeholderTextColor={muted} style={[styles.boostInput, { backgroundColor: inputBg, borderColor: border, color: theme.text }]} />
+                        <TextInput includeFontPadding={false} value={cardNumber} onChangeText={setCardNumber} keyboardType="number-pad" maxLength={19} placeholder="4111 2222 3333 4444" placeholderTextColor={muted} style={[styles.boostInput, { backgroundColor: inputBg, borderColor: border, color: theme.text }]} />
                         <View style={styles.boostCardInputRow}>
                           <View style={{ flex: 1 }}>
                             <Text style={[styles.boostInputLabel, { color: muted }]}>Expiry Date</Text>
-                            <TextInput value={cardExpiry} onChangeText={setCardExpiry} maxLength={5} placeholder="MM/YY" placeholderTextColor={muted} style={[styles.boostInput, styles.boostCenteredInput, { backgroundColor: inputBg, borderColor: border, color: theme.text }]} />
+                            <TextInput includeFontPadding={false} value={cardExpiry} onChangeText={setCardExpiry} maxLength={5} placeholder="MM/YY" placeholderTextColor={muted} style={[styles.boostInput, styles.boostCenteredInput, { backgroundColor: inputBg, borderColor: border, color: theme.text }]} />
                           </View>
                           <View style={{ flex: 1 }}>
                             <Text style={[styles.boostInputLabel, { color: muted }]}>CVV Code</Text>
-                            <TextInput value={cardCvv} onChangeText={setCardCvv} keyboardType="number-pad" maxLength={3} secureTextEntry placeholder="***" placeholderTextColor={muted} style={[styles.boostInput, styles.boostCenteredInput, { backgroundColor: inputBg, borderColor: border, color: theme.text }]} />
+                            <TextInput includeFontPadding={false} value={cardCvv} onChangeText={setCardCvv} keyboardType="number-pad" maxLength={3} secureTextEntry placeholder="***" placeholderTextColor={muted} style={[styles.boostInput, styles.boostCenteredInput, { backgroundColor: inputBg, borderColor: border, color: theme.text }]} />
                           </View>
                         </View>
                       </View>
@@ -515,7 +515,7 @@ const BoostEntryDialog = ({
                 <Text style={[styles.boostStageBody, { color: muted }]}>
                   We sent a secure USSD push request to {phoneNumber}. Authorize on your phone, then enter the 4-digit reference code.
                 </Text>
-                <TextInput
+                <TextInput includeFontPadding={false}
                   value={otpInput}
                   onChangeText={setOtpInput}
                   maxLength={4}
@@ -607,12 +607,12 @@ const ChallengeLeaderboard: React.FC = () => {
             },
           ]}
         >
-          <Pressable
+          {/* <Pressable
             onPress={() => navigation.goBack()}
             style={[styles.headerButton, { backgroundColor: softSurface, borderColor }]}
           >
             <MaterialIcons name="chevron-left" size={22} color={theme.text} />
-          </Pressable>
+          </Pressable> */}
 
           <Text style={[styles.headerTitle, { color: theme.text }]}>Orbit Leaderboard</Text>
 
@@ -889,8 +889,9 @@ const styles = StyleSheet.create({
     borderWidth: 1,
   },
   headerTitle: {
-    ...fontSize.b4, lineHeight: fontSize.b4.lineHeight,
+    ...fontSize.h1, lineHeight: fontSize.h1.lineHeight,
     textTransform: 'uppercase',
+    letterSpacing: 0.2
   },
   tabWrap: {
     flexDirection: 'row',
@@ -906,7 +907,7 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
   },
   tabText: {
-    ...fontSize.b5, lineHeight: fontSize.b5.lineHeight,
+    ...fontSize.tabText, lineHeight: fontSize.tabText.lineHeight,
     textTransform: 'uppercase',
     letterSpacing: 1.4,
   },
@@ -1008,7 +1009,7 @@ const styles = StyleSheet.create({
   },
   sectionTitle: {
     marginLeft: 6,
-    ...fontSize.b4, lineHeight: fontSize.b4.lineHeight,
+    ...fontSize.mediumTitleText, lineHeight: fontSize.mediumTitleText.lineHeight,
     textTransform: 'uppercase',
   },
   rankCard: {

@@ -422,7 +422,7 @@ const LiveFeed: React.FC = () => {
                 </View>
 
                 <View style={styles.commentComposer}>
-                  <TextInput
+                  <TextInput includeFontPadding={false}
                     value={commentDrafts[card.id] ?? ''}
                     onFocus={() => setFocusedCardId(card.id)}
                     onBlur={() => {

@@ -816,7 +816,7 @@ const styles = StyleSheet.create({
   },
   modeText: {
     color: 'rgba(255,255,255,0.4)',
-    ...fontSize.b4, lineHeight: fontSize.b4.lineHeight,
+    ...fontSize.b2, lineHeight: fontSize.b2.lineHeight,
   },
   modeTextActive: {
     color: '#fff',

@@ -4,7 +4,6 @@ import { useNavigation, useRoute } from '@react-navigation/native';
 import { LinearGradient } from 'expo-linear-gradient';
 import React, { useEffect, useMemo, useState } from 'react';
 import {
-  ActivityIndicator,
   Alert,
   Image,
   Modal,
@@ -19,6 +18,7 @@ import {
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { PRIMARY_COLOR, primaryColorAlpha, useThemeMode } from '../theme';
 import { fontSize } from '../typography';
+import { ListSkeleton } from '../components/PageSkeleton';
 import { user } from '../types';
 
 type ChallengeDraft = {
@@ -242,9 +242,7 @@ const ChallengeDrafts: React.FC = () => {
 
       <ScrollView contentContainerStyle={styles.content} showsVerticalScrollIndicator={false}>
         {loading ? (
-          <View style={styles.loadingWrap}>
-            <ActivityIndicator color={PRIMARY_COLOR} size="large" />
-          </View>
+          <ListSkeleton isDark={isDark} />
         ) : drafts.length === 0 ? (
           emptyState
         ) : (
@@ -315,10 +313,10 @@ const ChallengeDrafts: React.FC = () => {
               </View>
 
               <FieldLabel label="Challenge Title" />
-              <TextInput value={editTitle} onChangeText={setEditTitle} placeholder="e.g. Acoustic Soul Cover" placeholderTextColor="rgba(255,255,255,0.35)" style={styles.input} />
+              <TextInput includeFontPadding={false} value={editTitle} onChangeText={setEditTitle} placeholder="e.g. Acoustic Soul Cover" placeholderTextColor="rgba(255,255,255,0.35)" style={styles.input} />
 
               <FieldLabel label="Instructions & Rules" />
-              <TextInput
+              <TextInput includeFontPadding={false}
                 value={editDesc}
                 onChangeText={setEditDesc}
                 placeholder="Invite fans to participate..."
@@ -341,7 +339,7 @@ const ChallengeDrafts: React.FC = () => {
               </View>
 
               <FieldLabel label="Reward & Perks" />
-              <TextInput value={editReward} onChangeText={setEditReward} placeholder="e.g. $100 + Video Credit" placeholderTextColor="rgba(255,255,255,0.35)" style={styles.input} />
+              <TextInput includeFontPadding={false} value={editReward} onChangeText={setEditReward} placeholder="e.g. $100 + Video Credit" placeholderTextColor="rgba(255,255,255,0.35)" style={styles.input} />
 
               <FieldLabel label="Aesthetic Cover Art Preset" />
               <View style={styles.presetGrid}>

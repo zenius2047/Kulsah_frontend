@@ -21,8 +21,15 @@ import { LinearGradient } from 'expo-linear-gradient';
 import { mediumScreen } from '../types';
 import { fontSize } from './typography';
 import DateTimePicker from '@react-native-community/datetimepicker';
+import * as ImagePicker from 'expo-image-picker';
+import { useCreatorEvents } from '../src/hooks/events/useEvents';
+import { useCreateEvent, useUpdateEvent } from '../src/hooks/events/useEventMutations';
+import { eventsApi } from '../src/api/events.api';
+import type { EventFormPayload, EventListResource, EventPage } from '../src/types/event.types';
 
 interface EventTicketTier {
+  code?: string;
+  description?: string;
   name: string;
   price: string;
   capacity: string;
@@ -47,6 +54,9 @@ const CreatorEvents: React.FC = () => {
   const { isDark, theme } = useThemeMode();
   const navigation = useNavigation<any>();
   const route = useRoute<any>();
+  const creatorEventsQuery = useCreatorEvents();
+  const createEventMutation = useCreateEvent();
+  const updateEventMutation = useUpdateEvent();
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [editingEventId, setEditingEventId] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
@@ -55,6 +65,7 @@ const CreatorEvents: React.FC = () => {
   const [venueMapUri, setVenueMapUri] = useState<string | null>(null);
 
   const [coverImg, setCoverImg] = useState<string | null>(null);
+  const [coverAsset, setCoverAsset] = useState<ImagePicker.ImagePickerAsset | null>(null);
   const [eventTitle, setEventTitle] = useState('');
   const [eventLocation, setEventLocation] = useState('');
   // const [eventDate, setEventDate] = useState('');
@@ -129,6 +140,20 @@ const CreatorEvents: React.FC = () => {
     },
   ]);
 
+  React.useEffect(() => {
+    const resources = ((creatorEventsQuery.data?.pages ?? []) as EventPage<EventListResource>[]).flatMap((page) => page.data);
+    if (!resources.length) return;
+    setCurrentEvents(resources.map((event) => ({
+      id: String(event.id), title: event.title,
+      date: new Date(event.starts_at).toLocaleString(undefined, { dateStyle: 'medium', timeStyle: 'short' }),
+      venue: event.venue?.name || ((event.event_type ?? event.venue_type) === 'online' ? 'Online' : ''),
+      ticketsSold: Number(event.tickets_sold || 0), totalTickets: Number(event.capacity || 0), revenue: '',
+      status: event.status === 'draft' ? 'draft' : event.status === 'completed' ? 'completed' : 'published',
+      type: (event.event_type ?? event.venue_type) === 'physical' ? 'Physical' : event.category?.toLowerCase().includes('workshop') ? 'Workshop' : 'Live Stream',
+      img: event.cover_image_url || undefined,
+    })));
+  }, [creatorEventsQuery.data]);
+
   const totalBookings = useMemo(() => currentEvents.length, [currentEvents.length]);
 
   const addTier = () => {
@@ -152,13 +177,14 @@ const CreatorEvents: React.FC = () => {
     setEventDesc('');
     setEventType('Physical');
     setCoverImg(null);
+    setCoverAsset(null);
     setTicketTiers([{ name: 'General Admission', price: '45.00', capacity: '1000' }]);
     setVenueMapUri(null);
     setAiHelperText('');
     setLoading(false);
   };
 
-  const openEditor = (event?: CreatorEvent) => {
+  const openEditor = async (event?: CreatorEvent) => {
     if (event) {
       setEditingEventId(event.id);
       setEventTitle(event.title);
@@ -168,8 +194,15 @@ const CreatorEvents: React.FC = () => {
       // setEventDate(new);
       setEventDesc('');
       setCoverImg(event.img ?? null);
+      setCoverAsset(null);
       setAiHelperText('');
       setTicketTiers([{ name: 'General Admission', price: '45.00', capacity: String(event.totalTickets) }]);
+      try {
+        const detail = (await eventsApi.getCreatorEvent(event.id)).data.data;
+        setEventDesc(detail.description || '');
+        setDate(new Date(detail.starts_at));
+        setTicketTiers(detail.ticket_types.map((ticket) => ({ code: ticket.code, name: ticket.name, description: ticket.description || '', price: String(ticket.price ?? ticket.unit_price), capacity: String(ticket.quantity) })));
+      } catch { /* Keep the list values if detail loading fails. */ }
     } else {
       resetForm();
     }
@@ -183,12 +216,40 @@ const CreatorEvents: React.FC = () => {
     ]);
   };
 
-  const handleLaunchEvent = (status: 'published' | 'draft') => {
+  const handleLaunchEvent = async (status: 'published' | 'draft') => {
     if (!eventTitle.trim() || !eventLocation.trim() || !eventDate.toDateString().trim()) {
       Alert.alert('Missing Details', 'Please fill in title, location and date.');
       return;
     }
     const totalCapacity = ticketTiers.reduce((acc, tier) => acc + parseInt(tier.capacity || '0', 10), 0);
+    if (ticketTiers.some((tier) => !tier.name.trim() || Number(tier.price) < 0 || Number(tier.capacity) < 1)) {
+      Alert.alert('Invalid ticket tier', 'Each tier needs a name, a non-negative price, and a quantity of at least one.');
+      return;
+    }
+    const endsAt = new Date(eventDate.getTime() + 2 * 60 * 60 * 1000);
+    const payload: EventFormPayload = {
+      title: eventTitle.trim(), description: eventDesc.trim(), category: eventType === 'Workshop' ? 'workshop' : 'event',
+      venue_type: eventType === 'Physical' ? 'physical' : 'online',
+      venue_name: eventType === 'Physical' ? eventLocation.trim() : undefined,
+      venue_address: eventType === 'Physical' ? eventLocation.trim() : undefined,
+      meeting_url: eventType === 'Physical' ? undefined : eventLocation.trim(),
+      starts_at: eventDate.toISOString(), ends_at: endsAt.toISOString(),
+      timezone: Intl.DateTimeFormat().resolvedOptions().timeZone || 'UTC', capacity: totalCapacity,
+      currency: 'GHS', status, cover_image: coverAsset ? {
+        uri: coverAsset.uri,
+        name: coverAsset.fileName ?? `event-cover-${Date.now()}.jpg`,
+        type: coverAsset.mimeType ?? 'image/jpeg',
+      } : null,
+      ticket_types: ticketTiers.map((tier) => ({ code: tier.code, name: tier.name.trim(), description: tier.description || '', price: Number(tier.price).toFixed(4), quantity: Number(tier.capacity) })),
+    };
+    try {
+      if (editingEventId) await updateEventMutation.mutateAsync({ event: editingEventId, payload });
+      else await createEventMutation.mutateAsync(payload);
+    } catch (error: any) {
+      const errors = error?.response?.data?.errors;
+      Alert.alert('Unable to save event', errors ? Object.values(errors).flat().join('\n') : error?.response?.data?.message || 'Please try again.');
+      return;
+    }
     const formattedDate = new Date(eventDate).toLocaleDateString('en-US', {
       month: 'short',
       day: 'numeric',
@@ -230,6 +291,27 @@ const CreatorEvents: React.FC = () => {
 
     resetForm();
     setIsModalOpen(false);
+  };
+
+  const chooseCoverImage = async () => {
+    const permission = await ImagePicker.requestMediaLibraryPermissionsAsync();
+    if (!permission.granted) {
+      Alert.alert('Media access required', 'Allow access to your media library to choose an event cover image.');
+      return;
+    }
+    const result = await ImagePicker.launchImageLibraryAsync({
+      mediaTypes: ['images'],
+      allowsMultipleSelection: false,
+      quality: 0.9,
+    });
+    if (result.canceled || !result.assets[0]) return;
+    const asset = result.assets[0];
+    if (asset.fileSize && asset.fileSize > 10 * 1024 * 1024) {
+      Alert.alert('Image too large', 'Choose an image smaller than 10 MB.');
+      return;
+    }
+    setCoverAsset(asset);
+    setCoverImg(asset.uri);
   };
 
   const verifyVenue = async () => {
@@ -353,10 +435,10 @@ const CreatorEvents: React.FC = () => {
                   </View>
 
                   <View style={[styles.eventFooter, { borderTopColor: border }]}>
-                    <View style={styles.activeTicketChip}>
+                    <Pressable onPress={() => navigation.navigate('TicketVerification', { eventId: event.id })} style={styles.activeTicketChip}>
                       <MaterialIcons name="confirmation-number" size={13} color={PRIMARY_COLOR} />
                       <Text style={styles.activeTicketText}>ACTIVE TICKETS</Text>
-                    </View>
+                    </Pressable>
                     <View style={styles.actionRow}>
                       <Pressable
                         style={[styles.eventActionButton, { backgroundColor: inputBg }]}
@@ -428,14 +510,14 @@ const CreatorEvents: React.FC = () => {
               <Text style={[styles.inputLabel, { color: textMuted }]}>PROMOTIONAL COVER</Text>
               <Pressable
                 style={[styles.coverBox, { borderColor: softBorder, backgroundColor: inputBg }]}
-                onPress={() => setCoverImg('https://images.unsplash.com/photo-1516450360452-9312f5e86fc7?auto=format&fit=crop&q=80&w=800')}
+                onPress={chooseCoverImage}
               >
                 {coverImg ? (
                   <Image source={{ uri: coverImg }} style={styles.coverImg} />
                 ) : (
                   <View style={styles.coverPlaceholder}>
                     <MaterialIcons name="add-a-photo" size={26} color="#9ca3af" />
-                    <Text style={[styles.coverText, { color: textSecondary }]}>Tap to use sample visual</Text>
+                    <Text style={[styles.coverText, { color: textSecondary }]}>Tap to choose an image</Text>
                   </View>
                 )}
               </Pressable>
@@ -454,7 +536,7 @@ const CreatorEvents: React.FC = () => {
               </View>
 
               <Text style={[styles.inputLabel, { color: textMuted }]}>EVENT TITLE</Text>
-              <TextInput
+              <TextInput includeFontPadding={false}
                 value={eventTitle}
                 onChangeText={setEventTitle}
                 placeholder="e.g. Moonlight Symphony"
@@ -464,7 +546,7 @@ const CreatorEvents: React.FC = () => {
 
               <Text style={[styles.inputLabel, { color: textMuted }]}>EVENT DATE (YYYY-MM-DD)</Text>
               <View style={styles.locationRow}>
-                <TextInput
+                <TextInput includeFontPadding={false}
                 value={eventDate.toDateString()}
                 onChangeText={onChange}
                 placeholder="2026-12-01"
@@ -489,7 +571,7 @@ const CreatorEvents: React.FC = () => {
                 )}
               </View>
               <View style={styles.locationRow}>
-                <TextInput
+                <TextInput includeFontPadding={false}
                   value={eventLocation}
                   onChangeText={setEventLocation}
                   placeholder="e.g. Royal Albert Hall, London"
@@ -526,7 +608,7 @@ const CreatorEvents: React.FC = () => {
               </View> */}
 
               <Text style={[styles.inputLabel, { color: textMuted }]}>EVENT DESCRIPTION</Text>
-              <TextInput
+              <TextInput includeFontPadding={false}
                 value={eventDesc}
                 onChangeText={setEventDesc}
                 placeholder="Tell your fans what to expect..."
@@ -547,7 +629,7 @@ const CreatorEvents: React.FC = () => {
                   <Pressable onPress={() => removeTier(idx)} style={styles.removeTierBtn}>
                     <MaterialIcons name="delete" size={14} color="#ef4444" />
                   </Pressable>
-                  <TextInput value={tier.name} onChangeText={(v) => updateTier(idx, 'name', v)} style={[styles.tierInput, { borderColor: border, backgroundColor: isDark ? 'rgba(255,255,255,0.04)' : '#ffffff', color: textPrimary }]} placeholder="Tier Name" placeholderTextColor={textMuted} />
+                  <TextInput includeFontPadding={false} value={tier.name} onChangeText={(v) => updateTier(idx, 'name', v)} style={[styles.tierInput, { borderColor: border, backgroundColor: isDark ? 'rgba(255,255,255,0.04)' : '#ffffff', color: textPrimary }]} placeholder="Tier Name" placeholderTextColor={textMuted} />
                   <View style={styles.tierRow}>
                     <View style = {{
                       width: '48%',
@@ -561,7 +643,7 @@ const CreatorEvents: React.FC = () => {
                     }}>
                       Ticket Price
                     </Text>
-                      <TextInput 
+                      <TextInput includeFontPadding={false} 
                     value={tier.price} 
                     onChangeText={(v) => updateTier(idx, 'price', v)}
                     style={[styles.tierInput, 
@@ -581,7 +663,7 @@ const CreatorEvents: React.FC = () => {
                     }}>
                       Event Capacity
                     </Text>
-                      <TextInput 
+                      <TextInput includeFontPadding={false} 
                     value={tier.capacity} 
                     onChangeText={(v) => updateTier(idx, 'capacity', v)} 
                     style={[styles.tierInput, 
@@ -597,10 +679,10 @@ const CreatorEvents: React.FC = () => {
             </ScrollView>
 
             <View style={[styles.modalFooter, { borderTopColor: border, backgroundColor: shellBg }]}>
-              <Pressable onPress={() => handleLaunchEvent('draft')} style={[styles.draftBtn, { borderColor: softBorder, backgroundColor: inputBg }]}>
+              <Pressable disabled={createEventMutation.isPending || updateEventMutation.isPending} onPress={() => handleLaunchEvent('draft')} style={[styles.draftBtn, { borderColor: softBorder, backgroundColor: inputBg }]}>
                 <Text style={[styles.draftText, { color: isDark ? '#cbd5e1' : textPrimary }]}>{editingEventId ? 'KEEP AS DRAFT' : 'SAVE DRAFT'}</Text>
               </Pressable>
-              <Pressable onPress={() => handleLaunchEvent('published')} style={styles.launchBtn}>
+              <Pressable disabled={createEventMutation.isPending || updateEventMutation.isPending} onPress={() => handleLaunchEvent('published')} style={[styles.launchBtn, { opacity: createEventMutation.isPending || updateEventMutation.isPending ? 0.6 : 1 }]}>
                 <Text style={styles.launchText}>{editingEventId ? 'UPDATE EVENT' : 'LAUNCH EVENT'}</Text>
               </Pressable>
             </View>

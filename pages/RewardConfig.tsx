@@ -214,7 +214,7 @@ const RewardConfig: React.FC = () => {
                   <MaterialIcons name="add-circle" size={16} color={subtle} />
                   <Text style={[styles.customLabel, { color: subtle }]}>Custom Reward</Text>
                 </View>
-                <TextInput
+                <TextInput includeFontPadding={false}
                   value={customReward}
                   onChangeText={setCustomReward}
                   placeholder="Enter custom prize description..."

@@ -36,6 +36,7 @@ export const useCreateCreatorVideoPlaylist = () => {
   return useMutation({
     mutationFn: async (payload: CreateCreatorVideoPlaylistPayload) => {
       const response = await videoApi.createCreatorVideoPlaylist(payload);
+      console.log('[Playlists] Create response:', response.data);
       return response.data;
     },
     onSuccess: () => invalidatePlaylistData(queryClient),

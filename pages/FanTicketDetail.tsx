@@ -1,9 +1,11 @@
-import React from 'react';
+import React, { useEffect, useState } from 'react';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 import {
   Image,
   Platform,
   Pressable,
   ScrollView,
+  Share,
   StyleSheet,
   Text,
   View,
@@ -15,16 +17,39 @@ import { useNavigation, useRoute } from '@react-navigation/native';
 import { useThemeMode, PRIMARY_COLOR, primaryColorAlpha } from "../theme";
 import { mediumScreen } from '../types';
 import { fontSize } from './typography';
+import type { EventResource, EventTicketPurchaseResource, EventTicketResource } from '../src/types/event.types';
 
 const EVENT_IMAGE =
   'https://images.unsplash.com/photo-1470229722913-7c0e2dbbafd3?auto=format&fit=crop&q=80&w=800';
+
+type TicketDetailPayload = {
+  ticket: EventTicketResource;
+  event: EventResource;
+  purchase?: EventTicketPurchaseResource['purchase'] | null;
+};
 
 const FanTicketDetail: React.FC = () => {
   const { isDark, theme } = useThemeMode();
   const navigation = useNavigation<any>();
   const route = useRoute<any>();
   const insets = useSafeAreaInsets();
-  const id = route.params?.id ?? 't1';
+  const routePayload = route.params?.ticket && route.params?.event
+    ? { ticket: route.params.ticket, event: route.params.event, purchase: route.params.purchase ?? null } as TicketDetailPayload
+    : null;
+  const [payload, setPayload] = useState<TicketDetailPayload | null>(routePayload);
+  const [isLoading, setIsLoading] = useState(!routePayload);
+
+  useEffect(() => {
+    if (routePayload) {
+      setPayload(routePayload);
+      setIsLoading(false);
+      return;
+    }
+    AsyncStorage.getItem('fan-ticket:latest')
+      .then((stored: string | null) => setPayload(stored ? JSON.parse(stored) as TicketDetailPayload : null))
+      .catch(() => setPayload(null))
+      .finally(() => setIsLoading(false));
+  }, [route.params?.ticket, route.params?.event, route.params?.purchase]);
 
   const headerBackground = isDark ? 'rgba(10,5,13,0.72)' : 'rgba(255,255,255,0.78)';
   const softBorder = isDark ? 'rgba(255,255,255,0.12)' : theme.border;
@@ -36,6 +61,33 @@ const FanTicketDetail: React.FC = () => {
   const mutedText = isDark ? 'rgba(255,255,255,0.46)' : theme.textMuted;
   const notchColor = theme.background;
 
+  if (isLoading) {
+    return <SafeAreaView style={[styles.emptyScreen, { backgroundColor: theme.background }]}><Text style={[styles.emptyText, { color: metaText }]}>Loading ticket...</Text></SafeAreaView>;
+  }
+
+  if (!payload?.ticket || !payload.event) {
+    return (
+      <SafeAreaView style={[styles.emptyScreen, { backgroundColor: theme.background }]}>
+        <MaterialIcons name="confirmation-number" size={48} color={mutedText} />
+        <Text style={[styles.emptyTitle, { color: theme.text }]}>No ticket available</Text>
+        <Text style={[styles.emptyText, { color: metaText }]}>Purchase an event ticket to see its entry pass here.</Text>
+        <Pressable onPress={() => navigation.goBack()} style={[styles.emptyButton, { backgroundColor: theme.accent }]}><Text style={styles.emptyButtonText}>Go Back</Text></Pressable>
+      </SafeAreaView>
+    );
+  }
+
+  const { ticket, event, purchase } = payload;
+  const startsAt = event.starts_at ? new Date(event.starts_at) : null;
+  const validStart = startsAt && !Number.isNaN(startsAt.getTime());
+  const eventDate = validStart ? startsAt.toLocaleDateString(undefined, { month: 'short', day: 'numeric', year: 'numeric' }) : 'Date unavailable';
+  const eventTime = validStart ? startsAt.toLocaleTimeString(undefined, { hour: 'numeric', minute: '2-digit', timeZone: event.timezone }) : '';
+  const venueName = event.venue?.name || (event.event_type === 'online' || event.venue_type === 'online' ? 'Online Event' : 'Venue unavailable');
+  const venueLocation = [event.venue?.city, event.venue?.country].filter(Boolean).join(', ') || event.venue?.address || '';
+  const ticketType = ticket.ticket_type_name || ticket.ticket_type_code || purchase?.ticket_type_name || purchase?.ticket_type_code || 'Event admission';
+  const ticketCode = ticket.ticket_id || String(ticket.id);
+  const coverImage = event.cover_image_url || EVENT_IMAGE;
+  const shareTicket = () => Share.share({ title: `${event.title} ticket`, message: `My ticket for ${event.title}. Ticket ID: ${ticketCode}${purchase?.reference ? ` · Purchase: ${purchase.reference}` : ''}` });
+
   return (
     <SafeAreaView
       style={[
@@ -45,11 +97,11 @@ const FanTicketDetail: React.FC = () => {
           paddingTop: Platform.OS === 'ios' ? 44 : insets.top,
         },
       ]}
-      edges={['left', 'right']}
+      edges={[]}
     >
       <View style={[styles.screen, { backgroundColor: theme.background }]}>
         <View style={styles.backgroundWrap}>
-          <Image source={{ uri: EVENT_IMAGE }} style={styles.backgroundImage} />
+          <Image source={{ uri: coverImage }} style={styles.backgroundImage} />
           <LinearGradient
             colors={
               isDark
@@ -60,36 +112,36 @@ const FanTicketDetail: React.FC = () => {
           />
         </View>
 
-        <View style={[styles.header, { backgroundColor: headerBackground }]}>
-          <Pressable style={[styles.headerButton, { backgroundColor: glassSurface, borderColor: softBorder }]} onPress={() => navigation.goBack()}>
-            <MaterialIcons name="close" size={20} color={theme.text} />
+        <View style={[styles.header, { backgroundColor: theme.background }]}>
+          <Pressable style={[styles.headerButton, {  }]} onPress={() => navigation.goBack()}>
+            {/* <MaterialIcons name="close" size={20} color={theme.text} /> */}
           </Pressable>
 
           <View style={styles.headerCenter}>
             <Text style={[styles.headerKicker, { color: theme.accent }]}>Entry Pass</Text>
             <Text style={[styles.headerTitle, { color: theme.text }]} numberOfLines={1}>
-              Burna Boy: Love, Damini
+              {event.title}
             </Text>
           </View>
 
-          <Pressable style={[styles.headerButton, { backgroundColor: glassSurface, borderColor: softBorder }]}>
+          <Pressable accessibilityRole="button" accessibilityLabel="Share ticket" onPress={() => void shareTicket()} style={[styles.headerButton, { borderColor: softBorder }]}>
             <MaterialIcons name="share" size={18} color={theme.text} />
           </Pressable>
         </View>
 
-        <ScrollView showsVerticalScrollIndicator={false} contentContainerStyle={styles.scrollContent}>
+        <ScrollView showsVerticalScrollIndicator={false} contentContainerStyle={[styles.scrollContent, {backgroundColor: theme.background}]}>
           <View style={styles.ticketWrap}>
-            <View style={[styles.ticketCard, { backgroundColor: glassSurface, borderColor: softBorder }]}>
+            <View style={[styles.ticketCard, { borderColor: softBorder }]}>
               <View style={styles.visualHeader}>
-                <Image source={{ uri: EVENT_IMAGE }} style={styles.visualImage} />
+                <Image source={{ uri: coverImage }} style={styles.visualImage} />
                 <LinearGradient colors={['transparent', 'rgba(0,0,0,0.84)']} style={styles.visualFade} />
                 <View style={styles.visualMeta}>
                   <View style={styles.visualText}>
-                    <Text style={styles.artistName}>Burna Boy</Text>
-                    <Text style={styles.artistSub}>Love, Damini World Tour</Text>
+                    <Text style={styles.artistName}>{event.creator?.name || event.title}</Text>
+                    <Text style={styles.artistSub}>{event.title}</Text>
                   </View>
                   <View style={styles.verifiedPill}>
-                    <Text style={styles.verifiedText}>Verified</Text>
+                    <Text style={styles.verifiedText}>{ticket.status === 'active' ? 'Valid' : ticket.status}</Text>
                   </View>
                 </View>
               </View>
@@ -97,32 +149,29 @@ const FanTicketDetail: React.FC = () => {
               <View style={[styles.detailsGrid, { borderBottomColor: softBorder, backgroundColor: detailSurface }]}>
                 <View style={styles.detailItem}>
                   <Text style={[styles.detailLabel, { color: mutedText }]}>Date & Time</Text>
-                  <Text style={[styles.detailValue, { color: theme.text }]}>Aug 24, 2024</Text>
-                  <Text style={[styles.detailSub, { color: metaText }]}>8:00 PM BST</Text>
+                  <Text style={[styles.detailValue, { color: theme.text }]}>{eventDate}</Text>
+                  <Text style={[styles.detailSub, { color: metaText }]}>{eventTime}</Text>
                 </View>
                 <View style={styles.detailItem}>
                   <Text style={[styles.detailLabel, { color: mutedText }]}>Venue</Text>
-                  <Text style={[styles.detailValue, { color: theme.text }]}>The O2 Arena</Text>
-                  <Text style={[styles.detailSub, { color: metaText }]}>London, UK</Text>
+                  <Text style={[styles.detailValue, { color: theme.text }]}>{venueName}</Text>
+                  <Text style={[styles.detailSub, { color: metaText }]}>{venueLocation}</Text>
                 </View>
                 <View style={styles.detailItem}>
                   <Text style={[styles.detailLabel, { color: mutedText }]}>Section</Text>
-                  <Text style={[styles.detailValue, { color: theme.text }]}>Golden Circle Pit</Text>
+                  <Text style={[styles.detailValue, { color: theme.text }]}>{ticketType}</Text>
                 </View>
                 <View style={styles.detailItem}>
-                  <Text style={[styles.detailLabel, { color: mutedText }]}>Gate / Seat</Text>
-                  <Text style={[styles.detailValue, { color: theme.text }]}>Gate B • G-42</Text>
+                  <Text style={[styles.detailLabel, { color: mutedText }]}>Ticket Number</Text>
+                  <Text style={[styles.detailValue, { color: theme.text }]}>{ticket.ticket_number ?? '—'}</Text>
                 </View>
               </View>
 
               <View style={[styles.qrSection, { backgroundColor: qrSurface }]}>
                 <View style={styles.qrCard}>
-                  <Image
-                    source={{
-                      uri: `https://api.qrserver.com/v1/create-qr-code/?size=250x250&data=ENTRY_CODE_${id}_ALEX_RIVERA&bgcolor=ffffff&color=0f172a`,
-                    }}
-                    style={styles.qrImage}
-                  />
+                  {ticket.qr_code_url
+                    ? <Image source={{ uri: ticket.qr_code_url }} style={styles.qrImage} />
+                    : <View style={[styles.qrImage, styles.qrFallback]}><MaterialIcons name="qr-code" size={96} color="#64748b" /></View>}
                 </View>
                 <Text style={styles.scanTitle}>SCAN TO ENTER</Text>
                 <Text style={[styles.scanHint, { color: '#64748b' }]}>Screen brightness optimized for scanner</Text>
@@ -131,7 +180,7 @@ const FanTicketDetail: React.FC = () => {
               <View style={[styles.footerCard, { backgroundColor: footerSurface, borderTopColor: softBorder }]}>
                 <View style={styles.footerTextWrap}>
                   <Text style={[styles.detailLabel, { color: mutedText }]}>Digital Ticket ID</Text>
-                  <Text style={[styles.ticketCode, { color: theme.text }]}>PULS-EVT-882-XR9</Text>
+                  <Text style={[styles.ticketCode, { color: theme.text }]}>{ticketCode}</Text>
                 </View>
                 <View style={[styles.nfcBadge, { backgroundColor: isDark ? primaryColorAlpha(0.12) : theme.accentSoft, borderColor: isDark ? primaryColorAlpha(0.22) : primaryColorAlpha(0.18) }]}>
                   <MaterialIcons name="nfc" size={22} color={theme.accent} />
@@ -160,6 +209,11 @@ const FanTicketDetail: React.FC = () => {
 };
 
 const styles = StyleSheet.create({
+  emptyScreen: { flex: 1, alignItems: 'center', justifyContent: 'center', paddingHorizontal: 28, gap: 14 },
+  emptyTitle: { ...fontSize.b1, lineHeight: fontSize.b1.lineHeight, textAlign: 'center' },
+  emptyText: { ...fontSize.b4, lineHeight: fontSize.b4.lineHeight, textAlign: 'center' },
+  emptyButton: { minWidth: 132, height: 46, borderRadius: 23, alignItems: 'center', justifyContent: 'center', paddingHorizontal: 20 },
+  emptyButtonText: { color: '#fff', ...fontSize.b5, lineHeight: fontSize.b5.lineHeight, textTransform: 'uppercase', letterSpacing: 1.1 },
   safeArea: {
     flex: 1,
   },
@@ -188,7 +242,7 @@ const styles = StyleSheet.create({
     borderRadius: 20,
     alignItems: 'center',
     justifyContent: 'center',
-    borderWidth: 1,
+    // borderWidth: 1,
   },
   headerCenter: {
     flex: 1,
@@ -196,13 +250,13 @@ const styles = StyleSheet.create({
     paddingHorizontal: 12,
   },
   headerKicker: {
-    ...fontSize.b5, lineHeight: fontSize.b5.lineHeight,
+    ...fontSize.h1, lineHeight: fontSize.h1.lineHeight,
     textTransform: 'uppercase',
     letterSpacing: 2.5,
   },
   headerTitle: {
     marginTop: 4,
-    ...fontSize.b4, lineHeight: fontSize.b4.lineHeight,
+    ...fontSize.h2, lineHeight: fontSize.h2.lineHeight,
     textTransform: 'uppercase',
     maxWidth: 180,
   },
@@ -312,6 +366,7 @@ const styles = StyleSheet.create({
     height: 192,
     borderRadius: 20,
   },
+  qrFallback: { alignItems: 'center', justifyContent: 'center', backgroundColor: '#e2e8f0' },
   scanTitle: {
     marginTop: 22,
     color: '#0f172a',

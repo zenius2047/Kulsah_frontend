@@ -174,7 +174,7 @@ const Challenges: React.FC = () => {
 
         <View style={[styles.searchBox, { backgroundColor: isDark ? '#18181b' : '#ffffff', borderColor: isDark ? '#27272a' : '#e2e8f0', marginHorizontal: 20 }]}>
           <MaterialIcons name="search" size={20} color={theme.textMuted} />
-          <TextInput
+          <TextInput includeFontPadding={false}
             value={searchQuery}
             onChangeText={setSearchQuery}
             placeholder="Search challenges, creator, description..."

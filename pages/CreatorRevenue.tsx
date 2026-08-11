@@ -339,7 +339,7 @@ const CreatorRevenue: React.FC = () => {
                 <Text style={[s.inputLabel, { color: muted }]}>Withdrawal Amount (USD)</Text>
                 <View style={[s.amountField, { backgroundColor: theme.card, borderColor: border }]}>
                   <Text style={[s.amountPrefix, { color: muted }]}>$</Text>
-                  <TextInput
+                  <TextInput includeFontPadding={false}
                     value={withdrawAmount}
                     onChangeText={setWithdrawAmount}
                     keyboardType="numeric"
@@ -387,7 +387,7 @@ const CreatorRevenue: React.FC = () => {
               {selectedMethod === 'momo' ? (
                 <View style={[s.momoCard, { backgroundColor: 'rgba(234,179,8,0.08)', borderColor: 'rgba(234,179,8,0.22)' }]}>
                   <Text style={[s.inputLabel, { color: '#eab308' }]}>MoMo Phone Number</Text>
-                  <TextInput
+                  <TextInput includeFontPadding={false}
                     value={momoNumber}
                     onChangeText={setMomoNumber}
                     keyboardType="phone-pad"

@@ -125,7 +125,8 @@ const CollaborationHub: React.FC = () => {
   const border = isDark ? 'rgba(255,255,255,0.08)' : 'rgba(15,23,42,0.08)';
   const muted = isDark ? 'rgba(255,255,255,0.34)' : '#94a3b8';
   const body = isDark ? 'rgba(255,255,255,0.62)' : '#64748b';
-  const surface = isDark ? theme.background : '#f8fafc';
+  const surface = isDark ? theme.screen : '#f8fafc';
+  const headerSurface = isDark ? 'rgba(6,9,19,0.94)' : surface;
 
   const handleAiVibeSearch = async () => {
     if (!vibeQuery.trim()) return;
@@ -246,7 +247,7 @@ const CollaborationHub: React.FC = () => {
 
   return (
     <View style={[styles.screen, { backgroundColor: surface }]}>
-      <View style={[styles.header, { backgroundColor: surface, borderBottomColor: border, paddingTop: Platform.OS === 'ios' ? 54 : insets.top }]}>
+      <View style={[styles.header, { backgroundColor: headerSurface, borderBottomColor: border, paddingTop: Platform.OS === 'ios' ? 54 : insets.top }]}>
         <View style={styles.headerTop}>
           <View style={styles.headerLeft}>
             <Text style={[styles.title, { color: theme.text }]}>Collaboration Hub</Text>
@@ -279,7 +280,7 @@ const CollaborationHub: React.FC = () => {
             </View>
 
             <View style={[styles.searchWrap, { backgroundColor: cardBg, borderColor: border }]}>
-              <TextInput
+              <TextInput includeFontPadding={false}
                 value={vibeQuery}
                 onChangeText={setVibeQuery}
                 placeholder="Describe your sonic vision..."
@@ -332,7 +333,9 @@ const CollaborationHub: React.FC = () => {
 
         {activeTab === 'incoming' ? (
           <View style={styles.section}>
-            <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={styles.filterRow}>
+            <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={styles.filterRow} style={{
+              marginHorizontal: -16,
+            }}>
               {FILTERS.map((filter) => (
                 <Pressable
                   key={filter}
@@ -594,7 +597,7 @@ const CollaborationHub: React.FC = () => {
                 </View>
 
                 <Text style={[styles.sectionKicker, { color: muted, marginTop: 18 }]}>Negotiation Context</Text>
-                <TextInput
+                <TextInput includeFontPadding={false}
                   value={negotiateDraft}
                   onChangeText={setNegotiateDraft}
                   placeholder="Explain why you're proposing these terms..."
@@ -685,7 +688,7 @@ const CollaborationHub: React.FC = () => {
                     </View>
 
                     <Text style={[styles.sectionKicker, { color: muted, marginTop: 18 }]}>Project Identity</Text>
-                    <TextInput
+                    <TextInput includeFontPadding={false}
                       value={projectTitle}
                       onChangeText={setProjectTitle}
                       placeholder="e.g. Galactic Remix 2024"
@@ -694,7 +697,7 @@ const CollaborationHub: React.FC = () => {
                     />
 
                     <Text style={[styles.sectionKicker, { color: muted, marginTop: 18 }]}>Proposal Logic</Text>
-                    <TextInput
+                    <TextInput includeFontPadding={false}
                       value={proposalDraft}
                       onChangeText={setProposalDraft}
                       placeholder="Describe the synergistic vision..."
@@ -828,6 +831,7 @@ const styles = StyleSheet.create({
     height: 2,
     borderRadius: 999,
     backgroundColor: BRAND,
+    
   },
   content: {
     padding: 18,
@@ -941,6 +945,7 @@ const styles = StyleSheet.create({
   filterRow: {
     gap: 8,
     paddingBottom: 2,
+    paddingHorizontal: 16,
   },
   filterChip: {
     borderWidth: 1,

@@ -3002,7 +3002,7 @@ const Feed: React.FC = () => {
       <View
       {...panResponder.panHandlers}
       style={{ flex: 1, backgroundColor: 'blue', padding: 0, margin: 0 }}>
-      <StatusBar barStyle={isDark ? 'light-content' : 'dark-content'} backgroundColor="transparent" translucent = {true} />
+      <StatusBar barStyle="light-content" backgroundColor="transparent" translucent={true} />
       <View
         style={{
           position: 'absolute',

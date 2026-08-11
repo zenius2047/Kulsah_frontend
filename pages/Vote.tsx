@@ -141,7 +141,7 @@ export const VoteModalContent: React.FC<VoteModalContentProps> = ({
                 </Pressable>
 
                 <View style={styles.voteInputWrap}>
-                  <TextInput
+                  <TextInput includeFontPadding={false}
                     value={voteCount}
                     onChangeText={updateVoteCount}
                     keyboardType="number-pad"

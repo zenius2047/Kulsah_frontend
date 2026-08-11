@@ -28,6 +28,7 @@ declare module 'react-native' {
   }
 
   interface TextInputProps {
+    includeFontPadding?: boolean;
     type?: string;
     min?: string | number;
     max?: string | number;
@@ -40,4 +41,3 @@ declare module 'react-native' {
     animationDelay?: string | number;
   }
 }
-

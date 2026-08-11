@@ -15,18 +15,29 @@ import {
   View,
 } from 'react-native';
 import { MaterialIcons } from '@expo/vector-icons';
+import { Poppins_500Medium } from '@expo-google-fonts/poppins';
 import { LinearGradient } from 'expo-linear-gradient';
+import { useEvent } from 'expo';
 import { useFocusEffect, useIsFocused, useNavigation, useRoute } from '@react-navigation/native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useVideoPlayer, VideoView } from 'expo-video';
-import Svg, { Path } from 'react-native-svg';
+import {
+  Canvas,
+  Path as SkiaPath,
+  RoundedRect,
+  Skia,
+  Text as SkiaText,
+  useCanvasRef,
+  useFont,
+} from '@shopify/react-native-skia';
 import { fontSize } from './typography';
 import {
   createCreatorVideoEditsPayload,
   hasVideoOverlays,
+  normalizeHexColor,
   parseApiError,
 } from '../src';
-import type { SubmitCreatorVideoEditsPayload, VideoDisplayOrientation, VideoUploadSource } from '../src';
+import type { GeneratedEditAsset, SubmitCreatorVideoEditsPayload, VideoDisplayOrientation, VideoUploadSource } from '../src';
 
 type EditSubmissionRouteParams = {
   video?: VideoUploadSource;
@@ -84,6 +95,13 @@ type DraggableTextStickerProps = {
   onPress: (id: string) => void;
 };
 
+type DraggableTimelineStickerProps = {
+  sticker: TimelineSticker;
+  editable: boolean;
+  onMove: (id: string, deltaX: number, deltaY: number) => void;
+  onRemove: (id: string) => void;
+};
+
 const getOrientationFromTrackSize = (width?: number, height?: number): VideoDisplayOrientation | null => {
   if (!width || !height) return null;
   return width > height ? 'landscape' : 'portrait';
@@ -139,27 +157,92 @@ const RENDER_TARGET_SIZES: Record<VideoDisplayOrientation, { width: number; heig
   landscape: { width: 1280, height: 720 },
 };
 
-const createPath = (points: DrawingPoint[]) => {
-  if (!points.length) return '';
-
-  return points.reduce((path, point, index) => {
-    const command = index === 0 ? 'M' : 'L';
-    return `${path}${command}${point.x.toFixed(1)},${point.y.toFixed(1)} `;
-  }, '');
+const getVideoRenderTransform = (
+  preview: { width: number; height: number },
+  output: { width: number; height: number },
+) => {
+  const landscape = output.width > output.height;
+  const displayScale = landscape
+    ? Math.min(preview.width / output.width, preview.height / output.height)
+    : Math.max(preview.width / output.width, preview.height / output.height);
+  const safeScale = Math.max(displayScale, 0.0001);
+  const offsetX = (preview.width - output.width * safeScale) / 2;
+  const offsetY = (preview.height - output.height * safeScale) / 2;
+  return { scale: 1 / safeScale, translateX: -offsetX / safeScale, translateY: -offsetY / safeScale };
 };
 
-const createScaledPath = (
-  points: DrawingPoint[],
-  canvasSize: { width: number; height: number },
-  targetSize: { width: number; height: number },
-) => {
-  const scaleX = targetSize.width / Math.max(1, canvasSize.width);
-  const scaleY = targetSize.height / Math.max(1, canvasSize.height);
+const getTextStickerLayout = (sticker: TextSticker) => {
+  const previewFontSize = Math.max(16, sticker.fontSize * 0.42);
+  return {
+    fontSize: previewFontSize,
+    width: Math.min(260, Math.max(48, sticker.text.length * previewFontSize * 0.62 + 24)),
+    height: previewFontSize * 1.35 + 16,
+  };
+};
 
-  return createPath(points.map((point) => ({ x: point.x * scaleX, y: point.y * scaleY })));
+const SkiaStroke: React.FC<{
+  stroke: DrawingStroke;
+  scaleX?: number;
+  scaleY?: number;
+  translateX?: number;
+  translateY?: number;
+}> = ({ stroke, scaleX = 1, scaleY = 1, translateX = 0, translateY = 0 }) => {
+  const path = React.useMemo(() => {
+    const nextPath = Skia.Path.Make();
+    stroke.points.forEach((point, index) => {
+      const x = point.x * scaleX + translateX;
+      const y = point.y * scaleY + translateY;
+      if (index === 0) nextPath.moveTo(x, y);
+      else nextPath.lineTo(x, y);
+    });
+    return nextPath;
+  }, [scaleX, scaleY, stroke.points, translateX, translateY]);
+
+  if (!stroke.points.length) return null;
+
+  return (
+    <SkiaPath
+      path={path}
+      color={stroke.color}
+      style="stroke"
+      strokeWidth={stroke.width * Math.min(scaleX, scaleY)}
+      strokeCap="round"
+      strokeJoin="round"
+    />
+  );
+};
+
+const SkiaTextSticker: React.FC<{ sticker: TextSticker }> = ({ sticker }) => {
+  const layout = getTextStickerLayout(sticker);
+  const font = useFont(Poppins_500Medium, layout.fontSize);
+
+  if (!font) return null;
+
+  return (
+    <>
+      {sticker.backgroundColor !== 'transparent' ? (
+        <RoundedRect
+          x={sticker.x}
+          y={sticker.y}
+          width={layout.width}
+          height={layout.height}
+          r={12}
+          color={sticker.backgroundColor}
+        />
+      ) : null}
+      <SkiaText
+        x={sticker.x + 12}
+        y={sticker.y + 8 + layout.fontSize}
+        text={sticker.text}
+        font={font}
+        color={sticker.color}
+      />
+    </>
+  );
 };
 
 const DraggableTextSticker: React.FC<DraggableTextStickerProps> = ({ sticker, editable, onMove, onPress }) => {
+  const layout = getTextStickerLayout(sticker);
   const lastDeltaRef = React.useRef({ x: 0, y: 0 });
   const panResponder = React.useMemo(
     () =>
@@ -192,14 +275,37 @@ const DraggableTextSticker: React.FC<DraggableTextStickerProps> = ({ sticker, ed
         {
           left: sticker.x,
           top: sticker.y,
-          backgroundColor: sticker.backgroundColor,
+          width: layout.width,
+          height: layout.height,
           borderColor: editable ? 'rgba(255,255,255,0.34)' : 'transparent',
         },
       ]}
+    />
+  );
+};
+
+const DraggableTimelineSticker: React.FC<DraggableTimelineStickerProps> = ({ sticker, editable, onMove, onRemove }) => {
+  const lastDeltaRef = React.useRef({ x: 0, y: 0 });
+  const panResponder = React.useMemo(() => PanResponder.create({
+    onStartShouldSetPanResponder: () => editable,
+    onMoveShouldSetPanResponder: (_event, gesture) => editable && (Math.abs(gesture.dx) > 3 || Math.abs(gesture.dy) > 3),
+    onPanResponderGrant: () => { lastDeltaRef.current = { x: 0, y: 0 }; },
+    onPanResponderMove: (_event, gesture) => {
+      const deltaX = gesture.dx - lastDeltaRef.current.x;
+      const deltaY = gesture.dy - lastDeltaRef.current.y;
+      lastDeltaRef.current = { x: gesture.dx, y: gesture.dy };
+      onMove(sticker.id, deltaX, deltaY);
+    },
+    onPanResponderRelease: () => { lastDeltaRef.current = { x: 0, y: 0 }; },
+  }), [editable, onMove, sticker.id]);
+
+  return (
+    <Pressable
+      {...panResponder.panHandlers}
+      onLongPress={() => editable && onRemove(sticker.id)}
+      style={[styles.timelineSticker, { left: sticker.x, top: sticker.y }, editable && styles.timelineStickerEditable]}
     >
-      <Text style={[styles.textStickerLabel, { color: sticker.color, fontSize: Math.max(16, sticker.fontSize * 0.42) }]}>
-        {sticker.text}
-      </Text>
+      <MaterialIcons name={sticker.icon} size={48} color="#fff" />
     </Pressable>
   );
 };
@@ -236,11 +342,14 @@ const EditSubmission: React.FC = () => {
   const [trimEnabled, setTrimEnabled] = useState(false);
   const [trimStart, setTrimStart] = useState('0');
   const [trimEnd, setTrimEnd] = useState('15');
+  const [videoDuration, setVideoDuration] = useState(0);
   const [editorCanvasSize, setEditorCanvasSize] = useState({ width: 0, height: 0 });
   const [isRenderingVideo, setIsRenderingVideo] = useState(false);
   const loadedPreviewUriRef = React.useRef<string | null>(null);
   const playbackStateRef = React.useRef<boolean | null>(null);
-  const drawingExportRef = React.useRef<any>(null);
+  const drawingExportRef = useCanvasRef();
+  const textExportFont = useFont(Poppins_500Medium, 48);
+  const stickerExportFont = useFont(MaterialIcons.font.material, 48);
 
   const player = useVideoPlayer(null, (instance) => {
     instance.loop = true;
@@ -248,13 +357,34 @@ const EditSubmission: React.FC = () => {
     instance.keepScreenOnWhilePlaying = false;
     instance.timeUpdateEventInterval = 0.5;
   });
+  const loadedMetadata = useEvent(player, 'sourceLoad');
 
   const routeOrientation = video?.orientation ?? null;
   const previewOrientation = routeOrientation ?? 'portrait';
   const isLandscapePreview = previewOrientation === 'landscape';
   const renderTargetSize = RENDER_TARGET_SIZES[previewOrientation];
+  const drawingRenderTransform = getVideoRenderTransform(editorCanvasSize, renderTargetSize);
   const shouldRenderVideo = Boolean(videoUri && isFocused);
   const nextButtonLabel = isRenderingVideo ? 'Preparing edits' : 'Next';
+
+  React.useEffect(() => {
+    const nextDuration = Number(loadedMetadata?.duration ?? player.duration ?? 0);
+    if (!Number.isFinite(nextDuration) || nextDuration <= 0) return;
+
+    const roundedDuration = Math.round(nextDuration * 100) / 100;
+    const durationText = String(roundedDuration);
+    setVideoDuration(roundedDuration);
+    setComposerStart('0');
+    setComposerEnd(durationText);
+    setDrawingStart('0');
+    setDrawingEnd(durationText);
+    setStickerStart('0');
+    setStickerEnd(durationText);
+    setTrimEnd(durationText);
+    setStrokes((current) => current.map((stroke) => ({ ...stroke, start: 0, end: roundedDuration })));
+    setTextStickers((current) => current.map((sticker) => ({ ...sticker, start: 0, end: roundedDuration })));
+    setTimelineStickers((current) => current.map((sticker) => ({ ...sticker, start: 0, end: roundedDuration })));
+  }, [loadedMetadata, player]);
 
   const pausePreview = React.useCallback(() => {
     try {
@@ -327,12 +457,13 @@ const EditSubmission: React.FC = () => {
         onMoveShouldSetPanResponder: () => activeTool === 'draw',
         onPanResponderGrant: (event) => {
           const { locationX, locationY } = event.nativeEvent;
+          const overlayEnd = videoDuration || Math.max(0.1, Number(player.duration) || 5);
           const stroke: DrawingStroke = {
             id: `${Date.now()}-${Math.random().toString(36).slice(2)}`,
             color: drawingColor,
             width: drawingWidth,
-            start: Math.max(0, Number(drawingStart) || 0),
-            end: Math.max(Math.max(0, Number(drawingStart) || 0) + 0.1, Number(drawingEnd) || 5),
+            start: 0,
+            end: overlayEnd,
             points: [{ x: locationX, y: locationY }],
           };
           setStrokes((current) => [...current, stroke]);
@@ -353,7 +484,7 @@ const EditSubmission: React.FC = () => {
           });
         },
       }),
-    [activeTool, drawingColor, drawingEnd, drawingStart, drawingWidth],
+    [activeTool, drawingColor, drawingWidth, player, videoDuration],
   );
 
   const moveTextSticker = React.useCallback((id: string, deltaX: number, deltaY: number) => {
@@ -368,6 +499,16 @@ const EditSubmission: React.FC = () => {
           : sticker,
       ),
     );
+  }, [editorCanvasSize.height, editorCanvasSize.width]);
+
+  const moveTimelineSticker = React.useCallback((id: string, deltaX: number, deltaY: number) => {
+    setTimelineStickers((current) => current.map((sticker) => sticker.id === id
+      ? {
+          ...sticker,
+          x: Math.max(0, Math.min(Math.max(0, editorCanvasSize.width - 58), sticker.x + deltaX)),
+          y: Math.max(0, Math.min(Math.max(0, editorCanvasSize.height - 58), sticker.y + deltaY)),
+        }
+      : sticker));
   }, [editorCanvasSize.height, editorCanvasSize.width]);
 
   const editTextSticker = React.useCallback(
@@ -408,7 +549,7 @@ const EditSubmission: React.FC = () => {
       setComposerBackground('rgba(0,0,0,0.62)');
       setComposerFontSize(48);
       setComposerStart('0');
-      setComposerEnd('5');
+      setComposerEnd(String(videoDuration || Math.max(0.1, Number(player.duration) || 5)));
       setTextComposerVisible(true);
       return;
     }
@@ -422,7 +563,7 @@ const EditSubmission: React.FC = () => {
   };
 
   const addSticker = (preset: (typeof STICKER_PRESETS)[number]) => {
-    const start = Math.max(0, Number(stickerStart) || 0);
+    const overlayEnd = videoDuration || Math.max(0.1, Number(player.duration) || 5);
     setTimelineStickers((current) => [
       ...current,
       {
@@ -431,8 +572,8 @@ const EditSubmission: React.FC = () => {
         icon: preset.icon,
         x: Math.max(24, editorCanvasSize.width / 2 - 28),
         y: Math.max(100, editorCanvasSize.height / 2 - 28),
-        start,
-        end: Math.max(start + 0.1, Number(stickerEnd) || 5),
+        start: 0,
+        end: overlayEnd,
       },
     ]);
   };
@@ -451,8 +592,8 @@ const EditSubmission: React.FC = () => {
         text: trimmedText,
         color: composerColor,
         backgroundColor: composerBackground,
-        start: Math.max(0, Number(composerStart) || 0),
-        end: Math.max(Math.max(0, Number(composerStart) || 0) + 0.1, Number(composerEnd) || 5),
+        start: 0,
+        end: videoDuration || Math.max(0.1, Number(player.duration) || 5),
         fontSize: composerFontSize,
         x: 72,
         y: 260,
@@ -486,30 +627,119 @@ const EditSubmission: React.FC = () => {
     }
 
     const exporter = drawingExportRef.current;
-    if (!exporter?.toDataURL) {
+    if (!exporter?.makeImageSnapshotAsync) {
       throw new Error('Drawing export is not available on this device.');
     }
 
-    const base64 = await new Promise<string>((resolve, reject) => {
-      try {
-        exporter.toDataURL((value: string) => resolve(value), renderTargetSize);
-      } catch (error) {
-        reject(error);
-      }
-    });
+    const snapshot = await exporter.makeImageSnapshotAsync();
+    const base64 = snapshot.encodeToBase64();
 
     const uri = `${FileSystem.cacheDirectory}kulsah-drawing-${Date.now()}.png`;
     await FileSystem.writeAsStringAsync(uri, base64, {
       encoding: FileSystem.EncodingType.Base64,
     });
 
-    return [
-      {
+    return [{
         uri,
         name: 'drawing-0.png',
         type: 'image/png',
-      },
-    ];
+      }];
+  };
+
+  const exportTextAssets = async (stickers: TextSticker[]): Promise<GeneratedEditAsset[]> => {
+    if (!stickers.length) return [];
+    if (!FileSystem.cacheDirectory || !textExportFont?.getTypeface()) {
+      throw new Error('Text overlay export is not available on this device.');
+    }
+
+    const typeface = textExportFont.getTypeface();
+    if (!typeface) throw new Error('The Poppins overlay font is not ready.');
+
+    return Promise.all(stickers.map(async (sticker, index) => {
+      const fontSize = Math.max(16, sticker.fontSize * 0.42);
+      const font = Skia.Font(typeface, fontSize);
+      const bounds = font.measureText(sticker.text);
+      const metrics = font.getMetrics();
+      const paddingX = 12;
+      const paddingY = 8;
+      const width = Math.max(1, Math.ceil(bounds.width + paddingX * 2));
+      const height = Math.max(1, Math.ceil(metrics.descent - metrics.ascent + paddingY * 2));
+      const surface = Skia.Surface.MakeOffscreen(width, height);
+      if (!surface) throw new Error(`Could not create the Skia surface for text overlay ${index + 1}.`);
+
+      const canvas = surface.getCanvas();
+      if (sticker.backgroundColor !== 'transparent') {
+        const backgroundPaint = Skia.Paint();
+        backgroundPaint.setColor(Skia.Color(sticker.backgroundColor));
+        canvas.drawRRect(Skia.RRectXY(Skia.XYWHRect(0, 0, width, height), 12, 12), backgroundPaint);
+      }
+
+      const textPaint = Skia.Paint();
+      textPaint.setColor(Skia.Color(normalizeHexColor(sticker.color, '#FFFFFF')));
+      canvas.drawText(sticker.text, paddingX - bounds.x, paddingY - metrics.ascent, textPaint, font);
+      surface.flush();
+      const image = surface.makeImageSnapshot();
+      const uri = `${FileSystem.cacheDirectory}kulsah-text-${Date.now()}-${index}.png`;
+      await FileSystem.writeAsStringAsync(uri, image.encodeToBase64(), {
+        encoding: FileSystem.EncodingType.Base64,
+      });
+
+      return {
+        id: `text-asset-${sticker.id}`,
+        sourceId: sticker.id,
+        kind: 'text' as const,
+        file: { uri, name: `text-overlay-${index + 1}.png`, type: 'image/png' },
+        width,
+        height,
+      };
+    }));
+  };
+
+  const exportStickerAssets = async (stickers: TimelineSticker[]): Promise<GeneratedEditAsset[]> => {
+    if (!stickers.length) return [];
+    if (!FileSystem.cacheDirectory || !stickerExportFont?.getTypeface()) {
+      throw new Error('Sticker export is not available on this device.');
+    }
+
+    const typeface = stickerExportFont.getTypeface();
+    if (!typeface) throw new Error('The sticker font is not ready.');
+
+    return Promise.all(stickers.map(async (sticker, index) => {
+      const size = 58;
+      const font = Skia.Font(typeface, 48);
+      const glyph = String.fromCodePoint(Number(MaterialIcons.glyphMap[sticker.icon]));
+      const bounds = font.measureText(glyph);
+      const metrics = font.getMetrics();
+      const surface = Skia.Surface.MakeOffscreen(size, size);
+      if (!surface) throw new Error(`Could not create the Skia surface for sticker ${index + 1}.`);
+
+      const canvas = surface.getCanvas();
+      const backgroundPaint = Skia.Paint();
+      backgroundPaint.setColor(Skia.Color('rgba(0,0,0,0.18)'));
+      canvas.drawRRect(Skia.RRectXY(Skia.XYWHRect(0, 0, size, size), 16, 16), backgroundPaint);
+      const iconPaint = Skia.Paint();
+      iconPaint.setColor(Skia.Color('#FFFFFF'));
+      canvas.drawText(
+        glyph,
+        (size - bounds.width) / 2 - bounds.x,
+        (size - (metrics.descent - metrics.ascent)) / 2 - metrics.ascent,
+        iconPaint,
+        font,
+      );
+      surface.flush();
+      const uri = `${FileSystem.cacheDirectory}kulsah-sticker-${Date.now()}-${index}.png`;
+      await FileSystem.writeAsStringAsync(uri, surface.makeImageSnapshot().encodeToBase64(), {
+        encoding: FileSystem.EncodingType.Base64,
+      });
+      return {
+        id: `sticker-asset-${sticker.id}`,
+        sourceId: sticker.id,
+        kind: 'sticker' as const,
+        file: { uri, name: `sticker-overlay-${index + 1}.png`, type: 'image/png' },
+        width: size,
+        height: size,
+      };
+    }));
   };
 
   const handleNext = async () => {
@@ -527,15 +757,37 @@ const EditSubmission: React.FC = () => {
       }
 
       setIsRenderingVideo(true);
+      const textAssets = await exportTextAssets(textStickers);
+      const stickerAssets = await exportStickerAssets(timelineStickers);
       const drawingFiles = await exportDrawingFiles();
+      const drawingAssets: GeneratedEditAsset[] = drawingFiles.map((file, index) => ({
+        id: `drawing-asset-${Date.now()}-${index}`,
+        sourceId: 'drawing',
+        kind: 'drawing',
+        file,
+        width: renderTargetSize.width,
+        height: renderTargetSize.height,
+      }));
+      const generatedAssets = [...textAssets, ...stickerAssets, ...drawingAssets];
+      const assetFiles = generatedAssets.map((asset) => asset.file);
+      const fullVideoDuration = videoDuration || Number(player.duration) || 0;
+      const durationBoundStrokes = fullVideoDuration > 0
+        ? strokes.map((stroke) => ({ ...stroke, start: 0, end: fullVideoDuration }))
+        : strokes;
+      const durationBoundText = fullVideoDuration > 0
+        ? textStickers.map((sticker) => ({ ...sticker, start: 0, end: fullVideoDuration }))
+        : textStickers;
+      const durationBoundStickers = fullVideoDuration > 0
+        ? timelineStickers.map((sticker) => ({ ...sticker, start: 0, end: fullVideoDuration }))
+        : timelineStickers;
 
       if (hasVideoOverlays(strokes, textStickers) || timelineStickers.length > 0 || trimEnabled) {
         editPayload = createCreatorVideoEditsPayload({
           orientation: previewOrientation,
           canvasSize: editorCanvasSize,
-          strokes,
-          textStickers,
-          stickers: timelineStickers,
+          strokes: durationBoundStrokes,
+          textStickers: durationBoundText,
+          stickers: durationBoundStickers,
           trim: trimEnabled
             ? {
                 start: Math.max(0, Number(trimStart) || 0),
@@ -543,8 +795,11 @@ const EditSubmission: React.FC = () => {
               }
             : null,
           drawingFiles,
+          generatedAssets,
         });
       }
+
+      if (editPayload) editPayload = { ...editPayload, assetFiles };
 
       navigation.replace('SubmitEntry', {
         video: {
@@ -568,7 +823,7 @@ const EditSubmission: React.FC = () => {
 
   return (
     <SafeAreaView style={[styles.safeArea, { backgroundColor: '#000' }]}>
-      <StatusBar barStyle="light-content" backgroundColor="transparent" translucent />
+      <StatusBar barStyle={isDark ? 'light-content' : 'dark-content'} backgroundColor="transparent" translucent />
 
       <KeyboardAvoidingView
         behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
@@ -618,30 +873,33 @@ const EditSubmission: React.FC = () => {
         </Pressable>
 
         <View
-          {...drawingResponder.panHandlers}
           onLayout={(event) => {
             const { width, height } = event.nativeEvent.layout;
             setEditorCanvasSize((current) =>
               current.width === width && current.height === height ? current : { width, height },
             );
           }}
-          pointerEvents={activeTool === 'draw' ? 'auto' : 'none'}
+          pointerEvents="none"
           style={styles.drawingLayer}
         >
-          <Svg width="100%" height="100%">
+          <Canvas style={StyleSheet.absoluteFill}>
             {strokes.map((stroke) => (
-              <Path
+              <SkiaStroke
                 key={stroke.id}
-                d={createPath(stroke.points)}
-                fill="none"
-                stroke={stroke.color}
-                strokeWidth={stroke.width}
-                strokeLinecap="round"
-                strokeLinejoin="round"
+                stroke={stroke}
               />
             ))}
-          </Svg>
+            {textStickers.map((sticker) => (
+              <SkiaTextSticker key={`skia-text-${sticker.id}`} sticker={sticker} />
+            ))}
+          </Canvas>
         </View>
+
+        <View
+          {...drawingResponder.panHandlers}
+          pointerEvents={activeTool === 'draw' ? 'auto' : 'none'}
+          style={styles.drawingGestureLayer}
+        />
 
         <View pointerEvents={activeTool === 'draw' ? 'none' : 'box-none'} style={styles.stickerLayer}>
           {textStickers.map((sticker) => (
@@ -654,58 +912,29 @@ const EditSubmission: React.FC = () => {
             />
           ))}
           {timelineStickers.map((sticker) => (
-            <Pressable
+            <DraggableTimelineSticker
               key={sticker.id}
-              onPress={() => {
-                if (activeTool === 'sticker') {
-                  setTimelineStickers((current) => current.filter((item) => item.id !== sticker.id));
-                }
-              }}
-              style={[styles.timelineSticker, { left: sticker.x, top: sticker.y }]}
-            >
-              <MaterialIcons name={sticker.icon} size={48} color="#fff" />
-            </Pressable>
+              sticker={sticker}
+              editable={activeTool === 'sticker'}
+              onMove={moveTimelineSticker}
+              onRemove={(id) => setTimelineStickers((current) => current.filter((item) => item.id !== id))}
+            />
           ))}
         </View>
 
         <View pointerEvents="none" style={[styles.drawingExportSurface, renderTargetSize]}>
-          <Svg ref={drawingExportRef} width={renderTargetSize.width} height={renderTargetSize.height}>
+          <Canvas ref={drawingExportRef} style={renderTargetSize}>
             {strokes.map((stroke) => (
-              <Path
+              <SkiaStroke
                 key={`export-${stroke.id}`}
-                d={createScaledPath(stroke.points, editorCanvasSize, renderTargetSize)}
-                fill="none"
-                stroke={stroke.color}
-                strokeWidth={stroke.width * (renderTargetSize.width / Math.max(1, editorCanvasSize.width))}
-                strokeLinecap="round"
-                strokeLinejoin="round"
+                stroke={stroke}
+                scaleX={drawingRenderTransform.scale}
+                scaleY={drawingRenderTransform.scale}
+                translateX={drawingRenderTransform.translateX}
+                translateY={drawingRenderTransform.translateY}
               />
             ))}
-          </Svg>
-        </View>
-
-        <View style={styles.rightRail}>
-          {quickActions.map((action) => (
-            <View key={action.id} style={styles.quickActionItem}>
-              <Pressable
-                style={[
-                  styles.quickActionButton,
-                  activeTool === action.id && styles.quickActionButtonActive,
-                ]}
-                onPress={() => handleQuickAction(action.id)}
-              >
-                <MaterialIcons name={action.icon} size={22} color="#fff" />
-              </Pressable>
-              <Text style={styles.quickActionLabel}>{action.label}</Text>
-            </View>
-          ))}
-
-          <View style={styles.quickActionItem}>
-            <Pressable style={styles.quickActionButton} onPress={() => setIsMuted((value) => !value)}>
-              <MaterialIcons name={isMuted ? 'volume-off' : 'volume-up'} size={22} color="#fff" />
-            </Pressable>
-            <Text style={styles.quickActionLabel}>{isMuted ? 'Muted' : 'Sound'}</Text>
-          </View>
+          </Canvas>
         </View>
 
         {textComposerVisible ? (
@@ -722,7 +951,7 @@ const EditSubmission: React.FC = () => {
               </Pressable>
             </View>
 
-            <TextInput
+            <TextInput includeFontPadding={false}
               value={composerText}
               onChangeText={setComposerText}
               autoFocus
@@ -786,7 +1015,7 @@ const EditSubmission: React.FC = () => {
               </View>
 
               <View style={styles.timeInputRow}>
-                <TextInput
+                <TextInput includeFontPadding={false}
                   value={composerStart}
                   onChangeText={setComposerStart}
                   keyboardType="decimal-pad"
@@ -794,7 +1023,7 @@ const EditSubmission: React.FC = () => {
                   placeholderTextColor="rgba(255,255,255,0.5)"
                   style={styles.timeInput}
                 />
-                <TextInput
+                <TextInput includeFontPadding={false}
                   value={composerEnd}
                   onChangeText={setComposerEnd}
                   keyboardType="decimal-pad"
@@ -837,7 +1066,7 @@ const EditSubmission: React.FC = () => {
               </View>
 
               <View style={styles.timeInputRow}>
-                <TextInput
+                <TextInput includeFontPadding={false}
                   value={drawingStart}
                   onChangeText={setDrawingStart}
                   keyboardType="decimal-pad"
@@ -845,7 +1074,7 @@ const EditSubmission: React.FC = () => {
                   placeholderTextColor="rgba(255,255,255,0.5)"
                   style={styles.timeInput}
                 />
-                <TextInput
+                <TextInput includeFontPadding={false}
                   value={drawingEnd}
                   onChangeText={setDrawingEnd}
                   keyboardType="decimal-pad"
@@ -892,8 +1121,8 @@ const EditSubmission: React.FC = () => {
                 ))}
               </View>
               <View style={styles.timeInputRow}>
-                <TextInput value={stickerStart} onChangeText={setStickerStart} keyboardType="decimal-pad" placeholder="Start" placeholderTextColor="rgba(255,255,255,0.5)" style={styles.timeInput} />
-                <TextInput value={stickerEnd} onChangeText={setStickerEnd} keyboardType="decimal-pad" placeholder="End" placeholderTextColor="rgba(255,255,255,0.5)" style={styles.timeInput} />
+                <TextInput includeFontPadding={false} value={stickerStart} onChangeText={setStickerStart} keyboardType="decimal-pad" placeholder="Start" placeholderTextColor="rgba(255,255,255,0.5)" style={styles.timeInput} />
+                <TextInput includeFontPadding={false} value={stickerEnd} onChangeText={setStickerEnd} keyboardType="decimal-pad" placeholder="End" placeholderTextColor="rgba(255,255,255,0.5)" style={styles.timeInput} />
               </View>
               <View style={styles.toolActions}>
                 <Pressable style={styles.secondaryToolButton} onPress={undoEditorAction}><MaterialIcons name="undo" size={18} color="#fff" /><Text style={styles.secondaryToolText}>Undo</Text></Pressable>
@@ -904,8 +1133,8 @@ const EditSubmission: React.FC = () => {
             <View style={styles.toolPanel}>
               <Text style={styles.toolPanelTitle}>Trim video (seconds)</Text>
               <View style={styles.timeInputRow}>
-                <TextInput value={trimStart} onChangeText={setTrimStart} keyboardType="decimal-pad" placeholder="Start" placeholderTextColor="rgba(255,255,255,0.5)" style={styles.timeInput} />
-                <TextInput value={trimEnd} onChangeText={setTrimEnd} keyboardType="decimal-pad" placeholder="End" placeholderTextColor="rgba(255,255,255,0.5)" style={styles.timeInput} />
+                <TextInput includeFontPadding={false} value={trimStart} onChangeText={setTrimStart} keyboardType="decimal-pad" placeholder="Start" placeholderTextColor="rgba(255,255,255,0.5)" style={styles.timeInput} />
+                <TextInput includeFontPadding={false} value={trimEnd} onChangeText={setTrimEnd} keyboardType="decimal-pad" placeholder="End" placeholderTextColor="rgba(255,255,255,0.5)" style={styles.timeInput} />
               </View>
               <View style={styles.toolActions}>
                 <Pressable style={styles.secondaryToolButton} onPress={() => setTrimEnabled(false)}><Text style={styles.secondaryToolText}>Clear</Text></Pressable>
@@ -919,14 +1148,37 @@ const EditSubmission: React.FC = () => {
             </View>
           ) : null}
 
-          <Pressable
-            onPress={() => void handleNext()}
-            style={[styles.bottomNextButton, (!videoUri || isRenderingVideo) && styles.postButtonDisabled]}
-            disabled={!videoUri || isRenderingVideo}
-          >
-            <Text style={styles.postButtonText}>{nextButtonLabel}</Text>
-            <MaterialIcons name={isRenderingVideo ? 'hourglass-empty' : 'chevron-right'} size={18} color="#fff" />
-          </Pressable>
+          <View style={styles.bottomActionRow}>
+            <View style={styles.floatingNavBar}>
+              {quickActions.map((action) => (
+                <Pressable
+                  key={action.id}
+                  accessibilityRole="button"
+                  accessibilityLabel={action.label}
+                  style={[styles.floatingNavButton, activeTool === action.id && styles.quickActionButtonActive]}
+                  onPress={() => handleQuickAction(action.id)}
+                >
+                  <MaterialIcons name={action.icon} size={21} color="#fff" />
+                </Pressable>
+              ))}
+              <Pressable
+                accessibilityRole="button"
+                accessibilityLabel={isMuted ? 'Unmute sound' : 'Mute sound'}
+                style={[styles.floatingNavButton, isMuted && styles.quickActionButtonActive]}
+                onPress={() => setIsMuted((value) => !value)}
+              >
+                <MaterialIcons name={isMuted ? 'volume-off' : 'volume-up'} size={21} color="#fff" />
+              </Pressable>
+            </View>
+
+            <Pressable
+              onPress={() => void handleNext()}
+              style={[styles.bottomNextButton, (!videoUri || isRenderingVideo) && styles.postButtonDisabled]}
+              disabled={!videoUri || isRenderingVideo}
+            >
+              <Text style={styles.postButtonText}>{nextButtonLabel}</Text>
+            </Pressable>
+          </View>
         </View>
       </KeyboardAvoidingView>
     </SafeAreaView>
@@ -1037,13 +1289,6 @@ const styles = StyleSheet.create({
     borderWidth: 1,
     borderColor: 'rgba(255,255,255,0.18)',
   },
-  rightRail: {
-    position: 'absolute',
-    zIndex: 20,
-    right: 18,
-    bottom: 286,
-    gap: 18,
-  },
   quickActionItem: {
     alignItems: 'center',
     gap: 5,
@@ -1078,6 +1323,30 @@ const styles = StyleSheet.create({
     paddingHorizontal: 18,
     gap: 12,
   },
+  bottomActionRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 10,
+  },
+  floatingNavBar: {
+    flex: 1,
+    minHeight: 58,
+    borderRadius: 29,
+    paddingHorizontal: 8,
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-around',
+    backgroundColor: 'rgba(12,12,16,0.88)',
+    borderWidth: 1,
+    borderColor: 'rgba(255,255,255,0.14)',
+  },
+  floatingNavButton: {
+    width: 42,
+    height: 42,
+    borderRadius: 21,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
   soundPill: {
     alignSelf: 'flex-start',
     flexDirection: 'row',
@@ -1095,11 +1364,10 @@ const styles = StyleSheet.create({
     lineHeight: fontSize.b5.lineHeight,
   },
   bottomNextButton: {
-    // alignSelf: 'flex-end',
-    minWidth: '90%',
-    minHeight: 50,
-    borderRadius: 25,
-    paddingHorizontal: '10%',
+    minWidth: 76,
+    minHeight: 40,
+    borderRadius: 29,
+    paddingHorizontal: 16,
     backgroundColor: PRIMARY_COLOR,
     flexDirection: 'row',
     alignItems: 'center',
@@ -1109,6 +1377,10 @@ const styles = StyleSheet.create({
   drawingLayer: {
     ...StyleSheet.absoluteFillObject,
     zIndex: 12,
+  },
+  drawingGestureLayer: {
+    ...StyleSheet.absoluteFillObject,
+    zIndex: 13,
   },
   stickerLayer: {
     ...StyleSheet.absoluteFillObject,
@@ -1122,11 +1394,8 @@ const styles = StyleSheet.create({
   },
   textSticker: {
     position: 'absolute',
-    maxWidth: 260,
     borderRadius: 12,
     borderWidth: 1,
-    paddingHorizontal: 12,
-    paddingVertical: 8,
   },
   timelineSticker: {
     position: 'absolute',
@@ -1137,14 +1406,9 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     backgroundColor: 'rgba(0,0,0,0.18)',
   },
-  textStickerLabel: {
-    ...fontSize.b2,
-    lineHeight: fontSize.b2.lineHeight,
-    fontWeight: '900',
-    textAlign: 'center',
-    textShadowColor: 'rgba(0,0,0,0.44)',
-    textShadowOffset: { width: 0, height: 1 },
-    textShadowRadius: 3,
+  timelineStickerEditable: {
+    borderWidth: 1,
+    borderColor: 'rgba(255,255,255,0.5)',
   },
   textComposerOverlay: {
     position: 'absolute',

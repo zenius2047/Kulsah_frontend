@@ -84,13 +84,24 @@ export type DeviceSizeClass = 'compact' | 'medium' | 'large';
 
 const screen = Dimensions.get('screen');
 const longestScreenSide = Math.max(screen.width, screen.height);
+const LARGE_NARROW_DEVICE_MAX_WIDTH = 413;
 
 export const DEVICE_SIZE_CLASS: DeviceSizeClass =
   longestScreenSide <= 830 ? 'compact' : longestScreenSide <= 900 ? 'medium' : 'large';
 
-export const getResponsiveFontSize = (compact: number, medium: number, large: number) => {
+export const IS_LARGE_NARROW_DEVICE =
+  DEVICE_SIZE_CLASS === 'large' && screen.width <= LARGE_NARROW_DEVICE_MAX_WIDTH;
+
+export const getResponsiveFontSize = (
+  compact: number,
+  medium: number,
+  large: number,
+  largeNarrow: number = large - 2,
+) => {
   if (DEVICE_SIZE_CLASS === 'compact') return compact;
-  if (DEVICE_SIZE_CLASS === 'large') return large;
+  if (DEVICE_SIZE_CLASS === 'large') {
+    return IS_LARGE_NARROW_DEVICE ? largeNarrow : large;
+  }
   return medium;
 };
 
@@ -166,8 +177,8 @@ const font = 'Poppins'
 export const fontSize = {
   reactionB1: {
     fontFamily: `${font}_700Bold`,
-    fontSize: getResponsiveFontSize(16, 17, 18),
-    lineHeight: getResponsiveFontSize(21, 22, 24),
+    fontSize: getResponsiveFontSize(16, 17, 18, 16),
+    lineHeight: getResponsiveFontSize(21, 22, 24, 21),
   },
   reactionB3: {
     fontFamily: `${font}_500Medium`,
@@ -211,8 +222,8 @@ export const fontSize = {
   },
   b2: {
     fontFamily: `${font}_600SemiBold`,
-    fontSize: getResponsiveFontSize(11, 12, 15),
-    lineHeight: getResponsiveFontSize(13, 14, 17),
+    fontSize: getResponsiveFontSize(11, 12, 15, 13),
+    lineHeight: getResponsiveFontSize(13, 14, 17, 15),
   },
   b3: {
     fontFamily: `${font}_500Medium`,
@@ -226,8 +237,8 @@ export const fontSize = {
   },
   b5: {
     fontFamily: `${font}_500Medium`,
-    fontSize: getResponsiveFontSize(10, 12, 14),
-    lineHeight: getResponsiveFontSize(12, 14, 16),
+    fontSize: getResponsiveFontSize(10, 12, 14, 12),
+    lineHeight: getResponsiveFontSize(12, 14, 16, 14),
   },
   b5Variant: {
     fontFamily: `${font}_600SemiBold`,

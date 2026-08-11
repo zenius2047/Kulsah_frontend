@@ -216,7 +216,7 @@ const CreatorStore: React.FC = () => {
                   onPress={() => fileInputRef.current?.click()}
                  
                 >
-                   <TextInput ref={fileInputRef} onChange={handleImageUpload as any} />
+                   <TextInput includeFontPadding={false} ref={fileInputRef} onChange={handleImageUpload as any} />
                    <Image source={{ uri: editingItem.img }} />
                    <View>
                       <View>
@@ -229,7 +229,7 @@ const CreatorStore: React.FC = () => {
               {/* Basic Details */}
               <View>
                 <Text>Product Name</Text>
-                <TextInput 
+                <TextInput includeFontPadding={false} 
                   value={editingItem.name}
                   onChangeText={(value) => setEditingItem({...editingItem, name: value})}
                  
@@ -242,7 +242,7 @@ const CreatorStore: React.FC = () => {
                   <Text>Price (USD)</Text>
                   <View>
                     <Text>$</Text>
-                    <TextInput 
+                    <TextInput includeFontPadding={false} 
                       type="number"
                       value={editingItem.price}
                       onChangeText={(value) => setEditingItem({...editingItem, price: value})}
@@ -281,7 +281,7 @@ const CreatorStore: React.FC = () => {
                 {!editingItem.isUnlimited && (
                   <View>
                     <Text>Available Quantity</Text>
-                    <TextInput 
+                    <TextInput includeFontPadding={false} 
                       type="number"
                       value={editingItem.stock === 'Unlimited' ? '100' : editingItem.stock}
                       onChangeText={(value) => setEditingItem({...editingItem, stock: value})}
@@ -304,7 +304,7 @@ const CreatorStore: React.FC = () => {
                      {isAiLoading ? 'Magic Drafting...' : 'Magic Describe'}
                    </Pressable>
                  </View>
-                 <TextInput 
+                 <TextInput includeFontPadding={false} 
                   value={editingItem.description}
                   onChangeText={(value) => setEditingItem({...editingItem, description: value})}
                  

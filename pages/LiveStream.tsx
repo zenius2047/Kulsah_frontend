@@ -151,7 +151,7 @@ const LiveStream: React.FC = () => {
       </View>
 
       <View>
-        <TextInput value={msg} onChangeText={setMsg} placeholder="Say something to Melody..." />
+        <TextInput includeFontPadding={false} value={msg} onChangeText={setMsg} placeholder="Say something to Melody..." />
         <Pressable onPress={handleSendMsg} disabled={!msg.trim()}>
           <Text>send</Text>
         </Pressable>
@@ -180,8 +180,8 @@ const LiveStream: React.FC = () => {
                     </Pressable>
                   ))}
                 </View>
-                <TextInput value={tipAmount} onChangeText={setTipAmount} placeholder="Other amount" />
-                <TextInput value={tipMessage} onChangeText={setTipMessage} placeholder="Write a shoutout..." />
+                <TextInput includeFontPadding={false} value={tipAmount} onChangeText={setTipAmount} placeholder="Other amount" />
+                <TextInput includeFontPadding={false} value={tipMessage} onChangeText={setTipMessage} placeholder="Write a shoutout..." />
                 <Pressable onPress={handleSendTip} disabled={isProcessingTip || !tipAmount}>
                   <Text>
                     {isProcessingTip ? 'Processing...' : `Send $${parseFloat(tipAmount || '0').toFixed(2)} Tip`}

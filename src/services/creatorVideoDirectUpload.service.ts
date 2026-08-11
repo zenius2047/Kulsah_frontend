@@ -14,6 +14,7 @@ import type {
   UploadCreatorVideoPayload,
   VideoUploadSource,
 } from '../types/video.types';
+import { createVideoProjectV3FormData } from './videoProjectSubmission.service';
 import { getVideoProcessingState } from '../utils/video';
 
 export type CreatorVideoDirectUploadStage =
@@ -61,7 +62,7 @@ const isLikelyExpiredSignedUrlError = (status: number, responseText: string) => 
   return /expired|signature|request has expired/i.test(responseText);
 };
 
-const toInitPayload = (payload: UploadCreatorVideoPayload): InitCreatorVideoUploadPayload => {
+const toInitPayload = (payload: UploadCreatorVideoPayload, requiresEditing = false): InitCreatorVideoUploadPayload => {
   if (payload.video instanceof FormData) {
     throw new Error('Direct video uploads require a file source with uri, name, and type. FormData is only for multipart uploads.');
   }
@@ -78,6 +79,7 @@ const toInitPayload = (payload: UploadCreatorVideoPayload): InitCreatorVideoUplo
     caption: payload.caption ?? null,
     content_type: payload.contentType,
     visibility: payload.visibility,
+    requires_editing: requiresEditing,
   };
 };
 
@@ -114,10 +116,10 @@ const normalizeUploadHeaders = (headers: Record<string, unknown> | undefined, mi
   };
 };
 
-const initUploadSession = async (payload: UploadCreatorVideoPayload) => {
+const initUploadSession = async (payload: UploadCreatorVideoPayload, requiresEditing = false) => {
   const response = await api.post<InitCreatorVideoUploadResponse>(
     endpoints.creator.videoUploadInit,
-    toInitPayload(payload),
+    toInitPayload(payload, requiresEditing),
   );
 
   return response.data.data;
@@ -221,19 +223,7 @@ const getCompletedVideo = async (videoId: string | number, fallback: CreatorVide
 };
 
 const submitEdits = async (videoId: string | number, payload: SubmitCreatorVideoEditsPayload) => {
-  const formData = new FormData();
-
-  if (payload.timeline) formData.append('timeline', JSON.stringify(payload.timeline));
-  if (payload.overlays?.length) formData.append('overlays', JSON.stringify(payload.overlays));
-  payload.drawingFiles?.forEach((file, index) => {
-    formData.append('drawing_files[]', {
-      uri: file.uri,
-      name: file.name ?? `drawing-${index}.png`,
-      type: file.type ?? 'image/png',
-    } as any);
-  });
-
-  await api.post(endpoints.creator.videoEdits(videoId), formData);
+  await api.post(endpoints.creator.videoEdits(videoId), createVideoProjectV3FormData(payload));
 };
 
 const pollProcessing = async (
@@ -247,6 +237,7 @@ const pollProcessing = async (
 
     const response = await api.get<{ data: CreatorVideoProgress }>(endpoints.creator.videoProgress(videoId));
     const processing = response.data.data;
+    if (!processing) throw new Error('Video progress response did not contain processing data.');
     const { isReady, hasFailed } = getVideoProcessingState(processing);
     const backendProgress = clamp(processing.progress_percentage ?? 0);
     const mappedProgress = isReady ? 100 : 90 + backendProgress * 0.1;
@@ -263,7 +254,13 @@ const pollProcessing = async (
     if (isReady) return processing;
 
     if (hasFailed) {
-      throw new Error(processing.error || processing.message || 'Video processing failed.');
+      const editFailed = processing.render_status === 'failed' || processing.metadata?.edit_status === 'failed';
+      throw new Error(
+        (editFailed ? processing.metadata?.edit_error : null)
+        || processing.error
+        || processing.message
+        || 'Video processing failed.',
+      );
     }
 
     await sleep(interval);
@@ -288,7 +285,7 @@ export const uploadCreatorVideoDirect = async (
       message: attempt > 1 ? 'Refreshing upload link' : 'Preparing upload',
     });
 
-    session = await initUploadSession(payload);
+    session = await initUploadSession(payload, hasCreatorVideoEdits(options.edits));
     options.onProgress?.({
       stage: 'uploading',
       progress: 0,

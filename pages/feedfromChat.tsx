@@ -176,7 +176,7 @@ const VideoFeedItem: React.FC<{
             </ScrollView>
 
             <View style={styles.commentInputRow}>
-              <TextInput
+              <TextInput includeFontPadding={false}
                 placeholder="Add a comment..."
                 placeholderTextColor="#94a3b8"
                 style={styles.commentInput}
@@ -247,7 +247,7 @@ const Feed: React.FC = () => {
 
   return (
     <View style={{ flex: 1, backgroundColor: "black" }}>
-      <StatusBar backgroundColor="transparent" translucent />
+      <StatusBar barStyle={isDark ? 'light-content' : 'dark-content'} backgroundColor="transparent" translucent />
 
       <View style={styles.topBar}>
         <Pressable style={styles.topCircle} onPress={() => navigation.navigate("Discover")}>

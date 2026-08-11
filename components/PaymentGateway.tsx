@@ -162,7 +162,7 @@ const PaymentGateway: React.FC<PaymentGatewayProps> = ({
             })}
           </View>
           <Text style={styles.inputLabel}>Phone Number</Text>
-          <TextInput
+          <TextInput includeFontPadding={false}
             value={phoneNumber}
             onChangeText={(value) => setPhoneNumber(value.replace(/[^0-9+ ]/g, ''))}
             keyboardType="phone-pad"
@@ -176,7 +176,7 @@ const PaymentGateway: React.FC<PaymentGatewayProps> = ({
       {method === 'card' ? (
         <View style={styles.stack}>
           <Text style={styles.inputLabel}>Card Number</Text>
-          <TextInput
+          <TextInput includeFontPadding={false}
             value={cardNumber}
             onChangeText={(value) => setCardNumber(value.replace(/[^0-9 ]/g, ''))}
             keyboardType="number-pad"
@@ -188,7 +188,7 @@ const PaymentGateway: React.FC<PaymentGatewayProps> = ({
           <View style={styles.inputRow}>
             <View style={styles.inputHalf}>
               <Text style={styles.inputLabel}>Expiry</Text>
-              <TextInput
+              <TextInput includeFontPadding={false}
                 value={cardExpiry}
                 onChangeText={(value) => setCardExpiry(value.replace(/[^0-9/]/g, ''))}
                 maxLength={5}
@@ -199,7 +199,7 @@ const PaymentGateway: React.FC<PaymentGatewayProps> = ({
             </View>
             <View style={styles.inputHalf}>
               <Text style={styles.inputLabel}>CVV</Text>
-              <TextInput
+              <TextInput includeFontPadding={false}
                 value={cardCvv}
                 onChangeText={(value) => setCardCvv(value.replace(/[^0-9]/g, ''))}
                 keyboardType="number-pad"

@@ -142,7 +142,7 @@ export default function CreatorLibrary() {
 
         <View style={s.searchWrap}>
           <MaterialIcons name="search" size={18} color="#8f95af" />
-          <TextInput
+          <TextInput includeFontPadding={false}
             value={search}
             onChangeText={setSearch}
             style={s.searchInput}

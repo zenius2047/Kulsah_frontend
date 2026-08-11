@@ -1,6 +1,8 @@
-import React, { useCallback, useEffect, useMemo, useState } from 'react';
+import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import {
   ActivityIndicator,
+  Alert,
+  GestureResponderEvent,
   Image,
   KeyboardAvoidingView,
   Modal,
@@ -10,6 +12,7 @@ import {
   Share,
   StyleSheet,
   Text,
+  useWindowDimensions,
   View,
 } from 'react-native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
@@ -21,7 +24,24 @@ import { useThemeMode, PRIMARY_COLOR, primaryColorAlpha } from "../theme";
 import { mediumScreen, user } from '../types';
 import KulsahInputBar from '../components/KulsahInputBar';
 import DotTrioLoader from '../components/DotTrioLoader';
+import { PageSkeleton } from '../components/PageSkeleton';
+import GiftDialog, { type GiftSelection } from '../components/GiftDialog';
 import { fontSize } from '../typography';
+import {
+  communityApi,
+  parseApiError,
+  formatCommunityRelativeTime,
+  useAddCommunityComment,
+  useCommunityComments,
+  useCommunityLike,
+  useCommunityPost,
+  useGiftCommunityPost,
+  useShareCommunityPost,
+  useWallet,
+  type CommunityComment as ApiCommunityComment,
+  type CommunityPage,
+  type CommunityPost as ApiCommunityPost,
+} from '../src';
 
 interface Comment {
   id: string;
@@ -34,6 +54,7 @@ interface Comment {
 }
 
 interface PollOption {
+  id: string | number;
   text: string;
   votes: number;
   isSelected?: boolean;
@@ -59,6 +80,11 @@ interface CommunityPost {
   viewerCount?: number;
   likes: number;
   comments: number;
+  shares?: number;
+  gifts?: number;
+  views?: number;
+  audience?: 'public' | 'subscribers';
+  status?: string;
   commentList?: Comment[];
   time: string;
   isLiked: boolean;
@@ -77,68 +103,76 @@ interface CurrentUser {
 const STORAGE_KEY = 'pulsar_community_posts';
 const USER_KEY = 'pulsar_user';
 
-const formatCommentTime = (value: string) => {
-  const parsedTime = Number(value);
-  const timestamp =
-    Number.isFinite(parsedTime) && parsedTime > 0
-      ? parsedTime
-      : Date.parse(value);
+const toDetailComment = (comment: ApiCommunityComment): Comment => ({
+  id: String(comment.id),
+  user: comment.author.name,
+  handle: comment.author.handle.replace(/^@/, ''),
+  avatar: comment.author.avatar_url || 'https://picsum.photos/seed/user/100/100',
+  text: comment.content ?? comment.body ?? '',
+  time: comment.created_at,
+  replys: comment.replies?.map((reply) => ({
+    text: reply.content ?? reply.body ?? '',
+    username: reply.author.name,
+    replyhandle: reply.author.handle.replace(/^@/, ''),
+    time: reply.created_at,
+    avatar: reply.author.avatar_url || 'https://picsum.photos/seed/user/100/100',
+  })),
+});
 
-  if (!Number.isFinite(timestamp)) {
-    return value;
-  }
+const toDetailPost = (post: ApiCommunityPost, comments: Comment[] = []): CommunityPost => ({
+  id: String(post.id),
+  artist: post.author.name,
+  handle: post.author.handle.replace(/^@/, ''),
+  avatar: post.author.avatar_url || 'https://picsum.photos/seed/creator/100/100',
+  content: post.content || '',
+  images: (post.media || []).filter((item) => String(item.type).toLowerCase().startsWith('image')).map((item) => item.url),
+  videoUrl: ((post.media || []).find((item) => String(item.type).toLowerCase().startsWith('video'))?.streaming_url
+    || (post.media || []).find((item) => String(item.type).toLowerCase().startsWith('video'))?.url
+    || post.live?.playback_url) ?? undefined,
+  isLive: post.type === 'live' || post.live?.status === 'live',
+  viewerCount: post.live?.viewer_count,
+  likes: post.stats.likes_count,
+  comments: post.stats.comments_count,
+  shares: post.stats.shares_count,
+  gifts: post.stats.gifts_count,
+  views: post.stats.views_count,
+  audience: post.audience,
+  status: post.status,
+  commentList: comments,
+  time: post.created_at,
+  isLiked: post.viewer.is_liked,
+  type: post.type === 'video' ? 'image' : post.type,
+  pollOptions: post.poll?.options.map((option) => ({ id: option.id, text: option.text, votes: option.votes_count, isSelected: option.is_selected })),
+  isFollowing: post.viewer.is_following ?? post.author.is_following,
+  isVerified: post.author.is_verified,
+});
 
-  const diffMs = Date.now() - timestamp;
-  const minuteMs = 60 * 1000;
-  const hourMs = 60 * minuteMs;
-  const dayMs = 24 * hourMs;
-  const weekMs = 7 * dayMs;
-
-  if (diffMs < hourMs) {
-    const minutes = Math.max(1, Math.floor(diffMs / minuteMs));
-    return `${minutes}m`;
-  }
-
-  if (diffMs < dayMs) {
-    const hours = Math.max(1, Math.floor(diffMs / hourMs));
-    return `${hours}h`;
-  }
-
-  if (diffMs < weekMs) {
-    const days = Math.max(1, Math.floor(diffMs / dayMs));
-    return `${days}d`;
-  }
-
-  if (diffMs < 8 * dayMs) {
-    return '1w';
-  }
-
-  return new Date(timestamp).toLocaleString(undefined, {
-    month: 'short',
-    day: 'numeric',
-    year: 'numeric',
-    hour: 'numeric',
-    minute: '2-digit',
-  });
-};
-
-const DetailLivePreview: React.FC<{ videoUrl: string; viewerCount?: number }> = ({ videoUrl, viewerCount }) => {
+const DetailVideoPreview: React.FC<{ videoUrl: string; viewerCount?: number; isLive?: boolean; onOpen: () => void }> = ({ videoUrl, viewerCount, isLive = false, onOpen }) => {
+  const [isMuted, setIsMuted] = useState(true);
   const player = useVideoPlayer(videoUrl, (p) => {
     p.loop = true;
+    p.muted = true;
     p.play();
   });
   const { status } = useEvent(player, 'statusChange', { status: player.status });
   const isVideoLoading = status !== 'readyToPlay' && status !== 'error';
 
+  const toggleMute = (event: GestureResponderEvent) => {
+    event.stopPropagation();
+    const nextMuted = !isMuted;
+    player.muted = nextMuted;
+    setIsMuted(nextMuted);
+  };
+
   return (
-    <View style={styles.mediaWrap}>
-      <VideoView player={player} style={styles.video} nativeControls allowsPictureInPicture />
+    <Pressable accessibilityRole="button" accessibilityLabel={isLive ? 'Watch live video full screen' : 'Watch video full screen'} onPress={onOpen} style={styles.mediaWrap}>
+      <VideoView player={player} style={styles.video} nativeControls={false} allowsPictureInPicture contentFit="cover" />
       {isVideoLoading && (
         <View pointerEvents="none" style={styles.videoLoaderOverlay}>
           <DotTrioLoader />
         </View>
       )}
-      <View style={styles.liveBadges}>
+      {isLive ? <View style={styles.liveBadges}>
         <View style={styles.livePill}>
           <View style={styles.liveDot} />
           <Text style={styles.livePillText}>LIVE</Text>
@@ -147,27 +181,54 @@ const DetailLivePreview: React.FC<{ videoUrl: string; viewerCount?: number }> = 
           <MaterialIcons name="visibility" size={14} color="#fff" />
           <Text style={styles.viewerText}>{(viewerCount ?? 0).toLocaleString()}</Text>
         </View>
-      </View>
-    </View>
+      </View> : null}
+      <Pressable
+        accessibilityRole="button"
+        accessibilityLabel={isMuted ? 'Unmute video' : 'Mute video'}
+        hitSlop={8}
+        onPress={toggleMute}
+        style={styles.videoMuteButton}
+      >
+        <MaterialIcons name={isMuted ? 'volume-off' : 'volume-up'} size={16} color="#fff" />
+      </Pressable>
+    </Pressable>
   );
+};
+
+const DetailFullscreenVideo: React.FC<{ uri: string }> = ({ uri }) => {
+  const player = useVideoPlayer(uri, (instance) => instance.play());
+  return <VideoView player={player} style={styles.fullscreenVideo} nativeControls allowsPictureInPicture />;
 };
 
 const CommunityPostDetail: React.FC = () => {
   const navigation = useNavigation<any>();
   const route = useRoute<any>();
   const { isDark, theme } = useThemeMode();
+  const { width: viewportWidth } = useWindowDimensions();
   const muted = theme.textMuted;
   const postId = route.params?.postId as string | undefined;
-  const [loading, setLoading] = useState(true);
   const [post, setPost] = useState<CommunityPost | null>(null);
+  const [isVoting, setIsVoting] = useState(false);
   const [currentUser, setCurrentUser] = useState<CurrentUser>({});
   const [commentText, setCommentText] = useState('');
   const [replyingTo, setReplyingTo] = useState<Comment | null>(null);
-  const [selectedImage, setSelectedImage] = useState<string | null>(null);
+  const [selectedImages, setSelectedImages] = useState<{ images: string[]; index: number } | null>(null);
+  const [selectedVideo, setSelectedVideo] = useState<string | null>(null);
   const [commentUsername, setcommentUsername] = useState<string>('');
   const [replyUsername, setReplyUsername] = useState<string>('');
   const [replyAvatar, setReplyAvatar] = useState<string>('');
   const [replyTime, setReplyTime] = useState<string>('');
+  const [giftDialogOpen, setGiftDialogOpen] = useState(false);
+  const pendingCommentIds = useRef(new Set<string>());
+  const postQuery = useCommunityPost(postId);
+  const commentsQuery = useCommunityComments(postId);
+  const likeMutation = useCommunityLike();
+  const shareMutation = useShareCommunityPost();
+  const commentMutation = useAddCommunityComment(postId || '');
+  const giftMutation = useGiftCommunityPost(postId || '');
+  const walletQuery = useWallet();
+  const walletData = walletQuery.data?.data as any;
+  const currentBalance = Number(walletData?.kulcoin_balance ?? walletData?.balance ?? walletData?.balances?.total_usd ?? 0);
 
   const screenBg = isDark ? '#0b0d12' : '#f0f2f5';
   const cardBg = isDark ? '#121219' : '#ffffff';
@@ -178,137 +239,175 @@ const CommunityPostDetail: React.FC = () => {
   const dimIcon = isDark ? '#aeb7c2' : '#65676b';
   const normalizedHandle = (currentUser.handle ?? '').replace('@', '');
 
-  const loadPost = useCallback(async () => {
+  const loadUser = useCallback(async () => {
     try {
-      const [savedUser, storedPosts] = await Promise.all([
-        AsyncStorage.getItem(USER_KEY),
-        AsyncStorage.getItem(STORAGE_KEY),
-      ]);
+      const savedUser = await AsyncStorage.getItem(USER_KEY);
 
       if (savedUser) {
         setCurrentUser(JSON.parse(savedUser) as CurrentUser);
       }
-
-      if (storedPosts && postId) {
-        const parsedPosts = JSON.parse(storedPosts) as CommunityPost[];
-        const matchedPost = parsedPosts.find((item) => item.id === postId) ?? null;
-        setPost(matchedPost);
-      }
-    } finally {
-      setLoading(false);
-    }
-  }, [postId]);
+    } catch {}
+  }, []);
 
   useEffect(() => {
-    void loadPost();
-  }, [loadPost]);
+    void loadUser();
+  }, [loadUser]);
+
+  useEffect(() => {
+    if (!postQuery.data) return;
+    const pages = commentsQuery.data?.pages as CommunityPage<ApiCommunityComment>[] | undefined;
+    const comments = pages?.flatMap((page) => page.data).map(toDetailComment) ?? [];
+    const fetchedIds = new Set(comments.map((comment) => comment.id));
+    fetchedIds.forEach((id) => pendingCommentIds.current.delete(id));
+    setPost((current) => {
+      const commentsWaitingForRefetch = (current?.commentList ?? []).filter((comment) =>
+        pendingCommentIds.current.has(comment.id) && !fetchedIds.has(comment.id));
+      return toDetailPost(postQuery.data, [...commentsWaitingForRefetch, ...comments]);
+    });
+  }, [commentsQuery.data, postQuery.data]);
 
   const totalVotes = useMemo(
     () => post?.pollOptions?.reduce((acc, curr) => acc + curr.votes, 0) ?? 0,
     [post?.pollOptions],
   );
 
-  const persistPostUpdate = async (updater: (target: CommunityPost) => CommunityPost) => {
-    if (!post) return;
-    const storedPosts = await AsyncStorage.getItem(STORAGE_KEY);
-    const parsedPosts = storedPosts ? (JSON.parse(storedPosts) as CommunityPost[]) : [];
-    const updatedPosts = parsedPosts.map((item) => (item.id === post.id ? updater(item) : item));
-    const updatedPost = updatedPosts.find((item) => item.id === post.id) ?? null;
-    setPost(updatedPost);
-    await AsyncStorage.setItem(STORAGE_KEY, JSON.stringify(updatedPosts));
-  };
-
   const toggleLike = async () => {
-    await persistPostUpdate((target) => ({
-      ...target,
-      isLiked: !target.isLiked,
-      likes: target.isLiked ? target.likes - 1 : target.likes + 1,
-    }));
+    if (!post || likeMutation.isPending) return;
+    const liked = !post.isLiked;
+    setPost({ ...post, isLiked: liked, likes: Math.max(0, post.likes + (liked ? 1 : -1)) });
+    try {
+      const updated = await likeMutation.mutateAsync({ post: post.id, liked });
+      setPost(toDetailPost(updated, post.commentList));
+    } catch (error) {
+      setPost(post);
+      const parsed = parseApiError(error);
+      Alert.alert(parsed.title, parsed.message);
+    }
   };
 
   const toggleFollow = async () => {
-    await persistPostUpdate((target) => ({
-      ...target,
-      isFollowing: !target.isFollowing,
-    }));
+    if (post) setPost({ ...post, isFollowing: !post.isFollowing });
   };
 
   const voteOnPoll = async (optionIndex: number) => {
-    await persistPostUpdate((target) => {
-      if (!target.pollOptions) return target;
-      const nextOptions = target.pollOptions.map((option, index) => ({
-        ...option,
-        isSelected: index === optionIndex,
-        votes: index === optionIndex ? option.votes + 1 : option.isSelected ? option.votes - 1 : option.votes,
-      }));
-      return { ...target, pollOptions: nextOptions };
-    });
+    const option = post?.pollOptions?.[optionIndex];
+    if (!post || !option || isVoting || post.pollOptions?.some((item) => item.isSelected)) return;
+    const previous = post;
+    setIsVoting(true);
+    setPost({ ...post, pollOptions: post.pollOptions?.map((item, index) => ({ ...item, isSelected: index === optionIndex, votes: item.votes + (index === optionIndex ? 1 : 0) })) });
+    try {
+      const response = await communityApi.voteOnPoll(post.id, option.id);
+      setPost(toDetailPost(response.data.data, previous.commentList));
+    } catch (error) {
+      setPost(previous);
+      const parsed = parseApiError(error);
+      Alert.alert(parsed.title, parsed.message);
+    } finally {
+      setIsVoting(false);
+    }
   };
 
   const addComment = async (commentId: string | null) => {
-    console.log('Comment Id from reply:', commentId);
-    setcommentUsername(user?.name ?? '')
     const finalText = commentText.trim();
-    if (!finalText || !post) return;
-    console.log(Date.now().toString());
-    const newComment: Comment = {
-      id: Math.random().toString(36).slice(2,8),
-      user: currentUser.name || 'Anonymous',
-      handle: normalizedHandle || 'user',
-      avatar: currentUser.avatar || 'https://picsum.photos/seed/user/100/100',
-      text: finalText,
-      time: Date.now().toString(),
-    };
+    if (!finalText || !post || commentMutation.isPending) return;
 
-    await persistPostUpdate((target) => {
-        let updatedComment: Comment | null = null;
-        let listOfComment = target.commentList;
-      if(target.commentList && commentId){
-        updatedComment = target.commentList.find((item)=>item.id === commentId) ?? null;
-        console.log('comment to update',updatedComment);
-        if(updatedComment){
-          let replys: Reply[] = [];
-          if(updatedComment.replys){
-            console.log('this is reply that exists already:', replys);
-            replys = updatedComment.replys;
-          }
-          // listOfComment = [...target.commentList, {...updatedComment, reply: commentText}]
-          listOfComment = target.commentList.map((item) =>
-                  item.id === updatedComment?.id
-                    ? { ...updatedComment, replys: [...replys, {
-                      text: commentText,
-                      username: commentUsername,
-                      replyhandle: replyUsername,
-                      time: replyTime,
-                      avatar: replyAvatar
-                    }] }
-                    : item
-                );
-        }
-      }else{
-        console.log("this is the new comment:", newComment)
-        listOfComment = [newComment, ...(target.commentList || [])]
-      }
-      return ({
-      ...target,
-      comments: replyingTo ? target.comments : target.comments + 1,
-      commentList: listOfComment,
-    })
-    }
-  );
+    const previousPost = post;
+    const previousReplyingTo = replyingTo;
+    const optimisticId = `pending-${Date.now()}`;
+    const optimisticAvatar = currentUser.avatar || 'https://picsum.photos/seed/user/100/100';
+    const optimisticHandle = normalizedHandle || 'you';
+    const optimisticName = currentUser.name || `@${optimisticHandle}`;
+
+    const optimisticComments = commentId
+      ? (post.commentList ?? []).map((comment) => comment.id === commentId ? {
+          ...comment,
+          replys: [
+            ...(comment.replys ?? []),
+            {
+              text: finalText,
+              username: optimisticName,
+              replyhandle: optimisticHandle,
+              time: new Date().toISOString(),
+              avatar: optimisticAvatar,
+            },
+          ],
+        } : comment)
+      : [
+          {
+            id: optimisticId,
+            user: optimisticName,
+            handle: optimisticHandle,
+            avatar: optimisticAvatar,
+            text: finalText,
+            time: new Date().toISOString(),
+            replys: [],
+          },
+          ...(post.commentList ?? []),
+        ];
+
+    if (!commentId) pendingCommentIds.current.add(optimisticId);
+    setPost({ ...post, comments: post.comments + 1, commentList: optimisticComments });
     setCommentText('');
     setReplyingTo(null);
+
+    try {
+      const createdComment = await commentMutation.mutateAsync({ body: finalText, ...(commentId ? { parent_id: commentId } : {}) });
+      if (!commentId) {
+        const createdId = String(createdComment.id);
+        pendingCommentIds.current.delete(optimisticId);
+        pendingCommentIds.current.add(createdId);
+        setPost((current) => current ? {
+          ...current,
+          commentList: [
+            toDetailComment(createdComment),
+            ...(current.commentList ?? []).filter((comment) =>
+              comment.id !== optimisticId && comment.id !== createdId),
+          ],
+        } : current);
+      }
+    } catch (error) {
+      pendingCommentIds.current.delete(optimisticId);
+      setPost(previousPost);
+      setCommentText(finalText);
+      setReplyingTo(previousReplyingTo);
+      const parsed = parseApiError(error);
+      Alert.alert(parsed.title, parsed.message);
+    }
   };
 
   const sharePost = async () => {
     if (!post) return;
     try {
+      await shareMutation.mutateAsync(post.id);
       await Share.share({
         title: `${post.artist} on Kulsah`,
         message: `${post.artist}: ${post.content}`,
       });
-    } catch {
-      // ignore share failure
+    } catch (error: any) {
+      const message = String(error?.response?.data?.message ?? '').toLowerCase();
+      if (!message.includes('already shared')) {
+        const parsed = parseApiError(error);
+        Alert.alert(parsed.title, parsed.message);
+      }
+    }
+  };
+
+  const sendGift = async (gift: GiftSelection) => {
+    if (!post || giftMutation.isPending) return;
+    const numericGiftId = Number(gift.id.replace(/\D/g, ''));
+    try {
+      await giftMutation.mutateAsync({
+        gift_id: Number.isFinite(numericGiftId) ? numericGiftId : gift.id,
+        quantity: 1,
+        message: commentText.trim() || undefined,
+        idempotency_key: `community-${post.id}-${Date.now()}-${Math.random().toString(36).slice(2)}`,
+        device_info: { platform: Platform.OS },
+      });
+      setGiftDialogOpen(false);
+      Alert.alert('Gift sent', `${gift.name} was sent to ${post.artist}.`);
+    } catch (error) {
+      const parsed = parseApiError(error);
+      Alert.alert(parsed.title, parsed.message);
     }
   };
 
@@ -316,10 +415,19 @@ const CommunityPostDetail: React.FC = () => {
   //   setReplyingTo(`@${comment.handle}`);
   // };
 
-  if (loading) {
+  if (postQuery.isLoading) {
+    return <PageSkeleton isDark={isDark} variant="detail" />;
+  }
+
+  if ((postQuery.isError && (postQuery.error as any)?.response?.status === 403) || postQuery.data?.viewer.can_view === false) {
     return (
-      <View style={[styles.loader, { backgroundColor: screenBg }]}>
-        <ActivityIndicator size="large" color="#1877f2" />
+      <View style={[styles.emptyState, { backgroundColor: screenBg }]}>
+        <MaterialIcons name="lock" size={42} color={PRIMARY_COLOR} />
+        <Text style={[styles.emptyTitle, { color: theme.text }]}>Subscribers only</Text>
+        <Text style={[styles.emptyText, { color: mutedText }]}>Subscribe to this creator to view this community post.</Text>
+        <Pressable onPress={() => navigation.navigate('ArtistProfile')} style={styles.sendButton}>
+          <Text style={{ color: '#fff' }}>View subscription options</Text>
+        </Pressable>
       </View>
     );
   }
@@ -355,7 +463,16 @@ const CommunityPostDetail: React.FC = () => {
         </Pressable>
       </View>
 
-      <ScrollView contentContainerStyle={styles.scrollBody} showsVerticalScrollIndicator={false} keyboardShouldPersistTaps="handled">
+      <ScrollView
+        contentContainerStyle={styles.scrollBody}
+        showsVerticalScrollIndicator={false}
+        keyboardShouldPersistTaps="handled"
+        onScroll={({ nativeEvent }) => {
+          const distance = nativeEvent.contentSize.height - (nativeEvent.contentOffset.y + nativeEvent.layoutMeasurement.height);
+          if (distance < 240 && commentsQuery.hasNextPage && !commentsQuery.isFetchingNextPage) void commentsQuery.fetchNextPage();
+        }}
+        scrollEventThrottle={200}
+      >
         <View style={[styles.feedCard, { backgroundColor: cardBg}]}>
           <View style={styles.postHeader}>
             <Pressable style={styles.authorRow} onPress={() => navigation.navigate('ArtistProfile', { isOwner: false, id: post.artist })}>
@@ -368,7 +485,7 @@ const CommunityPostDetail: React.FC = () => {
                 <View style={styles.metaRow}>
                   <Text style={[styles.handleSubtext, { color: mutedText }]}>@{post.handle}</Text>
                   <Text style={[styles.metaDot, { color: mutedText }]}>.</Text>
-                  <Text style={[styles.handleSubtext, { color: mutedText }]}>{post.time}</Text>
+                  <Text style={[styles.handleSubtext, { color: mutedText }]}>{formatCommunityRelativeTime(post.time)}</Text>
                   <Text style={[styles.metaDot, { color: mutedText }]}>.</Text>
                   <MaterialIcons name="public" size={12} color={mutedText} />
                 </View>
@@ -391,24 +508,33 @@ const CommunityPostDetail: React.FC = () => {
             <Text style={[styles.postContent, { color: theme.textSecondary }]}>{post.content}</Text>
           </View>
 
-          {post.isLive && post.videoUrl ? <DetailLivePreview videoUrl={post.videoUrl} viewerCount={post.viewerCount} /> : null}
+          {post.videoUrl ? (
+            <DetailVideoPreview videoUrl={post.videoUrl} viewerCount={post.viewerCount} isLive={post.isLive} onOpen={() => setSelectedVideo(post.videoUrl!)} />
+          ) : null}
 
           {post.images && post.images.length > 0 && (
             <View style={styles.imageStack}>
               <View style={styles.imageGrid}>
-                {post.images.map((img, idx) => {
+                {post.images.slice(0, post.images.length > 4 ? 4 : post.images.length).map((img, idx) => {
                   const singleImage = post.images!.length === 1;
 
                   return (
                     <Pressable
                       key={`${post.id}-${idx}`}
-                      onPress={() => setSelectedImage(img)}
+                      accessibilityRole="imagebutton"
+                      accessibilityLabel={`Open image ${idx + 1} of ${post.images!.length}`}
+                      onPress={() => setSelectedImages({ images: post.images!, index: idx })}
                       style={[
                         singleImage ? styles.singleImageFrame : styles.gridImageFrame,
                         { borderColor: softBorder },
                       ]}
                     >
                       <Image source={{ uri: img }} style={singleImage ? styles.postImageSingle : styles.postImageGrid} />
+                      {post.images!.length > 4 && idx === 3 ? (
+                        <View pointerEvents="none" style={styles.remainingImagesOverlay}>
+                          <Text style={styles.remainingImagesText}>+{post.images!.length - 4}</Text>
+                        </View>
+                      ) : null}
                     </Pressable>
                   );
                 })}
@@ -423,6 +549,7 @@ const CommunityPostDetail: React.FC = () => {
                 return (
                   <Pressable
                     key={`${post.id}-poll-${idx}`}
+                    disabled={isVoting || post.pollOptions!.some((item) => item.isSelected)}
                     style={[styles.pollOption, { borderColor: softBorder, backgroundColor: composerBg }, option.isSelected && styles.pollOptionSelected]}
                     onPress={() => void voteOnPoll(idx)}
                   >
@@ -449,7 +576,7 @@ const CommunityPostDetail: React.FC = () => {
           </View> */}
 
           <View style={styles.actionBar}>
-            <Pressable style={styles.actionItem} onPress={() => void toggleLike()}>
+            <Pressable accessibilityRole="button" accessibilityLabel={post.isLiked ? 'Unlike post' : 'Like post'} disabled={likeMutation.isPending} style={styles.actionItem} onPress={() => void toggleLike()}>
               <MaterialIcons name={post.isLiked ? 'favorite' : 'favorite-border'} size={20} color={post.isLiked ? '#f43f5e' : dimIcon} />
               <Text style={[styles.actionText, { color: post.isLiked ? '#f43f5e' : mutedText }]}>{post.likes.toLocaleString()}</Text>
             </Pressable>
@@ -457,16 +584,31 @@ const CommunityPostDetail: React.FC = () => {
               <MaterialIcons name="chat-bubble-outline" size={20} color={dimIcon} />
               <Text style={[styles.actionText, { color: mutedText }]}>{post.comments.toLocaleString()}</Text>
             </Pressable>
-            <Pressable style={styles.actionItem} onPress={() => void sharePost()}>
+            <Pressable accessibilityRole="button" accessibilityLabel="Share post" disabled={shareMutation.isPending} style={styles.actionItem} onPress={() => void sharePost()}>
               <MaterialIcons name="share" size={20} color={dimIcon} />
-              <Text style={[styles.actionText, { color: mutedText }]}>0</Text>
+              <Text style={[styles.actionText, { color: mutedText }]}>{(post.shares ?? 0).toLocaleString()}</Text>
             </Pressable>
+            {/* <Pressable accessibilityRole="button" accessibilityLabel="Send a KulCoin gift" disabled={giftMutation.isPending} style={styles.actionItem} onPress={() => setGiftDialogOpen(true)}>
+              <MaterialIcons name="redeem" size={20} color={dimIcon} />
+              <Text style={[styles.actionText, { color: mutedText }]}>{(post.gifts ?? 0).toLocaleString()}</Text>
+            </Pressable>
+            <View style={styles.actionItem} accessibilityLabel={`${post.views ?? 0} views`}>
+              <MaterialIcons name="visibility" size={20} color={dimIcon} />
+              <Text style={[styles.actionText, { color: mutedText }]}>{(post.views ?? 0).toLocaleString()}</Text>
+            </View> */}
           </View>
 
           <View style={styles.commentsSection}>
             <View style={[styles.commentsHeader, { borderBottomColor: softBorder }]}>
               <Text style={[styles.commentsTitle, { color: theme.text }]}>Comments</Text>
             </View>
+
+            {commentsQuery.isLoading ? <ActivityIndicator color={PRIMARY_COLOR} style={{ marginTop: 20 }} /> : null}
+            {commentsQuery.isError ? (
+              <Pressable accessibilityRole="button" accessibilityLabel="Retry loading comments" onPress={() => void commentsQuery.refetch()} style={styles.emptyComments}>
+                <Text style={[styles.emptyCommentsText, { color: mutedText }]}>Comments could not be loaded. Tap to retry.</Text>
+              </Pressable>
+            ) : null}
 
             {post.commentList && post.commentList.length > 0 ? (
               <View style={styles.commentsStack}>
@@ -488,7 +630,7 @@ const CommunityPostDetail: React.FC = () => {
                         }}>
                           <Text style={[styles.commentMetaText, { color: mutedText }]}>Reply</Text>
                         </Pressable>
-                        <Text style={[styles.commentMetaText, { color: mutedText }]}>{formatCommentTime(comment.time)}</Text>
+                        <Text style={[styles.commentMetaText, { color: mutedText }]}>{formatCommunityRelativeTime(comment.time)}</Text>
                       </View>
                       {comment.replys?.map((item)=>
                             <View style={styles.replyWrap}>
@@ -498,7 +640,7 @@ const CommunityPostDetail: React.FC = () => {
                                           <View style={styles.replyMain}>
                                             <View style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', gap: 8, marginBottom: 2 }}>
                                               <Text style={[styles.replyHandle, { color: theme.text }]}>@{item.replyhandle}</Text>
-                                              <Text style={[styles.replyTime, { color: muted }]}>{formatCommentTime(item.time)}</Text>
+                                              <Text style={[styles.replyTime, { color: muted }]}>{formatCommunityRelativeTime(item.time)}</Text>
                                             </View>
                                             <Text style={[styles.replyBody, { color: commentText }]}>
                                               <Text style={{ color: PRIMARY_COLOR }}>@{comment.handle} </Text>
@@ -539,23 +681,52 @@ const CommunityPostDetail: React.FC = () => {
                 <Text style={[styles.emptyCommentsText, { color: mutedText }]}>Be the first to comment.</Text>
               </View>
             )}
+            {commentsQuery.isFetchingNextPage ? <ActivityIndicator color={PRIMARY_COLOR} style={{ marginTop: 14 }} /> : null}
           </View>
         </View>
       </ScrollView>
 
-      <Modal visible={!!selectedImage} transparent animationType="fade" statusBarTranslucent onRequestClose={() => setSelectedImage(null)}>
+      <Modal visible={!!selectedImages} animationType="fade" statusBarTranslucent onRequestClose={() => setSelectedImages(null)}>
         <View style={styles.imageModalRoot}>
-          <Pressable style={styles.imageModalBackdrop} onPress={() => setSelectedImage(null)} />
           <View style={styles.imageModalHeader}>
-            <Pressable onPress={() => setSelectedImage(null)} style={styles.imageModalCloseBtn}>
+            <Pressable accessibilityRole="button" accessibilityLabel="Close full-screen images" onPress={() => setSelectedImages(null)} style={styles.imageModalCloseBtn}>
               <MaterialIcons name="close" size={22} color="#fff" />
             </Pressable>
           </View>
-          {selectedImage ? (
-            <View style={styles.imageModalContent}>
-              <Image source={{ uri: selectedImage }} style={styles.imageModalImage} />
-            </View>
+          {selectedImages ? (
+            <>
+              <ScrollView
+                horizontal
+                pagingEnabled
+                showsHorizontalScrollIndicator={false}
+                contentOffset={{ x: selectedImages.index * viewportWidth, y: 0 }}
+                onMomentumScrollEnd={({ nativeEvent }) => {
+                  const index = Math.round(nativeEvent.contentOffset.x / viewportWidth);
+                  setSelectedImages((current) => current ? { ...current, index } : current);
+                }}
+              >
+                {selectedImages.images.map((uri, index) => (
+                  <View key={`${uri}-${index}`} style={[styles.fullscreenImagePage, { width: viewportWidth }]}>
+                    <Image accessibilityLabel={`Image ${index + 1} of ${selectedImages.images.length}`} source={{ uri }} style={styles.imageModalImage} resizeMode="contain" />
+                  </View>
+                ))}
+              </ScrollView>
+              {selectedImages.images.length > 1 ? (
+                <View style={styles.fullscreenCounter}>
+                  <Text style={styles.fullscreenCounterText}>{selectedImages.index + 1} / {selectedImages.images.length}</Text>
+                </View>
+              ) : null}
+            </>
           ) : null}
+        </View>
+      </Modal>
+
+      <Modal visible={!!selectedVideo} animationType="fade" statusBarTranslucent onRequestClose={() => setSelectedVideo(null)}>
+        <View style={styles.fullscreenMediaRoot}>
+          <Pressable accessibilityRole="button" accessibilityLabel="Close full-screen video" onPress={() => setSelectedVideo(null)} style={styles.fullscreenClose}>
+            <MaterialIcons name="close" size={25} color="#fff" />
+          </Pressable>
+          {selectedVideo ? <DetailFullscreenVideo uri={selectedVideo} /> : null}
         </View>
       </Modal>
 
@@ -584,7 +755,7 @@ const CommunityPostDetail: React.FC = () => {
             rightAccessory={(
               <>
                 <View style={styles.inputActions}>
-                  <Pressable style={styles.inputIcon}>
+                  <Pressable accessibilityRole="button" accessibilityLabel="Open gift picker" style={styles.inputIcon} onPress={() => setGiftDialogOpen(true)}>
                     <MaterialIcons name="redeem" size={26} color={mutedText} />
                   </Pressable>
                   <Pressable style={styles.inputIcon}>
@@ -601,6 +772,14 @@ const CommunityPostDetail: React.FC = () => {
           />
         </View>
       </View>
+      <GiftDialog
+        isOpen={giftDialogOpen}
+        onClose={() => setGiftDialogOpen(false)}
+        creatorName={post.artist}
+        currentBalance={currentBalance}
+        onSendGift={(gift) => void sendGift(gift)}
+        onTopUpSuccess={() => void walletQuery.refetch()}
+      />
     </KeyboardAvoidingView>
   );
 };
@@ -653,8 +832,13 @@ const styles = StyleSheet.create({
   iconBtn: { width: 32, height: 32, borderRadius: 16, justifyContent: 'center', alignItems: 'center' },
   postContentWrap: { paddingHorizontal: 12, paddingBottom: 12 },
   postContent: { ...fontSize.b3, lineHeight: fontSize.b3.lineHeight,},
-  mediaWrap: { height: 280, marginBottom: 12, overflow: 'hidden' },
+  mediaWrap: { height: 410, marginBottom: 12, overflow: 'hidden', borderWidth: 1, borderColor: 'rgba(255,255,255,0.12)' },
   video: { width: '100%', height: '100%' },
+  videoMuteButton: {
+    position: 'absolute', right: 6, bottom: 6, width: 25, height: 25,
+    borderRadius: 21, backgroundColor: 'rgba(0,0,0,0.58)', borderWidth: 1,
+    borderColor: 'rgba(255,255,255,0.28)', alignItems: 'center', justifyContent: 'center',
+  },
   videoLoaderOverlay: {
     ...StyleSheet.absoluteFillObject,
     alignItems: 'center',
@@ -667,12 +851,20 @@ const styles = StyleSheet.create({
   livePillText: { color: '#fff', ...fontSize.b4, lineHeight: fontSize.b4.lineHeight, letterSpacing: 1 },
   viewerPill: { flexDirection: 'row', alignItems: 'center', gap: 4, borderRadius: 999, backgroundColor: 'rgba(0,0,0,0.42)', paddingHorizontal: 10, paddingVertical: 5, borderWidth: 1, borderColor: 'rgba(255,255,255,0.22)' },
   viewerText: { color: '#fff', ...fontSize.b4, lineHeight: fontSize.b4.lineHeight },
+  fullscreenMediaRoot: { flex: 1, backgroundColor: '#000' },
+  fullscreenVideo: { flex: 1, width: '100%', backgroundColor: '#000' },
+  fullscreenClose: {
+    position: 'absolute', right: 16, top: 48, zIndex: 10, width: 44, height: 44,
+    borderRadius: 22, backgroundColor: 'rgba(0,0,0,0.55)', alignItems: 'center', justifyContent: 'center',
+  },
   imageStack: { marginBottom: 12 },
-  imageGrid: { flexDirection: 'row', flexWrap: 'wrap', justifyContent: 'space-between', rowGap: 6, paddingHorizontal: 12 },
-  singleImageFrame: { width: '100%', height: 320, borderRadius: 20, overflow: 'hidden', borderWidth: 1 },
-  gridImageFrame: { width: '49%', aspectRatio: 1, borderRadius: 18, overflow: 'hidden', borderWidth: 1 },
+  imageGrid: { flexDirection: 'row', flexWrap: 'wrap', justifyContent: 'space-between', rowGap: 2, paddingHorizontal: 0 },
+  singleImageFrame: { width: '100%', height: 210, borderRadius: 0, overflow: 'hidden', borderWidth: 1 },
+  gridImageFrame: { width: '49.8%', height: 150, borderRadius: 0, overflow: 'hidden', borderWidth: 1 },
   postImageSingle: { width: '100%', height: '100%', resizeMode: 'cover' },
   postImageGrid: { width: '100%', height: '100%', resizeMode: 'cover' },
+  remainingImagesOverlay: { ...StyleSheet.absoluteFillObject, alignItems: 'center', justifyContent: 'center', backgroundColor: 'rgba(0,0,0,0.58)' },
+  remainingImagesText: { color: '#fff', fontSize: 30, fontWeight: '700' },
   pollWrap: { paddingHorizontal: 12, paddingBottom: 14, gap: 8 },
   pollOption: { height: 52, borderRadius: 12, borderWidth: 1, overflow: 'hidden' },
   pollOptionSelected: { borderColor: primaryColorAlpha(0.35) },
@@ -734,7 +926,7 @@ const styles = StyleSheet.create({
     marginBottom: 10,
   },
   replyingInfo: { flexDirection: 'row', alignItems: 'center', gap: 8 },
-  replyingText: { ...fontSize.b5, lineHeight: fontSize.b5.lineHeight },
+  replyingText: { ...fontSize.b5, lineHeight: fontSize.b5.lineHeight + 2 },
   replyingTarget: {  },
   bottomComposerInput: { maxHeight: 90, paddingVertical: 4, ...fontSize.b3, lineHeight: fontSize.b3.lineHeight },
   sendBtn: { width: 32, height: 32, borderRadius: 16, alignItems: 'center', justifyContent: 'center' },
@@ -760,13 +952,9 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'center',
   },
-  imageModalContent: {
-    flex: 1,
-    alignItems: 'center',
-    justifyContent: 'center',
-    paddingHorizontal: 12,
-    paddingVertical: 64,
-  },
+  fullscreenImagePage: { flex: 1, alignItems: 'center', justifyContent: 'center' },
+  fullscreenCounter: { position: 'absolute', bottom: 38, alignSelf: 'center', borderRadius: 999, backgroundColor: 'rgba(0,0,0,0.62)', paddingHorizontal: 12, paddingVertical: 6 },
+  fullscreenCounterText: { color: '#fff', ...fontSize.b4, lineHeight: fontSize.b4.lineHeight },
   imageModalImage: {
     width: '100%',
     height: '100%',

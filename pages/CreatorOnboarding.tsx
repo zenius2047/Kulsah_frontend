@@ -246,7 +246,7 @@ const CreatorOnboarding: React.FC<CreatorOnboardingProps> = ({ onComplete }) => 
               {signupMethod === 'email' ? 'Email Address' : 'Phone Number'}
             </Text>
             <View>
-              <TextInput 
+              <TextInput includeFontPadding={false} 
                 type={signupMethod === 'email' ? 'email' : 'tel'}
                 value={signupMethod === 'email' ? authData.email : authData.phone}
                 onChangeText={(value) => setAuthData({
@@ -265,7 +265,7 @@ const CreatorOnboarding: React.FC<CreatorOnboardingProps> = ({ onComplete }) => 
           <View>
             <Text>Password</Text>
             <View>
-              <TextInput 
+              <TextInput includeFontPadding={false} 
                 type="password"
                 value={authData.password}
                 onChangeText={(value) => setAuthData({...authData, password: value})}
@@ -311,7 +311,7 @@ const CreatorOnboarding: React.FC<CreatorOnboardingProps> = ({ onComplete }) => 
         <View>
           <View>
             <Text>Creator Name</Text>
-            <TextInput 
+            <TextInput includeFontPadding={false} 
               value={formData.name}
               onChangeText={(value) => setFormData({...formData, name: value})}
               onBlur={() => generateCreatorIdentity()}
@@ -333,7 +333,7 @@ const CreatorOnboarding: React.FC<CreatorOnboardingProps> = ({ onComplete }) => 
                 <View>
                   <Text>Creator Handle</Text>
                   <View>
-                    <TextInput 
+                    <TextInput includeFontPadding={false} 
                       value={formData.handle}
                       onChangeText={(value) => handleHandleChange(value)}
                      
@@ -345,7 +345,7 @@ const CreatorOnboarding: React.FC<CreatorOnboardingProps> = ({ onComplete }) => 
                 <View>
                   <Text>Unique Kulsah ID</Text>
                   <View>
-                    <TextInput 
+                    <TextInput includeFontPadding={false} 
                       value={formData.kulsahId}
                       onChangeText={(value) => setFormData({...formData, kulsahId: value})}
                      
@@ -444,7 +444,7 @@ const CreatorOnboarding: React.FC<CreatorOnboardingProps> = ({ onComplete }) => 
             <Text>Bio (160 characters)</Text>
             <Text>{formData.bio.length}/160</Text>
           </View>
-          <TextInput 
+          <TextInput includeFontPadding={false} 
             value={formData.bio}
             onChangeText={(value) => setFormData({...formData, bio: value})}
            
@@ -454,7 +454,7 @@ const CreatorOnboarding: React.FC<CreatorOnboardingProps> = ({ onComplete }) => 
 
         <View>
           <Text>What do you create?</Text>
-          <TextInput 
+          <TextInput includeFontPadding={false} 
             value={formData.whatYouCreate}
             onChangeText={(value) => setFormData({...formData, whatYouCreate: value})}
            
@@ -611,7 +611,7 @@ const CreatorOnboarding: React.FC<CreatorOnboardingProps> = ({ onComplete }) => 
               <Text>
                 {monState.payoutMethod === 'Momo' ? 'Phone Number' : 'Account Number'}
               </Text>
-              <TextInput 
+              <TextInput includeFontPadding={false} 
                 value={monState.payoutDetails}
                 onChangeText={(value) => setMonState({...monState, payoutDetails: value})}
                
@@ -647,7 +647,7 @@ const CreatorOnboarding: React.FC<CreatorOnboardingProps> = ({ onComplete }) => 
         
         <View>
           <Text>$</Text>
-          <TextInput 
+          <TextInput includeFontPadding={false} 
             type="number"
             value={monState.subscriptionPrice}
             onChangeText={(value) => setMonState({...monState, subscriptionPrice: value})}

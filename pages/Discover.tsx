@@ -3,6 +3,7 @@ import { useNavigation } from '@react-navigation/native';
 import { LinearGradient } from 'expo-linear-gradient';
 import React, { useEffect, useMemo, useRef, useState } from 'react';
 import {
+  ActivityIndicator,
   Animated,
   GestureResponderEvent,
   Image,
@@ -19,6 +20,7 @@ import { PRIMARY_COLOR, primaryColorAlpha, useThemeMode } from '../theme';
 import CalenderIcon from '../assets/icons/calendar-svg.svg';
 import LocationIcon from '../assets/icons/location-svg.svg';
 import { fontSize } from './typography';
+import { useDiscovery, useFollowCreatorMutation } from '../src';
 
 
 type DiscoverTab = 'all' | 'creators' | 'tickets' | 'videos' | 'challenges';
@@ -33,6 +35,7 @@ interface CreatorItem {
   tool: string;
   followers: string;
   isPremium?: boolean;
+  isVerified?: boolean;
 }
 
 interface TicketItem {
@@ -57,7 +60,25 @@ interface VideoItem {
   img: string;
   duration: string;
   category: string;
+  isLiked?: boolean;
 }
+
+const compactCount = (value: number) => {
+  if (value >= 1_000_000) return `${(value / 1_000_000).toFixed(value >= 10_000_000 ? 0 : 1).replace(/\.0$/, '')}M`;
+  if (value >= 1_000) return `${(value / 1_000).toFixed(value >= 100_000 ? 0 : 1).replace(/\.0$/, '')}K`;
+  return String(value);
+};
+
+const formatDuration = (seconds: number | null) => seconds == null
+  ? '--:--'
+  : `${Math.floor(seconds / 60)}:${String(seconds % 60).padStart(2, '0')}`;
+
+const formatEventDuration = (minutes: number | null) => {
+  if (minutes == null) return 'Event';
+  if (minutes < 60) return `${minutes} min`;
+  const hours = minutes / 60;
+  return `${Number.isInteger(hours) ? hours : hours.toFixed(1)} Hour Event`;
+};
 
 interface ChallengeItem {
   id: string;
@@ -225,6 +246,49 @@ type DiscoverProps = {
   onHorizontalSwipeAreaTouchChange?: (isTouching: boolean) => void;
 };
 
+const DiscoverSkeleton = ({ isDark, styles }: { isDark: boolean; styles: ReturnType<typeof createStyles> }) => {
+  const base = isDark ? 'rgba(255,255,255,0.06)' : 'rgba(15,23,42,0.07)';
+  const strong = isDark ? 'rgba(255,255,255,0.1)' : 'rgba(15,23,42,0.11)';
+
+  return (
+    <View accessibilityRole="progressbar" accessibilityLabel="Loading discovery" style={styles.skeletonRoot}>
+      <View style={styles.skeletonSection}>
+        <View style={[styles.skeletonHeading, { backgroundColor: strong }]} />
+        <View style={styles.skeletonHorizontalRow}>
+          {[0, 1, 2].map((item) => (
+            <View key={`creator-${item}`} style={[styles.skeletonCreatorCard, { backgroundColor: base }]}>
+              <View style={[styles.skeletonAvatar, { backgroundColor: strong }]} />
+              <View style={[styles.skeletonLineLong, { backgroundColor: strong }]} />
+              <View style={[styles.skeletonLineShort, { backgroundColor: base }]} />
+              <View style={[styles.skeletonButton, { backgroundColor: strong }]} />
+            </View>
+          ))}
+        </View>
+      </View>
+
+      <View style={styles.skeletonSection}>
+        <View style={[styles.skeletonHeading, { backgroundColor: strong }]} />
+        <View style={styles.skeletonGrid}>
+          {[0, 1, 2, 3].map((item) => (
+            <View key={`event-${item}`} style={[styles.skeletonEventCard, { backgroundColor: base }]}>
+              <View style={[styles.skeletonEventImage, { backgroundColor: strong }]} />
+              <View style={[styles.skeletonLineLong, { backgroundColor: strong }]} />
+              <View style={[styles.skeletonLineShort, { backgroundColor: base }]} />
+            </View>
+          ))}
+        </View>
+      </View>
+
+      <View style={styles.skeletonSection}>
+        <View style={[styles.skeletonHeading, { backgroundColor: strong }]} />
+        <View style={styles.skeletonHorizontalRow}>
+          {[0, 1].map((item) => <View key={`video-${item}`} style={[styles.skeletonVideoCard, { backgroundColor: strong }]} />)}
+        </View>
+      </View>
+    </View>
+  );
+};
+
 const Discover: React.FC<DiscoverProps> = ({
   embedded = false,
   onHorizontalSwipeAreaTouchChange,
@@ -235,17 +299,48 @@ const Discover: React.FC<DiscoverProps> = ({
   const styles = useMemo(() => createStyles(isDark), [isDark]);
   const [activeTab, setActiveTab] = useState<DiscoverTab>('all');
   const [searchQuery, setSearchQuery] = useState('');
-  const [followedCreators, setFollowedCreators] = useState<string[]>(['sarah_vfx']);
-  const [likedVideos, setLikedVideos] = useState<string[]>(['cl3', 'cl4']);
+  const [debouncedSearch, setDebouncedSearch] = useState('');
+  const [followedCreators, setFollowedCreators] = useState<string[]>([]);
+  const [likedVideos, setLikedVideos] = useState<string[]>([]);
+  const [pendingFollowCreatorIds, setPendingFollowCreatorIds] = useState<Set<string>>(new Set());
   const [ticketCart, setTicketCart] = useState<string[]>([]);
   const [selectedTicket, setSelectedTicket] = useState<TicketItem | null>(null);
   const [isSuccessModalOpen, setIsSuccessModalOpen] = useState(false);
   const query = searchQuery.trim().toLowerCase();
+  const discoveryQuery = useDiscovery({ tab: 'all', page: 1, limit: 100, ...(debouncedSearch ? { search_query: debouncedSearch } : {}) });
+  const followCreatorMutation = useFollowCreatorMutation();
   const faintSurface = isDark ? 'rgba(255,255,255,0.04)' : theme.surface;
-  const filteredCreators = useMemo(() => topCreators.filter((creator) => [creator.name, creator.style, creator.tool, creator.handle].some((value) => value.toLowerCase().includes(query))), [query]);
-  const filteredTickets = useMemo(() => ticketShows.filter((ticket) => [ticket.eventTitle, ticket.creator, ticket.venue].some((value) => value.toLowerCase().includes(query))), [query]);
-  const filteredVideos = useMemo(() => trendingVideos.filter((video) => [video.title, video.creator, video.category].some((value) => value.toLowerCase().includes(query))), [query]);
+  const filteredCreators: CreatorItem[] = useMemo(() => (discoveryQuery.data?.data.creators ?? []).map((creator) => ({
+    id: String(creator.id), name: creator.name, handle: `@${creator.handle}`, isLive: creator.is_live,
+    avatar: creator.avatar_url || `https://picsum.photos/seed/creator-${creator.id}/200/200`,
+    style: creator.style || 'Creator', tool: creator.tools.join(' • '), followers: compactCount(creator.followers_count),
+    isPremium: creator.is_premium, isVerified: creator.is_verified,
+  })), [discoveryQuery.data]);
+  const filteredTickets: TicketItem[] = useMemo(() => (discoveryQuery.data?.data.events ?? []).map((event) => ({
+    id: String(event.id), eventTitle: event.title, creator: event.creator.name,
+    date: event.starts_at ? new Date(event.starts_at).toLocaleDateString(undefined, { month: 'short', day: 'numeric', year: 'numeric' }).toUpperCase() : 'DATE TBA',
+    venue: event.venue || event.location_type || 'Venue TBA', price: event.minimum_ticket_price ?? 0,
+    currency: event.currency || 'GHS', img: event.cover_url || `https://picsum.photos/seed/event-${event.id}/600/400`,
+    colors: ['rgba(245,158,11,0.3)', 'rgba(244,63,94,0.04)'] as const,
+    duration: formatEventDuration(event.duration_minutes),
+  })), [discoveryQuery.data]);
+  const filteredVideos: VideoItem[] = useMemo(() => (discoveryQuery.data?.data.videos ?? []).map((video) => ({
+    id: String(video.id), title: video.title || video.caption || 'Untitled video', creator: video.creator.name,
+    views: compactCount(video.stats.views_count), likes: video.stats.likes_count,
+    img: video.thumbnail_url || `https://picsum.photos/seed/video-${video.id}/400/600`,
+    duration: formatDuration(video.duration_seconds), category: video.category || 'Video', isLiked: video.viewer.is_liked,
+  })), [discoveryQuery.data]);
   const filteredChallenges = useMemo(() => activeChallenges.filter((challenge) => [challenge.tag, challenge.creator, challenge.type].some((value) => value.toLowerCase().includes(query))), [query]);
+
+  useEffect(() => {
+    const timeout = setTimeout(() => setDebouncedSearch(searchQuery.trim()), 300);
+    return () => clearTimeout(timeout);
+  }, [searchQuery]);
+
+  useEffect(() => {
+    setFollowedCreators((discoveryQuery.data?.data.creators ?? []).filter((creator) => creator.is_following).map((creator) => String(creator.id)));
+    setLikedVideos((discoveryQuery.data?.data.videos ?? []).filter((video) => video.viewer.is_liked).map((video) => String(video.id)));
+  }, [discoveryQuery.data]);
   const horizontalSwipeAreaHandlers = {
     onTouchStart: () => onHorizontalSwipeAreaTouchChange?.(true),
     onTouchEnd: () => onHorizontalSwipeAreaTouchChange?.(false),
@@ -259,7 +354,32 @@ const Discover: React.FC<DiscoverProps> = ({
 
   const handleFollowToggle = (creatorId: string, event: GestureResponderEvent) => {
     stop(event);
-    setFollowedCreators((prev) => (prev.includes(creatorId) ? prev.filter((id) => id !== creatorId) : [...prev, creatorId]));
+    if (pendingFollowCreatorIds.has(creatorId)) return;
+
+    const wasFollowing = followedCreators.includes(creatorId);
+    const following = !wasFollowing;
+    setFollowedCreators((current) => following
+      ? [...current.filter((id) => id !== creatorId), creatorId]
+      : current.filter((id) => id !== creatorId));
+    setPendingFollowCreatorIds((current) => new Set(current).add(creatorId));
+
+    followCreatorMutation.mutate(
+      { creator: creatorId, following },
+      {
+        onError: () => {
+          setFollowedCreators((current) => wasFollowing
+            ? [...current.filter((id) => id !== creatorId), creatorId]
+            : current.filter((id) => id !== creatorId));
+        },
+        onSettled: () => {
+          setPendingFollowCreatorIds((current) => {
+            const next = new Set(current);
+            next.delete(creatorId);
+            return next;
+          });
+        },
+      },
+    );
   };
 
   const handleLikeVideo = (videoId: string, event: GestureResponderEvent) => {
@@ -299,20 +419,20 @@ const Discover: React.FC<DiscoverProps> = ({
             <View style={{
               // backgroundColor: 'blue',
               flexDirection: 'row',
-              justifyContent: 'space-between',
+              justifyContent: 'center',
               marginBottom: 20,
               paddingHorizontal: 20,
             }}>
-                      <Pressable onPress={() => navigation.goBack()} style={[styles.headerRoundBtn, { backgroundColor: faintSurface, borderColor: theme.border }]}>
+                      {/* <Pressable onPress={() => navigation.goBack()} style={[styles.headerRoundBtn, { backgroundColor: faintSurface, borderColor: theme.border }]}>
                         <MaterialIcons name="chevron-left" size={22} color={theme.text} />
-                      </Pressable>
+                      </Pressable> */}
               
                       <View style={styles.headerTitleWrap}>
                         <Text style={[styles.headerTitle, { color: theme.text }]}>Discover</Text>
                         <Text style={styles.headerSubtitle}>Galaxy Universe</Text>
                       </View>
               
-                      <View style={styles.headerSpacer} />
+                      {/* <View style={styles.headerSpacer} /> */}
                       {/* <Pressable onPress={() => navigation.navigate('Inbox')} style={[styles.headerRoundBtn, { backgroundColor: faintSurface, borderColor: softBorder }]}>
                         <MaterialIcons name="notifications-none" size={22} color={theme.text} />
                       </Pressable> */}
@@ -322,7 +442,7 @@ const Discover: React.FC<DiscoverProps> = ({
 
           <View style={[styles.searchWrap, { backgroundColor: isDark ? '#18181b' : '#fff', borderColor: isDark ? '#27272a' : '#e2e8f0', marginHorizontal: 20 }]}> 
             <MaterialIcons name="search" size={20} color={isDark ? '#71717a' : '#94a3b8'} />
-            <TextInput
+            <TextInput includeFontPadding={false}
               value={searchQuery}
               onChangeText={setSearchQuery}
               placeholder="Search directors, masterclasses, cinematic transitions..."
@@ -354,10 +474,12 @@ const Discover: React.FC<DiscoverProps> = ({
         
 
         <View style={styles.main}>
-          {(activeTab === 'all' || activeTab === 'creators') && (
+          {discoveryQuery.isLoading ? <DiscoverSkeleton isDark={isDark} styles={styles} /> : null}
+          {discoveryQuery.isError ? renderEmpty('Discovery could not be loaded. Try again later.') : null}
+          {!discoveryQuery.isLoading && (activeTab === 'all' || activeTab === 'creators') && (
             <View style={styles.section}>
               <SectionHeader icon="movie-creation" title="Top creators" color={PRIMARY_COLOR} />
-              {filteredCreators.length === 0 ? renderEmpty('No creators matching your query.') : (
+              {discoveryQuery.isLoading ? null : filteredCreators.length === 0 ? renderEmpty('No creators matching your query.') : (
                 <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={styles.creatorList} {...horizontalSwipeAreaHandlers}>
                   {filteredCreators.map((creator) => {
                     const isFollowed = followedCreators.includes(creator.id);
@@ -374,14 +496,14 @@ const Discover: React.FC<DiscoverProps> = ({
                         <View style={styles.creatorCopy}>
                           <View style={styles.creatorNameRow}>
                             <Text numberOfLines={1} style={styles.creatorName}>{creator.name}</Text>
-                            <MaterialIcons name="verified" size={12} color={PRIMARY_COLOR} />
+                            {creator.isVerified ? <MaterialIcons name="verified" size={12} color={PRIMARY_COLOR} /> : null}
                           </View>
                           <Text style={[styles.creatorHandle, {marginTop: 4, marginBottom: 4}]}>{creator.handle}</Text>
                           <Text numberOfLines={1} style={styles.creatorStyle}>{creator.style}</Text>
                         </View>
-                        <Pressable onPress={(event) => handleFollowToggle(creator.id, event)} style={[styles.followButton, isFollowed ? styles.followingButton : styles.subscribeButton,{borderColor: creator.isLive ? 'red': PRIMARY_COLOR, backgroundColor: creator.isLive ? 'rgba(255, 0, 0, 1)': isFollowed ? primaryColorAlpha(0.1): PRIMARY_COLOR} ]}>
-                          <MaterialIcons name={creator.isLive ? 'videocam' : isFollowed ? 'done' : 'person-add-alt-1'} size={12} color={creator.isLive ? 'white': isFollowed ? PRIMARY_COLOR : '#fff'} />
-                          <Text style={[styles.followText, { color: creator.isLive ? 'white': isFollowed ? PRIMARY_COLOR : '#fff' }]}>{creator.isLive ? "Join Live" :  isFollowed ? 'Following' : 'Follow'}</Text>
+                        <Pressable disabled={pendingFollowCreatorIds.has(creator.id) || creator.isLive} onPress={(event) => handleFollowToggle(creator.id, event)} style={[styles.followButton, isFollowed ? styles.followingButton : styles.subscribeButton,{borderColor: creator.isLive ? 'red': PRIMARY_COLOR, backgroundColor: creator.isLive ? 'rgba(255, 0, 0, 1)': isFollowed ? primaryColorAlpha(0.1): PRIMARY_COLOR, opacity: pendingFollowCreatorIds.has(creator.id) ? 0.65 : 1} ]}>
+                          {pendingFollowCreatorIds.has(creator.id) ? <ActivityIndicator size="small" color={isFollowed ? PRIMARY_COLOR : '#fff'} /> : <MaterialIcons name={creator.isLive ? 'videocam' : isFollowed ? 'done' : 'person-add-alt-1'} size={12} color={creator.isLive ? 'white': isFollowed ? PRIMARY_COLOR : '#fff'} />}
+                          <Text style={[styles.followText, { color: creator.isLive ? 'white': isFollowed ? PRIMARY_COLOR : '#fff' }]}>{creator.isLive ? "Join Live" : isFollowed ? 'Following' : 'Follow'}</Text>
                         </Pressable>
                       </Pressable>
                     );
@@ -391,15 +513,19 @@ const Discover: React.FC<DiscoverProps> = ({
             </View>
           )}
 
-          {(activeTab === 'all' || activeTab === 'tickets') && (
+          {!discoveryQuery.isLoading && (activeTab === 'all' || activeTab === 'tickets') && (
             <View style={styles.section}>
               <SectionHeader icon="confirmation-number" title="Event" color={PRIMARY_COLOR} action="view calendar" onAction={() => navigation.navigate('Events')} />
-              {filteredTickets.length === 0 ? renderEmpty('No video workshops matching your search.') : (
+              {discoveryQuery.isLoading ? null : filteredTickets.length === 0 ? renderEmpty('No video workshops matching your search.') : (
                 <View style={styles.twoColumnGrid}>
                   {filteredTickets.map((ticket) => {
                     const inCart = ticketCart.includes(ticket.id);
                     return (
-                      <Pressable key={ticket.id} onPress={() => setSelectedTicket(ticket)} style={styles.ticketCard}>
+                      <Pressable
+                        key={ticket.id}
+                        onPress={() => navigation.navigate('EventDetail', { id: ticket.id, isOwner: false })}
+                        style={styles.ticketCard}
+                      >
                         <LinearGradient colors={ticket.colors} start={{ x: 0, y: 0 }} end={{ x: 1, y: 1 }} style={StyleSheet.absoluteFill} />
                         <Image source={{ uri: ticket.img }} style={styles.ticketImage} />
                         <View style={styles.ticketBody}>
@@ -427,11 +553,11 @@ const Discover: React.FC<DiscoverProps> = ({
                           <View style={styles.ticketFooter}>
                             <View>
                               <Text style={styles.priceLabel}>Price</Text>
-                              <Text style={styles.priceText}>GH₵ {ticket.price}</Text>
+                              <Text style={styles.priceText}>{ticket.currency} {ticket.price}</Text>
                             </View>
-                            <Pressable onPress={(event) => { stop(event); setSelectedTicket(ticket); }} style={[styles.bookButton, inCart ? styles.bookedButton : null]}>
+                            {/* <Pressable onPress={(event) => { stop(event); setSelectedTicket(ticket); }} style={[styles.bookButton, inCart ? styles.bookedButton : null]}>
                               <Text style={[styles.bookButtonText, { color: inCart ? '#059669' : '#fff' }]}>{inCart ? 'Booked' : 'Book'}</Text>
-                            </Pressable>
+                            </Pressable> */}
                           </View>
                         </View>
                       </Pressable>
@@ -442,7 +568,7 @@ const Discover: React.FC<DiscoverProps> = ({
             </View>
           )}
 
-          {(activeTab === 'all' || activeTab === 'challenges') && (
+          {!discoveryQuery.isLoading && (activeTab === 'all' || activeTab === 'challenges') && (
             <View style={styles.section}>
               <SectionHeader icon="emoji-events" title="Creator Challenges" color={PRIMARY_COLOR} action="view more" onAction={() => navigation.navigate('Challenges')} />
               {filteredChallenges.length === 0 ? renderEmpty('No creator challenges matching your query.') : (
@@ -470,10 +596,10 @@ const Discover: React.FC<DiscoverProps> = ({
                           <View style={styles.dashedLine} />
                           <View style={styles.challengeFooter}>
                             <Text numberOfLines={1} style={styles.joinedText}>+{(challenge.participants - 110).toLocaleString()} joined</Text>
-                            <Pressable onPress={(event) => handleViewChallenge(challenge.id, event)} style={styles.joinButton}>
+                            {/* <Pressable onPress={(event) => handleViewChallenge(challenge.id, event)} style={styles.joinButton}>
                               <MaterialIcons name="visibility" size={11} color="#fff" />
                               <Text style={[styles.joinText, { color: '#fff' }]}>View</Text>
-                            </Pressable>
+                            </Pressable> */}
                           </View>
                         </View>
                       </Pressable>
@@ -484,10 +610,10 @@ const Discover: React.FC<DiscoverProps> = ({
             </View>
           )}
 
-          {(activeTab === 'all' || activeTab === 'videos') && (
+          {!discoveryQuery.isLoading && (activeTab === 'all' || activeTab === 'videos') && (
             <View style={styles.section}>
               <SectionHeader icon="play-circle-outline" title="Trending Now" color={PRIMARY_COLOR} action="see full trend" onAction={() => navigation.navigate('TrendingVideos')} />
-              {filteredVideos.length === 0 ? renderEmpty('No reels or clips matching your query.') : (
+              {discoveryQuery.isLoading ? null : filteredVideos.length === 0 ? renderEmpty('No reels or clips matching your query.') : (
                 <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={styles.videoList} {...horizontalSwipeAreaHandlers}>
                   {filteredVideos.map((video) => {
                     const isLiked = likedVideos.includes(video.id);
@@ -495,19 +621,19 @@ const Discover: React.FC<DiscoverProps> = ({
                       <Pressable key={video.id} onPress={() => navigation.navigate('MainTabs', {screen: "Galaxy"})} style={styles.videoCard}>
                         <Image source={{ uri: video.img }} style={styles.videoImage} />
                         <LinearGradient colors={['rgba(0,0,0,0.12)', 'rgba(0,0,0,0.82)']} style={StyleSheet.absoluteFill} />
-                        <Text style={styles.videoCategory}>{video.category}</Text>
+                        {/* <Text style={styles.videoCategory}>{video.category}</Text> */}
                         <Text style={styles.videoDuration}>{video.duration}</Text>
-                        <Pressable onPress={(event) => handleLikeVideo(video.id, event)} style={styles.likeButton}>
+                        {/* <Pressable onPress={(event) => handleLikeVideo(video.id, event)} style={styles.likeButton}>
                           <MaterialIcons name="favorite" size={15} color={isLiked ? '#f43f5e' : '#64748b'} />
-                        </Pressable>
-                        <View style={styles.playOverlay}>
+                        </Pressable> */}
+                        {/* <View style={styles.playOverlay}>
                           <View style={styles.playButton}>
                             <MaterialIcons name="play-arrow" size={38} color="#ffffff" />
                           </View>
-                        </View>
+                        </View> */}
                         <View style={styles.videoInfo}>
                           <Text numberOfLines={1} style={styles.videoCreator}>{video.creator}</Text>
-                          <Text numberOfLines={2} style={styles.videoTitle}>{video.title}</Text>
+                          {/* <Text numberOfLines={2} style={styles.videoTitle}>{video.title}</Text> */}
                           <View style={styles.viewsRow}>
                             <MaterialIcons name="visibility" size={10} color="rgba(255,255,255,0.78)" />
                             <Text style={styles.viewsText}>{video.views} Views</Text>
@@ -641,7 +767,7 @@ const createStyles = (isDark: boolean) => {
     headerTitle: { ...fontSize.h1, lineHeight: fontSize.h1.lineHeight, letterSpacing: 2.2, textTransform: 'uppercase' },
     notificationDot: { position: 'absolute', top: 11, right: 11, width: 8, height: 8, borderRadius: 4, backgroundColor: PRIMARY_COLOR, borderWidth: 2, borderColor: background },
     searchWrap: { height: 48, borderRadius: 999, paddingHorizontal: 14, flexDirection: 'row', alignItems: 'center', borderWidth: 1, gap: 5, overflow: 'hidden' },
-    searchInput: {...fontSize.b3, lineHeight: fontSize.b3.lineHeight, flex: 1, marginTop: 5, textAlign: 'center' },
+    searchInput: {...fontSize.b3, lineHeight: fontSize.b3.lineHeight, flex: 1,  },
     tabList: { gap: 8, paddingTop: 12, paddingHorizontal: 20 },
     tab: { minHeight: 34, paddingHorizontal: 14, borderRadius: 999, alignItems: 'center', justifyContent: 'center', borderWidth: 1 },
     tabSelected: { backgroundColor: PRIMARY_COLOR, borderColor: 'transparent' },
@@ -649,6 +775,19 @@ const createStyles = (isDark: boolean) => {
     tabText: { ...fontSize.tabText, lineHeight: fontSize.tabText.lineHeight, letterSpacing: 1.2, textTransform: 'uppercase' },
     main: { paddingTop: 24, gap: 32 },
     section: { gap: 14 },
+    skeletonRoot: { gap: 30, paddingBottom: 30 },
+    skeletonSection: { gap: 14 },
+    skeletonHeading: { width: 132, height: 16, borderRadius: 8, marginHorizontal: 20 },
+    skeletonHorizontalRow: { flexDirection: 'row', gap: 10, paddingHorizontal: 20, overflow: 'hidden' },
+    skeletonCreatorCard: { width: 172, minHeight: 200, borderRadius: 20, padding: 14, alignItems: 'center', gap: 11 },
+    skeletonAvatar: { width: 70, height: 70, borderRadius: 35 },
+    skeletonLineLong: { width: '76%', height: 11, borderRadius: 6 },
+    skeletonLineShort: { width: '52%', height: 9, borderRadius: 5 },
+    skeletonButton: { width: '80%', height: 28, borderRadius: 14, marginTop: 4 },
+    skeletonGrid: { flexDirection: 'row', flexWrap: 'wrap', gap: 10, paddingHorizontal: 20 },
+    skeletonEventCard: { width: '48.4%', minHeight: 224, borderRadius: 18, overflow: 'hidden', paddingBottom: 14, alignItems: 'center', gap: 12 },
+    skeletonEventImage: { width: '100%', height: 112 },
+    skeletonVideoCard: { width: 220, aspectRatio: 4 / 5, borderRadius: 20 },
     emptyState: { padding: 28, borderRadius: 18, backgroundColor: card, borderWidth: 1, borderColor: border, alignItems: 'center' },
     emptyText: { color: muted, ...fontSize.b1, lineHeight: fontSize.b1.lineHeight, textAlign: 'center' },
     creatorList: { gap: 8, paddingVertical: 4, paddingRight: 20, paddingHorizontal: 20 },
@@ -726,7 +865,7 @@ const createStyles = (isDark: boolean) => {
     joinedButton: { backgroundColor: isDark ? 'rgba(6,78,59,0.24)' : '#ecfdf5', borderWidth: 1, borderColor: isDark ? 'rgba(16,185,129,0.25)' : '#a7f3d0' },
     joinText: { ...fontSize.b5, lineHeight: fontSize.b5.lineHeight, letterSpacing: 0.6, textTransform: 'uppercase' },
     videoList: { gap: 10, paddingBottom: 6, paddingHorizontal: 20 },
-    videoCard: { width: 220, aspectRatio: 4 / 5, borderRadius: 20, overflow: 'hidden', backgroundColor: '#0f172a', borderWidth: 1, borderColor: border },
+    videoCard: { width: 220, aspectRatio: 4 / 5, borderRadius: 10, overflow: 'hidden', backgroundColor: '#0f172a', borderWidth: 1, borderColor: border },
     videoImage: { width: '100%', height: '100%', position: 'absolute' },
     videoCategory: { position: 'absolute', top: 10, left: 10, color: '#fb7185', backgroundColor: 'rgba(0,0,0,0.55)', borderRadius: 7, paddingHorizontal: 7, paddingVertical: 3, ...fontSize.b5, lineHeight: fontSize.b5.lineHeight, letterSpacing: 1, textTransform: 'uppercase' },
     videoDuration: { position: 'absolute', top: 10, right: 10, color: '#fff', backgroundColor: 'rgba(0,0,0,0.6)', borderRadius: 7, paddingHorizontal: 6, paddingVertical: 3, ...fontSize.b5, lineHeight: fontSize.b5.lineHeight },

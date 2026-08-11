@@ -1,5 +1,6 @@
 import { MaterialIcons } from '@expo/vector-icons';
-import { useNavigation } from '@react-navigation/native';
+import AsyncStorage from '@react-native-async-storage/async-storage';
+import { useNavigation, useRoute } from '@react-navigation/native';
 import { LinearGradient } from 'expo-linear-gradient';
 import React, { useState } from 'react';
 import {
@@ -14,7 +15,7 @@ import {
 } from 'react-native';
 import { SafeAreaView, useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useThemeMode, PRIMARY_COLOR } from "../theme";
-import { mediumScreen } from '../types';
+import { mediumScreen, setUser, type User } from '../types';
 import { fontSize } from './typography';
 import { authApi } from '../src';
 
@@ -41,6 +42,7 @@ const VIBES: Vibe[] = [
 
 const VibePicker: React.FC = () => {
   const navigation = useNavigation<any>();
+  const route = useRoute<any>();
   const insets = useSafeAreaInsets();
   const { width } = useWindowDimensions();
   const { isDark, theme } = useThemeMode();
@@ -55,6 +57,7 @@ const VibePicker: React.FC = () => {
   const cardBorder = isDark ? 'rgba(255,255,255,0.06)' : theme.border;
   const cardBackground = isDark ? 'rgba(255,255,255,0.04)' : 'rgba(255,255,255,0.94)';
   const footerBase = isDark ? '#060913' : theme.background;
+  const isFirstSignIn = route.name === '/vibe-picker';
 
   const toggleVibe = (id: string) => {
     setSelected((prev) => {
@@ -73,6 +76,21 @@ const VibePicker: React.FC = () => {
 
     try {
       const selectedLabels = VIBES.filter((vibe) => selected.has(vibe.id)).map((vibe) => vibe.label);
+
+      if (isFirstSignIn) {
+        const guestUser: User = {
+          id: 0,
+          name: 'guest',
+          role: 'fan',
+          email: 'guest@kulsah.com',
+          handle: 'guest',
+        };
+
+        await AsyncStorage.setItem('pulsar_user', JSON.stringify(guestUser));
+        setUser(guestUser);
+        return;
+      }
+
       await authApi.updateVibe({
         onboarding: {
           vibe: selectedLabels,
@@ -208,16 +226,15 @@ const styles = StyleSheet.create({
     left: 0,
     right: 0,
     height: '50%',
-  },
-  header: {
+  }, header: {
     paddingHorizontal: 32,
     paddingBottom: 24,
     alignItems: 'center',
   },
   title: {
-    ...fontSize.b1, lineHeight: fontSize.b1.lineHeight,
-    letterSpacing: -1.4,
-    textAlign: 'center',
+    ...fontSize.h1, lineHeight: fontSize.h1.lineHeight,
+    letterSpacing: 1,
+    // textAlign: 'center',
   },
   subtitle: {
     marginTop: 8,

@@ -10,7 +10,6 @@ import {
   Modal,
   Platform,
   Pressable,
-  SafeAreaView,
   ScrollView,
   StatusBar,
   StyleSheet,
@@ -37,6 +36,7 @@ import type {
   VideoUploadSource,
   VideoVisibility,
 } from '../src';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 type SubmitEntryRouteParams = {
   video?: VideoUploadSource;
@@ -104,6 +104,7 @@ const SubmitEntry: React.FC = () => {
   const initialVisibility = params.visibility ?? 'public';
   const previewOrientation = params.orientation ?? video?.orientation ?? 'portrait';
   const editPayload = params.editPayload ?? null;
+  const insets = useSafeAreaInsets();
   const directUpload = useCreatorVideoDirectUpload();
   const { mutateAsync: updateCreatorVideo, isPending: isUpdating } = useUpdateCreatorVideo();
   const [uploadedVideoId, setUploadedVideoId] = useState<string | number | undefined>(params.uploadedVideoId);
@@ -216,7 +217,15 @@ const SubmitEntry: React.FC = () => {
           const { isReady, hasFailed } = getVideoProcessingState(processing);
 
           if (isReady) break;
-          if (hasFailed) throw new Error(processing.error || processing.message || 'Video rendering failed.');
+          if (hasFailed) {
+            const editFailed = processing.render_status === 'failed' || processing.metadata?.edit_status === 'failed';
+            throw new Error(
+              (editFailed ? processing.metadata?.edit_error : null)
+              || processing.error
+              || processing.message
+              || 'Video rendering failed.',
+            );
+          }
 
           await new Promise((resolve) => setTimeout(resolve, 3000));
         }
@@ -388,7 +397,7 @@ const SubmitEntry: React.FC = () => {
   };
 
   return (
-    <SafeAreaView style={[styles.safeArea, { backgroundColor: theme.background }]}>
+    <View style={[styles.safeArea, { backgroundColor: theme.background }]}>
       <StatusBar
         barStyle={isDark ? 'light-content' : 'dark-content'}
         backgroundColor="transparent"
@@ -397,14 +406,14 @@ const SubmitEntry: React.FC = () => {
 
       <KeyboardAvoidingView
         style={styles.keyboardAvoidingView}
-        behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
-        keyboardVerticalOffset={Platform.OS === 'ios' ? 0 : 24}
+        behavior={Platform.OS === 'ios' ? 'padding' : undefined}
       >
         <ScrollView
           keyboardShouldPersistTaps="handled"
-          keyboardDismissMode="interactive"
-          style={{ flex: 1, backgroundColor: theme.background }}
-          contentContainerStyle={styles.content}
+          keyboardDismissMode={Platform.OS === 'ios' ? 'interactive' : 'on-drag'}
+          nestedScrollEnabled
+          style={[styles.scrollView, { backgroundColor: theme.background }]}
+          contentContainerStyle={[styles.content, { paddingTop: insets.top + 10 }]}
           showsVerticalScrollIndicator={false}
         >
         <View style={styles.previewSection}>
@@ -447,7 +456,7 @@ const SubmitEntry: React.FC = () => {
           <View style={styles.formColumn}>
             <View style={styles.inputGroup}>
               <Text style={[styles.inputLabel, { color: mutedText }]}>Title</Text>
-              <TextInput
+              <TextInput includeFontPadding={false}
                 value={title}
                 onChangeText={setTitle}
                 placeholder="Add a catchy title..."
@@ -461,7 +470,7 @@ const SubmitEntry: React.FC = () => {
 
             <View style={styles.inputGroup}>
               <Text style={[styles.inputLabel, { color: mutedText }]}>Description</Text>
-              <TextInput
+              <TextInput includeFontPadding={false}
                 value={description}
                 onChangeText={setDescription}
                 multiline
@@ -679,7 +688,7 @@ const SubmitEntry: React.FC = () => {
           </View>
         </View>
       </Modal>
-    </SafeAreaView>
+    </View>
   );
 };
 
@@ -742,8 +751,11 @@ const styles = StyleSheet.create({
   keyboardAvoidingView: {
     flex: 1,
   },
+  scrollView: {
+    flex: 1,
+  },
   content: {
-    paddingTop: 20,
+    flexGrow: 1,
     paddingHorizontal: 20,
     paddingBottom: 120,
     gap: 28,
@@ -877,8 +889,9 @@ const styles = StyleSheet.create({
   input: {
     borderRadius: 12,
     paddingHorizontal: 12,
-    paddingVertical: 10,
-    ...fontSize.b4, lineHeight: fontSize.b4.lineHeight,
+    paddingTop: 15,
+    ...fontSize.b2, lineHeight: fontSize.b2.lineHeight + 3,
+    fontFamily: "Poppins_500Medium"
   },
   textArea: {
     minHeight: 78,
@@ -886,7 +899,8 @@ const styles = StyleSheet.create({
     paddingHorizontal: 12,
     paddingVertical: 10,
     textAlignVertical: 'top',
-    ...fontSize.b4, lineHeight: fontSize.b4.lineHeight,
+    ...fontSize.b2, lineHeight: fontSize.b2.lineHeight,
+    fontFamily: "Poppins_500Medium",
   },
   section: {
     gap: 12,

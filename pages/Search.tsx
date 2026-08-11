@@ -234,7 +234,7 @@ const Search: React.FC = () => {
   };
 
   return (
-    <SafeAreaView edges={['left', 'right']} style={[styles.safeArea, { backgroundColor: colors.background }]}>
+    <SafeAreaView edges={[]} style={[styles.safeArea, { backgroundColor: colors.background }]}>
       <ScrollView
         stickyHeaderIndices={[0]}
         showsVerticalScrollIndicator={false}
@@ -244,9 +244,9 @@ const Search: React.FC = () => {
       >
         <View style={[styles.header, { paddingTop: Platform.OS === 'ios' ? insets.top + 4 : insets.top + 12, backgroundColor: colors.header, borderBottomColor: colors.border }]}>
           <View style={styles.searchRow}>
-            <Pressable onPress={() => navigation.goBack()} style={({ pressed }) => [styles.backButton, pressed && styles.iconPressed]}>
+            {/* <Pressable onPress={() => navigation.goBack()} style={({ pressed }) => [styles.backButton, pressed && styles.iconPressed]}>
               <MaterialIcons name="chevron-left" size={28} color={colors.text} />
-            </Pressable>
+            </Pressable> */}
             <KulsahInputBar
                 value={searchQuery}
                 onChangeText={setSearchQuery}
@@ -400,7 +400,7 @@ const styles = StyleSheet.create({
   },
   clearButton: { width: 30, height: 30, alignItems: 'center', justifyContent: 'center' },
   micIcon: { marginRight: 14 },
-  searchAction: { color: PRIMARY_COLOR, ...fontSize.b4, lineHeight: fontSize.b4.lineHeight },
+  searchAction: { color: PRIMARY_COLOR, ...fontSize.b1, lineHeight: fontSize.b1.lineHeight, fontFamily: "Inter_500Medium" },
   tabsContent: { paddingHorizontal: 10 },
   tabButton: { minWidth: 70, alignItems: 'center', paddingHorizontal: 10, paddingTop: 12, paddingBottom: 13 },
   tabText: { color: 'rgba(255,255,255,0.42)', ...fontSize.tabText, lineHeight: fontSize.tabText.lineHeight, letterSpacing: 1.2, textTransform: 'uppercase' },
@@ -420,7 +420,7 @@ const styles = StyleSheet.create({
   inlineCenter: { flexDirection: 'row', alignItems: 'center', gap: 6 },
   rank: { width: 22, color: 'rgba(255,255,255,0.24)', ...fontSize.b4, lineHeight: fontSize.b4.lineHeight },
   rankHot: { color: PRIMARY_COLOR },
-  trendTag: { color: '#fff', ...fontSize.b4, lineHeight: fontSize.b4.lineHeight, textTransform: 'uppercase' },
+  trendTag: { color: '#fff', ...fontSize.b2, lineHeight: fontSize.b2.lineHeight, textTransform: 'uppercase' },
   trendMeta: { color: 'rgba(255,255,255,0.25)', ...fontSize.b5, lineHeight: fontSize.b5.lineHeight },
   gridRow: { flexDirection: 'row', flexWrap: 'wrap', gap: 14 },
   creatorCard: { aspectRatio: 3.5 / 5, borderRadius: 30, overflow: 'hidden', backgroundColor: '#1a1a1e', borderWidth: 1, borderColor: 'rgba(255,255,255,0.06)' },
@@ -431,7 +431,7 @@ const styles = StyleSheet.create({
   creatorFollowers: { marginTop: 5, color: 'rgba(255,255,255,0.45)', ...fontSize.creatorStyleText, lineHeight: fontSize.creatorStyleText.lineHeight, letterSpacing: 1.6 },
   resultsStack: { gap: 28 },
   stackSmall: { gap: 12 },
-  kicker: { color: 'rgba(255,255,255,0.42)', ...fontSize.b5, lineHeight: fontSize.b5.lineHeight, textTransform: 'uppercase', letterSpacing: 1.4 },
+  kicker: { color: 'rgba(255,255,255,0.42)', ...fontSize.mediumTitleText, lineHeight: fontSize.tabText.lineHeight, textTransform: 'uppercase', letterSpacing: 1.4 },
   inlineAction: { color: PRIMARY_COLOR, ...fontSize.b5, lineHeight: fontSize.b5.lineHeight, textTransform: 'uppercase', letterSpacing: 1.2 },
   userRow: { minHeight: 72, flexDirection: 'row', alignItems: 'center', gap: 12, paddingVertical: 8, paddingHorizontal: 2, borderRadius: 16 },
   userRowCompact: { minHeight: 56 },
@@ -439,7 +439,7 @@ const styles = StyleSheet.create({
   avatar: { width: 56, height: 56, borderRadius: 28, backgroundColor: '#1a1a1e', borderWidth: 1, borderColor: 'rgba(255,255,255,0.1)' },
   avatarCompact: { width: 48, height: 48, borderRadius: 24 },
   userCopy: { flex: 1, minWidth: 0 },
-  userName: { color: '#fff', ...fontSize.nameText, lineHeight: fontSize.nameText.lineHeight },
+  userName: { color: '#fff', ...fontSize.b1, lineHeight: fontSize.b1.lineHeight },
   userMeta: { marginTop: 2, color: 'rgba(255,255,255,0.42)', ...fontSize.handleTextSmall, lineHeight: fontSize.handleTextSmall.lineHeight },
   userFollowers: { marginTop: 5, color: 'rgba(255,255,255,0.24)', ...fontSize.b5, lineHeight: fontSize.b5.lineHeight, textTransform: 'uppercase', letterSpacing: 1.1 },
   followButton: { height: 35, paddingHorizontal: 18, borderRadius: 999, backgroundColor: '#fff', alignItems: 'center', justifyContent: 'center' },

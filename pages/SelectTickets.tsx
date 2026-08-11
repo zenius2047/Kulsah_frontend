@@ -1,4 +1,5 @@
-import React, { useMemo, useState } from 'react';
+import React, { useEffect, useMemo, useRef, useState } from 'react';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 import { GoogleGenAI } from '@google/genai';
 import { useNavigation, useRoute } from '@react-navigation/native';
 import { MaterialIcons } from '@expo/vector-icons';
@@ -6,39 +7,44 @@ import { useThemeMode, PRIMARY_COLOR, primaryColorAlpha, primaryColorAlphaHex } 
 import {
   ActivityIndicator,
   Image,
-  KeyboardAvoidingView,
-  Modal,
   Platform,
   Pressable,
   ScrollView,
   StyleSheet,
   Text,
-  TextInput,
   View,
 } from 'react-native';
 import { SafeAreaView, useSafeAreaInsets } from 'react-native-safe-area-context';
 import { mediumScreen } from '../types';
 import PaymentSuccess from '../assets/icons/payment-success.svg'
-import PaymentGateway from '../components/PaymentGateway';
 import { fontSize } from '../typography';
+import { PageSkeleton } from '../components/PageSkeleton';
+import { useEvent } from '../src/hooks/events/useEvents';
+import { usePurchaseEventTickets } from '../src/hooks/events/useEventMutations';
+import { createIdempotencyKey, getMaxPurchaseQuantity, multiplyDecimal } from '../src/utils/events';
+import { parseApiError } from '../src/utils/apiError';
+import type { EventTicketPurchaseResource, EventTicketResource } from '../src/types/event.types';
 
 interface TicketTier {
   id: string;
+  code?: string;
   name: string;
-  price: number;
+  price: string;
+  currency: string;
   description: string;
+  totalQuantity: number;
+  soldQuantity: number;
+  availableQuantity: number;
+  maxQuantity: number;
   available: boolean;
   color: string;
 }
 
-type PaymentMethod = 'momo' | 'card' | 'kulcoins';
-type MomoProvider = 'mtn' | 'telecel' | 'airteltigo';
-
 const TIERS: TicketTier[] = [
-  { id: 'pit', name: 'Golden Circle Pit', price: 350, description: 'Directly in front of the stage. High energy.', available: true, color: PRIMARY_COLOR },
-  { id: 'floor', name: 'Standing Floor', price: 125, description: 'Main standing area. Great visibility.', available: true, color: '#3b82f6' },
-  { id: 'mezz', name: 'Premium Seated', price: 185, description: 'Elevated view with comfortable seating.', available: true, color: '#22c55e' },
-  { id: 'rear', name: 'Seated - Tier 2', price: 95, description: 'Affordable views of the whole stage.', available: true, color: '#6b7280' },
+  { id: 'pit', name: 'Golden Circle Pit', price: '350.0000', currency: 'GHS', description: 'Directly in front of the stage. High energy.', totalQuantity: 0, soldQuantity: 0, availableQuantity: 0, maxQuantity: 0, available: false, color: PRIMARY_COLOR },
+  { id: 'floor', name: 'Standing Floor', price: '125.0000', currency: 'GHS', description: 'Main standing area. Great visibility.', totalQuantity: 0, soldQuantity: 0, availableQuantity: 0, maxQuantity: 0, available: false, color: '#3b82f6' },
+  { id: 'mezz', name: 'Premium Seated', price: '185.0000', currency: 'GHS', description: 'Elevated view with comfortable seating.', totalQuantity: 0, soldQuantity: 0, availableQuantity: 0, maxQuantity: 0, available: false, color: '#22c55e' },
+  { id: 'rear', name: 'Seated - Tier 2', price: '95.0000', currency: 'GHS', description: 'Affordable views of the whole stage.', totalQuantity: 0, soldQuantity: 0, availableQuantity: 0, maxQuantity: 0, available: false, color: '#6b7280' },
 ];
 
 const SelectTickets: React.FC = () => {
@@ -47,21 +53,22 @@ const SelectTickets: React.FC = () => {
   const navigation = useNavigation<any>();
   const insets = useSafeAreaInsets();
   const eventId = route.params?.id ?? 'burna-boy';
+  const apiEventId = /^(?:event_)?\d+$/.test(String(eventId)) ? eventId : undefined;
+  const eventQuery = useEvent(apiEventId);
+  const purchaseMutation = usePurchaseEventTickets(apiEventId ?? 1);
+  const purchaseKey = useRef<string | null>(null);
+  const purchaseStorageKey = `event-ticket-purchase:${String(apiEventId ?? eventId)}`;
+  const [purchasedTickets, setPurchasedTickets] = useState<EventTicketResource[]>([]);
+  const [purchaseSummary, setPurchaseSummary] = useState<EventTicketPurchaseResource['purchase'] | null>(null);
+  const [fieldErrors, setFieldErrors] = useState<Record<string, string[]>>({});
+  const showLiveSeatingMap = route.params?.showLiveSeatingMap === true;
 
   const [quantities, setQuantities] = useState<Record<string, number>>({});
   const [selectedZone, setSelectedZone] = useState<string | null>(null);
-  const [isProcessing, setIsProcessing] = useState(false);
   const [showSuccess, setShowSuccess] = useState(false);
   const [aiLoading, setAiLoading] = useState(false);
   const [aiSuggestion, setAiSuggestion] = useState<string | null>(null);
-  const [paymentMethod, setPaymentMethod] = useState<PaymentMethod>('momo');
-  const [momoProvider, setMomoProvider] = useState<MomoProvider>('mtn');
-  const [phoneNumber, setPhoneNumber] = useState('');
-  const [cardNumber, setCardNumber] = useState('');
-  const [cardExpiry, setCardExpiry] = useState('');
-  const [cardCvv, setCardCvv] = useState('');
   const [errorText, setErrorText] = useState('');
-  const [paymentDrawerOpen, setPaymentDrawerOpen] = useState(false);
 
   const accent = isDark ? PRIMARY_COLOR : theme.accent;
   const screenBg = isDark ? '#060913' : '#f8fafc';
@@ -80,33 +87,91 @@ const SelectTickets: React.FC = () => {
   const successIconBorder = isDark ? primaryColorAlphaHex('55') : primaryColorAlpha(0.28);
   const inputBg = isDark ? 'rgba(255,255,255,0.04)' : 'rgba(15,23,42,0.03)';
   const walletBalance = 1240;
+  const tiers = useMemo<TicketTier[]>(() => eventQuery.data?.ticket_types?.map((ticket, index) => ({
+    id: String(ticket.id ?? ticket.code), code: ticket.code, name: ticket.name,
+    price: String(ticket.price ?? ticket.unit_price ?? '0'), currency: ticket.currency,
+    description: ticket.description || 'Event admission ticket', totalQuantity: Number(ticket.quantity || 0),
+    soldQuantity: Number(ticket.sold_count ?? ticket.sold_quantity ?? 0),
+    availableQuantity: Number(ticket.available_quantity ?? ticket.remaining_count ?? 0),
+    maxQuantity: getMaxPurchaseQuantity(eventQuery.data!, ticket),
+    available: ticket.is_available && getMaxPurchaseQuantity(eventQuery.data!, ticket) > 0,
+    color: [PRIMARY_COLOR, '#3b82f6', '#22c55e', '#6b7280'][index % 4],
+  })) ?? TIERS, [eventQuery.data]);
 
-  const updateQuantity = (tierId: string, delta: number) => {
-    setQuantities((prev) => ({
-      ...prev,
-      [tierId]: Math.max(0, (prev[tierId] || 0) + delta),
-    }));
+  useEffect(() => {
+    AsyncStorage.getItem(purchaseStorageKey).then((key: string | null) => { if (key && !purchaseKey.current) purchaseKey.current = key; }).catch(() => undefined);
+  }, [purchaseStorageKey]);
+
+  const setAttemptKey = (key: string) => {
+    purchaseKey.current = key;
+    void AsyncStorage.setItem(purchaseStorageKey, key);
   };
 
-  const totalPrice = useMemo(
-    () => TIERS.reduce((acc, tier) => acc + tier.price * (quantities[tier.id] || 0), 0),
-    [quantities],
-  );
+  const updateQuantity = (tierId: string, delta: number) => {
+    const tier = tiers.find((item) => item.id === tierId);
+    setQuantities((prev) => ({ [tierId]: Math.min(tier?.maxQuantity ?? 0, Math.max(1, (prev[tierId] || 1) + delta)) }));
+    if (!purchaseKey.current) setAttemptKey(createIdempotencyKey());
+  };
+
+  const selectedTier = tiers.find((tier) => tier.id === selectedZone);
+  const selectedQuantity = selectedTier ? quantities[selectedTier.id] || 0 : 0;
+  const totalPrice = selectedTier ? multiplyDecimal(selectedTier.price, selectedQuantity) : '0.0000';
   const totalTickets = useMemo(
     () => Object.values(quantities).reduce((acc, quantity) => acc + quantity, 0),
     [quantities],
   );
 
-  const handlePurchase = () => {
+  const handlePurchase = async () => {
     setErrorText('');
+    setFieldErrors({});
 
     if (totalTickets <= 0) {
       setErrorText('Select at least one ticket.');
       return;
     }
-    setPaymentDrawerOpen(false);
-    setShowSuccess(true);
+    const tier = selectedTier;
+    if (!tier || !apiEventId) { setErrorText('This ticket is unavailable.'); return; }
+    const key = purchaseKey.current ?? createIdempotencyKey();
+    setAttemptKey(key);
+    try {
+      const response = await purchaseMutation.mutateAsync({
+        ...(tier.code ? { ticket_type_code: tier.code } : { ticket_type_name: tier.name }),
+        quantity: quantities[tier.id] || 0,
+        idempotency_key: key,
+        metadata: { source: Platform.OS, client: 'kulsah-mobile' },
+      });
+      setPurchaseSummary(response.data.data.purchase);
+      setPurchasedTickets(response.data.data.purchase.tickets || []);
+      const firstTicket = response.data.data.purchase.tickets?.[0];
+      if (firstTicket) {
+        void AsyncStorage.setItem('fan-ticket:latest', JSON.stringify({ ticket: firstTicket, event: response.data.data.event, purchase: response.data.data.purchase }));
+      }
+      purchaseKey.current = null;
+      void AsyncStorage.removeItem(purchaseStorageKey);
+      setShowSuccess(true);
+    } catch (error: any) {
+      const parsed = parseApiError(error);
+      setFieldErrors(parsed.validationErrors ?? {});
+      setErrorText(parsed.message);
+      if ([403, 422].includes(parsed.status ?? 0)) {
+        const refreshed = await eventQuery.refetch();
+        const freshTicket = refreshed.data?.ticket_types?.find((item) => String(item.id ?? item.code) === tier.id || item.name === tier.name);
+        if (freshTicket) setQuantities({ [tier.id]: Math.max(1, Math.min(quantities[tier.id] || 1, getMaxPurchaseQuantity(refreshed.data!, freshTicket))) });
+      }
+    }
   };
+
+  const selectTier = (tierId: string) => {
+    const tier = tiers.find((item) => item.id === tierId);
+    if (!tier?.available || purchaseMutation.isPending) return;
+    if (tierId !== selectedZone) setAttemptKey(createIdempotencyKey());
+    setSelectedZone(tierId);
+    setQuantities((prev) => ({ [tierId]: prev[tierId] > 0 ? prev[tierId] : 1 }));
+    if (!purchaseKey.current) setAttemptKey(createIdempotencyKey());
+  };
+
+  const hasStarted = eventQuery.data?.starts_at ? new Date(eventQuery.data.starts_at).getTime() <= Date.now() : false;
+  const purchasingDisabled = purchaseMutation.isPending || !selectedTier || selectedQuantity < 1 || selectedQuantity > (selectedTier?.maxQuantity ?? 0) || eventQuery.data?.status !== 'published' || hasStarted || eventQuery.data?.is_sold_out === true || eventQuery.data?.viewer?.can_book === false;
 
   const getAiRecommendation = async () => {
     setAiLoading(true);
@@ -130,6 +195,23 @@ const SelectTickets: React.FC = () => {
     }
   };
 
+  if (eventQuery.isLoading) {
+    return <PageSkeleton isDark={isDark} variant="tickets" />;
+  }
+
+  if (eventQuery.isError || !eventQuery.data || !apiEventId) {
+    const loadError = eventQuery.isError ? parseApiError(eventQuery.error).message : 'This event is unavailable.';
+    return (
+      <View style={[styles.loaderScreen, { backgroundColor: screenBg }]}>
+        <MaterialIcons name="confirmation-number" size={42} color={muted} />
+        <Text style={[styles.loaderText, { color: subtle }]}>{loadError}</Text>
+        <Pressable onPress={() => void eventQuery.refetch()} style={[styles.retryButton, { backgroundColor: accent }]}>
+          <Text style={styles.retryButtonText}>Try Again</Text>
+        </Pressable>
+      </View>
+    );
+  }
+
   if (showSuccess) {
     return (
       <View style={[styles.successScreen, { backgroundColor: screenBg }]}>
@@ -142,11 +224,18 @@ const SelectTickets: React.FC = () => {
             <PaymentSuccess width="100%" height="100%"/>
           </View>
         </View>
-        <Text style={[styles.successTitle, { color: titleColor }]}>Payment Success!</Text>
+        <Text style={[styles.successTitle, { color: titleColor }]}>Purchase Successful!</Text>
         <Text style={[styles.successBody, { color: subtle }]}>
-          Your tickets for Burna Boy: Love, Damini have been added to your Kulsah Wallet.
+          Your tickets for {eventQuery.data.title} have been added to your Kulsah Wallet.
         </Text>
-        <Pressable style={[styles.primaryButton, { backgroundColor: accent }]} onPress={() => navigation.navigate('FanTicket')}>
+        {purchaseSummary ? <Text style={[styles.totalTickets, { color: subtle }]}>Reference: {purchaseSummary.reference} · {purchaseSummary.currency} {purchaseSummary.total_amount}</Text> : null}
+        {purchasedTickets.map((ticket) => (
+          <View key={ticket.id} style={[styles.successTicket, { borderColor: border }]}>
+            <View style={{ flex: 1 }}><Text style={[styles.totalTickets, { color: accent }]}>{ticket.ticket_number || ticket.id}</Text><Text style={[styles.ticketStatus, { color: subtle }]}>{ticket.status}</Text></View>
+            {ticket.qr_code_url ? <Image source={{ uri: ticket.qr_code_url }} style={styles.successQr} /> : <MaterialIcons name="qr-code" size={42} color={muted} />}
+          </View>
+        ))}
+        <Pressable style={[styles.primaryButton, { backgroundColor: accent }]} onPress={() => navigation.navigate('FanTicket', { ticket: purchasedTickets[0], event: eventQuery.data, purchase: purchaseSummary })}>
           <Text style={styles.primaryButtonText}>View Ticket</Text>
         </Pressable>
       </View>
@@ -169,26 +258,20 @@ const SelectTickets: React.FC = () => {
             onPress={() => navigation.goBack()}
             style={[styles.closeButton, { backgroundColor: headerButtonBg, borderColor: softBorder }]}
           >
-            <MaterialIcons name="close" size={22} color={titleColor} />
+            <MaterialIcons name="chevron-left" size={22} color={titleColor} />
           </Pressable>
 
           <View style={styles.headerText}>
             <Text style={[styles.headerTitle, { color: titleColor }]}>Select Tickets</Text>
-            <Text style={[styles.headerSubtitle, { color: subtle }]}>Burna Boy � O2 Arena</Text>
+            <Text style={[styles.headerSubtitle, { color: accent }]} numberOfLines={1}>{eventQuery.data.title} · {eventQuery.data.venue?.name || 'Event'}</Text>
           </View>
 
-          <View style={styles.stepBlock}>
-            <Text style={[styles.stepLabel, { color: accent }]}>Step 1 of 3</Text>
-            <View style={styles.stepBars}>
-              <View style={[styles.stepBar, { backgroundColor: accent }]} />
-              <View style={[styles.stepBar, { backgroundColor: softSurface }]} />
-              <View style={[styles.stepBar, { backgroundColor: softSurface }]} />
-            </View>
-          </View>
+          <View style={styles.headerSpacer} />
         </View>
       </SafeAreaView>
 
       <ScrollView showsVerticalScrollIndicator={false} contentContainerStyle={styles.content}>
+        {showLiveSeatingMap ? <>
         <View style={styles.sectionHeader}>
           <Text style={[styles.sectionEyebrow, { color: subtle }]}>Live Seating Map</Text>
           <View style={[styles.venueBadge, { backgroundColor: `${accent}12`, borderColor: `${accent}24` }]}>
@@ -204,7 +287,7 @@ const SelectTickets: React.FC = () => {
 
           <View style={styles.mapZones}>
             <Pressable
-              onPress={() => setSelectedZone('pit')}
+              onPress={() => selectTier('pit')}
               style={[
                 styles.zoneLarge,
                 { backgroundColor: softSurface },
@@ -223,7 +306,7 @@ const SelectTickets: React.FC = () => {
             </Pressable>
 
             <Pressable
-              onPress={() => setSelectedZone('floor')}
+              onPress={() => selectTier('floor')}
               style={[
                 styles.zoneLarge,
                 styles.zoneFloor,
@@ -244,7 +327,7 @@ const SelectTickets: React.FC = () => {
 
             <View style={styles.mapBottomRow}>
               <Pressable
-                onPress={() => setSelectedZone('mezz')}
+                onPress={() => selectTier('mezz')}
                 style={[
                   styles.zoneSmall,
                   styles.zoneMezz,
@@ -265,6 +348,7 @@ const SelectTickets: React.FC = () => {
             </View>
           </View>
         </View>
+        </> : null}
 
         {/* <View style={[styles.aiCard, { borderColor: `${accent}24`, backgroundColor: `${accent}10` }]}>
           <View style={styles.aiHeader}>
@@ -291,14 +375,17 @@ const SelectTickets: React.FC = () => {
         </View> */}
 
         <Text style={[styles.sectionEyebrow, { color: subtle }]}>Available Tiers</Text>
-        {TIERS.map((tier) => (
-          <View
+        {tiers.map((tier) => (
+          <Pressable
             key={tier.id}
+            onPress={() => selectTier(tier.id)}
+            disabled={!tier.available || purchaseMutation.isPending}
             style={[
               styles.tierCard,
               { borderColor: border, backgroundColor: cardBg },
               selectedZone === tier.id && styles.tierCardActive,
               selectedZone === tier.id && { borderColor: `${accent}66`, shadowColor: accent },
+              (!tier.available || purchaseMutation.isPending) && { opacity: 0.55 },
             ]}
           >
             <View style={styles.tierTopRow}>
@@ -309,26 +396,28 @@ const SelectTickets: React.FC = () => {
                 </View>
                 <Text style={[styles.tierDescription, { color: subtle }]}>{tier.description}</Text>
               </View>
-              <Text style={[styles.tierPrice, { color: accent }]}>${tier.price.toFixed(2)}</Text>
+              <Text style={[styles.tierPrice, { color: accent }]}>{tier.currency} {tier.price}</Text>
             </View>
 
             <View style={styles.tierBottomRow}>
               <View style={styles.verifiedRow}>
                 <MaterialIcons name="verified" size={16} color={accent} />
-                <Text style={[styles.verifiedText, { color: subtle }]}>Kulsah Verified</Text>
+                <Text style={[styles.verifiedText, { color: subtle }]}>{tier.soldQuantity} sold · {tier.availableQuantity} available · {tier.totalQuantity} total</Text>
               </View>
 
               <View style={[styles.quantityWrap, { backgroundColor: softSurface, borderColor: border }]}>
-                <Pressable onPress={() => updateQuantity(tier.id, -1)} style={styles.quantityButton}>
+                <Pressable disabled={purchaseMutation.isPending || !tier.available || (quantities[tier.id] || 1) <= 1} onPress={(event) => { event.stopPropagation(); setSelectedZone(tier.id); updateQuantity(tier.id, -1); }} style={styles.quantityButton}>
                   <MaterialIcons name="remove" size={20} color={muted} />
                 </Pressable>
                 <Text style={[styles.quantityText, { color: titleColor }]}>{quantities[tier.id] || 0}</Text>
-                <Pressable onPress={() => updateQuantity(tier.id, 1)} style={styles.quantityButton}>
+                <Pressable disabled={purchaseMutation.isPending || !tier.available || (quantities[tier.id] || 0) >= tier.maxQuantity} onPress={(event) => { event.stopPropagation(); setSelectedZone(tier.id); updateQuantity(tier.id, 1); }} style={styles.quantityButton}>
                   <MaterialIcons name="add" size={20} color={accent} />
                 </Pressable>
               </View>
             </View>
-          </View>
+            {selectedZone === tier.id && fieldErrors.quantity?.[0] ? <Text style={styles.fieldError}>{fieldErrors.quantity[0]}</Text> : null}
+            {selectedZone === tier.id && (fieldErrors.ticket_type_code?.[0] || fieldErrors.ticket_type_name?.[0]) ? <Text style={styles.fieldError}>{fieldErrors.ticket_type_code?.[0] || fieldErrors.ticket_type_name?.[0]}</Text> : null}
+          </Pressable>
         ))}
 
         <View style={{
@@ -337,6 +426,7 @@ const SelectTickets: React.FC = () => {
         <Text style={styles.hiddenText}>{eventId}</Text>
       </ScrollView>
 
+      {errorText ? <View style={[styles.purchaseError, { bottom: Math.max(insets.bottom, 20) + 138 }]}><Text style={styles.purchaseErrorText}>{errorText}</Text></View> : null}
       <View
         style={[
           styles.footer,
@@ -351,7 +441,8 @@ const SelectTickets: React.FC = () => {
         <View style={styles.footerTopRow}>
           <View>
             <Text style={[styles.totalLabel, { color: subtle }]}>Total Payment</Text>
-            <Text style={[styles.totalPrice, { color: titleColor }]}>${totalPrice.toFixed(2)}</Text>
+            <Text style={[styles.totalPrice, { color: titleColor }]}>{selectedTier?.currency ?? eventQuery.data?.currency ?? 'GHS'} {totalPrice}</Text>
+            {selectedTier ? <Text style={[styles.totalTickets, { color: subtle }]}>Unit: {selectedTier.currency} {selectedTier.price}</Text> : null}
             <Text style={[styles.totalTickets, { color: accent }]}>
               {totalTickets} {totalTickets === 1 ? 'Ticket' : 'Tickets'}
             </Text>
@@ -369,44 +460,33 @@ const SelectTickets: React.FC = () => {
         </View>
 
         <Pressable
-          onPress={() => {
-            setErrorText('');
-            if (totalTickets > 0) {
-              setPaymentDrawerOpen(true);
-            }
-          }}
-          disabled={isProcessing}
-          style={[styles.purchaseButton, { backgroundColor: accent }]}
+          onPress={handlePurchase}
+          disabled={purchasingDisabled}
+          style={[styles.purchaseButton, { backgroundColor: accent, opacity: purchasingDisabled ? 0.55 : 1 }]}
         >
-          {isProcessing ? (
+          {purchaseMutation.isPending ? (
             <>
               <ActivityIndicator color="#ffffff" />
               <Text style={styles.purchaseButtonText}>Processing...</Text>
             </>
           ) : (
             <>
-              <Text style={styles.purchaseButtonText}>Continue to Payment</Text>
+              <Text style={styles.purchaseButtonText}>Confirm Purchase</Text>
               <MaterialIcons name="arrow-forward" size={20} color="#ffffff" />
             </>
           )}
         </Pressable>
       </View>
 
-      <PaymentGateway
-        isOpen={paymentDrawerOpen}
-        onClose={() => setPaymentDrawerOpen(false)}
-        onSuccess={handlePurchase}
-        amount={totalPrice}
-        currency="GHS"
-        itemName={`${totalTickets} ${totalTickets === 1 ? 'Ticket' : 'Tickets'}`}
-        allowedMethods={['momo', 'card', 'bank', 'kulcoins']}
-        walletBalance={walletBalance}
-      />
     </View>
   );
 };
 
 const styles = StyleSheet.create({
+  loaderScreen: { flex: 1, alignItems: 'center', justifyContent: 'center', paddingHorizontal: 28, gap: 14 },
+  loaderText: { ...fontSize.b4, lineHeight: fontSize.b4.lineHeight, textAlign: 'center' },
+  retryButton: { minWidth: 130, height: 46, borderRadius: 23, alignItems: 'center', justifyContent: 'center', paddingHorizontal: 20 },
+  retryButtonText: { color: '#fff', ...fontSize.b5, lineHeight: fontSize.b5.lineHeight, textTransform: 'uppercase', letterSpacing: 1.1 },
   screen: { flex: 1, backgroundColor: '#060913' },
   safeArea: { backgroundColor: '#11131bcc' },
   header: {
@@ -424,25 +504,19 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     borderWidth: 1,
   },
-  headerText: { marginLeft: 12, flex: 1 },
+  headerText: { flex: 1, alignItems: 'center' },
   headerTitle: {
-    ...fontSize.b3, lineHeight: fontSize.b3.lineHeight,
+    ...fontSize.h1, lineHeight: fontSize.h1.lineHeight,
     textTransform: 'uppercase',
+    letterSpacing: 2,
   },
   headerSubtitle: {
     ...fontSize.b5, lineHeight: fontSize.b5.lineHeight,
     textTransform: 'uppercase',
-    letterSpacing: 1.8,
+    letterSpacing: 1.5,
     marginTop: 2,
   },
-  stepBlock: { alignItems: 'flex-end', marginLeft: 8 },
-  stepLabel: {
-    ...fontSize.b5, lineHeight: fontSize.b5.lineHeight,
-    textTransform: 'uppercase',
-    letterSpacing: 1.4,
-  },
-  stepBars: { flexDirection: 'row', gap: 4, marginTop: 6 },
-  stepBar: { width: 24, height: 4, borderRadius: 999 },
+  headerSpacer: { width: 40, height: 40 },
   content: { padding: 16, paddingBottom: 180, gap: 16 },
   sectionHeader: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between' },
   sectionEyebrow: {
@@ -747,6 +821,9 @@ const styles = StyleSheet.create({
     borderTopWidth: 1,
     gap: 14,
   },
+  purchaseError: { position: 'absolute', left: 20, right: 20, zIndex: 5, borderRadius: 14, padding: 12, backgroundColor: '#7f1d1d' },
+  purchaseErrorText: { color: '#fff', textAlign: 'center', ...fontSize.b5, lineHeight: fontSize.b5.lineHeight },
+  fieldError: { color: '#ef4444', ...fontSize.b5, lineHeight: fontSize.b5.lineHeight },
   footerVisible: { opacity: 1 },
   footerHidden: { opacity: 0 },
   footerTopRow: { flexDirection: 'row', alignItems: 'flex-end', justifyContent: 'space-between', gap: 12 },
@@ -814,6 +891,9 @@ const styles = StyleSheet.create({
     marginTop: 12,
     marginBottom: 28,
   },
+  successTicket: { width: '100%', maxWidth: 360, borderWidth: 1, borderRadius: 16, padding: 12, flexDirection: 'row', alignItems: 'center', gap: 12 },
+  successQr: { width: 64, height: 64, borderRadius: 8 },
+  ticketStatus: { ...fontSize.b5, lineHeight: fontSize.b5.lineHeight, textTransform: 'uppercase', marginTop: 4 },
   hiddenText: { height: 0, width: 0, opacity: 0 },
   primaryButton: {
     width: '100%',

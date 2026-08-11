@@ -30,7 +30,7 @@ import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import CreatorSwitch from '../assets/icons/switch-creator.svg';
 import { fontSize } from '../typography';
 import TicketIcon from '../assets/icons/Ticket1.svg';
-import { parseApiError, useSwitchRole, useWatchedVideos } from '../src';
+import { parseApiError, useLatestFanTicket, useSwitchRole, useWatchedVideos } from '../src';
 
 interface FanProfileProps {
   onLogout?: () => void;
@@ -77,6 +77,17 @@ const extractWatchedVideos = (value: unknown): Array<Record<string, any>> => {
 const STICKY_HEADER_INDICES = [2];
 
 const FanProfile: React.FC<FanProfileProps> = ({ onToggleRole }) => {
+  const { data: latestFanTicket, isLoading: isTicketLoading } = useLatestFanTicket();
+  const fanTickets = useMemo(() => latestFanTicket ? [{
+    id: String(latestFanTicket.ticket.id),
+    title: latestFanTicket.event.title,
+    date: new Date(latestFanTicket.event.starts_at).toLocaleDateString(undefined, { month: 'short', day: 'numeric', year: 'numeric' }),
+    venue: latestFanTicket.event.venue?.name || 'Online Event',
+    city: [latestFanTicket.event.venue?.city, latestFanTicket.event.venue?.country].filter(Boolean).join(', '),
+    status: latestFanTicket.ticket.status,
+    image: latestFanTicket.event.cover_image_url || 'https://images.unsplash.com/photo-1501386761578-eac5c94b800a?auto=format&fit=crop&q=85&w=900',
+    payload: latestFanTicket,
+  }] : [], [latestFanTicket]);
   const { isDark, theme } = useThemeMode();
   const navigation = useNavigation<any>();
   const { width } = useWindowDimensions();
@@ -552,7 +563,7 @@ const FanProfile: React.FC<FanProfileProps> = ({ onToggleRole }) => {
             tab.id === 'Saved'?   <BookMarkIcon height={22} width={22} fill={activeTab === tab.id ? PRIMARY_COLOR : '#69738d'}/>:
             tab.id === 'Favorite'? <MaterialIcons name="favorite-border" size={22} color={activeTab === tab.id ? PRIMARY_COLOR : '#69738d'}/>:null
           }
-                <Text style={[s.tabText, { color: activeTab === tab.id ? PRIMARY_COLOR : theme.textSecondary }, activeTab === tab.id && s.tabTextActive]}>{tab.id}</Text>
+                {/* <Text style={[s.tabText, { color: activeTab === tab.id ? PRIMARY_COLOR : theme.textSecondary }, activeTab === tab.id && s.tabTextActive]}>{tab.id}</Text> */}
                 {activeTab === tab.id ? <View style={s.tabIndicator} /> : null}
               </Pressable>
             ))}
@@ -574,19 +585,29 @@ const FanProfile: React.FC<FanProfileProps> = ({ onToggleRole }) => {
                   {!selectedCreator ? (
                     <View style={s.sectionBlock}>
                       <Text style={[s.sectionEyebrow, { color: theme.textSecondary }]}>Subscribed Creators</Text>
-                      <View style={s.listWrap}>
+                      <View style={s.creatorGrid}>
                         {subscribedCreators.map((creator) => (
-                          <Pressable key={creator.id} onPress={() => setSelectedCreator(creator.id)} style={[s.listCard, { backgroundColor: isDark ? '#111827' : theme.card, borderColor: theme.border, padding: 16 }]}>
-                            <View style={s.listLeft}>
-                              <Image source={{ uri: creator.img }} style={s.listAvatar} />
-                              <View>
-                                <Text style={[s.listTitle, { color: theme.text }]}>{creator.name}</Text>
-                                <Text style={[s.listMeta, { color: theme.textSecondary }]}>{creator.handle}</Text>
+                          <Pressable
+                            key={creator.id}
+                            onPress={() => setSelectedCreator(creator.id)}
+                            style={[s.creatorGridCard, { backgroundColor: isDark ? '#111827' : theme.card }]}
+                          >
+                            <View style={s.creatorGridImageWrap}>
+                              <Image source={{ uri: creator.img }} resizeMode="cover" style={s.creatorGridImage} />
+                              <LinearGradient
+                                colors={['transparent', 'rgba(0,0,0,0.72)']}
+                                style={StyleSheet.absoluteFillObject}
+                              />
+                              <View style={s.creatorGridDropBadge}>
+                                <Text style={s.creatorGridDropText}>{creator.premiumCount} Videos</Text>
                               </View>
                             </View>
-                            <View style={s.creatorRight}>
-                              <Text style={s.creatorDropMeta}>{creator.premiumCount} Drops</Text>
-                              <MaterialIcons name="chevron-right" size={20} color={theme.textSecondary} />
+                            <View style={s.creatorGridInfo}>
+                              <View style={s.creatorGridCopy}>
+                                <Text numberOfLines={1} style={s.creatorGridName}>{creator.name}</Text>
+                                <Text numberOfLines={1} style={s.creatorGridHandle}>{creator.handle}</Text>
+                              </View>
+                              <MaterialIcons name="chevron-right" size={20} color="#fff" />
                             </View>
                           </Pressable>
                         ))}
@@ -599,7 +620,7 @@ const FanProfile: React.FC<FanProfileProps> = ({ onToggleRole }) => {
                           <MaterialIcons name="chevron-left" size={14} color={PRIMARY_COLOR} />
                           <Text style={s.backText}>Back to Creators</Text>
                         </Pressable>
-                        <Text style={s.sectionEyebrow}>
+                        <Text style={[s.sectionEyebrow, { color: theme.textSecondary }]}>
                           {subscribedCreators.find((creator) => creator.id === selectedCreator)?.name}'s Vault
                         </Text>
                       </View>
@@ -615,19 +636,58 @@ const FanProfile: React.FC<FanProfileProps> = ({ onToggleRole }) => {
               )}
 
               {activeTab === 'Tickets' && (
-                <View style={s.listWrap}>
-                  {[1, 2].map((item) => (
-                    <Pressable key={item} onPress={() => navigation.navigate('FanTicket')} style={[s.ticketCard, {borderColor: theme.border,}]}>
-                      <View style={s.ticketLeft}>
-                        <View style={s.ticketIconWrap}>
-                          <TicketIcon height={24} width={24}/>
+                <View style={s.ticketGrid}>
+                  {isTicketLoading ? <ActivityIndicator color={PRIMARY_COLOR} /> : null}
+                  {!isTicketLoading && fanTickets.length === 0 ? <View style={s.emptyState}><MaterialIcons name="confirmation-number" size={38} color={theme.textMuted} /><Text style={[s.emptyStateText, { color: theme.textSecondary }]}>No tickets yet</Text></View> : null}
+                  {fanTickets.map((ticket) => (
+                    <Pressable
+                      key={ticket.id}
+                      onPress={() => navigation.navigate('FanTicket', ticket.payload)}
+                      style={s.ticketCard}
+                    >
+                      <ImageBackground
+                        source={{ uri: ticket.image }}
+                        resizeMode="cover"
+                        style={s.ticketBackground}
+                        imageStyle={s.ticketBackgroundImage}
+                      >
+                        <LinearGradient
+                          colors={['rgba(2,6,23,0.08)', 'rgba(2,6,23,0.28)', 'rgba(2,6,23,0.96)']}
+                          locations={[0, 0.45, 1]}
+                          style={StyleSheet.absoluteFillObject}
+                        />
+
+                        <View style={{
+                          padding: 12,
+                          justifyContent: 'space-between',
+                          flex: 1
+                          // gap: 28,
+                          
+                        }}>
+                          <View style={s.ticketTopRow}>
+                          <View style={s.ticketIconWrap}>
+                            <TicketIcon height={20} width={20} />
+                          </View>
+                          <View style={s.ticketStatus}>
+                            <Text style={s.ticketStatusText}>{ticket.status}</Text>
+                          </View>
                         </View>
-                        <View>
-                          <Text style={[s.ticketTitle, { color: theme.text }]}>Summer Festival 2024</Text>
-                          <Text style={[s.ticketMeta, { color: theme.textSecondary }]}>Aug 24 - O2 Arena</Text>
+
+                        <View style={s.ticketOverlayContent}>
+                          <Text style={s.ticketDate}>{ticket.date}</Text>
+                          <Text numberOfLines={2} style={s.ticketTitle}>{ticket.title}</Text>
+                          <View style={s.ticketLocationRow}>
+                            <MaterialIcons name="location-on" size={13} color="rgba(255,255,255,0.82)" />
+                            <Text numberOfLines={1} style={s.ticketMeta}>{ticket.venue} · {ticket.city}</Text>
+                          </View>
+                          <View style={s.ticketDivider} />
+                          <View style={s.ticketFooter}>
+                            <Text style={s.ticketDetailsText}>View ticket</Text>
+                            <MaterialIcons name="chevron-right" size={19} color="#fff" />
+                          </View>
                         </View>
-                      </View>
-                      <MaterialIcons name="chevron-right" size={22} color={theme.textSecondary} />
+                        </View>
+                      </ImageBackground>
                     </Pressable>
                   ))}
                 </View>
@@ -770,7 +830,7 @@ const s = StyleSheet.create({
   },
   name: {
     color: '#fff',
-    ...fontSize.b1, lineHeight: fontSize.b1.lineHeight,
+    ...fontSize.b0Variant, lineHeight: fontSize.b0Variant.lineHeight,
   },
   member: {
     color: PRIMARY_COLOR,
@@ -797,10 +857,12 @@ const s = StyleSheet.create({
     backgroundColor: primaryColorAlpha(0.1),
     borderWidth: 1,
     borderColor: primaryColorAlpha(0.24),
+    alignItems: 'center',
+    justifyContent: 'center'
   },
   vibeText: {
     color: PRIMARY_COLOR,
-    ...fontSize.b5, lineHeight: fontSize.b5.lineHeight,
+    ...fontSize.tabText, lineHeight: fontSize.tabText.lineHeight,
     textTransform: 'uppercase',
     letterSpacing: 1.2,
   },
@@ -829,11 +891,11 @@ const s = StyleSheet.create({
   },
   statValue: {
     color: '#fff',
-    ...fontSize.b3, lineHeight: fontSize.b3.lineHeight,
+    ...fontSize.b1, lineHeight: fontSize.b1.lineHeight,
   },
   statLabel: {
     color: '#8f95af',
-    ...fontSize.b4, lineHeight: fontSize.b4.lineHeight,
+    ...fontSize.b2, lineHeight: fontSize.b2.lineHeight,
     textTransform: 'uppercase',
     letterSpacing: 1.2,
     marginTop: 4,
@@ -877,7 +939,7 @@ const s = StyleSheet.create({
   },
   switchRoleTitle: {
     color: '#fff',
-    ...fontSize.b4, lineHeight: fontSize.b4.lineHeight,
+    ...fontSize.b1, lineHeight: fontSize.b1.lineHeight,
     textTransform: 'uppercase',
     letterSpacing: 1.3,
   },
@@ -903,7 +965,7 @@ const s = StyleSheet.create({
     minWidth: 72,
     alignItems: 'center',
     paddingBottom: 12,
-    marginRight: 12,
+    // marginRight: 6,
   },
   tabText: {
     color: '#6b7280',
@@ -950,6 +1012,74 @@ const s = StyleSheet.create({
   listWrap: {
     gap: 12,
     // paddingHorizontal: 18,
+  },
+  creatorGrid: {
+    flexDirection: 'row',
+    flexWrap: 'wrap',
+    justifyContent: 'space-between',
+    rowGap: 1,
+    marginHorizontal: -13,
+  },
+  creatorGridCard: {
+    width: '33.1%',
+    height: 176,
+    overflow: 'hidden',
+    position: 'relative',
+  },
+  creatorGridImageWrap: {
+    ...StyleSheet.absoluteFillObject,
+    backgroundColor: '#0f172a',
+    zIndex: 0,
+  },
+  creatorGridImage: {
+    width: '100%',
+    height: '100%',
+  },
+  creatorGridDropBadge: {
+    position: 'absolute',
+    left: 6,
+    top: 6,
+    borderRadius: 999,
+    paddingHorizontal: 6,
+    paddingVertical: 4,
+    backgroundColor: 'rgba(0,0,0,0.62)',
+    borderWidth: 1,
+    borderColor: 'rgba(255,255,255,0.14)',
+  },
+  creatorGridDropText: {
+    color: PRIMARY_COLOR,
+    ...fontSize.b5,
+    lineHeight: fontSize.b5.lineHeight,
+    textTransform: 'uppercase',
+    letterSpacing: 0.8,
+  },
+  creatorGridInfo: {
+    position: 'absolute',
+    left: 0,
+    right: 0,
+    bottom: 0,
+    minHeight: 68,
+    padding: 8,
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 4,
+    zIndex: 2,
+  },
+  creatorGridCopy: {
+    flex: 1,
+  },
+  creatorGridName: {
+    color: '#fff',
+    ...fontSize.b4,
+    lineHeight: fontSize.b4.lineHeight,
+  },
+  creatorGridHandle: {
+    color: 'rgba(255,255,255,0.72)',
+    marginTop: 3,
+    ...fontSize.b5,
+    lineHeight: fontSize.b5.lineHeight,
+    textTransform: 'uppercase',
+    letterSpacing: 1.1,
   },
   listCard: {
     flexDirection: 'row',
@@ -1442,42 +1572,105 @@ const s = StyleSheet.create({
     textTransform: 'uppercase',
     letterSpacing: 1.1,
   },
+  ticketGrid: {
+    flexDirection: 'row',
+    flexWrap: 'wrap',
+    justifyContent: 'space-between',
+    // gap: 4,
+    paddingHorizontal: 2,
+  },
+  emptyState: { width: '100%', minHeight: 180, alignItems: 'center', justifyContent: 'center', gap: 10, paddingHorizontal: 24 },
+  emptyStateText: { ...fontSize.b4, lineHeight: fontSize.b4.lineHeight, textAlign: 'center' },
   ticketCard: {
+    width: '49.7%',
+    aspectRatio: 0.72,
+    borderRadius: 0,
+    overflow: 'hidden',
+    backgroundColor: '#0f172a',
+  },
+  ticketBackground: {
+    width: '100%',
+    height: '100%',
+    justifyContent: 'space-between',
+    // padding: 12,
+  },
+  ticketBackgroundImage: {
+    width: '100%',
+    height: '100%',
+    borderRadius: 0,
+  },
+  ticketTopRow: {
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'space-between',
-    padding: 16,
-    borderRadius: 28,
-    backgroundColor: 'rgba(255,255,255,0.05)',
-    borderWidth: 1,
-    marginHorizontal: 16,
-    // borderColor: 'rgb(255, 255, 255)',
   },
-  ticketLeft: {
+  ticketStatus: {
+    borderRadius: 999,
+    paddingHorizontal: 8,
+    paddingVertical: 5,
+    backgroundColor: 'rgba(2,6,23,0.62)',
+    borderWidth: 1,
+    borderColor: 'rgba(255,255,255,0.2)',
+  },
+  ticketStatusText: {
+    color: '#fff',
+    ...fontSize.b5,
+    lineHeight: fontSize.b5.lineHeight,
+    textTransform: 'uppercase',
+    letterSpacing: 0.7,
+  },
+  ticketOverlayContent: {
+    gap: 5,
+  },
+  ticketLocationRow: {
     flexDirection: 'row',
     alignItems: 'center',
-    gap: 12,
+    gap: 3,
   },
   ticketIconWrap: {
-    width: 56,
-    height: 56,
+    width: 36,
+    height: 36,
     borderRadius: 18,
-    // backgroundColor: primaryColorAlpha(0.1),
-    // borderWidth: 1,
-    // borderColor: primaryColorAlpha(0.24),
+    backgroundColor: 'rgba(2,6,23,0.62)',
+    borderWidth: 1,
+    borderColor: 'rgba(255,255,255,0.2)',
     alignItems: 'center',
     justifyContent: 'center',
   },
+  ticketDate: {
+    color: PRIMARY_COLOR,
+    ...fontSize.b5,
+    lineHeight: fontSize.b5.lineHeight,
+    textTransform: 'uppercase',
+    letterSpacing: 1,
+  },
   ticketTitle: {
     color: '#fff',
-    ...fontSize.b4, lineHeight: fontSize.b4.lineHeight,
+    ...fontSize.b2,
+    lineHeight: fontSize.b2.lineHeight,
   },
   ticketMeta: {
-    color: '#8f95af',
-    ...fontSize.b5, lineHeight: fontSize.b5.lineHeight,
+    flexShrink: 1,
+    color: 'rgba(255,255,255,0.82)',
+    ...fontSize.b5,
+    lineHeight: fontSize.b5.lineHeight,
+  },
+  ticketDivider: {
+    height: StyleSheet.hairlineWidth,
+    marginVertical: 4,
+    backgroundColor: 'rgba(255,255,255,0.28)',
+  },
+  ticketFooter: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+  },
+  ticketDetailsText: {
+    color: '#fff',
+    ...fontSize.b5,
+    lineHeight: fontSize.b5.lineHeight,
     textTransform: 'uppercase',
-    letterSpacing: 1.1,
-    marginTop: 2,
+    letterSpacing: 0.8,
   },
   savedBadge: {
     position: 'absolute',
@@ -1527,8 +1720,9 @@ const s = StyleSheet.create({
       lineHeight: 28,
     },
     roleModalBody: {
-      ...fontSize.b4,
-      lineHeight: 20,
+      ...fontSize.b3,
+    lineHeight: fontSize.b3.lineHeight,
+    fontFamily: 'Poppins_500Medium',
       textAlign: 'center',
     },
     roleModalActions: {

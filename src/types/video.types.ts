@@ -61,7 +61,17 @@ export type CreatorVideoTimelineTextLayer = {
   text: string;
   font?: string;
   size?: number;
+  font_size?: number;
   color?: string;
+  opacity?: number;
+  box?: boolean;
+  box_color?: string;
+  box_border_width?: number;
+  border_width?: number;
+  border_color?: string;
+  border_radius?: number;
+  stroke?: { enabled: boolean; color: string; width: number };
+  shadow?: { enabled: boolean; color: string };
   x?: number;
   y?: number;
   start?: number;
@@ -116,16 +126,14 @@ export type CreatorVideoEditTimeline = {
 };
 
 export type SubmitCreatorVideoEditsPayload = {
-  timeline?: CreatorVideoEditTimeline;
-  /** Retained for older API responses and in-flight navigation state. */
-  overlays?: CreatorVideoEditOverlay[];
-  drawingFiles?: VideoUploadSource[];
+  project: import('./videoProject.types').VideoProjectV3;
+  assetFiles: VideoUploadSource[];
 };
 
 export const hasCreatorVideoEdits = (
   payload?: SubmitCreatorVideoEditsPayload | null,
 ): payload is SubmitCreatorVideoEditsPayload =>
-  Boolean(payload?.timeline?.layers.length || payload?.timeline?.trim || payload?.overlays?.length);
+  Boolean(payload?.project?.scenes?.some((scene) => scene.tracks.length > 0) || payload?.project?.trim);
 
 export type UpdateCreatorVideoProgressPayload = {
   progress_percentage: number;
@@ -156,6 +164,8 @@ export type CreatorVideo = {
   status?: string | null;
   render_status?: string | null;
   progress_percentage?: number | null;
+  requires_editing?: boolean;
+  upload_state?: string | null;
   render_completed_at?: string | null;
   views_count?: number;
   hashtags?: string[];
@@ -187,6 +197,7 @@ export type InitCreatorVideoUploadPayload = {
   caption?: string | null;
   visibility?: VideoVisibility;
   size?: number;
+  requires_editing?: boolean;
 };
 
 export type CreatorVideoUploadSession = {
@@ -212,6 +223,9 @@ export type CreatorVideoProgress = {
   status: string;
   render_status?: string | null;
   progress_percentage: number;
+  requires_editing?: boolean;
+  upload_state?: string | null;
+  processing_state?: string | null;
   streaming_url?: string | null;
   stream_url?: string | null;
   cdn_url?: string | null;
@@ -221,10 +235,21 @@ export type CreatorVideoProgress = {
   render_completed_at?: string | null;
   error?: string | null;
   message?: string | null;
+  metadata?: {
+    edit_status?: string | null;
+    edit_error?: string | null;
+    [key: string]: unknown;
+  } | null;
 };
 
 export type CreatorVideoProgressResponse = {
   data: CreatorVideoProgress;
+  message?: string;
+};
+
+export type SubmitCreatorVideoEditsResponse = {
+  message: string;
+  data?: CreatorVideoProgress;
 };
 
 export type CreatorVideoListItem = {
@@ -269,6 +294,7 @@ export type CreatorVideoPlaylist = {
   id: number;
   user_id: number;
   name: string;
+  background?: string | null;
   videos_count: number;
   created_at: string;
   updated_at: string;

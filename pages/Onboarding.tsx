@@ -22,7 +22,7 @@ const Onboarding: React.FC<OnboardingProps> = ({ onLogin }) => {
 
   return (
     <View style={{ flex: 1, backgroundColor: '#060913' }}>
-      <StatusBar barStyle="light-content" backgroundColor="transparent" translucent = {true} />
+      <StatusBar barStyle={isDark ? 'light-content' : 'dark-content'} backgroundColor="transparent" translucent={true} />
       <ImageBackground
         source={{ uri: 'https://images.unsplash.com/photo-1493225255756-d9584f8606e9?auto=format&fit=crop&q=80&w=1200' }}
         style={{ position: 'absolute', top: 0, right: 0, bottom: 0, left: 0 }}

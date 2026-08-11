@@ -150,7 +150,7 @@ const ForgotPassword: React.FC = () => {
               </View>
             )}
 
-            <TextInput
+            <TextInput includeFontPadding={false}
               value={identifier}
               onChangeText={(text) => {
                 setIdentifier(text);

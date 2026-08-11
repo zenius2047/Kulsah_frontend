@@ -622,7 +622,7 @@ const FeedChallenge: React.FC = () => {
   return (
     <SafeAreaView style={styles.safeArea} edges={['left', 'right']}>
       <View style={styles.screen}>
-        <StatusBar barStyle={isDark ? 'light-content' : 'light-content'} translucent backgroundColor="transparent" />
+        <StatusBar barStyle={isDark ? 'light-content' : 'dark-content'} translucent backgroundColor="transparent" />
 
         <FlatList
           data={entries}

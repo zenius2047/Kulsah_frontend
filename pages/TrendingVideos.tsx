@@ -147,7 +147,7 @@ const TrendingVideos: React.FC = () => {
           <View style={styles.searchWrap}>
             <View style={[styles.searchBar, { backgroundColor: chipIdleBg, borderColor: softBorder }]}>
               <MaterialIcons name="search" size={20} color={secondaryText} />
-              <TextInput
+              <TextInput includeFontPadding={false}
                 value={searchQuery}
                 onChangeText={setSearchQuery}
                 placeholder="Search trending galaxy..."

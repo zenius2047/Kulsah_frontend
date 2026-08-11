@@ -176,7 +176,7 @@ const GoLiveSetup: React.FC = () => {
           <View style={styles.sectionWrap}>
             <View style={styles.section}>
               <Text style={[styles.sectionLabel, { color: subtle }]}>TRANSMISSION TITLE</Text>
-              <TextInput
+              <TextInput includeFontPadding={false}
                 value={title}
                 onChangeText={setTitle}
                 placeholder="Enter stream title"

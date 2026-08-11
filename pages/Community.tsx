@@ -1,29 +1,32 @@
-import React, { useEffect, useState } from 'react';
+import React, { memo, useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { useThemeMode, PRIMARY_COLOR, primaryColorAlpha } from "../theme";
 import {
   ActivityIndicator,
+  Alert,
+  type GestureResponderEvent,
   Image,
   KeyboardAvoidingView,
   Modal,
   Platform,
   Pressable,
   ScrollView,
+  Share,
   StyleSheet,
   Text,
   TextInput,
+  useWindowDimensions,
   View,
 } from 'react-native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { useNavigation } from '@react-navigation/native';
 import { MaterialIcons } from '@expo/vector-icons';
-import { useEvent } from 'expo';
 import { BlurView } from 'expo-blur';
 import { useVideoPlayer, VideoView } from 'expo-video';
 import { mediumScreen, user } from '../types';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
-import DotTrioLoader from '../components/DotTrioLoader';
 import { fontSize } from '../typography';
 import Reactions from './Reactions';
+import { communityApi, formatCommunityRelativeTime, parseApiError, useCommunityPosts, type CommunityComment as ApiCommunityComment, type CommunityPage, type CommunityPost as ApiCommunityPost } from '../src';
 
 interface Comment {
   id: string;
@@ -35,6 +38,7 @@ interface Comment {
 }
 
 interface PollOption {
+  id: string | number;
   text: string;
   votes: number;
   isSelected?: boolean;
@@ -48,11 +52,18 @@ interface CommunityPost {
   content: string;
   images?: string[];
   videoUrl?: string;
+  videoPoster?: string;
   isLive?: boolean;
   viewerCount?: number;
   likes: number;
   comments: number;
+  shares?: number;
+  gifts?: number;
+  views?: number;
+  audience?: 'public' | 'subscribers';
+  status?: string;
   commentList?: Comment[];
+  apiComments?: ApiCommunityComment[];
   time: string;
   isLiked: boolean;
   type: 'text' | 'image' | 'poll' | 'live';
@@ -118,9 +129,9 @@ const seedPosts: CommunityPost[] = [
     isLiked: false,
     type: 'poll',
     pollOptions: [
-      { text: 'Original Mix', votes: 450, isSelected: true },
-      { text: 'Acoustic Version', votes: 320 },
-      { text: 'Extended Club Edit', votes: 120 },
+      { id: 1, text: 'Original Mix', votes: 450, isSelected: true },
+      { id: 2, text: 'Acoustic Version', votes: 320 },
+      { id: 3, text: 'Extended Club Edit', votes: 120 },
     ],
     isFollowing: true,
     isVerified: false,
@@ -213,25 +224,66 @@ const normalizeCommunityMedia = (posts: CommunityPost[]) =>
     return post;
   });
 
-const LivePreview: React.FC<{ videoUrl: string; viewerCount?: number; isCreator: boolean }> = ({ videoUrl, viewerCount, isCreator }) => {
-  const { isDark, theme } = useThemeMode();
-  const player = useVideoPlayer(videoUrl, (p) => {
-    p.loop = true;
-    p.muted = true;
-    p.play();
+const toFeedPost = (post: ApiCommunityPost): CommunityPost => ({
+  id: String(post.id),
+  artist: post.author.name,
+  handle: post.author.handle.replace(/^@/, ''),
+  avatar: post.author.avatar_url || ARTIST_PROFILE_IMAGE_LINKS.profile,
+  content: post.content || '',
+  images: post.media.filter((item) => item.type === 'image').map((item) => item.url),
+  videoUrl: post.media.find((item) => item.type === 'video')?.streaming_url || post.media.find((item) => item.type === 'video')?.url,
+  videoPoster: post.media.find((item) => item.type === 'video')?.thumbnail_url || undefined,
+  isLive: post.type === 'live' || post.live?.status === 'live',
+  viewerCount: post.live?.viewer_count,
+  likes: post.stats.likes_count,
+  comments: post.stats.comments_count,
+  shares: post.stats.shares_count,
+  gifts: post.stats.gifts_count,
+  views: post.stats.views_count,
+  audience: post.audience,
+  status: post.status,
+  commentList: [],
+  apiComments: post.comments,
+  time: post.created_at,
+  isLiked: post.viewer.is_liked,
+  type: post.type === 'video' ? 'image' : post.type,
+  pollOptions: post.poll?.options.map((option) => ({
+    id: option.id,
+    text: option.text,
+    votes: option.votes_count,
+    isSelected: option.is_selected,
+  })),
+  isFollowing: post.viewer.is_following ?? post.author.is_following,
+  isVerified: post.author.is_verified,
+});
+
+const VideoPreview = memo<{ videoUrl: string; isActive: boolean; viewerCount?: number; isLive?: boolean; onOpen: () => void }>(({ videoUrl, isActive, viewerCount, isLive = false, onOpen }) => {
+  const { theme } = useThemeMode();
+  const [isMuted, setIsMuted] = useState(true);
+  const player = useVideoPlayer(videoUrl, (instance) => {
+    instance.loop = true;
+    instance.muted = true;
   });
-  const { status } = useEvent(player, 'statusChange', { status: player.status });
-  const isVideoLoading = status !== 'readyToPlay' && status !== 'error';
+
+  useEffect(() => {
+    if (isActive) player.play();
+    else player.pause();
+  }, [isActive, player]);
+
+  const toggleMute = (event: GestureResponderEvent) => {
+    event.stopPropagation();
+    const nextMuted = !isMuted;
+    player.muted = nextMuted;
+    setIsMuted(nextMuted);
+  };
 
   return (
-    <View style={[styles.mediaWrap, { borderColor: theme.border }]}>
-      <VideoView player={player} style={styles.video} nativeControls={false} allowsPictureInPicture />
-      {isVideoLoading && (
-        <View pointerEvents="none" style={styles.videoLoaderOverlay}>
-          <DotTrioLoader />
-        </View>
-      )}
-      <View style={styles.liveBadges}>
+    <Pressable accessibilityRole="button" accessibilityLabel={isLive ? 'Watch live video full screen' : 'Watch video full screen'} onPress={onOpen} style={[styles.mediaWrap, { borderColor: theme.border }]}>
+      <VideoView player={player} style={styles.video} nativeControls={false} allowsPictureInPicture contentFit="cover" />
+      {!isActive ? <View pointerEvents="none" style={styles.videoPlayBadge}>
+        <MaterialIcons name="play-arrow" size={30} color="#fff" />
+      </View> : null}
+      {isLive ? <View style={styles.liveBadges}>
         <View style={styles.livePill}>
           <View style={styles.liveDot} />
           <Text style={styles.livePillText}>LIVE</Text>
@@ -240,24 +292,88 @@ const LivePreview: React.FC<{ videoUrl: string; viewerCount?: number; isCreator:
           <MaterialIcons name="visibility" size={14} color="#fff" />
           <Text style={styles.viewerText}>{(viewerCount ?? 0).toLocaleString()}</Text>
         </View>
-      </View>
-      {!isCreator && (
-        <View style={styles.liveActions}>
-          <Pressable style={[styles.iconGlassBtn, { borderColor: isDark ? 'rgba(255,255,255,0.28)' : theme.border, backgroundColor: isDark ? 'rgba(0,0,0,0.35)' : 'rgba(255,255,255,0.88)' }]}>
-            <MaterialIcons name="fullscreen" size={20} color={isDark ? '#fff' : theme.text} />
-          </Pressable>
-        </View>
-      )}
-    </View>
+      </View> : null}
+      <Pressable
+        accessibilityRole="button"
+        accessibilityLabel={isMuted ? 'Unmute video' : 'Mute video'}
+        hitSlop={8}
+        onPress={toggleMute}
+        style={styles.videoMuteButton}
+      >
+        <MaterialIcons name={isMuted ? 'volume-off' : 'volume-up'} size={16} color="#fff" />
+      </Pressable>
+    </Pressable>
   );
+}, (previous, next) =>
+  previous.videoUrl === next.videoUrl &&
+  previous.isActive === next.isActive &&
+  previous.viewerCount === next.viewerCount &&
+  previous.isLive === next.isLive
+);
+
+const FullscreenVideo: React.FC<{ uri: string }> = ({ uri }) => {
+  const player = useVideoPlayer(uri, (instance) => instance.play());
+  return <VideoView player={player} style={styles.fullscreenVideo} nativeControls allowsPictureInPicture />;
 };
+
+const CommunityFeedSkeleton = memo<{ isDark: boolean }>(({ isDark }) => {
+  const base = isDark ? 'rgba(255,255,255,0.055)' : 'rgba(15,23,42,0.07)';
+  const strong = isDark ? 'rgba(255,255,255,0.09)' : 'rgba(15,23,42,0.11)';
+  const border = isDark ? 'rgba(255,255,255,0.08)' : 'rgba(15,23,42,0.08)';
+
+  return (
+    <ScrollView
+      accessibilityRole="progressbar"
+      accessibilityLabel="Loading community posts"
+      scrollEnabled={false}
+      showsVerticalScrollIndicator={false}
+      style={{ backgroundColor: isDark ? '#060913' : '#fff' }}
+      contentContainerStyle={styles.skeletonContent}
+    >
+      {[0, 1, 2].map((item) => (
+        <View key={item} style={[styles.skeletonCard, { borderColor: border }]}>
+          <View style={styles.skeletonHeaderRow}>
+            <View style={[styles.skeletonAvatar, { backgroundColor: strong }]} />
+            <View style={styles.skeletonAuthorCopy}>
+              <View style={[styles.skeletonLine, styles.skeletonHandle, { backgroundColor: strong }]} />
+              <View style={[styles.skeletonLine, styles.skeletonMeta, { backgroundColor: base }]} />
+            </View>
+            <View style={[styles.skeletonPill, { backgroundColor: base }]} />
+          </View>
+          <View style={[styles.skeletonLine, styles.skeletonBodyLong, { backgroundColor: base }]} />
+          <View style={[styles.skeletonLine, styles.skeletonBodyShort, { backgroundColor: base }]} />
+          <View style={[styles.skeletonMedia, { backgroundColor: strong }]} />
+          <View style={styles.skeletonActions}>
+            {[0, 1, 2, 3].map((action) => <View key={action} style={[styles.skeletonAction, { backgroundColor: base }]} />)}
+          </View>
+        </View>
+      ))}
+    </ScrollView>
+  );
+});
 
 const Community: React.FC<{ embedded?: boolean }> = ({ embedded = false }) => {
   const { isDark, theme } = useThemeMode();
   const navigation = useNavigation<any>();
-  const [loading, setLoading] = useState(true);
+  const { width: viewportWidth } = useWindowDimensions();
   const [currentUser, setCurrentUser] = useState<CurrentUser>({});
   const [posts, setPosts] = useState<CommunityPost[]>([]);
+  const [pendingLikeIds, setPendingLikeIds] = useState<Set<string>>(new Set());
+  const [pendingShareIds, setPendingShareIds] = useState<Set<string>>(new Set());
+  const [pendingPollIds, setPendingPollIds] = useState<Set<string>>(new Set());
+  const [expandedPostIds, setExpandedPostIds] = useState<Set<string>>(new Set());
+  const [overflowingPostIds, setOverflowingPostIds] = useState<Set<string>>(new Set());
+  const [activeVideoPostId, setActiveVideoPostId] = useState<string | null>(null);
+  const videoLayouts = useRef(new Map<string, { y: number; height: number }>());
+  const postLayouts = useRef(new Map<string, { y: number; height: number }>());
+  const highestViewedPostIndex = useRef(-1);
+  const scrollMetrics = useRef({ offsetY: 0, viewportHeight: 0 });
+  const visibilityFrame = useRef<number | null>(null);
+  const [mediaViewer, setMediaViewer] = useState<
+    | { kind: 'images'; images: string[]; index: number }
+    | { kind: 'video'; videoUrl: string }
+    | null
+  >(null);
   const [editingPostId, setEditingPostId] = useState<string | null>(null);
   const [editContent, setEditContent] = useState('');
   const [showOptionsPostId, setShowOptionsPostId] = useState<string | null>(null);
@@ -270,40 +386,80 @@ const Community: React.FC<{ embedded?: boolean }> = ({ embedded = false }) => {
   const softBorder = theme.border;
   const mutedText = theme.textSecondary;
   const dimIcon = isDark ? '#9ca3af' : theme.textSecondary;
+  const postsQuery = useCommunityPosts();
+  const hasEmptyPostsResponse = postsQuery.isSuccess
+    && postsQuery.data !== undefined
+    && postsQuery.data.pages.every((page) => page.data.length === 0);
 
   const isCreator = currentUser.role === 'creator';
   const normalizedHandle = (currentUser.handle ?? '').replace('@', '');
   const insets = useSafeAreaInsets();
-  const activeCommentTarget = activeCommentPost
-    ? posts.find((post) => post.id === activeCommentPost) ?? null
-    : null;
+  const activeCommentTarget = useMemo(
+    () => activeCommentPost ? posts.find((post) => post.id === activeCommentPost) ?? null : null,
+    [activeCommentPost, posts],
+  );
+
+  const updateActiveVideo = useCallback(() => {
+    if (mediaViewer) {
+      setActiveVideoPostId(null);
+      return;
+    }
+    const { offsetY, viewportHeight } = scrollMetrics.current;
+    const viewportBottom = offsetY + viewportHeight;
+    let bestId: string | null = null;
+    let bestVisibleHeight = 0;
+    videoLayouts.current.forEach((layout, id) => {
+      const visibleHeight = Math.max(0, Math.min(layout.y + layout.height, viewportBottom) - Math.max(layout.y, offsetY));
+      if (visibleHeight > bestVisibleHeight) {
+        bestVisibleHeight = visibleHeight;
+        bestId = id;
+      }
+    });
+    setActiveVideoPostId(bestVisibleHeight >= 80 ? bestId : null);
+  }, [mediaViewer]);
+
+  const fetchMoreWhenUnviewedPostsRunLow = useCallback(() => {
+    const { offsetY, viewportHeight } = scrollMetrics.current;
+    if (!viewportHeight) return;
+
+    const viewportBottom = offsetY + viewportHeight;
+    posts.forEach((post, index) => {
+      const layout = postLayouts.current.get(post.id);
+      if (layout && layout.y < viewportBottom && layout.y + layout.height > offsetY) {
+        highestViewedPostIndex.current = Math.max(highestViewedPostIndex.current, index);
+      }
+    });
+
+    const unviewedPostCount = posts.length - highestViewedPostIndex.current - 1;
+    if (unviewedPostCount < 10 && postsQuery.hasNextPage && !postsQuery.isFetchingNextPage) {
+      void postsQuery.fetchNextPage();
+    }
+  }, [posts, postsQuery.fetchNextPage, postsQuery.hasNextPage, postsQuery.isFetchingNextPage]);
+
+  useEffect(() => {
+    updateActiveVideo();
+  }, [posts, updateActiveVideo]);
+
+  useEffect(() => () => {
+    if (visibilityFrame.current !== null) cancelAnimationFrame(visibilityFrame.current);
+  }, []);
 
   useEffect(() => {
     const load = async () => {
       try {
-        const [savedUser, storedPosts] = await Promise.all([
-          AsyncStorage.getItem(USER_KEY),
-          AsyncStorage.getItem(STORAGE_KEY),
-        ]);
-
+        const savedUser = await AsyncStorage.getItem(USER_KEY);
         if (savedUser) setCurrentUser(JSON.parse(savedUser) as CurrentUser);
-
-        if (storedPosts) {
-          const normalizedPosts = normalizeCommunityMedia(JSON.parse(storedPosts) as CommunityPost[]);
-          setPosts(normalizedPosts);
-          await AsyncStorage.setItem(STORAGE_KEY, JSON.stringify(normalizedPosts));
-        } else {
-          const normalizedPosts = normalizeCommunityMedia(seedPosts);
-          setPosts(normalizedPosts);
-          await AsyncStorage.setItem(STORAGE_KEY, JSON.stringify(normalizedPosts));
-        }
-      } finally {
-        setLoading(false);
-      }
+      } catch {}
     };
 
     void load();
   }, []);
+
+  useEffect(() => {
+    const pages = postsQuery.data?.pages as CommunityPage<ApiCommunityPost>[] | undefined;
+    const apiPosts = pages?.flatMap((page) => page.data) ?? [];
+    setPosts(apiPosts.map(toFeedPost));
+  }, [postsQuery.data]);
 
   const savePosts = async (nextPosts: CommunityPost[]) => {
     setPosts(nextPosts);
@@ -311,7 +467,12 @@ const Community: React.FC<{ embedded?: boolean }> = ({ embedded = false }) => {
   };
 
   const toggleLike = async (id: string) => {
-    const updated = posts.map((post) =>
+    if (pendingLikeIds.has(id)) return;
+    const target = posts.find((post) => post.id === id);
+    if (!target) return;
+    const previous = posts;
+    setPendingLikeIds((current) => new Set(current).add(id));
+    setPosts(posts.map((post) =>
       post.id === id
         ? {
             ...post,
@@ -319,11 +480,52 @@ const Community: React.FC<{ embedded?: boolean }> = ({ embedded = false }) => {
             likes: post.isLiked ? post.likes - 1 : post.likes + 1,
           }
         : post,
-    );
-    await savePosts(updated);
+    ));
+    try {
+      const response = target.isLiked ? await communityApi.unlikePost(id) : await communityApi.likePost(id);
+      const serverPost = toFeedPost(response.data.data);
+      setPosts((current) => current.map((post) => post.id === id ? serverPost : post));
+    } catch (error) {
+      setPosts(previous);
+      const parsed = parseApiError(error);
+      Alert.alert(parsed.title, parsed.message);
+    } finally {
+      setPendingLikeIds((current) => {
+        const next = new Set(current);
+        next.delete(id);
+        return next;
+      });
+    }
+  };
+
+  const sharePost = async (id: string) => {
+    if (pendingShareIds.has(id)) return;
+    setPendingShareIds((current) => new Set(current).add(id));
+    try {
+      await communityApi.sharePost(id);
+      await Share.share({ message: `https://kulsah.com/community/posts/${encodeURIComponent(id)}` });
+      void postsQuery.refetch();
+    } catch (error: any) {
+      const message = String(error?.response?.data?.message ?? '').toLowerCase();
+      if (!message.includes('already shared')) {
+        const parsed = parseApiError(error);
+        Alert.alert(parsed.title, parsed.message);
+      }
+    } finally {
+      setPendingShareIds((current) => {
+        const next = new Set(current);
+        next.delete(id);
+        return next;
+      });
+    }
   };
 
   const voteOnPoll = async (postId: string, optionIndex: number) => {
+    if (pendingPollIds.has(postId)) return;
+    const target = posts.find((post) => post.id === postId);
+    const selectedOption = target?.pollOptions?.[optionIndex];
+    if (!target?.pollOptions || !selectedOption || target.pollOptions.some((option) => option.isSelected)) return;
+    const previous = posts;
     const updated = posts.map((post) => {
       if (post.id === postId && post.pollOptions) {
         const newOptions = post.pollOptions.map((opt, i) => ({
@@ -335,7 +537,23 @@ const Community: React.FC<{ embedded?: boolean }> = ({ embedded = false }) => {
       }
       return post;
     });
-    await savePosts(updated);
+    setPosts(updated);
+    setPendingPollIds((current) => new Set(current).add(postId));
+    try {
+      const response = await communityApi.voteOnPoll(postId, selectedOption.id);
+      const serverPost = toFeedPost(response.data.data);
+      setPosts((current) => current.map((post) => post.id === postId ? serverPost : post));
+    } catch (error) {
+      setPosts(previous);
+      const parsed = parseApiError(error);
+      Alert.alert(parsed.title, parsed.message);
+    } finally {
+      setPendingPollIds((current) => {
+        const next = new Set(current);
+        next.delete(postId);
+        return next;
+      });
+    }
   };
 
   const toggleFollow = async (id: string) => {
@@ -406,10 +624,19 @@ const Community: React.FC<{ embedded?: boolean }> = ({ embedded = false }) => {
     navigation.navigate('CommunityPostDetail', { postId });
   };
 
-  if (loading) {
+  if (postsQuery.isLoading) {
+    return <CommunityFeedSkeleton isDark={isDark} />;
+  }
+
+  if (postsQuery.isError) {
+    const parsed = parseApiError(postsQuery.error);
     return (
-      <View style={[styles.loader, { backgroundColor: theme.background }]}>
-        <ActivityIndicator size="large" color={PRIMARY_COLOR} />
+      <View style={[styles.loader, { backgroundColor: theme.background, paddingHorizontal: 24, gap: 12 }]}>
+        <MaterialIcons name="cloud-off" size={36} color={theme.textMuted} />
+        <Text style={{ color: theme.text, textAlign: 'center' }}>{parsed.message}</Text>
+        <Pressable accessibilityRole="button" accessibilityLabel="Retry loading community posts" onPress={() => void postsQuery.refetch()}>
+          <Text style={{ color: PRIMARY_COLOR }}>Retry</Text>
+        </Pressable>
       </View>
     );
   }
@@ -417,28 +644,68 @@ const Community: React.FC<{ embedded?: boolean }> = ({ embedded = false }) => {
   return (
     <View style={[styles.container, { backgroundColor: theme.background }]}>
       {user!.role === 'fan' && !embedded && <View style={[styles.header, {marginTop: Platform.OS == 'ios' ? 54 : insets.top} ]}>
-        <Pressable onPress={() => navigation.goBack()} style={[styles.headerRoundBtn, { backgroundColor: faintSurface, borderColor: softBorder }]}>
+        {/* <Pressable onPress={() => navigation.goBack()} style={[styles.headerRoundBtn, { backgroundColor: faintSurface, borderColor: softBorder }]}>
           <MaterialIcons name="chevron-left" size={22} color={theme.text} />
-        </Pressable>
+        </Pressable> */}
 
         <View style={styles.headerTitleWrap}>
           <Text style={[styles.headerTitle, { color: theme.text }]}>Community</Text>
           <Text style={styles.headerSubtitle}>Galaxy Universe</Text>
         </View>
 
-        <View style={styles.headerSpacer} />
+        {/* <View style={styles.headerSpacer} /> */}
         {/* <Pressable onPress={() => navigation.navigate('Inbox')} style={[styles.headerRoundBtn, { backgroundColor: faintSurface, borderColor: softBorder }]}>
           <MaterialIcons name="notifications-none" size={22} color={theme.text} />
         </Pressable> */}
       </View> }
 
-      <ScrollView contentContainerStyle={styles.scrollBody} showsVerticalScrollIndicator={false} keyboardShouldPersistTaps="handled">
+      <ScrollView
+        contentContainerStyle={styles.scrollBody}
+        showsVerticalScrollIndicator={false}
+        keyboardShouldPersistTaps="handled"
+        onLayout={({ nativeEvent }) => {
+          scrollMetrics.current.viewportHeight = nativeEvent.layout.height;
+          updateActiveVideo();
+          fetchMoreWhenUnviewedPostsRunLow();
+        }}
+        onScroll={({ nativeEvent }) => {
+          scrollMetrics.current = {
+            offsetY: nativeEvent.contentOffset.y,
+            viewportHeight: nativeEvent.layoutMeasurement.height,
+          };
+          if (visibilityFrame.current === null) {
+            visibilityFrame.current = requestAnimationFrame(() => {
+              visibilityFrame.current = null;
+              updateActiveVideo();
+              fetchMoreWhenUnviewedPostsRunLow();
+            });
+          }
+          const distance = nativeEvent.contentSize.height - (nativeEvent.contentOffset.y + nativeEvent.layoutMeasurement.height);
+          if (distance < 300 && postsQuery.hasNextPage && !postsQuery.isFetchingNextPage) void postsQuery.fetchNextPage();
+        }}
+        scrollEventThrottle={200}
+      >
+        {hasEmptyPostsResponse ? (
+          <View style={styles.footerLoader}>
+            <MaterialIcons name="forum" size={36} color={theme.textMuted} />
+            <Text style={[styles.footerText, { color: mutedText }]}>NO COMMUNITY POSTS YET</Text>
+          </View>
+        ) : null}
         {posts.map((post) => {
           const ownPost = post.handle === normalizedHandle || post.artist === currentUser.name;
           const totalVotes = post.pollOptions?.reduce((acc, curr) => acc + curr.votes, 0) ?? 0;
 
           return (
-            <View key={post.id} style={[styles.postCard, { backgroundColor: panelSurface, borderBottomColor: softBorder, borderBottomWidth: 1 }]}>
+            <View
+              key={post.id}
+              onLayout={({ nativeEvent }) => {
+                postLayouts.current.set(post.id, nativeEvent.layout);
+                if (post.videoUrl) videoLayouts.current.set(post.id, nativeEvent.layout);
+                updateActiveVideo();
+                fetchMoreWhenUnviewedPostsRunLow();
+              }}
+              style={[styles.postCard, { backgroundColor: panelSurface, borderBottomColor: softBorder, borderBottomWidth: 1 }]}
+            >
               <Pressable onPress={() => openPostDetail(post.id)}>
               <View style={styles.postHeader}>
                 <Pressable style={styles.authorRow} onPress={() => navigation.navigate('ArtistProfile', { isOwner: false, id: post.artist })}>
@@ -452,7 +719,8 @@ const Community: React.FC<{ embedded?: boolean }> = ({ embedded = false }) => {
                           <MaterialIcons name="verified" size={16} color='#33aae4'/>
                         ) : null}
                     </View>
-                    <Text style={[styles.timeText, { color: mutedText }]}>{post.time}</Text>
+                    <Text style={[styles.timeText, { color: mutedText }]}>{formatCommunityRelativeTime(post.time)}</Text>
+                    {/* <Text style={[styles.timeText, { color: mutedText }]}>{post.audience === 'subscribers' ? 'SUBSCRIBERS' : 'PUBLIC'} · {(post.status || 'published').toUpperCase()}</Text> */}
                   </View>
                 </Pressable>
 
@@ -517,7 +785,7 @@ const Community: React.FC<{ embedded?: boolean }> = ({ embedded = false }) => {
               <View style={styles.postContentWrap}>
                 {editingPostId === post.id ? (
                   <View style={{ gap: 10 }}>
-                    <TextInput
+                    <TextInput includeFontPadding={false}
                       value={editContent}
                       onChangeText={setEditContent}
                       multiline
@@ -533,25 +801,85 @@ const Community: React.FC<{ embedded?: boolean }> = ({ embedded = false }) => {
                     </View>
                   </View>
                 ) : (
-                  <Text style={[styles.postContent, { color: theme.textSecondary }]}>{post.content}</Text>
+                  <>
+                    {!overflowingPostIds.has(post.id) ? (
+                      <Text
+                        accessible={false}
+                        pointerEvents="none"
+                        onTextLayout={({ nativeEvent }) => {
+                          if (nativeEvent.lines.length <= 3) return;
+                          setOverflowingPostIds((current) => new Set(current).add(post.id));
+                        }}
+                        style={[styles.postContent, styles.contentMeasure, { color: theme.textSecondary }]}
+                      >
+                        {post.content}
+                      </Text>
+                    ) : null}
+                    <Text
+                      numberOfLines={expandedPostIds.has(post.id) ? undefined : 3}
+                      ellipsizeMode="tail"
+                      style={[styles.postContent, { color: theme.textSecondary }]}
+                    >
+                      {post.content}
+                    </Text>
+                    {overflowingPostIds.has(post.id) && !expandedPostIds.has(post.id) ? (
+                      <Pressable
+                        accessibilityRole="button"
+                        accessibilityLabel="Show more post content"
+                        hitSlop={8}
+                        onPress={(event) => {
+                          event.stopPropagation();
+                          setExpandedPostIds((current) => {
+                          const next = new Set(current);
+                          next.add(post.id);
+                          return next;
+                          });
+                        }}
+                        style={styles.contentToggle}
+                      >
+                        <Text style={styles.contentToggleText}>Show more</Text>
+                      </Pressable>
+                    ) : null}
+                  </>
                 )}
               </View>
 
-              {post.isLive && post.videoUrl ? <LivePreview videoUrl={post.videoUrl} viewerCount={post.viewerCount} isCreator={isCreator} /> : null}
+              {post.videoUrl ? (
+                <View>
+                  <VideoPreview
+                    videoUrl={post.videoUrl}
+                    isActive={activeVideoPostId === post.id && !mediaViewer}
+                    viewerCount={post.viewerCount}
+                    isLive={post.isLive}
+                    onOpen={() => {
+                      setActiveVideoPostId(null);
+                      setMediaViewer({ kind: 'video', videoUrl: post.videoUrl! });
+                    }}
+                  />
+                </View>
+              ) : null}
 
               {post.images && post.images.length > 0 && (
                 <View style={styles.mediaOuter}>
                   <View style={styles.imageGrid}>
-                    {post.images.map((img, idx) => (
-                      <View
+                    {post.images.slice(0, post.images.length > 4 ? 4 : post.images.length).map((img, idx) => (
+                      <Pressable
                         key={`${post.id}-${idx}`}
+                        accessibilityRole="imagebutton"
+                        accessibilityLabel={`Open image ${idx + 1} of ${post.images!.length}`}
+                        onPress={() => setMediaViewer({ kind: 'images', images: post.images!, index: idx })}
                         style={[
                           post.images!.length === 1 ? styles.imageFrame : styles.imageGridFrame,
                           { borderColor: softBorder },
                         ]}
                       >
                         <Image source={{ uri: img }} style={styles.postImage} resizeMode="cover" />
-                      </View>
+                        {post.images!.length > 4 && idx === 3 ? (
+                          <View style={styles.remainingImagesOverlay} pointerEvents="none">
+                            <Text style={styles.remainingImagesText}>+{post.images!.length - 4}</Text>
+                          </View>
+                        ) : null}
+                      </Pressable>
                     ))}
                   </View>
                 </View>
@@ -564,6 +892,7 @@ const Community: React.FC<{ embedded?: boolean }> = ({ embedded = false }) => {
                     return (
                       <Pressable
                         key={`${post.id}-poll-${idx}`}
+                        disabled={pendingPollIds.has(post.id) || post.pollOptions!.some((item) => item.isSelected)}
                         style={[styles.pollOption, { borderColor: softBorder, backgroundColor: faintSurface }, option.isSelected && styles.pollOptionSelected]}
                         onPress={() => voteOnPoll(post.id, idx)}
                       >
@@ -583,7 +912,7 @@ const Community: React.FC<{ embedded?: boolean }> = ({ embedded = false }) => {
               </Pressable>
 
               <View style={[styles.actionBar, ]}>
-                <Pressable style={styles.actionItem} onPress={() => toggleLike(post.id)}>
+                <Pressable accessibilityRole="button" accessibilityLabel={post.isLiked ? 'Unlike post' : 'Like post'} disabled={pendingLikeIds.has(post.id)} style={styles.actionItem} onPress={() => void toggleLike(post.id)}>
                   <MaterialIcons name={post.isLiked ? 'favorite' : 'favorite-border'} size={23} color={post.isLiked ? '#f43f5e' : dimIcon} />
                   <Text style={[styles.actionText, { color: post.isLiked ? '#f43f5e' : mutedText }]}>{post.likes.toLocaleString()}</Text>
                 </Pressable>
@@ -591,10 +920,18 @@ const Community: React.FC<{ embedded?: boolean }> = ({ embedded = false }) => {
                   <MaterialIcons name="chat-bubble-outline" size={22} color={dimIcon} />
                   <Text style={[styles.actionText, { color: mutedText }]}>{post.comments.toLocaleString()}</Text>
                 </Pressable>
-                <Pressable style={styles.actionItem}>
+                <Pressable accessibilityRole="button" accessibilityLabel="Share post" disabled={pendingShareIds.has(post.id)} style={styles.actionItem} onPress={() => void sharePost(post.id)}>
                   <MaterialIcons name="share" size={22} color={dimIcon} />
-                  <Text style={[styles.actionText, { color: mutedText }]}>Share</Text>
+                  <Text style={[styles.actionText, { color: mutedText }]}>{(post.shares ?? 0).toLocaleString()}</Text>
                 </Pressable>
+                {/* <View style={styles.actionItem} accessibilityLabel={`${post.gifts ?? 0} gifts`}>
+                  <MaterialIcons name="redeem" size={22} color={dimIcon} />
+                  <Text style={[styles.actionText, { color: mutedText }]}>{(post.gifts ?? 0).toLocaleString()}</Text>
+                </View>
+                <View style={styles.actionItem} accessibilityLabel={`${post.views ?? 0} views`}>
+                  <MaterialIcons name="visibility" size={22} color={dimIcon} />
+                  <Text style={[styles.actionText, { color: mutedText }]}>{(post.views ?? 0).toLocaleString()}</Text>
+                </View> */}
               </View>
 
             </View>
@@ -602,7 +939,7 @@ const Community: React.FC<{ embedded?: boolean }> = ({ embedded = false }) => {
         })}
 
         <View style={styles.footerLoader}>
-          <ActivityIndicator color={PRIMARY_COLOR} />
+          {postsQuery.isFetchingNextPage ? <ActivityIndicator color={PRIMARY_COLOR} /> : null}
           <Text style={[styles.footerText, { color: mutedText }]}>SYNCING MORE GALAXY UPDATES...</Text>
         </View>
       </ScrollView>
@@ -610,8 +947,45 @@ const Community: React.FC<{ embedded?: boolean }> = ({ embedded = false }) => {
       <Modal visible={!!activeCommentPost} transparent animationType="slide" statusBarTranslucent onRequestClose={() => setActiveCommentPost(null)}>
         <Reactions
           onClose={() => setActiveCommentPost(null)}
+          postId={activeCommentPost ?? undefined}
+          communityComments={activeCommentTarget?.apiComments}
           title={`${activeCommentTarget?.comments.toLocaleString() ?? 0} Reactions`}
         />
+      </Modal>
+
+      <Modal visible={!!mediaViewer} animationType="fade" statusBarTranslucent onRequestClose={() => setMediaViewer(null)}>
+        <View style={styles.fullscreenMediaRoot}>
+          <Pressable accessibilityRole="button" accessibilityLabel="Close full-screen media" onPress={() => setMediaViewer(null)} style={[styles.fullscreenClose, { top: Math.max(insets.top, 16) }]}>
+            <MaterialIcons name="close" size={26} color="#fff" />
+          </Pressable>
+          {mediaViewer?.kind === 'video' ? (
+            <FullscreenVideo uri={mediaViewer.videoUrl} />
+          ) : mediaViewer?.kind === 'images' ? (
+            <>
+              <ScrollView
+                horizontal
+                pagingEnabled
+                showsHorizontalScrollIndicator={false}
+                contentOffset={{ x: mediaViewer.index * viewportWidth, y: 0 }}
+                onMomentumScrollEnd={({ nativeEvent }) => {
+                  const index = Math.round(nativeEvent.contentOffset.x / viewportWidth);
+                  setMediaViewer((current) => current?.kind === 'images' ? { ...current, index } : current);
+                }}
+              >
+                {mediaViewer.images.map((uri, index) => (
+                  <View key={`${uri}-${index}`} style={[styles.fullscreenImagePage, { width: viewportWidth }]}>
+                    <Image accessibilityLabel={`Image ${index + 1} of ${mediaViewer.images.length}`} source={{ uri }} style={styles.fullscreenImage} resizeMode="contain" />
+                  </View>
+                ))}
+              </ScrollView>
+              {mediaViewer.images.length > 1 ? (
+                <View style={[styles.fullscreenCounter, { bottom: Math.max(insets.bottom, 20) }]}>
+                  <Text style={styles.fullscreenCounterText}>{mediaViewer.index + 1} / {mediaViewer.images.length}</Text>
+                </View>
+              ) : null}
+            </>
+          ) : null}
+        </View>
       </Modal>
 
       <Modal visible={false} transparent animationType="slide" statusBarTranslucent onRequestClose={() => setActiveCommentPost(null)}>
@@ -684,7 +1058,7 @@ const Community: React.FC<{ embedded?: boolean }> = ({ embedded = false }) => {
                 <Text style={[styles.modalComposerHint, { color: mutedText }]}>Fresh takes only</Text>
               </View>
 
-              <TextInput
+              <TextInput includeFontPadding={false}
                 value={commentText}
                 onChangeText={setCommentText}
                 placeholder="Write a comment..."
@@ -753,13 +1127,27 @@ const Community: React.FC<{ embedded?: boolean }> = ({ embedded = false }) => {
 const styles = StyleSheet.create({
   container: { flex: 1, backgroundColor: '#050507' },
   loader: { flex: 1, justifyContent: 'center', alignItems: 'center', backgroundColor: '#050507' },
+  skeletonContent: { paddingTop: 16, paddingBottom: 32 },
+  skeletonCard: { paddingHorizontal: 16, paddingVertical: 16, borderBottomWidth: 1, gap: 12 },
+  skeletonHeaderRow: { flexDirection: 'row', alignItems: 'center', gap: 12 },
+  skeletonAvatar: { width: 46, height: 46, borderRadius: 23 },
+  skeletonAuthorCopy: { flex: 1, gap: 8 },
+  skeletonLine: { borderRadius: 999 },
+  skeletonHandle: { width: '48%', height: 13 },
+  skeletonMeta: { width: '30%', height: 9 },
+  skeletonPill: { width: 56, height: 24, borderRadius: 999 },
+  skeletonBodyLong: { width: '92%', height: 12 },
+  skeletonBodyShort: { width: '64%', height: 12 },
+  skeletonMedia: { width: '100%', height: 190, borderRadius: 22 },
+  skeletonActions: { flexDirection: 'row', alignItems: 'center', gap: 18, paddingTop: 2 },
+  skeletonAction: { width: 46, height: 12, borderRadius: 999 },
   header: {
     marginTop: 40,
     paddingHorizontal: 16,
     paddingBottom: 14,
     flexDirection: 'row',
     alignItems: 'center',
-    justifyContent: 'space-between',
+    justifyContent: 'center',
   },
   headerRoundBtn: {
     height: 40,
@@ -813,6 +1201,7 @@ const styles = StyleSheet.create({
   followMetaAction: { flexDirection: 'row', alignItems: 'center', gap: 4 },
   handleText: {
     ...fontSize.handleTextMedium,
+    lineHeight: fontSize.handleTextMedium.lineHeight + 2,
     color: '#fff',
     letterSpacing: 0.25
     // // ...fontSize.b3, lineHeight: fontSize.b3.lineHeight
@@ -820,10 +1209,11 @@ const styles = StyleSheet.create({
   followStateText: { 
     // ...fontSize.b4, lineHeight: fontSize.b4.lineHeight,
     // ...fontSize.b2,
-    lineHeight: fontSize.b2.lineHeight,
+    lineHeight: fontSize.b3.lineHeight,
    },
   timeText: { 
     ...fontSize.b5,
+    lineHeight: fontSize.b5.lineHeight + 2,
     color: '#94a3b8', letterSpacing: 0.4 },
   optionsWrap: { position: 'relative',},
   optionsMenu: {
@@ -873,16 +1263,47 @@ const styles = StyleSheet.create({
   editSave: { flex: 1, height: 42, borderRadius: 12, backgroundColor: PRIMARY_COLOR, justifyContent: 'center', alignItems: 'center' },
   editCancelText: { color: '#fff', ...fontSize.b4, lineHeight: fontSize.b4.lineHeight, letterSpacing: 1.4 },
   editSaveText: { color: '#fff', ...fontSize.b4, lineHeight: fontSize.b4.lineHeight, letterSpacing: 1.4 },
+  contentToggle: { alignSelf: 'flex-start', marginTop: 4, paddingVertical: 2 },
+  contentToggleText: { color: PRIMARY_COLOR, ...fontSize.b5, lineHeight: fontSize.b5.lineHeight },
+  contentMeasure: { position: 'absolute', left: 0, right: 0, opacity: 0 },
   mediaWrap: {
-    marginHorizontal: 12,
+    // marginHorizontal: 12,
     marginBottom: 12,
-    height: 210,
-    borderRadius: 24,
+    height: 410,
+    // borderRadius: 24,
     overflow: 'hidden',
     borderWidth: 1,
     borderColor: 'rgba(255,255,255,0.12)',
   },
   video: { width: '100%', height: '100%' },
+  videoPlayBadge: {
+    position: 'absolute',
+    left: '50%',
+    top: '50%',
+    marginLeft: -25,
+    marginTop: -25,
+    width: 50,
+    height: 50,
+    borderRadius: 25,
+    backgroundColor: 'rgba(0,0,0,0.58)',
+    borderWidth: 1,
+    borderColor: 'rgba(255,255,255,0.28)',
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  videoMuteButton: {
+    position: 'absolute',
+    right: 6,
+    bottom: 6,
+    width: 25,
+    height: 25,
+    borderRadius: 21,
+    backgroundColor: 'rgba(0,0,0,0.58)',
+    borderWidth: 1,
+    borderColor: 'rgba(255,255,255,0.28)',
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
   videoLoaderOverlay: {
     ...StyleSheet.absoluteFillObject,
     alignItems: 'center',
@@ -931,30 +1352,65 @@ const styles = StyleSheet.create({
     borderColor: 'rgba(255,255,255,0.28)',
     backgroundColor: 'rgba(0,0,0,0.35)',
   },
-  mediaOuter: { paddingHorizontal: 12, paddingBottom: 12 },
+  mediaOuter: { paddingHorizontal: 0, paddingBottom: 12 },
   imageGrid: {
     flexDirection: 'row',
     flexWrap: 'wrap',
     justifyContent: 'space-between',
-    gap: 8,
+    gap: 1,
   },
   imageFrame: {
     width: '100%',
-    borderRadius: 24,
+    borderRadius: 0,
     overflow: 'hidden',
     borderWidth: 1,
     borderColor: 'rgba(255,255,255,0.12)',
     height: 210,
   },
   imageGridFrame: {
-    width: '48.8%',
+    width: '49.8%',
     height: 150,
-    borderRadius: 20,
+    borderRadius: 0,
     overflow: 'hidden',
     borderWidth: 1,
     borderColor: 'rgba(255,255,255,0.12)',
   },
   postImage: { height: '100%', width: '100%' },
+  remainingImagesOverlay: {
+    ...StyleSheet.absoluteFillObject,
+    alignItems: 'center',
+    justifyContent: 'center',
+    backgroundColor: 'rgba(0,0,0,0.58)',
+  },
+  remainingImagesText: {
+    color: '#fff',
+    fontSize: 30,
+    fontWeight: '700',
+  },
+  fullscreenMediaRoot: { flex: 1, backgroundColor: '#000' },
+  fullscreenVideo: { flex: 1, width: '100%', backgroundColor: '#000' },
+  fullscreenImagePage: { flex: 1, alignItems: 'center', justifyContent: 'center' },
+  fullscreenImage: { width: '100%', height: '100%' },
+  fullscreenClose: {
+    position: 'absolute',
+    right: 16,
+    zIndex: 10,
+    width: 44,
+    height: 44,
+    borderRadius: 22,
+    backgroundColor: 'rgba(0,0,0,0.55)',
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  fullscreenCounter: {
+    position: 'absolute',
+    alignSelf: 'center',
+    backgroundColor: 'rgba(0,0,0,0.6)',
+    borderRadius: 999,
+    paddingHorizontal: 14,
+    paddingVertical: 7,
+  },
+  fullscreenCounterText: { color: '#fff', ...fontSize.b4, lineHeight: fontSize.b4.lineHeight },
   pollWrap: { paddingHorizontal: 16, paddingBottom: 16, gap: 8 },
   pollOption: {
     height: 52,

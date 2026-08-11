@@ -122,7 +122,7 @@ const Reward: React.FC = () => {
             <View style={[styles.detailsCard, { backgroundColor: cardBg, borderColor: cardBorder }]}>
               <View style={styles.fieldGroup}>
                 <Text style={[styles.fieldLabel, { color: subtle }]}>Reward Title</Text>
-                <TextInput
+                <TextInput includeFontPadding={false}
                   value={rewardTitle}
                   onChangeText={setRewardTitle}
                   style={[styles.fieldInput, { color: titleTone, backgroundColor: inputBg, borderColor: cardBorder }]}
@@ -132,7 +132,7 @@ const Reward: React.FC = () => {
 
               <View style={styles.fieldGroup}>
                 <Text style={[styles.fieldLabel, { color: subtle }]}>Prize Description & Terms</Text>
-                <TextInput
+                <TextInput includeFontPadding={false}
                   value={rewardTerms}
                   onChangeText={setRewardTerms}
                   multiline

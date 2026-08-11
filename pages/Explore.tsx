@@ -60,7 +60,7 @@ const Explore: React.FC<ExploreProps> = ({ onLogout }) => {
           <View>
             <Text>search</Text>
           </View>
-          <TextInput 
+          <TextInput includeFontPadding={false} 
             
             placeholder="Creators, films or categories..." 
           />

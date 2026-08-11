@@ -1,10 +1,12 @@
 import { MaterialIcons } from '@expo/vector-icons';
 import { useNavigation } from '@react-navigation/native';
-import React, { useMemo, useState } from 'react';
+import React, { useEffect, useMemo, useState } from 'react';
 import {
+  ActivityIndicator,
   Image,
   Modal,
   Pressable,
+  RefreshControl,
   ScrollView,
   StyleSheet,
   Text,
@@ -14,8 +16,10 @@ import {
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useThemeMode, PRIMARY_COLOR, primaryColorAlpha } from "../theme";
 import { fontSize } from './typography';
+import { ListSkeleton } from '../components/PageSkeleton';
+import { useEvents } from '../src/hooks/events/useEvents';
+import type { EventListResource, EventPage, EventStatusFilter } from '../src/types/event.types';
 
-type FilterMode = 'day' | 'week' | 'month' | 'all';
 type EventType = 'Live' | 'Workshop' | 'Physical';
 
 type CalendarEvent = {
@@ -99,9 +103,12 @@ const Events: React.FC = () => {
   const navigation = useNavigation<any>();
   const { isDark, theme } = useThemeMode();
   const [selectedMonth, setSelectedMonth] = useState(new Date());
-  const [activeFilter, setActiveFilter] = useState<FilterMode>('all');
+  const [activeFilter, setActiveFilter] = useState<EventStatusFilter>('upcoming');
   const [activeLocation, setActiveLocation] = useState('Global');
   const [searchQuery, setSearchQuery] = useState('');
+  const [debouncedSearch, setDebouncedSearch] = useState('');
+  useEffect(() => { const timer = setTimeout(() => setDebouncedSearch(searchQuery.trim()), 350); return () => clearTimeout(timer); }, [searchQuery]);
+  const eventsQuery = useEvents(debouncedSearch, activeFilter);
   // const [purchasingEvent, setPurchasingEvent] = useState<CalendarEvent | null>(null);
   const [isSuccess, setIsSuccess] = useState(false);
 
@@ -119,7 +126,6 @@ const Events: React.FC = () => {
     const next = new Date(selectedMonth);
     next.setMonth(next.getMonth() + offset);
     setSelectedMonth(next);
-    setActiveFilter('month');
   };
 
   const isThisWeek = (date: Date) => {
@@ -144,35 +150,26 @@ const Events: React.FC = () => {
     );
   };
 
+  const apiEvents = useMemo<CalendarEvent[]>(() => (((eventsQuery.data?.pages ?? []) as EventPage<EventListResource>[]).flatMap((page) => page.data)).map((event) => ({
+    id: String(event.id), title: event.title, date: new Date(event.starts_at), creator: event.creator?.name ?? '',
+    creatorAvatar: event.creator?.avatar_url ?? 'https://picsum.photos/seed/event-creator/100',
+    type: (event.event_type ?? event.venue_type) === 'physical' ? 'Physical' : event.category?.toLowerCase().includes('workshop') ? 'Workshop' : 'Live',
+    image: event.cover_image_url ?? '', location: event.venue?.name || ((event.event_type ?? event.venue_type) === 'online' ? 'Online' : ''),
+    price: event.starting_ticket_price ? `${event.currency ?? ''} ${event.starting_ticket_price}`.trim() : 'Free',
+  })), [eventsQuery.data]);
+
   const filteredEvents = useMemo(() => {
-    return upcomingEvents
+    return apiEvents
       .filter((event) => {
-        const searchMatch =
-          !searchQuery ||
-          event.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
-          event.creator.toLowerCase().includes(searchQuery.toLowerCase()) ||
-          event.location.toLowerCase().includes(searchQuery.toLowerCase());
-
-        if (!searchMatch) return false;
-
         const locationMatch =
           activeLocation === 'Global' ||
           event.location.toLowerCase().includes(activeLocation.toLowerCase()) ||
           (activeLocation === 'NYC' && event.location.toLowerCase().includes('new york'));
 
-        if (!locationMatch) return false;
-
-        if (activeFilter === 'all') return true;
-        if (activeFilter === 'day') return isToday(event.date);
-        if (activeFilter === 'week') return isThisWeek(event.date);
-
-        return (
-          event.date.getMonth() === selectedMonth.getMonth() &&
-          event.date.getFullYear() === selectedMonth.getFullYear()
-        );
+        return locationMatch;
       })
       .sort((a, b) => a.date.getTime() - b.date.getTime());
-  }, [activeFilter, activeLocation, searchQuery, selectedMonth]);
+  }, [activeLocation, apiEvents]);
 
   const confirmPurchase = () => {
     setIsSuccess(true);
@@ -205,7 +202,7 @@ const Events: React.FC = () => {
           <View style={styles.searchWrap}>
             <View style={[styles.searchBar, { backgroundColor: chipIdleBg, borderColor: softBorder }]}>
               <MaterialIcons name="search" size={20} color={secondaryText} />
-              <TextInput
+              <TextInput includeFontPadding={false}
                 value={searchQuery}
                 onChangeText={setSearchQuery}
                 placeholder="Search events or locations..."
@@ -222,16 +219,16 @@ const Events: React.FC = () => {
             <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={styles.filterScroll}>
               <View style={[styles.filterGroup, { borderRightColor: softBorder }]}>
                 {[
-                  { id: 'day', label: 'Today' },
-                  { id: 'week', label: 'Weekly' },
-                  { id: 'month', label: 'Monthly' },
-                  { id: 'all', label: 'All Time' },
+                  { id: 'upcoming', label: 'Upcoming' },
+                  { id: 'ongoing', label: 'Ongoing' },
+                  { id: 'past', label: 'Past' },
+                  { id: 'all', label: 'All' },
                 ].map((item) => {
                   const active = activeFilter === item.id;
                   return (
                     <Pressable
                       key={item.id}
-                      onPress={() => setActiveFilter(item.id as FilterMode)}
+                      onPress={() => setActiveFilter(item.id as EventStatusFilter)}
                       style={[
                         styles.filterChip,
                         { backgroundColor: active ? PRIMARY_COLOR : chipIdleBg },
@@ -272,7 +269,7 @@ const Events: React.FC = () => {
             </ScrollView>
           </View>
 
-          {activeFilter === 'month' ? (
+          {false ? (
             <View style={styles.monthRow}>
               <View>
                 <Text style={[styles.monthTitle, { color: theme.text }]}>
@@ -299,12 +296,25 @@ const Events: React.FC = () => {
           ) : null}
         </View>
 
-        <ScrollView showsVerticalScrollIndicator={false} contentContainerStyle={styles.content}>
-          {filteredEvents.length > 0 ? (
+        <ScrollView
+          showsVerticalScrollIndicator={false}
+          contentContainerStyle={styles.content}
+          refreshControl={<RefreshControl refreshing={eventsQuery.isRefetching && !eventsQuery.isFetchingNextPage} onRefresh={() => eventsQuery.refetch()} tintColor={PRIMARY_COLOR} />}
+          onScroll={({ nativeEvent }) => {
+            const nearEnd = nativeEvent.layoutMeasurement.height + nativeEvent.contentOffset.y >= nativeEvent.contentSize.height - 240;
+            if (nearEnd && eventsQuery.hasNextPage && !eventsQuery.isFetchingNextPage) eventsQuery.fetchNextPage();
+          }}
+          scrollEventThrottle={200}
+        >
+          {eventsQuery.isLoading ? (
+            <ListSkeleton isDark={isDark} />
+          ) : eventsQuery.isError ? (
+            <View style={styles.emptyState}><Text style={[styles.emptyTitle, { color: theme.text }]}>Events unavailable</Text><Pressable onPress={() => eventsQuery.refetch()} style={styles.emptyAction}><Text style={styles.emptyActionText}>Retry</Text></Pressable></View>
+          ) : filteredEvents.length > 0 ? (
             filteredEvents.map((event) => (
               <Pressable
                 key={event.id}
-                // onPress={() => navigation.navigate('EventDetail', { id: event.id })}
+                onPress={() => navigation.navigate('EventDetail', { id: event.id, isOwner: false })}
                 style={[styles.eventCard, { backgroundColor: surface, borderColor: softBorder }]}
               >
                 <View style={styles.visualWrap}>
@@ -401,6 +411,7 @@ const Events: React.FC = () => {
               </Text>
             </View>
           )}
+          {eventsQuery.isFetchingNextPage ? <ActivityIndicator color={PRIMARY_COLOR} /> : null}
         </ScrollView>
 
         {/* <Modal
@@ -763,6 +774,8 @@ const styles = StyleSheet.create({
   emptyBody: {
     ...fontSize.b5, lineHeight: fontSize.b5.lineHeight,
   },
+  emptyAction: { minWidth: 100, height: 40, borderRadius: 20, backgroundColor: PRIMARY_COLOR, alignItems: 'center', justifyContent: 'center', paddingHorizontal: 18 },
+  emptyActionText: { color: '#fff', ...fontSize.b5, lineHeight: fontSize.b5.lineHeight, textTransform: 'uppercase' },
   modalRoot: {
     flex: 1,
     alignItems: 'center',

@@ -99,6 +99,7 @@ import SubmitEntry from './pages/SubmitEntry';
 import Player from './pages/Player';
 import EventDetail from './pages/EventDetail';
 import SelectTickets from './pages/SelectTickets';
+import TicketVerification from './pages/TicketVerification';
 import LiveFeed from './pages/LiveFeed';
 import CollaborationHub from './pages/CollaborationHub';
 import Inbox from './pages/Inbox';
@@ -112,7 +113,6 @@ import MembershipTiers from './pages/MembershipTiers';
 import Subscribers from './pages/Subscribers';
 import SplashScreen from './pages/SplashScreen';
 import GetStarted from './pages/GetStarted';
-import SignupVibes from './pages/SignupVibes';
 import SignUpModal from './SignUpModal';
 import Login from './pages/Login';
 import EmailPhone from './pages/EmailPhone';
@@ -231,9 +231,21 @@ const CreatorTabs = ({ isDarkMode }: TabsProps) => {
         tabBarActiveTintColor: route.name === 'Galaxy' ? '#ffffff' : isDarkMode ? '#ffffff' : '#000000',
         tabBarInactiveTintColor: '#8E8E93',
         sceneStyle: { backgroundColor: '#000' },
-        tabBarLabelStyle:{
-          transform: 'uppercase',
-        },
+        tabBarLabel:
+          route.name.trim().length === 0
+            ? () => null
+            : ({ color }: { color: string }) => (
+                <Text
+                  style={{
+                    color,
+                    ...fontSize.tabText,
+                    lineHeight: fontSize.tabText.lineHeight,
+                    fontFamily: 'Poppins_500Medium',
+                  }}
+                >
+                  {route.name.toUpperCase()}
+                </Text>
+              ),
         tabBarStyle: [
           styles.tabBar,
           {
@@ -327,13 +339,14 @@ const CreatorTabs = ({ isDarkMode }: TabsProps) => {
         tabBarIcon: ({ color, size }: Omit<TabBarIconProps, 'focused'>) =>
         <View
         style={{
-          height: 30,
-          width: 30,
+          height: 27,
+          width: 27,
           borderRadius: 15,
-          backgroundColor: 'blue',
+          // backgroundColor: 'blue',
           justifyContent: 'center',
           alignItems:'center',
-          padding: 1
+          // padding: 1,
+          marginBottom: 5
         }}
         >
           <Image
@@ -371,6 +384,18 @@ const FanTabs = ({isDarkMode, user, onTap}: TabsProps) => {
         tabBarActiveTintColor: route.name === 'Galaxy' ? '#ffffff' : isDarkMode ? '#ffffff' : '#000000',
         tabBarInactiveTintColor: isDarkMode ? '#8E8E93' : '#64748b',
         sceneStyle: { backgroundColor: '#000' },
+        tabBarLabel: ({ color }: { color: string }) => (
+          <Text
+            style={{
+              color,
+              ...fontSize.tabText,
+              lineHeight: fontSize.tabText.lineHeight,
+              fontFamily: 'Poppins_500Medium',
+            }}
+          >
+            {route.name.toUpperCase()}
+          </Text>
+        ),
         tabBarStyle: [
           styles.tabBar,
           {
@@ -440,13 +465,14 @@ const FanTabs = ({isDarkMode, user, onTap}: TabsProps) => {
       options={{
         tabBarIcon: ({ color, size }: Omit<TabBarIconProps, 'focused'>) => <View
         style={{
-          height: 30,
-          width: 30,
+          height: 27,
+          width: 27,
           borderRadius: 15,
-          backgroundColor: 'blue',
+          // backgroundColor: 'blue',
           justifyContent: 'center',
           alignItems:'center',
-          padding: 1
+          // padding: 0.5,
+          marginBottom: 5
         }}
         >
           <Image
@@ -472,6 +498,9 @@ const FanTabs = ({isDarkMode, user, onTap}: TabsProps) => {
 const App: React.FC = () => {
   const { isDark } = useThemeMode();
   const paperTheme = isDark ? KulsahDarkTheme : KulsahTheme;
+  const themeAwareStatusBarOptions = {
+    statusBarStyle: isDark ? 'light' : 'dark',
+  } as const;
   const [currentUser, setCurrentUser] = useState<User | null>(user);
   const [isBooting, setIsBooting] = useState(true);
   const { height: vh, width:vw } = useWindowDimensions();
@@ -627,7 +656,13 @@ const App: React.FC = () => {
                 <SafeAreaView edges={Platform.OS === 'ios'? []: []} style={{ flex: 1 }}>
 
             <StatusBar barStyle={isDark ? 'light-content' : 'dark-content'} backgroundColor="transparent" translucent = {true} />
-            <Stack.Navigator id="root-stack" screenOptions={{ headerShown: false }}>
+            <Stack.Navigator
+              id="root-stack"
+              screenOptions={{
+                headerShown: false,
+                statusBarStyle: isDark ? 'light' : 'dark',
+              }}
+            >
               {isBooting ? (
                 <>
                   <Stack.Screen name="Splash" component={SplashScreen} />
@@ -646,20 +681,22 @@ const App: React.FC = () => {
                   <Stack.Screen name="ForgotPassword" component={ForgotPassword} />
                   <Stack.Screen name="ResetPassword" component={ResetPassword} />
                   <Stack.Screen name="Chat" component={ChatView} />
-                  <Stack.Screen name="Settings">{() => <CreatorSettings onLogout={handleLogout} />}</Stack.Screen>
-                  <Stack.Screen name="MembershipTiers" component={MembershipTiers} />
+                  <Stack.Screen name="Settings" options={themeAwareStatusBarOptions}>{() => <CreatorSettings onLogout={handleLogout} />}</Stack.Screen>
+                  <Stack.Screen name="MembershipTiers" component={MembershipTiers} options={themeAwareStatusBarOptions} />
                   <Stack.Screen name="ArtistProfile" component={ArtistProfile} />
                   <Stack.Screen name="UploadContent" component={UploadContent} />
-                  <Stack.Screen name="FanSettings">{() => <FanSettings onLogout={handleLogout} />}</Stack.Screen>
+                  <Stack.Screen name="FanSettings" options={themeAwareStatusBarOptions}>{() => <FanSettings onLogout={handleLogout} />}</Stack.Screen>
                   <Stack.Screen name="GoLive" component={GoLiveSetup} />
-                  <Stack.Screen name="CreatorEvents" component={CreatorEvents} />
-                  <Stack.Screen name="/creator/analytics" component={CreatorAnalytics} />
-                  <Stack.Screen name="CreatorAnalytics" component={CreatorAnalytics} />
-                  <Stack.Screen name="CreatorRevenue" component={CreatorRevenue} />
-                  <Stack.Screen name="FanSubscriptions" component={FanSubscriptions} />
+                  <Stack.Screen name="CreatorEvents" component={CreatorEvents} options={themeAwareStatusBarOptions} />
+                  <Stack.Screen name="/creator/analytics" component={CreatorAnalytics} options={themeAwareStatusBarOptions} />
+                  <Stack.Screen name="CreatorAnalytics" component={CreatorAnalytics} options={themeAwareStatusBarOptions} />
+                  <Stack.Screen name="CreatorRevenue" component={CreatorRevenue} options={themeAwareStatusBarOptions} />
+                  <Stack.Screen name="FanSubscriptions" component={FanSubscriptions} options={themeAwareStatusBarOptions} />
                   <Stack.Screen name="Community" component={Community} />
                   <Stack.Screen name="Analytics" component={CreatorAnalytics} />
-                  <Stack.Screen name="Subscribers" component={Subscribers} />
+                  {currentUser.role === 'creator' ? (
+                    <Stack.Screen name="Subscribers" component={Subscribers} options={themeAwareStatusBarOptions} />
+                  ) : null}
                   <Stack.Screen name="Challenges" component={Challenges} />
                   <Stack.Screen name="RecordContent" component={RecordContent}/>
                   <Stack.Screen name="CreateContent" component={CreateEvent}/>
@@ -677,21 +714,22 @@ const App: React.FC = () => {
                   <Stack.Screen name="Video" component={Player}/>
                   <Stack.Screen name="EventDetail" component={EventDetail}/>
                   <Stack.Screen name="SelectTickets" component={SelectTickets}/>
+                  <Stack.Screen name="TicketVerification" component={TicketVerification}/>
                   <Stack.Screen name="ChallengeEntry" component={ChallengeEntry}/>
                   <Stack.Screen name= "Library" component={Library}/>
                   <Stack.Screen name= "EditSubmission" component={EditSubmission}/>
                   <Stack.Screen name= "SubmitEntry" component={SubmitEntry}/>
                   <Stack.Screen name= "Livefeed" component={LiveFeed}/>
-                  <Stack.Screen name= "ConnectHub" component={CollaborationHub}/>
-                  <Stack.Screen name= "Notification" component={Notifications}/>
-                  <Stack.Screen name= "StreakReward" component={StreakReward}/>
-                  <Stack.Screen name= "ClaimPrize" component={ClaimPrize}/>
+                  <Stack.Screen name= "ConnectHub" component={CollaborationHub} options={themeAwareStatusBarOptions}/>
+                  <Stack.Screen name= "Notification" component={Notifications} options={themeAwareStatusBarOptions}/>
+                  <Stack.Screen name= "StreakReward" component={StreakReward} options={themeAwareStatusBarOptions}/>
+                  <Stack.Screen name= "ClaimPrize" component={ClaimPrize} options={themeAwareStatusBarOptions}/>
                   <Stack.Screen name= "CommunityPost" component={CreateCommunityPost}/>
                   <Stack.Screen name= "CommunityPostDetail" component={CommunityPostDetail}/>
                   <Stack.Screen name= "MarketPlace" component={MarketPlace}/>
                   <Stack.Screen name= "UseSound" component={UseSound}/>
                   <Stack.Screen name= "UseEffect" component={UseEffect}/>
-                  <Stack.Screen name= "VibePicker" component={VibePicker}/>
+                  <Stack.Screen name= "VibePicker" component={VibePicker} options={themeAwareStatusBarOptions}/>
                   <Stack.Screen name= "FanTicket" component={FanTicketDetail}/>
                   <Stack.Screen name="TopUpCoins" component={TopUpCoins} />
                   <Stack.Screen name="ChallengeLeaderboard" component={ChallengeLeaderboard}/>
@@ -702,16 +740,16 @@ const App: React.FC = () => {
                   <Stack.Screen name="Premium" component={Premium}/>
                   <Stack.Screen name="VideoPlayer" component={VideoPlayer}/>
                   <Stack.Screen name="PlaylistPlayer" component={PlaylistPlayer}/>
-                  <Stack.Screen name="HelpCentre" component={HelpCentre}/>
-                  <Stack.Screen name="TermsPolicies" component={TermsPolicies}/>
-                  <Stack.Screen name="PrivacyCentre" component={PrivacyCentre}/>
-                  <Stack.Screen name="VibeSignature" component={VibePicker}/>
+                  <Stack.Screen name="HelpCentre" component={HelpCentre} options={themeAwareStatusBarOptions}/>
+                  <Stack.Screen name="TermsPolicies" component={TermsPolicies} options={themeAwareStatusBarOptions}/>
+                  <Stack.Screen name="PrivacyCentre" component={PrivacyCentre} options={themeAwareStatusBarOptions}/>
+                  <Stack.Screen name="VibeSignature" component={VibePicker} options={themeAwareStatusBarOptions}/>
                   {/* <Stack.Screen name="GetStarted" component={GetStarted} /> */}
                 </>
               ) : (
                 <>
                   <Stack.Screen name="GetStarted" component={GetStarted} />
-                  <Stack.Screen name="/vibe-picker" component={SignupVibes} />
+                  <Stack.Screen name="/vibe-picker" component={VibePicker} options={themeAwareStatusBarOptions} />
                   {/* <Stack.Screen name="Signup">{() => <Signup onLogin={handleLogin} />}</Stack.Screen> */}
                   <Stack.Screen
                     name="EmailPhone"

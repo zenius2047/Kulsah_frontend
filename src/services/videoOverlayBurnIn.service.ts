@@ -1,11 +1,12 @@
 import * as FileSystem from 'expo-file-system/legacy';
 import { NativeModules } from 'react-native';
 import type {
-  CreatorVideoTimelineLayer,
   SubmitCreatorVideoEditsPayload,
   VideoDisplayOrientation,
   VideoUploadSource,
 } from '../types/video.types';
+import { VIDEO_PROJECT_SCHEMA_VERSION } from '../types/videoProject.types';
+import type { GeneratedEditAsset, VideoProject, VideoProjectTrack } from '../types/videoProject.types';
 
 export type BurnInPoint = {
   x: number;
@@ -21,6 +22,7 @@ export type BurnInStroke = {
 };
 
 export type BurnInTextSticker = {
+  id?: string;
   text: string;
   color: string;
   backgroundColor: string;
@@ -32,6 +34,7 @@ export type BurnInTextSticker = {
 };
 
 export type BurnInSticker = {
+  id?: string;
   publicId: string;
   x: number;
   y: number;
@@ -52,6 +55,268 @@ export type BurnInVideoOverlaysOptions = {
   canvasSize: BurnInCanvasSize;
   strokes: BurnInStroke[];
   textStickers: BurnInTextSticker[];
+};
+
+export const normalizeHexColor = (color: string, fallback = '#FFFFFF') => {
+  const value = color?.trim();
+  if (!value) return fallback;
+
+  const shorthand = value.match(/^#([0-9a-f]{3,4})$/i)?.[1];
+  if (shorthand) {
+    return `#${shorthand.split('').map((character) => character.repeat(2)).join('')}`.toUpperCase();
+  }
+
+  if (/^#[0-9a-f]{6}([0-9a-f]{2})?$/i.test(value)) return value.toUpperCase();
+  return value;
+};
+
+const createProjectId = (prefix: string) =>
+  `${prefix}-${Date.now()}-${Math.random().toString(36).slice(2, 9)}`;
+
+const createBaseProjectTrack = ({
+  id,
+  type,
+  name,
+  layer,
+  start,
+  end,
+  x,
+  y,
+  width = null,
+  height = null,
+}: {
+  id: string;
+  type: VideoProjectTrack['type'];
+  name: string;
+  layer: number;
+  start: number;
+  end: number;
+  x: number;
+  y: number;
+  width?: number | null;
+  height?: number | null;
+}): VideoProjectTrack => ({
+  id,
+  type,
+  name,
+  layer,
+  timeline: {
+    start,
+    duration: Math.max(0.1, end - start),
+  },
+  transform: {
+    position: { x, y },
+    ...(width !== null || height !== null
+      ? { size: { width, height } }
+      : {}),
+    opacity: 1,
+    rotation: 0,
+  },
+});
+
+const createVideoProject = ({
+  orientation,
+  targetSize,
+  canvasSize,
+  strokes,
+  textStickers,
+  stickers,
+  trim,
+  drawingFiles,
+  generatedAssets,
+}: {
+  orientation: VideoDisplayOrientation;
+  targetSize: { width: number; height: number };
+  canvasSize: BurnInCanvasSize;
+  strokes: BurnInStroke[];
+  textStickers: BurnInTextSticker[];
+  stickers: BurnInSticker[];
+  trim?: { start: number; end: number };
+  drawingFiles: VideoUploadSource[];
+  generatedAssets: GeneratedEditAsset[];
+}): VideoProject => {
+  const tracks: VideoProjectTrack[] = [];
+  const assets: NonNullable<VideoProject['assets']> = [];
+  let layer = 1;
+
+  textStickers.forEach((sticker, index) => {
+    const text = sticker.text.trim();
+    if (!text) return;
+    const generated = generatedAssets.find((asset) => asset.kind === 'text' && asset.sourceId === sticker.id)
+      ?? generatedAssets.filter((asset) => asset.kind === 'text')[index];
+    if (!generated) throw new Error(`Missing generated image for text overlay ${index + 1}.`);
+    const fileIndex = generatedAssets.indexOf(generated);
+    const renderWidth = Math.max(1, Math.round(toRenderLength(generated.width, canvasSize, targetSize)));
+    const renderHeight = Math.max(1, Math.round(toRenderLength(generated.height, canvasSize, targetSize)));
+    const position = toRenderPoint(sticker, canvasSize, targetSize);
+    const start = clampTime(sticker.start, 0);
+    const end = Math.max(start + 0.1, clampTime(sticker.end, 5));
+    assets.push({
+      id: generated.id,
+      type: 'image',
+      storageProvider: 'local',
+      storageKey: `multipart:asset_files[${fileIndex}]`,
+      file_index: fileIndex,
+      mimeType: generated.file.type ?? 'image/png',
+      fileName: generated.file.name ?? `text-overlay-${index + 1}.png`,
+      width: generated.width,
+      height: generated.height,
+    });
+    tracks.push({
+      ...createBaseProjectTrack({
+        id: createProjectId(`text-track-${index}`),
+        type: 'image',
+        name: 'Text overlay',
+        layer: layer++,
+        start,
+        end,
+        x: Math.round(position.x),
+        y: Math.round(position.y),
+        width: renderWidth,
+        height: renderHeight,
+      }),
+      enabled: true,
+      zIndex: layer - 1,
+      source: { assetId: generated.id },
+    });
+  });
+
+  if (strokes.some((stroke) => stroke.points.length > 0)) {
+    const generated = generatedAssets.find((asset) => asset.kind === 'drawing');
+    if (!generated || !drawingFiles[0]) throw new Error('Missing generated drawing image.');
+    const assetId = generated?.id ?? createProjectId('drawing-asset');
+    const start = Math.min(...strokes.map((stroke) => clampTime(stroke.start, 0)));
+    const end = Math.max(...strokes.map((stroke) => clampTime(stroke.end, 5)));
+    if (drawingFiles[0] && generated) {
+      const fileIndex = generatedAssets.indexOf(generated);
+      assets.push({
+        id: assetId,
+        type: 'drawing',
+        storageProvider: 'local',
+        storageKey: `multipart:asset_files[${fileIndex}]`,
+        mimeType: drawingFiles[0].type ?? 'image/png',
+        fileName: drawingFiles[0].name ?? 'drawing-0.png',
+        width: targetSize.width,
+        height: targetSize.height,
+        file_index: fileIndex,
+      });
+    }
+    tracks.push({
+      ...createBaseProjectTrack({
+        id: createProjectId('drawing'),
+        type: 'drawing',
+        name: 'Drawing',
+        layer: layer++,
+        start,
+        end,
+        x: 0,
+        y: 0,
+        width: targetSize.width,
+        height: targetSize.height,
+      }),
+      ...(drawingFiles[0] ? { flattenedAssetId: assetId } : {}),
+      ...(generated ? { source: { assetId } } : {}),
+      enabled: true,
+      zIndex: layer - 1,
+    });
+  }
+
+  stickers.forEach((sticker, index) => {
+    if (!sticker.publicId?.trim()) return;
+    const generated = generatedAssets.find((asset) => asset.kind === 'sticker' && asset.sourceId === sticker.id)
+      ?? generatedAssets.filter((asset) => asset.kind === 'sticker')[index];
+    if (!generated) throw new Error(`Missing generated image for sticker overlay ${index + 1}.`);
+    const fileIndex = generatedAssets.indexOf(generated);
+    const assetId = generated.id;
+    const position = toRenderPoint(sticker, canvasSize, targetSize);
+    const renderWidth = Math.max(1, Math.round(toRenderLength(generated.width, canvasSize, targetSize)));
+    const renderHeight = Math.max(1, Math.round(toRenderLength(generated.height, canvasSize, targetSize)));
+    const start = clampTime(sticker.start, 0);
+    const end = Math.max(start + 0.1, clampTime(sticker.end, 5));
+    assets.push({
+      id: assetId,
+      type: 'image',
+      storageProvider: 'local',
+      storageKey: `multipart:asset_files[${fileIndex}]`,
+      file_index: fileIndex,
+      mimeType: 'image/png',
+      fileName: generated.file.name,
+      width: generated.width,
+      height: generated.height,
+    });
+    tracks.push({
+      ...createBaseProjectTrack({
+        id: createProjectId(`sticker-${index}`),
+        type: 'image',
+        name: `Sticker ${index + 1}`,
+        layer: layer++,
+        start,
+        end,
+        x: Math.round(position.x),
+        y: Math.round(position.y),
+        width: renderWidth,
+        height: renderHeight,
+      }),
+      enabled: true,
+      zIndex: layer - 1,
+      source: { assetId },
+    });
+  });
+
+  const trackDuration = Math.max(...tracks.map((track) => track.timeline.start + track.timeline.duration), 0.1);
+  const duration = trim ? Math.max(0.1, trim.end - trim.start) : trackDuration;
+  const now = new Date().toISOString();
+  return {
+    schemaVersion: VIDEO_PROJECT_SCHEMA_VERSION,
+    metadata: {
+      id: createProjectId('project'),
+      name: 'Kulsah mobile video edit',
+      createdAt: now,
+      updatedAt: now,
+      duration,
+      source: 'mobile',
+    },
+    canvas: {
+      width: targetSize.width,
+      height: targetSize.height,
+      aspectRatio: orientation === 'portrait' ? '9:16' : '16:9',
+      fps: 30,
+      duration,
+    },
+    output: {
+      format: 'mp4',
+      quality: 'auto',
+      width: targetSize.width,
+      height: targetSize.height,
+      fps: 30,
+      videoCodec: 'h264',
+      audioCodec: 'aac',
+      encoderPreset: 'medium',
+      pixelFormat: 'yuv420p',
+      crf: 20,
+      fastStart: true,
+    },
+    assets,
+    scenes: [{
+      id: createProjectId('scene'),
+      name: 'Main scene',
+      order: 0,
+      enabled: true,
+      timeline: { start: trim?.start ?? 0, duration },
+      tracks,
+    }],
+    globalAudioTracks: [],
+    globalEffects: [],
+    guides: {
+      showSafeArea: false,
+      showCenterGuides: false,
+      showRuleOfThirds: false,
+      showBoundingBoxes: false,
+      snappingEnabled: false,
+      snapThreshold: 12,
+    },
+    ...(trim ? { trim } : {}),
+  };
 };
 
 export type VideoOverlayCompositionPayload = {
@@ -82,8 +347,12 @@ const quoteFilterText = (value: string) =>
 const toFfmpegColor = (color: string, fallback = 'white') => {
   if (color === 'transparent') return 'black@0';
 
-  const hex = color.match(/^#?([0-9a-fA-F]{6})$/)?.[1];
-  if (hex) return `0x${hex}`;
+  const normalizedColor = normalizeHexColor(color);
+  const hex = normalizedColor.match(/^#?([0-9a-fA-F]{6})([0-9a-fA-F]{2})?$/);
+  if (hex) {
+    const alpha = hex[2] ? parseInt(hex[2], 16) / 255 : null;
+    return `0x${hex[1]}${alpha === null ? '' : `@${roundNumber(alpha)}`}`;
+  }
 
   const rgba = color.match(/^rgba?\(([^)]+)\)$/);
   if (rgba) {
@@ -91,7 +360,9 @@ const toFfmpegColor = (color: string, fallback = 'white') => {
     const hexValue = [r, g, b]
       .map((part) => Math.max(0, Math.min(255, Number(part) || 0)).toString(16).padStart(2, '0'))
       .join('');
-    return `0x${hexValue}@${Math.max(0, Math.min(1, Number(alpha) || 1))}`;
+    const parsedAlpha = Number(alpha);
+    const safeAlpha = Number.isFinite(parsedAlpha) ? Math.max(0, Math.min(1, parsedAlpha)) : 1;
+    return `0x${hexValue}@${safeAlpha}`;
   }
 
   return fallback;
@@ -177,10 +448,31 @@ const clampTime = (value: number | undefined, fallback: number) => {
   return Number.isFinite(time) ? Math.max(0, roundNumber(time)) : fallback;
 };
 
-const toRenderPoint = (point: BurnInPoint, canvasSize: BurnInCanvasSize, targetSize: BurnInCanvasSize) => ({
-  x: roundNumber(point.x * (targetSize.width / Math.max(1, canvasSize.width))),
-  y: roundNumber(point.y * (targetSize.height / Math.max(1, canvasSize.height))),
-});
+const getPreviewVideoMetrics = (canvasSize: BurnInCanvasSize, targetSize: BurnInCanvasSize) => {
+  const isLandscape = targetSize.width > targetSize.height;
+  const scale = isLandscape
+    ? Math.min(canvasSize.width / targetSize.width, canvasSize.height / targetSize.height)
+    : Math.max(canvasSize.width / targetSize.width, canvasSize.height / targetSize.height);
+  const renderedWidth = targetSize.width * Math.max(scale, 0.0001);
+  const renderedHeight = targetSize.height * Math.max(scale, 0.0001);
+
+  return {
+    scale: Math.max(scale, 0.0001),
+    offsetX: (canvasSize.width - renderedWidth) / 2,
+    offsetY: (canvasSize.height - renderedHeight) / 2,
+  };
+};
+
+const toRenderPoint = (point: BurnInPoint, canvasSize: BurnInCanvasSize, targetSize: BurnInCanvasSize) => {
+  const metrics = getPreviewVideoMetrics(canvasSize, targetSize);
+  return {
+    x: roundNumber((point.x - metrics.offsetX) / metrics.scale),
+    y: roundNumber((point.y - metrics.offsetY) / metrics.scale),
+  };
+};
+
+const toRenderLength = (length: number, canvasSize: BurnInCanvasSize, targetSize: BurnInCanvasSize) =>
+  roundNumber(length / getPreviewVideoMetrics(canvasSize, targetSize).scale);
 
 const toBackendBoxColor = (backgroundColor: string) => {
   if (backgroundColor === 'transparent') return undefined;
@@ -197,7 +489,7 @@ export const createVideoOverlayCompositionPayload = ({
   const normalizedStrokes = strokes
     .filter((stroke) => stroke.points.length > 0)
     .map((stroke) => ({
-      color: stroke.color,
+      color: normalizeHexColor(stroke.color, '#FFFFFF'),
       width: roundNumber(stroke.width),
       points: stroke.points.map((point) => ({
         x: roundNumber(point.x),
@@ -208,8 +500,10 @@ export const createVideoOverlayCompositionPayload = ({
   const normalizedTextStickers = textStickers
     .map((sticker) => ({
       text: sticker.text.trim(),
-      color: sticker.color,
-      backgroundColor: sticker.backgroundColor,
+      color: normalizeHexColor(sticker.color, '#FFFFFF'),
+      backgroundColor: sticker.backgroundColor === 'transparent'
+        ? 'transparent'
+        : toBackendBoxColor(sticker.backgroundColor) ?? 'black@0.62',
       x: roundNumber(sticker.x),
       y: roundNumber(sticker.y),
     }))
@@ -240,84 +534,39 @@ export const createCreatorVideoEditsPayload = ({
   stickers = [],
   trim,
   drawingFiles = [],
+  generatedAssets = [],
 }: Omit<BurnInVideoOverlaysOptions, 'video'> & {
   stickers?: BurnInSticker[];
   trim?: { start: number; end: number } | null;
   drawingFiles?: VideoUploadSource[];
+  generatedAssets?: GeneratedEditAsset[];
 }): SubmitCreatorVideoEditsPayload | null => {
   const targetSize = TARGET_SIZES[orientation];
-  const layers: CreatorVideoTimelineLayer[] = [];
-
-  textStickers.forEach((sticker) => {
-    const text = sticker.text.trim();
-    if (!text) return;
-
-    const point = toRenderPoint({ x: sticker.x, y: sticker.y }, canvasSize, targetSize);
-    const start = clampTime(sticker.start, 0);
-    const end = Math.max(start + 0.1, clampTime(sticker.end, 5));
-    layers.push({
-      type: 'text',
-      text,
-      font: 'Arial',
-      x: Math.round(point.x),
-      y: Math.round(point.y),
-      start,
-      end,
-      size: Math.max(12, Math.round(sticker.fontSize ?? 48)),
-      color: sticker.color,
-    });
-  });
-
-  if (drawingFiles.length > 0 && strokes.some((stroke) => stroke.points.length > 0)) {
-    const drawingStart = Math.min(...strokes.map((stroke) => clampTime(stroke.start, 0)));
-    const drawingEnd = Math.max(...strokes.map((stroke) => clampTime(stroke.end, 5)));
-
-    layers.push({
-      type: 'drawing',
-      file_index: 0,
-      x: 0,
-      y: 0,
-      start: drawingStart,
-      end: Math.max(drawingStart + 0.1, drawingEnd),
-      width: targetSize.width,
-      height: targetSize.height,
-    });
-  }
-
-  stickers.forEach((sticker) => {
-    const point = toRenderPoint({ x: sticker.x, y: sticker.y }, canvasSize, targetSize);
-    const start = clampTime(sticker.start, 0);
-    const end = Math.max(start + 0.1, clampTime(sticker.end, 5));
-    layers.push({
-      type: 'sticker',
-      public_id: sticker.publicId,
-      x: Math.round(point.x),
-      y: Math.round(point.y),
-      width: sticker.width,
-      height: sticker.height,
-      start,
-      end,
-    });
-  });
 
   const normalizedTrim = trim && trim.end > trim.start
     ? { start: clampTime(trim.start, 0), end: clampTime(trim.end, trim.start + 0.1) }
     : undefined;
 
-  if (!layers.length && !normalizedTrim) return null;
+  const hasTracks = textStickers.some((sticker) => sticker.text.trim().length > 0)
+    || (drawingFiles.length > 0 && strokes.some((stroke) => stroke.points.length > 0))
+    || stickers.some((sticker) => sticker.publicId.trim().length > 0);
+  if (!hasTracks && !normalizedTrim) return null;
+
+  const project = createVideoProject({
+    orientation,
+    targetSize,
+    canvasSize,
+    strokes,
+    textStickers,
+    stickers,
+    trim: normalizedTrim,
+    drawingFiles,
+    generatedAssets,
+  });
 
   return {
-    timeline: {
-      layers,
-      ...(normalizedTrim ? { trim: normalizedTrim } : {}),
-      output: {
-        format: 'mp4',
-        quality: 'auto',
-        width: targetSize.width,
-        height: targetSize.height,
-      },
-    },
-    drawingFiles,
+    project,
+    assetFiles: generatedAssets.map((asset) => asset.file),
   };
 };
 

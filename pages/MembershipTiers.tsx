@@ -144,7 +144,7 @@ const MembershipTiers: React.FC = () => {
 
   return (
     <SafeAreaView style={[s.screen, { backgroundColor: theme.screen }]} edges={[]}>
-      <View style={[s.header, { backgroundColor: isDark ? 'rgba(31, 16, 34, 0.78)' : theme.card, borderBottomColor: theme.border }]}>
+      <View style={[s.header, { backgroundColor: isDark ? 'rgba(6,9,19,0.94)' : theme.card, borderBottomColor: theme.border }]}>
         <View style={s.headerLeft}>
           <Text style={[s.headerTitle, { color: theme.text }]}>Galaxy Economy</Text>
         </View>
@@ -163,13 +163,13 @@ const MembershipTiers: React.FC = () => {
           </View>
 
           {isLoading ? (
-            <View style={[s.stateCard, { backgroundColor: isDark ? 'rgba(31, 16, 34, 0.75)' : theme.card, borderColor: theme.border }]}>
+            <View style={[s.stateCard, { backgroundColor: isDark ? 'rgba(255,255,255,0.05)' : theme.card, borderColor: theme.border }]}>
               <ActivityIndicator color={theme.accent} />
               <Text style={[s.stateTitle, { color: theme.text }]}>Loading subscription plan</Text>
               <Text style={[s.stateText, { color: theme.textMuted }]}>Fetching your current membership offer.</Text>
             </View>
           ) : apiError ? (
-            <View style={[s.stateCard, { backgroundColor: isDark ? 'rgba(31, 16, 34, 0.75)' : theme.card, borderColor: theme.border }]}>
+            <View style={[s.stateCard, { backgroundColor: isDark ? 'rgba(255,255,255,0.05)' : theme.card, borderColor: theme.border }]}>
               <MaterialIcons name="error-outline" size={34} color="#ef4444" />
               <Text style={[s.stateTitle, { color: theme.text }]}>{apiError.title}</Text>
               <Text style={[s.stateText, { color: theme.textMuted }]}>{apiError.message}</Text>
@@ -178,7 +178,7 @@ const MembershipTiers: React.FC = () => {
               </Pressable>
             </View>
           ) : !subscription ? (
-            <View style={[s.stateCard, { backgroundColor: isDark ? 'rgba(31, 16, 34, 0.75)' : theme.card, borderColor: theme.border }]}>
+            <View style={[s.stateCard, { backgroundColor: isDark ? 'rgba(255,255,255,0.05)' : theme.card, borderColor: theme.border }]}>
               <MaterialIcons name="workspace-premium" size={38} color={theme.accent} />
               <Text style={[s.stateTitle, { color: theme.text }]}>No subscription plan yet</Text>
               <Text style={[s.stateText, { color: theme.textMuted }]}>Create a monthly plan before fans can subscribe.</Text>
@@ -188,7 +188,7 @@ const MembershipTiers: React.FC = () => {
             </View>
           ) : (
           <>
-          <View style={[s.heroCard, { backgroundColor: isDark ? '#101625' : theme.card, borderColor: theme.border, shadowColor: theme.shadow }]}>
+          <View style={[s.heroCard, { backgroundColor: isDark ? 'rgba(255,255,255,0.05)' : theme.card, borderColor: theme.border, shadowColor: theme.shadow }]}> 
             <View style={s.heroGlow} />
             <View style={s.heroMetrics}>
               <View>
@@ -206,7 +206,7 @@ const MembershipTiers: React.FC = () => {
             </View>
           </View>
 
-          <View style={[s.tierCard, { backgroundColor: isDark ? 'rgba(31, 16, 34, 0.75)' : theme.card, borderColor: PRIMARY_COLOR }]}>
+          <View style={[s.tierCard, { backgroundColor: isDark ? 'rgba(255,255,255,0.05)' : theme.card, borderColor: PRIMARY_COLOR }]}> 
             <View style={s.rowBetween}>
               <View style={{ flex: 1 }}>
                 <Text style={[s.tierName, { color: theme.text }]}>{subscription.name}</Text>
@@ -282,7 +282,7 @@ const MembershipTiers: React.FC = () => {
                 >
                   <View style={s.fieldBlock}>
                     <Text style={[s.fieldLabel, { color: theme.textMuted }]}>Identity Label</Text>
-                    <TextInput
+                    <TextInput includeFontPadding={false}
                       value={editingSub.name}
                       onChangeText={(value) => setEditingSub({ ...editingSub, name: value })}
                       style={[s.textField, { color: theme.text, backgroundColor: isDark ? '#ffffff08' : theme.surface, borderColor: theme.border }]}
@@ -295,7 +295,7 @@ const MembershipTiers: React.FC = () => {
                     <Text style={[s.fieldLabel, { color: theme.textMuted }]}>Pricing Strategy (USD)</Text>
                     <View style={[s.priceEditorWrap, { backgroundColor: isDark ? '#ffffff08' : theme.surface, borderColor: theme.border }]}>
                       <Text style={[s.editorDollar, { color: theme.accent }]}>$</Text>
-                      <TextInput
+                      <TextInput includeFontPadding={false}
                         value={editingSub.price}
                         onChangeText={(value) => setEditingSub({ ...editingSub, price: value })}
                         keyboardType="decimal-pad"
@@ -308,7 +308,7 @@ const MembershipTiers: React.FC = () => {
 
                   <View style={s.fieldBlock}>
                     <Text style={[s.fieldLabel, { color: theme.textMuted }]}>Description</Text>
-                    <TextInput
+                    <TextInput includeFontPadding={false}
                       value={editingSub.description}
                       onChangeText={(value) => setEditingSub({ ...editingSub, description: value })}
                       multiline

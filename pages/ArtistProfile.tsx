@@ -34,6 +34,7 @@ import {
   useSwitchRole,
   useUpdateCreatorVideoPlaylist,
   useUser,
+  useLatestFanTicket,
   useWatchedVideos,
   videoApi,
 } from '../src';
@@ -146,6 +147,7 @@ const getPlaylistCover = (playlist: { videos?: any[] } & Record<string, any>) =>
   const nestedVideo = firstVideo?.video;
 
   return getFirstImageUri(
+    playlist.background,
     playlist.cover,
     playlist.cover_image,
     playlist.coverImage,
@@ -206,8 +208,8 @@ const events = [
   { id: 'e2', title: 'Synthwave Workshop', meta: 'Sept 20, 2024', price: '$25.00', img: 'https://images.unsplash.com/photo-1514525253361-bee8718a74a2?auto=format&fit=crop&q=80&w=600', location: 'Creator Studio' },
 ];
 const tickets = [
-  { id: 't1', title: 'Neon Nights: Live Concert', meta: 'Sept 15, 2024 - Virtual Arena' },
-  { id: 't2', title: 'Synthwave Workshop', meta: 'Sept 20, 2024 - Creator Studio' },
+  { id: 't1', title: 'Neon Nights: Live Concert', date: 'Sept 15, 2026', venue: 'Virtual Arena', city: 'Online', status: 'VIP Access', img: 'https://images.unsplash.com/photo-1501386761578-eac5c94b800a?auto=format&fit=crop&q=85&w=900' },
+  { id: 't2', title: 'Synthwave Workshop', date: 'Sept 20, 2026', venue: 'Creator Studio', city: 'London', status: 'Admit One', img: 'https://images.unsplash.com/photo-1492684223066-81342ee5ff30?auto=format&fit=crop&q=85&w=900' },
 ];
 const challenges = [
   { id: 'c1', title: 'Vocal Harmony Challenge', meta: '45 fans - $300 + Feature', img: 'https://images.unsplash.com/photo-1516280440614-37939bbacd81?auto=format&fit=crop&q=80&w=800' },
@@ -239,6 +241,17 @@ const  ArtistProfile: React.FC = () => {
   const { isDark, theme } = useThemeMode();
   const { width } = useWindowDimensions();
   const navigation = useNavigation<any>();
+  const { data: latestFanTicket, isLoading: isTicketLoading } = useLatestFanTicket();
+  const tickets = useMemo(() => latestFanTicket ? [{
+    id: String(latestFanTicket.ticket.id),
+    title: latestFanTicket.event.title,
+    date: new Date(latestFanTicket.event.starts_at).toLocaleDateString(undefined, { month: 'short', day: 'numeric', year: 'numeric' }),
+    venue: latestFanTicket.event.venue?.name || 'Online Event',
+    city: [latestFanTicket.event.venue?.city, latestFanTicket.event.venue?.country].filter(Boolean).join(', '),
+    status: latestFanTicket.ticket.status,
+    img: latestFanTicket.event.cover_image_url || FALLBACK_BANNER,
+    payload: latestFanTicket,
+  }] : [], [latestFanTicket]);
   const faintSurface = isDark ? 'rgba(255,255,255,0.04)' : theme.surface;
   const elevatedSurface = isDark ? 'rgba(31, 16, 34, 0.75)' : theme.card;
   const isTablet = width >= 768;
@@ -303,6 +316,7 @@ const  ArtistProfile: React.FC = () => {
   const [isLibrarySelectionMode, setIsLibrarySelectionMode] = useState(false);
   const [selectedLibraryVideoIds, setSelectedLibraryVideoIds] = useState<string[]>([]);
   const [playlistPickerVideoIds, setPlaylistPickerVideoIds] = useState<string[]>([]);
+  const [addingToPlaylistId, setAddingToPlaylistId] = useState<number | null>(null);
   const [selectedCreator, setSelectedCreator] = useState<string | null>(null);
   const { mutateAsync: subscribeToPlan } = useSubscribeToPlan();
   const { mutateAsync: switchRole } = useSwitchRole();
@@ -668,6 +682,7 @@ const  ArtistProfile: React.FC = () => {
 
     try {
       setPlaylistPickerError('');
+      setAddingToPlaylistId(playlistId);
       await bulkAddVideosToPlaylist({ playlist: playlistId, payload: { video_ids: numericVideoIds } });
       setSelectedLibraryVideoIds([]);
       setIsLibrarySelectionMode(false);
@@ -676,6 +691,8 @@ const  ArtistProfile: React.FC = () => {
     } catch (error) {
       const parsed = parseApiError(error);
       setPlaylistPickerError(parsed.validationErrors?.video_ids?.[0] ?? parsed.message);
+    } finally {
+      setAddingToPlaylistId(null);
     }
   };
 
@@ -1338,7 +1355,7 @@ const PlaylistSection = () => {
             <Pressable style={StyleSheet.absoluteFillObject} onPress={() => setEditingVideo(null)} />
             <View style={[s.libraryEditCard, { backgroundColor: isDark ? '#09090b' : theme.card, borderColor: theme.border }]}>
               <Text style={[s.libraryEditTitle, { color: theme.text }]}>Edit Title</Text>
-              <TextInput
+              <TextInput includeFontPadding={false}
                 value={editTitleValue}
                 onChangeText={setEditTitleValue}
                 placeholder="Video title"
@@ -1394,7 +1411,7 @@ const PlaylistSection = () => {
               <Text style={[s.libraryEditTitle, { color: theme.text }]}>
                 {editingPlaylist ? 'Rename Playlist' : 'Create Playlist'}
               </Text>
-              <TextInput
+              <TextInput includeFontPadding={false}
                 value={playlistTitleValue}
                 onChangeText={(value) => {
                   setPlaylistTitleValue(value);
@@ -1490,7 +1507,7 @@ const PlaylistSection = () => {
                           {playlist.videoCount} videos • {playlist.timeAgo}
                         </Text>
                       </View>
-                      {isAddingVideosToPlaylist ? (
+                      {isAddingVideosToPlaylist && addingToPlaylistId === playlist.id ? (
                         <ActivityIndicator size="small" color={PRIMARY_COLOR} />
                       ) : (
                         <MaterialIcons name="chevron-right" size={22} color={theme.textSecondary} />
@@ -1894,8 +1911,12 @@ const PlaylistSection = () => {
                         onPress={() => setSelectedCreator(creator.id)}
                         style={[s.creatorGridCard, { backgroundColor: isDark ? '#111827' : theme.card, borderColor: theme.border }]}
                       >
-                        <View style={s.creatorGridImageWrap}>
-                          <Image source={{ uri: creator.img }} style={s.creatorGridImage} />
+                        <ImageBackground
+                          source={{ uri: creator.img }}
+                          resizeMode="cover"
+                          style={s.creatorGridImageWrap}
+                          imageStyle={s.creatorGridImage}
+                        >
                           <LinearGradient
                             colors={['transparent', 'rgba(0,0,0,0.72)']}
                             style={StyleSheet.absoluteFillObject}
@@ -1903,13 +1924,13 @@ const PlaylistSection = () => {
                           <View style={s.creatorGridDropBadge}>
                             <Text style={s.creatorGridDropText}>{creator.premiumCount} Videos</Text>
                           </View>
-                        </View>
+                        </ImageBackground>
                         <View style={s.creatorGridInfo}>
                           <View style={{ flex: 1 }}>
-                            <Text numberOfLines={1} style={[s.creatorGridName, { color: theme.text }]}>{creator.name}</Text>
-                            <Text numberOfLines={1} style={[s.creatorGridHandle, { color: theme.textSecondary }]}>{creator.handle}</Text>
+                            <Text numberOfLines={1} style={s.creatorGridName}>{creator.name}</Text>
+                            <Text numberOfLines={1} style={s.creatorGridHandle}>{creator.handle}</Text>
                           </View>
-                          <MaterialIcons name="chevron-right" size={20} color={theme.textSecondary} />
+                          <MaterialIcons name="chevron-right" size={20} color="#fff" />
                         </View>
                       </Pressable>
                     ))}
@@ -2223,31 +2244,54 @@ const PlaylistSection = () => {
 
 
           {activeTab === 'Tickets' ? (
-            <View style={[s.stack, {marginHorizontal: 18}]}>
-              {tickets.length === 0
+            <View style={s.ticketGrid}>
+              {isTicketLoading
+                ? <ActivityIndicator color={PRIMARY_COLOR} />
+                : tickets.length === 0
                 ? renderEmptyTab('confirmation-number', 'No tickets yet', 'Tickets for events you purchase or claim will be kept here for quick access.')
                 : tickets.map((ticket) => (
                 <Pressable
                   key={ticket.id}
-                  onPress={() => navigation.navigate('EventDetail')}
-                  style={[
-                    s.ticketCard,
-                    {
-                      backgroundColor: isDark ? 'rgba(255,255,255,0.05)' : theme.surface,
-                      borderColor: theme.border,
-                    },
-                  ]}
+                  onPress={() => navigation.navigate('FanTicket', ticket.payload)}
+                  style={s.ticketCard}
                 >
-                  <View style={s.ticketLeft}>
-                    <View style={s.ticketIconWrap}>
-                      <TicketIcon height={24} width={24}/>
+                  <ImageBackground
+                    source={{ uri: ticket.img }}
+                    resizeMode="cover"
+                    style={s.ticketBackground}
+                    imageStyle={s.ticketBackgroundImage}
+                  >
+                    <LinearGradient
+                      colors={['rgba(2,6,23,0.08)', 'rgba(2,6,23,0.28)', 'rgba(2,6,23,0.96)']}
+                      locations={[0, 0.45, 1]}
+                      style={StyleSheet.absoluteFillObject}
+                    />
+
+                    <View style={s.ticketContent}>
+                      <View style={s.ticketTopRow}>
+                        <View style={s.ticketIconWrap}>
+                          <TicketIcon height={20} width={20} />
+                        </View>
+                        <View style={s.ticketStatus}>
+                          <Text style={s.ticketStatusText}>{ticket.status}</Text>
+                        </View>
+                      </View>
+
+                      <View style={s.ticketOverlayContent}>
+                        <Text style={s.ticketDate}>{ticket.date}</Text>
+                        <Text numberOfLines={2} style={s.ticketTitle}>{ticket.title}</Text>
+                        <View style={s.ticketLocationRow}>
+                          <MaterialIcons name="location-on" size={13} color="rgba(255,255,255,0.82)" />
+                          <Text numberOfLines={1} style={s.ticketMeta}>{ticket.venue} · {ticket.city}</Text>
+                        </View>
+                        <View style={s.ticketDivider} />
+                        <View style={s.ticketFooter}>
+                          <Text style={s.ticketDetailsText}>View ticket</Text>
+                          <MaterialIcons name="chevron-right" size={19} color="#fff" />
+                        </View>
+                      </View>
                     </View>
-                    <View style={{ flex: 1 }}>
-                      <Text style={[s.ticketTitle, { color: theme.text }]}>{ticket.title}</Text>
-                      <Text style={[s.ticketMeta, { color: theme.textSecondary }]}>{ticket.meta}</Text>
-                    </View>
-                  </View>
-                  <MaterialIcons name="chevron-right" size={22} color={theme.textSecondary} />
+                  </ImageBackground>
                 </Pressable>
               ))}
             </View>
@@ -2640,23 +2684,26 @@ const s = StyleSheet.create({
   },
   creatorGridCard: {
     width: '33.1%',
+    height: 176,
     borderRadius: 0,
     borderWidth: 0,
     overflow: 'hidden',
+    position: 'relative',
   },
   creatorGridImageWrap: {
-    aspectRatio: 1,
+    ...StyleSheet.absoluteFillObject,
     backgroundColor: '#0f172a',
-    position: 'relative',
+    zIndex: 0,
   },
   creatorGridImage: {
     width: '100%',
     height: '100%',
+    resizeMode: 'cover',
   },
   creatorGridDropBadge: {
     position: 'absolute',
     left: 6,
-    bottom: 6,
+    top: 6,
     borderRadius: 999,
     paddingHorizontal: 6,
     paddingVertical: 4,
@@ -2672,17 +2719,24 @@ const s = StyleSheet.create({
     letterSpacing: 0.8,
   },
   creatorGridInfo: {
-    minHeight: 64,
+    position: 'absolute',
+    left: 0,
+    right: 0,
+    bottom: 0,
+    minHeight: 68,
     padding: 8,
     flexDirection: 'row',
     alignItems: 'center',
     gap: 4,
+    zIndex: 2,
   },
   creatorGridName: {
+    color: '#fff',
     ...fontSize.b4,
     lineHeight: fontSize.b4.lineHeight,
   },
   creatorGridHandle: {
+    color: 'rgba(255,255,255,0.72)',
     marginTop: 3,
     ...fontSize.b5,
     lineHeight: fontSize.b5.lineHeight,
@@ -3026,6 +3080,7 @@ const s = StyleSheet.create({
   roleModalBody: {
     ...fontSize.b3,
     lineHeight: fontSize.b3.lineHeight,
+    fontFamily: 'Poppins_500Medium',
     textAlign: 'center',
   },
   roleModalActions: {
@@ -3098,51 +3153,117 @@ const s = StyleSheet.create({
   },
   statsTablet: { paddingHorizontal: 24, marginTop: 10 },
   statBlock: { flex: 1, alignItems: 'center' },
-  statValue: { color: '#fff', ...fontSize.n3, lineHeight: fontSize.n3.lineHeight },
+  statValue: { color: '#fff', ...fontSize.b1, lineHeight: fontSize.b1.lineHeight },
   statLabel: {
     color: '#9ea0b6',
-    ...fontSize.b4,
-    lineHeight: fontSize.b5.lineHeight,
+    ...fontSize.b2,
+    lineHeight: fontSize.b2.lineHeight,
     textTransform: 'uppercase',
     letterSpacing: 1.2,
     marginTop: 2,
   },
   accent: { color: PRIMARY_COLOR },
   sep: { width: StyleSheet.hairlineWidth, height: 28, backgroundColor: '#ffffff2d' },
+  ticketGrid: {
+    flexDirection: 'row',
+    flexWrap: 'wrap',
+    justifyContent: 'space-between',
+    paddingHorizontal: 2,
+  },
   ticketCard: {
+    width: '49.7%',
+    aspectRatio: 0.72,
+    borderRadius: 0,
+    overflow: 'hidden',
+    backgroundColor: '#0f172a',
+  },
+  ticketBackground: {
+    width: '100%',
+    height: '100%',
+    justifyContent: 'space-between',
+  },
+  ticketBackgroundImage: {
+    width: '100%',
+    height: '100%',
+    borderRadius: 0,
+  },
+  ticketContent: {
+    flex: 1,
+    padding: 12,
+    justifyContent: 'space-between',
+  },
+  ticketTopRow: {
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'space-between',
-    padding: 16,
-    borderRadius: 28,
+  },
+  ticketStatus: {
+    borderRadius: 999,
+    paddingHorizontal: 8,
+    paddingVertical: 5,
+    backgroundColor: 'rgba(2,6,23,0.62)',
     borderWidth: 1,
+    borderColor: 'rgba(255,255,255,0.2)',
   },
-  ticketLeft: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: 12,
-    flex: 1,
-  },
-  ticketIconWrap: {
-    width: 56,
-    height: 56,
-    // borderRadius: 18,
-    // backgroundColor: primaryColorAlpha(0.1),
-    // borderWidth: 1,
-    // borderColor: primaryColorAlpha(0.24),
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
-  ticketTitle: {
-    ...fontSize.b4,
-    lineHeight: fontSize.b4.lineHeight,
-  },
-  ticketMeta: {
-    marginTop: 2,
+  ticketStatusText: {
+    color: '#fff',
     ...fontSize.b5,
     lineHeight: fontSize.b5.lineHeight,
     textTransform: 'uppercase',
-    letterSpacing: 1.1,
+    letterSpacing: 0.7,
+  },
+  ticketOverlayContent: {
+    gap: 5,
+  },
+  ticketLocationRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 3,
+  },
+  ticketIconWrap: {
+    width: 36,
+    height: 36,
+    borderRadius: 18,
+    backgroundColor: 'rgba(2,6,23,0.62)',
+    borderWidth: 1,
+    borderColor: 'rgba(255,255,255,0.2)',
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  ticketDate: {
+    color: PRIMARY_COLOR,
+    ...fontSize.b5,
+    lineHeight: fontSize.b5.lineHeight,
+    textTransform: 'uppercase',
+    letterSpacing: 1,
+  },
+  ticketTitle: {
+    color: '#fff',
+    ...fontSize.b2,
+    lineHeight: fontSize.b2.lineHeight,
+  },
+  ticketMeta: {
+    flexShrink: 1,
+    color: 'rgba(255,255,255,0.82)',
+    ...fontSize.b5,
+    lineHeight: fontSize.b5.lineHeight,
+  },
+  ticketDivider: {
+    height: StyleSheet.hairlineWidth,
+    marginVertical: 4,
+    backgroundColor: 'rgba(255,255,255,0.28)',
+  },
+  ticketFooter: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+  },
+  ticketDetailsText: {
+    color: '#fff',
+    ...fontSize.b5,
+    lineHeight: fontSize.b5.lineHeight,
+    textTransform: 'uppercase',
+    letterSpacing: 0.8,
   },
   librarySection: {
     gap: 12,

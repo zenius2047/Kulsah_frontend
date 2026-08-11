@@ -789,7 +789,7 @@ const EmailPhone: React.FC = () => {
                       {`+${callingCode}`}
                     </Text>
                   </Pressable>
-                  {/* <TextInput
+                  {/* <TextInput includeFontPadding={false}
                     style={{ flex: 1, height: 50 }}
                     placeholder={`+${callingCode} Phone Number`}
                     value={phone}
@@ -823,7 +823,7 @@ const EmailPhone: React.FC = () => {
                  )}
                   </View>}
 
-                <TextInput
+                <TextInput includeFontPadding={false}
                   ref={inputRef}
                   value={isCreateAccount ? `${step === 1 ? username : step === 5 ? email : step === 3 ? password : step === 0 ? user : eventDate.toDateString()}`:identifier}
                   onChangeText={handleTextChange}
@@ -906,7 +906,7 @@ const EmailPhone: React.FC = () => {
                     <MaterialIcons name="lock" size={20} color={theme.textMuted} />
                   </View>
 
-                  <TextInput
+                  <TextInput includeFontPadding={false}
                     value={signInPassword}
                     onChangeText={handleSignInPasswordChange}
                     onFocus={() => setSignInPasswordFocused(true)}
@@ -1034,7 +1034,7 @@ const EmailPhone: React.FC = () => {
                   <MaterialIcons name="lock" size={20} color={theme.textMuted}/>
                 </View>
 
-                <TextInput
+                <TextInput includeFontPadding={false}
                 value={confirmPasswordText}
                 onChangeText={setConfirmPasswordText}
                 onFocus={()=> setConfirmFocused(true)}

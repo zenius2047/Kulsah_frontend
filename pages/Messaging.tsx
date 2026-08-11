@@ -72,7 +72,7 @@ const Messaging: React.FC = () => {
             <View>
               <Text>search</Text>
             </View>
-            <TextInput 
+            <TextInput includeFontPadding={false} 
               value={search}
               onChangeText={(value) => setSearch(value)}
               

@@ -161,9 +161,9 @@ const Wallet: React.FC = () => {
           <View style={styles.formGrid}>
             <View style={[styles.formCard, { backgroundColor: panelBg, borderColor: border }]}>
               <Text style={[styles.cardTitle, { color: theme.text }]}>Transfer</Text>
-              <TextInput value={recipientId} onChangeText={setRecipientId} keyboardType="number-pad" placeholder="Recipient user id" placeholderTextColor={theme.textMuted} style={[styles.input, { color: theme.text, borderColor: border }]} />
-              <TextInput value={transferAmount} onChangeText={setTransferAmount} keyboardType="decimal-pad" placeholder="Amount USD" placeholderTextColor={theme.textMuted} style={[styles.input, { color: theme.text, borderColor: border }]} />
-              <TextInput value={transferDescription} onChangeText={setTransferDescription} placeholder="Description" placeholderTextColor={theme.textMuted} style={[styles.input, { color: theme.text, borderColor: border }]} />
+              <TextInput includeFontPadding={false} value={recipientId} onChangeText={setRecipientId} keyboardType="number-pad" placeholder="Recipient user id" placeholderTextColor={theme.textMuted} style={[styles.input, { color: theme.text, borderColor: border }]} />
+              <TextInput includeFontPadding={false} value={transferAmount} onChangeText={setTransferAmount} keyboardType="decimal-pad" placeholder="Amount USD" placeholderTextColor={theme.textMuted} style={[styles.input, { color: theme.text, borderColor: border }]} />
+              <TextInput includeFontPadding={false} value={transferDescription} onChangeText={setTransferDescription} placeholder="Description" placeholderTextColor={theme.textMuted} style={[styles.input, { color: theme.text, borderColor: border }]} />
               <Pressable disabled={!canSubmitTransfer} onPress={() => void submitTransfer()} style={[styles.primaryButton, !canSubmitTransfer && styles.disabled]}>
                 {transferMutation.isPending ? <ActivityIndicator color="#fff" /> : <Text style={styles.primaryButtonText}>Send Transfer</Text>}
               </Pressable>
@@ -171,8 +171,8 @@ const Wallet: React.FC = () => {
 
             <View style={[styles.formCard, { backgroundColor: panelBg, borderColor: border }]}>
               <Text style={[styles.cardTitle, { color: theme.text }]}>Top Up</Text>
-              <TextInput value={topUpAmount} onChangeText={setTopUpAmount} keyboardType="decimal-pad" placeholder="Amount USD" placeholderTextColor={theme.textMuted} style={[styles.input, { color: theme.text, borderColor: border }]} />
-              <TextInput value={topUpReference} onChangeText={setTopUpReference} placeholder="Payment reference" placeholderTextColor={theme.textMuted} style={[styles.input, { color: theme.text, borderColor: border }]} />
+              <TextInput includeFontPadding={false} value={topUpAmount} onChangeText={setTopUpAmount} keyboardType="decimal-pad" placeholder="Amount USD" placeholderTextColor={theme.textMuted} style={[styles.input, { color: theme.text, borderColor: border }]} />
+              <TextInput includeFontPadding={false} value={topUpReference} onChangeText={setTopUpReference} placeholder="Payment reference" placeholderTextColor={theme.textMuted} style={[styles.input, { color: theme.text, borderColor: border }]} />
               <Pressable disabled={!canSubmitTopUp} onPress={() => void submitTopUp()} style={[styles.primaryButton, !canSubmitTopUp && styles.disabled]}>
                 {topUpMutation.isPending ? <ActivityIndicator color="#fff" /> : <Text style={styles.primaryButtonText}>Create Top-up</Text>}
               </Pressable>

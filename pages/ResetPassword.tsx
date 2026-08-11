@@ -164,7 +164,7 @@ const ResetPassword: React.FC = () => {
         <View style={styles.iconWrap}>
           <MaterialIcons name="lock" size={20} color={theme.textMuted} />
         </View>
-        <TextInput
+        <TextInput includeFontPadding={false}
           value={value}
           onChangeText={(text) => {
             onChangeText(text);

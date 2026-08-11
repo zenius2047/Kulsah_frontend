@@ -17,6 +17,7 @@ export type VideoPosterFields = {
 export type VideoProcessingFields = {
   status?: string | null;
   render_status?: string | null;
+  metadata?: { edit_status?: string | null } | null;
 };
 
 export const getVideoPlaybackUrl = (video: VideoPlaybackFields): string | null =>
@@ -35,11 +36,14 @@ export const getVideoPoster = (video: VideoPosterFields): string | null =>
   video.thumbnail_url ??
   null;
 
-export const getVideoProcessingState = ({ status, render_status: renderStatus }: VideoProcessingFields) => ({
-  isRendering: status === 'processing' || renderStatus === 'processing',
-  hasFailed: status === 'failed' || renderStatus === 'failed',
-  isReady: status === 'ready' && (!renderStatus || renderStatus === 'ready'),
-});
+export const getVideoProcessingState = ({ status, render_status: renderStatus, metadata }: VideoProcessingFields) => {
+  const editStatus = metadata?.edit_status;
+  return {
+    isRendering: ['queued', 'processing'].includes(renderStatus ?? editStatus ?? status ?? ''),
+    hasFailed: renderStatus === 'failed' || editStatus === 'failed' || status === 'failed',
+    isReady: renderStatus === 'ready' || editStatus === 'ready' || (status === 'ready' && !renderStatus && !editStatus),
+  };
+};
 
 /** Explicitly marks HLS manifests so Expo Video does not depend on URL inference. */
 export const getVideoSource = (url: string | null | undefined) =>

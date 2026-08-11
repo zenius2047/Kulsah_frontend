@@ -85,6 +85,8 @@ export type GeneralVideo = {
   status?: string;
   render_status?: string | null;
   progress_percentage?: number;
+  requires_editing?: boolean;
+  upload_state?: string | null;
   render_completed_at?: string | null;
   views_count?: number;
   hashtags?: string[];

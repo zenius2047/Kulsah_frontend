@@ -174,7 +174,7 @@ const ChallengeParticipants: React.FC = () => {
 
           <View style={styles.searchWrap}>
             <MaterialIcons name="search" size={18} color={mutedText} style={styles.searchIcon} />
-            <TextInput
+            <TextInput includeFontPadding={false}
               value={query}
               onChangeText={setQuery}
               placeholder="Search for participants..."

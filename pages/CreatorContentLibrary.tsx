@@ -232,7 +232,7 @@ const CreatorContentLibrary: React.FC = () => {
         </View>
         <View>
           <Text>search</Text>
-          <TextInput 
+          <TextInput includeFontPadding={false} 
             value={search} 
             onChangeText={(value) => setSearch(value)} 
             
