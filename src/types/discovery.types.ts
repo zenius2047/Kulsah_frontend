@@ -10,6 +10,7 @@ export type DiscoveryCreator = {
   is_following: boolean;
   is_premium: boolean;
   followers_count: number;
+  discovery_count: number;
   style: string | null;
   tools: string[];
 };
@@ -27,6 +28,7 @@ export type DiscoveryEvent = {
   tickets_available: boolean;
   minimum_ticket_price: number | null;
   currency: string | null;
+  discovery_count: number;
 };
 
 export type DiscoveryVideo = {
@@ -40,6 +42,7 @@ export type DiscoveryVideo = {
   category: string | null;
   duration_seconds: number | null;
   stats: { views_count: number; likes_count: number; comments_count: number };
+  discovery_count: number;
   viewer: { is_liked: boolean; is_bookmarked: boolean; is_following_creator: boolean };
 };
 
@@ -54,6 +57,8 @@ export type DiscoveryResponse = {
   data: { creators: DiscoveryCreator[]; events: DiscoveryEvent[]; videos: DiscoveryVideo[] };
   meta: {
     generated_at: string;
+    discovery_count: number;
+    counts: { creators: number; events: number; videos: number };
     pagination: { current_page: number; per_page: number; has_more: boolean };
   };
 };

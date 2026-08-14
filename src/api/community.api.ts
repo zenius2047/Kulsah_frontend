@@ -44,6 +44,8 @@ export const communityApi = {
   },
   getPost: (post: string | number) =>
     api.get<CommunityItemResponse<CommunityPost>>(endpoints.general.communityPost(communityPostEndpointId(post))),
+  recordView: (post: string | number) =>
+    api.post<{ message: string; meta: { community_post_id: number } }>(endpoints.general.communityPostView(communityPostEndpointId(post))),
   getComments: (post: string | number, page = 1, perPage = 20) =>
     api.get<CommunityPage<CommunityComment>>(endpoints.general.communityPostComments(communityPostEndpointId(post)), {
       params: { page, per_page: perPage },

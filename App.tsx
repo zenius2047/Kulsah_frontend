@@ -272,6 +272,7 @@ const CreatorTabs = ({ isDarkMode }: TabsProps) => {
       name="Arena"
       component={Arena}
       options={{
+        tabBarStyle: { display: 'none' },
         tabBarIcon: ({ color, size, focused }: TabBarIconProps) =>
         focused ? (
           <MaterialIcons name="explore" size={size} color={color} />

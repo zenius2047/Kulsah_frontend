@@ -70,6 +70,7 @@ interface CommunityPost {
   pollOptions?: PollOption[];
   isFollowing: boolean;
   isVerified: boolean;
+  communityCount?: number;
 }
 
 interface CurrentUser {
@@ -255,6 +256,7 @@ const toFeedPost = (post: ApiCommunityPost): CommunityPost => ({
   })),
   isFollowing: post.viewer.is_following ?? post.author.is_following,
   isVerified: post.author.is_verified,
+  communityCount: post.community_count ?? 0,
 });
 
 const VideoPreview = memo<{ videoUrl: string; isActive: boolean; viewerCount?: number; isLive?: boolean; onOpen: () => void }>(({ videoUrl, isActive, viewerCount, isLive = false, onOpen }) => {
@@ -352,7 +354,7 @@ const CommunityFeedSkeleton = memo<{ isDark: boolean }>(({ isDark }) => {
   );
 });
 
-const Community: React.FC<{ embedded?: boolean }> = ({ embedded = false }) => {
+const Community: React.FC<{ embedded?: boolean; onCountChange?: (count: number) => void }> = ({ embedded = false, onCountChange }) => {
   const { isDark, theme } = useThemeMode();
   const navigation = useNavigation<any>();
   const { width: viewportWidth } = useWindowDimensions();
@@ -367,6 +369,7 @@ const Community: React.FC<{ embedded?: boolean }> = ({ embedded = false }) => {
   const videoLayouts = useRef(new Map<string, { y: number; height: number }>());
   const postLayouts = useRef(new Map<string, { y: number; height: number }>());
   const highestViewedPostIndex = useRef(-1);
+  const recordedViewPostIds = useRef(new Set<string>());
   const scrollMetrics = useRef({ offsetY: 0, viewportHeight: 0 });
   const visibilityFrame = useRef<number | null>(null);
   const [mediaViewer, setMediaViewer] = useState<
@@ -418,6 +421,15 @@ const Community: React.FC<{ embedded?: boolean }> = ({ embedded = false }) => {
     setActiveVideoPostId(bestVisibleHeight >= 80 ? bestId : null);
   }, [mediaViewer]);
 
+  const recordPostView = useCallback((post: CommunityPost) => {
+    if (recordedViewPostIds.current.has(post.id)) return;
+    recordedViewPostIds.current.add(post.id);
+    onCountChange?.(post.communityCount ?? 0);
+    void communityApi.recordView(post.id).catch(() => {
+      recordedViewPostIds.current.delete(post.id);
+    });
+  }, [onCountChange]);
+
   const fetchMoreWhenUnviewedPostsRunLow = useCallback(() => {
     const { offsetY, viewportHeight } = scrollMetrics.current;
     if (!viewportHeight) return;
@@ -427,6 +439,8 @@ const Community: React.FC<{ embedded?: boolean }> = ({ embedded = false }) => {
       const layout = postLayouts.current.get(post.id);
       if (layout && layout.y < viewportBottom && layout.y + layout.height > offsetY) {
         highestViewedPostIndex.current = Math.max(highestViewedPostIndex.current, index);
+        const visibleHeight = Math.max(0, Math.min(layout.y + layout.height, viewportBottom) - Math.max(layout.y, offsetY));
+        if (visibleHeight >= Math.min(80, layout.height * 0.35)) recordPostView(post);
       }
     });
 
@@ -434,7 +448,7 @@ const Community: React.FC<{ embedded?: boolean }> = ({ embedded = false }) => {
     if (unviewedPostCount < 10 && postsQuery.hasNextPage && !postsQuery.isFetchingNextPage) {
       void postsQuery.fetchNextPage();
     }
-  }, [posts, postsQuery.fetchNextPage, postsQuery.hasNextPage, postsQuery.isFetchingNextPage]);
+  }, [posts, postsQuery.fetchNextPage, postsQuery.hasNextPage, postsQuery.isFetchingNextPage, recordPostView]);
 
   useEffect(() => {
     updateActiveVideo();
@@ -459,7 +473,10 @@ const Community: React.FC<{ embedded?: boolean }> = ({ embedded = false }) => {
     const pages = postsQuery.data?.pages as CommunityPage<ApiCommunityPost>[] | undefined;
     const apiPosts = pages?.flatMap((page) => page.data) ?? [];
     setPosts(apiPosts.map(toFeedPost));
-  }, [postsQuery.data]);
+    const firstPost = apiPosts[0];
+    if (firstPost) onCountChange?.((firstPost.community_count ?? 0) + 1);
+    else if (postsQuery.isSuccess) onCountChange?.(0);
+  }, [onCountChange, postsQuery.data, postsQuery.isSuccess]);
 
   const savePosts = async (nextPosts: CommunityPost[]) => {
     setPosts(nextPosts);

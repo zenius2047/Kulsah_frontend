@@ -1,8 +1,9 @@
 import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react';
-import { useThemeMode, PRIMARY_COLOR } from "../theme";
+import { useThemeMode, PRIMARY_COLOR, primaryColorAlpha } from "../theme";
 import { View, Text, Pressable, Platform, StyleSheet, PanResponder } from 'react-native';
 import { mediumScreen } from '../types';
 import { MaterialIcons } from '@expo/vector-icons';
+import { BlurView } from 'expo-blur';
 import Community, { COMMUNITY_UPDATE_COUNT } from './Community';
 import { useNavigation } from '@react-navigation/native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
@@ -20,17 +21,24 @@ const ARENA_UPDATE_COUNTS: Record<ArenaTab, number> = {
   discover: DISCOVER_UPDATE_COUNT,
   challenges: CREATOR_CHALLENGE_UPDATE_COUNT,
 };
+const ARENA_TAB_ICONS: Record<ArenaTab, keyof typeof MaterialIcons.glyphMap> = {
+  community: 'forum',
+  discover: 'explore',
+  challenges: 'emoji-events',
+};
 
 const Arena :React.FC = ({route}:any)=>{
     const { isDark, theme } = useThemeMode();
     const [activeTab, setActiveTab] = useState<ArenaTab>('community');
     const [isDiscoverSwipeAreaActive, setIsDiscoverSwipeAreaActive] = useState(false);
-    const [updateBadgeWidths, setUpdateBadgeWidths] = useState<Partial<Record<ArenaTab, number>>>({});
+    const [updateCounts, setUpdateCounts] = useState<Record<ArenaTab, number>>(ARENA_UPDATE_COUNTS);
     const navigation = useNavigation<any>();
     const insets = useSafeAreaInsets();
     const styles = useMemo(() => createStyles(), []);
     const faintSurface = isDark ? 'rgba(255,255,255,0.04)' : theme.surface;
     const swipeHandledRef = useRef(false);
+    const setCommunityCount = useCallback((count: number) => setUpdateCounts((current) => ({ ...current, community: count })), []);
+    const setDiscoverCount = useCallback((count: number) => setUpdateCounts((current) => ({ ...current, discover: count })), []);
 
     useEffect(()=>{
         const tabToRoute = route?.params?.tabToRoute as ArenaTab | undefined;
@@ -124,83 +132,39 @@ const Arena :React.FC = ({route}:any)=>{
    
              
            </View>
-    {/*Main Tabs........... "Community", Discover & Challenges */}
-    <View style={{
-        flexDirection: 'row',
-        justifyContent: 'space-around',
-        paddingTop: 0,
-        backgroundColor: 'transparent',
-        paddingBottom: 20,
-    }}>
-    {ARENA_TABS.map((item)=>{
-      const isActive = activeTab === item;
-      const updateCount = ARENA_UPDATE_COUNTS[item];
-
-      return (
-        <Pressable
-        key={item}
-        onPress={()=>setActiveTab(item)}
-        style={[styles.tabButton,]}>
-        <View style={{
-          flexDirection: 'row'
-        }}>
-          <Text style={{
-            // color: activeTab == item ? theme.accent : theme.textSecondary,
-            ...fontSize.tabTextLarge,
-            color: isActive ? isDark ? '#ffffff': '#000000': isDark ? '#ffffff5d':'#0000005d',
-            textTransform: 'uppercase',
-            // // fontSize: fontSize.b1.fontSize,
-            marginBottom: 5
-        }}>
-            {item}
-        </Text>
-        <View
-          onLayout={({ nativeEvent }) => {
-            const badgeWidth = nativeEvent.layout.width;
-            setUpdateBadgeWidths((currentWidths) =>
-              currentWidths[item] === badgeWidth
-                ? currentWidths
-                : { ...currentWidths, [item]: badgeWidth }
-            );
-          }}
-          style={[
-            styles.updateBadge,
-            {
-              backgroundColor: isActive ? PRIMARY_COLOR : isDark ? 'rgba(255,255,255,0.08)' : 'rgba(15,23,42,0.08)',
-              borderColor: isActive ? PRIMARY_COLOR : theme.border,
-              marginTop: -5,
-              marginLeft: 2.5
-              // right: item === 'discover' ? 0 : -8,
-            },
-          ]}
-        >
-          <Text
-            style={[
-              styles.updateBadgeText,
-              { color: isActive ? '#ffffff' : isDark ? '#ffffff99' : '#00000099' },
-            ]}
-          >
-            {updateCount}
-          </Text>
-        </View>
-        </View>
-        {isActive && <View
-        style={{
-            height: 2,
-            width: 50,
-            backgroundColor: PRIMARY_COLOR,
-            marginLeft: -(updateBadgeWidths[item] ?? 15)
-
-        }}
-        />}
-        </Pressable>
-      );
-    })}
+    <View style={styles.contentShell}>
+      {activeTab === 'community' && <Community onCountChange={setCommunityCount}/>}
+      {activeTab === 'discover' && <Discover embedded onCountChange={setDiscoverCount} onHorizontalSwipeAreaTouchChange={setIsDiscoverSwipeAreaActive}/>}
+      {activeTab === 'challenges' && <CreatorChallenges/>}
     </View>
 
-    {activeTab == 'community' && <Community/>}
-    {activeTab == 'discover' && <Discover embedded onHorizontalSwipeAreaTouchChange={setIsDiscoverSwipeAreaActive}/>}
-    {activeTab == 'challenges' && <CreatorChallenges/>}
+    <BlurView intensity={Platform.OS === 'android' ? 90 : 55} tint={isDark ? 'dark' : 'light'} style={[styles.floatingNav, {
+      bottom: Math.max(insets.bottom, 12) + 10,
+      backgroundColor: isDark ? 'rgba(28,28,32,0.78)' : 'rgba(250,250,252,0.8)',
+      borderColor: isDark ? 'rgba(255,255,255,0.14)' : 'rgba(255,255,255,0.82)',
+    }]}>
+      {ARENA_TABS.map((item) => {
+        const isActive = activeTab === item;
+        return (
+          <Pressable
+            key={item}
+            accessibilityRole="tab"
+            accessibilityState={{ selected: isActive }}
+            accessibilityLabel={item}
+            onPress={() => setActiveTab(item)}
+            style={[styles.floatingTab, isActive && { backgroundColor: isDark ? primaryColorAlpha(0.22) : primaryColorAlpha(0.12) }]}
+          >
+            <View style={styles.floatingIconWrap}>
+              <MaterialIcons name={ARENA_TAB_ICONS[item]} size={isActive ? 24 : 23} color={isActive ? PRIMARY_COLOR : isDark ? '#b4b4bb' : '#62636a'} />
+              <View style={styles.floatingBadge}>
+                <Text style={styles.floatingBadgeText}>{updateCounts[item]}</Text>
+              </View>
+            </View>
+            <Text style={[styles.floatingLabel, { color: isActive ? PRIMARY_COLOR : isDark ? '#9ca3af' : '#64748b' }]}>{item}</Text>
+          </Pressable>
+        );
+      })}
+    </BlurView>
     </View>);
 }
 
@@ -233,29 +197,18 @@ const createStyles = () => StyleSheet.create({
         justifyContent: 'center',
         alignItems: 'center',
     },
-    tabButton: {
-        justifyContent: 'center',
-        alignItems: 'center',
-        minWidth: 92,
-        paddingTop: 8,
-        // position: 'relative',
+    contentShell: { flex: 1 },
+    floatingNav: {
+      position: 'absolute', left: 14, right: 14, height: 68, borderRadius: 34, overflow: 'hidden',
+      borderWidth: 1, flexDirection: 'row', alignItems: 'center', justifyContent: 'space-around',
+      paddingHorizontal: 7, paddingVertical: 7, zIndex: 50, elevation: 12, shadowColor: '#000', shadowOpacity: 0.16,
+      shadowRadius: 16, shadowOffset: { width: 0, height: 7 },
     },
-    updateBadge: {
-        // position: 'absolute',
-        // top: 0,
-        
-        minWidth: 15,
-        height: 15,
-        borderRadius: 999,
-        // borderWidth: 1,
-        paddingHorizontal: 3,
-        alignItems: 'center',
-        justifyContent: 'center',
-    },
-    updateBadgeText: {
-        ...fontSize.badgeTextSmall,
-        lineHeight: fontSize.b5.lineHeight,
-    },
+    floatingTab: { flex: 1, height: 54, borderRadius: 27, alignItems: 'center', justifyContent: 'center', gap: 1 },
+    floatingIconWrap: { width: 38, height: 31, alignItems: 'center', justifyContent: 'center' },
+    floatingBadge: { position: 'absolute', top: -3, right: -5, minWidth: 16, height: 16, borderRadius: 8, paddingHorizontal: 3, backgroundColor: '#ef4444', alignItems: 'center', justifyContent: 'center', borderWidth: 1.5, borderColor: '#fff' },
+    floatingBadgeText: { color: '#fff', ...fontSize.badgeTextSmall, lineHeight: 11 },
+    floatingLabel: { ...fontSize.b5, lineHeight: 13, textTransform: 'capitalize' },
 });
 
 export default Arena;

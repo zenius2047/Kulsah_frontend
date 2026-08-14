@@ -15,6 +15,7 @@ const post = {
   id: 'post_opaque', type: 'text', content: 'Hello', audience: 'public', status: 'published',
   author: { id: 1, name: 'Creator', handle: 'creator', avatar_url: null, is_verified: false, is_following: false },
   media: [], poll: null,
+  community_count: 0,
   stats: { likes_count: 2, comments_count: 0, shares_count: 0, gifts_count: 0, views_count: 0 },
   viewer: { is_liked: false, is_shared: false, is_following: false, can_view: true },
   created_at: '2026-08-06T00:00:00Z', updated_at: '2026-08-06T00:00:00Z',
@@ -80,6 +81,12 @@ describe('community endpoint IDs', () => {
 
   it('targets the persistent community poll vote endpoint', () => {
     expect(endpoints.general.communityPostPollVote(9)).toBe('general/community/posts/9/poll/vote');
+  });
+});
+
+describe('community viewed-state endpoint', () => {
+  it('uses the backend view route for a normalized post id', () => {
+    expect(endpoints.general.communityPostView(9)).toBe('general/community/posts/9/view');
   });
 });
 

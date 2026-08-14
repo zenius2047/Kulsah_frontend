@@ -20,7 +20,7 @@ import { PRIMARY_COLOR, primaryColorAlpha, useThemeMode } from '../theme';
 import CalenderIcon from '../assets/icons/calendar-svg.svg';
 import LocationIcon from '../assets/icons/location-svg.svg';
 import { fontSize } from './typography';
-import { useDiscovery, useFollowCreatorMutation } from '../src';
+import { discoveryApi, useDiscovery, useFollowCreatorMutation } from '../src';
 
 
 type DiscoverTab = 'all' | 'creators' | 'tickets' | 'videos' | 'challenges';
@@ -36,6 +36,7 @@ interface CreatorItem {
   followers: string;
   isPremium?: boolean;
   isVerified?: boolean;
+  discoveryCount?: number;
 }
 
 interface TicketItem {
@@ -49,6 +50,7 @@ interface TicketItem {
   img: string;
   colors: readonly [string, string];
   duration: string;
+  discoveryCount?: number;
 }
 
 interface VideoItem {
@@ -61,6 +63,7 @@ interface VideoItem {
   duration: string;
   category: string;
   isLiked?: boolean;
+  discoveryCount?: number;
 }
 
 const compactCount = (value: number) => {
@@ -244,6 +247,7 @@ const LiveCreatorAvatar = ({
 type DiscoverProps = {
   embedded?: boolean;
   onHorizontalSwipeAreaTouchChange?: (isTouching: boolean) => void;
+  onCountChange?: (count: number) => void;
 };
 
 const DiscoverSkeleton = ({ isDark, styles }: { isDark: boolean; styles: ReturnType<typeof createStyles> }) => {
@@ -292,6 +296,7 @@ const DiscoverSkeleton = ({ isDark, styles }: { isDark: boolean; styles: ReturnT
 const Discover: React.FC<DiscoverProps> = ({
   embedded = false,
   onHorizontalSwipeAreaTouchChange,
+  onCountChange,
 }) => {
   const { isDark, theme } = useThemeMode();
   const navigation = useNavigation<any>();
@@ -306,6 +311,7 @@ const Discover: React.FC<DiscoverProps> = ({
   const [ticketCart, setTicketCart] = useState<string[]>([]);
   const [selectedTicket, setSelectedTicket] = useState<TicketItem | null>(null);
   const [isSuccessModalOpen, setIsSuccessModalOpen] = useState(false);
+  const recordedDiscoveryViews = useRef(new Set<string>());
   const query = searchQuery.trim().toLowerCase();
   const discoveryQuery = useDiscovery({ tab: 'all', page: 1, limit: 100, ...(debouncedSearch ? { search_query: debouncedSearch } : {}) });
   const followCreatorMutation = useFollowCreatorMutation();
@@ -314,7 +320,7 @@ const Discover: React.FC<DiscoverProps> = ({
     id: String(creator.id), name: creator.name, handle: `@${creator.handle}`, isLive: creator.is_live,
     avatar: creator.avatar_url || `https://picsum.photos/seed/creator-${creator.id}/200/200`,
     style: creator.style || 'Creator', tool: creator.tools.join(' • '), followers: compactCount(creator.followers_count),
-    isPremium: creator.is_premium, isVerified: creator.is_verified,
+    isPremium: creator.is_premium, isVerified: creator.is_verified, discoveryCount: creator.discovery_count,
   })), [discoveryQuery.data]);
   const filteredTickets: TicketItem[] = useMemo(() => (discoveryQuery.data?.data.events ?? []).map((event) => ({
     id: String(event.id), eventTitle: event.title, creator: event.creator.name,
@@ -322,13 +328,13 @@ const Discover: React.FC<DiscoverProps> = ({
     venue: event.venue || event.location_type || 'Venue TBA', price: event.minimum_ticket_price ?? 0,
     currency: event.currency || 'GHS', img: event.cover_url || `https://picsum.photos/seed/event-${event.id}/600/400`,
     colors: ['rgba(245,158,11,0.3)', 'rgba(244,63,94,0.04)'] as const,
-    duration: formatEventDuration(event.duration_minutes),
+    duration: formatEventDuration(event.duration_minutes), discoveryCount: event.discovery_count,
   })), [discoveryQuery.data]);
   const filteredVideos: VideoItem[] = useMemo(() => (discoveryQuery.data?.data.videos ?? []).map((video) => ({
     id: String(video.id), title: video.title || video.caption || 'Untitled video', creator: video.creator.name,
     views: compactCount(video.stats.views_count), likes: video.stats.likes_count,
     img: video.thumbnail_url || `https://picsum.photos/seed/video-${video.id}/400/600`,
-    duration: formatDuration(video.duration_seconds), category: video.category || 'Video', isLiked: video.viewer.is_liked,
+    duration: formatDuration(video.duration_seconds), category: video.category || 'Video', isLiked: video.viewer.is_liked, discoveryCount: video.discovery_count,
   })), [discoveryQuery.data]);
   const filteredChallenges = useMemo(() => activeChallenges.filter((challenge) => [challenge.tag, challenge.creator, challenge.type].some((value) => value.toLowerCase().includes(query))), [query]);
 
@@ -341,6 +347,10 @@ const Discover: React.FC<DiscoverProps> = ({
     setFollowedCreators((discoveryQuery.data?.data.creators ?? []).filter((creator) => creator.is_following).map((creator) => String(creator.id)));
     setLikedVideos((discoveryQuery.data?.data.videos ?? []).filter((video) => video.viewer.is_liked).map((video) => String(video.id)));
   }, [discoveryQuery.data]);
+
+  useEffect(() => {
+    if (discoveryQuery.data) onCountChange?.(discoveryQuery.data.meta.discovery_count);
+  }, [discoveryQuery.data, onCountChange]);
   const horizontalSwipeAreaHandlers = {
     onTouchStart: () => onHorizontalSwipeAreaTouchChange?.(true),
     onTouchEnd: () => onHorizontalSwipeAreaTouchChange?.(false),
@@ -351,6 +361,17 @@ const Discover: React.FC<DiscoverProps> = ({
   };
 
   const stop = (event: GestureResponderEvent) => event.stopPropagation();
+
+  const recordDiscoveryView = (type: 'creator' | 'event' | 'video', id: string, remainingCount = 0) => {
+    const key = `${type}:${id}`;
+    if (recordedDiscoveryViews.current.has(key)) return;
+    recordedDiscoveryViews.current.add(key);
+    onCountChange?.(remainingCount);
+    void discoveryApi.recordView(type, id).catch(() => {
+      recordedDiscoveryViews.current.delete(key);
+      if (discoveryQuery.data) onCountChange?.(discoveryQuery.data.meta.discovery_count);
+    });
+  };
 
   const handleFollowToggle = (creatorId: string, event: GestureResponderEvent) => {
     stop(event);
@@ -484,7 +505,7 @@ const Discover: React.FC<DiscoverProps> = ({
                   {filteredCreators.map((creator) => {
                     const isFollowed = followedCreators.includes(creator.id);
                     return (
-                      <Pressable key={creator.id} onPress={() => navigation.navigate('ArtistProfile', { isOwner: false, id: creator.name })} style={styles.creatorCard}>
+                      <Pressable key={creator.id} onPress={() => { recordDiscoveryView('creator', creator.id, creator.discoveryCount); navigation.navigate('ArtistProfile', { isOwner: false, id: creator.id }); }} style={styles.creatorCard}>
                         {/* {creator.isLive ? (
                           <View style={styles.liveBadge}>
                             <View style={styles.liveDot} />
@@ -523,7 +544,7 @@ const Discover: React.FC<DiscoverProps> = ({
                     return (
                       <Pressable
                         key={ticket.id}
-                        onPress={() => navigation.navigate('EventDetail', { id: ticket.id, isOwner: false })}
+                        onPress={() => { recordDiscoveryView('event', ticket.id, ticket.discoveryCount); navigation.navigate('EventDetail', { id: ticket.id, isOwner: false }); }}
                         style={styles.ticketCard}
                       >
                         <LinearGradient colors={ticket.colors} start={{ x: 0, y: 0 }} end={{ x: 1, y: 1 }} style={StyleSheet.absoluteFill} />
@@ -618,7 +639,7 @@ const Discover: React.FC<DiscoverProps> = ({
                   {filteredVideos.map((video) => {
                     const isLiked = likedVideos.includes(video.id);
                     return (
-                      <Pressable key={video.id} onPress={() => navigation.navigate('MainTabs', {screen: "Galaxy"})} style={styles.videoCard}>
+                      <Pressable key={video.id} onPress={() => { recordDiscoveryView('video', video.id, video.discoveryCount); navigation.navigate('MainTabs', {screen: "Galaxy", params: { videoId: video.id }}); }} style={styles.videoCard}>
                         <Image source={{ uri: video.img }} style={styles.videoImage} />
                         <LinearGradient colors={['rgba(0,0,0,0.12)', 'rgba(0,0,0,0.82)']} style={StyleSheet.absoluteFill} />
                         {/* <Text style={styles.videoCategory}>{video.category}</Text> */}

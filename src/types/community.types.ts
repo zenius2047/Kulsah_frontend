@@ -54,6 +54,7 @@ export type CommunityPost = {
     viewer_count?: number;
     started_at?: string | null;
   } | null;
+  community_count: number;
   stats: {
     likes_count: number;
     comments_count: number;

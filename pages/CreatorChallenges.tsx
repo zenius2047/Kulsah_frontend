@@ -267,7 +267,7 @@ const CreatorChallenges: React.FC = () => {
 
 
         <ScrollView contentContainerStyle={styles.content} showsVerticalScrollIndicator={false}>
-          <LinearGradient
+          {/* <LinearGradient
             colors={isDark ? [primaryColorAlpha(0.18), 'rgba(124,58,237,0.08)'] : [primaryColorAlpha(0.08), 'rgba(124,58,237,0.04)']}
             style={[styles.hero, { borderColor: primaryColorAlpha(0.22) }]}
           >
@@ -290,9 +290,10 @@ const CreatorChallenges: React.FC = () => {
                 <Text style={[styles.metricLabel, { color: muted, ...fontSize.b6, lineHeight: fontSize.b6.lineHeight }]}>Conversion Rate</Text>
               </View>
             </View>
-          </LinearGradient>
+          </LinearGradient> */}
 
           <View style={[styles.tabBar, {
+            // backgroundColor: 'red'
             // backgroundColor: surface, borderColor: border
              }]}>
             {renderTab('challenges', 'Challenges')}
@@ -303,10 +304,10 @@ const CreatorChallenges: React.FC = () => {
 
           {activeTab === 'challenges' ? (
             <View style={styles.section}>
-              <View style={styles.sectionRow}>
+              {/* <View style={styles.sectionRow}>
                 <Text style={[styles.sectionTitle, { color: muted, fontSize: fontSize.mediumTitleText.fontSize, fontFamily: fontSize.tabTextLarge.fontFamily, lineHeight: fontSize.tabTextLarge.lineHeight }]}>Active Challenges</Text>
                 <Text style={[styles.sectionAccent, {...fontSize.b2, lineHeight: fontSize.b2.lineHeight}]}>{CHALLENGES.length} Live</Text>
-              </View>
+              </View> */}
               {CHALLENGES.map((challenge) => {
                 const isOwner = challenge.creatorId === (user?.id || 'mila_ray_01');
                 return (
@@ -706,7 +707,7 @@ const styles = StyleSheet.create({
     textTransform: 'uppercase',
     letterSpacing: 0.6,
   },
-  content: { paddingHorizontal: 24, paddingTop: 20, paddingBottom: 40, gap: 24 },
+  content: { paddingHorizontal: 24, paddingTop: 0, paddingBottom: 40, gap: 24 },
   hero: { borderRadius: 40, padding: 15, borderWidth: 1 },
   heroRow: { flexDirection: 'row', alignItems: 'center', gap: 16 },
   heroIcon: {
