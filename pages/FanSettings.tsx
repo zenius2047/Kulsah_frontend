@@ -1246,7 +1246,7 @@ const FanSettings: React.FC<FanSettingsProps> = ({ onLogout, isDarkMode, onToggl
                   style={[s.customCoinInput, { color: theme.text, backgroundColor: inputBackground, borderColor: theme.border }]}
                 />
                 <Pressable onPress={handleCustomCoinTopUp} style={[s.customCoinButton, { backgroundColor: theme.accent }]}>
-                  <MaterialIcons name="arrow-forward" size={20} color="#fff" />
+                  <MaterialIcons name="chevron-right" size={20} color="#fff" />
                 </Pressable>
               </View>
             </View>

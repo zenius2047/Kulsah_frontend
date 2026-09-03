@@ -505,7 +505,17 @@ const Discover: React.FC<DiscoverProps> = ({
                   {filteredCreators.map((creator) => {
                     const isFollowed = followedCreators.includes(creator.id);
                     return (
-                      <Pressable key={creator.id} onPress={() => { recordDiscoveryView('creator', creator.id, creator.discoveryCount); navigation.navigate('ArtistProfile', { isOwner: false, id: creator.id }); }} style={styles.creatorCard}>
+                      <Pressable key={creator.id} onPress={() => {
+                        recordDiscoveryView('creator', creator.id, creator.discoveryCount);
+                        navigation.navigate('ArtistProfile', {
+                          isOwner: false,
+                          id: creator.id,
+                          creatorId: creator.id,
+                          name: creator.name,
+                          handle: creator.handle,
+                          avatar: creator.avatar,
+                        });
+                      }} style={styles.creatorCard}>
                         {/* {creator.isLive ? (
                           <View style={styles.liveBadge}>
                             <View style={styles.liveDot} />

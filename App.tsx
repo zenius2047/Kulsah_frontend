@@ -1,6 +1,6 @@
-import React, { useEffect, useState } from 'react';
+import React, { useCallback, useEffect, useRef, useState } from 'react';
 import { useThemeMode, PRIMARY_COLOR, primaryColorAlpha, KulsahDarkTheme, KulsahTheme } from './theme';
-import { View, StyleSheet, ActivityIndicator, Text, TextInput, Pressable, StatusBar, Dimensions , Image, useWindowDimensions, Platform} from 'react-native';
+import { View, StyleSheet, ActivityIndicator, Text, TextInput, Pressable, StatusBar, Image, useWindowDimensions, Platform} from 'react-native';
 import { NavigationContainer, createNavigationContainerRef } from '@react-navigation/native';
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
@@ -22,6 +22,7 @@ import {
   DMSans_700Bold,
 } from '@expo-google-fonts/dm-sans';
 import {
+  Poppins_400Regular,
   Poppins_500Medium,
   Poppins_600SemiBold,
   Poppins_700Bold,
@@ -44,14 +45,35 @@ import ForumIcon from './assets/icons/forum-svg.svg';
 import { SafeAreaView, useSafeAreaInsets } from 'react-native-safe-area-context';
 import { queryClient } from './src/lib/queryClient';
 import { AuthProvider } from './src/context/AuthContext';
-import { authApi, clearAuth, useAuthStore } from './src';
+import { signOutGoogleAsync } from './src/config/auth-google';
+import {
+  authApi,
+  clearAuth,
+  formatUnreadBadgeCount,
+  isChallengeInvitationPushNotification,
+  isMessagePushNotification,
+  isMessageRequestAcceptedPushNotification,
+  isMessageRequestCreatedPushNotification,
+  isVideoMentionPushNotification,
+  messagingApi,
+  pushChallengeId,
+  pushConversationId,
+  pushVideoId,
+  unregisterCurrentPushTokenAsync,
+  useAuthStore,
+  useFcmMessaging,
+  useMessagingRealtime,
+  useMessagingStore,
+} from './src';
+import type { PushNotificationData } from './src';
 // import MaterialSymbols from 'react-native-vector-icons/MaterialSymbolsOutlined';
 
 // import Icon from 'react-native-vector-icons/MaterialIcons';
 
 import { user, User, UserRole, setUser, setHeight, setWidth, setScreenType, mediumScreen, setSmallWith, setDark, subscribeUser } from './types';
 // import ArtistDashboard from './pages/ArtistDashboard';
-// import LiveStream from './pages/LiveStream';
+import ViewerLiveStream from './pages/ViewerLiveStream';
+import CreatorLiveSummary from './pages/CreatorLiveSummary';
 import ChatView from './pages/ChatView';
 import Feed from './pages/Feed';
 import Signup from './pages/Signup';
@@ -65,7 +87,7 @@ import UploadContent from './pages/UploadContent';
 import Messages from './pages/Messages';
 import FanSettings from './pages/FanSettings';
 // import FanLibrary from './pages/CreatorLibrary';
-import GoLiveSetup from './pages/GoLiveSetup';
+import GoLiveSetup from './pages/LiveCreationSetup';
 import CreatorEvents from './pages/CreatorEvents';
 import CreatorAnalytics from './pages/CreatorAnalytics';
 import CreatorRevenue from './pages/CreatorRevenue';
@@ -75,14 +97,14 @@ import Challenges from './pages/Challenges';
 import UseSound from './pages/UseSound';
 import UseEffect from './pages/UseEffect';
 import RecordContent from './pages/RecordContent';
-import ChallengeEntry from './pages/challengeEntry';
+import ChallengeEntry from './pages/ChallengeEntryDetails';
 import ParticipantHistory from './pages/ParticipantHistory';
 import MyEntry from './pages/MyEntry';
 import winner from './pages/winner';
 import Arena from './pages/Arena';
 import CreateEvent from './pages/CreateEvent';
 import CreatorLiveStream from './pages/CreatorLiveStream';
-import CreateChallenge from './pages/CreateChallenge';
+import CreateChallenge from './pages/CreateChallengeWizard';
 import ChallengeDrafts from './pages/ChallengeDrafts';
 import RevenueSplit from './pages/RevenueSplit';
 import NoReward from './pages/NoReward';
@@ -102,7 +124,7 @@ import SelectTickets from './pages/SelectTickets';
 import TicketVerification from './pages/TicketVerification';
 import LiveFeed from './pages/LiveFeed';
 import CollaborationHub from './pages/CollaborationHub';
-import Inbox from './pages/Inbox';
+import Inbox, { INBOX_UNREAD_COUNT } from './pages/Inbox';
 import Notifications from './pages/Notifications';
 import StreakReward from './pages/StreakReward';
 import ClaimPrize from './pages/ClaimPrize';
@@ -125,7 +147,7 @@ import VibePicker from './pages/VibePicker';
 import FanTicketDetail from './pages/FanTicketDetail';
 import MarketPlace from './MarketPlace';
 import TopUpCoins from './pages/TopUpCoins';
-import ChallengeLeaderboard from './pages/ChallengeLeaderboard';
+import ChallengeLeaderboard from './pages/ChallengeLeaderboardDetails';
 import Events from './pages/Events';
 import TrendingVideos from './pages/TrendingVideos';
 import Search from './pages/Search';
@@ -139,12 +161,14 @@ import PrivacyCentre from './pages/PrivacyCentre';
 
 
 import { typographyStyles } from './fonts';
-import { DEVICE_SIZE_CLASS, fontSize } from './typography';
+import { fontSize } from './typography';
+import { DENSITY_ADJUSTED_HANDSET_WIDTH_DP, DP_HEIGHT, DP_RATIO, DP_WIDTH, PHONE_TYPE, SHORTEST_SIDE_DP } from './src/utils/device';
 import VideoPlayer from './pages/VideoPlayer';
 
 const Stack = createNativeStackNavigator();
 const Tab = createBottomTabNavigator();
-const { height: SCREEN_HEIGHT, width: SCREEN_WIDTH } = Dimensions.get('screen');
+const SCREEN_HEIGHT = DP_HEIGHT;
+const SCREEN_WIDTH = DP_WIDTH;
 const navigationRef = createNavigationContainerRef();
 
 void ExpoSplashScreen.preventAutoHideAsync();
@@ -220,6 +244,8 @@ const getTabBarShadow = (isDarkMode: boolean, isGalaxy: boolean) => ({
 
 const CreatorTabs = ({ isDarkMode }: TabsProps) => {
   const insets = useSafeAreaInsets();
+  const unreadCount = useMessagingStore((state) => state.unreadCount);
+  const signalUnreadBadge = formatUnreadBadgeCount(unreadCount);
   const tabBarHeight = (Platform.OS === 'ios' ? SCREEN_HEIGHT * 0.08 : SCREEN_HEIGHT * 0.07 +insets.bottom);
 
   return (
@@ -319,6 +345,8 @@ const CreatorTabs = ({ isDarkMode }: TabsProps) => {
     name="Signal"
     component={Inbox}
     options = {{
+      tabBarBadge: signalUnreadBadge,
+      tabBarBadgeStyle: styles.signalTabBadge,
       tabBarIcon: ({ color, size, focused }: TabBarIconProps) => (
         <MaterialIcons
           name={focused ? 'chat-bubble' : 'chat-bubble-outline'}
@@ -368,6 +396,8 @@ const CreatorTabs = ({ isDarkMode }: TabsProps) => {
 
 const FanTabs = ({isDarkMode, user, onTap}: TabsProps) => {
   const insets = useSafeAreaInsets();
+  const unreadCount = useMessagingStore((state) => state.unreadCount);
+  const signalUnreadBadge = formatUnreadBadgeCount(unreadCount);
   const tabBarHeight = (Platform.OS === 'ios' ? SCREEN_HEIGHT * 0.08 : SCREEN_HEIGHT * 0.07 +insets.bottom);
 
   const guardGuestTab = (e: TabPressEvent) => {
@@ -450,6 +480,8 @@ const FanTabs = ({isDarkMode, user, onTap}: TabsProps) => {
     name="Signal"
     component={Inbox}
     options = {{
+      tabBarBadge: signalUnreadBadge,
+      tabBarBadgeStyle: styles.signalTabBadge,
       tabBarIcon: ({ color, size, focused }: TabBarIconProps) => (
         <MaterialIcons
           name={focused ? 'chat-bubble' : 'chat-bubble-outline'}
@@ -503,16 +535,113 @@ const App: React.FC = () => {
     statusBarStyle: isDark ? 'light' : 'dark',
   } as const;
   const [currentUser, setCurrentUser] = useState<User | null>(user);
+  const authToken = useAuthStore((state) => state.token);
+  const initializeUnreadCount = useMessagingStore((state) => state.initializeUnreadCount);
+  const setUnreadCount = useMessagingStore((state) => state.setUnreadCount);
+  const clearUnreadCount = useMessagingStore((state) => state.clearUnreadCount);
   const [isBooting, setIsBooting] = useState(true);
   const { height: vh, width:vw } = useWindowDimensions();
   const [visible, setVisible] = useState(false);
+  const pendingPushNavigationRef = useRef<PushNotificationData | null>(null);
+
+  useEffect(() => {
+    initializeUnreadCount(INBOX_UNREAD_COUNT);
+  }, [initializeUnreadCount]);
+
+  useEffect(() => {
+    if (!currentUser || currentUser.role === 'guest' || !authToken) return;
+
+    let active = true;
+    void messagingApi.getUnreadCount()
+      .then((response) => {
+        if (active) setUnreadCount(response.data.data.unread_count);
+      })
+      .catch((error) => console.warn('Unread conversation count failed.', error));
+
+    return () => {
+      active = false;
+    };
+  }, [authToken, currentUser, setUnreadCount]);
+
+  const openPushNotification = useCallback((data: PushNotificationData) => {
+    const isMessage = isMessagePushNotification(data);
+    const isMessageRequestCreated = isMessageRequestCreatedPushNotification(data);
+    const isMessageRequestAccepted = isMessageRequestAcceptedPushNotification(data);
+    const isChallengeInvitation = isChallengeInvitationPushNotification(data);
+    const isVideoMention = isVideoMentionPushNotification(data);
+    if (
+      !isMessage
+      && !isMessageRequestCreated
+      && !isMessageRequestAccepted
+      && !isChallengeInvitation
+      && !isVideoMention
+    ) return;
+    if (!navigationRef.isReady()) {
+      pendingPushNavigationRef.current = data;
+      return;
+    }
+
+    pendingPushNavigationRef.current = null;
+    if (isMessage) {
+      navigationRef.navigate('Chat' as never, {
+        conversationId: pushConversationId(data),
+        senderId: data.sender_id ?? data.senderId,
+      } as never);
+      return;
+    }
+
+    if (isMessageRequestAccepted) {
+      const conversationId = pushConversationId(data);
+      if (conversationId) {
+        navigationRef.navigate('Chat' as never, {
+          conversationId,
+          senderId: data.receiver_id ?? data.sender_id,
+        } as never);
+      } else {
+        navigationRef.navigate('MainTabs' as never, { screen: 'Signal' } as never);
+      }
+      return;
+    }
+
+    if (isMessageRequestCreated) {
+      navigationRef.navigate('MainTabs' as never, { screen: 'Signal' } as never);
+      return;
+    }
+
+    if (isChallengeInvitation) {
+      navigationRef.navigate('ChallengeFeed' as never, {
+        challengeId: pushChallengeId(data),
+        inviteId: data.invite_id,
+        invitationType: data.invitation_type,
+      } as never);
+      return;
+    }
+
+    navigationRef.navigate('VideoPlayer' as never, {
+      id: pushVideoId(data),
+    } as never);
+  }, []);
+
+  const flushPendingPushNavigation = useCallback(() => {
+    const pending = pendingPushNavigationRef.current;
+    if (pending) openPushNotification(pending);
+  }, [openPushNotification]);
+
+  useFcmMessaging({
+    enabled: Boolean(!isBooting && currentUser && currentUser.role !== 'guest' && authToken),
+    onNotificationPress: openPushNotification,
+  });
+  useMessagingRealtime(Boolean(!isBooting && currentUser && currentUser.role !== 'guest' && authToken));
 
   useEffect(() => {
     console.log('[Device]', {
-      phoneType: DEVICE_SIZE_CLASS,
+      phoneType: PHONE_TYPE,
       platform: Platform.OS,
-      screenWidth: SCREEN_WIDTH,
-      screenHeight: SCREEN_HEIGHT,
+      dpWidth: SCREEN_WIDTH,
+      dpHeight: SCREEN_HEIGHT,
+      shortestSideDp: SHORTEST_SIDE_DP,
+      dpRatio: DP_RATIO,
+      densityAdjustedHandsetWidthDp: DENSITY_ADJUSTED_HANDSET_WIDTH_DP,
     });
   }, []);
 
@@ -532,6 +661,7 @@ const App: React.FC = () => {
       DMSans_500Medium,
       DMSans_600SemiBold,
       DMSans_700Bold,
+      Poppins_400Regular,
       Poppins_500Medium,
       Poppins_600SemiBold,
       Poppins_700Bold,
@@ -554,8 +684,8 @@ const App: React.FC = () => {
   useEffect(() => {
     setHeight(vh);
     setWidth(vw);
-    setScreenType(SCREEN_HEIGHT > 880);
-    setSmallWith(SCREEN_WIDTH < 400);
+    setScreenType(PHONE_TYPE !== 'small');
+    setSmallWith(PHONE_TYPE === 'small');
   }, [vh, vw]);
 
   useEffect(() => {
@@ -617,6 +747,9 @@ const App: React.FC = () => {
 
   const handleLogout = async () => {
     const token = useAuthStore.getState().token;
+    await unregisterCurrentPushTokenAsync().catch((error) => {
+      console.warn('Push-token revocation failed; local notification state was cleared.', error);
+    });
     if (token) {
       try {
         await authApi.logout(token);
@@ -625,7 +758,13 @@ const App: React.FC = () => {
       }
     }
 
+    await signOutGoogleAsync().catch((error) => {
+      console.warn('Google session sign-out failed; local app authentication will still be cleared.', error);
+    });
+
     await AsyncStorage.removeItem('pulsar_user');
+    queryClient.clear();
+    clearUnreadCount();
     clearAuth();
     setUser(null);
     setCurrentUser(null);
@@ -653,7 +792,7 @@ const App: React.FC = () => {
               fallbackTitle="App error"
               fallbackMessage="An unexpected error occurred. Retry to reload the app."
             >
-              <NavigationContainer ref={navigationRef}>
+              <NavigationContainer ref={navigationRef} onReady={flushPendingPushNavigation}>
                 <SafeAreaView edges={Platform.OS === 'ios'? []: []} style={{ flex: 1 }}>
 
             <StatusBar barStyle={isDark ? 'light-content' : 'dark-content'} backgroundColor="transparent" translucent = {true} />
@@ -701,7 +840,19 @@ const App: React.FC = () => {
                   <Stack.Screen name="Challenges" component={Challenges} />
                   <Stack.Screen name="RecordContent" component={RecordContent}/>
                   <Stack.Screen name="CreateContent" component={CreateEvent}/>
-                  <Stack.Screen name="CreatorLiveStream" component={CreatorLiveStream}/>
+                  <Stack.Screen
+                    name="CreatorLiveStream"
+                    component={CreatorLiveStream}
+                    options={{
+                      headerShown: false,
+                      statusBarHidden: true,
+                      statusBarTranslucent: true,
+                      statusBarColor: 'transparent',
+                      contentStyle: { backgroundColor: '#000' },
+                    }}
+                  />
+                  <Stack.Screen name="LiveStream" component={ViewerLiveStream}/>
+                  <Stack.Screen name="StreamEnded" component={CreatorLiveSummary}/>
                   <Stack.Screen name="CreateChallenge" component={CreateChallenge}/>
                   <Stack.Screen name="ChallengeDrafts" component={ChallengeDrafts}/>
                   <Stack.Screen name="RevenueSplit" component={RevenueSplit}/>
@@ -822,6 +973,19 @@ const styles = StyleSheet.create({
     ...fontSize.b4, lineHeight: fontSize.b4.lineHeight,
     // backgroundColor: 'blue',
     transform : 'uppercase'
+  },
+  signalTabBadge: {
+    minWidth: 18,
+    height: 18,
+    borderRadius: 9,
+    paddingHorizontal: 4,
+    backgroundColor: PRIMARY_COLOR,
+    borderWidth: 1,
+    borderColor: '#ffffff',
+    color: '#ffffff',
+    fontFamily: 'Poppins_700Bold',
+    fontSize: 9,
+    lineHeight: 16,
   },
   creatorCreateTabOuter: {
     width: 66,

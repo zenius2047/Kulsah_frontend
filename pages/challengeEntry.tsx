@@ -41,25 +41,25 @@ const ChallengeEntry: React.FC = () => {
           backgroundColor="transparent"
           translucent
         />
-        <LinearGradient
+        {/* <LinearGradient
           colors={isDark ? darkGradient : lightGradient}
           start={{ x: 0, y: 0 }}
           end={{ x: 1, y: 1 }}
           style={StyleSheet.absoluteFill}
-        />
+        /> */}
 
         <View style={[styles.header, { borderBottomColor: headerBorder, backgroundColor: headerBackground }]}>
-          <Pressable style={[styles.iconButton, { backgroundColor: iconSurface }]} onPress={() => navigation.goBack()}>
+          {/* <Pressable style={[styles.iconButton, { backgroundColor: iconSurface }]} onPress={() => navigation.goBack()}>
             <MaterialIcons name="close" size={24} color={theme.text} />
-          </Pressable>
+          </Pressable> */}
 
           <Text style={[styles.headerTitle, { color: theme.text }]}>Submit Entry</Text>
 
-          <View style={styles.headerRight}>
+          {/* <View style={styles.headerRight}>
             <Pressable style={[styles.iconButton, { backgroundColor: iconSurface }]}>
               <MaterialIcons name="help-outline" size={22} color={theme.text} />
             </Pressable>
-          </View>
+          </View> */}
         </View>
 
         <ScrollView
@@ -171,8 +171,8 @@ const styles = StyleSheet.create({
     paddingHorizontal: 16,
     paddingTop: 8,
     paddingBottom: 14,
-    borderBottomWidth: 1,
-    borderBottomColor: 'rgba(217, 21, 210, 0.12)',
+    // borderBottomWidth: 1,
+    // borderBottomColor: 'rgba(217, 21, 210, 0.12)',
     backgroundColor: 'rgba(15, 8, 20, 0.84)',
   },
   iconButton: {
@@ -187,7 +187,7 @@ const styles = StyleSheet.create({
     flex: 1,
     textAlign: 'center',
     color: '#F8FAFC',
-    ...fontSize.b4, lineHeight: fontSize.b4.lineHeight,
+    ...fontSize.h1, lineHeight: fontSize.h1.lineHeight + 1,
   },
   headerRight: {
     width: 40,
@@ -205,13 +205,14 @@ const styles = StyleSheet.create({
     borderRadius: 24,
     overflow: 'hidden',
     borderWidth: 1,
-    borderColor: 'rgba(217, 21, 210, 0.18)',
-    backgroundColor: 'rgba(217, 21, 210, 0.12)',
-    shadowColor: PRIMARY_COLOR,
-    shadowOffset: { width: 0, height: 16 },
-    shadowOpacity: 0.12,
-    shadowRadius: 24,
-    elevation: 8,
+    borderColor: 'transparent'
+    // borderColor: 'rgba(217, 21, 210, 0.18)',
+    // backgroundColor: 'rgba(217, 21, 210, 0.12)',
+    // shadowColor: PRIMARY_COLOR,
+    // shadowOffset: { width: 0, height: 16 },
+    // shadowOpacity: 0.12,
+    // shadowRadius: 24,
+    // elevation: 8,
   },
   heroImage: {
     ...StyleSheet.absoluteFillObject,
@@ -260,8 +261,9 @@ const styles = StyleSheet.create({
   },
   descriptionText: {
     color: '#94A3B8',
-    ...fontSize.b4,
-    lineHeight: 22,
+    ...fontSize.b3,
+    lineHeight: fontSize.b3.lineHeight + 2,
+    // lineHeight: 22,
   },
   hashTag: {
     color: PRIMARY_COLOR,

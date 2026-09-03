@@ -1,21 +1,18 @@
-import React, { useCallback, useEffect, useRef, useState } from 'react';
-import { Dimensions, FlatList, Image, ImageBackground, Keyboard, Modal, Platform, Pressable, StyleSheet, Text, TextInput, View } from 'react-native';
+import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react';
+import { ActivityIndicator, Dimensions, FlatList, Image, ImageBackground, Keyboard, Modal, Platform, Pressable, StyleSheet, Text, TextInput, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { MaterialIcons } from '@expo/vector-icons';
 import { LinearGradient } from 'expo-linear-gradient';
 import { useIsFocused } from '@react-navigation/native';
 import { useNavigation } from '@react-navigation/native';
-import { useEvent } from 'expo';
-import { useVideoPlayer, VideoView } from 'expo-video';
+import { RtcSurfaceView, RtcTextureView } from 'react-native-agora';
 import { useThemeMode, PRIMARY_COLOR, primaryColorAlpha } from "../theme";
-import GiftDialog, { GiftSelection } from '../components/GiftDialog';
 import { fontSize } from './typography';
-
-interface Creator {
-  id: string;
-  handle: string;
-  avatar: string;
-}
+import { useLiveDiscovery } from '../src/hooks/live/useLive';
+import { liveApi } from '../src/api/live.api';
+import { useAgoraLive } from '../src/hooks/live/useAgoraLive';
+import type { LiveCredentials, LiveSession } from '../src/types/live.types';
+import { flattenLivePages, formatLiveCount } from '../src/utils/live';
 
 interface LiveCard {
   id: string;
@@ -28,161 +25,82 @@ interface LiveCard {
   viewers: string;
   likes: string;
   shares: string;
+  liveSession?: LiveSession;
 }
 
 interface ChatMessage {
   id: number;
   user: string;
   text: string;
+  avatar?: string | null;
   isTip?: boolean;
   isSystem?: boolean;
 }
 
-const CREATORS: Creator[] = [
-  {
-    id: '1',
-    handle: '@jax_vibe',
-    avatar: 'https://lh3.googleusercontent.com/aida-public/AB6AXuCGUUvpbnJHLH2yAYycba74msPWTRnhv7eY5c-c3vfnoLP76AC7kk5smgARt5RqTPE6A70_i_Zc6ZGuduEG5cb1M-OLpeNHalGFl6LFnLvOcrwRgoGHmWyuNRmOlrrdSDiTOEXrLj6OHExcThPDqtzloEUiOP9EbAPeqrzm2kwDsLJTScMJULVPb9j-46_84ddWslcRfIUqepP7uEUkck-oQNDd7jV8kuMUd-o9g0DWsTeJyhs18k5kvDzc1IOrdhRpypHFknTDfATY',
-  },
-  {
-    id: '2',
-    handle: '@luna.art',
-    avatar: 'https://lh3.googleusercontent.com/aida-public/AB6AXuDME57q598ZsuY-Hl0kV9iD8di4BLbpV8FA941TIWb50qf8p8uqva8ALr6UUnkbvIW9JeDmqDZMUKm6qYBIRc_PQsTe5Bcy5OsVyB834pALm2In1qk_mlTc_o4qbyEyMxTRCpXiQkD86Y4pCwJiL4XkZoo11bbOZHt1elL2xPf3iHQqtMHmWL0YmTRff2tjlp1LwhlKaam9NTEP4lijKHCLFyCknemguEpIPjwjKGpaaAXmWdVTE_xf8LTolo-cvRYHVf6Ws2hudLS9',
-  },
-  {
-    id: '3',
-    handle: '@dj_pulse',
-    avatar: 'https://lh3.googleusercontent.com/aida-public/AB6AXuA5vDLwhlVNvZm5NWJdbn_ethfAW6zOMnkRZYXsmMoTsUjjE1TbkiHIO82DuRV74JqUyCEXvwwNhHzK7GDV3UJqEo8FNOIM8ymoOK63TcVjwnmqff6uTwj_rR3d8dnljVjnlSb5ButBgfdkInSyvkoqzvy6Yik-lyF0vLy1P5-nOUm1bgg2Qpa18THUbM6JgIK1kT1SyxmHg92bwxciGtUiB1N133xRHSfVhLmPy5XWzFQaL6yGOjL6_JP7BByR5l_My4HmKQoRvkHX',
-  },
-  {
-    id: '4',
-    handle: '@neon_ki',
-    avatar: 'https://lh3.googleusercontent.com/aida-public/AB6AXuDQuxwNtfIttjCkSej7kkIbye9ofatA0PFz-RwfkHrmgRUppahq9oKgFeL31Jcyhu4HoVjyOUHRlJ9WiEmu9TN12fWjqqD8TqzFpvbaazVOsjyvKM-RKgqNd_aWCpogYrdvQjTgma7wYt8x4M7nsT4WK1ojfsmPG-_XMDd80ZdxEbK3wadI7dC-zlkkIcVommk5mKuM9sZBu1LiuA6jR_GEJYsvHoFqweJa7Z4EgwNUxonArB2ucrv1xxDUit9mfjq4eykhJxaDTxa9',
-  },
-  {
-    id: '5',
-    handle: '@pixel.boy',
-    avatar: 'https://lh3.googleusercontent.com/aida-public/AB6AXuBxf7k_LoN_3saluH3Dv8FZWk0NjBHNBuR2mEjGOrqNyirmn1xYmNdPnqXQbljJ27T25CVb61WhoAzhylM9cM-S8y5L0xfrbrQbPUOMZR7hfYQgdmlbxlNZ2o0-F9B2gimjxqCJvwPIcKMPBYnydDHifXUGQzJHI9FZC6fnwX2ek_-csZWXDDKpZDTpDcHTgAJ5cLJ1a_o0erc4OqcPXhZ-ENKRhLw3cyHyjc6SxCzJ62h4lSWDOz0dyoKUBnTz3rwTEOFLND4H_HXC',
-  },
-];
-
-const LIVE_CARDS: LiveCard[] = [
-  {
-    id: '1',
-    title: 'Jax Vibe',
-    subtitle: 'Late Night Synth Sessions',
-    host: 'Jax Vibe',
-    hostAvatar: 'https://lh3.googleusercontent.com/aida-public/AB6AXuAzMt1t9ktdctuxyxjzE4qg-cwmCNuIkWWkoJ_YAMMycXSppvXqs6Gd7x7jjDrnYmGnxon5AiHf6KQYhQu8czjIwjN6i3_qx4RQ2WcgHXdQM6yZsRP8j3ZV2iHHyO5kqQ3JywhWKbi8oVpRzBkk5Fd8nR2AGslyQrMDoU12xb9rd2Q2HYuA_C2scKn3SvqKGpbHOvjbBQv2fAHp8wHx3qYe7Q3ApqiDU-aDCI52Rit_r5Nat6uBMi3I8Mek78Lw8XD-YGZ_Z7Dp6x76',
-    background: 'https://lh3.googleusercontent.com/aida-public/AB6AXuCWFbjP_sxpdd4GfgqN9EveXOHviBX1FAOj--gOgEA32jLJFvqbjt5HFbXDD2A-eInh0mdQFFY_mJ2pdG_eFUAfVC4foCAMjO73euuUwXlznm9DfxVLm7fpQCkMxaw7Jnl3BDR9-2lMorOyuPAIeuAxZMD9lrWhk5xYqOMzbmTzi0yDJbpZom5h_SJXUGU_WNlw6dJlV9dTWgz8oG3bOg94xIcNNwAZNbCAy_6YHsAaiFD-Vbs6Ep-bzfmjesCI-98p3yvR885zHVCU',
-    video: 'https://res.cloudinary.com/dh0dywpzm/video/upload/v1779790082/k434_live_qaebmy.mp4',
-    viewers: '14.2K',
-    likes: '1.2K',
-    shares: '452',
-  },
-  {
-    id: '2',
-    title: 'Luna Art',
-    subtitle: 'Digital Painting Challenge',
-    host: 'Luna Art',
-    hostAvatar: 'https://lh3.googleusercontent.com/aida-public/AB6AXuBah-FMJI3CsndGYvwStH67BnBdzg5wGfeR-5fLu2TReyIinbph2Z07Po3fUl9Mhww1EZLgFUx7hKvBpAyPz7g3kT2uSSIba1xpbhtUw4Y-wD4kMVwtZ4mMbf6qiW_mcOz1mocU85Cu0cCIWk0qNMeZ73nMcoHUIW3jE7qHniHu2HML17HiRLBQ6t7wraIyp2v5nLhiPEdFlanCoVTJhKg9H3pvHvDs1D4se9ZZr9sX6gCiRuWHMoLUUUfsIbT3hexYJwHLeug_Fi2l',
-    background: 'https://lh3.googleusercontent.com/aida-public/AB6AXuAKfVGBTtWh5dH3fubvRegqq3-V3mC2RRO9kvRAdv7OfHlcnwRCd9PG_b1djBvd39C6DhmvVWHRmBcdvoe4iWYCCH7JUnagMrQaYpM4nBA5X2XLs7VBMJAPuV3HgxUlh2h6esPaAfApWIfnGjSLgUR_uuoo7VP3gpYxxKgTjSF-_f2-faN9URONof-GmdJFaQYKReT6kLMPvSMzcuHEhXfX9zr8ct8_vbJFRUv52P4BxFVLzb2FmTD8HCujuSM3n1LNSAkLWptHZdHb',
-    video: 'https://res.cloudinary.com/dh0dywpzm/video/upload/v1779790948/K50526_sfmxi0.mp4',
-    viewers: '8.9K',
-    likes: '4.5K',
-    shares: '1.1K',
-  },
-  {
-    id: '3',
-    title: 'Bliss Khalil',
-    subtitle: 'Personality Challenge',
-    host: 'Khalil',
-    hostAvatar: 'https://lh3.googleusercontent.com/aida-public/AB6AXuBah-FMJI3CsndGYvwStH67BnBdzg5wGfeR-5fLu2TReyIinbph2Z07Po3fUl9Mhww1EZLgFUx7hKvBpAyPz7g3kT2uSSIba1xpbhtUw4Y-wD4kMVwtZ4mMbf6qiW_mcOz1mocU85Cu0cCIWk0qNMeZ73nMcoHUIW3jE7qHniHu2HML17HiRLBQ6t7wraIyp2v5nLhiPEdFlanCoVTJhKg9H3pvHvDs1D4se9ZZr9sX6gCiRuWHMoLUUUfsIbT3hexYJwHLeug_Fi2l',
-    background: 'https://lh3.googleusercontent.com/aida-public/AB6AXuAKfVGBTtWh5dH3fubvRegqq3-V3mC2RRO9kvRAdv7OfHlcnwRCd9PG_b1djBvd39C6DhmvVWHRmBcdvoe4iWYCCH7JUnagMrQaYpM4nBA5X2XLs7VBMJAPuV3HgxUlh2h6esPaAfApWIfnGjSLgUR_uuoo7VP3gpYxxKgTjSF-_f2-faN9URONof-GmdJFaQYKReT6kLMPvSMzcuHEhXfX9zr8ct8_vbJFRUv52P4BxFVLzb2FmTD8HCujuSM3n1LNSAkLWptHZdHb',
-    video: 'https://res.cloudinary.com/dh0dywpzm/video/upload/v1779791753/0526k_293_jg9442.mp4',
-    viewers: '8.9K',
-    likes: '4.5K',
-    shares: '1.1K',
-  },
-];
-
-const INITIAL_TIME_UPDATE = { currentTime: 0 } as const;
-
-const LiveCardVideo: React.FC<{
-  video?: string;
+const LiveCardPreview: React.FC<{
+  liveSession?: LiveSession;
   fallbackImage: string;
-  isPlaying: boolean;
-  isMuted: boolean;
-}> = ({ video, fallbackImage, isPlaying, isMuted }) => {
+  isVisible: boolean;
+}> = ({ liveSession, fallbackImage, isVisible }) => {
   const isFocused = useIsFocused();
-  const playbackStateRef = useRef<boolean | null>(null);
-  const muteStateRef = useRef<boolean | null>(null);
-  const [dimensions, setDimensions] = useState({ width: 0, height: 0 });
-
-  const configurePlayer = useCallback((player: any) => {
-    player.loop = true;
-    player.timeUpdateEventInterval = 0.25;
-  }, []);
-
-  const player = useVideoPlayer(video ?? null, configurePlayer);
-  const loadedMetadata = useEvent(player, 'sourceLoad');
-  useEvent(player as any, 'timeUpdate', INITIAL_TIME_UPDATE);
-
-  const loadedTrack = loadedMetadata?.availableVideoTracks?.[0];
-  const loadedWidth = loadedTrack?.size?.width ?? 0;
-  const loadedHeight = loadedTrack?.size?.height ?? 0;
-  const isPortraitVideo =
-    dimensions.width === 0 ||
-    dimensions.height === 0 ||
-    dimensions.height >= dimensions.width;
+  const [credentials, setCredentials] = useState<LiveCredentials | null>(null);
+  const shouldPreview = isFocused && isVisible && Boolean(liveSession?.id);
+  const RtcVideoView = Platform.OS === 'android' ? RtcTextureView : RtcSurfaceView;
 
   useEffect(() => {
-    if (loadedWidth > 0 && loadedHeight > 0) {
-      setDimensions((prev) => (
-        prev.width === loadedWidth && prev.height === loadedHeight
-          ? prev
-          : { width: loadedWidth, height: loadedHeight }
-      ));
+    let cancelled = false;
+
+    if (!shouldPreview || !liveSession?.id) {
+      setCredentials(null);
+      return () => {
+        cancelled = true;
+      };
     }
-  }, [loadedHeight, loadedWidth]);
+
+    setCredentials(null);
+    void liveApi.preview(liveSession.id)
+      .then((response) => {
+        if (!cancelled) setCredentials(response.data.credentials);
+      })
+      .catch(() => {
+        if (!cancelled) setCredentials(null);
+      });
+
+    return () => {
+      cancelled = true;
+    };
+  }, [liveSession?.id, shouldPreview]);
+
+  const agora = useAgoraLive({
+    credentials,
+    enabled: shouldPreview && Boolean(credentials),
+    remoteAudioMuted: true,
+  });
 
   useEffect(() => {
-    if (!video || !player) return;
+    if (shouldPreview) agora.setRemoteAudioMuted(true);
+  }, [agora.setRemoteAudioMuted, shouldPreview]);
 
-    const shouldPlay = isFocused && isPlaying;
-    if (playbackStateRef.current === shouldPlay) return;
+  const remoteUid = agora.remoteUids[0];
 
-    playbackStateRef.current = shouldPlay;
+  if (remoteUid != null && shouldPreview) {
+    return <RtcVideoView canvas={{ uid: remoteUid }} style={StyleSheet.absoluteFill} />;
+  }
 
-    if (shouldPlay) {
-      player.play();
-    } else {
-      player.pause();
-    }
-  }, [isFocused, isPlaying, player, video]);
-
-  useEffect(() => {
-    if (!video || !player || muteStateRef.current === isMuted) return;
-    muteStateRef.current = isMuted;
-    player.muted = isMuted;
-  }, [isMuted, player, video]);
-
-  if (!video) {
+  if (!fallbackImage) {
     return (
-      <ImageBackground
-        source={{ uri: fallbackImage }}
+      <LinearGradient
+        colors={['#241129', '#111827', '#050505']}
         style={StyleSheet.absoluteFill}
-        imageStyle={styles.cardImage}
       />
     );
   }
 
   return (
-    <VideoView
-      player={player}
-      nativeControls={false}
-      contentFit={isPortraitVideo ? 'cover' : 'contain'}
+    <ImageBackground
+      source={{ uri: fallbackImage }}
       style={StyleSheet.absoluteFill}
-      allowsPictureInPicture
+      imageStyle={styles.cardImage}
     />
   );
 };
@@ -190,55 +108,38 @@ const LiveCardVideo: React.FC<{
 const LiveFeed: React.FC = () => {
   const { isDark, theme } = useThemeMode();
   const navigation = useNavigation<any>();
+  const isFeedFocused = useIsFocused();
   const viewportHeight = Dimensions.get('screen').height;
   const creatorStripHeight = viewportHeight * 0.18;
   const [activeIndex, setActiveIndex] = useState(0);
-  const [isGlobalMuted, setIsGlobalMuted] = useState(true);
   const [keyboardHeight, setKeyboardHeight] = useState(0);
   const [focusedCardId, setFocusedCardId] = useState<string | null>(null);
   const [commentDrafts, setCommentDrafts] = useState<Record<string, string>>({});
-  const [giftDialogOpen, setGiftDialogOpen] = useState(false);
-  const [giftTarget, setGiftTarget] = useState<LiveCard | null>(null);
   const [joinConfirmOpen, setJoinConfirmOpen] = useState(false);
   const [joinTarget, setJoinTarget] = useState<LiveCard | null>(null);
-  const [coinBalance, setCoinBalance] = useState(1250);
-  const [commentsByCard, setCommentsByCard] = useState<Record<string, ChatMessage[]>>({
-    '1': [
-      { id: 1, user: 'Alex_Vibes', text: 'This lighting is next level!' },
-      { id: 2, user: 'Sarah_Music', text: 'Play the new single!' },
-      { id: 3, user: 'BeatMaster', text: 'sent a Buy Dinner gift!', isTip: true },
-    ],
-    '2': [
-      { id: 4, user: 'Nova_Fan', text: 'Watching from Lagos!' },
-      { id: 5, user: 'PixelMuse', text: 'The brushwork is unreal.' },
-      { id: 6, user: 'SYSTEM', text: 'Gift streak unlocked in this room.', isSystem: true },
-    ],
-  });
+  const [commentsByCard] = useState<Record<string, ChatMessage[]>>({});
+  const liveQuery = useLiveDiscovery();
+  const discoveredLives = useMemo(() => flattenLivePages(liveQuery.data?.pages), [liveQuery.data?.pages]);
+  const liveCards = useMemo<LiveCard[]>(() => discoveredLives.map((live) => ({
+    id: live.id,
+    title: live.creator?.name ?? 'Creator',
+    subtitle: live.title,
+    host: live.creator?.name ?? 'Creator',
+    hostAvatar: live.creator?.avatar ?? '',
+    background: live.cover_url ?? '',
+    viewers: formatLiveCount(live.current_viewers),
+    likes: formatLiveCount(live.likes_count),
+    shares: formatLiveCount(live.comments_count),
+    liveSession: live,
+  })), [discoveredLives]);
 
   const submitComment = (cardId: string) => {
-    const nextDraft = commentDrafts[cardId]?.trim();
-    if (!nextDraft) return;
-
-    setCommentsByCard((prev) => ({
-      ...prev,
-      [cardId]: [
-        ...(prev[cardId] ?? []),
-        {
-          id: Date.now(),
-          user: 'You',
-          text: nextDraft,
-        },
-      ],
-    }));
-    setCommentDrafts((prev) => ({
-      ...prev,
-      [cardId]: '',
-    }));
+    const target = liveCards.find((card) => card.id === cardId);
+    if (target) openJoinConfirm(target);
   };
 
   const openGiftDialog = (card: LiveCard) => {
-    setGiftTarget(card);
-    setGiftDialogOpen(true);
+    openJoinConfirm(card);
   };
 
   const openJoinConfirm = (card: LiveCard) => {
@@ -247,27 +148,11 @@ const LiveFeed: React.FC = () => {
   };
 
   const confirmJoin = () => {
+    if (!joinTarget?.liveSession) return;
+    const target = joinTarget.liveSession;
     setJoinConfirmOpen(false);
     setJoinTarget(null);
-    navigation.navigate('CreatorLiveStream');
-  };
-
-  const handleSendGift = (gift: GiftSelection) => {
-    if (!giftTarget) return;
-
-    setCoinBalance((prev) => prev - gift.price);
-    setCommentsByCard((prev) => ({
-      ...prev,
-      [giftTarget.id]: [
-        ...(prev[giftTarget.id] ?? []),
-        {
-          id: Date.now(),
-          user: 'You',
-          text: `sent ${gift.name} worth ${gift.price} KC`,
-          isTip: true,
-        },
-      ],
-    }));
+    navigation.navigate('LiveStream', { liveSessionId: target.id, initialLive: target });
   };
 
   useEffect(() => {
@@ -303,7 +188,7 @@ const LiveFeed: React.FC = () => {
   const renderCreatorStrip = () => (
     <View style={{ height: creatorStripHeight, backgroundColor: theme.background, paddingTop: viewportHeight * 0.05}}>
       <FlatList
-        data={CREATORS}
+        data={liveCards}
         horizontal
         keyExtractor={(item) => item.id}
         showsHorizontalScrollIndicator={false}
@@ -316,9 +201,9 @@ const LiveFeed: React.FC = () => {
               end={{ x: 1, y: 1 }}
               style={styles.creatorRing}
             >
-              <Image source={{ uri: creator.avatar }} style={styles.creatorAvatar} />
+              {creator.hostAvatar ? <Image source={{ uri: creator.hostAvatar }} style={styles.creatorAvatar} /> : <View style={[styles.creatorAvatar, { backgroundColor: '#32113c' }]} />}
             </LinearGradient>
-            <Text style={[styles.creatorHandle, { color: isDark ? '#cbd5e1' : theme.textSecondary }]}>{creator.handle}</Text>
+            <Text style={[styles.creatorHandle, { color: isDark ? '#cbd5e1' : theme.textSecondary }]} numberOfLines={1}>@{creator.liveSession?.creator?.handle ?? creator.liveSession?.creator?.username ?? creator.host}</Text>
           </View>
         )}
         ListHeaderComponent={<View style={styles.creatorSpacer} />}
@@ -346,11 +231,10 @@ const LiveFeed: React.FC = () => {
         ]}
       >
         <View style={[styles.card, { height: '100%', paddingTop: index !== 0 ? viewportHeight * 0.025 : 0 }]}>
-          <LiveCardVideo
-            video={card.video}
+          <LiveCardPreview
+            liveSession={card.liveSession}
             fallbackImage={card.background}
-            isPlaying={index === activeIndex}
-            isMuted={isGlobalMuted}
+            isVisible={index === activeIndex && isFeedFocused}
           />
           <View style={styles.cardTint} />
 
@@ -365,9 +249,9 @@ const LiveFeed: React.FC = () => {
               <Text style={styles.viewerBadgeText}>{card.viewers}</Text>
             </View>
 
-            <Pressable style={styles.viewerBadge} onPress={() => setIsGlobalMuted((prev) => !prev)}>
-              <MaterialIcons name={isGlobalMuted ? 'volume-off' : 'volume-up'} size={14} color="#f8fafc" />
-            </Pressable>
+            <View style={styles.viewerBadge}>
+              <MaterialIcons name="volume-off" size={14} color="#f8fafc" />
+            </View>
           </View>
 
           <LinearGradient
@@ -387,9 +271,9 @@ const LiveFeed: React.FC = () => {
                         message.isSystem ? styles.chatSystemCard : null,
                       ]}
                     >
-                      {!message.isSystem ? (
+                      {!message.isSystem && message.avatar ? (
                         <Image
-                          source={{ uri: `https://picsum.photos/seed/livefeed-${message.id}/60` }}
+                          source={{ uri: message.avatar }}
                           style={styles.chatAvatar}
                         />
                       ) : null}
@@ -414,7 +298,7 @@ const LiveFeed: React.FC = () => {
                 </View>
 
                 <View style={styles.hostRow}>
-                  <Image source={{ uri: card.hostAvatar }} style={styles.hostAvatar} />
+                  {card.hostAvatar ? <Image source={{ uri: card.hostAvatar }} style={styles.hostAvatar} /> : <View style={[styles.hostAvatar, { backgroundColor: '#32113c' }]} />}
                   <View style={styles.hostText}>
                     <Text style={styles.hostName}>{card.title}</Text>
                     <Text style={styles.hostSubtitle}>{card.subtitle}</Text>
@@ -495,10 +379,21 @@ const LiveFeed: React.FC = () => {
         <FlatList
         bounces={false}
           scrollEnabled={keyboardHeight === 0}
-          data={LIVE_CARDS}
+          data={liveCards}
           keyExtractor={(item) => item.id}
           renderItem={renderLiveCard}
           ListHeaderComponent={renderCreatorStrip}
+          ListEmptyComponent={liveQuery.isLoading ? (
+            <View style={styles.feedState}><ActivityIndicator size="large" color={PRIMARY_COLOR} /><Text style={styles.feedStateText}>Finding active Lives...</Text></View>
+          ) : (
+            <View style={styles.feedState}><MaterialIcons name="live-tv" size={46} color="#94a3b8" /><Text style={styles.feedStateText}>{liveQuery.isError ? 'Live feed unavailable. Pull down to retry.' : 'No one is live right now.'}</Text></View>
+          )}
+          refreshing={liveQuery.isRefetching && !liveQuery.isFetchingNextPage}
+          onRefresh={() => void liveQuery.refetch()}
+          onEndReached={() => {
+            if (liveQuery.hasNextPage && !liveQuery.isFetchingNextPage) void liveQuery.fetchNextPage();
+          }}
+          onEndReachedThreshold={0.4}
           onViewableItemsChanged={onViewableItemsChanged}
           viewabilityConfig={viewabilityConfig}
           showsVerticalScrollIndicator={false}
@@ -511,17 +406,6 @@ const LiveFeed: React.FC = () => {
           }}
         />
       </View>
-      <GiftDialog
-        isOpen={giftDialogOpen}
-        onClose={() => setGiftDialogOpen(false)}
-        creatorName={giftTarget?.host ?? 'Creator'}
-        currentBalance={coinBalance}
-        onSendGift={(gift) => {
-          handleSendGift(gift);
-          setGiftDialogOpen(false);
-        }}
-        onTopUpSuccess={(amount) => setCoinBalance((prev) => prev + amount)}
-      />
       <Modal
         visible={joinConfirmOpen}
         transparent
@@ -806,6 +690,19 @@ const styles = StyleSheet.create({
     color: '#fff',
     ...fontSize.b5, lineHeight: fontSize.b5.lineHeight,
     marginTop: 2,
+  },
+  feedState: {
+    minHeight: 420,
+    alignItems: 'center',
+    justifyContent: 'center',
+    gap: 12,
+    paddingHorizontal: 30,
+  },
+  feedStateText: {
+    color: '#cbd5e1',
+    ...fontSize.b4,
+    lineHeight: fontSize.b4.lineHeight,
+    textAlign: 'center',
   },
   hostRow: {
     flexDirection: 'row',

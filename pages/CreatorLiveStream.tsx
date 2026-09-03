@@ -2,6 +2,7 @@ import React, { useEffect, useMemo, useRef, useState } from 'react';
 import { useThemeMode, PRIMARY_COLOR, primaryColorAlpha } from "../theme";
 import {
   ActivityIndicator,
+  Alert,
   Image,
   KeyboardAvoidingView,
   Modal,
@@ -9,28 +10,51 @@ import {
   Pressable,
   ScrollView,
   StyleSheet,
+  StatusBar,
   Text,
   TextInput,
   View,
 } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { BlurView } from 'expo-blur';
-import { CameraView, useCameraPermissions } from 'expo-camera';
+import { useCameraPermissions, useMicrophonePermissions } from 'expo-camera';
 import { LinearGradient } from 'expo-linear-gradient';
 import { MaterialIcons } from '@expo/vector-icons';
-import { useNavigation } from '@react-navigation/native';
-import { GoogleGenAI } from '@google/genai';
-import GiftDialog, { GiftSelection } from '../components/GiftDialog';
+import { useNavigation, useRoute } from '@react-navigation/native';
+import { RenderModeType, RtcSurfaceView, RtcTextureView, VideoSourceType } from 'react-native-agora';
 import { mediumScreen } from '../types';
 import { fontSize } from '../typography';
+import { liveApi } from '../src/api/live.api';
+import {
+  useCommentOnLive,
+  useConfirmLive,
+  useEndLive,
+  useLiveSession,
+  useReconnectLive,
+  useStartLive,
+} from '../src/hooks/live/useLive';
+import { useAgoraLive } from '../src/hooks/live/useAgoraLive';
+import { useLiveRealtime } from '../src/hooks/live/useLiveRealtime';
+import type { LiveCredentials, LiveSession } from '../src/types/live.types';
+import { getApiErrorMessage } from '../src/utils/apiError';
+import { formatLiveCount } from '../src/utils/live';
 
 interface ChatMessage {
   id: number;
   user: string;
   text: string;
+  avatar?: string | null;
   isTip?: boolean;
   isSystem?: boolean;
 }
+
+type CreatorLiveRoute = {
+  params?: {
+    liveSessionId?: string;
+    initialLive?: LiveSession;
+    quality?: string;
+  };
+};
 
 const statsConfig = [
   { label: 'Viewers', icon: 'visibility' as const, color: '#60a5fa' },
@@ -42,44 +66,104 @@ const statsConfig = [
 const CreatorLiveStream: React.FC = () => {
   const { isDark, theme } = useThemeMode();
   const navigation = useNavigation<any>();
+  const route = useRoute<CreatorLiveRoute>();
+  const liveSessionId = route.params?.liveSessionId ?? route.params?.initialLive?.id ?? '';
   const chatScrollRef = useRef<ScrollView | null>(null);
   const insets = useSafeAreaInsets();
-  const [permission, requestPermission] = useCameraPermissions();
+  const [cameraPermission, requestCameraPermission] = useCameraPermissions();
+  const [microphonePermission, requestMicrophonePermission] = useMicrophonePermissions();
+  const permissionsGranted = Boolean(cameraPermission?.granted && microphonePermission?.granted);
 
   const [sessionSeconds, setSessionSeconds] = useState(0);
   const [isMuted, setIsMuted] = useState(false);
   const [cameraFacing, setCameraFacing] = useState<'front' | 'back'>('front');
-  const [aiAudit, setAiAudit] = useState<string | null>(null);
-  const [isAiLoading, setIsAiLoading] = useState(false);
   const [showEndConfirm, setShowEndConfirm] = useState(false);
   const [broadcastText, setBroadcastText] = useState('');
+  const [credentials, setCredentials] = useState<LiveCredentials | null>(null);
+  const [connectionError, setConnectionError] = useState<string | null>(null);
+  const [chatMessages, setChatMessages] = useState<ChatMessage[]>([]);
+  const startAttemptedRef = useRef(false);
+  const confirmedRef = useRef(false);
 
-  const [giftDialogOpen, setGiftDialogOpen] = useState(false);
+  const liveQuery = useLiveSession(liveSessionId, Boolean(liveSessionId));
+  const live = liveQuery.data ?? route.params?.initialLive;
+  const startLive = useStartLive(liveSessionId);
+  const confirmLive = useConfirmLive(liveSessionId);
+  const reconnectLive = useReconnectLive(liveSessionId);
+  const endLive = useEndLive(liveSessionId);
+  const commentLive = useCommentOnLive(liveSessionId);
+  useLiveRealtime(liveSessionId, Boolean(liveSessionId));
+  const RtcVideoView = Platform.OS === 'android' ? RtcTextureView : RtcSurfaceView;
+  const localVideoCanvas = useMemo(
+    () => ({
+      uid: 0,
+      sourceType: VideoSourceType.VideoSourceCameraPrimary,
+      renderMode: RenderModeType.RenderModeFit,
+    }),
+    []
+  );
 
-  const [viewers, setViewers] = useState(14284);
-  const [likes, setLikes] = useState(128400);
-  const [tips, setTips] = useState(1240.5);
-  const [coinBalance, setCoinBalance] = useState(1250);
+  const agora = useAgoraLive({
+    credentials,
+    enabled: permissionsGranted,
+    onJoined: async () => {
+      if (confirmedRef.current) return;
+      confirmedRef.current = true;
+      try {
+        await confirmLive.mutateAsync();
+      } catch (error) {
+        confirmedRef.current = false;
+        setConnectionError(getApiErrorMessage(error));
+      }
+    },
+    onReconnected: async () => {
+      try {
+        await reconnectLive.mutateAsync();
+        await confirmLive.mutateAsync();
+      } catch {
+        // The SDK continues its own retry loop; the next REST refresh reconciles state.
+      }
+    },
+    renewCredentials: async () => {
+      const response = await startLive.mutateAsync();
+      setCredentials(response.credentials);
+      return response.credentials;
+    },
+  });
 
-  const [chatMessages, setChatMessages] = useState<ChatMessage[]>([
-    { id: 1, user: 'Alex_Vibes', text: 'This lighting is next level!' },
-    { id: 2, user: 'Sarah_Music', text: 'Play the new single!' },
-    { id: 3, user: 'BeatMaster', text: 'sent a Buy Dinner gift!', isTip: true },
-    { id: 4, user: 'Nova_Fan', text: 'Watching from Lagos!' },
-  ]);
+  useEffect(() => {
+    if (!permissionsGranted || !liveSessionId || credentials || startAttemptedRef.current) return;
+    startAttemptedRef.current = true;
+    void startLive.mutateAsync()
+      .then((response) => setCredentials(response.credentials))
+      .catch((error) => {
+        startAttemptedRef.current = false;
+        setConnectionError(getApiErrorMessage(error));
+      });
+  }, [credentials, liveSessionId, permissionsGranted]);
 
   useEffect(() => {
     const timer = setInterval(() => setSessionSeconds((s) => s + 1), 1000);
-    const telemetryInterval = setInterval(() => {
-      setViewers((v) => Math.max(0, v + Math.floor(Math.random() * 10) - 4));
-      setLikes((l) => l + Math.floor(Math.random() * 50));
-    }, 3000);
-
     return () => {
       clearInterval(timer);
-      clearInterval(telemetryInterval);
     };
   }, []);
+
+  useEffect(() => {
+    if (!liveSessionId || !credentials) return;
+    const sendHeartbeat = () => {
+      void liveApi.heartbeat(liveSessionId, {
+        broadcast_state: agora.connectionState,
+        network_quality: agora.networkQuality,
+        audio_state: isMuted ? 'muted' : 'enabled',
+        video_state: 'enabled',
+        resolution: route.params?.quality ?? null,
+      }).catch(() => undefined);
+    };
+    sendHeartbeat();
+    const interval = setInterval(sendHeartbeat, 10_000);
+    return () => clearInterval(interval);
+  }, [agora.connectionState, agora.networkQuality, credentials, isMuted, liveSessionId, route.params?.quality]);
 
   useEffect(() => {
     chatScrollRef.current?.scrollToEnd({ animated: true });
@@ -87,15 +171,15 @@ const CreatorLiveStream: React.FC = () => {
 
   const telemetry = useMemo(
     () => [
-      { ...statsConfig[0], value: viewers.toLocaleString() },
-      { ...statsConfig[1], value: `${(likes / 1000).toFixed(1)}k` },
+      { ...statsConfig[0], value: formatLiveCount(live?.current_viewers ?? 0) },
+      { ...statsConfig[1], value: formatLiveCount(live?.likes_count ?? 0) },
       {
         ...statsConfig[2],
-        value: `$${tips.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`,
+        value: `${formatLiveCount(live?.earnings_kc ?? 0)} KC`,
       },
-      { ...statsConfig[3], value: '98%' },
+      { ...statsConfig[3], value: agora.connectionState === 'connected' ? (agora.networkQuality <= 2 ? 'Good' : 'Weak') : 'Connecting' },
     ],
-    [likes, tips, viewers]
+    [agora.connectionState, agora.networkQuality, live?.current_viewers, live?.earnings_kc, live?.likes_count]
   );
 
   const formatTimer = (s: number) => {
@@ -107,72 +191,68 @@ const CreatorLiveStream: React.FC = () => {
       .padStart(2, '0')}`;
   };
 
-  const getAIEnergyAudit = async () => {
-    if (isAiLoading) return;
-    setIsAiLoading(true);
+  const handleBroadcast = async () => {
+    const body = broadcastText.trim();
+    if (!body || commentLive.isPending) return;
     try {
-      const ai = new GoogleGenAI({ apiKey: process.env.API_KEY });
-      const response = await ai.models.generateContent({
-        model: 'gemini-3-flash-preview',
-        contents:
-          "You are a live session moderator for a creator named Mila Ray. Summarize the current chat energy in one high-energy futuristic sentence for Mila to read aloud.",
-      });
-      setAiAudit(
-        response.text ||
-          'Your global audience is surging and the room is electric. Nigeria wants the next anthem now.'
-      );
-    } catch (e) {
-      setAiAudit(
-        "Energy levels are peaking. Fans from Lagos are requesting Nebula and the stream is fully locked in."
-      );
-    } finally {
-      setIsAiLoading(false);
+      const comment = await commentLive.mutateAsync(body);
+      setChatMessages((prev) => [...prev, {
+        id: comment.id,
+        user: comment.user?.name ?? live?.creator?.name ?? 'Host',
+        text: comment.body,
+        avatar: comment.user?.avatar,
+        isSystem: true,
+      }]);
+      setBroadcastText('');
+    } catch (error) {
+      Alert.alert('Message not sent', getApiErrorMessage(error));
     }
   };
 
-  const handleBroadcast = () => {
-    if (!broadcastText.trim()) return;
-    setChatMessages((prev) => [
-      ...prev,
-      {
-        id: Date.now(),
-        user: 'SYSTEM',
-        text: broadcastText.trim(),
-        isSystem: true,
-      },
-    ]);
-    setBroadcastText('');
-  };
-
-  const handleEndSession = () => {
-    setShowEndConfirm(false);
-    navigation.navigate('MainTabs');
-  };
-
-  const handleSendGift = (gift: GiftSelection) => {
-    setCoinBalance((prev) => prev - gift.price);
-    setTips((prev) => prev + gift.price);
-    setChatMessages((prev) => [
-      ...prev,
-      {
-        id: Date.now(),
-        user: 'Gift_Fan',
-        text: `sent ${gift.name} worth ${gift.price} KC`,
-        isTip: true,
-      },
-    ]);
+  const handleEndSession = async () => {
+    if (endLive.isPending) return;
+    try {
+      const ended = await endLive.mutateAsync('creator_ended');
+      setShowEndConfirm(false);
+      navigation.replace('StreamEnded', { liveSessionId, endedLive: ended });
+    } catch (error) {
+      Alert.alert('Could not end Live', getApiErrorMessage(error));
+    }
   };
 
   const toggleCameraFacing = () => {
     setCameraFacing((current) => (current === 'front' ? 'back' : 'front'));
+    agora.switchCamera();
+  };
+
+  const toggleMuted = () => {
+    setIsMuted((current) => {
+      const next = !current;
+      agora.setMuted(next);
+      return next;
+    });
+  };
+
+  const requestMediaPermissions = async () => {
+    await Promise.all([requestCameraPermission(), requestMicrophonePermission()]);
+  };
+
+  const cancelLiveSetup = async () => {
+    try {
+      if (liveSessionId) await endLive.mutateAsync('creator_ended');
+    } catch {
+      // Navigation still exits; stale-session reconciliation remains authoritative.
+    }
+    navigation.navigate('MainTabs');
   };
 
   return (
-    <KeyboardAvoidingView style={{ flex: 1 }} behavior={Platform.OS === 'ios' ? 'padding' : undefined} keyboardVerticalOffset={0}>
-    <View style={[styles.safeArea, { backgroundColor: theme.background }]}>
-      {!permission?.granted ? (
+    <KeyboardAvoidingView style={styles.fullScreenRoot} behavior={Platform.OS === 'ios' ? 'padding' : undefined} keyboardVerticalOffset={0}>
+    <View style={styles.safeArea}>
+      <StatusBar hidden translucent backgroundColor="transparent" barStyle="light-content" />
+      {!permissionsGranted ? (
         <View style={styles.permissionScreen}>
-          {!permission ? (
+          {!cameraPermission || !microphonePermission ? (
             <>
               <ActivityIndicator size="large" color="#ffffff" />
               <Text style={styles.permissionText}>Loading camera...</Text>
@@ -180,12 +260,15 @@ const CreatorLiveStream: React.FC = () => {
           ) : (
             <>
               <MaterialIcons name="videocam" size={42} color="#ffffff" />
-              <Text style={styles.permissionTitle}>Camera access needed</Text>
+              <Text style={styles.permissionTitle}>Camera and microphone access needed</Text>
               <Text style={styles.permissionText}>
-                Turn on camera permission to preview your live stream before you go on air.
+                Turn on camera and microphone access so viewers can see and hear your Live.
               </Text>
-              <Pressable style={styles.permissionButton} onPress={() => void requestPermission()}>
-                <Text style={styles.permissionButtonText}>Enable Camera</Text>
+              <Pressable style={styles.permissionButton} onPress={() => void requestMediaPermissions()}>
+                <Text style={styles.permissionButtonText}>Enable Camera & Microphone</Text>
+              </Pressable>
+              <Pressable style={styles.permissionCancelButton} onPress={() => void cancelLiveSetup()}>
+                <Text style={styles.permissionCancelText}>Cancel Live</Text>
               </Pressable>
             </>
           )}
@@ -193,7 +276,29 @@ const CreatorLiveStream: React.FC = () => {
       ) : (
       <View style={[styles.screen, { backgroundColor: theme.screen }]}>
         <View style={styles.background}>
-          <CameraView style={StyleSheet.absoluteFill} facing={cameraFacing} />
+          {credentials && agora.localPreviewReady ? (
+            <RtcVideoView canvas={localVideoCanvas} style={StyleSheet.absoluteFill} />
+          ) : (
+            <View style={[StyleSheet.absoluteFill, styles.connectingMedia]}>
+              <ActivityIndicator size="large" color="#fff" />
+              <Text style={styles.permissionText}>Preparing secure broadcast...</Text>
+            </View>
+          )}
+              {agora.remoteUids.length > 0 ? (
+            <View style={styles.remoteGrid}>
+              {agora.remoteUids.slice(0, 3).map((uid) => (
+                <RtcVideoView
+                  key={uid}
+                  canvas={{
+                    uid,
+                    sourceType: VideoSourceType.VideoSourceRemote,
+                    renderMode: RenderModeType.RenderModeFit,
+                  }}
+                  style={styles.remoteVideo}
+                />
+              ))}
+            </View>
+          ) : null}
           <LinearGradient
             colors={['rgba(0,0,0,0.72)', 'rgba(0,0,0,0.2)', 'rgba(0,0,0,0.92)']}
             style={StyleSheet.absoluteFill}
@@ -207,21 +312,6 @@ const CreatorLiveStream: React.FC = () => {
               </View>
 
               <View style={styles.topActions}>
-                {/* <Pressable
-                  onPress={getAIEnergyAudit}
-                  disabled={isAiLoading}
-                  style={[
-                    styles.circleHudButton,
-                    aiAudit ? styles.circleHudButtonActive : null,
-                  ]}
-                >
-                  {isAiLoading ? (
-                    <ActivityIndicator size="small" color="#fff" />
-                  ) : (
-                    <MaterialIcons name="auto-awesome" size={22} color="#fff" />
-                  )}
-                </Pressable> */}
-
                 <Pressable
                   onPress={() => setShowEndConfirm(true)}
                   style={styles.endSessionButton}
@@ -255,22 +345,12 @@ const CreatorLiveStream: React.FC = () => {
             </ScrollView>
           </View>
 
-          {/* {aiAudit ? (
-            <View style={styles.aiAuditWrap}>
-              <BlurView intensity={28} tint="dark" style={styles.aiAuditCard}>
-                <Pressable style={styles.aiCloseBtn} onPress={() => setAiAudit(null)}>
-                  <MaterialIcons name="close" size={16} color="#cbd5e1" />
-                </Pressable>
-
-                <View style={styles.aiHeader}>
-                  <MaterialIcons name="psychology" size={18} color={PRIMARY_COLOR} />
-                  <Text style={styles.aiKicker}>Astro-Brain Intelligence</Text>
-                </View>
-
-                <Text style={styles.aiText}>"{aiAudit}"</Text>
-              </BlurView>
+          {connectionError || agora.error ? (
+            <View style={styles.connectionErrorBanner}>
+              <MaterialIcons name="error-outline" size={18} color="#fff" />
+              <Text style={styles.connectionErrorText}>{connectionError ?? agora.error}</Text>
             </View>
-          ) : null} */}
+          ) : null}
 
           <View style={[styles.bottomZone,{paddingBottom: insets.bottom}]}>
             <View style={styles.contentRow}>
@@ -290,9 +370,9 @@ const CreatorLiveStream: React.FC = () => {
                       message.isSystem ? styles.chatSystemCard : null,
                     ]}
                   >
-                    {!message.isSystem ? (
+                    {!message.isSystem && message.avatar ? (
                       <Image
-                        source={{ uri: `https://picsum.photos/seed/fan${message.id}/60` }}
+                        source={{ uri: message.avatar }}
                         style={styles.chatAvatar}
                       />
                     ) : null}
@@ -321,12 +401,10 @@ const CreatorLiveStream: React.FC = () => {
               </ScrollView>
 
               <View style={styles.sideHud}>
-                <Pressable
-                  onPress={() => setGiftDialogOpen(true)}
-                  style={[styles.sideHudButton, styles.sideHudPrimary]}
-                >
-                  <MaterialIcons name="redeem" size={28} color="#fff" />
-                </Pressable>
+                <View style={[styles.sideHudButton, styles.sideHudPrimary]}>
+                  <MaterialIcons name="redeem" size={24} color="#fff" />
+                  <Text style={styles.sideMetricText}>{formatLiveCount(live?.gifts_count ?? 0)}</Text>
+                </View>
 
                 <Pressable
                   onPress={toggleCameraFacing}
@@ -343,7 +421,7 @@ const CreatorLiveStream: React.FC = () => {
                 </Pressable>
 
                 <Pressable
-                  onPress={() => setIsMuted((prev) => !prev)}
+                  onPress={toggleMuted}
                   style={[
                     styles.sideHudButton,
                     isMuted ? styles.sideHudButtonDanger : null,
@@ -383,11 +461,11 @@ const CreatorLiveStream: React.FC = () => {
                   placeholder="Broadcast a system alert..."
                   placeholderTextColor="rgba(255,255,255,0.25)"
                   style={styles.broadcastInput}
-                  onSubmitEditing={handleBroadcast}
+                  onSubmitEditing={() => void handleBroadcast()}
                   returnKeyType="send"
                 />
 
-                <Pressable onPress={handleBroadcast} disabled={!broadcastText.trim()}>
+                <Pressable onPress={() => void handleBroadcast()} disabled={!broadcastText.trim() || commentLive.isPending}>
                   <MaterialIcons
                     name="campaign"
                     size={22}
@@ -402,18 +480,6 @@ const CreatorLiveStream: React.FC = () => {
             </View>
           </View>
         </View>
-
-        <GiftDialog
-          isOpen={giftDialogOpen}
-          onClose={() => setGiftDialogOpen(false)}
-          creatorName="Mila Ray"
-          currentBalance={coinBalance}
-          onSendGift={(gift) => {
-            handleSendGift(gift);
-            setGiftDialogOpen(false);
-          }}
-          onTopUpSuccess={(amount) => setCoinBalance((prev) => prev + amount)}
-        />
 
         <Modal
           visible={showEndConfirm}
@@ -436,11 +502,11 @@ const CreatorLiveStream: React.FC = () => {
               <Text style={styles.confirmTitle}>Shutdown Protocol</Text>
               <Text style={styles.confirmText}>
                 Ending this transmission will finalize session revenue and disconnect{' '}
-                {viewers.toLocaleString()} viewers.
+                {formatLiveCount(live?.current_viewers ?? 0)} viewers.
               </Text>
 
-              <Pressable onPress={handleEndSession} style={styles.shutdownButton}>
-                <Text style={styles.shutdownButtonText}>Confirm Shutdown</Text>
+              <Pressable onPress={() => void handleEndSession()} disabled={endLive.isPending} style={styles.shutdownButton}>
+                {endLive.isPending ? <ActivityIndicator color="#fff" /> : <Text style={styles.shutdownButtonText}>Confirm Shutdown</Text>}
               </Pressable>
 
               <Pressable
@@ -464,12 +530,35 @@ const styles = StyleSheet.create({
     flex: 1,
     backgroundColor: '#000',
   },
+  fullScreenRoot: {
+    flex: 1,
+    backgroundColor: '#000',
+  },
   screen: {
     flex: 1,
     backgroundColor: '#000',
   },
   background: {
     flex: 1,
+  },
+  connectingMedia: {
+    alignItems: 'center',
+    justifyContent: 'center',
+    backgroundColor: '#050505',
+  },
+  remoteGrid: {
+    position: 'absolute',
+    top: 118,
+    right: 14,
+    gap: 8,
+    zIndex: 2,
+  },
+  remoteVideo: {
+    width: 108,
+    height: 152,
+    borderRadius: 16,
+    overflow: 'hidden',
+    backgroundColor: '#111827',
   },
   permissionScreen: {
     flex: 1,
@@ -570,6 +659,32 @@ const styles = StyleSheet.create({
   statsRow: {
     gap: 10,
     paddingVertical: 14,
+  },
+  permissionCancelButton: {
+    marginTop: 10,
+    paddingHorizontal: 18,
+    paddingVertical: 12,
+  },
+  permissionCancelText: {
+    color: '#cbd5e1',
+    ...fontSize.b4,
+    lineHeight: fontSize.b4.lineHeight,
+  },
+  connectionErrorBanner: {
+    marginHorizontal: 16,
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 8,
+    borderRadius: 14,
+    paddingHorizontal: 12,
+    paddingVertical: 10,
+    backgroundColor: 'rgba(185,28,28,0.88)',
+  },
+  connectionErrorText: {
+    flex: 1,
+    color: '#fff',
+    ...fontSize.b5,
+    lineHeight: fontSize.b5.lineHeight,
   },
   statCard: {
     flexDirection: 'row',
@@ -709,6 +824,11 @@ const styles = StyleSheet.create({
     backgroundColor: 'rgba(0,0,0,0.44)',
     borderWidth: 1,
     borderColor: 'rgba(255,255,255,0.12)',
+  },
+  sideMetricText: {
+    color: '#fff',
+    ...fontSize.b5,
+    lineHeight: fontSize.b5.lineHeight,
   },
   sideHudPrimary: {
     backgroundColor: PRIMARY_COLOR,

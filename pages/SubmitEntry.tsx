@@ -26,6 +26,7 @@ import {
   getVideoProcessingState,
   parseApiError,
   useCreatorVideoDirectUpload,
+  useSubmitChallengeEntry,
   useUpdateCreatorVideo,
   videoApi,
 } from '../src';
@@ -33,6 +34,7 @@ import type {
   SubmitCreatorVideoEditsPayload,
   VideoContentType,
   VideoDisplayOrientation,
+  VideoPurpose,
   VideoUploadSource,
   VideoVisibility,
 } from '../src';
@@ -47,12 +49,17 @@ type SubmitEntryRouteParams = {
     usage?: string;
   } | null;
   uploadedVideoId?: string | number;
+  uploadToExistingDraft?: boolean;
+  duetSourceVideoId?: string | number;
   autoStartUpload?: boolean;
   uploadStatus?: string;
   uploadProgressPercentage?: number;
   visibility?: VideoVisibility;
   orientation?: VideoDisplayOrientation;
   editPayload?: SubmitCreatorVideoEditsPayload | null;
+  challengeId?: string | number;
+  purpose?: VideoPurpose;
+  officialSoundId?: string | number | null;
 };
 
 const contentTypeOptions: Array<{
@@ -107,6 +114,7 @@ const SubmitEntry: React.FC = () => {
   const insets = useSafeAreaInsets();
   const directUpload = useCreatorVideoDirectUpload();
   const { mutateAsync: updateCreatorVideo, isPending: isUpdating } = useUpdateCreatorVideo();
+  const submitChallengeEntry = useSubmitChallengeEntry();
   const [uploadedVideoId, setUploadedVideoId] = useState<string | number | undefined>(params.uploadedVideoId);
   const [editSubmitStatus, setEditSubmitStatus] = useState<'idle' | 'submitting_edits' | 'processing' | 'ready' | 'failed'>('idle');
   const [editSubmitError, setEditSubmitError] = useState<string | null>(null);
@@ -120,6 +128,7 @@ const SubmitEntry: React.FC = () => {
   const [frameThumbnails, setFrameThumbnails] = useState<ThumbnailSource[]>([]);
   const [selectedThumbnail, setSelectedThumbnail] = useState<ThumbnailSource | null>(null);
   const [thumbnailLoading, setThumbnailLoading] = useState(false);
+  const [isUploadingExistingDraft, setIsUploadingExistingDraft] = useState(false);
 
   const cardBackground = isDark ? 'rgba(255,255,255,0.03)' : theme.card;
   const subtleSurface = isDark ? 'rgba(255,255,255,0.05)' : theme.surface;
@@ -146,6 +155,8 @@ const SubmitEntry: React.FC = () => {
     directUpload.isActive ||
     (hasCreatorVideoEdits(editPayload) && directUpload.status === 'processing') ||
     isUpdating ||
+    submitChallengeEntry.isPending ||
+    isUploadingExistingDraft ||
     (editSubmitStatus === 'submitting_edits' || editSubmitStatus === 'processing') ||
     autoUploadPending;
   const selectedVisibility: VideoVisibility = subscribersOnly ? 'premium' : 'public';
@@ -169,7 +180,12 @@ const SubmitEntry: React.FC = () => {
           contentType: contentTypes,
           visibility: selectedVisibility,
           orientation: previewOrientation,
-        }, editPayload ? { edits: editPayload, waitForProcessing: true } : undefined);
+          purpose: params.purpose,
+          allowDuet: allowDuets,
+        }, {
+          ...(editPayload ? { edits: editPayload } : {}),
+          waitForProcessing: params.challengeId != null || Boolean(editPayload),
+        });
 
         setUploadedVideoId(result.video.id);
         navigation.setParams?.({
@@ -187,10 +203,13 @@ const SubmitEntry: React.FC = () => {
     void startUpload();
   }, [
     contentTypes,
+    allowDuets,
     directUpload,
     editPayload,
     navigation,
     params.autoStartUpload,
+    params.challengeId,
+    params.purpose,
     previewOrientation,
     selectedVisibility,
     uploadedVideoId,
@@ -198,7 +217,7 @@ const SubmitEntry: React.FC = () => {
   ]);
 
   useEffect(() => {
-    if (params.autoStartUpload || !uploadedVideoId || !hasCreatorVideoEdits(editPayload) || editSubmitStartedRef.current) return;
+    if (params.autoStartUpload || params.uploadToExistingDraft || !uploadedVideoId || !hasCreatorVideoEdits(editPayload) || editSubmitStartedRef.current) return;
 
     editSubmitStartedRef.current = true;
     const pendingEditPayload = editPayload;
@@ -245,7 +264,7 @@ const SubmitEntry: React.FC = () => {
     return () => {
       cancelled = true;
     };
-  }, [editPayload, navigation, params.autoStartUpload, uploadedVideoId]);
+  }, [editPayload, navigation, params.autoStartUpload, params.uploadToExistingDraft, uploadedVideoId]);
 
   useEffect(() => {
     let cancelled = false;
@@ -305,6 +324,11 @@ const SubmitEntry: React.FC = () => {
       },
       uploadedVideoId,
       sound: params.sound ?? null,
+      challengeId: params.challengeId,
+      purpose: params.purpose,
+      officialSoundId: params.officialSoundId,
+      uploadToExistingDraft: params.uploadToExistingDraft,
+      duetSourceVideoId: params.duetSourceVideoId,
     });
   };
 
@@ -356,7 +380,20 @@ const SubmitEntry: React.FC = () => {
     }
 
     try {
+      let submittedVideoId = uploadedVideoId;
+
       if (uploadedVideoId != null) {
+        if (params.uploadToExistingDraft) {
+          setIsUploadingExistingDraft(true);
+          try {
+            await videoApi.uploadCreatorVideoToDraft(uploadedVideoId, { video });
+            if (hasCreatorVideoEdits(editPayload)) {
+              await videoApi.submitCreatorVideoEdits(uploadedVideoId, editPayload!);
+            }
+          } finally {
+            setIsUploadingExistingDraft(false);
+          }
+        }
         await updateCreatorVideo({
           video: uploadedVideoId,
           payload: {
@@ -364,10 +401,11 @@ const SubmitEntry: React.FC = () => {
             caption: description.trim() || null,
             content_type: contentTypes,
             visibility: selectedVisibility,
+            allow_duet: allowDuets,
           },
         });
       } else {
-        await directUpload.upload({
+        const result = await directUpload.upload({
           video: {
             ...video,
             orientation: previewOrientation,
@@ -377,10 +415,43 @@ const SubmitEntry: React.FC = () => {
           contentType: contentTypes,
           visibility: selectedVisibility,
           orientation: previewOrientation,
-        }, editPayload ? { edits: editPayload, waitForProcessing: true } : undefined);
+          purpose: params.purpose,
+          allowDuet: allowDuets,
+        }, {
+          ...(editPayload ? { edits: editPayload } : {}),
+          waitForProcessing: params.challengeId != null || Boolean(editPayload),
+        });
+
+        submittedVideoId = result.video.id;
       }
 
-      Alert.alert('Posted', uploadedVideoId != null ? 'Your video details were saved.' : 'Your video uploaded. Processing will continue in the background.', [
+      if (params.challengeId != null) {
+        if (submittedVideoId == null) {
+          throw new Error('The uploaded challenge video did not return an ID.');
+        }
+
+        await submitChallengeEntry.mutateAsync({
+          challenge: params.challengeId,
+          payload: {
+            video_id: submittedVideoId,
+            caption: description.trim() || null,
+          },
+        });
+
+        Alert.alert('Entry submitted', 'Your video is now part of the challenge.', [
+          {
+            text: 'View challenge',
+            onPress: () => navigation.navigate('ChallengeFeed', { challengeId: params.challengeId }),
+          },
+        ]);
+        return;
+      }
+
+      Alert.alert('Posted', params.uploadToExistingDraft
+        ? 'Your duet uploaded. Processing will continue in the background.'
+        : uploadedVideoId != null
+          ? 'Your video details were saved.'
+          : 'Your video uploaded. Processing will continue in the background.', [
         {
           text: 'Done',
           onPress: () =>
@@ -600,7 +671,7 @@ const SubmitEntry: React.FC = () => {
               <ActivityIndicator size="small" color="#fff" />
             ) : (
               <>
-                <Text style={styles.postVideoText}>POST VIDEO</Text>
+                <Text style={styles.postVideoText}>{params.challengeId != null ? 'SUBMIT ENTRY' : 'POST VIDEO'}</Text>
                 <MaterialIcons name="send" size={18} color="#fff" />
               </>
             )}

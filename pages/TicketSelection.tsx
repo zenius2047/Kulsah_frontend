@@ -5,6 +5,7 @@ import { useNavigation, useRoute } from '@react-navigation/native';
 import { MaterialIcons } from '@expo/vector-icons';
 import {
   ActivityIndicator,
+  Alert,
   Image,
   Pressable,
   SafeAreaView,
@@ -13,7 +14,7 @@ import {
   Text,
   View,
 } from 'react-native';
-import PaymentGateway from '../components/PaymentGateway';
+import PaymentGateway from '../components/PaymentCheckout';
 import { fontSize } from './typography';
 
 interface TicketTier {
@@ -47,7 +48,11 @@ const TicketSelection: React.FC = () => {
   const [aiSuggestion, setAiSuggestion] = useState<string | null>(null);
 
   const updateQuantity = (tierId: string, delta: number) => {
-    setQuantities((prev) => ({ ...prev, [tierId]: Math.max(0, (prev[tierId] || 0) + delta) }));
+    setSelectedZone(tierId);
+    setQuantities((prev) => {
+      const nextQuantity = Math.max(0, (prev[tierId] || 0) + delta);
+      return nextQuantity > 0 ? { [tierId]: nextQuantity } : {};
+    });
   };
 
   const totalPrice = useMemo(
@@ -58,8 +63,13 @@ const TicketSelection: React.FC = () => {
     () => Object.values(quantities).reduce((acc, q) => acc + q, 0),
     [quantities],
   );
+  const selectedTicketTier = TIERS.find((tier) => (quantities[tier.id] || 0) > 0);
 
   const handlePurchase = () => {
+    if (eventId == null || !selectedTicketTier) {
+      Alert.alert('Checkout unavailable', 'This ticket selection is missing its event purchase details.');
+      return;
+    }
     setPaymentOpen(true);
   };
 
@@ -177,16 +187,25 @@ const TicketSelection: React.FC = () => {
           </Pressable>
         </View>
       )}
-      <PaymentGateway
-        isOpen={paymentOpen}
-        onClose={() => setPaymentOpen(false)}
-        onSuccess={completePurchase}
-        amount={totalPrice}
-        currency="GHS"
-        itemName={`${totalTickets} ${totalTickets === 1 ? 'Ticket' : 'Tickets'}`}
-        allowedMethods={['momo', 'card', 'bank', 'kulcoins']}
-        walletBalance={1240}
-      />
+      {eventId != null && selectedTicketTier ? (
+        <PaymentGateway
+          isOpen={paymentOpen}
+          onClose={() => setPaymentOpen(false)}
+          onSuccess={completePurchase}
+          amount={totalPrice}
+          currency="GHS"
+          itemName={`${totalTickets} ${totalTickets === 1 ? 'Ticket' : 'Tickets'}`}
+          itemSubtitle="Event ticket purchase"
+          purchase={{
+              purpose: 'event_ticket',
+              event_id: eventId,
+              ticket_type_code: selectedTicketTier.id,
+              quantity: quantities[selectedTicketTier.id] || 1,
+          }}
+          allowedMethods={['momo', 'card', 'bank', 'kulcoins']}
+          walletBalance={1240}
+        />
+      ) : null}
       <Text style={s.hiddenText}>{eventId ? 'Event: ' + eventId : ''}</Text>
     </View>
   );

@@ -1,12 +1,15 @@
 import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react';
+import { useQueryClient } from '@tanstack/react-query';
 import { useThemeMode, PRIMARY_COLOR, primaryColorAlpha } from "../theme";
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { Accelerometer } from 'expo-sensors';
+import { LinearGradient } from 'expo-linear-gradient';
 import {
   Alert,
   Dimensions,
   FlatList,
   Image,
+  InteractionManager,
   Modal,
   Pressable,
   ScrollView,
@@ -20,12 +23,15 @@ import {
   ActivityIndicator,
   Platform,
   PanResponder,
+  NativeScrollEvent,
+  NativeSyntheticEvent,
 } from 'react-native';
 import { useIsFocused, useNavigation } from '@react-navigation/native';
 import { MaterialIcons } from '@expo/vector-icons';
 import { SafeAreaView, useSafeAreaInsets } from 'react-native-safe-area-context';
 // import { ResizeMode, Video } from 'expo-video';
 import { useVideoPlayer, VideoView } from 'expo-video';
+import type { VideoPlayer } from 'expo-video';
 import { getVideoPlaybackUrl, getVideoPoster, getVideoSource } from '../src/utils/video';
 import { TurnCoverage } from '@google/genai/web';
 import { useEvent } from 'expo';
@@ -42,12 +48,15 @@ import SparkleIcon from '../assets/icons/sparkle-style.svg';
 import CommentIcon from '../assets/icons/comment-svg.svg';
 import KulCoinPrompt from '../components/KulCoinPrompt';
 import CreatorShareSheet from './CreatorShareSheet';
+import { VoteModalContent } from './Vote';
 import Premium from '../assets/icons/kulsah_premium_icon.svg';
 import DotTrioLoader from '../components/DotTrioLoader';
 import { fontSize } from '../typography';
 import {
+  creatorBattleVideoParticipants,
   getApiErrorMessage,
   parseApiError,
+  useChallenge,
   usePublicCreatorSubscriptionPlans,
   useBookmarkVideoMutation,
   useFollowCreatorMutation,
@@ -55,8 +64,13 @@ import {
   useLikeVideoMutation,
   useRecordVideoViewMutation,
   useSubscribeToPlan,
+  useCreateCreatorVideoDuetDraft,
+  useCastChallengeBallot,
+  useKulCoinWallet,
 } from '../src';
-import type { CreatorSubscriptionPlan } from '../src';
+import type { ChallengeListResource, CreatorSubscriptionPlan } from '../src';
+import { challengesApi, unwrapChallengeShowResponse } from '../src/api/challenges.api';
+import { challengeQueryKey } from '../src/hooks/challenges/useChallenges';
 
 const KULCOIN_ICON = require('../assets/coin.png');
 const CAPTION_MORE_THRESHOLD = 50;
@@ -75,6 +89,13 @@ export interface FeedItem {
   isLiked: boolean;
   isSubscribed: boolean;
   isPremium: boolean;
+  isChallenge?: boolean;
+  isCreatorBattle?: boolean;
+  creatorBattle?: ChallengeListResource | null;
+  allowDuet?: boolean;
+  isDuet?: boolean;
+  duetSourceVideoId?: string | number | null;
+  canDuet?: boolean;
   ticketsAvailable: boolean;
   ticketLocation?: string;
   isLive?: boolean;
@@ -86,6 +107,11 @@ export interface FeedItem {
   bookmarks: string;
   saves: string;
 }
+
+type FeedRow =
+  | { kind: 'battle-loading'; id: string }
+  | { kind: 'battle'; id: string; battle: ChallengeListResource; battleIndex: number }
+  | { kind: 'video'; id: string; item: FeedItem };
 
 interface FeedSubscriptionSelection {
   itemId: string;
@@ -233,9 +259,24 @@ const MONTHLY_KULCOINS = 100;
 const YEARLY_KULCOINS = 1000;
 const INITIAL_TIME_UPDATE = { currentTime: 0 } as const;
 const SHAKE_TO_REFRESH_STORAGE_KEY = 'pulsar_shake_to_refresh';
+const CREATOR_BATTLE_RAIL_INSET = 8;
 const SHAKE_FORCE_THRESHOLD = 2.05;
 const SHAKE_DELTA_THRESHOLD = 1.15;
 const SHAKE_REFRESH_COOLDOWN_MS = 1400;
+
+const formatBattleCountdown = (seconds: number | null) => {
+  if (seconds == null) return null;
+  const safeSeconds = Math.max(0, Math.floor(seconds));
+  const days = Math.floor(safeSeconds / 86400);
+  const hours = Math.floor((safeSeconds % 86400) / 3600);
+  const minutes = Math.floor((safeSeconds % 3600) / 60);
+  const remainingSeconds = safeSeconds % 60;
+  const clock = [hours, minutes, remainingSeconds]
+    .map((value) => String(value).padStart(2, '0'))
+    .join(':');
+
+  return days > 0 ? `${days}d ${clock}` : clock;
+};
 const FALLBACK_FEED_AVATAR = 'https://picsum.photos/seed/kulsah-feed-avatar/150/150';
 const FALLBACK_FEED_BACKGROUND =
   'https://images.unsplash.com/photo-1516450360452-9312f5e86fc7?auto=format&fit=crop&q=80&w=800';
@@ -348,6 +389,13 @@ const mapFeedVideoToItem = (rawValue: unknown, index: number): FeedItem | null =
     isLiked: Boolean(raw.isLiked ?? raw.liked),
     isSubscribed: Boolean(raw.isSubscribed ?? raw.subscribed ?? raw.creatorSubscribed),
     isPremium: Boolean(raw.isPremium ?? raw.premium ?? visibility === 'premium'),
+    isChallenge: Boolean(raw.isChallenge ?? raw.is_challenge),
+    isCreatorBattle: Boolean(raw.isCreatorBattle ?? raw.is_creator_battle ?? raw.creatorBattle ?? raw.creator_battle),
+    creatorBattle: (raw.creatorBattle ?? raw.creator_battle ?? null) as ChallengeListResource | null,
+    allowDuet: Boolean(raw.allowDuet ?? raw.allow_duet),
+    isDuet: Boolean(raw.isDuet ?? raw.is_duet),
+    duetSourceVideoId: raw.duetSourceVideoId ?? raw.duet_source_video_id ?? null,
+    canDuet: Boolean(raw.canDuet ?? raw.can_duet),
     ticketsAvailable: Boolean(raw.ticketsAvailable ?? raw.tickets_available ?? raw.hasTickets),
     ticketLocation: firstString(raw.ticketLocation, raw.ticket_location, raw.location) || undefined,
     isLive: Boolean(raw.isLive ?? raw.live),
@@ -907,6 +955,123 @@ const FeedSubscriptionModal: React.FC<{
 };
 
 
+type VideoProgressBarProps = {
+  player: VideoPlayer;
+  duration: number;
+  isActive: boolean;
+  overlayBottomInset: number;
+};
+
+const VideoProgressBar = React.memo<VideoProgressBarProps>(({
+  player,
+  duration,
+  isActive,
+  overlayBottomInset,
+}) => {
+  const timeUpdate: any = useEvent(player as any, 'timeUpdate', INITIAL_TIME_UPDATE);
+  const [currentTime, setCurrentTime] = useState(0);
+  const [isScrubbing, setIsScrubbing] = useState(false);
+  const [scrubTime, setScrubTime] = useState(0);
+  const [sliderWidth, setSliderWidth] = useState(0);
+
+  useEffect(() => {
+    player.timeUpdateEventInterval = isActive ? 0.5 : 0;
+  }, [isActive, player]);
+
+  useEffect(() => {
+    if (isScrubbing) return;
+    const nextTime = timeUpdate?.currentTime;
+    if (typeof nextTime === 'number') {
+      const normalizedTime = Math.max(0, nextTime);
+      setCurrentTime((previousTime) => (
+        previousTime === normalizedTime ? previousTime : normalizedTime
+      ));
+    }
+  }, [isScrubbing, timeUpdate?.currentTime]);
+
+  const clamp = useCallback((value: number, min: number, max: number) => (
+    Math.min(Math.max(value, min), max)
+  ), []);
+  const effectiveDuration = duration > 0 ? duration : 1;
+  const effectiveCurrentTime = isScrubbing ? scrubTime : currentTime;
+  const progressRatio = clamp(effectiveCurrentTime / effectiveDuration, 0, 1);
+
+  const updateScrubFromX = useCallback((x: number) => {
+    if (sliderWidth <= 0) return 0;
+    const ratio = clamp(x / sliderWidth, 0, 1);
+    const nextTime = ratio * (duration > 0 ? duration : 0);
+    setScrubTime(nextTime);
+    return nextTime;
+  }, [clamp, duration, sliderWidth]);
+
+  const seekTo = useCallback((seconds: number) => {
+    const target = clamp(seconds, 0, duration > 0 ? duration : 0);
+    player.currentTime = target;
+    setCurrentTime(target);
+  }, [clamp, duration, player]);
+
+  return (
+    <View style={{
+      width: SCREEN_WIDTH,
+      position: 'absolute',
+      bottom: -10 - overlayBottomInset,
+      left: -10,
+      right: -10,
+    }}>
+      <View
+        onLayout={(event) => {
+          const nextWidth = event.nativeEvent.layout.width;
+          setSliderWidth((previousWidth) => (
+            previousWidth === nextWidth ? previousWidth : nextWidth
+          ));
+        }}
+        style={{ height: 24, justifyContent: 'center' }}
+        onStartShouldSetResponder={() => true}
+        onMoveShouldSetResponder={() => true}
+        onResponderGrant={(event) => {
+          setIsScrubbing(true);
+          updateScrubFromX(event.nativeEvent.locationX);
+        }}
+        onResponderMove={(event) => {
+          updateScrubFromX(event.nativeEvent.locationX);
+        }}
+        onResponderRelease={(event) => {
+          const target = updateScrubFromX(event.nativeEvent.locationX);
+          seekTo(target);
+          setIsScrubbing(false);
+        }}
+        onResponderTerminate={() => {
+          setIsScrubbing(false);
+        }}
+      >
+        <View style={{
+          height: 2,
+          borderRadius: 999,
+          backgroundColor: 'rgba(255,255,255,0.28)',
+          overflow: 'hidden',
+        }}>
+          <View style={{
+            height: '100%',
+            width: `${progressRatio * 100}%`,
+            backgroundColor: '#ffffff40',
+          }} />
+        </View>
+        <View style={{
+          position: 'absolute',
+          left: `${progressRatio * 100}%`,
+          marginLeft: -4,
+          width: 2,
+          height: 2,
+          borderRadius: 7,
+          backgroundColor: '#ffffff40',
+          borderWidth: 2,
+          borderColor: '#ffffff40',
+        }} />
+      </View>
+    </View>
+  );
+});
+
 type VideoFeedItemProps = {
   item: FeedItem;
   isPlaying: boolean;
@@ -921,6 +1086,16 @@ type VideoFeedItemProps = {
   coinBalance: number;
   onBalanceChange: (nextBalance: number) => void;
   isCreatorViewer: boolean;
+  overlayBottomInset?: number;
+  railBottomInset?: number;
+  onCaptionExpandedChange?: (expanded: boolean) => void;
+  battleVoteAction?: {
+    votes: string;
+    voteCost: number;
+    isVoted: boolean;
+    isPending: boolean;
+    onPress: () => void;
+  };
 };
 
 const VideoFeedItemComponent: React.FC<VideoFeedItemProps> = ({
@@ -937,20 +1112,21 @@ const VideoFeedItemComponent: React.FC<VideoFeedItemProps> = ({
   coinBalance,
   onBalanceChange,
   isCreatorViewer,
+  overlayBottomInset = 0,
+  railBottomInset = 0,
+  onCaptionExpandedChange,
+  battleVoteAction,
 }) => {
   // console.log("Viewport Height:", SCREEN_HEIGHT);
   // console.log("Viewport Width:", SCREEN_WIDTH);
   const navigation = useNavigation<any>();
+  const createDuetDraft = useCreateCreatorVideoDuetDraft();
   const isFocused = useIsFocused();
   const [showComments, setShowComments] = useState(false);
   const [showMoreMenu, setShowMoreMenu] = useState(false);
   const [isLiked, setIsLiked] = useState(item.isLiked);
   const [playVideo, setIsPlaying] = useState(true);
-  const [currentTime, setCurrentTime] = useState(0);
   const [duration, setDuration] = useState(0);
-  const [isScrubbing, setIsScrubbing] = useState(false);
-  const [scrubTime, setScrubTime] = useState(0);
-  const [sliderWidth, setSliderWidth] = useState(0);
   const { height: vh } = useWindowDimensions();
   const rotateValue = useRef(new Animated.Value(0)).current;
   const lastTapRef = useRef(0);
@@ -962,6 +1138,30 @@ const VideoFeedItemComponent: React.FC<VideoFeedItemProps> = ({
   const [more, setMore] = useState(true);
   const captionExceedsThreshold = item.caption.trim().length > CAPTION_MORE_THRESHOLD;
   const insets = useSafeAreaInsets();
+
+  useEffect(() => {
+    onCaptionExpandedChange?.(captionExceedsThreshold && !more);
+  }, [captionExceedsThreshold, more, onCaptionExpandedChange]);
+
+  const handleCreatorShareAction = async (actionId: string) => {
+    if (actionId !== 'duet') return;
+    if (!item.canDuet) {
+      Alert.alert('Duet unavailable', 'This creator has not enabled duets for this video.');
+      return;
+    }
+
+    try {
+      const draft = await createDuetDraft.mutateAsync({ sourceVideo: item.id });
+      setShowMoreMenu(false);
+      navigation.navigate('RecordContent', {
+        duetDraftId: draft.id,
+        duetSourceVideoId: item.id,
+        purpose: 'post_video',
+      });
+    } catch (error) {
+      Alert.alert('Could not start duet', getApiErrorMessage(error));
+    }
+  };
   // const [videoSize, setVideoSize] = useState({ width: 0, height: 0 });
 
   const rotation = rotateValue.interpolate({
@@ -1010,7 +1210,7 @@ const VideoFeedItemComponent: React.FC<VideoFeedItemProps> = ({
   // const videoRef = React.useRef<VideoRef>(null);
   const configurePlayer = useCallback((p: any) => {
     p.loop = true;
-    p.timeUpdateEventInterval = 0.2;
+    p.timeUpdateEventInterval = 0;
   }, []);
 
   const player = useVideoPlayer(getVideoSource(item.video), configurePlayer);
@@ -1023,7 +1223,6 @@ const VideoFeedItemComponent: React.FC<VideoFeedItemProps> = ({
 
   const loadedMetadata = useEvent(player, 'sourceLoad');
   const { status } = useEvent(player, 'statusChange', { status: player.status });
-  const timeUpdate: any = useEvent(player as any, 'timeUpdate', INITIAL_TIME_UPDATE);
   const [dimensions, setDimensions] = useState({ width: 0, height: 0 });
 
   useEffect(() => {
@@ -1067,15 +1266,6 @@ const VideoFeedItemComponent: React.FC<VideoFeedItemProps> = ({
     dimensions.width === 0 ||
     dimensions.height === 0 ||
     dimensions.height >= dimensions.width;
-
-  useEffect(() => {
-    if (isScrubbing) return;
-    const t = timeUpdate?.currentTime;
-    if (typeof t === 'number') {
-      const nextTime = Math.max(0, t);
-      setCurrentTime((prev) => (prev === nextTime ? prev : nextTime));
-    }
-  }, [timeUpdate?.currentTime, isScrubbing]);
 
   useEffect(() => {
     if (!isPlaying) {
@@ -1181,35 +1371,7 @@ useEffect(() => {
 }, [isGlobalMuted, player]);
 
 // const { buffering } = useEvent(player, 'bufferingChange', { buffering: true });
-  const clamp = useCallback((value: number, min: number, max: number) => {
-    return Math.min(Math.max(value, min), max);
-  }, []);
-
-  const effectiveDuration = duration > 0 ? duration : 1;
-  const effectiveCurrentTime = isScrubbing ? scrubTime : currentTime;
-  const progressRatio = clamp(effectiveCurrentTime / effectiveDuration, 0, 1);
   const isVideoLoading = status !== 'readyToPlay' && status !== 'error';
-
-  const seekTo = useCallback((seconds: number) => {
-    const target = clamp(seconds, 0, duration > 0 ? duration : 0);
-    player.currentTime = target;
-    setCurrentTime(target);
-  }, [player, duration, clamp]);
-
-  const updateScrubFromX = useCallback((x: number) => {
-    if (sliderWidth <= 0) return 0;
-    const ratio = clamp(x / sliderWidth, 0, 1);
-    const nextTime = ratio * (duration > 0 ? duration : 0);
-    setScrubTime(nextTime);
-    return nextTime;
-  }, [sliderWidth, duration, clamp]);
-
-  const formatTime = useCallback((seconds: number) => {
-    const safe = Math.max(0, Math.floor(seconds));
-    const mins = Math.floor(safe / 60);
-    const secs = safe % 60;
-    return `${mins}:${secs.toString().padStart(2, '0')}`;
-  }, []);
 
   const viewConfigRef = React.useRef({
     viewAreaCoveragePercentThreshold: 80,
@@ -1286,6 +1448,21 @@ useEffect(() => {
         </Pressable>
       </View>
 
+      {overlayBottomInset > 0 || battleVoteAction ? (
+        <LinearGradient
+          pointerEvents="none"
+          colors={['rgba(6,9,19,0)', 'rgba(6,9,19,0.22)', 'rgba(6,9,19,0.96)']}
+          locations={[0, 0.46, 1]}
+          style={{
+            position: 'absolute',
+            left: 0,
+            right: 0,
+            bottom: 0,
+            height: '46%',
+          }}
+        />
+      ) : null}
+
       {/* Top mute button */}
       {/* <View style={{ position: 'absolute', top: 40, right: 16 }}>
         <Pressable onPress={onToggleMute}>
@@ -1297,9 +1474,9 @@ useEffect(() => {
       <View style={{
         position: 'absolute',
         right: 5,
-        bottom: 0,
+        bottom: railBottomInset,
         alignItems: 'center',
-        gap: 20,
+        gap: battleVoteAction ? (Platform.OS === 'ios' ? 16 : 10) : 20,
 
       }}>
         <Pressable style={{}}>
@@ -1355,6 +1532,37 @@ useEffect(() => {
             fontFamily: fontSize.b3.fontFamily,
             }}>{item.comments}</Text>
         </Pressable>
+
+        {battleVoteAction ? (
+          <View style={{ alignItems: 'center', gap: 2 }}>
+            <Pressable
+              disabled={battleVoteAction.isPending}
+              onPress={battleVoteAction.onPress}
+              style={({ pressed }) => ({
+                width: 42,
+                height: 42,
+                borderRadius: 21,
+                alignItems: 'center',
+                justifyContent: 'center',
+                opacity: battleVoteAction.isPending ? 0.6 : pressed ? 0.72 : 1,
+              })}
+            >
+              {battleVoteAction.isPending ? (
+                <ActivityIndicator size="small" color={PRIMARY_COLOR} />
+              ) : (
+                <MaterialIcons
+                  name={battleVoteAction.isVoted ? 'check-circle' : 'how-to-vote'}
+                  size={32}
+                  color={battleVoteAction.isVoted ? PRIMARY_COLOR : '#ffffff'}
+                />
+              )}
+            </Pressable>
+            <View style={{ flexDirection: 'row', alignItems: 'center', gap: 4 }}>
+              <Text style={{ ...fontSize.b5, color: '#ffffff' }}>{battleVoteAction.votes}</Text>
+              <Text style={{ ...fontSize.b6, color: PRIMARY_COLOR }}>{battleVoteAction.voteCost} KC</Text>
+            </View>
+          </View>
+        ) : null}
 
         {/* <Pressable onPress={() => navigation.navigate('ArtistProfile')} style={{
           shadowColor: '#000',
@@ -1443,7 +1651,7 @@ useEffect(() => {
       </View>
 
       {/* Bottom overlay: captions, ticket button */}
-      <View style={{ position: 'absolute', bottom: 0, left: 5, right: 16, paddingBottom: 16, gap: 5 }}>
+      <View style={{ position: 'absolute', bottom: overlayBottomInset, left: 5, right: 16, paddingBottom: 16, gap: 5 }}>
          <Pressable
          onPress={()=>{
           navigation.navigate('UseEffect');
@@ -1476,7 +1684,14 @@ useEffect(() => {
             </Pressable>
         <View style={{ flexDirection: 'row', alignItems: 'center', gap: 8 }}>
           <Pressable
-          onPress={()=> navigation.navigate('ArtistProfile', {isOwner: false, id: item.artist})}
+          onPress={() => navigation.navigate('ArtistProfile', {
+            isOwner: false,
+            id: item.creatorId ?? item.handle,
+            creatorId: item.creatorId,
+            name: item.artist,
+            handle: item.handle,
+            avatar: item.avatar,
+          })}
           >
             <View style={{
               flexDirection: 'row',
@@ -1547,7 +1762,12 @@ useEffect(() => {
           style={{
             color: 'white', 
             marginTop: 4, 
-            ...fontSize.b3,
+            ...(item.isCreatorBattle ? {
+              ...fontSize.reactionB4,
+              lineHeight: fontSize.reactionB4.lineHeight,
+              textTransform: 'uppercase' as const,
+              letterSpacing: 0.8,
+            } : fontSize.b3),
             }}>
           {item.caption}
         </Text>
@@ -1648,81 +1868,41 @@ useEffect(() => {
           </Pressable>
         )}
 
-        <View style={{
-          // marginTop: 20,
-          width: SCREEN_WIDTH ,
-          position: 'absolute',
-          bottom: -10,
-          left: -10,
-          right: -10,
-          }}>
-          <View
-            onLayout={(e) => {
-              const nextWidth = e.nativeEvent.layout.width;
-              setSliderWidth((prev) => (prev === nextWidth ? prev : nextWidth));
-            }}
+        {item.isChallenge ? (
+          <Pressable
+            onPress={() => navigation.navigate('ChallengeEntry')}
             style={{
-              height: 24,
+              marginTop: 10,
+              width: '80%',
+              minHeight: 40,
+              borderRadius: 999,
+              paddingHorizontal: 12,
+              paddingVertical: 8,
+              alignItems: 'center',
               justifyContent: 'center',
-            }}
-            onStartShouldSetResponder={() => true}
-            onMoveShouldSetResponder={() => true}
-            onResponderGrant={(evt) => {
-              setIsScrubbing(true);
-              updateScrubFromX(evt.nativeEvent.locationX);
-            }}
-            onResponderMove={(evt) => {
-              updateScrubFromX(evt.nativeEvent.locationX);
-            }}
-            onResponderRelease={(evt) => {
-              const target = updateScrubFromX(evt.nativeEvent.locationX);
-              seekTo(target);
-              setIsScrubbing(false);
-            }}
-            onResponderTerminate={() => {
-              setIsScrubbing(false);
+              backgroundColor: PRIMARY_COLOR,
+              borderWidth: 1,
+              borderColor: primaryColorAlpha(0.32),
             }}
           >
-            <View
-              style={{
-                height: 2,
-                borderRadius: 999,
-                backgroundColor: 'rgba(255,255,255,0.28)',
-                overflow: 'hidden',
-              }}
-            >
-              <View
-                style={{
-                  height: '100%',
-                  width: `${progressRatio * 100}%`,
-                  backgroundColor: '#ffffff40',
-                }}
-              />
-            </View>
-            <View
-              style={{
-                position: 'absolute',
-                left: `${progressRatio * 100}%`,
-                marginLeft: -4,
-                width: 2,
-                height: 2,
-                borderRadius: 7,
-                backgroundColor: '#ffffff40',
-                borderWidth: 2,
-                borderColor: '#ffffff40',
-              }}
-            />
-          </View>
+            <Text style={{
+              color: '#ffffff',
+              ...fontSize.b5,
+              lineHeight: fontSize.b5.lineHeight,
+              textTransform: 'uppercase',
+              letterSpacing: 1.2,
+            }}>
+              Join Challenge
+            </Text>
+          </Pressable>
+        ) : null}
 
-          {/* <View style={{ flexDirection: 'row', justifyContent: 'space-between', marginTop: 3 }}>
-            <Text style={{ color: '#cbd5e1', ...fontSize.b5, lineHeight: fontSize.b5.lineHeight }}>
-              {formatTime(effectiveCurrentTime)}
-            </Text>
-            <Text style={{ color: '#cbd5e1', ...fontSize.b5, lineHeight: fontSize.b5.lineHeight }}>
-              {formatTime(duration)}
-            </Text>
-          </View> */}
-        </View>
+        <VideoProgressBar
+          player={player}
+          duration={duration}
+          isActive={isFocused && isPlaying && playVideo}
+          overlayBottomInset={overlayBottomInset}
+        />
 
         {/* <Text style={{ color: '#cbd5e1', marginTop: 6, ...fontSize.b5, lineHeight: fontSize.b5.lineHeight }}>{isPlaying ? 'Playing' : 'Paused'} preview</Text> */}
       </View>
@@ -1748,6 +1928,8 @@ useEffect(() => {
         <CreatorShareSheet
           visible={showMoreMenu}
           onClose={() => setShowMoreMenu(false)}
+          onAction={handleCreatorShareAction}
+          disabledActions={item.canDuet ? [] : ['duet']}
         />
       ) : (
         <FeedQuickMenuModal
@@ -1761,6 +1943,651 @@ useEffect(() => {
 
 export const VideoFeedItem = React.memo(VideoFeedItemComponent);
 
+const FeedVideoPoster = React.memo<{
+  item: FeedItem;
+  height: number;
+}>(({ item, height }) => (
+  <View pointerEvents="none" style={{ width: '100%', height, backgroundColor: '#000' }}>
+    {item.background ? (
+      <Image source={{ uri: item.background }} style={StyleSheet.absoluteFillObject} resizeMode="cover" />
+    ) : null}
+    <View style={[StyleSheet.absoluteFillObject, { backgroundColor: 'rgba(0,0,0,0.2)' }]} />
+  </View>
+));
+
+type FeedBattleRowProps = {
+  battle: ChallengeListResource;
+  height: number;
+  topInset: number;
+  isActive: boolean;
+  onOpenBattle: (challengeId: string) => void;
+  onSubscribe: VideoFeedItemProps['onSubscribe'];
+  onFollow: VideoFeedItemProps['onFollow'];
+  onToggleLike: VideoFeedItemProps['onToggleLike'];
+  onToggleBookmark: VideoFeedItemProps['onToggleBookmark'];
+  onRecordView: VideoFeedItemProps['onRecordView'];
+  isGlobalMuted: boolean;
+  onToggleMute: () => void;
+  coinBalance: number;
+  onBalanceChange: (nextBalance: number) => void;
+  isCreatorViewer: boolean;
+};
+
+const FeedBattleRow = React.memo<FeedBattleRowProps>(({
+  battle,
+  height,
+  topInset,
+  isActive,
+  onOpenBattle,
+  onSubscribe,
+  onFollow,
+  onToggleLike,
+  onToggleBookmark,
+  onRecordView,
+  isGlobalMuted,
+  onToggleMute,
+  coinBalance,
+  onBalanceChange,
+  isCreatorViewer,
+}) => (
+  <View style={{ height, backgroundColor: '#000' }}>
+    <CreatorBattleParticipantPager
+      battle={battle}
+      height={height}
+      topInset={topInset}
+      isActive={isActive}
+      onOpenBattle={onOpenBattle}
+      onSubscribe={onSubscribe}
+      onFollow={onFollow}
+      onToggleLike={onToggleLike}
+      onToggleBookmark={onToggleBookmark}
+      onRecordView={onRecordView}
+      isGlobalMuted={isGlobalMuted}
+      onToggleMute={onToggleMute}
+      coinBalance={coinBalance}
+      onBalanceChange={onBalanceChange}
+      isCreatorViewer={isCreatorViewer}
+    />
+  </View>
+), (prev, next) => (
+  prev.battle === next.battle
+  && prev.height === next.height
+  && prev.topInset === next.topInset
+  && prev.isActive === next.isActive
+  && prev.isCreatorViewer === next.isCreatorViewer
+  && (!next.isActive || (
+    prev.isGlobalMuted === next.isGlobalMuted
+    && prev.coinBalance === next.coinBalance
+  ))
+));
+
+type FeedVideoRowProps = {
+  item: FeedItem;
+  height: number;
+  isActive: boolean;
+  onSubscribe: VideoFeedItemProps['onSubscribe'];
+  onFollow: VideoFeedItemProps['onFollow'];
+  onToggleLike: VideoFeedItemProps['onToggleLike'];
+  onToggleBookmark: VideoFeedItemProps['onToggleBookmark'];
+  onRecordView: VideoFeedItemProps['onRecordView'];
+  isGlobalMuted: boolean;
+  onToggleMute: () => void;
+  coinBalance: number;
+  onBalanceChange: (nextBalance: number) => void;
+  isCreatorViewer: boolean;
+};
+
+const FeedVideoRow = React.memo<FeedVideoRowProps>(({
+  item,
+  height,
+  isActive,
+  onSubscribe,
+  onFollow,
+  onToggleLike,
+  onToggleBookmark,
+  onRecordView,
+  isGlobalMuted,
+  onToggleMute,
+  coinBalance,
+  onBalanceChange,
+  isCreatorViewer,
+}) => (
+  <View style={{ height, backgroundColor: 'black' }}>
+    <ErrorBoundary
+      fallback={
+        <View style={{ flex: 1, alignItems: 'center', justifyContent: 'center', paddingHorizontal: 24, backgroundColor: 'black' }}>
+          <Text style={{ color: 'white', ...fontSize.b1, lineHeight: fontSize.b1.lineHeight, textAlign: 'center' }}>
+            This post could not be loaded
+          </Text>
+          <Text style={{ color: '#94a3b8', marginTop: 8, textAlign: 'center' }}>
+            Swipe to continue browsing the feed.
+          </Text>
+        </View>
+      }
+    >
+      {isActive ? (
+        <VideoFeedItem
+          item={item}
+          isPlaying
+          onSubscribe={onSubscribe}
+          onFollow={onFollow}
+          onToggleLike={onToggleLike}
+          onToggleBookmark={onToggleBookmark}
+          onRecordView={onRecordView}
+          isGlobalMuted={isGlobalMuted}
+          onToggleMute={onToggleMute}
+          isLive={item.isLive}
+          coinBalance={coinBalance}
+          onBalanceChange={onBalanceChange}
+          isCreatorViewer={isCreatorViewer}
+        />
+      ) : (
+        <FeedVideoPoster item={item} height={height} />
+      )}
+    </ErrorBoundary>
+  </View>
+), (prev, next) => (
+  prev.item === next.item
+  && prev.height === next.height
+  && prev.isActive === next.isActive
+  && prev.isCreatorViewer === next.isCreatorViewer
+  && (!next.isActive || (
+    prev.isGlobalMuted === next.isGlobalMuted
+    && prev.coinBalance === next.coinBalance
+  ))
+));
+
+type CreatorBattleStatusHeaderProps = {
+  title: string;
+  topInset: number;
+  votingStatus?: string;
+  votingEndsAt?: string | null;
+  fallbackSeconds?: number | null;
+  dataUpdatedAt: number;
+  isActive: boolean;
+  onOpen: () => void;
+};
+
+const CreatorBattleStatusHeader = React.memo<CreatorBattleStatusHeaderProps>(({
+  title,
+  topInset,
+  votingStatus,
+  votingEndsAt,
+  fallbackSeconds,
+  dataUpdatedAt,
+  isActive,
+  onOpen,
+}) => {
+  const [clockNow, setClockNow] = useState(Date.now());
+
+  useEffect(() => {
+    if (!isActive) return;
+    setClockNow(Date.now());
+    const timer = setInterval(() => setClockNow(Date.now()), 1000);
+    return () => clearInterval(timer);
+  }, [isActive]);
+
+  const parsedVotingEnd = votingEndsAt ? Date.parse(votingEndsAt) : Number.NaN;
+  const remainingSeconds = Number.isFinite(parsedVotingEnd)
+    ? Math.max(0, Math.floor((parsedVotingEnd - clockNow) / 1000))
+    : fallbackSeconds == null
+      ? null
+      : Math.max(0, fallbackSeconds - Math.floor((clockNow - dataUpdatedAt) / 1000));
+  const countdown = formatBattleCountdown(remainingSeconds);
+  const votingIsOpen = votingStatus === 'open';
+  const votingLabel = votingIsOpen
+    ? 'Live voting'
+    : votingStatus === 'upcoming'
+      ? 'Voting soon'
+      : 'Voting closed';
+
+  return (
+    <View
+      pointerEvents="box-none"
+      style={{
+        position: 'absolute',
+        top: topInset + 18,
+        left: 12,
+        right: 12,
+        zIndex: 45,
+        alignItems: 'center',
+      }}
+    >
+      {/* <Pressable onPress={onOpen} style={{ alignItems: 'center', maxWidth: '72%' }}>
+        <Text
+          numberOfLines={1}
+          style={{ ...fontSize.n3, color: '#ffffff', textShadowColor: 'rgba(0,0,0,0.85)', textShadowRadius: 8 }}
+        >
+          {title}
+        </Text>
+      </Pressable> */}
+
+      <View
+        style={{
+          minHeight: 28,
+          // marginTop: 8,
+          borderRadius: 999,
+          paddingHorizontal: 13,
+          paddingVertical: 4,
+          flexDirection: 'row',
+          alignItems: 'center',
+          backgroundColor: 'rgba(0,0,0,0.58)',
+        }}
+      >
+        <View style={{ width: 7, height: 7, borderRadius: 4, marginRight: 7, backgroundColor: votingIsOpen ? PRIMARY_COLOR : '#94a3b8' }} />
+        <Text style={{ ...fontSize.b2, color: votingIsOpen ? PRIMARY_COLOR : '#cbd5e1' }}>{votingLabel}</Text>
+        {countdown ? (
+          <>
+            <View style={{ width: 1, height: 18, marginHorizontal: 10, backgroundColor: 'rgba(255,255,255,0.24)' }} />
+            <Text style={{ ...fontSize.b2, color: '#ffffff', fontVariant: ['tabular-nums'] }}>{countdown}</Text>
+          </>
+        ) : null}
+      </View>
+    </View>
+  );
+});
+
+type CreatorBattleParticipantPagerProps = {
+  battle: ChallengeListResource;
+  height: number;
+  topInset: number;
+  isActive: boolean;
+  onOpenBattle: (challengeId: string) => void;
+  onSubscribe: VideoFeedItemProps['onSubscribe'];
+  onFollow: VideoFeedItemProps['onFollow'];
+  onToggleLike: VideoFeedItemProps['onToggleLike'];
+  onToggleBookmark: VideoFeedItemProps['onToggleBookmark'];
+  onRecordView: VideoFeedItemProps['onRecordView'];
+  isGlobalMuted: boolean;
+  onToggleMute: () => void;
+  coinBalance: number;
+  onBalanceChange: (nextBalance: number) => void;
+  isCreatorViewer: boolean;
+};
+
+const CreatorBattlePoster = React.memo<{
+  battle: ChallengeListResource;
+  height: number;
+}>(({ battle, height }) => (
+  <View pointerEvents="none" style={{ width: '100%', height, backgroundColor: '#060913' }}>
+    {battle.image ? (
+      <Image source={{ uri: battle.image }} style={StyleSheet.absoluteFillObject} resizeMode="cover" />
+    ) : null}
+    <View style={[StyleSheet.absoluteFillObject, { backgroundColor: 'rgba(6,9,19,0.28)' }]} />
+  </View>
+));
+
+const CreatorBattleParticipantPager = React.memo<CreatorBattleParticipantPagerProps>(
+  ({
+  battle,
+  height,
+  topInset,
+  isActive,
+  onOpenBattle,
+  onSubscribe,
+  onFollow,
+  onToggleLike,
+  onToggleBookmark,
+  onRecordView,
+  isGlobalMuted,
+  onToggleMute,
+  coinBalance,
+  onBalanceChange,
+  isCreatorViewer,
+}) => {
+  const { width } = useWindowDimensions();
+  const navigation = useNavigation<any>();
+  const challengeQuery = useChallenge(battle.id, isActive);
+  const walletQuery = useKulCoinWallet(isActive);
+  const castBallot = useCastChallengeBallot();
+  const [activeParticipantIndex, setActiveParticipantIndex] = useState(0);
+  const [isActiveCaptionExpanded, setIsActiveCaptionExpanded] = useState(false);
+  const [showVoteDialog, setShowVoteDialog] = useState(false);
+  const participants = useMemo(
+    () => creatorBattleVideoParticipants(challengeQuery.data),
+    [challengeQuery.data],
+  );
+  const participantItems = useMemo<FeedItem[]>(() => participants.map((participant) => {
+    const entry = participant.entry!;
+    const video = entry.video!;
+    const creatorName = participant.creator?.name || participant.creator?.username || 'Challenge Creator';
+    const creatorHandle = participant.creator?.username
+      || creatorName.toLowerCase().replace(/\s+/g, '.');
+    const thumbnail = video.thumbnail_url || battle.image || '';
+
+    return {
+      id: String(video.id),
+      creatorId: String(participant.creator.id),
+      artist: creatorName,
+      handle: creatorHandle,
+      avatar: participant.creator?.avatar || thumbnail,
+      caption: challengeQuery.data?.title || battle.title,
+      background: thumbnail,
+      video: video.stream_url!,
+      likes: formatFeedCount(Number(participant.likes ?? entry.engagement?.likes) || 0),
+      comments: formatFeedCount(Number(participant.comments ?? entry.comments_count ?? entry.engagement?.comments) || 0),
+      isLiked: false,
+      isSubscribed: false,
+      isPremium: false,
+      isChallenge: false,
+      isCreatorBattle: true,
+      allowDuet: false,
+      isDuet: false,
+      canDuet: false,
+      ticketsAvailable: false,
+      originalSound: Boolean(entry.audio?.is_original),
+      soundArtist: entry.audio?.artist || creatorName,
+      soundTitle: entry.audio?.title || (entry.audio?.is_original ? 'Original Sound' : battle.title),
+      following: false,
+      isBookmarked: false,
+      bookmarks: '0',
+      saves: '0',
+    };
+  }), [battle.image, battle.title, challengeQuery.data?.title, participants]);
+
+  useEffect(() => {
+    setActiveParticipantIndex((current) => Math.min(current, Math.max(0, participantItems.length - 1)));
+  }, [participantItems.length]);
+
+  useEffect(() => {
+    setIsActiveCaptionExpanded(false);
+  }, [activeParticipantIndex]);
+
+  const currentParticipant = participants[activeParticipantIndex];
+  const detail = challengeQuery.data;
+  const creatorName = currentParticipant?.creator?.name
+    || currentParticipant?.creator?.username
+    || 'Creator';
+  const voteCost = detail?.pricing?.voting?.vote_cost_per_choice ?? 10;
+  const walletBalance = walletQuery.data?.total_kc ?? coinBalance;
+  const votingStatus = detail?.voting?.status;
+  const votingIsOpen = votingStatus === 'open';
+  const canVote = votingIsOpen
+    && Boolean(currentParticipant?.entry?.id)
+    && (detail?.current_user?.can_vote ?? detail?.can_vote ?? true);
+  const votingEndsAt = detail?.voting?.ends_at
+    || detail?.schedule?.voting_ends_at
+    || detail?.schedule?.submission_ends_at
+    || battle.deadline;
+
+  const handleVotePress = useCallback(() => {
+    if (!votingIsOpen) {
+      Alert.alert('Voting unavailable', votingStatus === 'upcoming'
+        ? 'Voting for this creator battle has not started yet.'
+        : 'Voting for this creator battle is closed.');
+      return;
+    }
+
+    if (!canVote) {
+      Alert.alert('Vote unavailable', 'You cannot vote in this creator battle right now.');
+      return;
+    }
+
+    setShowVoteDialog(true);
+  }, [canVote, votingIsOpen, votingStatus]);
+
+  const handleConfirmVote = async () => {
+    const entryId = currentParticipant?.entry?.id;
+    if (!entryId || castBallot.isPending) return;
+
+    if (walletBalance < voteCost) {
+      setShowVoteDialog(false);
+      navigation.navigate('TopUpCoins');
+      return;
+    }
+
+    try {
+      await castBallot.mutateAsync({
+        challenge: battle.id,
+        payload: {
+          choices: [{ challenge_entry_id: entryId }],
+          idempotency_key: `challenge-${battle.id}-entry-${entryId}-${Date.now()}-${Math.random().toString(36).slice(2)}`,
+        },
+      });
+      setShowVoteDialog(false);
+      const refreshedWallet = await walletQuery.refetch();
+      if (refreshedWallet.data?.total_kc != null) {
+        onBalanceChange(refreshedWallet.data.total_kc);
+      }
+      await challengeQuery.refetch();
+    } catch (error) {
+      Alert.alert('Vote not submitted', getApiErrorMessage(error));
+    }
+  };
+
+  const handleOpenBattle = useCallback(() => {
+    onOpenBattle(String(battle.id));
+  }, [battle.id, onOpenBattle]);
+
+  const handleViewVotes = useCallback(() => {
+    navigation.navigate('ChallengeLeaderboard', { challengeId: battle.id });
+  }, [battle.id, navigation]);
+
+  const handleCaptionExpandedChange = useCallback((expanded: boolean) => {
+    setIsActiveCaptionExpanded(expanded);
+  }, []);
+
+  const participantKeyExtractor = useCallback((item: FeedItem, index: number) => (
+    `${battle.id}-participant-${participants[index]?.id ?? item.creatorId ?? item.id}-${index}`
+  ), [battle.id, participants]);
+
+  const participantItemLayout = useCallback((_: ArrayLike<FeedItem> | null | undefined, index: number) => ({
+    length: width,
+    offset: width * index,
+    index,
+  }), [width]);
+
+  const handleParticipantMomentumEnd = useCallback((event: NativeSyntheticEvent<NativeScrollEvent>) => {
+    const nextIndex = Math.round(event.nativeEvent.contentOffset.x / width);
+    setActiveParticipantIndex(Math.max(0, Math.min(nextIndex, participantItems.length - 1)));
+  }, [participantItems.length, width]);
+
+  const renderParticipant = useCallback(({ item, index }: { item: FeedItem; index: number }) => {
+    const participant = participants[index];
+    const isVisibleParticipant = isActive && index === activeParticipantIndex;
+    const isVoted = String(detail?.current_user?.voted_entry_id ?? '')
+      === String(participant?.entry?.id ?? '');
+
+    return (
+      <View style={{ width, height }}>
+        <VideoFeedItem
+          item={item}
+          isPlaying={isVisibleParticipant}
+          onSubscribe={onSubscribe}
+          onFollow={onFollow}
+          onToggleLike={onToggleLike}
+          onToggleBookmark={onToggleBookmark}
+          onRecordView={onRecordView}
+          isGlobalMuted={isGlobalMuted}
+          onToggleMute={onToggleMute}
+          coinBalance={coinBalance}
+          onBalanceChange={onBalanceChange}
+          isCreatorViewer={isCreatorViewer}
+          railBottomInset={CREATOR_BATTLE_RAIL_INSET}
+          onCaptionExpandedChange={index === activeParticipantIndex ? handleCaptionExpandedChange : undefined}
+          battleVoteAction={{
+            votes: formatFeedCount(Number(participant?.votes?.count) || 0),
+            voteCost,
+            isVoted,
+            isPending: castBallot.isPending && index === activeParticipantIndex,
+            onPress: handleVotePress,
+          }}
+        />
+      </View>
+    );
+  }, [
+    activeParticipantIndex,
+    castBallot.isPending,
+    coinBalance,
+    detail?.current_user?.voted_entry_id,
+    handleCaptionExpandedChange,
+    handleVotePress,
+    height,
+    isActive,
+    isCreatorViewer,
+    isGlobalMuted,
+    onBalanceChange,
+    onFollow,
+    onRecordView,
+    onSubscribe,
+    onToggleBookmark,
+    onToggleLike,
+    onToggleMute,
+    participants,
+    voteCost,
+    width,
+  ]);
+
+  // Keep a battle's loaded players mounted while it remains in the outer
+  // FlatList window. Swapping the VideoView for a poster as soon as viewability
+  // changes can release Expo's native SharedObject before the native view has
+  // finished detaching. Unseen battles still render a cheap poster until their
+  // detail has been loaded for the first time.
+  if (!isActive && !challengeQuery.data) {
+    return <CreatorBattlePoster battle={battle} height={height} />;
+  }
+
+  if (challengeQuery.isLoading) {
+    return (
+      <View style={{ width, height, backgroundColor: '#000', alignItems: 'center', justifyContent: 'center' }}>
+        <ActivityIndicator size="large" color={PRIMARY_COLOR} />
+        <Text style={{ ...fontSize.b4, color: '#94a3b8', marginTop: 12 }}>Loading battle videos...</Text>
+      </View>
+    );
+  }
+
+  if (participantItems.length === 0) {
+    return (
+      <View style={{ width, height, backgroundColor: '#030712', alignItems: 'center', justifyContent: 'center', paddingHorizontal: 28 }}>
+        {battle.image ? <Image source={{ uri: battle.image }} style={StyleSheet.absoluteFillObject} resizeMode="cover" /> : null}
+        <View style={[StyleSheet.absoluteFillObject, { backgroundColor: 'rgba(3,7,18,0.82)' }]} />
+        <MaterialIcons name="hourglass-empty" size={42} color={PRIMARY_COLOR} />
+        <Text style={{ ...fontSize.n3, color: '#fff', textAlign: 'center', marginTop: 14 }}>{battle.title}</Text>
+        <Text style={{ ...fontSize.b4, color: '#cbd5e1', textAlign: 'center', marginTop: 8 }}>
+          Participant videos have not been submitted yet.
+        </Text>
+        <Pressable onPress={handleOpenBattle} style={{ marginTop: 18, borderRadius: 999, paddingHorizontal: 18, paddingVertical: 10, backgroundColor: PRIMARY_COLOR }}>
+          <Text style={{ ...fontSize.b4, color: '#fff', fontFamily: 'Inter_700Bold' }}>View battle</Text>
+        </Pressable>
+      </View>
+    );
+  }
+
+  return (
+    <View style={{ width, height, backgroundColor: '#000' }}>
+      <FlatList
+        horizontal
+        pagingEnabled
+        nestedScrollEnabled
+        directionalLockEnabled
+        data={participantItems}
+        keyExtractor={participantKeyExtractor}
+        showsHorizontalScrollIndicator={false}
+        decelerationRate="fast"
+        disableIntervalMomentum
+        getItemLayout={participantItemLayout}
+        onMomentumScrollEnd={handleParticipantMomentumEnd}
+        renderItem={renderParticipant}
+        initialNumToRender={1}
+        maxToRenderPerBatch={1}
+        windowSize={3}
+        updateCellsBatchingPeriod={80}
+        removeClippedSubviews={Platform.OS === 'android'}
+      />
+
+      <CreatorBattleStatusHeader
+        title={detail?.title || battle.title}
+        topInset={topInset}
+        votingStatus={votingStatus}
+        votingEndsAt={votingEndsAt}
+        fallbackSeconds={detail?.time_remaining_seconds}
+        dataUpdatedAt={challengeQuery.dataUpdatedAt}
+        isActive={isActive}
+        onOpen={handleOpenBattle}
+      />
+
+      {participantItems.length > 1 ? (
+        <View
+          pointerEvents="none"
+          style={{
+            position: 'absolute',
+            bottom: isActiveCaptionExpanded ? 196 : 142,
+            left: 64,
+            right: 64,
+            zIndex: 44,
+            alignItems: 'center',
+          }}
+        >
+          <View style={{ flexDirection: 'row', alignItems: 'center', gap: 9 }}>
+            {participantItems.map((item, index) => (
+              <View
+                key={`${battle.id}-swipe-position-${participants[index]?.id ?? item.creatorId ?? item.id}-${index}`}
+                style={{
+                  width: index === activeParticipantIndex ? 9 : 7,
+                  height: index === activeParticipantIndex ? 9 : 7,
+                  borderRadius: 5,
+                  borderWidth: index === activeParticipantIndex ? 0 : 1.25,
+                  borderColor: 'rgba(255,255,255,0.82)',
+                  backgroundColor: index === activeParticipantIndex ? PRIMARY_COLOR : 'transparent',
+                }}
+              />
+            ))}
+          </View>
+          <View style={{ flexDirection: 'row', alignItems: 'center', marginTop: 4 }}>
+            <MaterialIcons name="chevron-left" size={14} color="rgba(255,255,255,0.68)" />
+            <Text style={{ ...fontSize.b6, color: 'rgba(255,255,255,0.72)', textShadowColor: '#000', textShadowRadius: 4 }}>
+              Swipe creators
+            </Text>
+            <MaterialIcons name="chevron-right" size={14} color="rgba(255,255,255,0.68)" />
+          </View>
+        </View>
+      ) : null}
+
+      <Pressable
+        onPress={handleViewVotes}
+        accessibilityRole="button"
+        accessibilityLabel="View battle leaderboard"
+        style={({ pressed }) => ({
+          position: 'absolute',
+          top: topInset + 10,
+          right: 14,
+          zIndex: 48,
+          width: 42,
+          height: 42,
+          borderRadius: 21,
+          alignItems: 'center',
+          justifyContent: 'center',
+          backgroundColor: 'rgba(0,0,0,0.26)',
+          borderWidth: 1,
+          borderColor: 'rgba(255,255,255,0.12)',
+          opacity: pressed ? 0.72 : 1,
+        })}
+      >
+        <MaterialIcons name="leaderboard" size={22} color="#ffffff" />
+      </Pressable>
+
+      <Modal
+        visible={showVoteDialog}
+        transparent
+        statusBarTranslucent
+        animationType="slide"
+        onRequestClose={() => setShowVoteDialog(false)}
+      >
+        <VoteModalContent
+          sheetMode
+          onClose={() => setShowVoteDialog(false)}
+          onConfirm={handleConfirmVote}
+          challengeTitle={detail?.title || battle.title}
+          creatorName={creatorName}
+          walletBalance={walletBalance}
+          voteCost={voteCost}
+          isSubmitting={castBallot.isPending}
+        />
+      </Modal>
+    </View>
+  );
+});
+
 const Feed: React.FC = () => {
   const { isDark, theme } = useThemeMode();
   const navigation = useNavigation<any>();
@@ -1768,11 +2595,13 @@ const Feed: React.FC = () => {
   const [activeTab, setActiveTab] = useState<'premium' | 'foryou' | 'following' >('foryou');
   const [isGlobalMuted, setIsGlobalMuted] = useState(false);
   const swipeHandledRef = useRef(false);
-  const feedListRef = useRef<FlatList<FeedItem> | null>(null);
+  const feedListRef = useRef<FlatList<FeedRow> | null>(null);
   const lastShakeRefreshRef = useRef(0);
   const lastShakeForceRef = useRef(1);
   const followToastTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const battlePrefetchTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   const insets= useSafeAreaInsets();
+  const feedItemHeight = FEED_ITEM_HEIGHT - (Platform.OS === 'ios' ? 0 : insets.bottom);
   const [feedViewportHeight, setFeedViewportHeight] = useState(0);
   const [items, setItems] = useState<FeedItem[]>([
     // {
@@ -2598,11 +3427,79 @@ const Feed: React.FC = () => {
     fetchNextPage,
     refetch: refetchFeed,
   } = useGeneralFeed({ limit: feedLimit });
-  const likeVideoMutation = useLikeVideoMutation();
-  const bookmarkVideoMutation = useBookmarkVideoMutation();
-  const followCreatorMutation = useFollowCreatorMutation();
-  const recordVideoViewMutation = useRecordVideoViewMutation();
+  const feedRows = useMemo<FeedRow[]>(() => {
+    return displayedItems.map((item, itemIndex) => {
+      if (item.isCreatorBattle && item.creatorBattle) {
+        return {
+          kind: 'battle' as const,
+          id: `battle-${item.creatorBattle.id ?? item.id}`,
+          battle: item.creatorBattle,
+          battleIndex: itemIndex,
+        };
+      }
+
+      return {
+        kind: 'video' as const,
+        id: `video-${item.id}`,
+        item,
+      };
+    });
+  }, [displayedItems]);
+  const queryClient = useQueryClient();
+  const activeFeedRow = feedRows[activeIndex];
+  const activeBattlePageIndex = activeFeedRow?.kind === 'battle'
+    ? activeFeedRow.battleIndex
+    : activeFeedRow?.kind === 'battle-loading'
+      ? 0
+      : null;
+  const hideFeedHeader = activeBattlePageIndex !== null;
+  const { mutate: mutateLikeVideo } = useLikeVideoMutation();
+  const { mutate: mutateBookmarkVideo } = useBookmarkVideoMutation();
+  const { mutate: mutateFollowCreator } = useFollowCreatorMutation();
+  const { mutate: mutateRecordVideoView } = useRecordVideoViewMutation();
+  const itemsRef = useRef(items);
+  itemsRef.current = items;
   const viewedVideoIdsRef = useRef<Set<string>>(new Set());
+
+  useEffect(() => {
+    if (battlePrefetchTimeoutRef.current) {
+      clearTimeout(battlePrefetchTimeoutRef.current);
+      battlePrefetchTimeoutRef.current = null;
+    }
+
+    const nextRow = feedRows[activeIndex + 1];
+    if (nextRow?.kind !== 'battle') return;
+
+    const battleId = nextRow.battle.id;
+    if (battleId === undefined || battleId === null || battleId === '') return;
+
+    const queryKey = challengeQueryKey(battleId);
+    const queryState = queryClient.getQueryState(queryKey);
+    if (queryState?.status === 'success' || queryState?.fetchStatus === 'fetching') return;
+
+    battlePrefetchTimeoutRef.current = setTimeout(() => {
+      InteractionManager.runAfterInteractions(() => {
+        queryClient.prefetchQuery({
+          queryKey,
+          queryFn: () => challengesApi
+            .getChallenge(battleId)
+            .then((response) => unwrapChallengeShowResponse(response.data)),
+        });
+
+        if (nextRow.battle.image) {
+          Image.prefetch(nextRow.battle.image).catch(() => undefined);
+        }
+      });
+      battlePrefetchTimeoutRef.current = null;
+    }, 120);
+
+    return () => {
+      if (battlePrefetchTimeoutRef.current) {
+        clearTimeout(battlePrefetchTimeoutRef.current);
+        battlePrefetchTimeoutRef.current = null;
+      }
+    };
+  }, [activeIndex, feedRows, queryClient]);
 
   useEffect(() => {
     const nextItems = (feedData?.pages ?? [])
@@ -2685,7 +3582,7 @@ const Feed: React.FC = () => {
     }
 
     const nextFollowing = !feedItem.following;
-    const previousItems = items;
+    const previousItems = itemsRef.current;
 
     setItems((prev) =>
       prev.map((item) =>
@@ -2694,7 +3591,7 @@ const Feed: React.FC = () => {
     );
     setFollowToast(`${nextFollowing ? 'Following' : 'Unfollowed'} @${feedItem.handle}`);
 
-    followCreatorMutation.mutate(
+    mutateFollowCreator(
       { creator: creatorId, following: nextFollowing },
       {
         onError: () => {
@@ -2711,10 +3608,10 @@ const Feed: React.FC = () => {
       setFollowToast(null);
       followToastTimeoutRef.current = null;
     }, 1700);
-  }, [followCreatorMutation, items]);
+  }, [mutateFollowCreator]);
 
   const handleToggleLike = useCallback((feedItem: FeedItem, liked: boolean) => {
-    const previousItems = items;
+    const previousItems = itemsRef.current;
     const optimisticLikes = Math.max(0, parseFeedCount(feedItem.likes) + (liked ? 1 : -1));
 
     setItems((prev) =>
@@ -2725,7 +3622,7 @@ const Feed: React.FC = () => {
       )
     );
 
-    likeVideoMutation.mutate(
+    mutateLikeVideo(
       { video: feedItem.id, liked },
       {
         onSuccess: (response) => {
@@ -2750,10 +3647,10 @@ const Feed: React.FC = () => {
         },
       },
     );
-  }, [items, likeVideoMutation]);
+  }, [mutateLikeVideo]);
 
   const handleToggleBookmark = useCallback((feedItem: FeedItem, bookmarked: boolean) => {
-    const previousItems = items;
+    const previousItems = itemsRef.current;
     const optimisticBookmarks = Math.max(0, parseFeedCount(feedItem.saves) + (bookmarked ? 1 : -1));
 
     setItems((prev) =>
@@ -2769,7 +3666,7 @@ const Feed: React.FC = () => {
       )
     );
 
-    bookmarkVideoMutation.mutate(
+    mutateBookmarkVideo(
       { video: feedItem.id, bookmarked },
       {
         onSuccess: (response) => {
@@ -2794,18 +3691,18 @@ const Feed: React.FC = () => {
         },
       },
     );
-  }, [bookmarkVideoMutation, items]);
+  }, [mutateBookmarkVideo]);
 
   const handleRecordView = useCallback((feedItem: FeedItem) => {
     if (viewedVideoIdsRef.current.has(feedItem.id)) return;
     viewedVideoIdsRef.current.add(feedItem.id);
 
-    recordVideoViewMutation.mutate(feedItem.id, {
+    mutateRecordVideoView(feedItem.id, {
       onError: () => {
         viewedVideoIdsRef.current.delete(feedItem.id);
       },
     });
-  }, [recordVideoViewMutation]);
+  }, [mutateRecordVideoView]);
 
   const closeSubscriptionModal = useCallback(() => {
     if (isProcessingSubscription) return;
@@ -2918,6 +3815,7 @@ const Feed: React.FC = () => {
     () =>
       PanResponder.create({
         onMoveShouldSetPanResponder: (_, gestureState) =>
+          activeBattlePageIndex === null &&
           Math.abs(gestureState.dx) > 24 &&
           Math.abs(gestureState.dx) > Math.abs(gestureState.dy) * 1.2,
         onPanResponderGrant: () => {
@@ -2938,31 +3836,32 @@ const Feed: React.FC = () => {
           swipeHandledRef.current = false;
         },
       }),
-    [handleTabSwipe]
+    [activeBattlePageIndex, handleTabSwipe]
   );
 
-  const feedItemHeight = FEED_ITEM_HEIGHT - (Platform.OS === 'ios' ? 0 : insets.bottom);
+  const handleOpenCreatorBattle = useCallback((challengeId: string) => {
+    navigation.navigate('ChallengeFeed', { challengeId });
+  }, [navigation]);
 
-  const renderFeedItem = useCallback(({ item, index }: { item: FeedItem; index: number }) => (
-    <View style={{
-      height: feedItemHeight,
-      backgroundColor: 'black',
-    }}>
-      <ErrorBoundary
-        fallback={
-          <View style={{ flex: 1, alignItems: 'center', justifyContent: 'center', paddingHorizontal: 24, backgroundColor: 'black' }}>
-            <Text style={{ color: 'white', ...fontSize.b1, lineHeight: fontSize.b1.lineHeight, textAlign: 'center' }}>
-              This post could not be loaded
-            </Text>
-            <Text style={{ color: '#94a3b8', marginTop: 8, textAlign: 'center' }}>
-              Swipe to continue browsing the feed.
-            </Text>
-          </View>
-        }
-      >
-        <VideoFeedItem
-          item={item}
-          isPlaying={index === activeIndex}
+  const renderFeedItem = useCallback(({ item: row, index }: { item: FeedRow; index: number }) => {
+    if (row.kind === 'battle-loading') {
+      return (
+        <View style={{ height: feedItemHeight, alignItems: 'center', justifyContent: 'center', backgroundColor: '#000' }}>
+          <ActivityIndicator size="large" color={PRIMARY_COLOR} />
+          <Text style={{ ...fontSize.b4, color: '#94a3b8', marginTop: 12 }}>Loading creator battles...</Text>
+        </View>
+      );
+    }
+
+    if (row.kind === 'battle') {
+      const isActiveBattle = index === activeIndex;
+      return (
+        <FeedBattleRow
+          battle={row.battle}
+          height={feedItemHeight}
+          topInset={insets.top}
+          isActive={isActiveBattle}
+          onOpenBattle={handleOpenCreatorBattle}
           onSubscribe={handleSubscribe}
           onFollow={handleFollow}
           onToggleLike={handleToggleLike}
@@ -2970,16 +3869,36 @@ const Feed: React.FC = () => {
           onRecordView={handleRecordView}
           isGlobalMuted={isGlobalMuted}
           onToggleMute={handleToggleMute}
-          isLive={item.isLive}
           coinBalance={coinBalance}
           onBalanceChange={setCoinBalance}
           isCreatorViewer={isCreatorViewer}
         />
-      </ErrorBoundary>
-    </View>
-  ), [activeIndex, coinBalance, feedItemHeight, handleFollow, handleRecordView, handleSubscribe, handleToggleBookmark, handleToggleLike, handleToggleMute, isCreatorViewer, isGlobalMuted]);
+      );
+    }
 
-  const keyExtractor = useCallback((item: FeedItem) => item.id, []);
+    const videoItem = row.item;
+    const isActiveVideo = index === activeIndex;
+
+    return (
+      <FeedVideoRow
+        item={videoItem}
+        height={feedItemHeight}
+        isActive={isActiveVideo}
+        onSubscribe={handleSubscribe}
+        onFollow={handleFollow}
+        onToggleLike={handleToggleLike}
+        onToggleBookmark={handleToggleBookmark}
+        onRecordView={handleRecordView}
+        isGlobalMuted={isGlobalMuted}
+        onToggleMute={handleToggleMute}
+        coinBalance={coinBalance}
+        onBalanceChange={setCoinBalance}
+        isCreatorViewer={isCreatorViewer}
+      />
+    );
+  }, [activeIndex, coinBalance, feedItemHeight, handleFollow, handleOpenCreatorBattle, handleRecordView, handleSubscribe, handleToggleBookmark, handleToggleLike, handleToggleMute, insets.top, isCreatorViewer, isGlobalMuted]);
+
+  const keyExtractor = useCallback((item: FeedRow) => item.id, []);
 
   const renderFeedFooter = useCallback(() => (
     <View style={{ height: SCREEN_HEIGHT * (Platform.OS === 'ios' ? 0.08 : 0.07) + (Platform.OS === 'ios' ? 0 : insets.bottom), justifyContent: 'center', alignItems: 'center', backgroundColor: 'black' }}>
@@ -3003,6 +3922,7 @@ const Feed: React.FC = () => {
       {...panResponder.panHandlers}
       style={{ flex: 1, backgroundColor: 'blue', padding: 0, margin: 0 }}>
       <StatusBar barStyle="light-content" backgroundColor="transparent" translucent={true} />
+      {!hideFeedHeader ? (
       <View
         style={{
           position: 'absolute',
@@ -3169,6 +4089,7 @@ const Feed: React.FC = () => {
             </Pressable>
 
       </View>
+      ) : null}
 
       {isFeedLoading ? (
         <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center', backgroundColor: 'black', paddingHorizontal: 24 }}>
@@ -3190,7 +4111,7 @@ const Feed: React.FC = () => {
             <Text style={{ color: 'white', ...fontSize.b4, lineHeight: fontSize.b4.lineHeight }}>Retry</Text>
           </Pressable>
         </View>
-      ) : displayedItems.length > 0 ? (
+      ) : feedRows.length > 0 ? (
         <View
           onLayout={(event) => {
             const nextHeight = event.nativeEvent.layout.height;
@@ -3205,7 +4126,7 @@ const Feed: React.FC = () => {
         >
           <FlatList
             ref={feedListRef}
-            data={displayedItems}
+            data={feedRows}
             keyExtractor={keyExtractor}
             renderItem={renderFeedItem}
             showsVerticalScrollIndicator={false}
@@ -3226,9 +4147,9 @@ const Feed: React.FC = () => {
             onViewableItemsChanged={onViewRef.current}
             viewabilityConfig={viewConfigRef.current}
             removeClippedSubviews
-            initialNumToRender={2}
+            initialNumToRender={1}
             windowSize={3}
-            maxToRenderPerBatch={2}
+            maxToRenderPerBatch={1}
             updateCellsBatchingPeriod={75}
           />
         </View>

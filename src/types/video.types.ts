@@ -1,6 +1,7 @@
 export type VideoVisibility = 'public' | 'premium';
 export type VideoDisplayOrientation = 'portrait' | 'landscape';
 export type VideoContentType = 'music' | 'dance' | 'comedy' | 'tutorial' | 'lifestyle' | 'behind_the_scenes';
+export type VideoPurpose = 'post_video' | 'challenge_video' | 'challenge_instruction_video' | 'challenge_entry' | 'message_video' | 'other';
 
 export type VideoUploadSource = {
   uri: string;
@@ -12,11 +13,14 @@ export type VideoUploadSource = {
 
 export type UploadCreatorVideoPayload = {
   video: VideoUploadSource | FormData;
+  thumbnail?: VideoUploadSource | null;
   title?: string | null;
   caption?: string | null;
   contentType?: Array<VideoContentType | string> | string;
   visibility?: VideoVisibility;
   orientation?: VideoDisplayOrientation;
+  purpose?: VideoPurpose;
+  allowDuet?: boolean;
 };
 
 export type CreateCreatorVideoDraftPayload = {
@@ -24,6 +28,7 @@ export type CreateCreatorVideoDraftPayload = {
   caption?: string | null;
   content_type?: Array<VideoContentType | string> | string;
   visibility?: VideoVisibility;
+  allow_duet?: boolean;
 };
 
 export type UploadCreatorVideoToDraftPayload = {
@@ -144,7 +149,10 @@ export type UpdateCreatorVideoPayload = {
   caption?: string | null;
   content_type?: Array<VideoContentType | string> | string;
   visibility?: VideoVisibility;
+  allow_duet?: boolean;
 };
+
+export type CreateCreatorVideoDuetDraftPayload = CreateCreatorVideoDraftPayload;
 
 export type CreatorVideo = {
   id: string | number;
@@ -153,19 +161,32 @@ export type CreatorVideo = {
   visibility: VideoVisibility;
   content_type?: string | null;
   content_types?: string[];
+  purpose?: VideoPurpose;
+  allowDuet?: boolean;
+  isDuet?: boolean;
+  duetSourceVideoId?: string | number | null;
   is_premium?: boolean;
   cdn_url?: string | null;
   stream_url?: string | null;
   streaming_url?: string | null;
   rendered_url?: string | null;
+  playback?: {
+    type?: string | null;
+    url?: string | null;
+    fallbackUrl?: string | null;
+    posterUrl?: string | null;
+  } | null;
   thumbnail?: string | null;
   poster_url?: string | null;
   duration?: number | null;
+  durationMs?: number | null;
   status?: string | null;
   render_status?: string | null;
   progress_percentage?: number | null;
   requires_editing?: boolean;
   upload_state?: string | null;
+  upload_status?: string | null;
+  processing_status?: string | null;
   render_completed_at?: string | null;
   views_count?: number;
   hashtags?: string[];
@@ -197,7 +218,9 @@ export type InitCreatorVideoUploadPayload = {
   caption?: string | null;
   visibility?: VideoVisibility;
   size?: number;
+  purpose?: VideoPurpose;
   requires_editing?: boolean;
+  allow_duet?: boolean;
 };
 
 export type CreatorVideoUploadSession = {
@@ -210,7 +233,18 @@ export type CreatorVideoUploadSession = {
 };
 
 export type InitCreatorVideoUploadResponse = {
-  data: CreatorVideoUploadSession;
+  data: CreatorVideoUploadSession | {
+    videoId: string | number;
+    status: string;
+    video: CreatorVideo;
+    upload: {
+      method: 'PUT' | string;
+      url: string;
+      headers?: Record<string, unknown>;
+      expiresAt: string;
+      expiresIn?: number;
+    };
+  };
 };
 
 export type CompleteCreatorVideoUploadResponse = {
@@ -271,6 +305,9 @@ export type CreatorVideoListItem = {
   likes: string;
   premium: boolean;
   draft: boolean;
+  allowDuet?: boolean;
+  isDuet?: boolean;
+  duetSourceVideoId?: string | number | null;
 };
 
 export type CreatorVideosParams = {
@@ -385,6 +422,9 @@ export type CreatorVideoDetailItem = {
   render_completed_at?: string | null;
   likes: string;
   comments_count: string;
+  allowDuet?: boolean;
+  isDuet?: boolean;
+  duetSourceVideoId?: string | number | null;
   comments: unknown[];
   otherVideos: unknown[];
 };

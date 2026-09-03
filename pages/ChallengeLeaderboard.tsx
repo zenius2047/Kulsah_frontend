@@ -1,7 +1,7 @@
 import { MaterialIcons } from '@expo/vector-icons';
-import { useNavigation } from '@react-navigation/native';
+import { useNavigation, useRoute } from '@react-navigation/native';
 import { LinearGradient } from 'expo-linear-gradient';
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useMemo, useState } from 'react';
 import {
   ActivityIndicator,
   Image,
@@ -18,8 +18,10 @@ import {
 import { SafeAreaView, useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useThemeMode, PRIMARY_COLOR, primaryColorAlpha } from "../theme";
 import { user, User } from '../types';
-import PaymentGateway from '../components/PaymentGateway';
 import { fontSize } from '../typography';
+import { useChallenge, useChallengeLeaderboard } from '../src/hooks/challenges/useChallenges';
+import { getApiErrorMessage } from '../src/utils/apiError';
+import { challengeRuleResourceToDisplay } from '../src/utils/challenges';
 
 type LeaderboardTab = 'rankings' | 'rules' | 'prizes';
 type BoostPaymentMethod = 'momo' | 'kc' | 'card';
@@ -40,7 +42,7 @@ type BoostPackage = {
 
 type BoostUser = User & { balance?: number };
 
-const topThree = [
+const mockTopThree = [
   { rank: 2, name: 'MusicLover99', votes: '12.8k', avatar: 'https://picsum.photos/seed/fan1/200' },
   {
     rank: 1,
@@ -52,7 +54,7 @@ const topThree = [
   { rank: 3, name: 'BassMaster', votes: '10.2k', avatar: 'https://picsum.photos/seed/fan3/200' },
 ];
 
-const globalRankings = [
+const mockGlobalRankings = [
   {
     rank: 4,
     name: 'MelodyJane',
@@ -83,7 +85,7 @@ const globalRankings = [
   },
 ];
 
-const rules = [
+const mockRules = [
   {
     title: 'Original Content',
     desc: 'All submissions must be your own original work or a remix of the provided stems.',
@@ -102,7 +104,7 @@ const rules = [
   },
 ];
 
-const prizes = [
+const mockPrizes = [
   {
     rank: 'Grand Prize',
     prize: '$1,000 + Studio Session',
@@ -151,7 +153,10 @@ const formatVotes = (votes: number) => {
   return `${votes}`;
 };
 
-const BoostEntryDialog = ({
+const DEFAULT_AVATAR = 'https://picsum.photos/seed/challenge-user/200';
+const DEFAULT_ENTRY_IMAGE = 'https://images.unsplash.com/photo-1547153760-18fc86324498?auto=format&fit=crop&q=80&w=300';
+
+export const BoostEntryDialog = ({
   isOpen,
   onClose,
   currentUser,
@@ -181,7 +186,6 @@ const BoostEntryDialog = ({
   const [countdown, setCountdown] = useState(15);
   const [otpInput, setOtpInput] = useState('');
   const [errorText, setErrorText] = useState('');
-  const [paymentGatewayOpen, setPaymentGatewayOpen] = useState(false);
 
   const availableBalance = currentUser?.balance ?? 1250;
   const updatedRank = getBoostRank(selectedPackage.id);
@@ -206,7 +210,6 @@ const BoostEntryDialog = ({
     setOtpInput('');
     setCountdown(15);
     setErrorText('');
-    setPaymentGatewayOpen(false);
   }, [isOpen]);
 
   useEffect(() => {
@@ -230,7 +233,7 @@ const BoostEntryDialog = ({
 
   const handleContinueToPayment = () => {
     setErrorText('');
-    setPaymentGatewayOpen(true);
+    setInputStep('payment');
   };
 
   const handleBackToPayload = () => {
@@ -561,31 +564,99 @@ const BoostEntryDialog = ({
         </View>
       </KeyboardAvoidingView>
     </Modal>
-    <PaymentGateway
-      isOpen={isOpen && paymentGatewayOpen}
-      onClose={() => setPaymentGatewayOpen(false)}
-      onSuccess={() => {
-        setPaymentGatewayOpen(false);
-        completeBoost();
-      }}
-      amount={selectedPackage.priceGhc}
-      currency="GHS"
-      itemName={`${selectedPackage.name} - ${selectedPackage.votes} Votes`}
-      allowedMethods={['momo', 'card', 'bank', 'kulcoins']}
-      walletBalance={availableBalance}
-    />
     </>
   );
 };
 
 const ChallengeLeaderboard: React.FC = () => {
   const navigation = useNavigation<any>();
+  const route = useRoute<any>();
+  const challengeId = route.params?.challengeId as string | number | undefined;
+  const challengeQuery = useChallenge(challengeId);
+  const leaderboardQuery = useChallengeLeaderboard(challengeId);
   const insets = useSafeAreaInsets();
   const { isDark, theme } = useThemeMode();
   const [activeTab, setActiveTab] = useState<LeaderboardTab>('rankings');
   const [boostOpen, setBoostOpen] = useState(false);
   const [userRank, setUserRank] = useState(24);
   const [userVotes, setUserVotes] = useState(2100);
+
+  const apiRankings = useMemo(() => {
+    const pages = leaderboardQuery.data?.pages;
+    if (!Array.isArray(pages)) return [];
+
+    const entries = pages.flatMap((page) => Array.isArray(page?.data) ? page.data : []);
+    return entries.map((entry, index) => {
+      const voteCount = Number(entry.current_score) || 0;
+      return {
+        id: String(entry.id),
+        rank: Number(entry.current_rank) || index + 1,
+        name: entry.creator?.name || entry.creator?.handle || 'Challenge Creator',
+        votes: formatVotes(voteCount),
+        voteCount,
+        avatar: entry.creator?.avatar || DEFAULT_AVATAR,
+        entry: entry.video?.thumbnail || entry.video?.poster_url || DEFAULT_ENTRY_IMAGE,
+        creatorId: String(entry.creator_id),
+      };
+    });
+  }, [leaderboardQuery.data]);
+
+  const topThree = challengeId == null
+    ? mockTopThree
+    : apiRankings.length >= 3
+      ? [apiRankings[1], apiRankings[0], apiRankings[2]]
+      : [];
+  const globalRankings = challengeId == null
+    ? mockGlobalRankings
+    : apiRankings.length >= 3
+      ? apiRankings.slice(3)
+      : apiRankings;
+  const currentUserRanking = challengeId == null
+    ? null
+    : apiRankings.find((entry) => entry.creatorId === String(user?.id ?? ''));
+
+  const rules = useMemo(() => {
+    if (challengeId == null) return mockRules;
+    const challengeRules = challengeQuery.data?.rules;
+    if (Array.isArray(challengeRules) && challengeRules.length > 0) {
+      return challengeRules.map((rule) => {
+        const displayRule = challengeRuleResourceToDisplay(rule);
+        return { ...displayRule, desc: displayRule.description };
+      });
+    }
+    if (challengeQuery.data?.instructions) {
+      return [{ title: 'Participant Instructions', desc: challengeQuery.data.instructions }];
+    }
+    return [];
+  }, [challengeId, challengeQuery.data]);
+
+  const prizes = useMemo(() => {
+    if (challengeId == null) return mockPrizes;
+    const challengePrizes = challengeQuery.data?.prizes;
+    if (!Array.isArray(challengePrizes)) return [];
+
+    return challengePrizes.map((prize, index) => {
+      const rank = prize.rank_from === 1 && prize.rank_to === 1
+        ? 'Grand Prize'
+        : prize.rank_from === prize.rank_to
+          ? `Place ${prize.rank_from}`
+          : `Places ${prize.rank_from}-${prize.rank_to}`;
+      const amount = prize.amount != null
+        ? `${prize.currency || ''} ${Number(prize.amount).toLocaleString()}`.trim()
+        : '';
+      return {
+        rank,
+        prize: amount ? `${amount} - ${prize.title}` : prize.title,
+        desc: prize.description || `${prize.quantity || 1} reward${Number(prize.quantity || 1) === 1 ? '' : 's'} available.`,
+        colors: index === 0
+          ? ['#fbbf24', '#f97316'] as const
+          : index === 1
+            ? ['#cbd5e1', '#64748b'] as const
+            : ['#d97706', '#92400e'] as const,
+        icon: index === 0 ? 'workspace-premium' as const : index === 1 ? 'military-tech' as const : 'stars' as const,
+      };
+    });
+  }, [challengeId, challengeQuery.data]);
 
   const screenBg = isDark ? '#07080d' : '#f8fafc';
   const headerBg = isDark ? 'rgba(7,8,13,0.86)' : 'rgba(248,250,252,0.92)';
@@ -614,7 +685,9 @@ const ChallengeLeaderboard: React.FC = () => {
             <MaterialIcons name="chevron-left" size={22} color={theme.text} />
           </Pressable> */}
 
-          <Text style={[styles.headerTitle, { color: theme.text }]}>Orbit Leaderboard</Text>
+          <Text numberOfLines={1} style={[styles.headerTitle, { color: theme.text }]}>
+            {challengeQuery.data?.title ? `${challengeQuery.data.title} Leaderboard` : 'Orbit Leaderboard'}
+          </Text>
 
           <Pressable style={[styles.headerButton, { backgroundColor: softSurface, borderColor }]}>
             <MaterialIcons name="share" size={22} color={theme.text} />
@@ -661,7 +734,31 @@ const ChallengeLeaderboard: React.FC = () => {
 
           {activeTab === 'rankings' ? (
             <View style={styles.sectionGap}>
-              <View style={styles.podiumRow}>
+              {challengeId != null && leaderboardQuery.isLoading ? (
+                <View style={[styles.queryState, { backgroundColor: cardBg, borderColor }]}>
+                  <ActivityIndicator color={PRIMARY_COLOR} />
+                  <Text style={[styles.queryStateText, { color: mutedText }]}>Loading leaderboard...</Text>
+                </View>
+              ) : null}
+
+              {challengeId != null && leaderboardQuery.isError ? (
+                <View style={[styles.queryState, { backgroundColor: cardBg, borderColor }]}>
+                  <MaterialIcons name="cloud-off" size={30} color={mutedText} />
+                  <Text style={[styles.queryStateText, { color: mutedText }]}>{getApiErrorMessage(leaderboardQuery.error)}</Text>
+                  <Pressable onPress={() => void leaderboardQuery.refetch()} style={styles.queryRetryButton}>
+                    <Text style={styles.queryRetryText}>Try Again</Text>
+                  </Pressable>
+                </View>
+              ) : null}
+
+              {challengeId != null && leaderboardQuery.isSuccess && apiRankings.length === 0 ? (
+                <View style={[styles.queryState, { backgroundColor: cardBg, borderColor }]}>
+                  <MaterialIcons name="leaderboard" size={32} color={mutedText} />
+                  <Text style={[styles.queryStateText, { color: mutedText }]}>No approved entries are ranked yet.</Text>
+                </View>
+              ) : null}
+
+              {topThree.length === 3 ? <View style={styles.podiumRow}>
                 <View style={styles.sidePodiumItem}>
                   <View style={styles.podiumAvatarWrap}>
                     <Image source={{ uri: topThree[0].avatar }} style={styles.sidePodiumAvatar} />
@@ -701,9 +798,9 @@ const ChallengeLeaderboard: React.FC = () => {
                     <Text style={styles.voteAccent}>{topThree[2].votes} Votes</Text>
                   </View>
                 </View>
-              </View>
+              </View> : null}
 
-              <View style={styles.sectionGap}>
+              {globalRankings.length > 0 ? <View style={styles.sectionGap}>
                 <Text style={[styles.sectionTitle, { color: theme.text }]}>Global Rankings</Text>
                 <View style={styles.sectionGapSmall}>
                   {globalRankings.map((fan) => (
@@ -730,9 +827,20 @@ const ChallengeLeaderboard: React.FC = () => {
                     </View>
                   ))}
                 </View>
-              </View>
+                {leaderboardQuery.hasNextPage ? (
+                  <Pressable
+                    disabled={leaderboardQuery.isFetchingNextPage}
+                    onPress={() => void leaderboardQuery.fetchNextPage()}
+                    style={[styles.loadMoreButton, { borderColor }]}
+                  >
+                    {leaderboardQuery.isFetchingNextPage
+                      ? <ActivityIndicator size="small" color={PRIMARY_COLOR} />
+                      : <Text style={styles.loadMoreText}>Load More</Text>}
+                  </Pressable>
+                ) : null}
+              </View> : null}
 
-              <LinearGradient
+              {challengeId == null || currentUserRanking ? <LinearGradient
                 colors={[PRIMARY_COLOR, '#db2777'] as const}
                 start={{ x: 0, y: 0 }}
                 end={{ x: 1, y: 0 }}
@@ -741,18 +849,20 @@ const ChallengeLeaderboard: React.FC = () => {
                 <View style={styles.userGlow} />
                 <View style={styles.userRankContent}>
                   <View style={styles.userRankLeft}>
-                    <Text style={styles.userRankNumber}>{userRank}</Text>
+                    <Text style={styles.userRankNumber}>{currentUserRanking?.rank ?? userRank}</Text>
                     <Image source={{ uri: 'https://picsum.photos/seed/user/200' }} style={styles.userAvatar} />
                     <View style={styles.userCopy}>
                       <Text style={styles.userName}>You (SuperFan_01)</Text>
-                      <Text style={styles.userStats}>{formatVotes(userVotes)} votes * Top 15%</Text>
+                      <Text style={styles.userStats}>{currentUserRanking?.votes ?? formatVotes(userVotes)} votes</Text>
                     </View>
                   </View>
-                  <Pressable onPress={() => setBoostOpen(true)} style={styles.boostButton}>
-                    <Text style={styles.boostButtonText}>Boost Entry</Text>
-                  </Pressable>
+                  {challengeId == null ? (
+                    <Pressable onPress={() => setBoostOpen(true)} style={styles.boostButton}>
+                      <Text style={styles.boostButtonText}>Boost Entry</Text>
+                    </Pressable>
+                  ) : null}
                 </View>
-              </LinearGradient>
+              </LinearGradient> : null}
             </View>
           ) : null}
 
@@ -766,7 +876,7 @@ const ChallengeLeaderboard: React.FC = () => {
 
                 <View style={styles.sectionGap}>
                   {rules.map((rule, index) => (
-                    <View key={rule.title} style={styles.ruleRow}>
+                    <View key={`${rule.title}-${index}`} style={styles.ruleRow}>
                       <View style={styles.ruleIndex}>
                         <Text style={styles.ruleIndexText}>{index + 1}</Text>
                       </View>
@@ -916,6 +1026,45 @@ const styles = StyleSheet.create({
   },
   sectionGapSmall: {
     gap: 12,
+  },
+  queryState: {
+    minHeight: 180,
+    borderRadius: 24,
+    borderWidth: 1,
+    alignItems: 'center',
+    justifyContent: 'center',
+    gap: 12,
+    padding: 24,
+  },
+  queryStateText: {
+    ...fontSize.b4,
+    lineHeight: fontSize.b4.lineHeight,
+    textAlign: 'center',
+  },
+  queryRetryButton: {
+    minHeight: 40,
+    borderRadius: 999,
+    paddingHorizontal: 18,
+    alignItems: 'center',
+    justifyContent: 'center',
+    backgroundColor: PRIMARY_COLOR,
+  },
+  queryRetryText: {
+    color: '#ffffff',
+    ...fontSize.b5,
+    lineHeight: fontSize.b5.lineHeight,
+  },
+  loadMoreButton: {
+    minHeight: 46,
+    borderRadius: 999,
+    borderWidth: 1,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  loadMoreText: {
+    color: PRIMARY_COLOR,
+    ...fontSize.b5,
+    lineHeight: fontSize.b5.lineHeight,
   },
   podiumRow: {
     flexDirection: 'row',

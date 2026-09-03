@@ -177,6 +177,12 @@ const RecordContent: React.FC = ({route}:any) => {
         orientation: asset.orientation ?? cameraOrientationRef.current,
       },
       sound,
+      uploadedVideoId: route?.params?.duetDraftId,
+      uploadToExistingDraft: route?.params?.duetDraftId != null,
+      duetSourceVideoId: route?.params?.duetSourceVideoId,
+      challengeId: route?.params?.challengeId,
+      purpose: route?.params?.purpose,
+      officialSoundId: route?.params?.officialSoundId,
     });
   };
 

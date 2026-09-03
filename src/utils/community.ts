@@ -10,6 +10,7 @@ export const validateCommunityPost = (payload: CreateCommunityPostPayload): stri
   const options = payload.poll?.options.map((option) => option.trim()).filter(Boolean) ?? [];
   if (!['public', 'subscribers'].includes(payload.audience)) errors.push('Choose a valid audience.');
   if (!payload.content?.trim() && !payload.media?.length && payload.type !== 'poll') errors.push('Add text or media.');
+  if (payload.type === 'poll' && !payload.poll?.question?.trim()) errors.push('A poll question is required.');
   if (payload.type === 'poll' && options.length < 2) errors.push('A poll requires at least two options.');
   if (options.length > 4) errors.push('A poll supports at most four options.');
   const videoCount = payload.media?.filter(isCommunityVideo).length ?? 0;
@@ -31,8 +32,15 @@ export const getCommunityPostFormEntries = (payload: CreateCommunityPostPayload)
       type: asset.type || (extension === 'mp4' ? 'video/mp4' : 'image/jpeg'),
     }]);
   });
+  if (payload.poll?.question?.trim()) entries.push(['poll[question]', payload.poll.question.trim()]);
   payload.poll?.options.forEach((option, index) => entries.push([`poll[options][${index}]`, option.trim()]));
   if (payload.poll?.closes_at) entries.push(['poll[closes_at]', payload.poll.closes_at]);
+  if (typeof payload.poll?.allow_multiple === 'boolean') {
+    entries.push(['poll[allow_multiple]', payload.poll.allow_multiple ? '1' : '0']);
+  }
+  if (typeof payload.poll?.show_results_after_voting === 'boolean') {
+    entries.push(['poll[show_results_after_voting]', payload.poll.show_results_after_voting ? '1' : '0']);
+  }
   return entries;
 };
 

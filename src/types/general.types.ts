@@ -1,4 +1,5 @@
 import type { AvatarUploadSource, Gender, User } from './user.types';
+import type { Sticker } from './sticker.types';
 
 export type PaginationMeta = {
   current_page?: number;
@@ -14,6 +15,8 @@ export type PaginationMeta = {
 export type GeneralFeedParams = {
   limit?: number;
   page?: number;
+  search_query?: string;
+  interest_terms?: string[] | string;
 };
 
 export type GeneralFeedCard = {
@@ -45,6 +48,11 @@ export type GeneralFeedCard = {
   isLiked?: boolean;
   isSubscribed?: boolean;
   isPremium?: boolean;
+  isChallenge?: boolean;
+  allowDuet?: boolean;
+  isDuet?: boolean;
+  duetSourceVideoId?: string | number | null;
+  canDuet?: boolean;
   ticketsAvailable?: boolean;
   ticketLocation?: string;
   originalSound?: boolean;
@@ -66,12 +74,20 @@ export type GeneralFeedResponse = {
   };
 };
 
+export type GeneralRecommendationsResponse = {
+  data: Array<string | number>;
+  meta?: GeneralFeedResponse['meta'];
+};
+
 export type GeneralVideo = {
   id: string | number;
   user_id?: string | number;
   title?: string | null;
   caption?: string | null;
   visibility?: string;
+  allowDuet?: boolean;
+  isDuet?: boolean;
+  duetSourceVideoId?: string | number | null;
   content_type?: string | null;
   content_types?: string[];
   is_premium?: boolean;
@@ -138,7 +154,8 @@ export type VideoActionResponse = {
 };
 
 export type AddCommentPayload = {
-  body: string;
+  body?: string;
+  sticker_id?: number;
 };
 
 export type GeneralCommentsParams = {
@@ -159,6 +176,8 @@ export type GeneralComment = {
   avatar: string | null;
   text: string;
   stickerUrl?: string | null;
+  sticker_url?: string | null;
+  sticker?: Sticker | null;
   gift?: unknown | null;
   time: string;
   likes: number;

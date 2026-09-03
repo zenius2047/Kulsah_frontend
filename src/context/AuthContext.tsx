@@ -1,5 +1,7 @@
 import React, { createContext, useContext, useMemo } from 'react';
 import { authApi } from '../api/auth.api';
+import { signOutGoogleAsync } from '../config/auth-google';
+import { unregisterCurrentPushTokenAsync } from '../hooks/messaging/useFcmMessaging';
 import { useAuthStore } from '../store/auth.store';
 import type { User } from '../types/user.types';
 
@@ -32,12 +34,24 @@ export const AuthProvider: React.FC<React.PropsWithChildren> = ({ children }) =>
       },
       logout: async () => {
         const token = useAuthStore.getState().token;
+        try {
+          await unregisterCurrentPushTokenAsync();
+        } catch {
+          // Native/local notification state is still cleared when revocation fails.
+        }
+
         if (token) {
           try {
             await authApi.logout(token);
           } catch {
             // Ignore network failures during logout and still clear local auth.
           }
+        }
+
+        try {
+          await signOutGoogleAsync();
+        } catch {
+          // Always clear local application auth even if a provider SDK fails.
         }
 
         useAuthStore.getState().clearAuth();

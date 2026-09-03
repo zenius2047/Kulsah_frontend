@@ -9,8 +9,6 @@ import {
 } from 'firebase/auth';
 
 import { auth } from '../config/firebase';
-import { setAuthToken } from '../services/token.service';
-import { setUser } from '../store/auth.store';
 
 WebBrowser.maybeCompleteAuthSession();
 
@@ -34,27 +32,37 @@ const ANDROID_SIGNING_SHA1 = '85:16:BB:28:27:D7:6D:AC:15:E8:0D:16:E2:87:45:48:E9
 const ANDROID_SIGNING_SHA256 =
   '81:F9:40:27:76:40:83:1D:98:0E:BA:D9:0C:07:5C:0B:8F:5A:84:EF:47:68:6E:18:B2:E0:44:C1:19:AB:8B:20';
 
-const sanitizeHandle = (value: string) =>
-  value
-    .trim()
-    .toLowerCase()
-    .replace(/[^a-z0-9_]+/g, '_')
-    .replace(/^_+|_+$/g, '') || `google_user_${Date.now()}`;
+export const signOutGoogleAsync = async () => {
+  let nativeSignOutError: unknown;
+  let firebaseSignOutError: unknown;
 
-const buildAppUser = (firebaseUser: User) => {
-  const displayName =
-    firebaseUser.displayName?.trim() ||
-    firebaseUser.email?.split('@')[0]?.trim() ||
-    'Google User';
+  if (Platform.OS !== 'web') {
+    try {
+      const googleSigninModule = (await import('@react-native-google-signin/google-signin')) as NativeGoogleSigninModule;
+      const { GoogleSignin } = googleSigninModule;
+      GoogleSignin.configure({
+        webClientId: WEB_CLIENT_ID,
+        iosClientId: IOS_CLIENT_ID,
+        offlineAccess: false,
+      });
+      if (GoogleSignin.hasPreviousSignIn()) {
+        await GoogleSignin.signOut();
+      }
+    } catch (error) {
+      nativeSignOutError = error;
+    }
+  }
 
-  return {
-    id: Date.now(),
-    name: displayName,
-    role: 'fan' as const,
-    email: firebaseUser.email ?? '',
-    handle: sanitizeHandle(displayName),
-    ...(firebaseUser.photoURL ? { avatar: firebaseUser.photoURL } : {}),
-  };
+  // Firebase owns the persisted Google credential on every platform, including
+  // native web-auth fallback sessions, so it must always be cleared.
+  try {
+    await auth.signOut();
+  } catch (error) {
+    firebaseSignOutError = error;
+  }
+
+  if (nativeSignOutError) throw nativeSignOutError;
+  if (firebaseSignOutError) throw firebaseSignOutError;
 };
 
 const completeFirebaseSignIn = async (
@@ -63,12 +71,7 @@ const completeFirebaseSignIn = async (
 ) => {
   const credential = GoogleAuthProvider.credential(idToken, accessToken ?? undefined);
   const userCredential = await signInWithCredential(auth, credential);
-  const firebaseUser = userCredential.user;
-
-  await setAuthToken(await firebaseUser.getIdToken());
-  setUser(buildAppUser(firebaseUser));
-
-  return firebaseUser;
+  return userCredential.user;
 };
 
 export const useGoogleAuth = (options: UseGoogleAuthOptions = {}) => {

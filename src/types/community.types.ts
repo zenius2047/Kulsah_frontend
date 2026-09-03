@@ -1,6 +1,8 @@
 import type { PaginationMeta } from './general.types';
+import type { KulCoinTransaction } from './kulcoin.types';
+import type { Sticker } from './sticker.types';
 
-export type CommunityPostType = 'text' | 'image' | 'video' | 'poll' | 'live';
+export type CommunityPostType = 'text' | 'image' | 'video' | 'poll' | 'challenge' | 'live';
 export type CommunityAudience = 'public' | 'subscribers';
 
 export type CommunityAuthor = {
@@ -41,11 +43,14 @@ export type CommunityPost = {
   author: CommunityAuthor;
   media: CommunityMedia[];
   poll: {
+    question?: string | null;
     options: CommunityPollOption[];
     total_votes: number;
     has_voted: boolean;
     selected_option_id: string | number | null;
     closes_at: string | null;
+    allow_multiple?: boolean;
+    show_results_after_voting?: boolean;
   } | null;
   live?: {
     session_id: string | number;
@@ -82,6 +87,9 @@ export type CommunityComment = {
   content: string;
   /** Backward-compatible alias returned by older API versions. */
   body?: string;
+  sticker_id?: number | null;
+  sticker_url?: string | null;
+  sticker?: Sticker | null;
   author: CommunityAuthor;
   stats: {
     likes_count: number;
@@ -116,19 +124,40 @@ export type CreateCommunityPostPayload = {
   audience: CommunityAudience;
   content?: string;
   media?: CommunityMediaSource[];
-  poll?: { options: string[]; closes_at?: string | null };
+  poll?: {
+    question?: string;
+    options: string[];
+    closes_at?: string | null;
+    allow_multiple?: boolean;
+    show_results_after_voting?: boolean;
+  };
 };
 
-export type CreateCommunityCommentPayload = { body: string; parent_id?: string | number };
+export type CreateCommunityCommentPayload = {
+  body?: string;
+  sticker_id?: number;
+  parent_id?: string | number;
+};
 
 export type CommunityGiftPayload = {
   gift_id: string | number;
-  quantity: number;
+  quantity?: number;
   message?: string;
-  idempotency_key: string;
-  device_info: Record<string, unknown>;
+  idempotency_key?: string;
+  device_info?: Record<string, unknown>;
 };
 
-export type CommunityGiftResponse = CommunityItemResponse<CommunityPost> & {
-  wallet?: { balance?: number; [key: string]: unknown };
+export type CommunityGiftResponse = {
+  message: string;
+  data: {
+    post: CommunityPost;
+    gift: {
+      id: string | number;
+      gift_id: string | number;
+      quantity: number;
+      coin_amount: number;
+      message?: string | null;
+      transaction: KulCoinTransaction;
+    };
+  };
 };

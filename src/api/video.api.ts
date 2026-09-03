@@ -5,6 +5,7 @@ import { useAuthStore } from '../store/auth.store';
 import type { AxiosRequestConfig } from 'axios';
 import type {
   CreateCreatorVideoDraftPayload,
+  CreateCreatorVideoDuetDraftPayload,
   CreatorVideoAnalyticsResponse,
   CreatorVideoDetailResponse,
   CreatorVideosParams,
@@ -65,12 +66,14 @@ const createVideoFormData = ({
   caption,
   contentType,
   visibility,
+  allowDuet,
 }: UploadCreatorVideoPayload) => {
   if (video instanceof FormData) {
     if (title != null) video.append('title', title);
     if (caption != null) video.append('caption', caption);
     appendContentTypes(video, contentType);
     if (visibility != null) video.append('visibility', visibility);
+    if (allowDuet != null) video.append('allow_duet', allowDuet ? '1' : '0');
 
     return video;
   }
@@ -88,6 +91,7 @@ const createVideoFormData = ({
   if (caption != null) formData.append('caption', caption);
   appendContentTypes(formData, contentType);
   if (visibility != null) formData.append('visibility', visibility);
+  if (allowDuet != null) formData.append('allow_duet', allowDuet ? '1' : '0');
 
   return formData;
 };
@@ -166,10 +170,14 @@ export const videoApi = {
     api.get<CreatorVideoDetailResponse>(endpoints.creator.video(video), creatorVideoAuthConfig()),
   createCreatorVideoDraft: (payload: CreateCreatorVideoDraftPayload) =>
     api.post<UploadCreatorVideoResponse>(endpoints.creator.videoDrafts, payload, creatorVideoAuthConfig()),
+  createCreatorVideoDuetDraft: (video: string | number, payload: CreateCreatorVideoDuetDraftPayload = {}) =>
+    api.post<UploadCreatorVideoResponse>(endpoints.creator.videoDuetDraft(video), payload, creatorVideoAuthConfig()),
   initCreatorVideoUpload: (payload: InitCreatorVideoUploadPayload) =>
     api.post<InitCreatorVideoUploadResponse>(endpoints.creator.videoUploadInit, payload, creatorVideoAuthConfig()),
   completeCreatorVideoUpload: (video: string | number) =>
     api.post<CompleteCreatorVideoUploadResponse>(endpoints.creator.videoUploadComplete(video), {}, creatorVideoAuthConfig()),
+  retryCreatorVideoProcessing: (video: string | number) =>
+    api.post<CompleteCreatorVideoUploadResponse>(endpoints.creator.videoRetryProcessing(video), {}, creatorVideoAuthConfig()),
   submitCreatorVideoEdits: (video: string | number, payload: SubmitCreatorVideoEditsPayload) =>
     api.post<SubmitCreatorVideoEditsResponse>(
       endpoints.creator.videoEdits(video),
@@ -215,8 +223,10 @@ export const getCreatorVideos = videoApi.getCreatorVideos;
 export const getCreatorVideoAnalytics = videoApi.getCreatorVideoAnalytics;
 export const getCreatorVideo = videoApi.getCreatorVideo;
 export const createCreatorVideoDraft = videoApi.createCreatorVideoDraft;
+export const createCreatorVideoDuetDraft = videoApi.createCreatorVideoDuetDraft;
 export const initCreatorVideoUpload = videoApi.initCreatorVideoUpload;
 export const completeCreatorVideoUpload = videoApi.completeCreatorVideoUpload;
+export const retryCreatorVideoProcessing = videoApi.retryCreatorVideoProcessing;
 export const submitCreatorVideoEdits = videoApi.submitCreatorVideoEdits;
 export const uploadCreatorVideo = videoApi.uploadCreatorVideo;
 export const uploadCreatorVideoToDraft = videoApi.uploadCreatorVideoToDraft;

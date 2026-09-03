@@ -152,6 +152,7 @@ const UploadContent: React.FC = () => {
       caption: caption.trim() || null,
       contentType: selectedContentTypes,
       visibility,
+      allowDuet,
     };
   };
 

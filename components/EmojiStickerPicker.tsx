@@ -2,6 +2,7 @@ import { MaterialIcons } from '@expo/vector-icons';
 import { BlurView } from 'expo-blur';
 import React, { useEffect, useMemo, useState } from 'react';
 import {
+  ActivityIndicator,
   Image,
   Pressable,
   ScrollView,
@@ -16,23 +17,26 @@ import { useThemeMode, PRIMARY_COLOR } from "../theme";
 import { mediumScreen } from '../types';
 import KulsahInputBar from './KulsahInputBar';
 import { fontSize } from './typography';
+import {
+  useFavoriteStickers,
+  useRecentStickers,
+  useStickerPack,
+  useStickerPacks,
+  useStickerSearch,
+} from '../src/hooks/stickers/useStickers';
+import type { Sticker } from '../src/types/sticker.types';
 
 type PickerTab = 'emoji' | 'sticker';
 
 export interface EmojiStickerPickerProps {
   onEmojiSelect: (emoji: string) => void;
-  onStickerSelect: (stickerUrl: string) => void;
+  onStickerSelect: (stickerUrl: string, sticker?: Sticker) => void;
   onClose: () => void;
   isOpen: boolean;
   initialTab?: PickerTab;
+  stickerOnly?: boolean;
   containerStyle?: StyleProp<ViewStyle>;
 }
-
-type StickerItem = {
-  id: string;
-  url: string;
-  label: string;
-};
 
 type EmojiItem = {
   symbol: string;
@@ -66,39 +70,54 @@ const EMOJIS: EmojiItem[] = [
   { symbol: '\u{1F319}', label: 'moon' },
 ];
 
-const STICKERS: StickerItem[] = [
-  { id: 's1', url: 'https://picsum.photos/seed/sticker1/200', label: 'Vibe' },
-  { id: 's2', url: 'https://picsum.photos/seed/sticker2/200', label: 'Energy' },
-  { id: 's3', url: 'https://picsum.photos/seed/sticker3/200', label: 'Cosmic' },
-  { id: 's4', url: 'https://picsum.photos/seed/sticker4/200', label: 'Synth' },
-  { id: 's5', url: 'https://picsum.photos/seed/sticker5/200', label: 'Galaxy' },
-  { id: 's6', url: 'https://picsum.photos/seed/sticker6/200', label: 'Neon' },
-  { id: 's7', url: 'https://picsum.photos/seed/sticker7/200', label: 'Retro' },
-  { id: 's8', url: 'https://picsum.photos/seed/sticker8/200', label: 'Wave' },
-  { id: 's9', url: 'https://picsum.photos/seed/sticker9/200', label: 'Pulse' },
-];
-
-const EmojiStickerPicker: React.FC<EmojiStickerPickerProps> = ({
+const EmojiStickerPicker = React.memo<EmojiStickerPickerProps>(function EmojiStickerPicker({
   onEmojiSelect,
   onStickerSelect,
   onClose,
   isOpen,
   initialTab = 'emoji',
+  stickerOnly = false,
   containerStyle,
-}) => {
+}) {
   const insets = useSafeAreaInsets();
   const { isDark, theme } = useThemeMode();
   const [activeTab, setActiveTab] = useState<PickerTab>(initialTab);
   const [showSearch, setShowSearch] = useState(false);
   const [searchQuery, setSearchQuery] = useState('');
+  const [debouncedSearchQuery, setDebouncedSearchQuery] = useState('');
+  const [stickerSource, setStickerSource] = useState<'pack' | 'recent' | 'favorites'>('pack');
+  const [activePackId, setActivePackId] = useState<number | null>(null);
+
+  const stickersEnabled = isOpen && (stickerOnly || activeTab === 'sticker');
+  const packsQuery = useStickerPacks(stickersEnabled);
+  const packQuery = useStickerPack(activePackId, stickersEnabled && stickerSource === 'pack');
+  const recentQuery = useRecentStickers(stickersEnabled && stickerSource === 'recent');
+  const favoritesQuery = useFavoriteStickers(stickersEnabled && stickerSource === 'favorites');
+  const searchStickersQuery = useStickerSearch(
+    debouncedSearchQuery,
+    stickersEnabled && showSearch && debouncedSearchQuery.length > 0,
+  );
 
   useEffect(() => {
     if (isOpen) {
-      setActiveTab(initialTab);
+      setActiveTab(stickerOnly ? 'sticker' : initialTab);
       setShowSearch(false);
       setSearchQuery('');
+      setDebouncedSearchQuery('');
+      setStickerSource('pack');
     }
-  }, [initialTab, isOpen]);
+  }, [initialTab, isOpen, stickerOnly]);
+
+  useEffect(() => {
+    if (activePackId === null && packsQuery.data?.items.length) {
+      setActivePackId(packsQuery.data.items[0].id);
+    }
+  }, [activePackId, packsQuery.data]);
+
+  useEffect(() => {
+    const timeout = setTimeout(() => setDebouncedSearchQuery(searchQuery.trim()), 250);
+    return () => clearTimeout(timeout);
+  }, [searchQuery]);
 
   const surfaceColor = useMemo(
     () => (isDark ? 'rgba(12,14,20,0.94)' : 'rgba(255,255,255,0.94)'),
@@ -119,15 +138,19 @@ const EmojiStickerPicker: React.FC<EmojiStickerPickerProps> = ({
     );
   }, [normalizedQuery, searchQuery]);
 
-  const filteredStickers = useMemo(() => {
-    if (!normalizedQuery) {
-      return STICKERS;
-    }
-
-    return STICKERS.filter((sticker) =>
-      sticker.label.toLowerCase().includes(normalizedQuery)
-    );
-  }, [normalizedQuery]);
+  const activeStickerQuery = stickerSource === 'recent'
+    ? recentQuery
+    : stickerSource === 'favorites'
+      ? favoritesQuery
+      : packQuery;
+  const isSearchingStickers = showSearch && debouncedSearchQuery.length > 0;
+  const stickers = isSearchingStickers
+    ? searchStickersQuery.data?.items ?? []
+    : activeStickerQuery.data?.items ?? [];
+  const stickersLoading = isSearchingStickers
+    ? searchStickersQuery.isLoading || searchQuery.trim() !== debouncedSearchQuery
+    : activeStickerQuery.isLoading || (stickerSource === 'pack' && packsQuery.isLoading);
+  const stickersError = isSearchingStickers ? searchStickersQuery.error : activeStickerQuery.error;
 
   if (!isOpen) {
     return null;
@@ -160,6 +183,11 @@ const EmojiStickerPicker: React.FC<EmojiStickerPickerProps> = ({
             >
               <MaterialIcons name="search" size={18} color={theme.textSecondary} />
             </Pressable>
+            {stickerOnly ? (
+              <View style={[styles.tabWrap, { backgroundColor: theme.surface, borderColor: theme.border }]}>
+                <Text style={[styles.tabText, { color: theme.accent }]}>Stickers</Text>
+              </View>
+            ) : (
             <View style={[styles.tabWrap, { backgroundColor: theme.surface, borderColor: theme.border }]}>
               <Pressable
                 onPress={() => setActiveTab('emoji')}
@@ -189,6 +217,7 @@ const EmojiStickerPicker: React.FC<EmojiStickerPickerProps> = ({
                 </Text>
               </Pressable>
             </View>
+            )}
 
             <Pressable
               onPress={onClose}
@@ -224,6 +253,44 @@ const EmojiStickerPicker: React.FC<EmojiStickerPickerProps> = ({
             </View>
           ) : null}
 
+          {activeTab === 'sticker' && !isSearchingStickers ? (
+            <ScrollView
+              horizontal
+              showsHorizontalScrollIndicator={false}
+              contentContainerStyle={[styles.collectionTabs, { borderBottomColor: theme.border }]}
+            >
+              <Pressable
+                onPress={() => setStickerSource('recent')}
+                style={[styles.collectionChip, { borderColor: stickerSource === 'recent' ? PRIMARY_COLOR : theme.border }]}
+              >
+                <MaterialIcons name="history" size={15} color={stickerSource === 'recent' ? PRIMARY_COLOR : theme.textMuted} />
+                <Text style={[styles.collectionChipText, { color: stickerSource === 'recent' ? PRIMARY_COLOR : theme.textMuted }]}>Recent</Text>
+              </Pressable>
+              <Pressable
+                onPress={() => setStickerSource('favorites')}
+                style={[styles.collectionChip, { borderColor: stickerSource === 'favorites' ? PRIMARY_COLOR : theme.border }]}
+              >
+                <MaterialIcons name="favorite-border" size={15} color={stickerSource === 'favorites' ? PRIMARY_COLOR : theme.textMuted} />
+                <Text style={[styles.collectionChipText, { color: stickerSource === 'favorites' ? PRIMARY_COLOR : theme.textMuted }]}>Favorites</Text>
+              </Pressable>
+              {packsQuery.data?.items.map((pack) => {
+                const selected = stickerSource === 'pack' && activePackId === pack.id;
+                return (
+                  <Pressable
+                    key={pack.id}
+                    onPress={() => {
+                      setActivePackId(pack.id);
+                      setStickerSource('pack');
+                    }}
+                    style={[styles.collectionChip, { borderColor: selected ? PRIMARY_COLOR : theme.border }]}
+                  >
+                    <Text style={[styles.collectionChipText, { color: selected ? PRIMARY_COLOR : theme.textMuted }]}>{pack.name}</Text>
+                  </Pressable>
+                );
+              })}
+            </ScrollView>
+          ) : null}
+
           <ScrollView showsVerticalScrollIndicator={false} contentContainerStyle={styles.scrollContent}>
             {activeTab === 'emoji' ? (
               <View style={[styles.emojiGrid, {justifyContent: 'flex-start', gap: mediumScreen ? 13: 20}]}>
@@ -238,11 +305,11 @@ const EmojiStickerPicker: React.FC<EmojiStickerPickerProps> = ({
                 ))}
               </View>
             ) : (
-              <View style={[styles.stickerGrid, {justifyContent: searchQuery ? "flex-start":"space-between"}]}>
-                {filteredStickers.map((sticker) => (
+              <View style={[styles.stickerGrid, { justifyContent: searchQuery ? 'flex-start' : 'space-between' }]}>
+                {stickers.map((sticker) => (
                   <Pressable
                     key={sticker.id}
-                    onPress={() => onStickerSelect(sticker.url)}
+                    onPress={() => onStickerSelect(sticker.media_url, sticker)}
                     style={[
                       styles.stickerCard,
                       {
@@ -251,9 +318,9 @@ const EmojiStickerPicker: React.FC<EmojiStickerPickerProps> = ({
                       },
                     ]}
                   >
-                    <Image source={{ uri: sticker.url }} style={styles.stickerImage} />
+                    <Image source={{ uri: sticker.thumbnail_url || sticker.media_url }} style={styles.stickerImage} />
                     <View style={styles.stickerLabelWrap}>
-                      <Text style={styles.stickerLabel}>{sticker.label}</Text>
+                      <Text style={styles.stickerLabel} numberOfLines={1}>{sticker.name}</Text>
                     </View>
                   </Pressable>
                 ))}
@@ -264,7 +331,23 @@ const EmojiStickerPicker: React.FC<EmojiStickerPickerProps> = ({
               <Text style={[styles.emptyText, { color: theme.textMuted }]}>No emojis found.</Text>
             ) : null}
 
-            {activeTab === 'sticker' && filteredStickers.length === 0 ? (
+            {activeTab === 'sticker' && stickersLoading ? (
+              <View style={styles.stickerState}>
+                <ActivityIndicator color={PRIMARY_COLOR} />
+                <Text style={[styles.emptyText, { color: theme.textMuted }]}>Loading stickers...</Text>
+              </View>
+            ) : null}
+
+            {activeTab === 'sticker' && stickersError && !stickersLoading ? (
+              <Pressable
+                onPress={() => void (isSearchingStickers ? searchStickersQuery.refetch() : activeStickerQuery.refetch())}
+                style={styles.stickerState}
+              >
+                <Text style={[styles.emptyText, { color: theme.textMuted }]}>Could not load stickers. Tap to retry.</Text>
+              </Pressable>
+            ) : null}
+
+            {activeTab === 'sticker' && !stickersLoading && !stickersError && stickers.length === 0 ? (
               <Text style={[styles.emptyText, { color: theme.textMuted }]}>No stickers found.</Text>
             ) : null}
           </ScrollView>
@@ -276,7 +359,7 @@ const EmojiStickerPicker: React.FC<EmojiStickerPickerProps> = ({
       </View>
     </View>
   );
-};
+});
 
 const styles = StyleSheet.create({
   overlay: {
@@ -388,6 +471,30 @@ const styles = StyleSheet.create({
     flexWrap: 'wrap',
     gap: 12,
     justifyContent: 'space-between',
+  },
+  collectionTabs: {
+    paddingHorizontal: 16,
+    paddingVertical: 10,
+    gap: 8,
+    borderBottomWidth: 1,
+  },
+  collectionChip: {
+    minHeight: 34,
+    paddingHorizontal: 12,
+    borderRadius: 17,
+    borderWidth: 1,
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 5,
+  },
+  collectionChipText: {
+    ...fontSize.b5,
+    lineHeight: fontSize.b5.lineHeight,
+  },
+  stickerState: {
+    minHeight: 100,
+    alignItems: 'center',
+    justifyContent: 'center',
   },
   stickerCard: {
     width: '30.5%',

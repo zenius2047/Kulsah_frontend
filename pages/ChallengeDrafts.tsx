@@ -32,6 +32,7 @@ type ChallengeDraft = {
   participants: number;
   status?: 'draft' | 'active';
   image: string;
+  wizard?: Record<string, unknown>;
 };
 
 const DRAFTS_KEY = 'pulsar_challenge_drafts';
@@ -264,7 +265,7 @@ const ChallengeDrafts: React.FC = () => {
                     </View>
                   </View>
                 </View>
-                <Pressable onPress={() => startResume(draft)} style={styles.resumeButton}>
+                <Pressable onPress={() => navigation.navigate('CreateChallenge', { draft })} style={styles.resumeButton}>
                   <MaterialIcons name="edit-note" size={17} color={PRIMARY_COLOR} />
                   <Text style={styles.resumeText}>Resume</Text>
                 </Pressable>

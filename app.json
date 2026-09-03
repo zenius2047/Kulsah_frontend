@@ -16,13 +16,19 @@
     "ios": {
       "supportsTablet": true,
       "bundleIdentifier": "com.godfreddevsorganization.kulsah",
+      "googleServicesFile": "./GoogleService-Info.plist",
       "infoPlist": {
         "ITSAppUsesNonExemptEncryption": false,
-        "UIViewControllerBasedStatusBarAppearance": true
+        "UIViewControllerBasedStatusBarAppearance": true,
+        "NSCameraUsageDescription": "Kulsah uses your camera when you host or co-host a Live.",
+        "NSMicrophoneUsageDescription": "Kulsah uses your microphone when you host or co-host a Live.",
+        "UIBackgroundModes": [
+          "remote-notification"
+        ]
       }
     },
     "android": {
-       "googleServicesFile": "./google-services.json",
+      "googleServicesFile": "./google-services.json",
       "adaptiveIcon": {
         "foregroundImage": "./assets/adaptive-icon.png",
         "backgroundColor": "#ffffff"
@@ -37,6 +43,21 @@
     },
     "plugins": [
       "expo-video",
+      [
+        "expo-camera",
+        {
+          "cameraPermission": "Allow Kulsah to use your camera when you host or co-host a Live.",
+          "microphonePermission": "Allow Kulsah to use your microphone when you host or co-host a Live.",
+          "recordAudioAndroid": true
+        }
+      ],
+      [
+        "expo-notifications",
+        {
+          "color": "#38a9e5",
+          "defaultChannel": "messages"
+        }
+      ],
       [
         "@react-native-google-signin/google-signin",
         {
@@ -96,7 +117,17 @@
           ]
         }
       ],
-      "expo-web-browser"
+      "expo-web-browser",
+      "@react-native-firebase/app",
+      "@react-native-firebase/messaging",
+      [
+        "expo-build-properties",
+        {
+          "ios": {
+            "useFrameworks": "dynamic"
+          }
+        }
+      ]
     ],
     "extra": {
       "eas": {

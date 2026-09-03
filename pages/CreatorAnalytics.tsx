@@ -23,6 +23,7 @@ import Svg, {
   Text as SvgText,
 } from 'react-native-svg';
 import { fontSize } from '../typography';
+import { useCreatorDashboard } from '../src';
 
 type RangeOption = '7d' | '30d' | 'All';
 
@@ -51,6 +52,8 @@ const CreatorAnalytics: React.FC = () => {
   const [isAiLoading, setIsAiLoading] = useState(false);
   const [aiInsight, setAiInsight] = useState('');
   const [activeRange, setActiveRange] = useState<RangeOption>('30d');
+  const dashboardQuery = useCreatorDashboard();
+  const dashboard = dashboardQuery.data;
 
   const growthData = [
     { name: 'Week 1', subs: 2100, active: 1800 },
@@ -67,13 +70,24 @@ const CreatorAnalytics: React.FC = () => {
     { name: 'Saves', value: 3400, color: '#f59e0b' },
   ];
 
-  const audienceData = [
-    { country: 'USA', percent: 45 },
-    { country: 'UK', percent: 22 },
-    { country: 'Germany', percent: 12 },
-    { country: 'Japan', percent: 8 },
-    { country: 'Other', percent: 13 },
-  ];
+  const audienceData = useMemo(() => {
+    const locations = dashboard?.fan_location.callouts.top_locations ?? [];
+    if (locations.length === 0) {
+      return [
+        { country: 'USA', percent: 45 },
+        { country: 'UK', percent: 22 },
+        { country: 'Germany', percent: 12 },
+        { country: 'Japan', percent: 8 },
+        { country: 'Other', percent: 13 },
+      ];
+    }
+
+    const totalBuyers = Math.max(1, locations.reduce((sum, location) => sum + location.buyers, 0));
+    return locations.map((location) => ({
+      country: location.location || 'Unknown',
+      percent: Math.round((location.buyers / totalBuyers) * 100),
+    }));
+  }, [dashboard?.fan_location.callouts.top_locations]);
 
   const sourceData = [
     { name: 'Galaxy Feed', value: 55 },
@@ -222,18 +236,24 @@ const CreatorAnalytics: React.FC = () => {
       <ScrollView contentContainerStyle={s.content} showsVerticalScrollIndicator={false}>
         <View style={s.metricGrid}>
           <View style={[s.metricCard, { borderColor: cardBorder, backgroundColor: cardBackground }]}>
-            <Text style={[s.metricValue, { color: textPrimary }]}>15.4%</Text>
-            <Text style={[s.metricLabel, { color: textMuted }]}>Avg. Retention</Text>
+            <Text style={[s.metricValue, { color: textPrimary }]}>{dashboard?.overview.events_running ?? '—'}</Text>
+            <Text style={[s.metricLabel, { color: textMuted }]}>Running Events</Text>
           </View>
           <View style={[s.metricCard, s.metricCardPrimary, { borderColor: accentBorder, backgroundColor: accentSoft }]}>
-            <Text style={[s.metricValue, { color: accent }]}>{(8.2 * rangeFactor).toFixed(1)}m</Text>
-            <Text style={[s.metricLabel, { color: accentMuted }]}>Watch Mins</Text>
+            <Text style={[s.metricValue, { color: accent }]}>${dashboard?.overview.earnings_total.toLocaleString() ?? '—'}</Text>
+            <Text style={[s.metricLabel, { color: accentMuted }]}>Event Earnings</Text>
           </View>
           <View style={[s.metricCard, { borderColor: cardBorder, backgroundColor: cardBackground }]}>
-            <Text style={[s.metricValue, { color: textPrimary }]}>{Math.round(240 * rangeFactor)}</Text>
-            <Text style={[s.metricLabel, { color: textMuted }]}>Avg. Viewers</Text>
+            <Text style={[s.metricValue, { color: textPrimary }]}>${dashboard?.overview.balance.toLocaleString() ?? '—'}</Text>
+            <Text style={[s.metricLabel, { color: textMuted }]}>Available Balance</Text>
           </View>
         </View>
+
+        {dashboardQuery.isError ? (
+          <Pressable onPress={() => void dashboardQuery.refetch()} style={[s.panel, { borderColor: cardBorder, backgroundColor: cardBackground }]}>
+            <Text style={[s.metricLabel, { color: textMuted }]}>Dashboard totals could not be loaded. Tap to retry.</Text>
+          </Pressable>
+        ) : null}
 
         {/* <View style={[s.cardGlow, { backgroundColor: accentSoft }]}>
           <View style={[s.auditCard, { borderColor: accentBorder, backgroundColor: cardBackground }]}>

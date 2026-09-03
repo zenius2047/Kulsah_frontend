@@ -21,11 +21,10 @@ import { MaterialIcons } from '@expo/vector-icons';
 import { useEvent } from 'expo';
 import { useVideoPlayer, VideoView } from 'expo-video';
 import { useThemeMode, PRIMARY_COLOR, primaryColorAlpha } from "../theme";
-import { mediumScreen, user } from '../types';
+import { user } from '../types';
 import KulsahInputBar from '../components/KulsahInputBar';
 import DotTrioLoader from '../components/DotTrioLoader';
 import { PageSkeleton } from '../components/PageSkeleton';
-import GiftDialog, { type GiftSelection } from '../components/GiftDialog';
 import { fontSize } from '../typography';
 import {
   communityApi,
@@ -35,13 +34,12 @@ import {
   useCommunityComments,
   useCommunityLike,
   useCommunityPost,
-  useGiftCommunityPost,
   useShareCommunityPost,
-  useWallet,
   type CommunityComment as ApiCommunityComment,
   type CommunityPage,
   type CommunityPost as ApiCommunityPost,
 } from '../src';
+import type { Sticker } from '../src/types/sticker.types';
 
 interface Comment {
   id: string;
@@ -49,6 +47,7 @@ interface Comment {
   handle: string;
   avatar: string;
   text: string;
+  stickerUrl?: string;
   time: string;
   replys?: Reply[];
 }
@@ -66,6 +65,7 @@ interface Reply {
   replyhandle: string;
   time: string;
   avatar: string;
+  stickerUrl?: string;
 }
 
 interface CommunityPost {
@@ -88,7 +88,7 @@ interface CommunityPost {
   commentList?: Comment[];
   time: string;
   isLiked: boolean;
-  type: 'text' | 'image' | 'poll' | 'live';
+  type: 'text' | 'image' | 'poll' | 'challenge' | 'live';
   pollOptions?: PollOption[];
   isFollowing: boolean;
   isVerified: boolean;
@@ -109,6 +109,7 @@ const toDetailComment = (comment: ApiCommunityComment): Comment => ({
   handle: comment.author.handle.replace(/^@/, ''),
   avatar: comment.author.avatar_url || 'https://picsum.photos/seed/user/100/100',
   text: comment.content ?? comment.body ?? '',
+  stickerUrl: comment.sticker?.media_url ?? comment.sticker_url ?? undefined,
   time: comment.created_at,
   replys: comment.replies?.map((reply) => ({
     text: reply.content ?? reply.body ?? '',
@@ -116,6 +117,7 @@ const toDetailComment = (comment: ApiCommunityComment): Comment => ({
     replyhandle: reply.author.handle.replace(/^@/, ''),
     time: reply.created_at,
     avatar: reply.author.avatar_url || 'https://picsum.photos/seed/user/100/100',
+    stickerUrl: reply.sticker?.media_url ?? reply.sticker_url ?? undefined,
   })),
 });
 
@@ -218,17 +220,12 @@ const CommunityPostDetail: React.FC = () => {
   const [replyUsername, setReplyUsername] = useState<string>('');
   const [replyAvatar, setReplyAvatar] = useState<string>('');
   const [replyTime, setReplyTime] = useState<string>('');
-  const [giftDialogOpen, setGiftDialogOpen] = useState(false);
   const pendingCommentIds = useRef(new Set<string>());
   const postQuery = useCommunityPost(postId);
   const commentsQuery = useCommunityComments(postId);
   const likeMutation = useCommunityLike();
   const shareMutation = useShareCommunityPost();
   const commentMutation = useAddCommunityComment(postId || '');
-  const giftMutation = useGiftCommunityPost(postId || '');
-  const walletQuery = useWallet();
-  const walletData = walletQuery.data?.data as any;
-  const currentBalance = Number(walletData?.kulcoin_balance ?? walletData?.balance ?? walletData?.balances?.total_usd ?? 0);
 
   const screenBg = isDark ? '#0b0d12' : '#f0f2f5';
   const cardBg = isDark ? '#121219' : '#ffffff';
@@ -375,6 +372,24 @@ const CommunityPostDetail: React.FC = () => {
     }
   };
 
+  const addStickerComment = async (stickerUrl: string, sticker?: Sticker) => {
+    if (!sticker || !post || commentMutation.isPending) return;
+
+    const parentId = replyingTo?.id ?? null;
+    try {
+      await commentMutation.mutateAsync({
+        body: stickerUrl,
+        sticker_id: sticker.id,
+        ...(parentId ? { parent_id: parentId } : {}),
+      });
+      setReplyingTo(null);
+      await commentsQuery.refetch();
+    } catch (error) {
+      const parsed = parseApiError(error);
+      Alert.alert(parsed.title, parsed.message);
+    }
+  };
+
   const sharePost = async () => {
     if (!post) return;
     try {
@@ -389,25 +404,6 @@ const CommunityPostDetail: React.FC = () => {
         const parsed = parseApiError(error);
         Alert.alert(parsed.title, parsed.message);
       }
-    }
-  };
-
-  const sendGift = async (gift: GiftSelection) => {
-    if (!post || giftMutation.isPending) return;
-    const numericGiftId = Number(gift.id.replace(/\D/g, ''));
-    try {
-      await giftMutation.mutateAsync({
-        gift_id: Number.isFinite(numericGiftId) ? numericGiftId : gift.id,
-        quantity: 1,
-        message: commentText.trim() || undefined,
-        idempotency_key: `community-${post.id}-${Date.now()}-${Math.random().toString(36).slice(2)}`,
-        device_info: { platform: Platform.OS },
-      });
-      setGiftDialogOpen(false);
-      Alert.alert('Gift sent', `${gift.name} was sent to ${post.artist}.`);
-    } catch (error) {
-      const parsed = parseApiError(error);
-      Alert.alert(parsed.title, parsed.message);
     }
   };
 
@@ -478,16 +474,19 @@ const CommunityPostDetail: React.FC = () => {
             <Pressable style={styles.authorRow} onPress={() => navigation.navigate('ArtistProfile', { isOwner: false, id: post.artist })}>
               <Image source={{ uri: post.avatar }} style={styles.avatar} />
               <View style={styles.authorTextWrap}>
-                <View style={styles.authorNameRow}>
+                {/* <View style={styles.authorNameRow}>
                   <Text style={[styles.authorName, { color: theme.text }]}>{post.artist}</Text>
                   {post.isVerified ? <MaterialIcons name="verified" size={16} color="#1b74e4" /> : null}
-                </View>
+                </View> */}
                 <View style={styles.metaRow}>
-                  <Text style={[styles.handleSubtext, { color: mutedText }]}>@{post.handle}</Text>
+                  <View>
+                    <Text style={[styles.handleSubtext, { color: mutedText }]}>@{post.handle}</Text>
+                    <Text style={[styles.handleSubtext, { color: mutedText }]}>{formatCommunityRelativeTime(post.time)}</Text>
+                  </View>
                   <Text style={[styles.metaDot, { color: mutedText }]}>.</Text>
-                  <Text style={[styles.handleSubtext, { color: mutedText }]}>{formatCommunityRelativeTime(post.time)}</Text>
-                  <Text style={[styles.metaDot, { color: mutedText }]}>.</Text>
-                  <MaterialIcons name="public" size={12} color={mutedText} />
+                  <MaterialIcons name="public" size={14} color={mutedText} style={{
+                    marginTop: 1
+                  }}/>
                 </View>
               </View>
             </Pressable>
@@ -618,7 +617,11 @@ const CommunityPostDetail: React.FC = () => {
                     <View style={styles.commentContentWrap}>
                       <View style={[styles.commentBubble, { backgroundColor: composerBg }]}>
                         <Text style={[styles.commentHandle, { color: theme.text }]}>{comment.user || `@${comment.handle}`}</Text>
-                        <Text style={[styles.commentTextBody, { color: theme.text }]}>{comment.text}</Text>
+                        {comment.stickerUrl ? (
+                          <Image source={{ uri: comment.stickerUrl }} style={styles.commentSticker} resizeMode="contain" />
+                        ) : (
+                          <Text style={[styles.commentTextBody, { color: theme.text }]}>{comment.text}</Text>
+                        )}
                       </View>
                       <View style={styles.commentMetaRow}>
                         <Text style={[styles.commentMetaText, { color: mutedText }]}>Like</Text>
@@ -642,10 +645,14 @@ const CommunityPostDetail: React.FC = () => {
                                               <Text style={[styles.replyHandle, { color: theme.text }]}>@{item.replyhandle}</Text>
                                               <Text style={[styles.replyTime, { color: muted }]}>{formatCommunityRelativeTime(item.time)}</Text>
                                             </View>
-                                            <Text style={[styles.replyBody, { color: commentText }]}>
-                                              <Text style={{ color: PRIMARY_COLOR }}>@{comment.handle} </Text>
-                                               {" "}{item.text}
-                                            </Text>
+                                            {item.stickerUrl ? (
+                                              <Image source={{ uri: item.stickerUrl }} style={styles.replySticker} resizeMode="contain" />
+                                            ) : (
+                                              <Text style={[styles.replyBody, { color: commentText }]}>
+                                                <Text style={{ color: PRIMARY_COLOR }}>@{comment.handle} </Text>
+                                                {" "}{item.text}
+                                              </Text>
+                                            )}
                                             <View style={styles.replyActions}>
                                               <Pressable onPress={() => {
                                                 setReplyingTo({
@@ -749,19 +756,19 @@ const CommunityPostDetail: React.FC = () => {
           <KulsahInputBar
             value={commentText}
             onChangeText={setCommentText}
+            expressionPicker={{
+              onStickerSelect: addStickerComment,
+              giftOptions: {
+                creatorName: post.artist,
+                communityPostId: post.id,
+                message: commentText,
+              },
+            }}
             placeholder="Join the discussion..."
             placeholderTextColor={mutedText}
             containerStyle={{ backgroundColor: composerBg, borderColor: softBorder }}
             rightAccessory={(
               <>
-                <View style={styles.inputActions}>
-                  <Pressable accessibilityRole="button" accessibilityLabel="Open gift picker" style={styles.inputIcon} onPress={() => setGiftDialogOpen(true)}>
-                    <MaterialIcons name="redeem" size={26} color={mutedText} />
-                  </Pressable>
-                  <Pressable style={styles.inputIcon}>
-                    <MaterialIcons name="mood" size={26} color={mutedText} />
-                  </Pressable>
-                </View>
                 {commentText ? (
                   <Pressable onPress={() => void addComment(replyingTo ? replyingTo.id : null)} style={styles.sendButton}>
                     <MaterialIcons name="send" size={18} color="#fff" />
@@ -772,14 +779,6 @@ const CommunityPostDetail: React.FC = () => {
           />
         </View>
       </View>
-      <GiftDialog
-        isOpen={giftDialogOpen}
-        onClose={() => setGiftDialogOpen(false)}
-        creatorName={post.artist}
-        currentBalance={currentBalance}
-        onSendGift={(gift) => void sendGift(gift)}
-        onTopUpSuccess={() => void walletQuery.refetch()}
-      />
     </KeyboardAvoidingView>
   );
 };
@@ -817,16 +816,17 @@ const styles = StyleSheet.create({
     justifyContent: 'space-between',
     alignItems: 'flex-start',
     gap: 8,
+    // backgroundColor: 'blue'
   },
   authorRow: { flexDirection: 'row', alignItems: 'center', gap: 10, flex: 1 },
   avatar: { width: 42, height: 42, borderRadius: 21 },
-  authorTextWrap: { flex: 1, gap: 2 },
+  authorTextWrap: { flex: 1, gap: 0},
   authorNameRow: { flexDirection: 'row', alignItems: 'center', gap: 4 },
   authorName: { ...fontSize.handleTextMedium, lineHeight: fontSize.handleTextMedium.lineHeight },
-  metaRow: { flexDirection: 'row', alignItems: 'center', gap: 4 },
-  handleSubtext: { ...fontSize.b5, lineHeight: fontSize.b5.lineHeight },
+  metaRow: { flexDirection: 'row', alignItems: 'flex-start', gap: 4, flex: 1 },
+  handleSubtext: { ...fontSize.b0, lineHeight: fontSize.b0.lineHeight},
   metaDot: { ...fontSize.b4, lineHeight: fontSize.b4.lineHeight },
-  headerActions: { flexDirection: 'row', alignItems: 'center', gap: 8 },
+  headerActions: { flexDirection: 'row', justifyContent: 'flex-start', gap: 8, marginTop: -10},
   followBtn: { minHeight: 32, paddingHorizontal: 12, borderRadius: 999, justifyContent: 'center', alignItems: 'center' },
   followBtnText: { ...fontSize.b5, lineHeight: fontSize.b5.lineHeight },
   iconBtn: { width: 32, height: 32, borderRadius: 16, justifyContent: 'center', alignItems: 'center' },
@@ -899,6 +899,7 @@ const styles = StyleSheet.create({
   commentBubble: { borderRadius: 18, paddingHorizontal: 12, paddingVertical: 10 },
   commentHandle: { ...fontSize.b4, lineHeight: fontSize.b4.lineHeight, marginBottom: 3 },
   commentTextBody: { ...fontSize.b3, lineHeight: fontSize.b3.lineHeight },
+  commentSticker: { width: 112, height: 112, marginTop: 6 },
   commentMetaRow: { flexDirection: 'row', alignItems: 'center', gap: 12, paddingLeft: 10, marginTop: 6 },
   commentMetaText: { ...fontSize.b5, lineHeight: fontSize.b5.lineHeight },
   emptyComments: { minHeight: 120, alignItems: 'center', justifyContent: 'center', gap: 10 },
@@ -968,6 +969,7 @@ const styles = StyleSheet.create({
   replyHandle: { ...fontSize.b5, lineHeight: fontSize.b5.lineHeight },
   replyTime: { ...fontSize.b5, lineHeight: fontSize.b5.lineHeight },
   replyBody: { ...fontSize.b5, lineHeight: fontSize.b5.lineHeight },
+  replySticker: { width: 96, height: 96, marginTop: 4 },
   replyActions: { flexDirection: 'row', gap: 16, marginTop: 6 },
   replyActionText: { ...fontSize.b5, lineHeight: fontSize.b5.lineHeight },
 });

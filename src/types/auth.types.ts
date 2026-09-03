@@ -1,3 +1,5 @@
+import type { User } from './user.types';
+
 export type UserRole = 'fan' | 'creator' | 'guest';
 
 export type AuthCredentials = {
@@ -10,6 +12,7 @@ export type RegisterPayload = {
   username: string;
   email: string;
   password: string;
+  country_code: string;
 };
 
 export type LoginPayload = {
@@ -36,4 +39,17 @@ export type SwitchRolePayload = {
 
 export type AuthSession = {
   token: string;
+};
+
+export type SocialLoginProvider = 'google' | 'apple' | 'facebook';
+
+export type SocialLoginPayload = {
+  token: string;
+  provider: SocialLoginProvider;
+};
+
+export type SocialLoginResponse = {
+  message: string;
+  access_token: string;
+  user: User;
 };

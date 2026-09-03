@@ -5,6 +5,8 @@ import type {
   LoginPayload,
   RegisterPayload,
   ResetPasswordPayload,
+  SocialLoginPayload,
+  SocialLoginResponse,
   SwitchRolePayload,
   UpdateVibePayload,
 } from '../types/auth.types';
@@ -42,8 +44,8 @@ export const authApi = {
       Authorization: `Bearer ${token}`
     }
   }),
-  social: (payload: {token: string, provider: 'google'| 'apple' | 'tiktok' | 'facebook'}) =>
-    api.post(`${endpoints.socialLogin.social}${payload.provider}`, payload),
+  social: (payload: SocialLoginPayload) =>
+    api.post<SocialLoginResponse>(endpoints.auth.socialLogin, payload),
 
   me: (token?: string) => api.get(endpoints.user.me, authHeaderConfig(token)),
 };

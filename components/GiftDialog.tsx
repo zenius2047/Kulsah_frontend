@@ -1,8 +1,11 @@
 import { MaterialIcons } from '@expo/vector-icons';
 import React, { useEffect, useMemo, useState } from 'react';
 import {
+  ActivityIndicator,
+  Alert,
   Image,
   Modal,
+  Platform,
   Pressable,
   ScrollView,
   StyleSheet,
@@ -11,14 +14,19 @@ import {
 } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useThemeMode, PRIMARY_COLOR, primaryColorAlpha } from "../theme";
-import { mediumScreen } from '../types';
 import KulcoinTopUpDrawer from './KulcoinTopUpDrawer';
 import KulsahInputBar from './KulsahInputBar';
 import { fontSize } from './typography';
+import { communityApi } from '../src/api/community.api';
+import { kulCoinApi } from '../src/api/kulcoin.api';
+import { useKulCoinGifts, useKulCoinWallet } from '../src/hooks/kulcoin/useKulCoin';
+import { queryClient } from '../src/lib/queryClient';
+import type { KulCoinGift } from '../src/types/kulcoin.types';
+import { parseApiError } from '../src/utils/apiError';
 
 const KULCOIN_ICON = require('../assets/coin.png');
 
-type GiftCategory = 'general' | 'food' | 'fashion';
+type GiftCategory = 'all' | string;
 
 export type GiftSelection = {
   id: string;
@@ -30,8 +38,10 @@ export type GiftSelection = {
 
 type GiftItem = {
   id: string;
+  code: string;
   name: string;
   price: number;
+  category: string;
   emoji?: string;
   image?: string;
 };
@@ -40,83 +50,91 @@ interface GiftDialogProps {
   isOpen: boolean;
   onClose: () => void;
   creatorName: string;
-  currentBalance: number;
-  onSendGift: (gift: GiftSelection) => void;
-  onTopUpSuccess: (amount: number) => void;
+  currentBalance?: number;
+  creatorId?: string | number;
+  communityPostId?: string | number;
+  message?: string;
+  onSendGift?: (gift: GiftSelection) => void | Promise<void>;
+  onGiftSent?: (gift: GiftSelection) => void;
+  onTopUpSuccess?: (amount: number) => void;
   onRecharge?: () => void;
 }
 
-const generalGifts: GiftItem[] = [
-  { id: 'g1', name: 'Thumbs Up!', price: 5, emoji: '\u{1F44D}' },
-  { id: 'g2', name: 'This is Fire', price: 10, emoji: '\u{1F525}' },
-  { id: 'g3', name: 'Accept this Rose?', price: 15, emoji: '\u{1F339}' },
-  { id: 'g4', name: 'Love', price: 25, emoji: '\u{1F496}' },
-  { id: 'g5', name: 'Happy Day', price: 50, emoji: '\u{1F308}' },
-  { id: 'g6', name: 'Fancy Pearl', price: 100, emoji: '\u{1F41A}' },
-  { id: 'g7', name: '1st Place', price: 250, emoji: '\u{1F947}' },
-  { id: 'g8', name: "Let's Ride", price: 500, emoji: '\u{1F3CE}\uFE0F' },
-  { id: 'g9', name: 'Gold Gummy', price: 1000, emoji: '\u{1F9F8}' },
-  { id: 'g10', name: 'Elite Status', price: 1500, emoji: '\u2708\uFE0F' },
-  { id: 'g11', name: 'Ice Diamond', price: 2000, emoji: '\u{1F48E}' },
-  { id: 'g12', name: 'Pure Royalty', price: 3000, emoji: '\u{1F451}' },
-];
+const GIFT_EMOJI_BY_CODE: Record<string, string> = {
+  rose: '\u{1F339}', heart: '\u{1F496}', fire: '\u{1F525}', trophy: '\u{1F3C6}',
+  crown: '\u{1F451}', diamond: '\u{1F48E}', 'super-star': '\u2B50',
+  'ankara-glow': '\u{1F9F5}', 'kente-drip': '\u{1F9E3}', 'dashiki-style': '\u{1F455}',
+  'gele-queen': '\u{1F451}', 'african-pride': '\u{1F30D}', 'jollof-love': '\u{1F35B}',
+  'suya-spice': '\u{1F356}', 'injera-feast': '\u{1FAD3}', 'fufu-bowl': '\u{1F35A}',
+  'maize-harvest': '\u{1F33D}',
+};
 
-const fashionGifts: GiftItem[] = [
-  { id: 'f1', name: 'Kente Cloth', price: 250, image: 'https://images.unsplash.com/photo-1590736934444-23be53860bb4?auto=format&fit=crop&q=80&w=200&h=200' },
-  { id: 'f2', name: 'Traditional Fugu', price: 150, image: 'https://images.unsplash.com/photo-1563170351-be32ca882749?auto=format&fit=crop&q=80&w=200&h=200' },
-  { id: 'f3', name: 'Ahenema Sandals', price: 80, image: 'https://images.unsplash.com/photo-1543163521-1bf539c55dd2?auto=format&fit=crop&q=80&w=200&h=200' },
-  { id: 'f4', name: 'Traditional Beads', price: 25, image: 'https://images.unsplash.com/photo-1627341355087-888e2850937a?auto=format&fit=crop&q=80&w=200&h=200' },
-  { id: 'f5', name: 'Ankara Print', price: 60, image: 'https://images.unsplash.com/photo-1567401893414-76b7b1e5a7a5?auto=format&fit=crop&q=80&w=200&h=200' },
-  { id: 'f6', name: 'Batakari Hat', price: 40, image: 'https://images.unsplash.com/photo-1589302168068-964664d93dc0?auto=format&fit=crop&q=80&w=200&h=200' },
-];
-
-const foodGifts: GiftItem[] = [
-  { id: 'fd1', name: 'Jollof Rice', price: 50, image: 'https://picsum.photos/seed/jollof/200' },
-  { id: 'fd2', name: 'Banku', price: 100, image: 'https://picsum.photos/seed/banku/200' },
-  { id: 'fd3', name: 'Kelewele', price: 25, image: 'https://picsum.photos/seed/kelewele/200' },
-  { id: 'fd4', name: 'Fufu', price: 150, image: 'https://picsum.photos/seed/fufu/200' },
-  { id: 'fd5', name: 'Waakye', price: 75, image: 'https://picsum.photos/seed/waakye/200' },
-  { id: 'fd6', name: 'Red Red', price: 60, image: 'https://picsum.photos/seed/redred/200' },
-  { id: 'fd7', name: 'Sobolo', price: 10, image: 'https://picsum.photos/seed/sobolo/200' },
-  { id: 'fd8', name: 'Full Lunch', price: 500, image: 'https://picsum.photos/seed/fulllunch/200' },
-];
+const toGiftItem = (gift: KulCoinGift): GiftItem => ({
+  id: String(gift.id),
+  code: gift.code,
+  name: gift.name,
+  price: Number(gift.coin_cost),
+  category: gift.category || 'other',
+  image: gift.icon_url || undefined,
+  emoji: GIFT_EMOJI_BY_CODE[gift.code] ?? '\u{1F381}',
+});
 
 const GiftDialog: React.FC<GiftDialogProps> = ({
   isOpen,
   onClose,
   creatorName,
-  currentBalance,
+  currentBalance = 0,
+  creatorId,
+  communityPostId,
+  message,
   onSendGift,
+  onGiftSent,
   onTopUpSuccess,
   onRecharge,
 }) => {
   const insets = useSafeAreaInsets();
   const { isDark, theme } = useThemeMode();
-  const [activeCategory, setActiveCategory] = useState<GiftCategory>('general');
+  const [activeCategory, setActiveCategory] = useState<GiftCategory>('all');
   const [selectedItem, setSelectedItem] = useState<GiftItem | null>(null);
   const [topUpOpen, setTopUpOpen] = useState(false);
+  const [isSending, setIsSending] = useState(false);
+  const hasBackendRecipient = (communityPostId != null && communityPostId !== '') || (creatorId != null && creatorId !== '');
+  const giftsQuery = useKulCoinGifts(isOpen);
+  const walletQuery = useKulCoinWallet(isOpen && hasBackendRecipient);
 
   useEffect(() => {
     if (!isOpen) {
       setTopUpOpen(false);
+      setSelectedItem(null);
+      setActiveCategory('all');
     }
   }, [isOpen]);
 
-  const items = useMemo(() => {
-    if (activeCategory === 'food') return foodGifts;
-    if (activeCategory === 'fashion') return fashionGifts;
-    return generalGifts;
-  }, [activeCategory]);
+  const catalog = useMemo(() => (giftsQuery.data ?? [])
+    .filter((gift) => gift.is_active)
+    .sort((left, right) => left.sort_order - right.sort_order)
+    .map(toGiftItem), [giftsQuery.data]);
+  const categories = useMemo<GiftCategory[]>(
+    () => ['all', ...Array.from(new Set(catalog.map((gift) => gift.category)))],
+    [catalog],
+  );
+  const items = useMemo(
+    () => activeCategory === 'all' ? catalog : catalog.filter((gift) => gift.category === activeCategory),
+    [activeCategory, catalog],
+  );
+  const resolvedBalance = hasBackendRecipient ? (walletQuery.data?.total_kc ?? currentBalance) : currentBalance;
+  const isBalanceLoading = hasBackendRecipient && walletQuery.isLoading;
+  const isBalanceKnown = !hasBackendRecipient || walletQuery.isSuccess || currentBalance > 0;
 
   const handleCategoryChange = (category: GiftCategory) => {
     setActiveCategory(category);
     setSelectedItem(null);
   };
 
-  const hasInsufficientBalance = !!selectedItem && currentBalance < selectedItem.price;
+  const hasInsufficientBalance = !!selectedItem && isBalanceKnown && resolvedBalance < selectedItem.price;
 
-  const handleSend = () => {
-    if (!selectedItem) return;
+  const handleSend = async () => {
+    if (!selectedItem || isSending) return;
 
     if (hasInsufficientBalance) {
       if (onRecharge) {
@@ -127,15 +145,48 @@ const GiftDialog: React.FC<GiftDialogProps> = ({
       return;
     }
 
-    onSendGift({
+    const selection: GiftSelection = {
       id: selectedItem.id,
       name: selectedItem.name,
       price: selectedItem.price,
       icon: selectedItem.emoji ?? selectedItem.image ?? 'redeem',
       isImage: !!selectedItem.image,
-    });
-    setSelectedItem(null);
-    onClose();
+    };
+
+    setIsSending(true);
+    try {
+      const payload = {
+        gift_id: Number(selectedItem.id),
+        quantity: 1,
+        message: message?.trim() || undefined,
+        idempotency_key: `gift-${communityPostId ?? creatorId ?? 'legacy'}-${Date.now()}-${Math.random().toString(36).slice(2)}`,
+        device_info: { platform: Platform.OS },
+      };
+
+      if (communityPostId != null && communityPostId !== '') {
+        await communityApi.giftPost(communityPostId, payload);
+        await queryClient.invalidateQueries({ queryKey: ['community'] });
+      } else if (creatorId != null && creatorId !== '') {
+        await kulCoinApi.sendGift({ ...payload, creator_id: creatorId });
+      } else if (onSendGift) {
+        await onSendGift(selection);
+      } else {
+        throw new Error('A gift recipient is required.');
+      }
+
+      await queryClient.invalidateQueries({ queryKey: ['kulcoin', 'wallet'] });
+      onGiftSent?.(selection);
+      if (communityPostId != null || creatorId != null) {
+        Alert.alert('Gift sent', `${selection.name} was sent to ${creatorName}.`);
+      }
+      setSelectedItem(null);
+      onClose();
+    } catch (error) {
+      const parsed = parseApiError(error);
+      Alert.alert(parsed.title, parsed.message);
+    } finally {
+      setIsSending(false);
+    }
   };
 
   return (
@@ -196,8 +247,11 @@ const GiftDialog: React.FC<GiftDialogProps> = ({
               horizontal
               showsHorizontalScrollIndicator={false}
               contentContainerStyle={styles.categoryRow}
+              style={{
+                marginHorizontal: -16,
+              }}
             >
-              {(['general', 'food', 'fashion'] as const).map((category) => {
+              {categories.map((category) => {
                 const active = activeCategory === category;
                 return (
                   <Pressable
@@ -231,11 +285,29 @@ const GiftDialog: React.FC<GiftDialogProps> = ({
               nestedScrollEnabled
               contentContainerStyle={styles.grid}
             >
-              {items.map((item) => {
+              {giftsQuery.isLoading ? (
+                <View style={styles.catalogState}>
+                  <ActivityIndicator color={PRIMARY_COLOR} />
+                  <Text style={[styles.catalogStateText, { color: theme.textMuted }]}>Loading gifts...</Text>
+                </View>
+              ) : giftsQuery.isError ? (
+                <View style={styles.catalogState}>
+                  <MaterialIcons name="card-giftcard" size={32} color={theme.textMuted} />
+                  <Text style={[styles.catalogStateText, { color: theme.textMuted }]}>Gifts could not be loaded.</Text>
+                  <Pressable onPress={() => void giftsQuery.refetch()} style={styles.retryButton}>
+                    <Text style={styles.retryButtonText}>Try again</Text>
+                  </Pressable>
+                </View>
+              ) : items.length === 0 ? (
+                <View style={styles.catalogState}>
+                  <Text style={[styles.catalogStateText, { color: theme.textMuted }]}>No gifts are available in this category.</Text>
+                </View>
+              ) : items.map((item) => {
                 const selected = selectedItem?.id === item.id;
                 return (
                   <Pressable
                     key={item.id}
+                    disabled={isSending}
                     onPress={() => setSelectedItem(item)}
                     style={[
                       styles.giftCard,
@@ -276,21 +348,29 @@ const GiftDialog: React.FC<GiftDialogProps> = ({
                 }}>
                   <View style={[styles.balancePill, { backgroundColor: isDark ? 'rgba(255,255,255,0.05)' : '#f8fafc', borderColor: theme.border }]}>
                     <Image source={KULCOIN_ICON} style={{ width: 25, height: 25, resizeMode: 'contain' }} />
-                    <Text style={[styles.balanceValue, { color: theme.text }]}>{currentBalance}</Text>
+                    {isBalanceLoading ? (
+                      <ActivityIndicator size="small" color={PRIMARY_COLOR} />
+                    ) : (
+                      <Text style={[styles.balanceValue, { color: theme.text }]}>{resolvedBalance}</Text>
+                    )}
                   </View>
                 </View>
 
                 <Pressable
                   onPress={handleSend}
-                  disabled={!selectedItem}
+                  disabled={!selectedItem || isSending || isBalanceLoading}
                   style={[
                     styles.sendButton,
-                    selectedItem ? styles.sendButtonActive : styles.sendButtonDisabled,
+                    selectedItem && !isSending && !isBalanceLoading ? styles.sendButtonActive : styles.sendButtonDisabled,
                   ]}
                 >
-                  <Text style={[styles.sendButtonText, { color: selectedItem ? '#ffffff' : theme.textMuted }]}>
-                    {hasInsufficientBalance ? 'Recharge' : 'Send'}
-                  </Text>
+                  {isSending ? (
+                    <ActivityIndicator size="small" color="#ffffff" />
+                  ) : (
+                    <Text style={[styles.sendButtonText, { color: selectedItem ? '#ffffff' : theme.textMuted }]}>
+                      {hasInsufficientBalance ? 'Recharge' : 'Send'}
+                    </Text>
+                  )}
                 </Pressable>
               </View>
             </View>
@@ -298,11 +378,12 @@ const GiftDialog: React.FC<GiftDialogProps> = ({
         </View>
       </Modal>
       <KulcoinTopUpDrawer
-        currentBalance={currentBalance}
+        currentBalance={resolvedBalance}
         isOpen={topUpOpen}
         onClose={() => setTopUpOpen(false)}
         onSuccess={(amount) => {
-          onTopUpSuccess(amount);
+          onTopUpSuccess?.(amount);
+          void walletQuery.refetch();
           setTopUpOpen(false);
         }}
         warningText="Insufficient Balance to Send Gift"
@@ -404,6 +485,7 @@ const styles = StyleSheet.create({
   categoryRow: {
     gap: 8,
     paddingBottom: 2,
+    paddingHorizontal: 16
   },
   categoryChip: {
     paddingHorizontal: 16,
@@ -424,6 +506,30 @@ const styles = StyleSheet.create({
     gap: 10,
     paddingBottom: 12,
   },
+  catalogState: {
+    width: '100%',
+    minHeight: 180,
+    alignItems: 'center',
+    justifyContent: 'center',
+    gap: 10,
+    paddingHorizontal: 24,
+  },
+  catalogStateText: {
+    ...fontSize.b5,
+    lineHeight: fontSize.b5.lineHeight,
+    textAlign: 'center',
+  },
+  retryButton: {
+    borderRadius: 999,
+    backgroundColor: PRIMARY_COLOR,
+    paddingHorizontal: 18,
+    paddingVertical: 9,
+  },
+  retryButtonText: {
+    color: '#ffffff',
+    ...fontSize.b5,
+    lineHeight: fontSize.b5.lineHeight,
+  },
   giftScroll: {
     flex: 1,
     minHeight: '70%',
@@ -435,7 +541,6 @@ const styles = StyleSheet.create({
     paddingHorizontal: 6,
     alignItems: 'center',
     gap: 8,
-    backgroundColor: 'blue'
   },
   giftCardSelected: {
     backgroundColor: 'rgba(255,255,255,0.08)',

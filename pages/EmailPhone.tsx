@@ -537,7 +537,8 @@ const EmailPhone: React.FC = () => {
         name: user, 
         username: username, 
         email: email, 
-        password: password
+        password: password,
+        country_code: countryCode,
       });
       // console.log('Registration successful:', res.data);
       // console.log('this is the access_token:', res.data['access_token']);
@@ -550,9 +551,13 @@ const EmailPhone: React.FC = () => {
       });
 
     } catch (error: any) {
-      if(error.response.data["email"][0] === "The email has already been taken."){
+      const registrationErrors = error?.response?.data?.errors ?? error?.response?.data ?? {};
+      const emailError = Array.isArray(registrationErrors.email) ? registrationErrors.email[0] : undefined;
+      const countryError = Array.isArray(registrationErrors.country_code) ? registrationErrors.country_code[0] : undefined;
+      if(emailError === "The email has already been taken."){
         setEmailTaken(true);
       }
+      setAuthError(countryError ?? emailError ?? error?.response?.data?.message ?? 'Unable to create your account.');
       console.log('Registration error:', error?.response?.data);
 
       // const errors = error?.response?.data?.errors;

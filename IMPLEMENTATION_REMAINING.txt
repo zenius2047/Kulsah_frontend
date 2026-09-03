@@ -1,0 +1,1797 @@
+KULSAH APP - REMAINING IMPLEMENTATION AND BACKEND HANDOFF
+=========================================================
+
+Last reviewed: 2026-08-24
+
+Purpose
+-------
+This is the execution plan for completing the app. It records:
+
+- What is already connected.
+- What is still incomplete or powered by prototype data.
+- How each remaining feature should be implemented in the frontend.
+- The request payloads and response shapes the backend must support.
+- Loading, error, cache, realtime, security, and test requirements.
+- The decisions that must be confirmed before implementation begins.
+
+Contract labels used below:
+
+- EXISTING: The endpoint/type is already represented in the frontend source.
+- EXTEND: An existing resource needs another method or response field.
+- PROPOSED: The frontend does not currently have a confirmed backend contract.
+  Backend and frontend must agree on it before implementation.
+
+Do not silently implement a PROPOSED contract as if it already exists. First
+confirm the path, authorization policy, payload, response, validation rules,
+and realtime event names with the backend team.
+
+
+CURRENT VALIDATION STATUS
+-------------------------
+
+- TypeScript passes with `npx tsc --noEmit`.
+- All 51 tests across seven test files pass with `npx vitest run`.
+- Creator battles are virtualized in the main feed. Only the visible battle
+  mounts its detail query and participant-video carousel.
+
+Implemented backend coverage includes:
+
+- Authentication login, registration, OTP, logout, profile, and role switch.
+- Creator-video drafts, direct uploads, processing, retry, edits, duets, and
+  playlists.
+- General feed, video engagement, comments, follows, recommendations, watched
+  videos, wallets, and KulCoin actions.
+- Challenge creation, creator battles, entries, voting, leaderboards, jury
+  scoring, winners, settlement, invites, integrity actions, and rewards.
+- Events, ticket purchase, and ticket verification.
+- Community posts, comments, likes, shares, polls, gifts, and history.
+- Creator dashboard and Kulscan dashboard clients.
+- FCM/APNS token registration, token rotation, push handling, chat deep links,
+  and unread navigation badges.
+
+
+GLOBAL API RULES REQUIRED BEFORE ADDING MORE ENDPOINTS
+------------------------------------------------------
+
+Base URL and environments
+~~~~~~~~~~~~~~~~~~~~~~~~~
+
+Current problem:
+
+- `src/api/endpoints.ts` falls back to a temporary ngrok URL.
+
+Required implementation:
+
+1. Remove the ngrok fallback before production.
+2. Keep one normalized API root ending in `/api/v1/`.
+3. Configure the URL through EAS build profiles or environment files.
+4. Fail startup in staging/production when the URL is missing; do not fall back
+   to development infrastructure.
+
+Required variables:
+
+  EXPO_PUBLIC_APP_ENV=development|staging|production
+  EXPO_PUBLIC_API_BASE_URL=https://api.example.com/api/v1/
+  EXPO_PUBLIC_PUSH_TOKEN_ENDPOINT=general/device-tokens   # optional override
+
+Recommended non-public server variables:
+
+  GEMINI_API_KEY
+  FCM_SERVICE_ACCOUNT_JSON or provider-specific FCM credentials
+  APNS credentials
+  payment-provider secrets
+  livestream-provider secrets
+
+Never put AI, payment, FCM service-account, livestream ingest, or signing
+secrets in an `EXPO_PUBLIC_*` variable. Everything with that prefix is bundled
+into the client application.
+
+Request conventions
+~~~~~~~~~~~~~~~~~~~
+
+- Authorization: `Authorization: Bearer <access_token>`.
+- JSON field names: snake_case.
+- Dates: ISO-8601 UTC strings, for example `2026-09-01T18:00:00.000Z`.
+- Money: decimal strings plus a currency code, never floating-point arithmetic
+  for final accounting.
+- KulCoin: integer coin values.
+- Client-generated IDs: UUID v4 strings.
+- Mutating financial, voting, order, gift, message, reward, and settlement
+  requests must accept an `idempotency_key`.
+- Upload endpoints must return the durable media/video ID before the media is
+  attached to another resource.
+
+Standard success envelopes
+~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+Single resource:
+
+  {
+    "data": { "id": 123 },
+    "message": "Optional human-readable message"
+  }
+
+Collection:
+
+  {
+    "data": [],
+    "meta": {
+      "current_page": 1,
+      "last_page": 4,
+      "per_page": 20,
+      "total": 64
+    },
+    "links": {
+      "next": "https://.../page=2",
+      "prev": null
+    }
+  }
+
+Standard error envelope
+~~~~~~~~~~~~~~~~~~~~~~~
+
+  {
+    "message": "The given data was invalid.",
+    "code": "VALIDATION_FAILED",
+    "request_id": "req_01...",
+    "errors": {
+      "submission_ends_at": ["Must be after submission_starts_at."]
+    }
+  }
+
+Frontend handling:
+
+- 400: show a request-level message.
+- 401: attempt one token refresh, then sign out if refresh fails.
+- 403: show an authorization/eligibility message; do not retry.
+- 404: show a deleted/unavailable state.
+- 409: show conflict state and refetch the resource.
+- 422: map `errors` to form fields.
+- 429: respect `Retry-After` and disable repeated submission.
+- 500+: retain user input and show retry.
+
+
+1. IMMEDIATE BLOCKERS
+---------------------
+
+1.1 Navigation contract
+~~~~~~~~~~~~~~~~~~~~~~~
+
+Current registered destinations in `App.tsx` use React Navigation names, but
+some screens still navigate to old web-style routes or unregistered names.
+
+Required route mapping:
+
+  Existing call                 Replace/register as
+  ----------------------------  ---------------------------------------------
+  Messages                      MainTabs -> Signal, or register Messages
+  Wallet                        Import/register pages/Wallet.tsx as Wallet
+  Feed                          MainTabs -> Galaxy
+  CollaborationHub             ConnectHub
+  /subscribers                  Subscribers
+  /notifications               Notification
+  /creator/store               Choose Store or CreatorStore, then register it
+  /creator/go-live             GoLive or CreatorLiveStream
+  /upload                       UploadContent
+
+Recommended navigation calls:
+
+  navigation.navigate('MainTabs', { screen: 'Galaxy' });
+  navigation.navigate('MainTabs', { screen: 'Signal' });
+  navigation.navigate('ConnectHub', { tab: 'incoming' });
+  navigation.navigate('Wallet');
+  navigation.navigate('UploadContent', { editingVideoId: videoId });
+
+Implementation steps:
+
+1. Replace `navigation<any>` by a complete `RootStackParamList` and tab param
+   lists. The current root type only contains Home and Details and is unusable.
+2. Register exactly one canonical route per screen.
+3. Replace every URL-style `navigate()` call.
+4. Add route-param tests for Chat, ArtistProfile, ChallengeFeed,
+   ChallengeLeaderboard, UploadContent, EventDetail, and Wallet.
+5. Add a linking configuration only for actual external deep links; do not use
+   URL strings as internal screen names.
+
+Definition of done:
+
+- Every navigation target exists in the type and navigator.
+- TypeScript rejects unknown destinations and missing required params.
+- Cold-start push navigation opens the intended Chat conversation.
+
+
+1.2 Authentication refresh and 401 recovery
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+Current problem:
+
+- `AuthContext.refresh()` is a no-op.
+- The auth store persists one bearer token in AsyncStorage.
+- The Axios client has no response interceptor or request replay queue.
+
+PROPOSED backend contract:
+
+  POST auth/refresh
+
+Payload when using rotating refresh tokens:
+
+  {
+    "refresh_token": "refresh-token-from-secure-storage",
+    "device_id": "persistent-device-uuid"
+  }
+
+Response:
+
+  {
+    "data": {
+      "access_token": "new-short-lived-token",
+      "refresh_token": "rotated-refresh-token",
+      "token_type": "Bearer",
+      "expires_in": 3600,
+      "user": { "id": 12, "role": "creator" }
+    }
+  }
+
+If the backend uses secure httpOnly refresh cookies, confirm cookie support in
+the native client and omit `refresh_token` from the JSON body.
+
+Frontend implementation:
+
+1. Add access token, refresh token, access expiry, and device ID to the session
+   model.
+2. Add `expo-secure-store` (or the approved native equivalent) and store refresh
+   credentials there, not in AsyncStorage.
+3. Add a single-flight refresh promise in `src/api/client.ts`.
+4. On the first 401, refresh once and replay queued requests.
+5. Mark replayed requests so a second 401 signs the user out instead of looping.
+6. Exclude login, registration, OTP, and refresh calls from interception.
+7. On logout, revoke the refresh token and push token, clear React Query, clear
+   persisted auth, and reset navigation.
+
+Optional revoke payload:
+
+  POST auth/logout
+  {
+    "refresh_token": "current-refresh-token",
+    "device_id": "persistent-device-uuid"
+  }
+
+Definition of done:
+
+- Ten simultaneous 401 responses trigger one refresh call.
+- Requests are replayed once with the new token.
+- Refresh failure returns the app to Login without a request loop.
+- Session restoration and logout are covered by tests.
+
+
+1.3 Move AI calls behind the backend
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+Current direct AI callers include ChatView, ArtistDashboard, CreatorAnalytics,
+CreatorContentLibrary, CreatorLibrary, CreatorRevenue, CreatorStore,
+CreatorLiveStream, CollaborationHub, TicketSelection, SelectTickets,
+Subscribers, and other prototype screens.
+
+PROPOSED endpoint:
+
+  POST general/ai/generate
+
+Payload:
+
+  {
+    "feature": "chat_smart_reply",
+    "input": {
+      "messages": [
+        { "role": "user", "text": "Are you free this Friday?" }
+      ],
+      "resource_id": "conversation_42"
+    },
+    "locale": "en-GH",
+    "client_request_id": "uuid"
+  }
+
+Response:
+
+  {
+    "data": {
+      "text": "Yes, Friday works for me.",
+      "suggestions": ["Yes, what time?", "Can we do Saturday instead?"],
+      "usage": { "request_id": "ai_req_123" }
+    }
+  }
+
+Backend requirements:
+
+- Authenticate and authorize resource access.
+- Allowlist `feature` values and use a server-owned prompt for each feature.
+- Add input/output size limits, rate limits, safety filtering, audit IDs, and
+  timeouts.
+- Never return provider credentials or raw internal prompts.
+
+Frontend implementation:
+
+- Add `src/api/ai.api.ts`, typed payloads, and a React Query mutation.
+- Replace all `GoogleGenAI` imports.
+- Remove `@google/genai` when no direct caller remains.
+- Provide a deterministic non-AI fallback when the service is unavailable.
+
+
+2. COMPLETE THE CHALLENGE LIFECYCLE
+-----------------------------------
+
+2.1 Canonical challenge creation payload (EXISTING)
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+Endpoint:
+
+  POST creator/challenges
+
+Creator-battle example:
+
+  {
+    "title": "Dance Showdown",
+    "description": "Two creators perform the same dance prompt.",
+    "instructions": "Upload one vertical video, maximum 60 seconds.",
+    "host_type": "creator",
+    "mode": "creator_battle",
+    "visibility": "public",
+    "judging_strategy": "points",
+    "winner_selection_method": "automatic_score",
+    "submission_starts_at": "2026-09-01T12:00:00.000Z",
+    "submission_ends_at": "2026-09-05T12:00:00.000Z",
+    "voting_starts_at": "2026-09-05T12:00:00.000Z",
+    "voting_ends_at": "2026-09-07T12:00:00.000Z",
+    "results_publish_at": "2026-09-07T13:00:00.000Z",
+    "show_leaderboard": true,
+    "leaderboard_mode": "live",
+    "max_participants": 2,
+    "battle_participant_ids": [42, 77],
+    "max_entries_per_creator": 1,
+    "hashtag": "danceshowdown",
+    "official_sound_id": 912,
+    "voting_configuration": {
+      "mode": "single_choice",
+      "allow_self_voting": false,
+      "allow_vote_changes": false,
+      "maximum_choices": 1
+    },
+    "rules": [
+      {
+        "scope": "submission",
+        "rule_type": "maximum_duration_seconds",
+        "operator": "<=",
+        "value": 60,
+        "is_required": true
+      },
+      {
+        "scope": "content",
+        "rule_type": "aspect_ratio",
+        "operator": "IN",
+        "value": ["9:16"],
+        "is_required": true
+      }
+    ],
+    "media": [
+      {
+        "video_id": 3001,
+        "role": "challenge_video",
+        "sort_order": 0,
+        "metadata": { "cover_frame_time_ms": 1800 }
+      }
+    ],
+    "prizes": [
+      {
+        "rank_from": 1,
+        "rank_to": 1,
+        "reward_type": "wallet_credit",
+        "title": "Winner reward",
+        "currency": "USD",
+        "amount": "250.00",
+        "quantity": 1
+      }
+    ],
+    "scoring_components": [
+      {
+        "type": "public_votes",
+        "weight_bps": 10000,
+        "point_value": "1",
+        "normalization_method": "max_ratio"
+      }
+    ],
+    "jury_criteria": [],
+    "judging_stages": [
+      {
+        "sequence": 1,
+        "name": "Submission",
+        "stage_type": "submission",
+        "starts_at": "2026-09-01T12:00:00.000Z",
+        "ends_at": "2026-09-05T12:00:00.000Z"
+      },
+      {
+        "sequence": 2,
+        "name": "Public voting",
+        "stage_type": "public_voting",
+        "starts_at": "2026-09-05T12:00:00.000Z",
+        "ends_at": "2026-09-07T12:00:00.000Z"
+      }
+    ]
+  }
+
+General validation requirements:
+
+- End timestamps must be after start timestamps.
+- Creator battles require 2 or more unique participant IDs; confirm the
+  backend maximum and keep it consistent with the UI.
+- `max_entries_per_creator` must be at least 1.
+- `weight_bps` must total 10000 when weighted scoring is used.
+- Prize rank ranges must not overlap.
+- `official_sound_id` and every `video_id` must belong to an accessible,
+  processed media resource.
+
+
+2.2 Server-side challenge drafts
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+Current problem:
+
+- ChallengeDrafts uses fallback records and AsyncStorage as the source of truth.
+- The frontend can create a server draft but cannot list/delete drafts through
+  a dedicated typed flow.
+
+Existing write:
+
+  POST creator/challenges/draft
+  Body: the same `CreateChallengePayload` shown above.
+
+EXTEND creator challenge resource:
+
+  GET creator/challenges?status=draft&page=1&per_page=20
+  PATCH creator/challenges/:challenge_id
+  DELETE creator/challenges/:challenge_id
+  POST creator/challenges/:challenge_id/transition
+
+Draft list response must be a paginated collection of full enough resources to
+restore every wizard field. Do not return card-only data.
+
+Autosave update example:
+
+  PATCH creator/challenges/981
+  {
+    "title": "Dance Showdown",
+    "description": "Updated description",
+    "submission_ends_at": "2026-09-05T12:00:00.000Z",
+    "battle_participant_ids": [42, 77]
+  }
+
+Publish transition:
+
+  POST creator/challenges/981/transition
+  {
+    "status": "scheduled",
+    "reason": "Creator published the completed draft"
+  }
+
+Frontend implementation:
+
+1. Add `getCreatorChallenges({status:'draft'})` and `deleteChallenge()`.
+2. Add `useInfiniteQuery` for drafts and mutations for update/delete/publish.
+3. Save locally only as a temporary unsynced recovery copy.
+4. Debounce autosave by 800-1200 ms and display Saving/Saved/Failed.
+5. Send only changed fields on PATCH.
+6. Resolve version conflicts by refetching and asking the user which copy to
+   keep. Add `updated_at` or a backend version field to updates if supported.
+7. Remove fallbackDrafts after the server list is verified.
+
+Definition of done:
+
+- A draft created on one device can be resumed on another.
+- Deleting and publishing immediately invalidate draft/challenge queries.
+- Failed autosave retains the local wizard state and exposes Retry.
+
+
+2.3 Challenge entries and moderation
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+EXISTING submission endpoints:
+
+  POST creator/challenges/:challenge_id/entries
+  {
+    "video_id": 3001,
+    "caption": "My submission"
+  }
+
+  DELETE creator/challenges/:challenge_id/entries/:entry_id
+
+EXISTING public leaderboard:
+
+  GET general/challenges/:challenge_id/leaderboard?page=1&per_page=25
+
+EXTEND management collection:
+
+  GET creator/challenges/:challenge_id/entries
+      ?status=submitted&page=1&per_page=20&search=
+
+Expected entry resource:
+
+  {
+    "id": 501,
+    "challenge_id": 981,
+    "creator_id": 42,
+    "video_id": 3001,
+    "submission_number": 1,
+    "caption": "My submission",
+    "status": "submitted",
+    "current_score": null,
+    "current_rank": null,
+    "submitted_at": "2026-09-04T10:00:00.000Z",
+    "creator": {
+      "id": 42,
+      "name": "Brandon",
+      "handle": "brandon",
+      "avatar": "https://cdn.../avatar.jpg",
+      "verified": true
+    },
+    "video": {
+      "id": 3001,
+      "stream_url": "https://cdn.../master.m3u8",
+      "poster_url": "https://cdn.../poster.jpg",
+      "status": "ready"
+    }
+  }
+
+PROPOSED moderation update:
+
+  PATCH creator/challenges/:challenge_id/entries/:entry_id
+  {
+    "status": "shortlisted",
+    "reason": "Meets the challenge requirements"
+  }
+
+Allowed management statuses must be confirmed. Recommended values:
+
+  submitted, shortlisted, approved, rejected, disqualified, withdrawn
+
+Disqualification must require a reason and be audited. The response should
+return the updated entry and the challenge counts.
+
+Frontend implementation:
+
+- Replace `dummySubmissions` in CreatorChallenges with an infinite query.
+- Add status filters, search, pull-to-refresh, and server pagination.
+- Show the processed video only when its status is ready.
+- Use optimistic status updates with rollback on failure.
+- Require confirmation for reject/disqualify.
+- Invalidate challenge detail, entries, and leaderboard after moderation.
+
+
+2.4 Participants, joining, leaving, and invitation inbox
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+EXISTING creator invitation:
+
+  POST creator/challenges/:challenge_id/invites
+  {
+    "user_id": 77,
+    "expires_at": "2026-09-01T12:00:00.000Z"
+  }
+
+EXISTING acceptance:
+
+  POST creator/challenges/:challenge_id/invites/:invite_id/accept
+  Body: {}
+
+Missing contract to confirm:
+
+  GET general/challenge-invites?status=pending&page=1&per_page=20
+
+Recommended invitation response fields:
+
+  id, challenge, inviter, role, status, expires_at, responded_at, created_at
+
+PROPOSED response action:
+
+  POST general/challenge-invites/:invite_id/respond
+  {
+    "action": "accept"
+  }
+
+`action` is `accept` or `decline`. The existing creator-scoped accept endpoint
+can remain, but a user-scoped inbox endpoint is safer for recipient UI.
+
+PROPOSED open-challenge participation resource:
+
+  POST general/challenges/:challenge_id/participants
+  {
+    "accept_rules_version": "2026-08-01",
+    "idempotency_key": "uuid"
+  }
+
+  DELETE general/challenges/:challenge_id/participants/me
+
+  GET creator/challenges/:challenge_id/participants?page=1&per_page=20
+
+Participant response fields:
+
+  id, user, role, invitation_status, participation_status, joined_at,
+  submission_status, entry_id, eligibility
+
+Frontend implementation:
+
+- Derive Join/Leave availability from `can_join`, `has_user_joined`,
+  `eligibility`, and challenge status.
+- Display backend eligibility failures verbatim where safe.
+- Add an invitation badge/inbox to CreatorChallenges or Signal.
+- Invalidate challenge, participant, invite, and profile counters after action.
+
+
+2.5 Voting, jury, winner, finalization, and settlement (EXISTING)
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+Paid/public challenge ballot:
+
+  PUT general/challenges/:challenge_id/ballot
+  {
+    "choices": [
+      { "challenge_entry_id": 501, "rank": 1, "points": null }
+    ],
+    "idempotency_key": "challenge-981-entry-501-uuid"
+  }
+
+Jury score:
+
+  PUT creator/challenges/:challenge_id/entries/:entry_id/jury-scores
+  {
+    "scores": [
+      { "criterion_id": 1, "score": 8, "comment": "Strong technique" },
+      { "criterion_id": 2, "score": 9, "comment": "Original performance" }
+    ]
+  }
+
+Select winner:
+
+  POST creator/challenges/:challenge_id/entries/:entry_id/select-winner
+  {
+    "rank": 1,
+    "reason": "Highest valid final score"
+  }
+
+Finalize:
+
+  POST creator/challenges/:challenge_id/finalize
+  Body: {}
+
+Creator-battle settlement/retry:
+
+  POST creator/challenges/:challenge_id/settle-creator-battle
+  Body: {}
+
+Frontend work still required:
+
+- Add the winner and finalization actions to CreatorChallenges management UI.
+- Disable actions from server capability fields, not only local status checks.
+- Show settlement status, attempts, failure_reason, recipient, vote count,
+  converted amount, and processed_at.
+- Make retry available only for a retryable failed settlement.
+- Refetch the wallet after successful settlement.
+
+
+2.6 Reward processing and winner claims
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+EXISTING creator/admin processing action:
+
+  POST creator/challenges/:challenge_id/reward-allocations/:allocation_id/process
+  Body: {}
+
+PROPOSED winner claim endpoints:
+
+  GET general/reward-allocations?status=claimable&page=1&per_page=20
+
+  POST general/reward-allocations/:allocation_id/claim
+  {
+    "delivery_method": "wallet",
+    "payout_account_id": null,
+    "shipping_address_id": null,
+    "idempotency_key": "uuid"
+  }
+
+Different reward types require different data:
+
+- wallet_credit/cash: payout account or wallet.
+- physical_product: shipping address and contact confirmation.
+- voucher: no delivery data; backend returns a protected redemption record.
+- feature/badge/subscription: backend activates the entitlement.
+
+Recommended claim response fields:
+
+  allocation_id, challenge, prize, status, fulfillment_status,
+  claim_deadline, claimed_at, processed_at, failure_reason, transaction
+
+Frontend implementation:
+
+- Replace mock data in ClaimPrize.
+- Render forms based on reward_type.
+- Never collect raw bank/card credentials unless using a payment-provider SDK.
+- Add claim deadline, retry, support escalation, and fulfillment tracking.
+
+
+3. REALTIME MESSAGING, CALLS, AND NOTIFICATIONS
+-----------------------------------------------
+
+3.1 Conversations and message history (PROPOSED)
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+  GET general/conversations?page=1&per_page=30
+
+Optional query parameters:
+
+  archived=false&unread_only=false&search=
+
+  POST general/conversations
+  {
+    "participant_ids": [77],
+    "context_type": "collaboration",
+    "context_id": 901,
+    "initial_message": {
+      "client_message_id": "uuid",
+      "type": "text",
+      "body": "Would you like to collaborate?"
+    }
+  }
+
+  GET general/conversations/:conversation_id/messages
+      ?before_message_id=9001&per_page=50
+
+Message resource requirements:
+
+  id, client_message_id, conversation_id, sender, type, body, attachments,
+  reply_to, created_at, edited_at, deleted_at, delivery_status, reactions
+
+Use cursor pagination for messages. `before_message_id` or an opaque cursor is
+more stable than numbered pages while new messages arrive.
+
+
+3.2 Sending messages and attachments (PROPOSED)
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+Text/sticker/gift/system message:
+
+  POST general/conversations/:conversation_id/messages
+  {
+    "client_message_id": "uuid",
+    "type": "text",
+    "body": "Hello",
+    "attachment_ids": [],
+    "reply_to_message_id": null,
+    "metadata": {},
+    "idempotency_key": "uuid"
+  }
+
+Attachment upload initialization:
+
+  POST media/message-uploads
+  {
+    "conversation_id": 42,
+    "file_name": "voice-note.m4a",
+    "mime_type": "audio/mp4",
+    "size": 284002,
+    "kind": "audio"
+  }
+
+Response:
+
+  {
+    "data": {
+      "attachment_id": 7001,
+      "upload": {
+        "method": "PUT",
+        "url": "signed-storage-url",
+        "headers": {},
+        "expires_at": "2026-08-24T18:00:00.000Z"
+      }
+    }
+  }
+
+Finalize upload:
+
+  POST media/message-uploads/:attachment_id/complete
+  {}
+
+Frontend send flow:
+
+1. Create an optimistic message keyed by `client_message_id`.
+2. Upload attachments, finalize them, then send attachment IDs.
+3. Reconcile the optimistic row with the server message.
+4. Mark failed messages and preserve Retry/Delete actions.
+5. Retry with the same idempotency key.
+
+
+3.3 Read receipts, typing, presence, and realtime events (PROPOSED)
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+Read endpoint:
+
+  POST general/conversations/:conversation_id/read
+  {
+    "last_read_message_id": 9001,
+    "read_at": "2026-08-24T17:00:00.000Z"
+  }
+
+Initial unread count:
+
+  GET general/conversations/unread-count
+  Response: { "data": { "unread_count": 12 } }
+
+Use WebSocket/SSE presence events instead of frequent REST polling.
+
+Recommended client events:
+
+  conversation.subscribe     { conversation_id }
+  conversation.unsubscribe   { conversation_id }
+  typing.start               { conversation_id }
+  typing.stop                { conversation_id }
+
+Recommended server events:
+
+  message.created
+  message.updated
+  message.deleted
+  message.delivered
+  message.read
+  conversation.updated
+  conversation.unread_count
+  typing.started
+  typing.stopped
+  presence.changed
+
+Every server event should include `event_id`, `occurred_at`, `user_id` where
+applicable, and the affected resource. Deduplicate by event_id.
+
+Frontend implementation:
+
+- Replace Inbox and ChatView hardcoded messages with infinite queries.
+- Maintain server data in React Query; keep only unread counters and temporary
+  connection state in Zustand.
+- Merge realtime events into query caches.
+- On reconnect, refetch since the last event/cursor.
+- Stop socket subscriptions when signed out.
+
+
+3.4 Voice and video calls (PROPOSED)
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+Use WebRTC or a managed realtime provider. The backend must issue short-lived
+room credentials; the app must never contain provider secrets.
+
+Create call:
+
+  POST general/calls
+  {
+    "conversation_id": 42,
+    "type": "video",
+    "participant_ids": [77],
+    "idempotency_key": "uuid"
+  }
+
+Response:
+
+  {
+    "data": {
+      "call_id": 321,
+      "room_id": "room_321",
+      "participant_token": "short-lived-token",
+      "expires_at": "2026-08-24T18:00:00.000Z",
+      "status": "ringing"
+    }
+  }
+
+Actions:
+
+  POST general/calls/:call_id/accept {}
+  POST general/calls/:call_id/decline { "reason": "busy" }
+  POST general/calls/:call_id/end {}
+
+Required events: call.ringing, call.accepted, call.declined, call.ended,
+participant.joined, participant.left.
+
+
+3.5 Push notifications and preferences
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+EXISTING token registration:
+
+  POST general/device-tokens
+  {
+    "token": "native-fcm-or-apns-token",
+    "provider": "fcm",
+    "platform": "android",
+    "device_name": "Pixel 9",
+    "app_version": "1.0.0"
+  }
+
+EXISTING unregister:
+
+  DELETE general/device-tokens
+  { "token": "native-token" }
+
+PROPOSED preferences:
+
+  GET general/notification-preferences
+
+  PATCH general/notification-preferences
+  {
+    "messages": true,
+    "challenge_updates": true,
+    "live_events": true,
+    "commerce": true,
+    "marketing": false,
+    "quiet_hours": {
+      "enabled": true,
+      "start": "22:00",
+      "end": "07:00",
+      "timezone": "Africa/Accra"
+    }
+  }
+
+Backend push data for a message must contain stable string values:
+
+  {
+    "type": "message.created",
+    "conversation_id": "42",
+    "sender_id": "77",
+    "message_id": "9001",
+    "unread_count": "12"
+  }
+
+Do not include sensitive message bodies in push payloads when device privacy
+settings require generic notification text.
+
+
+4. LIVE STREAMING
+-----------------
+
+Provider decision required:
+
+- Select the streaming provider and define latency, recording, moderation,
+  geographical, capacity, and cost requirements.
+- Prefer server-issued short-lived publisher/viewer credentials.
+
+4.1 Create and end a live session (PROPOSED)
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+  POST creator/live-sessions
+  {
+    "title": "Studio Transmission",
+    "description": "Live production session",
+    "category": "music",
+    "visibility": "public",
+    "subscriber_tier_ids": [],
+    "scheduled_at": null,
+    "chat_enabled": true,
+    "gifts_enabled": true,
+    "recording_enabled": true,
+    "idempotency_key": "uuid"
+  }
+
+Response:
+
+  {
+    "data": {
+      "id": 701,
+      "status": "created",
+      "publisher": {
+        "ingest_url": "rtmps://...",
+        "stream_key": "short-lived-secret",
+        "expires_at": "2026-08-24T20:00:00.000Z"
+      },
+      "playback": {
+        "hls_url": "https://cdn.../master.m3u8",
+        "webrtc_url": "https://..."
+      }
+    }
+  }
+
+Never log or persist the stream key longer than the active session.
+
+Actions:
+
+  POST creator/live-sessions/:session_id/start {}
+  POST creator/live-sessions/:session_id/end
+  { "reason": "creator_ended" }
+  POST creator/live-sessions/:session_id/heartbeat
+  { "broadcast_state": "healthy", "bitrate_kbps": 3200 }
+
+Public reads:
+
+  GET general/live-sessions?page=1&status=live
+  GET general/live-sessions/:session_id
+
+
+4.2 Live engagement and moderation (PROPOSED)
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+REST actions:
+
+  POST general/live-sessions/:id/likes {}
+  POST general/live-sessions/:id/gifts
+  {
+    "gift_id": 8,
+    "quantity": 1,
+    "message": "Great stream!",
+    "idempotency_key": "uuid"
+  }
+
+  POST creator/live-sessions/:id/moderation
+  {
+    "target_user_id": 77,
+    "action": "mute",
+    "duration_seconds": 600,
+    "reason": "Spam"
+  }
+
+Realtime events:
+
+  live.viewer_count, live.like_count, live.chat.created, live.gift.created,
+  live.moderation.applied, live.status.changed, live.ended
+
+Persisted analytics response should include unique viewers, peak concurrent
+viewers, average watch time, chat count, likes, gifts, gross/net earnings,
+refunds, recording URL, and moderation counts.
+
+
+5. COLLABORATIONS
+-----------------
+
+All CollaborationHub cards are currently prototype data. Confirm these
+PROPOSED contracts before implementing.
+
+5.1 Invitations and responses
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+  GET creator/collaborations?page=1&direction=incoming&status=pending
+
+  POST creator/collaborations
+  {
+    "invitee_id": 77,
+    "type": "video",
+    "title": "Starlight Remix",
+    "message": "Let's finish this remix together.",
+    "resource_type": "video",
+    "resource_id": 3001,
+    "starts_at": null,
+    "ends_at": null,
+    "currency": "USD",
+    "budget": "500.00",
+    "revenue_splits": [
+      { "user_id": 42, "share_bps": 5000 },
+      { "user_id": 77, "share_bps": 5000 }
+    ],
+    "deliverables": [
+      { "title": "Final remix master", "due_at": "2026-09-10T12:00:00.000Z" }
+    ],
+    "idempotency_key": "uuid"
+  }
+
+  POST creator/collaborations/:id/respond
+  { "action": "accept", "message": "I'm in." }
+
+`action`: accept or decline.
+
+
+5.2 Counteroffers, contracts, and workspace
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+Counteroffer:
+
+  POST creator/collaborations/:id/counteroffers
+  {
+    "message": "Can we use a 60/40 split?",
+    "currency": "USD",
+    "budget": "600.00",
+    "revenue_splits": [
+      { "user_id": 42, "share_bps": 6000 },
+      { "user_id": 77, "share_bps": 4000 }
+    ],
+    "deliverables": []
+  }
+
+Contract acceptance:
+
+  POST creator/collaborations/:id/contracts/:contract_id/accept
+  {
+    "accepted_version": 3,
+    "accepted_at": "2026-08-24T17:00:00.000Z"
+  }
+
+Workspace endpoints:
+
+  GET creator/collaborations/:id/workspace
+  POST creator/collaborations/:id/tasks
+  PATCH creator/collaborations/:id/tasks/:task_id
+  POST creator/collaborations/:id/files
+  POST creator/collaborations/:id/messages
+
+Requirements:
+
+- Revenue split basis points must total 10000.
+- Contract versions must be immutable after either party accepts.
+- Store acceptance audit data and downloadable contract documents.
+- Workspace access must be limited to collaboration participants/admins.
+
+
+6. COMMERCE, SUBSCRIPTIONS, WALLETS, AND PAYOUTS
+-----------------------------------------------
+
+6.1 Creator store and marketplace (PROPOSED)
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+Products:
+
+  GET creator/products?page=1&status=active
+  POST creator/products
+  {
+    "name": "Tour Hoodie",
+    "description": "Limited black hoodie",
+    "type": "physical",
+    "currency": "USD",
+    "price": "65.00",
+    "sku": "HOODIE-BLK",
+    "inventory_quantity": 100,
+    "track_inventory": true,
+    "media_ids": [8001, 8002],
+    "variants": [
+      { "sku": "HOODIE-BLK-M", "name": "Medium", "price": "65.00", "quantity": 25 }
+    ],
+    "shipping_required": true,
+    "status": "draft"
+  }
+
+  PATCH creator/products/:product_id
+  DELETE creator/products/:product_id
+
+Public marketplace:
+
+  GET general/products?page=1&creator_id=&category=&search=
+  GET general/products/:product_id
+
+Frontend implementation:
+
+- Consolidate Store and CreatorStore before integration.
+- Upload product media before sending product media IDs.
+- Use server stock values and prevent checkout when inventory changes.
+- Do not use local arrays as the source of truth.
+
+
+6.2 Cart, checkout, orders, and fulfillment (PROPOSED)
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+Cart:
+
+  GET general/cart
+  POST general/cart/items
+  {
+    "product_id": 101,
+    "variant_id": 202,
+    "quantity": 2
+  }
+
+  PATCH general/cart/items/:item_id { "quantity": 1 }
+  DELETE general/cart/items/:item_id
+
+Checkout:
+
+  POST general/checkout
+  {
+    "cart_id": 301,
+    "shipping_address_id": 88,
+    "billing_address_id": 88,
+    "payment_method_id": "provider_method_token",
+    "currency": "USD",
+    "idempotency_key": "uuid"
+  }
+
+Response must distinguish `paid`, `requires_action`, `pending`, and `failed`.
+For 3DS/authorization, return provider client data intended for the official
+payment SDK; never return secret keys.
+
+Orders:
+
+  GET general/orders?page=1
+  GET general/orders/:order_id
+  GET creator/orders?page=1&status=paid
+  POST creator/orders/:order_id/fulfillment
+  {
+    "carrier": "DHL",
+    "tracking_number": "123456",
+    "items": [{ "order_item_id": 1, "quantity": 1 }]
+  }
+
+
+6.3 Fan subscriptions
+~~~~~~~~~~~~~~~~~~~~~
+
+EXISTING creator plan actions:
+
+  GET creator/subscription-plans
+  POST creator/subscription-plans
+  {
+    "name": "Gold",
+    "description": "Premium videos and live access",
+    "price": 9.99,
+    "currency": "USD",
+    "billing_interval": "monthly"
+  }
+
+  PATCH creator/subscription-plans/:plan_id
+  POST creator/subscription-plans/:plan_id/disable {}
+
+EXISTING public plans and subscription:
+
+  GET creator-fan/creators/:creator_id/subscription-plans
+  POST fan/subscription-plans/:plan_id/subscribe
+  {
+    "name": "Gold",
+    "description": "Premium videos and live access",
+    "price": 9.99,
+    "currency": "USD",
+    "billing_interval": "monthly"
+  }
+
+The subscribe endpoint should ideally require only `plan_id`, payment method,
+and idempotency key. The backend must use its stored plan price rather than
+trusting client-sent price/name fields.
+
+PROPOSED safer subscribe payload:
+
+  {
+    "payment_method_id": "provider_method_token",
+    "idempotency_key": "uuid"
+  }
+
+Missing management contracts:
+
+  GET fan/subscriptions?page=1&status=active
+  POST fan/subscriptions/:subscription_id/cancel
+  {
+    "cancel_at_period_end": true,
+    "reason": "Not using it enough"
+  }
+
+  POST fan/subscriptions/:subscription_id/resume {}
+
+Response fields: current_period_start/end, renewal_amount, currency, status,
+cancel_at_period_end, cancelled_at, creator, and plan.
+
+
+6.4 Wallet and KulCoin (EXISTING)
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+USD wallet transfer:
+
+  POST general/wallet/transfer
+  {
+    "recipient_id": 77,
+    "amount_usd": 25.00,
+    "description": "Collaboration payment"
+  }
+
+Wallet top-up:
+
+  POST general/wallet/top-up
+  {
+    "amount_usd": 50.00,
+    "description": "Wallet top-up",
+    "payment_reference": "provider_reference"
+  }
+
+KulCoin purchase:
+
+  POST general/kulcoin/purchase
+  {
+    "package_id": 2,
+    "payment_reference": "provider_reference",
+    "local_currency": "GHS",
+    "local_amount": 125.00,
+    "usd_amount": 10.00,
+    "idempotency_key": "uuid",
+    "device_info": {}
+  }
+
+KulCoin gift:
+
+  POST general/kulcoin/gifts/send
+  {
+    "gift_id": 8,
+    "creator_id": 77,
+    "quantity": 1,
+    "message": "Great work",
+    "idempotency_key": "uuid",
+    "device_info": {}
+  }
+
+Frontend work:
+
+- Register and connect pages/Wallet.tsx.
+- Replace hardcoded balances in Feed, ChatView, GiftDialog, and TopUpCoins.
+- Refetch wallet/ledger after every financial mutation.
+- Display transaction reference, status, amount, and failure reason.
+- Add idempotency to USD transfer/top-up if the backend supports it.
+
+
+6.5 Creator revenue, payout, tax, and payment onboarding (PROPOSED)
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+Revenue report:
+
+  GET creator/revenue/summary?from=2026-08-01&to=2026-08-31&currency=USD
+  GET creator/revenue/transactions?page=1&type=&status=
+
+Payout account onboarding must use the payment provider's hosted or SDK flow:
+
+  POST creator/payout-accounts/onboarding-link
+  {
+    "return_url": "kulsah://payout/return",
+    "refresh_url": "kulsah://payout/refresh"
+  }
+
+Payout request:
+
+  POST creator/payouts
+  {
+    "amount": "100.00",
+    "currency": "USD",
+    "payout_account_id": 55,
+    "idempotency_key": "uuid"
+  }
+
+Payout response fields:
+
+  id, reference, amount, fee, net_amount, currency, status, estimated_arrival,
+  failure_reason, created_at, processed_at
+
+Tax status:
+
+  GET creator/tax-profile
+  POST creator/tax-profile/onboarding-link
+
+Never collect or store tax identification documents directly in ordinary app
+state. Use the verified provider flow and show only completion status.
+
+
+7. CREATOR BUSINESS TOOLS
+-------------------------
+
+7.1 Dashboard integration (EXISTING)
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+Endpoints already available:
+
+  GET creator/dashboard
+  GET creator/kulscan/dashboard
+  GET creator/videos/analytics
+
+Frontend implementation:
+
+1. Replace static CreatorAnalytics and ArtistDashboard cards with
+   `useCreatorDashboard` and video analytics queries.
+2. Keep display formatting in selectors, not API clients.
+3. Add date range/filter parameters only after the backend supports them.
+4. Show skeleton, empty, error, retry, and stale-data indicators.
+5. Remove direct AI-generated fake dashboard metrics.
+
+Required dashboard response currently includes:
+
+  user, overview, fan_location, earning_graph, recent_scanned, notifications
+
+Confirm whether money fields are decimal strings or numeric values and use one
+representation consistently.
+
+
+7.2 Creator content library (EXISTING)
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+Use:
+
+  GET creator/videos?per_page=20&category=&draft=&premium=
+  GET creator/videos/:video_id
+  PATCH creator/videos/:video_id
+  GET creator/videos/analytics
+  GET/POST/PATCH/DELETE creator/video-playlists...
+
+Replace static arrays in CreatorLibrary and CreatorContentLibrary. Preserve the
+existing direct-upload, processing retry, edit, duet, and playlist hooks.
+
+Definition of done:
+
+- Library pagination and filters use server values.
+- Failed/processing videos expose retry/progress.
+- Edit navigation uses `UploadContent` with typed params.
+- Deleting or updating content invalidates feed, library, detail, and analytics.
+
+
+8. SUPPORT AND COMMUNITY COMPLETION
+-----------------------------------
+
+8.1 Help-centre tickets (PROPOSED)
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+  GET general/support/tickets?page=1
+  POST general/support/tickets
+  {
+    "category": "payments",
+    "subject": "Payout is still pending",
+    "message": "My payout has been pending for five days.",
+    "attachment_ids": [],
+    "related_resource_type": "payout",
+    "related_resource_id": 991,
+    "client_request_id": "uuid"
+  }
+
+  GET general/support/tickets/:ticket_id
+  POST general/support/tickets/:ticket_id/replies
+  { "message": "Additional information", "attachment_ids": [] }
+
+Response fields: reference, status, priority, category, messages, assigned_at,
+resolved_at, created_at, updated_at.
+
+
+8.2 Community media filters, people, location, and cover frame
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+Existing community post creation supports type, audience, content, media, and
+poll. Extend it only after the backend contract is confirmed.
+
+Recommended multipart fields:
+
+  type=image|video
+  audience=public|subscribers
+  content=...
+  media[0]=<binary>
+  media_metadata[0][filter]=vivid
+  media_metadata[0][filter_parameters][intensity]=0.65
+  tagged_user_ids[0]=77
+  location[name]=Accra Arts Centre
+  location[latitude]=5.5560
+  location[longitude]=-0.1969
+  cover_frame_time_ms=1800
+
+Backend should return normalized fields:
+
+  tagged_users, location, media[].metadata, media[].thumbnail_url,
+  media[].streaming_url
+
+PROPOSED user search for tagging:
+
+  GET general/users/search?q=brandon&page=1&per_page=20
+
+  {
+    "data": [
+      {
+        "id": 77,
+        "name": "Brandon",
+        "username": "brandon",
+        "avatar": "https://cdn.../avatar.jpg",
+        "verified": true
+      }
+    ],
+    "meta": { "current_page": 1, "last_page": 1, "per_page": 20, "total": 1 }
+  }
+
+Frontend implementation:
+
+- Filters: apply a preview locally, but send original media plus filter metadata
+  if the backend performs final rendering.
+- Tagging: use a paginated user search endpoint; submit IDs, never display names.
+- Location: require explicit user action and store only the selected location.
+- Cover frame: generate a local preview, send `cover_frame_time_ms`, and use the
+  server-returned poster after processing.
+- Add upload cancellation, retry, and unsent-draft recovery.
+
+
+9. REMOVE MOCK AND FALLBACK DATA
+--------------------------------
+
+High-priority known sources:
+
+- ChallengeDrafts: fallbackDrafts and AsyncStorage source of truth.
+- CreatorChallenges: fallback challenges, submissions, and invites.
+- Challenges: fallbackChallenges.
+- ChallengeLeaderboard: mock rankings, rules, prizes, and avatars. Keep only
+  ChallengeLeaderboardDetails after consolidation.
+- ClaimPrize: mock submissions and prize data.
+- CollaborationHub: partners, incoming requests, and outgoing requests.
+- Inbox and ChatView: hardcoded conversations/messages/avatars.
+- CreatorLibrary and CreatorContentLibrary: static videos and sounds.
+- ArtistProfile: static videos, premium items, events, tickets, challenges, and
+  following creators.
+- Search: hardcoded users.
+- EmojiStickerPicker: Picsum sticker URLs; replace with a backend sticker catalog
+  or bundled licensed assets.
+- CreateCommunityPost and community detail: fallback avatars/media.
+
+Implementation rule:
+
+- Do not replace mock data with a different hardcoded fallback in production.
+- A missing server resource should render a clear empty state.
+- Local fixtures are allowed only in tests, Storybook/design previews, or an
+  explicit development fixture flag that cannot ship enabled.
+
+Recommended sticker/media catalog contract:
+
+  GET general/media-assets?type=sticker&page=1&per_page=50
+
+  {
+    "data": [
+      {
+        "id": 1,
+        "type": "sticker",
+        "name": "Pulse",
+        "url": "https://cdn.../pulse.webp",
+        "thumbnail_url": "https://cdn.../pulse-thumb.webp"
+      }
+    ]
+  }
+
+
+10. CONSISTENT FRONTEND IMPLEMENTATION PATTERN
+----------------------------------------------
+
+For every new backend resource:
+
+1. Add endpoint builders to `src/api/endpoints.ts`.
+2. Add request/resource/response types under `src/types`.
+3. Add an API module that returns the raw Axios response with typed data.
+4. Add React Query keys and query/mutation hooks.
+5. Normalize inconsistent legacy responses at the API boundary, not in screens.
+6. Add screen loading, empty, error, retry, and pull-to-refresh states.
+7. Add optimistic updates only when rollback is deterministic.
+8. Invalidate the smallest relevant query set after mutations.
+9. Add unit tests for payload builders/normalizers and integration tests for
+   the screen flow.
+10. Remove the replaced static source in the same change.
+
+State ownership:
+
+- React Query: server resources, pagination, network status, mutation state.
+- Zustand: authentication session, small cross-screen client state, unread
+  counters, active upload coordination.
+- Component state: temporary form and modal state.
+- AsyncStorage: non-sensitive preferences and recoverable unsynced drafts only.
+- Secure storage: refresh tokens and sensitive device credentials.
+
+List requirements:
+
+- Use stable backend IDs as keys.
+- Use FlatList virtualization for long/native lists.
+- Do not mount every video player, query, or carousel in one list header.
+- Play only the visible video and stop progress timers for inactive players.
+- Use cursor pagination for messages and numbered/cursor pagination consistently
+  for other resources.
+
+Form requirements:
+
+- Mirror backend validation rules in the UI without treating client validation
+  as security.
+- Preserve input after server failure.
+- Map 422 errors to fields.
+- Disable duplicate submissions while pending.
+- Use an idempotency key for retryable mutations with side effects.
+
+Upload requirements:
+
+- Validate MIME type, duration, dimensions, and maximum size before upload.
+- Initialize upload, upload directly to signed storage, finalize, then poll or
+  subscribe to processing status.
+- Support cancellation and retry without generating duplicate resources.
+- Treat `ready` plus a returned playback URL as completion.
+- Display backend processing errors and a retry-processing action.
+
+
+11. ACCESSIBILITY, OFFLINE, AND DEVICE COMPLETION
+------------------------------------------------
+
+Accessibility:
+
+- Add accessibilityRole, accessibilityLabel, state, and hint to icon-only
+  actions.
+- Keep touch targets at least 44x44 points.
+- Respect font scaling and do not encode status by color alone.
+- Test screen-reader order for feed rails, modals, forms, and carousels.
+- Announce async success/errors and newly loaded content.
+
+Offline/error behavior:
+
+- Show cached read-only data when appropriate.
+- Do not queue financial, voting, settlement, or checkout requests without an
+  explicit safe idempotency design.
+- Allow message text drafts and content drafts to recover locally.
+- Add a global network-status banner and per-action retry.
+
+Device checks:
+
+- Small Android devices.
+- Modern Android devices with gesture navigation.
+- iPhones with and without Dynamic Island/notch.
+- Tablets in portrait and landscape.
+- Background/foreground video and socket transitions.
+- Low-memory behavior with long video feeds.
+
+
+12. CODEBASE CLEANUP
+--------------------
+
+Consolidate these duplicates after API migration:
+
+- ChallengeLeaderboard.tsx -> keep ChallengeLeaderboardDetails.tsx.
+- challengeEntry.tsx -> keep ChallengeEntryDetails.tsx.
+- VibePickert.tsx -> keep VibePicker.tsx.
+- Feed.tsx, Feed.web.tsx, feed-copy.tsx, feedfromChat.tsx -> define one native
+  implementation and one intentional web adapter only if web remains supported.
+- App.tsx and src/App.tsx -> keep the actual entry implementation.
+- Store.tsx and CreatorStore.tsx -> choose one canonical creator store.
+- Inbox.tsx and Messages.tsx -> define whether one is the conversation list and
+  remove the unused duplicate.
+
+Also:
+
+- Remove dead imports such as unused AI/web SDK types from native feed code.
+- Remove large commented-out UI blocks after confirming they are no longer
+  design references.
+- Move design-only examples into a dedicated preview/story location.
+- Standardize all API response normalization and error messages.
+- Replace `navigation<any>` with typed navigation.
+- Remove screen/test duplicates only after the canonical flow is tested.
+
+
+13. TESTING, OBSERVABILITY, AND RELEASE READINESS
+------------------------------------------------
+
+Required package scripts:
+
+  "typecheck": "tsc --noEmit"
+  "test": "vitest run"
+  "test:watch": "vitest"
+  "lint": "eslint ."
+  "format:check": "prettier --check ."
+  "validate": "npm run typecheck && npm run lint && npm run test"
+
+Add CI that runs `npm ci` and `npm run validate` on every pull request.
+
+Required automated coverage:
+
+- Auth restoration, refresh queue, refresh failure, and logout.
+- Typed navigation and push deep-link parameters.
+- Direct uploads, completion, processing failure, and retry.
+- Complete challenge draft -> publish -> join -> submit -> vote/judge -> winner
+  -> finalize -> settlement -> reward claim flow.
+- Message pagination, optimistic send, retry, read receipts, and event dedupe.
+- Subscription purchase/cancel, wallet actions, ticket purchase, checkout,
+  payout, and idempotent retry.
+- Offline and failed-network behavior.
+- Permission denial for camera, microphone, media library, location, and
+  notifications.
+
+Observability requirements:
+
+- Crash reporting with release/environment tags and source maps.
+- API error reporting with request_id, endpoint template, response code, and
+  sanitized metadata.
+- Product analytics for major funnels without message bodies, credentials,
+  payment data, or private media URLs.
+- Video/feed performance measurements on real release builds: JS/UI FPS,
+  dropped frames, memory, startup time, and network request count.
+
+Release configuration:
+
+- Separate development, staging, and production EAS profiles.
+- Separate API URLs, Firebase projects, notification credentials, and app IDs.
+- Restrict Firebase and Maps keys to the intended bundle/package identifiers.
+- Configure Android/iOS deep links and associated domains.
+- Review camera, microphone, media-library, notification, location, and tracking
+  permission text.
+- Verify Android and iOS production builds, signing, store metadata, privacy
+  disclosures, account deletion, data export, and support URLs.
+
+
+14. BACKEND DECISIONS STILL REQUIRED
+------------------------------------
+
+The following answers are required before the related frontend work can be
+considered complete:
+
+1. Authentication
+   - Refresh endpoint, rotation rules, expiry, revocation, and secure storage
+     strategy.
+
+2. Challenges
+   - Creator draft list/delete methods.
+   - Entry moderation statuses and authorization.
+   - Join/leave paths and invitation inbox contract.
+   - Winner claim/fulfillment contract.
+   - Creator-battle participant maximum and settlement retry rules.
+
+3. Messaging
+   - Realtime provider/protocol, event schema, cursor format, attachment upload,
+     retention, edit/delete rules, blocking/reporting, and encryption policy.
+
+4. Calls and livestreams
+   - Provider, token issuance, latency tier, recording, moderation, maximum
+     capacity, and analytics.
+
+5. Commerce
+   - Payment provider, supported currencies/countries, tax, shipping, refund,
+     chargeback, subscription renewal, marketplace fee, and payout rules.
+
+6. Collaborations
+   - Contract legality, versioning, revenue split settlement, dispute workflow,
+     and workspace retention.
+
+7. AI
+   - Allowed features, data retention, model/provider, rate limits, moderation,
+     and consent requirements.
+
+8. Media
+   - File limits, supported codecs, image transformations, sticker licensing,
+     CDN/cache behavior, and deletion policy.
+
+
+RECOMMENDED DELIVERY ORDER
+--------------------------
+
+Phase 1 - Make the foundation safe
+
+1. Fix route names and typed navigation.
+2. Configure development/staging/production API URLs.
+3. Implement token refresh and 401 replay.
+4. Proxy AI through the backend and remove exposed AI keys.
+5. Add standard error/pagination/idempotency conventions.
+
+Phase 2 - Finish the challenge product
+
+1. Server-backed drafts.
+2. Entry management and participants.
+3. Invitation inbox and join/leave.
+4. Winner/finalization management.
+5. Settlement and reward claim UI.
+6. Remove challenge fallback data and add lifecycle E2E tests.
+
+Phase 3 - Messaging and realtime
+
+1. Conversations/history/send/read APIs.
+2. Attachment upload and optimistic retry.
+3. Realtime messages, typing, presence, unread count.
+4. Notification preferences and push reconciliation.
+5. Voice/video calls.
+
+Phase 4 - Revenue features
+
+1. Dashboard/content-library integration.
+2. Wallet and subscriptions.
+3. Store, cart, checkout, orders, and fulfillment.
+4. Revenue reporting, payouts, tax onboarding, and prize claims.
+5. Collaboration contracts/workspaces.
+
+Phase 5 - Live and production readiness
+
+1. Livestream provider integration and moderation.
+2. Remove remaining prototype data and duplicate screens.
+3. Accessibility/device/offline completion.
+4. CI, E2E, crash reporting, analytics, security review, and store release.
+
+
+FINAL DEFINITION OF DONE
+------------------------
+
+The app is complete only when:
+
+- No production screen depends on hardcoded users, balances, rankings, products,
+  conversations, analytics, invitations, or media URLs.
+- Every mutation uses the confirmed backend contract and handles field errors,
+  authorization, conflict, retry, and duplicate submission safely.
+- Realtime state reconciles with authoritative REST data after reconnect.
+- Financial and reward actions are auditable and idempotent.
+- Sensitive credentials are absent from the app bundle and logs.
+- Navigation is typed and every target/deep link is tested.
+- Critical user journeys pass on Android and iOS release builds.
+- CI, monitoring, privacy disclosures, signing, and store configuration are in
+  place.

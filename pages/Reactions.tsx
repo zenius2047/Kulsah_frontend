@@ -4,9 +4,7 @@ import { MaterialIcons } from '@expo/vector-icons';
 import { LinearGradient } from 'expo-linear-gradient';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useThemeMode, PRIMARY_COLOR, primaryColorAlpha } from "../theme";
-import { mediumScreen } from '../types';
-import EmojiStickerPicker from '../components/EmojiStickerPicker';
-import GiftDialog, { GiftSelection } from '../components/GiftDialog';
+import type { GiftSelection } from '../components/GiftDialog';
 import KulsahInputBar from '../components/KulsahInputBar';
 import KulcoinTopUpDrawer from '../components/KulcoinTopUpDrawer';
 import EmptyStateComment from '../assets/icons/Comment VECTOR.svg';
@@ -14,11 +12,11 @@ import { fontSize } from './typography';
 import { formatCommunityRelativeTime, useAddCommentMutation, useAddCommunityComment, useCommunityComments, useLikeCommentMutation, useReplyToCommentMutation, useVideoComments } from '../src';
 import type { GeneralComment } from '../src/types/general.types';
 import type { CommunityComment } from '../src/types/community.types';
+import type { Sticker } from '../src/types/sticker.types';
 import { parseApiError } from '../src/utils/apiError';
 
 
 // type ReactionTab =  'Gifts'| null;
-type PickerTab = 'emoji' | 'sticker';
 type ReplyTarget = {
   id: string;
   handle: string;
@@ -101,7 +99,7 @@ const mapApiComment = (comment: GeneralComment): ReactionComment => ({
   handle: normalizeHandle(comment.handle),
   avatar: comment.avatar || 'https://picsum.photos/seed/comment-avatar/120',
   text: comment.text ?? comment.body ?? '',
-  stickerUrl: comment.stickerUrl ?? undefined,
+  stickerUrl: comment.sticker?.media_url ?? comment.sticker_url ?? comment.stickerUrl ?? undefined,
   gift: comment.gift ? (comment.gift as GiftSelection) : undefined,
   time: formatCommunityRelativeTime(comment.created_at ?? comment.time ?? 'now'),
   likes: Number(comment.likes ?? 0),
@@ -121,6 +119,7 @@ const mapCommunityComment = (comment: CommunityComment): ReactionComment => ({
   handle: normalizeHandle(comment.author.handle),
   avatar: comment.author.avatar_url || 'https://picsum.photos/seed/comment-avatar/120',
   text: comment.content ?? comment.body ?? '',
+  stickerUrl: comment.sticker?.media_url ?? comment.sticker_url ?? undefined,
   time: formatCommunityRelativeTime(comment.created_at),
   likes: Number(comment.stats?.likes_count ?? 0),
   verified: comment.author.is_verified,
@@ -155,9 +154,6 @@ const Reactions: React.FC<ReactionsProps> = ({
   const [comments, setComments] = useState<ReactionComment[]>(videoId || postId ? [] : commentsSeed);
   const [likedCommentIds, setLikedCommentIds] = useState<Set<string>>(new Set());
   const [pendingLikeIds, setPendingLikeIds] = useState<Set<string>>(new Set());
-  const [pickerOpen, setIsPickerOpen] = useState(false);
-  const [pickerTab, setPickerTab] = useState<PickerTab>('emoji');
-  const [giftDialogOpen, setGiftDialogOpen] = useState(false);
   const [topUpOpen, setTopUpOpen] = useState(false);
   const [localCoinBalance, setLocalCoinBalance] = useState(1250);
   const sendingMessageRef = useRef(false);
@@ -351,17 +347,32 @@ const Reactions: React.FC<ReactionsProps> = ({
     }
   };
 
-  const handleEmojiSelect = (emoji: string) => {
-    setMessage((prev) => `${prev}${emoji}`);
-  };
-
-  const handleStickerSelect = (stickerUrl: string) => {
-    setComments((prev) => [
-      ...prev,
-      createComment({ stickerUrl }),
-    ]);
-    setIsPickerOpen(false);
+  const handleStickerSelect = async (stickerUrl: string, sticker?: Sticker) => {
+    const optimisticComment = createComment({ stickerUrl, optimistic: true });
+    setComments((prev) => [optimisticComment, ...prev]);
     setReplyingTo(null);
+
+    if (!sticker || (!videoId && !postId)) {
+      return;
+    }
+
+    try {
+      const payload = { body: sticker.media_url, sticker_id: sticker.id };
+      const nextComment = postId
+        ? mapCommunityComment(await communityCommentMutation.mutateAsync(payload))
+        : mapApiComment((await addCommentMutation.mutateAsync({ video: videoId!, payload })).data);
+      setComments((prev) => prev.map((comment) => (
+        comment.id === optimisticComment.id ? nextComment : comment
+      )));
+      if (postId) {
+        void communityCommentsQuery.refetch();
+      } else {
+        void commentsQuery.refetch();
+      }
+    } catch (error) {
+      setComments((prev) => prev.filter((comment) => comment.id !== optimisticComment.id));
+      Alert.alert('Sticker failed', getCommentErrorMessage(error));
+    }
   };
 
   const patchCommentFromResponse = (nextComment: Partial<ReactionComment> & Pick<ReactionComment, 'id'>) => {
@@ -471,23 +482,6 @@ const Reactions: React.FC<ReactionsProps> = ({
         keyboardVerticalOffset={0}
       >
       <View style={[styles.sheet, { height: `${sheetHeight * 100}%`, backgroundColor: shellBackground, borderTopColor: softBorder }]}>
-        {pickerOpen &&
-            <View style={{
-              position: 'absolute',
-              top: Platform.OS === 'ios' && keyboardHeight > 0 ? 120 : Platform.OS === 'ios' ? 180: keyboardHeight > 0 ? 40:160,
-              left: 10,
-              right: 10,
-              zIndex: 3,
-              height: mediumScreen ? 150: 50,
-            }}>
-              <EmojiStickerPicker
-              isOpen={pickerOpen}
-              initialTab={pickerTab}
-              onClose={() => setIsPickerOpen(false)}
-              onEmojiSelect={handleEmojiSelect}
-              onStickerSelect={handleStickerSelect}
-              />
-              </View>}
         <View style={styles.header}>
           <Pressable onPress={onClose} style={styles.iconButton}>
             {/* <MaterialIcons name="close" size={22} color={secondary} /> */}
@@ -680,30 +674,21 @@ const Reactions: React.FC<ReactionsProps> = ({
           <KulsahInputBar
               value={message}
               onChangeText={setMessage}
+              expressionPicker={{
+                onStickerSelect: handleStickerSelect,
+                giftOptions: {
+                  creatorName: replyingTo?.handle ?? title,
+                  currentBalance: coinBalance,
+                  onSendGift: handleSendGift,
+                  onTopUpSuccess: handleTopUpSuccess,
+                  onRecharge: () => setTopUpOpen(true),
+                },
+              }}
               placeholder="Join the discussion"
               placeholderTextColor={muted}
               containerStyle={{ backgroundColor: cardBackground, borderColor: softBorder }}
               rightAccessory={(
                 <>
-                  <View style={styles.inputActions}>
-                    <Pressable
-                      onPress={() => {
-                        setGiftDialogOpen(true);
-                      }}
-                      style={styles.inputIcon}
-                    >
-                      <MaterialIcons name="redeem" size={26} color={secondary} />
-                    </Pressable>
-                    <Pressable
-                      onPress={() => {
-                        setPickerTab('emoji');
-                        setIsPickerOpen(true);
-                      }}
-                      style={styles.inputIcon}
-                    >
-                      <MaterialIcons name="mood" size={26} color={pickerOpen ? PRIMARY_COLOR : secondary} />
-                    </Pressable>
-                  </View>
                   <View>
                     {hasTypedMessage ? (
                     <Pressable
@@ -731,21 +716,6 @@ const Reactions: React.FC<ReactionsProps> = ({
         </View>
       </View>
       </KeyboardAvoidingView>
-      <GiftDialog
-        isOpen={giftDialogOpen}
-        onClose={() => setGiftDialogOpen(false)}
-        creatorName={replyingTo?.handle ?? ""}
-        currentBalance={coinBalance}
-        onSendGift={(gift) => {
-          handleSendGift(gift);
-          setGiftDialogOpen(false);
-        }}
-        onTopUpSuccess={handleTopUpSuccess}
-        onRecharge={() => {
-          setGiftDialogOpen(false);
-          setTopUpOpen(true);
-        }}
-      />
       <KulcoinTopUpDrawer
         currentBalance={coinBalance}
         isOpen={topUpOpen}

@@ -9,6 +9,7 @@ import type {
   GeneralCommentsResponse,
   GeneralFeedParams,
   GeneralFeedResponse,
+  GeneralRecommendationsResponse,
   GeneralVideoResponse,
   WatchedVideosParams,
   WatchedVideosResponse,
@@ -54,6 +55,8 @@ const createImageFormData = (
 export const generalApi = {
   getFeed: (params?: GeneralFeedParams) =>
     api.get<GeneralFeedResponse>(endpoints.general.feed, { params }),
+  getRecommendations: (params?: GeneralFeedParams) =>
+    api.get<GeneralRecommendationsResponse>(endpoints.general.recommendations, { params }),
   getVideo: (video: string | number) =>
     api.get<GeneralVideoResponse>(endpoints.general.video(video)),
   recordVideoView: (video: string | number) =>

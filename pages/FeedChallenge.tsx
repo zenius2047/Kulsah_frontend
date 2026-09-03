@@ -1,11 +1,12 @@
-import AsyncStorage from '@react-native-async-storage/async-storage';
 import { MaterialIcons } from '@expo/vector-icons';
-import { useIsFocused, useNavigation } from '@react-navigation/native';
+import { useIsFocused, useNavigation, useRoute } from '@react-navigation/native';
 import { LinearGradient } from 'expo-linear-gradient';
 import { useEvent } from 'expo';
 import { useVideoPlayer, VideoView } from 'expo-video';
-import React, { useEffect, useRef, useState } from 'react';
+import React, { useEffect, useMemo, useRef, useState } from 'react';
 import {
+  ActivityIndicator,
+  Alert,
   Animated,
   Dimensions,
   FlatList,
@@ -27,37 +28,28 @@ import Reactions from './Reactions';
 import CommentIcon from '../assets/icons/comment-svg.svg';
 import { VoteModalContent } from './Vote';
 import { fontSize } from './typography';
+import { useChallenge, useChallengeLeaderboard } from '../src/hooks/challenges/useChallenges';
+import { useCastChallengeBallot } from '../src/hooks/challenges/useChallengeMutations';
+import type { ChallengeFeedItem } from '../src/types/challenge.types';
+import { challengeEntriesToFeedItems, challengeResourceToFeedItems } from '../src/utils/challenges';
+import { getApiErrorMessage } from '../src/utils/apiError';
+import { useKulCoinWallet } from '../src/hooks/kulcoin/useKulCoin';
 
-type ChallengeEntry = {
-  id: string;
-  userName: string;
-  userHandle: string;
-  userAvatar: string;
-  videoUrl: string;
-  thumbnailUrl: string;
-  caption: string;
-  likes: number;
-  comments: number;
-  votes: number;
-  isLiked: boolean;
-  isVoted: boolean;
-  originalSound: boolean;
-  soundArtist?: string;
-  soundTitle?: string;
-  isSeed?: boolean;
-};
+type ChallengeEntry = ChallengeFeedItem;
 
 type ChallengeVideoItemProps = {
   entry: ChallengeEntry;
+  challengeId?: string | number;
+  challengeTitle: string;
   height: number;
   isActive: boolean;
-  onVote: () => boolean;
+  onVote: () => Promise<boolean>;
   coinBalance: number;
+  voteCost: number;
   onBalanceChange: (nextBalance: number) => void;
 };
 
-const VOTE_COST = 5;
-const KULCOIN_STORAGE_KEY = 'kulcoins';
+const DEFAULT_VOTE_COST = 10;
 const KULCOIN_ICON = require('../assets/coin.png');
 const SING_CHALLENGE_VIDEO_URL = 'https://res.cloudinary.com/dh0dywpzm/video/upload/v1779794760/kulsah_sing_vgqxne.mp4';
 const DANCE_CHALLENGE_VIDEO_URL = 'https://res.cloudinary.com/dh0dywpzm/video/upload/v1779795517/dance_cha_001_p1flkl.mp4';
@@ -78,6 +70,8 @@ const baseEntries: ChallengeEntry[] = [
     isLiked: false,
     isVoted: false,
     originalSound: true,
+    tag: 'ChallengeEntry',
+    isVote: true,
   },
   {
     id: 'e2 ',
@@ -96,6 +90,8 @@ const baseEntries: ChallengeEntry[] = [
     originalSound: false,
     soundArtist: 'BassMaster',
     soundTitle: 'Low End Echo',
+    tag: 'ChallengeEntry',
+    isVote: true,
   },
   {
     id: 'e3',
@@ -114,6 +110,8 @@ const baseEntries: ChallengeEntry[] = [
     originalSound: false,
     soundArtist: 'Elena Rose',
     soundTitle: 'Night Vibes',
+    tag: 'ChallengeEntry',
+    isVote: true,
   },
   
 ];
@@ -126,10 +124,13 @@ const formatCount = (num: number) => {
 
 const ChallengeVideoItem: React.FC<ChallengeVideoItemProps> = ({
   entry,
+  challengeId,
+  challengeTitle,
   height,
   isActive,
   onVote,
   coinBalance,
+  voteCost,
   onBalanceChange,
 }) => {
   const navigation = useNavigation<any>();
@@ -151,6 +152,7 @@ const ChallengeVideoItem: React.FC<ChallengeVideoItemProps> = ({
   const [votesCount, setVotesCount] = useState(entry.votes);
   const [showComments, setShowComments] = useState(false);
   const [showVoteDialog, setShowVoteDialog] = useState(false);
+  const [isSubmittingVote, setIsSubmittingVote] = useState(false);
   const [showVoteAnimation, setShowVoteAnimation] = useState(false);
   const [showPlayState, setShowPlayState] = useState(false);
   const [captionLines, setCaptionLines] = useState(1);
@@ -263,14 +265,20 @@ const ChallengeVideoItem: React.FC<ChallengeVideoItemProps> = ({
     setShowVoteDialog(true);
   };
 
-  const handleConfirmVote = () => {
-    if (!onVote()) {
+  const handleConfirmVote = async () => {
+    if (isSubmittingVote) return;
+    setIsSubmittingVote(true);
+    try {
+      if (!await onVote()) {
+        setShowVoteDialog(false);
+        return;
+      }
       setShowVoteDialog(false);
-      return;
+      setVotesCount((prev) => prev + 1);
+      setShowVoteAnimation(true);
+    } finally {
+      setIsSubmittingVote(false);
     }
-    setShowVoteDialog(false);
-    setVotesCount((prev) => prev + 1);
-    setShowVoteAnimation(true);
   };
 
   const bottomOffset = Math.max(insets.bottom + 26, height * 0.11);
@@ -367,7 +375,7 @@ const ChallengeVideoItem: React.FC<ChallengeVideoItemProps> = ({
           <Text style={styles.railCount}>{formatCount(entry.comments)}</Text>
         </View>
 
-        {!entry.isSeed ? (
+        {entry.tag === 'ChallengeEntry' && entry.isVote ? (
           <View style={styles.railAction}>
             <Pressable onPress={handleVote} style={styles.voteActionButton}>
               <MaterialIcons name="how-to-vote" size={36} color="#ffffff" />
@@ -375,9 +383,9 @@ const ChallengeVideoItem: React.FC<ChallengeVideoItemProps> = ({
             </Pressable>
             <View style={styles.voteMeta}>
               <Text style={styles.railCount}>{formatCount(votesCount)}</Text>
-              {/* <View style={styles.voteCostChip}>
-                <Text style={styles.voteCostText}>5KC</Text>
-              </View> */}
+              <View style={styles.voteCostChip}>
+                <Text style={styles.voteCostText}>{voteCost} KC</Text>
+              </View>
             </View>
           </View>
         ) : null}
@@ -419,7 +427,6 @@ const ChallengeVideoItem: React.FC<ChallengeVideoItemProps> = ({
                   setShowMore(false);
                   return;
                 }
-
                 setCaptionLines(1);
                 setShowMore(true);
               }}
@@ -427,20 +434,7 @@ const ChallengeVideoItem: React.FC<ChallengeVideoItemProps> = ({
               <Text style={styles.moreLessText}>{showMore ? 'more' : 'less'}</Text>
             </Pressable>
           </View>
-          <Pressable
-          onPress={()=>{
-            navigation.navigate("challengeParticipants")
-          }}
-          style={styles.entryBadge}>
-            <MaterialIcons
-              name={entry.isSeed ? 'rocket-launch' : 'emoji-events'}
-              size={14}
-              color={PRIMARY_COLOR}
-            />
-            <Text style={styles.entryBadgeText}>
-              {entry.isSeed ? 'Official Seed' : 'Challenge Entry'}
-            </Text>
-          </Pressable>
+
           <View style={styles.soundRow}>
             <View style={styles.soundIconWrap}>
               <Animated.View style={{ transform: [{ rotate: rotation }] }}>
@@ -461,6 +455,23 @@ const ChallengeVideoItem: React.FC<ChallengeVideoItemProps> = ({
               </Text>
             </Pressable>
           </View>
+
+          <Pressable
+          onPress={()=>{
+            navigation.navigate("ChallengeEntry", { challengeId })
+          }}
+          style={styles.entryBadge}>
+            {/* <MaterialIcons
+              name={entry.isSeed ? 'rocket-launch' : 'emoji-events'}
+              size={14}
+              color={PRIMARY_COLOR}
+            /> */}
+            <Text style={styles.entryBadgeText}>
+              Join Challenge
+              {/* {entry.isSeed ? 'Official Seed' : 'Challenge Entry'} */}
+            </Text>
+          </Pressable>
+
         </View>
       </View>
 
@@ -516,6 +527,11 @@ const ChallengeVideoItem: React.FC<ChallengeVideoItemProps> = ({
           sheetMode
           onClose={() => setShowVoteDialog(false)}
           onConfirm={handleConfirmVote}
+          challengeTitle={challengeTitle}
+          creatorName={entry.userName}
+          walletBalance={coinBalance}
+          voteCost={voteCost}
+          isSubmitting={isSubmittingVote}
         />
       </Modal>
     </View>
@@ -524,22 +540,36 @@ const ChallengeVideoItem: React.FC<ChallengeVideoItemProps> = ({
 
 const FeedChallenge: React.FC = () => {
   const navigation = useNavigation<any>();
+  const route = useRoute<any>();
+  const challengeId = route.params?.challengeId as string | number | undefined;
+  const challengeQuery = useChallenge(challengeId);
+  const leaderboardQuery = useChallengeLeaderboard(challengeId, 100);
+  const walletQuery = useKulCoinWallet();
+  const castBallot = useCastChallengeBallot();
   const insets = useSafeAreaInsets();
   const { isDark } = useThemeMode();
   const { height: SCREEN_HEIGHT } = Dimensions.get('screen');
   const pageHeight = SCREEN_HEIGHT;
 
-  const [entries] = useState<ChallengeEntry[]>([
-    {
+  const entries = useMemo<ChallengeEntry[]>(() => {
+    if (challengeId != null) {
+      if (!challengeQuery.data) return [];
+      const detailItems = challengeResourceToFeedItems(challengeQuery.data);
+      const knownIds = new Set(detailItems.map((item) => item.id));
+      const leaderboardEntries = leaderboardQuery.data?.pages.flatMap((page) => page.data) ?? [];
+      const leaderboardItems = challengeEntriesToFeedItems(leaderboardEntries, challengeQuery.data)
+        .filter((item) => !knownIds.has(item.id));
+      return [...detailItems, ...leaderboardItems];
+    }
+
+    return [{
       id: 'ov-night-vibes',
       userName: 'Mila Ray',
       userHandle: 'milaray',
       userAvatar: 'https://picsum.photos/seed/mila/150',
       videoUrl: SING_CHALLENGE_VIDEO_URL,
-      thumbnailUrl:
-        'https://images.unsplash.com/photo-1547153760-18fc86324498?auto=format&fit=crop&q=80&w=800',
-      caption:
-        'OFFICIAL SEED: The Night Vibes Challenge is officially LIVE. Show me your best moves to win a backstage pass. #NightVibes #OfficialSeed',
+      thumbnailUrl: 'https://images.unsplash.com/photo-1547153760-18fc86324498?auto=format&fit=crop&q=80&w=800',
+      caption: 'OFFICIAL SEED: The Night Vibes Challenge is officially LIVE. Show me your best moves to win a backstage pass. #NightVibes #OfficialSeed',
       likes: 85000,
       comments: 88100,
       votes: 0,
@@ -549,31 +579,19 @@ const FeedChallenge: React.FC = () => {
       soundArtist: 'Mila Ray',
       soundTitle: 'Night Vibes Official Seed',
       isSeed: true,
-    },
-    ...baseEntries,
-  ]);
+      tag: 'officialChallengeVideo',
+      isVote: false,
+    }, ...baseEntries];
+  }, [challengeId, challengeQuery.data, leaderboardQuery.data]);
   const [activeIndex, setActiveIndex] = useState(0);
-  const [kulcoins, setKulcoins] = useState(10);
+  const [localBalanceAdjustment, setLocalBalanceAdjustment] = useState(0);
   const [isTopUpOpen, setIsTopUpOpen] = useState(false);
   const [topUpSuccessMessage, setTopUpSuccessMessage] = useState('');
   const topUpSuccessTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
   useEffect(() => {
-    const loadKulcoins = async () => {
-      try {
-        const saved = await AsyncStorage.getItem(KULCOIN_STORAGE_KEY);
-        setKulcoins(saved ? Number.parseInt(saved, 10) || 10 : 10);
-      } catch {
-        setKulcoins(10);
-      }
-    };
-
-    void loadKulcoins();
-  }, []);
-
-  useEffect(() => {
-    void AsyncStorage.setItem(KULCOIN_STORAGE_KEY, `${kulcoins}`);
-  }, [kulcoins]);
+    setActiveIndex(0);
+  }, [challengeId]);
 
   useEffect(() => {
     return () => {
@@ -583,8 +601,8 @@ const FeedChallenge: React.FC = () => {
     };
   }, []);
 
-  const onViewRef = useRef(({ viewableItems }: { viewableItems: ViewToken[] }) => {
-    if (viewableItems.length > 0) {
+  const onViewRef = useRef(({ viewableItems }: { viewableItems?: ViewToken[] }) => {
+    if (Array.isArray(viewableItems) && viewableItems.length > 0) {
       setActiveIndex(viewableItems[0].index ?? 0);
     }
   });
@@ -593,18 +611,43 @@ const FeedChallenge: React.FC = () => {
     viewAreaCoveragePercentThreshold: 80,
   });
 
-  const handleVoteAttempt = () => {
-    if (kulcoins < VOTE_COST) {
+  const backendBalance = walletQuery.data?.total_kc ?? 0;
+  const kulcoins = Math.max(0, backendBalance + localBalanceAdjustment);
+  const voteCost = challengeQuery.data?.pricing?.voting?.vote_cost_per_choice ?? DEFAULT_VOTE_COST;
+  const handleBalanceChange = (nextBalance: number) => {
+    setLocalBalanceAdjustment(nextBalance - backendBalance);
+  };
+
+  const handleVoteAttempt = async (entryId: string) => {
+    if (kulcoins < voteCost) {
       setIsTopUpOpen(true);
       return false;
     }
 
-    setKulcoins((prev) => prev - VOTE_COST);
+    if (challengeId != null) {
+      try {
+        await castBallot.mutateAsync({
+          challenge: challengeId,
+          payload: {
+            choices: [{ challenge_entry_id: entryId }],
+            idempotency_key: `challenge-${challengeId}-entry-${entryId}-${Date.now()}-${Math.random().toString(36).slice(2)}`,
+          },
+        });
+        await walletQuery.refetch();
+      } catch (error) {
+        Alert.alert('Vote not submitted', getApiErrorMessage(error));
+        return false;
+      }
+    }
+
+    if (challengeId == null) {
+      setLocalBalanceAdjustment((prev) => prev - voteCost);
+    }
     return true;
   };
 
   const handleTopUpSuccess = (amount: number) => {
-    setKulcoins((prev) => prev + amount);
+    setLocalBalanceAdjustment((prev) => prev + amount);
     setTopUpSuccessMessage(`${amount} KC added to your wallet`);
 
     if (topUpSuccessTimerRef.current) {
@@ -618,6 +661,13 @@ const FeedChallenge: React.FC = () => {
   };
 
   const feedItemHeight = pageHeight;
+  const activeEntry = entries[activeIndex];
+  const isOfficialChallengeVideo = activeEntry?.tag === 'officialChallengeVideo';
+  const floatingTabLabel = isOfficialChallengeVideo
+    ? 'ChallengeVideo'
+    : activeEntry?.tag === 'ChallengeEntry' && activeEntry.isVote
+      ? 'Entry'
+      : null;
 
   return (
     <SafeAreaView style={styles.safeArea} edges={['left', 'right']}>
@@ -647,11 +697,14 @@ const FeedChallenge: React.FC = () => {
           renderItem={({ item, index }) => (
             <ChallengeVideoItem
               entry={item}
+              challengeId={challengeId}
+              challengeTitle={challengeQuery.data?.title || 'Challenge vote'}
               height={feedItemHeight}
               isActive={index === activeIndex}
-              onVote={handleVoteAttempt}
+              onVote={() => handleVoteAttempt(item.id)}
               coinBalance={kulcoins}
-              onBalanceChange={setKulcoins}
+              voteCost={voteCost}
+              onBalanceChange={handleBalanceChange}
             />
           )}
           removeClippedSubviews
@@ -660,27 +713,53 @@ const FeedChallenge: React.FC = () => {
           maxToRenderPerBatch={2}
         />
 
+        {challengeId != null && challengeQuery.isLoading ? (
+          <View style={styles.challengeLoadState}>
+            <ActivityIndicator size="large" color={PRIMARY_COLOR} />
+            <Text style={styles.challengeLoadText}>Loading challenge...</Text>
+          </View>
+        ) : null}
+        {challengeId != null && challengeQuery.isError ? (
+          <View style={styles.challengeLoadState}>
+            <MaterialIcons name="cloud-off" size={36} color="#ffffff99" />
+            <Text style={styles.challengeLoadText}>Challenge could not be loaded.</Text>
+            <Pressable onPress={() => void challengeQuery.refetch()} style={styles.challengeRetryButton}>
+              <Text style={styles.challengeRetryText}>Try Again</Text>
+            </Pressable>
+          </View>
+        ) : null}
+        {challengeId != null && challengeQuery.isSuccess && entries.length === 0 ? (
+          <View style={styles.challengeLoadState}>
+            <MaterialIcons name="videocam-off" size={36} color="#ffffff99" />
+            <Text style={styles.challengeLoadText}>No challenge videos are available yet.</Text>
+          </View>
+        ) : null}
+
         <View style={[styles.feedHeader, { top: insets.top + 10 }]}>
           <Pressable onPress={() => navigation.goBack()} style={styles.headerButton}>
             <MaterialIcons name="chevron-left" size={22} color="#ffffff" />
           </Pressable>
 
-          <View style={styles.balancePill}>
-            <View style={styles.balanceLeft}>
-              <Image source={KULCOIN_ICON} style={styles.balanceCoinImage} />
-              <Text style={styles.balancePillText}>{kulcoins} KC</Text>
-              <Pressable onPress={() => setIsTopUpOpen(true)} style={styles.addCoinButton}>
-                <MaterialIcons name="add" size={14} color="#ffffff" />
-              </Pressable>
+          {floatingTabLabel ? (
+            <View style={styles.balancePill}>
+              {!isOfficialChallengeVideo ? (
+                <View style={styles.balanceLeft}>
+                  <Image source={KULCOIN_ICON} style={styles.balanceCoinImage} />
+                  <Text style={styles.balancePillText}>{kulcoins} KC</Text>
+                  <Pressable onPress={() => setIsTopUpOpen(true)} style={styles.addCoinButton}>
+                    <MaterialIcons name="add" size={14} color="#ffffff" />
+                  </Pressable>
+                </View>
+              ) : null}
+              <View style={styles.feedLiveWrap}>
+                <View style={styles.liveDot} />
+                <Text style={styles.feedLabel}>{floatingTabLabel}</Text>
+              </View>
             </View>
-            <View style={styles.feedLiveWrap}>
-              <View style={styles.liveDot} />
-              <Text style={styles.feedLabel}>Feed</Text>
-            </View>
-          </View>
+          ) : null}
 
           <Pressable
-            onPress={() => navigation.navigate('ChallengeLeaderboard')}
+            onPress={() => navigation.navigate('ChallengeLeaderboard', { challengeId })}
             style={styles.headerButton}
           >
             <MaterialIcons name="leaderboard" size={22} color="#ffffff" />
@@ -728,6 +807,18 @@ const styles = StyleSheet.create({
     flex: 1,
     backgroundColor: '#000000',
   },
+  challengeLoadState: {
+    ...StyleSheet.absoluteFillObject,
+    zIndex: 30,
+    backgroundColor: '#000000',
+    alignItems: 'center',
+    justifyContent: 'center',
+    gap: 12,
+    paddingHorizontal: 32,
+  },
+  challengeLoadText: { color: '#ffffffcc', ...fontSize.b4, lineHeight: fontSize.b4.lineHeight, textAlign: 'center' },
+  challengeRetryButton: { minHeight: 42, borderRadius: 999, paddingHorizontal: 20, backgroundColor: PRIMARY_COLOR, alignItems: 'center', justifyContent: 'center' },
+  challengeRetryText: { color: '#ffffff', ...fontSize.b5, lineHeight: fontSize.b5.lineHeight, textTransform: 'uppercase', letterSpacing: 0.8 },
   feedPage: {
     backgroundColor: '#000000',
   },
@@ -910,19 +1001,21 @@ const styles = StyleSheet.create({
     lineHeight: 20,
   },
   entryBadge: {
-    alignSelf: 'flex-start',
+    // alignSelf: 'flex-start',
     flexDirection: 'row',
     alignItems: 'center',
+    justifyContent: 'center',
     gap: 8,
     paddingHorizontal: 12,
     paddingVertical: 8,
     borderRadius: 999,
-    backgroundColor: primaryColorAlpha(0.18),
+    backgroundColor: PRIMARY_COLOR,
     borderWidth: 1,
     borderColor: primaryColorAlpha(0.32),
+    width: '100%'
   },
   entryBadgeText: {
-    color: PRIMARY_COLOR,
+    color: 'white',
     ...fontSize.b5, lineHeight: fontSize.b5.lineHeight,
     textTransform: 'uppercase',
     letterSpacing: 1.2,

@@ -70,10 +70,10 @@ export const useGiftCommunityPost = (post: string | number) => {
   return useMutation({
     mutationFn: (payload: CommunityGiftPayload) => communityApi.giftPost(post, payload).then((response) => response.data),
     onSuccess: async (response) => {
-      queryClient.setQueryData(communityPostQueryKey(response.data.id), response.data);
+      queryClient.setQueryData(communityPostQueryKey(response.data.post.id), response.data.post);
       await Promise.all([
         queryClient.invalidateQueries({ queryKey: ['community', 'posts'] }),
-        queryClient.invalidateQueries({ queryKey: ['general', 'wallet'] }),
+        queryClient.invalidateQueries({ queryKey: ['kulcoin', 'wallet'] }),
       ]);
     },
   });

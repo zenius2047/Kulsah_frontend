@@ -37,17 +37,22 @@ import {
   normalizeHexColor,
   parseApiError,
 } from '../src';
-import type { GeneratedEditAsset, SubmitCreatorVideoEditsPayload, VideoDisplayOrientation, VideoUploadSource } from '../src';
+import type { GeneratedEditAsset, SubmitCreatorVideoEditsPayload, VideoDisplayOrientation, VideoPurpose, VideoUploadSource } from '../src';
 
 type EditSubmissionRouteParams = {
   video?: VideoUploadSource;
   uploadedVideoId?: string | number;
+  uploadToExistingDraft?: boolean;
+  duetSourceVideoId?: string | number;
   sound?: {
     title?: string;
     id?: string;
     meta?: string;
     usage?: string;
   } | null;
+  challengeId?: string | number;
+  purpose?: VideoPurpose;
+  officialSoundId?: string | number | null;
 };
 
 type EditorTool = 'none' | 'draw' | 'text' | 'sticker' | 'trim';
@@ -808,9 +813,14 @@ const EditSubmission: React.FC = () => {
         },
         uploadedVideoId,
         autoStartUpload: uploadedVideoId == null,
+        uploadToExistingDraft: params.uploadToExistingDraft,
+        duetSourceVideoId: params.duetSourceVideoId,
         editPayload,
         sound: params.sound ?? null,
         orientation: previewOrientation,
+        challengeId: params.challengeId,
+        purpose: params.purpose,
+        officialSoundId: params.officialSoundId,
       });
     } catch (caughtError) {
       const parsed = parseApiError(caughtError);

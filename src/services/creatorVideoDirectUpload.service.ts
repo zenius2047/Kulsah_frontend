@@ -16,6 +16,7 @@ import type {
 } from '../types/video.types';
 import { createVideoProjectV3FormData } from './videoProjectSubmission.service';
 import { getVideoProcessingState } from '../utils/video';
+import { normalizeCreatorVideoResponse, normalizeCreatorVideoUploadSession } from '../utils/videoUpload';
 
 export type CreatorVideoDirectUploadStage =
   | Exclude<CreatorVideoUploadStatus, 'idle'>
@@ -79,7 +80,9 @@ const toInitPayload = (payload: UploadCreatorVideoPayload, requiresEditing = fal
     caption: payload.caption ?? null,
     content_type: payload.contentType,
     visibility: payload.visibility,
+    purpose: payload.purpose,
     requires_editing: requiresEditing,
+    allow_duet: payload.allowDuet,
   };
 };
 
@@ -116,13 +119,49 @@ const normalizeUploadHeaders = (headers: Record<string, unknown> | undefined, mi
   };
 };
 
+const resolveSourceSize = async (source: VideoUploadSource) => {
+  if (source.size && source.size > 0) return source;
+
+  const info = await FileSystem.getInfoAsync(source.uri);
+  if (!info.exists || !('size' in info) || !info.size) {
+    throw new Error('Could not determine the selected video file size.');
+  }
+
+  return { ...source, size: info.size };
+};
+
+const createInitRequestData = (
+  payload: InitCreatorVideoUploadPayload,
+  thumbnail?: VideoUploadSource | null,
+) => {
+  if (!thumbnail) return payload;
+
+  const formData = new FormData();
+  Object.entries(payload).forEach(([key, value]) => {
+    if (value == null) return;
+    if (Array.isArray(value)) {
+      value.forEach((item) => formData.append(`${key}[]`, String(item)));
+      return;
+    }
+    formData.append(key, typeof value === 'boolean' ? (value ? '1' : '0') : String(value));
+  });
+  formData.append('thumbnail', {
+    uri: thumbnail.uri,
+    name: thumbnail.name ?? 'challenge-cover.jpg',
+    type: thumbnail.type ?? 'image/jpeg',
+  } as any);
+  return formData;
+};
+
 const initUploadSession = async (payload: UploadCreatorVideoPayload, requiresEditing = false) => {
+  const source = await resolveSourceSize(getSource(payload));
+  const normalizedPayload: UploadCreatorVideoPayload = { ...payload, video: source };
   const response = await api.post<InitCreatorVideoUploadResponse>(
     endpoints.creator.videoUploadInit,
-    toInitPayload(payload, requiresEditing),
+    createInitRequestData(toInitPayload(normalizedPayload, requiresEditing), payload.thumbnail),
   );
 
-  return response.data.data;
+  return normalizeCreatorVideoUploadSession(response.data);
 };
 
 const putFileToSignedUrl = (
@@ -210,7 +249,7 @@ const completeUpload = async (videoId: string | number) => {
     {},
   );
 
-  return response.data.data;
+  return normalizeCreatorVideoResponse(response.data);
 };
 
 const getCompletedVideo = async (videoId: string | number, fallback: CreatorVideo) => {

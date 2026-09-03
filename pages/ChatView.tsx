@@ -1,6 +1,8 @@
-import React, { useEffect, useMemo, useRef, useState } from 'react';
+import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { useThemeMode, PRIMARY_COLOR, primaryColorAlpha } from "../theme";
 import {
+  ActivityIndicator,
+  Alert,
   KeyboardAvoidingView,
   Modal,
   Platform,
@@ -15,21 +17,43 @@ import {
 import { useNavigation, useRoute } from '@react-navigation/native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { MaterialIcons } from '@expo/vector-icons';
-import { GoogleGenAI } from '@google/genai';
 import KulsahInputBar from '../components/KulsahInputBar';
-import GiftDialog, { GiftSelection } from '../components/GiftDialog';
+import type { GiftSelection } from '../components/GiftDialog';
 import { fontSize } from './typography';
 import { LinearGradient } from 'expo-linear-gradient';
+import * as ImagePicker from 'expo-image-picker';
+import {
+  createClientMessageId,
+  flattenConversationMessagePages,
+  formatChatPresence,
+  getApiErrorMessage,
+  messagingApi,
+  useAuthStore,
+  useCancelConversationRequest,
+  useConversationMessages,
+  useConversations,
+  useConversationUnreadCount,
+  useCreateConversation,
+  useMarkConversationRead,
+  useMessagingStore,
+  useConversationRealtime,
+  useReportSignalContent,
+  useSendConversationMessage,
+  uploadMessageAttachment,
+} from '../src';
+import type { ConversationMessage, ConversationMessageRequest, SendConversationMessagePayload, Sticker } from '../src';
 
 interface Message {
-  id: number;
+  id: number | string;
+  clientMessageId?: string;
   sender: 'me' | 'other';
   text: string;
   time: string;
   type?: 'text' | 'image' | 'drop' | 'tip_request' | 'gift';
-  status?: 'sent' | 'read';
+  status?: 'sending' | 'sent' | 'read' | 'failed';
   amount?: string;
   gift?: GiftSelection;
+  payload?: SendConversationMessagePayload;
 }
 
 type CallType = 'audio' | 'video';
@@ -39,13 +63,117 @@ interface CurrentUser {
   role?: 'creator' | 'fan';
 }
 
+type ChatRouteParams = {
+  conversationId?: string | number;
+  senderId?: string | number;
+  id?: string | number;
+  name?: string;
+  avatar?: string;
+  isOnline?: boolean;
+  lastSeenAt?: string;
+};
+
+const numericId = (value: unknown) => {
+  if (value === undefined || value === null || String(value).trim() === '') return undefined;
+  const parsed = Number(value);
+  return Number.isInteger(parsed) && parsed > 0 ? parsed : undefined;
+};
+
+const messageTime = (value?: string | null) => {
+  if (!value) return '';
+  const date = new Date(value);
+  return Number.isNaN(date.getTime())
+    ? ''
+    : date.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+};
+
+const serverMessageToView = (
+  message: ConversationMessage,
+  currentUserId?: string | number | null,
+): Message => {
+  const metadata = message.metadata ?? {};
+  const attachmentUrl = message.attachments.find((attachment) => attachment.url)?.url;
+  const rawGift = metadata.gift;
+  const gift = rawGift && typeof rawGift === 'object' ? rawGift as GiftSelection : undefined;
+  const amount = typeof metadata.amount === 'string' ? metadata.amount : undefined;
+  const metadataSticker = metadata.sticker && typeof metadata.sticker === 'object'
+    ? metadata.sticker as Partial<Sticker>
+    : undefined;
+  const stickerUrl = message.sticker?.media_url
+    ?? metadataSticker?.media_url
+    ?? (typeof metadata.sticker_url === 'string' ? metadata.sticker_url : undefined);
+  const viewType: Message['type'] = message.type === 'sticker' || message.type === 'image'
+    ? 'image'
+    : message.type === 'drop' || message.type === 'tip_request' || message.type === 'gift'
+      ? message.type
+      : 'text';
+
+  return {
+    id: message.id,
+    clientMessageId: message.client_message_id ?? undefined,
+    sender: Number(message.sender.id) === Number(currentUserId) ? 'me' : 'other',
+    text: stickerUrl || message.body || attachmentUrl || '',
+    time: messageTime(message.created_at),
+    type: viewType,
+    status: message.delivery_status === 'read' ? 'read' : 'sent',
+    amount,
+    gift,
+  };
+};
+
 const ChatView: React.FC = () => {
   const { isDark, theme } = useThemeMode();
   const navigation = useNavigation<any>();
   const route = useRoute<any>();
-  const id = ((route.params as { id?: string } | undefined)?.id || 'Elena_Rose') as string;
+  const params = (route.params ?? {}) as ChatRouteParams;
+  const routedConversationId = numericId(params.conversationId);
+  const participantId = numericId(params.senderId ?? params.id);
+  const [resolvedConversationId, setResolvedConversationId] = useState<number | undefined>(routedConversationId);
+  const activeConversationId = routedConversationId ?? resolvedConversationId;
+  const id = String(params.name || params.id || 'Conversation');
+  const avatar = params.avatar || `https://picsum.photos/seed/${encodeURIComponent(id)}/100`;
+  const authUser = useAuthStore((state) => state.user);
+  const setUnreadCount = useMessagingStore((state) => state.setUnreadCount);
+  const onlineUserIds = useMessagingStore((state) => state.onlineUserIds);
+  const onlinePresenceReady = useMessagingStore((state) => state.onlinePresenceReady);
+  const messagesQuery = useConversationMessages(activeConversationId);
+  const unreadQuery = useConversationUnreadCount(Boolean(activeConversationId));
+  const createConversationMutation = useCreateConversation();
+  const cancelRequestMutation = useCancelConversationRequest();
+  const reportSignalContent = useReportSignalContent();
+  const sendMessageMutation = useSendConversationMessage();
+  const markReadMutation = useMarkConversationRead();
+  const conversationsQuery = useConversations();
+  const { isParticipantTyping } = useConversationRealtime(activeConversationId);
+  const setActiveConversationId = useMessagingStore((state) => state.setActiveConversationId);
+  const serverMessages = useMemo(
+    () => flattenConversationMessagePages(messagesQuery.data?.pages),
+    [messagesQuery.data],
+  );
+  const conversation = useMemo(() => (
+    conversationsQuery.data?.pages
+      .flatMap((page) => page.data)
+      .find((item) => Number(item.id) === Number(activeConversationId))
+  ), [activeConversationId, conversationsQuery.data]);
+  const conversationParticipant = useMemo(() => (
+    conversation?.participants.find((item) => Number(item.user_id) === Number(participantId))
+      ?? conversation?.participants.find((item) => Number(item.user_id) !== Number(authUser?.id))
+  ), [authUser?.id, conversation, participantId]);
+  const participantPresenceId = numericId(
+    conversationParticipant?.user_id ?? conversationParticipant?.user.id ?? participantId,
+  );
+  const participantOnlineFallback = conversationParticipant?.user.is_online ?? params.isOnline ?? false;
+  const participantIsOnline = Boolean(
+    isParticipantTyping
+    || (onlinePresenceReady && participantPresenceId
+      ? onlineUserIds.includes(participantPresenceId)
+      : participantOnlineFallback),
+  );
 
   const scrollRef = useRef<ScrollView>(null);
+  const lastMarkedReadRef = useRef<number | null>(null);
+  const typingTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const typingActiveRef = useRef(false);
 
   const [currentUser, setCurrentUser] = useState<CurrentUser>({});
   const [msg, setMsg] = useState('');
@@ -53,9 +181,9 @@ const ChatView: React.FC = () => {
   const [smartReplies, setSmartReplies] = useState<string[]>([]);
   const [isGeneratingReplies, setIsGeneratingReplies] = useState(false);
   const [isToolsOpen, setIsToolsOpen] = useState(false);
-  const [showEmojiPicker, setShowEmojiPicker] = useState(false);
-  const [giftDialogOpen, setGiftDialogOpen] = useState(false);
   const [coinBalance, setCoinBalance] = useState(1250);
+  const [isUploadingAttachment, setIsUploadingAttachment] = useState(false);
+  const [pendingMessageRequest, setPendingMessageRequest] = useState<ConversationMessageRequest | null>(null);
 
   const [callStatus, setCallStatus] = useState<CallStatus>('idle');
   const [callType, setCallType] = useState<CallType>('audio');
@@ -63,29 +191,16 @@ const ChatView: React.FC = () => {
   const [isVideoOff, setIsVideoOff] = useState(false);
   const [callDuration, setCallDuration] = useState(0);
 
-  const [messages, setMessages] = useState<Message[]>([
-    {
-      id: 1,
-      sender: 'other',
-      text: 'Hey! Loved the stream last night. That synth solo was unreal.',
-      time: '10:45 AM',
-      status: 'read',
-    },
-    {
-      id: 2,
-      sender: 'other',
-      text: 'Will there be more colors for the Galactic Hoodie soon?',
-      time: '10:46 AM',
-      status: 'read',
-    },
-    {
-      id: 3,
-      sender: 'me',
-      text: 'Yes, midnight blue is coming next week. Stay cosmic.',
-      time: '11:02 AM',
-      status: 'read',
-    },
-  ]);
+  const [messages, setMessages] = useState<Message[]>([]);
+  const [presenceClock, setPresenceClock] = useState(() => Date.now());
+
+  const participantStatus = isParticipantTyping
+    ? 'Typing…'
+    : formatChatPresence(
+      participantIsOnline,
+      conversationParticipant?.user.last_seen_at ?? params.lastSeenAt,
+      presenceClock,
+    );
 
   const isCreator = currentUser.role === 'creator';
 
@@ -113,8 +228,75 @@ const ChatView: React.FC = () => {
   useEffect(() => {
     scrollRef.current?.scrollToEnd({ animated: true });
     const last = messages[messages.length - 1];
-    if (last && last.sender === 'other') void generateSmartReplies(last.text);
+    if (last && last.sender === 'other') generateSmartReplies(last.text);
   }, [messages]);
+
+  useEffect(() => {
+    const mapped = serverMessages.map((message) => serverMessageToView(message, authUser?.id));
+    setMessages((current) => {
+      const serverClientIds = new Set(mapped.map((message) => message.clientMessageId).filter(Boolean));
+      const localOnly = current.filter((message) => (
+        (message.status === 'sending' || message.status === 'failed')
+        && !serverClientIds.has(message.clientMessageId)
+      ));
+      return [...mapped, ...localOnly];
+    });
+  }, [authUser?.id, serverMessages]);
+
+  useEffect(() => {
+    if (unreadQuery.data != null) setUnreadCount(unreadQuery.data);
+  }, [setUnreadCount, unreadQuery.data]);
+
+  useEffect(() => {
+    lastMarkedReadRef.current = null;
+  }, [activeConversationId]);
+
+  useEffect(() => {
+    if (!activeConversationId || serverMessages.length === 0) return;
+    const lastMessage = serverMessages[serverMessages.length - 1];
+    if (lastMarkedReadRef.current === lastMessage.id) return;
+    lastMarkedReadRef.current = lastMessage.id;
+    markReadMutation.mutate({
+      conversation: activeConversationId,
+      payload: {
+        last_read_message_id: lastMessage.id,
+        read_at: new Date().toISOString(),
+      },
+    });
+  }, [activeConversationId, markReadMutation.mutate, serverMessages]);
+
+  useEffect(() => {
+    if (!activeConversationId) return;
+    if (typingTimerRef.current) clearTimeout(typingTimerRef.current);
+
+    if (!msg.trim()) {
+      if (typingActiveRef.current) {
+        typingActiveRef.current = false;
+        void messagingApi.stopTyping(activeConversationId).catch(() => undefined);
+      }
+      return;
+    }
+
+    if (!typingActiveRef.current) {
+      typingActiveRef.current = true;
+      void messagingApi.startTyping(activeConversationId).catch(() => undefined);
+    }
+    typingTimerRef.current = setTimeout(() => {
+      typingActiveRef.current = false;
+      void messagingApi.stopTyping(activeConversationId).catch(() => undefined);
+    }, 1_200);
+
+    return () => {
+      if (typingTimerRef.current) clearTimeout(typingTimerRef.current);
+    };
+  }, [activeConversationId, msg]);
+
+  useEffect(() => () => {
+    if (typingTimerRef.current) clearTimeout(typingTimerRef.current);
+    if (typingActiveRef.current && activeConversationId) {
+      void messagingApi.stopTyping(activeConversationId).catch(() => undefined);
+    }
+  }, [activeConversationId]);
 
   useEffect(() => {
     if (callStatus !== 'connected') return;
@@ -123,6 +305,10 @@ const ChatView: React.FC = () => {
   }, [callStatus]);
 
   const generateSmartReplies = async (lastMessage: string) => {
+    setSmartReplies(['Thank you!', 'More coming soon!', 'Stay cosmic!']);
+    return;
+    /* Direct client-side AI generation is disabled until the backend exposes
+       an authenticated AI endpoint.
     setIsGeneratingReplies(true);
     setIsTyping(true);
 
@@ -148,31 +334,206 @@ const ChatView: React.FC = () => {
       setIsGeneratingReplies(false);
       setIsTyping(false);
     }
+    */
   };
 
-  const handleSend = (textOverride?: string, type: Message['type'] = 'text', amount?: string) => {
-    const textToSend = textOverride ?? msg;
-    if (!textToSend.trim() && type === 'text') return;
+  const resolveConversationId = async () => {
+    if (activeConversationId) return activeConversationId;
+    if (!participantId) {
+      Alert.alert('Conversation unavailable', 'Open this chat from Signal or choose a valid recipient first.');
+      return undefined;
+    }
+    Alert.alert('Send an introduction first', 'Start this conversation with a text message before adding attachments.');
+    return undefined;
+  };
 
+  const submitMessage = async (
+    conversationId: number,
+    localMessage: Message,
+    payload: SendConversationMessagePayload,
+  ) => {
+    try {
+      const saved = await sendMessageMutation.mutateAsync({ conversation: conversationId, payload });
+      const mapped = serverMessageToView(saved, authUser?.id);
+      setMessages((current) => current.map((message) => (
+        message.clientMessageId === localMessage.clientMessageId ? mapped : message
+      )));
+      return true;
+    } catch {
+      setMessages((current) => current.map((message) => (
+        message.clientMessageId === localMessage.clientMessageId
+          ? { ...message, status: 'failed' }
+          : message
+      )));
+      return false;
+    }
+  };
+
+  const handleSend = async (
+    textOverride?: string,
+    type: Message['type'] = 'text',
+    amount?: string,
+    metadata: Record<string, unknown> = {},
+    payloadOverrides: Pick<SendConversationMessagePayload, 'sticker_id'> = {},
+  ) => {
+    if (pendingMessageRequest) return false;
+    const textToSend = textOverride ?? msg;
+    if (!textToSend.trim() && type === 'text') return false;
+
+    const clientMessageId = createClientMessageId();
+    const payload: SendConversationMessagePayload = {
+      client_message_id: clientMessageId,
+      idempotency_key: clientMessageId,
+      type: type === 'image' ? 'sticker' : type,
+      body: textToSend,
+      ...payloadOverrides,
+      metadata: {
+        ...metadata,
+        ...(amount ? { amount } : {}),
+      },
+    };
     const newMsg: Message = {
-      id: Date.now(),
+      id: clientMessageId,
+      clientMessageId,
       sender: 'me',
       text: textToSend,
       time: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
       type,
       amount,
-      status: 'sent',
+      gift: metadata.gift && typeof metadata.gift === 'object'
+        ? metadata.gift as GiftSelection
+        : undefined,
+      status: 'sending',
+      payload,
     };
 
     setMessages((prev) => [...prev, newMsg]);
     setMsg('');
     setSmartReplies([]);
     setIsToolsOpen(false);
-    setShowEmojiPicker(false);
 
-    setTimeout(() => {
-      setMessages((prev) => prev.map((m) => (m.id === newMsg.id ? { ...m, status: 'read' } : m)));
-    }, 900);
+    if (!activeConversationId) {
+      if (!participantId) {
+        setMessages((current) => current.filter((message) => message.clientMessageId !== clientMessageId));
+        setMsg(textToSend);
+        Alert.alert('Conversation unavailable', 'Open this chat from Signal or choose a valid recipient first.');
+        return false;
+      }
+
+      try {
+        const result = await createConversationMutation.mutateAsync({
+          participant_ids: [participantId],
+          initial_message: payload,
+        });
+
+        if (result.kind === 'request') {
+          setPendingMessageRequest(result.request);
+          setMessages((current) => current.map((message) => (
+            message.clientMessageId === clientMessageId ? { ...message, status: 'sent' } : message
+          )));
+          Alert.alert('Message request sent', `${id.replace('_', ' ')} can reply after accepting your request.`);
+          return true;
+        }
+
+        const conversation = result.conversation;
+        setResolvedConversationId(conversation.id);
+        const savedInitialMessage = conversation.last_message?.client_message_id === clientMessageId
+          ? conversation.last_message
+          : null;
+
+        if (savedInitialMessage) {
+          const mapped = serverMessageToView(savedInitialMessage, authUser?.id);
+          setMessages((current) => current.map((message) => (
+            message.clientMessageId === clientMessageId ? mapped : message
+          )));
+          return true;
+        }
+
+        return submitMessage(conversation.id, newMsg, payload);
+      } catch (error) {
+        setMessages((current) => current.filter((message) => message.clientMessageId !== clientMessageId));
+        setMsg(textToSend);
+        Alert.alert('Unable to start conversation', getApiErrorMessage(error));
+        return false;
+      }
+    }
+
+    return submitMessage(activeConversationId, newMsg, payload);
+  };
+
+  const retryMessage = async (message: Message) => {
+    if (!activeConversationId || !message.payload) return;
+    setMessages((current) => current.map((item) => (
+      item.clientMessageId === message.clientMessageId ? { ...item, status: 'sending' } : item
+    )));
+    await submitMessage(activeConversationId, { ...message, status: 'sending' }, message.payload);
+  };
+
+  const cancelPendingMessageRequest = async () => {
+    if (!pendingMessageRequest || cancelRequestMutation.isPending) return;
+    try {
+      await cancelRequestMutation.mutateAsync(pendingMessageRequest.id);
+      const introClientMessageId = pendingMessageRequest.intro_client_message_id;
+      setPendingMessageRequest(null);
+      setMessages((current) => current.filter((message) => (
+        !introClientMessageId || message.clientMessageId !== introClientMessageId
+      )));
+    } catch (error) {
+      Alert.alert('Could not cancel request', getApiErrorMessage(error));
+    }
+  };
+
+  const pickAndSendImage = async () => {
+    if (isUploadingAttachment) return;
+    const permission = await ImagePicker.requestMediaLibraryPermissionsAsync();
+    if (!permission.granted) {
+      Alert.alert('Photo access required', 'Allow photo access to attach an image.');
+      return;
+    }
+
+    const selection = await ImagePicker.launchImageLibraryAsync({
+      mediaTypes: ['images'],
+      quality: 0.9,
+    });
+    if (selection.canceled || !selection.assets[0]) return;
+
+    setIsUploadingAttachment(true);
+    try {
+      const conversationId = await resolveConversationId();
+      if (!conversationId) return;
+      const asset = selection.assets[0];
+      const attachment = await uploadMessageAttachment(conversationId, {
+        uri: asset.uri,
+        fileName: asset.fileName || `image-${Date.now()}.jpg`,
+        mimeType: asset.mimeType || 'image/jpeg',
+        kind: 'image',
+      });
+      const clientMessageId = createClientMessageId();
+      const payload: SendConversationMessagePayload = {
+        client_message_id: clientMessageId,
+        idempotency_key: clientMessageId,
+        type: 'image',
+        body: null,
+        attachment_ids: [attachment.id],
+      };
+      const localMessage: Message = {
+        id: clientMessageId,
+        clientMessageId,
+        sender: 'me',
+        text: asset.uri,
+        time: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
+        type: 'image',
+        status: 'sending',
+        payload,
+      };
+      setMessages((current) => [...current, localMessage]);
+      setIsToolsOpen(false);
+      await submitMessage(conversationId, localMessage, payload);
+    } catch {
+      Alert.alert('Attachment failed', 'The image could not be uploaded. Please try again.');
+    } finally {
+      setIsUploadingAttachment(false);
+    }
   };
 
   const startCall = (type: CallType) => {
@@ -193,45 +554,57 @@ const ChatView: React.FC = () => {
     return `${m}:${String(s).padStart(2, '0')}`;
   };
 
-  const addEmoji = (emoji: string) => setMsg((prev) => `${prev}${emoji}`);
+  useEffect(() => {
+    setActiveConversationId(activeConversationId ?? null);
+    return () => setActiveConversationId(null);
+  }, [activeConversationId, setActiveConversationId]);
 
-  const sendSticker = (stickerUrl: string) => {
-    handleSend(stickerUrl, 'image');
-    setShowEmojiPicker(false);
+  useEffect(() => {
+    const interval = setInterval(() => setPresenceClock(Date.now()), 60_000);
+    return () => clearInterval(interval);
+  }, []);
+
+  const sendSticker = (stickerUrl: string, sticker?: Sticker) => {
+    void handleSend(
+      stickerUrl,
+      'image',
+      undefined,
+      sticker ? { sticker, sticker_url: sticker.media_url } : { sticker_url: stickerUrl },
+      sticker ? { sticker_id: sticker.id } : {},
+    );
   };
 
   const handleSendGift = (gift: GiftSelection) => {
-    const newMsg: Message = {
-      id: Date.now(),
-      sender: 'me',
-      text: `Sent ${gift.name}`,
-      time: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
-      type: 'gift',
-      amount: `${gift.price} KC`,
-      gift,
-      status: 'sent',
-    };
-
-    setMessages((prev) => [...prev, newMsg]);
-    setCoinBalance((prev) => prev - gift.price);
-    setGiftDialogOpen(false);
-    setIsToolsOpen(false);
-    setShowEmojiPicker(false);
-
-    setTimeout(() => {
-      setMessages((prev) => prev.map((m) => (m.id === newMsg.id ? { ...m, status: 'read' } : m)));
-    }, 900);
+    void handleSend(`Sent ${gift.name}`, 'gift', `${gift.price} KC`, { gift }).then((sent) => {
+      if (sent) setCoinBalance((prev) => prev - gift.price);
+    });
   };
 
-  const emojiSet = useMemo(() => ['🔥', '🙌', '❤️', '✨', '🌌', '🚀', '💯'], []);
-  const stickers = useMemo(
-    () => [
-      'https://images.unsplash.com/photo-1621416894569-0f39ed31d247?auto=format&fit=crop&q=80&w=120',
-      'https://images.unsplash.com/photo-1572375927902-e60e87bb7385?auto=format&fit=crop&q=80&w=120',
-      'https://images.unsplash.com/photo-1509042239860-f550ce710b93?auto=format&fit=crop&q=80&w=120',
-    ],
-    [],
-  );
+  const reportConversationUser = () => {
+    if (!participantId || reportSignalContent.isPending) return;
+    Alert.alert(
+      `Report ${id.replace('_', ' ')}?`,
+      'Send this account to the Kulsah safety team for review.',
+      [
+        { text: 'Cancel', style: 'cancel' },
+        {
+          text: 'Report',
+          style: 'destructive',
+          onPress: () => {
+            void reportSignalContent.mutateAsync({
+              type: 'user',
+              id: participantId,
+              reason: 'Reported from Signal conversation.',
+            }).then(() => {
+              Alert.alert('Report submitted', 'Thanks. The safety team will review this account.');
+            }).catch((error) => {
+              Alert.alert('Could not submit report', getApiErrorMessage(error));
+            });
+          },
+        },
+      ],
+    );
+  };
 
   const headerBg = isDark ? '#0f1016' : theme.card;
   const footerBg = isDark ? '#0f1016' : theme.card;
@@ -253,24 +626,28 @@ const ChatView: React.FC = () => {
   
 
   return (
-    <ImageBackground
-      source={chatBackground}
-      resizeMode="cover"
-      style={{ flex: 1, backgroundColor: theme.screen }}
+    // <ImageBackground
+    //   source={chatBackground}
+    //   resizeMode="cover"
+    //   style={{ flex: 1, backgroundColor: theme.screen }}
+    // >
+      // <LinearGradient
+      //     colors={[
+      //       isDark ?  'rgba(0,0,0,0.1)':'rgba(0,0,0,0.0)',
+      //       isDark ?  'rgba(0,0,0,0.1)':'rgba(0,0,0,0.0)',
+      //     ]}
+      //     style={{ flex: 1 }}
+      //   >
+    <KeyboardAvoidingView
+      style={styles.keyboardAvoidingView}
+      behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
+      keyboardVerticalOffset={0}
     >
-      <LinearGradient
-          colors={[
-            isDark ?  'rgba(0,0,0,0.1)':'rgba(0,0,0,0.0)',
-            isDark ?  'rgba(0,0,0,0.1)':'rgba(0,0,0,0.0)',
-          ]}
-          style={{ flex: 1 }}
-        >
-    <KeyboardAvoidingView style={{ flex: 1 }} behavior={Platform.OS === 'ios' ? 'padding' : undefined} keyboardVerticalOffset={0}>
     <View style={styles.screen}>
       <Modal visible={callStatus !== 'idle'} transparent animationType="fade" statusBarTranslucent>
         <View style={[styles.callOverlay, {}]}>
           <View style={styles.callTop}>
-            <Image source={{ uri: `https://picsum.photos/seed/${id}/300` }} style={styles.callAvatar} />
+            <Image source={{ uri: avatar }} style={styles.callAvatar} />
             <Text style={[styles.callName, { color: primaryText }]}>{id.replace('_', ' ')}</Text>
             <Text style={styles.callStatus}>
               {callStatus === 'dialing'
@@ -302,14 +679,32 @@ const ChatView: React.FC = () => {
           </Pressable> */}
 
           <View style={styles.profileWrap}>
-            <Image source={{ uri: `https://picsum.photos/seed/${id}/100` }} style={styles.profileAvatar} />
-            <View style={styles.onlineDot} />
+            <Image source={{ uri: avatar }} style={styles.profileAvatar} />
+            {participantIsOnline ? <View style={[styles.onlineDot, { borderColor: headerBg }]} /> : null}
           </View>
 
           <View style={{ flex: 1 }}>
             <Text style={[styles.userName, { color: primaryText }]}>{id.replace('_', ' ')}</Text>
-            <Text style={[styles.userSub, { color: mutedText }]}>{isTyping || isGeneratingReplies ? 'Thinking...' : 'Synchronized'}</Text>
+            <Text style={[styles.userSub, { color: isParticipantTyping || participantIsOnline ? '#22c55e' : mutedText }]}>
+              {participantStatus}
+            </Text>
           </View>
+
+          {participantId ? (
+            <Pressable
+              disabled={reportSignalContent.isPending}
+              onPress={reportConversationUser}
+              accessibilityRole="button"
+              accessibilityLabel={`Report ${id.replace('_', ' ')}`}
+              style={[styles.iconBtn, { backgroundColor: iconBtnBg, borderColor: iconBtnBorder }]}
+            >
+              {reportSignalContent.isPending ? (
+                <ActivityIndicator size="small" color={PRIMARY_COLOR} />
+              ) : (
+                <MaterialIcons name="more-horiz" size={20} color={primaryText} />
+              )}
+            </Pressable>
+          ) : null}
 
           {/* <Pressable onPress={() => startCall('audio')} style={[styles.iconBtn, { backgroundColor: iconBtnBg, borderColor: iconBtnBorder }]}>
             <MaterialIcons name="call" size={18} color={primaryText} />
@@ -348,6 +743,37 @@ const ChatView: React.FC = () => {
         contentContainerStyle={{ paddingBottom: 140 }}
         onContentSizeChange={() => scrollRef.current?.scrollToEnd({ animated: true })}
       >
+        {messagesQuery.hasNextPage ? (
+          <Pressable
+            style={styles.historyButton}
+            disabled={messagesQuery.isFetchingNextPage}
+            onPress={() => void messagesQuery.fetchNextPage()}
+          >
+            {messagesQuery.isFetchingNextPage
+              ? <ActivityIndicator color={PRIMARY_COLOR} />
+              : <Text style={styles.historyButtonText}>Load earlier messages</Text>}
+          </Pressable>
+        ) : null}
+        {messagesQuery.isLoading ? (
+          <View style={styles.messageState}>
+            <ActivityIndicator color={PRIMARY_COLOR} />
+            <Text style={[styles.messageStateText, { color: mutedText }]}>Loading messages...</Text>
+          </View>
+        ) : null}
+        {messagesQuery.isError ? (
+          <View style={styles.messageState}>
+            <Text style={[styles.messageStateText, { color: primaryText }]}>Messages could not be loaded.</Text>
+            <Pressable style={styles.historyButton} onPress={() => void messagesQuery.refetch()}>
+              <Text style={styles.historyButtonText}>Retry</Text>
+            </Pressable>
+          </View>
+        ) : null}
+        {!messagesQuery.isLoading && !messagesQuery.isError && messages.length === 0 ? (
+          <View style={styles.messageState}>
+            <MaterialIcons name="forum" size={34} color={mutedText} />
+            <Text style={[styles.messageStateText, { color: mutedText }]}>No messages yet. Say hello.</Text>
+          </View>
+        ) : null}
         {messages.map((m) => (
           <View key={m.id} style={[styles.msgRow, m.sender === 'me' ? { alignItems: 'flex-end' } : { alignItems: 'flex-start' }]}>
             {m.type === 'drop' ? (
@@ -393,16 +819,44 @@ const ChatView: React.FC = () => {
               </View>
             )}
 
-            <Text style={[styles.msgMeta, { color: mutedText }]}>
+            <Pressable disabled={m.status !== 'failed'} onPress={() => void retryMessage(m)}>
+            <Text style={[styles.msgMeta, { color: m.status === 'failed' ? '#ef4444' : mutedText }]}>
               {m.time}
-              {m.sender === 'me' ? ` • ${m.status || 'sent'}` : ''}
+              {m.sender === 'me' ? ` • ${m.status === 'failed' ? 'failed — tap to retry' : (m.status || 'sent')}` : ''}
             </Text>
+            </Pressable>
           </View>
         ))}
+        {isParticipantTyping ? (
+          <View
+            accessibilityRole="text"
+            accessibilityLabel={`${id.replace('_', ' ')} is typing`}
+            style={styles.typingIndicatorRow}
+          >
+            <View style={[styles.typingIndicatorBubble, { backgroundColor: bubbleOther, borderColor: border }]}>
+              <View style={styles.typingDot} />
+              <View style={[styles.typingDot, styles.typingDotMiddle]} />
+              <View style={styles.typingDot} />
+            </View>
+          </View>
+        ) : null}
       </ScrollView>
 
-      {isToolsOpen && (
+      {isToolsOpen && !pendingMessageRequest && (
         <View style={[styles.toolsSheet, { backgroundColor: panelBg, borderColor: border }]}>
+          <Pressable
+            style={[styles.toolItem, { backgroundColor: softSurface }]}
+            disabled={isUploadingAttachment}
+            onPress={() => void pickAndSendImage()}
+          >
+            {isUploadingAttachment
+              ? <ActivityIndicator color={PRIMARY_COLOR} />
+              : <MaterialIcons name="image" size={22} color={PRIMARY_COLOR} />}
+            <View>
+              <Text style={[styles.toolTitle, { color: primaryText }]}>Send Image</Text>
+              <Text style={[styles.toolSub, { color: subtleText }]}>Upload a photo to this conversation</Text>
+            </View>
+          </Pressable>
           {isCreator ? (
             <>
               <Pressable style={[styles.toolItem, { backgroundColor: softSurface }]} onPress={() => handleSend('Nebula Acoustic Cut', 'drop')}>
@@ -442,6 +896,29 @@ const ChatView: React.FC = () => {
       )}
 
       <View style={[styles.footer, { backgroundColor: footerBg, borderTopColor: border }]}>
+        {pendingMessageRequest ? (
+          <View style={[styles.pendingRequestBanner, { backgroundColor: softSurface, borderColor: border }]}>
+            <View style={styles.pendingRequestIcon}>
+              <MaterialIcons name="schedule-send" size={21} color={PRIMARY_COLOR} />
+            </View>
+            <View style={styles.pendingRequestBody}>
+              <Text style={[styles.pendingRequestTitle, { color: primaryText }]}>Message request pending</Text>
+              <Text style={[styles.pendingRequestText, { color: mutedText }]}>You can send more messages after this request is accepted.</Text>
+            </View>
+            <Pressable
+              disabled={cancelRequestMutation.isPending}
+              onPress={() => void cancelPendingMessageRequest()}
+              style={styles.cancelRequestButton}
+            >
+              {cancelRequestMutation.isPending ? (
+                <ActivityIndicator size="small" color={PRIMARY_COLOR} />
+              ) : (
+                <Text style={styles.cancelRequestText}>Cancel</Text>
+              )}
+            </Pressable>
+          </View>
+        ) : (
+          <>
         {smartReplies.length > 0 && (
           <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={styles.repliesRow}>
             {smartReplies.map((reply, idx) => (
@@ -452,25 +929,6 @@ const ChatView: React.FC = () => {
           </ScrollView>
         )}
 
-        {showEmojiPicker && (
-          <View style={[styles.emojiPanel, { backgroundColor: softSurface, borderColor: border }]}>
-            <View style={styles.emojiRow}>
-              {emojiSet.map((emoji) => (
-                <Pressable key={emoji} onPress={() => addEmoji(emoji)} style={[styles.emojiBtn, { borderColor: border, backgroundColor: isDark ? 'transparent' : theme.card }]}>
-                  <Text style={styles.emojiText}>{emoji}</Text>
-                </Pressable>
-              ))}
-            </View>
-            <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={{ gap: 8 }}>
-              {stickers.map((url) => (
-                <Pressable key={url} onPress={() => sendSticker(url)} style={[styles.stickerBtn, { borderColor: border }]}>
-                  <Image source={{ uri: url }} style={styles.stickerBtnImg} />
-                </Pressable>
-              ))}
-            </ScrollView>
-          </View>
-        )}
-
         <View style={styles.inputRow}>
           <Pressable onPress={() => setIsToolsOpen((v) => !v)} style={[styles.addBtn, { backgroundColor: softSurface, borderColor: border }, isToolsOpen && styles.addBtnActive]}>
             <MaterialIcons name="add" size={28} color={isToolsOpen ? '#fff' : PRIMARY_COLOR} />
@@ -479,29 +937,24 @@ const ChatView: React.FC = () => {
           <KulsahInputBar
               value={msg}
               onChangeText={setMsg}
+              expressionPicker={{
+                onStickerSelect: sendSticker,
+                giftOptions: {
+                  creatorName: id.replace('_', ' '),
+                  currentBalance: coinBalance,
+                  onSendGift: handleSendGift,
+                  onTopUpSuccess: (amount) => setCoinBalance((prev) => prev + amount),
+                },
+              }}
               placeholder={isCreator ? 'Broadcasting to your community...' : `Message ${id.replace('_', ' ')}...`}
               placeholderTextColor={mutedText}
               containerStyle={[styles.inputWrap, { borderColor: border, backgroundColor: softSurface }]}
               inputStyle={[styles.input, { color: primaryText }]}
-              onSubmitEditing={() => handleSend()}
+              onSubmitEditing={() => void handleSend()}
               rightAccessory={(
                 <>
-                  <View style={styles.inputActions}>
-                    <Pressable
-                      onPress={() => setGiftDialogOpen(true)}
-                      style={styles.inputIcon}
-                    >
-                      <MaterialIcons name="redeem" size={24} color={mutedText} />
-                    </Pressable>
-                    <Pressable
-                      onPress={() => setShowEmojiPicker((v) => !v)}
-                      style={styles.inputIcon}
-                    >
-                      <MaterialIcons name="mood" size={24} color={showEmojiPicker ? PRIMARY_COLOR : mutedText} />
-                    </Pressable>
-                  </View>
                   {msg.trim() ? (
-                    <Pressable onPress={() => handleSend()} style={styles.inputSendButton}>
+                    <Pressable onPress={() => void handleSend()} style={styles.inputSendButton}>
                       <MaterialIcons name="send" size={18} color="#fff" />
                     </Pressable>
                   ) : null}
@@ -509,24 +962,18 @@ const ChatView: React.FC = () => {
               )}
             />
         </View>
+          </>
+        )}
       </View>
-      <GiftDialog
-        isOpen={giftDialogOpen}
-        onClose={() => setGiftDialogOpen(false)}
-        creatorName={id.replace('_', ' ')}
-        currentBalance={coinBalance}
-        onSendGift={handleSendGift}
-        onTopUpSuccess={(amount) => setCoinBalance((prev) => prev + amount)}
-      />
     </View>
     </KeyboardAvoidingView>
-    </LinearGradient>
-    </ImageBackground>
+
   );
 };
 
 const styles = StyleSheet.create({
   screen: { flex: 1 },
+  keyboardAvoidingView: { flex: 1 },
   callOverlay: {
     flex: 1,
     justifyContent: 'space-between',
@@ -569,7 +1016,7 @@ const styles = StyleSheet.create({
   },
   profileWrap: { position: 'relative' },
   profileAvatar: { width: 42, height: 42, borderRadius: 21, borderWidth: 2, borderColor: primaryColorAlpha(0.5) },
-  onlineDot: { position: 'absolute', right: -1, bottom: -1, width: 10, height: 10, borderRadius: 5, backgroundColor: '#22c55e' },
+  onlineDot: { position: 'absolute', right: -1, bottom: -1, width: 12, height: 12, borderRadius: 6, borderWidth: 2, backgroundColor: '#22c55e' },
   userName: { ...fontSize.h1, lineHeight: fontSize.b5.lineHeight },
   userSub: { ...fontSize.tabText, lineHeight: fontSize.tabText.lineHeight },
   metaCard: {
@@ -587,12 +1034,30 @@ const styles = StyleSheet.create({
   metaValue: { ...fontSize.b5, lineHeight: fontSize.b5.lineHeight },
   metaDivider: { width: 1, height: 20 },
   messages: { flex: 1, paddingHorizontal: 14, paddingTop: 10 },
+  messageState: { alignItems: 'center', justifyContent: 'center', gap: 10, paddingVertical: 48, paddingHorizontal: 24 },
+  messageStateText: { ...fontSize.b4, lineHeight: fontSize.b4.lineHeight, textAlign: 'center' },
+  historyButton: { alignSelf: 'center', minHeight: 36, justifyContent: 'center', paddingHorizontal: 16, marginBottom: 12 },
+  historyButtonText: { color: PRIMARY_COLOR, ...fontSize.b5, lineHeight: fontSize.b5.lineHeight },
   msgRow: { marginBottom: 14 },
   msgBubble: { maxWidth: '86%', borderRadius: 20, paddingHorizontal: 14, paddingVertical: 11 },
   msgMine: { backgroundColor: PRIMARY_COLOR },
   msgOther: { backgroundColor: 'rgba(255, 255, 255, 0.08)', borderWidth: 1, borderColor: 'rgba(255,255,255,0.06)' },
   msgText: { ...fontSize.b3, lineHeight: 19 },
   msgMeta: { marginTop: 5, ...fontSize.b5, lineHeight: fontSize.b5.lineHeight },
+  typingIndicatorRow: { alignItems: 'flex-start', marginBottom: 14 },
+  typingIndicatorBubble: {
+    minWidth: 52,
+    height: 34,
+    borderRadius: 17,
+    borderWidth: 1,
+    paddingHorizontal: 12,
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
+    gap: 4,
+  },
+  typingDot: { width: 6, height: 6, borderRadius: 3, backgroundColor: '#94a3b8' },
+  typingDotMiddle: { opacity: 0.65 },
   dropBubble: {
     maxWidth: '86%',
     borderRadius: 24,
@@ -690,28 +1155,51 @@ const styles = StyleSheet.create({
     paddingBottom: 26,
     borderTopWidth: 1,
   },
+  pendingRequestBanner: {
+    minHeight: 72,
+    borderRadius: 20,
+    borderWidth: 1,
+    padding: 12,
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 10,
+  },
+  pendingRequestIcon: {
+    width: 40,
+    height: 40,
+    borderRadius: 20,
+    alignItems: 'center',
+    justifyContent: 'center',
+    backgroundColor: primaryColorAlpha(0.13),
+  },
+  pendingRequestBody: { flex: 1 },
+  pendingRequestTitle: {
+    ...fontSize.b4,
+    lineHeight: fontSize.b4.lineHeight,
+    fontFamily: 'Inter_700Bold',
+  },
+  pendingRequestText: {
+    ...fontSize.b5,
+    lineHeight: fontSize.b5.lineHeight,
+    marginTop: 2,
+  },
+  cancelRequestButton: {
+    minWidth: 58,
+    minHeight: 36,
+    borderRadius: 18,
+    alignItems: 'center',
+    justifyContent: 'center',
+    paddingHorizontal: 10,
+  },
+  cancelRequestText: {
+    color: PRIMARY_COLOR,
+    ...fontSize.b5,
+    lineHeight: fontSize.b5.lineHeight,
+    fontFamily: 'Inter_700Bold',
+  },
   repliesRow: { gap: 8, paddingVertical: 6 },
   replyChip: { borderRadius: 999, borderWidth: 1, paddingHorizontal: 12, paddingVertical: 8 },
   replyText: { color: PRIMARY_COLOR, ...fontSize.b5, lineHeight: fontSize.b5.lineHeight },
-  emojiPanel: {
-    borderRadius: 16,
-    borderWidth: 1,
-    padding: 10,
-    marginBottom: 8,
-    gap: 10,
-  },
-  emojiRow: { flexDirection: 'row', flexWrap: 'wrap', gap: 8 },
-  emojiBtn: {
-    width: 34,
-    height: 34,
-    borderRadius: 10,
-    borderWidth: 1,
-    justifyContent: 'center',
-    alignItems: 'center',
-  },
-  emojiText: { ...fontSize.b1, lineHeight: fontSize.b1.lineHeight },
-  stickerBtn: { width: 44, height: 44, borderRadius: 12, overflow: 'hidden', borderWidth: 1 },
-  stickerBtnImg: { width: '100%', height: '100%' },
   inputRow: { flexDirection: 'row', alignItems: 'center', gap: 8 },
   addBtn: {
     width: 48,

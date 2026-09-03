@@ -29,6 +29,10 @@ export const communityApi = {
     api.get<CommunityPage<CommunityPost>>(endpoints.general.communityPosts, {
       params: { page, per_page: perPage },
     }),
+  getHistory: (page = 1, perPage = 20, type: 'all' | Exclude<CommunityPost['type'], 'live'> = 'all') =>
+    api.get<CommunityPage<CommunityPost>>(endpoints.general.communityHistory, {
+      params: { page, per_page: perPage, type },
+    }),
   createPost: (payload: CreateCommunityPostPayload, onUploadProgress?: (percentage: number) => void) => {
     const hasMultipartData = Boolean(payload.media?.length || payload.poll);
     const body = hasMultipartData ? createCommunityPostFormData(payload) : {

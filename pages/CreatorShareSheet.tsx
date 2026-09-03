@@ -40,6 +40,8 @@ type ShareAction = {
 type CreatorShareSheetProps = {
   visible: boolean;
   onClose: () => void;
+  onAction?: (actionId: ShareAction['id']) => void;
+  disabledActions?: ShareAction['id'][];
 };
 
 const shareFriends: ShareFriend[] = [
@@ -67,7 +69,12 @@ const shareActions: ShareAction[] = [
   { id: 'notInterested', label: 'Not Interested', icon: 'heart-broken' },
 ];
 
-const CreatorShareSheet: React.FC<CreatorShareSheetProps> = ({ visible, onClose }) => {
+const CreatorShareSheet: React.FC<CreatorShareSheetProps> = ({
+  visible,
+  onClose,
+  onAction,
+  disabledActions = [],
+}) => {
   const insets = useSafeAreaInsets();
   const { isDark, theme } = useThemeMode();
   const panelBg = isDark ? 'rgba(255,255,255,0.04)' : 'rgba(255,255,255,0.96)';
@@ -163,6 +170,7 @@ const CreatorShareSheet: React.FC<CreatorShareSheetProps> = ({ visible, onClose 
                 contentContainerStyle={styles.actionRow}
               >
                 {shareActions.map((action) => {
+                  const disabled = disabledActions.includes(action.id);
                   const bg = action.accent
                     ? 'rgba(217,21,210,0.12)'
                     : cardBg;
@@ -179,11 +187,14 @@ const CreatorShareSheet: React.FC<CreatorShareSheetProps> = ({ visible, onClose 
                   return (
                     <Pressable
                       key={action.id}
+                      disabled={disabled}
+                      onPress={() => onAction?.(action.id)}
                       style={[
                         styles.actionTile,
                         {
                           backgroundColor: bg,
                           borderColor: border,
+                          opacity: disabled ? 0.4 : 1,
                         },
                       ]}
                     >

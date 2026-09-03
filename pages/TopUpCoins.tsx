@@ -13,38 +13,44 @@ import {
 } from 'react-native';
 import { useThemeMode, PRIMARY_COLOR, primaryColorAlpha } from "../theme";
 import { mediumScreen, setUser, user as globalUser } from '../types';
-import PaymentGateway from '../components/PaymentGateway';
+import PaymentGateway from '../components/PaymentCheckout';
 import { fontSize } from './typography';
+import { useKulCoinPackages, useKulCoinWallet } from '../src/hooks/kulcoin/useKulCoin';
 
 type CoinPackage = {
-  id: number;
+  id: string | number;
   coins: number;
   price: number;
   bonus: number;
   popular: boolean;
+  currency: string;
 };
 
 const USER_KEY = 'pulsar_user';
 const KULCOIN_ICON = require('../assets/coin.png');
 
-const coinPackages: CoinPackage[] = [
-  { id: 1, coins: 10, price: 1, bonus: 0, popular: false },
-  { id: 2, coins: 50, price: 5, bonus: 5, popular: true },
-  { id: 3, coins: 100, price: 10, bonus: 15, popular: false },
-  { id: 4, coins: 250, price: 25, bonus: 50, popular: false },
-  { id: 5, coins: 500, price: 50, bonus: 150, popular: false },
-  { id: 6, coins: 1000, price: 100, bonus: 400, popular: false },
-];
-
 const TopUpCoins: React.FC = () => {
   const navigation = useNavigation<any>();
   const { isDark, theme } = useThemeMode();
-  const [selectedPackage, setSelectedPackage] = useState<number | null>(null);
+  const [selectedPackage, setSelectedPackage] = useState<string | number | null>(null);
   const [isPaymentOpen, setIsPaymentOpen] = useState(false);
   const [showSuccess, setShowSuccess] = useState(false);
   const [isLoadingBalance, setIsLoadingBalance] = useState(true);
   const [isProcessingPayment, setIsProcessingPayment] = useState(false);
   const [currentCoins, setCurrentCoins] = useState(0);
+  const packagesQuery = useKulCoinPackages();
+  const walletQuery = useKulCoinWallet();
+  const coinPackages = useMemo<CoinPackage[]>(
+    () => (packagesQuery.data ?? []).map((pkg, index) => ({
+      id: pkg.id,
+      coins: pkg.coin_amount,
+      price: Number(pkg.usd_price),
+      bonus: pkg.bonus_coin_amount,
+      popular: index === 1,
+      currency: pkg.currency_code,
+    })),
+    [packagesQuery.data],
+  );
 
   useEffect(() => {
     const loadBalance = async () => {
@@ -65,6 +71,12 @@ const TopUpCoins: React.FC = () => {
 
     void loadBalance();
   }, []);
+
+  useEffect(() => {
+    if (!walletQuery.data) return;
+    setCurrentCoins(walletQuery.data.total_kc);
+    setIsLoadingBalance(false);
+  }, [walletQuery.data]);
 
   const selectedPkgData = useMemo(
     () => coinPackages.find((pkg) => pkg.id === selectedPackage) ?? null,
@@ -94,7 +106,8 @@ const TopUpCoins: React.FC = () => {
     setIsProcessingPayment(true);
 
     try {
-      const newBalance = currentCoins + selectedPkgData.coins + selectedPkgData.bonus;
+      const refreshedWallet = await walletQuery.refetch();
+      const newBalance = refreshedWallet.data?.total_kc ?? currentCoins;
       setCurrentCoins(newBalance);
 
       const savedUser = await AsyncStorage.getItem(USER_KEY);
@@ -230,6 +243,7 @@ const TopUpCoins: React.FC = () => {
           </Text>
 
           <View style={{ flexDirection: 'row', flexWrap: 'wrap', justifyContent: 'space-between', rowGap: 14 }}>
+            {packagesQuery.isLoading ? <ActivityIndicator color={PRIMARY_COLOR} /> : null}
             {coinPackages.map((pkg) => {
               const isSelected = selectedPackage === pkg.id;
 
@@ -324,7 +338,7 @@ const TopUpCoins: React.FC = () => {
                         ...fontSize.b5, lineHeight: fontSize.b5.lineHeight,
                       }}
                     >
-                      {pkg.price} GHS
+                      {pkg.price.toFixed(2)} {pkg.currency}
                     </Text>
                   </View>
                 </Pressable>
@@ -374,14 +388,18 @@ const TopUpCoins: React.FC = () => {
         </View>
       </ScrollView>
 
-      <PaymentGateway
-        isOpen={isPaymentOpen}
-        onClose={() => setIsPaymentOpen(false)}
-        onSuccess={() => void handlePaymentSuccess()}
-        amount={selectedPkgData?.price ?? 0}
-        currency="GHS"
-        itemName={selectedPkgData ? `${selectedPkgData.coins + selectedPkgData.bonus} Kulcoins` : 'Kulcoins'}
-      />
+      {selectedPkgData ? (
+        <PaymentGateway
+          isOpen={isPaymentOpen}
+          onClose={() => setIsPaymentOpen(false)}
+          onSuccess={() => void handlePaymentSuccess()}
+          amount={selectedPkgData.price}
+          currency={selectedPkgData.currency}
+          itemName={`${selectedPkgData.coins + selectedPkgData.bonus} Kulcoins`}
+          itemSubtitle="Kulcoin wallet top-up"
+          purchase={{ purpose: 'kulcoin', package_id: selectedPkgData.id }}
+        />
+      ) : null}
 
       <Modal visible={showSuccess} transparent animationType="fade" statusBarTranslucent>
         <View

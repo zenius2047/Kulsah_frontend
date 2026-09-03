@@ -1,12 +1,12 @@
 import { MaterialIcons } from '@expo/vector-icons';
 import React, { useEffect, useMemo, useState } from 'react';
-import { Image, KeyboardAvoidingView, Modal, Platform, Pressable, ScrollView, StyleSheet, Text, View } from 'react-native';
+import { Image, KeyboardAvoidingView, Modal, Platform, Pressable, ScrollView, StyleSheet, Text, TextInput, View } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useThemeMode, PRIMARY_COLOR, primaryColorAlpha } from "../theme";
 import { mediumScreen } from '../types';
-import KulsahInputBar from './KulsahInputBar';
-import PaymentGateway from './PaymentGateway';
+import PaymentGateway from './PaymentCheckout';
 import { fontSize } from './typography';
+import { useKulCoinPackages } from '../src/hooks/kulcoin/useKulCoin';
 
 type KulcoinTopUpDrawerProps = {
   currentBalance: number;
@@ -19,12 +19,6 @@ type KulcoinTopUpDrawerProps = {
 type PaymentMethod = 'momo' | 'card';
 type MomoProvider = 'mtn' | 'telecel' | 'airteltigo';
 
-const coinPackages = [
-  { id: 1, coins: 50, price: 1, label: '1 GHS' },
-  { id: 2, coins: 250, price: 5, label: '5 GHS', popular: true },
-  { id: 3, coins: 600, price: 10, label: '10 GHS' },
-  { id: 4, coins: 1500, price: 25, label: '25 GHS' },
-];
 const CUSTOM_PACKAGE_ID = -1;
 const BASE_COINS_PER_GHS = 50;
 const KULCOIN_ICON = require('../assets/coin.png');
@@ -38,7 +32,7 @@ const KulcoinTopUpDrawer: React.FC<KulcoinTopUpDrawerProps> = ({
 }) => {
   const insets = useSafeAreaInsets();
   const { isDark, theme } = useThemeMode();
-  const [selectedPackage, setSelectedPackage] = useState<number | null>(null);
+  const [selectedPackage, setSelectedPackage] = useState<string | number | null>(null);
   const [isPaymentOpen, setIsPaymentOpen] = useState(false);
   const [customAmount, setCustomAmount] = useState('');
   const [paymentMethod, setPaymentMethod] = useState<PaymentMethod>('momo');
@@ -48,6 +42,18 @@ const KulcoinTopUpDrawer: React.FC<KulcoinTopUpDrawerProps> = ({
   const [cardExpiry, setCardExpiry] = useState('');
   const [cardCvv, setCardCvv] = useState('');
   const [paymentError, setPaymentError] = useState('');
+  const packagesQuery = useKulCoinPackages(isOpen);
+  const coinPackages = useMemo(
+    () => (packagesQuery.data ?? []).map((pkg, index) => ({
+      id: pkg.id,
+      coins: pkg.coin_amount + pkg.bonus_coin_amount,
+      price: Number(pkg.usd_price),
+      label: `${Number(pkg.usd_price).toFixed(2)} ${pkg.currency_code}`,
+      currency: pkg.currency_code,
+      popular: index === 1,
+    })),
+    [packagesQuery.data],
+  );
 
   useEffect(() => {
     if (!isOpen) {
@@ -76,6 +82,7 @@ const KulcoinTopUpDrawer: React.FC<KulcoinTopUpDrawerProps> = ({
       coins: Math.round(customAmountValue * BASE_COINS_PER_GHS),
       price: customAmountValue,
       label: `${customAmountValue} GHS`,
+      currency: 'GHS',
     };
   }, [customAmountValue]);
 
@@ -83,12 +90,13 @@ const KulcoinTopUpDrawer: React.FC<KulcoinTopUpDrawerProps> = ({
     if (selectedPackage === CUSTOM_PACKAGE_ID) return customPkgData;
     return coinPackages.find((pkg) => pkg.id === selectedPackage) ?? null;
   }, [customPkgData, selectedPackage]);
+  const checkoutPackage = selectedPkgData?.id === CUSTOM_PACKAGE_ID ? null : selectedPkgData;
 
   const handlePaymentSuccess = () => {
-    if (!selectedPkgData) return;
+    if (!checkoutPackage) return;
 
     setPaymentError('');
-    onSuccess(selectedPkgData.coins);
+    onSuccess(checkoutPackage.coins);
     setIsPaymentOpen(false);
     onClose();
   };
@@ -183,7 +191,10 @@ const KulcoinTopUpDrawer: React.FC<KulcoinTopUpDrawerProps> = ({
                       </Text>
                     </View>
                   </View>
-                  <KulsahInputBar
+                  <View style={[styles.customInputWrap, { backgroundColor: customInputBg, borderColor: customInputBorder }]}>
+                    <Text style={styles.customCurrency}>GHS</Text>
+                    <TextInput
+                      includeFontPadding={false}
                       value={customAmount}
                       onFocus={() => setSelectedPackage(CUSTOM_PACKAGE_ID)}
                       onChangeText={(value) => {
@@ -194,10 +205,9 @@ const KulcoinTopUpDrawer: React.FC<KulcoinTopUpDrawerProps> = ({
                       keyboardType="decimal-pad"
                       placeholder="Enter amount"
                       placeholderTextColor={tertiaryText}
-                      containerStyle={[styles.customInputWrap, { backgroundColor: customInputBg, borderColor: customInputBorder }]}
-                      inputStyle={[styles.customInput, { color: titleColor }]}
-                      leftAccessory={<Text style={styles.customCurrency}>GHS</Text>}
+                      style={[styles.customInput, { color: titleColor }]}
                     />
+                  </View>
                   <Text style={[styles.customEstimate, { color: mutedText }]}>
                     {customPkgData
                       ? `You will receive about ${customPkgData.coins} KC`
@@ -206,13 +216,18 @@ const KulcoinTopUpDrawer: React.FC<KulcoinTopUpDrawerProps> = ({
                 </Pressable>
               </View>
 
+              {paymentError ? <Text style={styles.paymentError}>{paymentError}</Text> : null}
+
               <View style={styles.drawerActions}>
                 <Pressable
                   onPress={() => {
-                    if (selectedPkgData) {
-                      setPaymentError('');
-                      setIsPaymentOpen(true);
+                    if (!selectedPkgData) return;
+                    if (selectedPkgData.id === CUSTOM_PACKAGE_ID) {
+                      setPaymentError('Choose one of the available Kulcoin packages for online payment.');
+                      return;
                     }
+                    setPaymentError('');
+                    setIsPaymentOpen(true);
                   }}
                   disabled={!selectedPkgData}
                   style={[styles.purchaseButton, !selectedPkgData ? styles.buttonDisabled : null]}
@@ -230,14 +245,18 @@ const KulcoinTopUpDrawer: React.FC<KulcoinTopUpDrawerProps> = ({
         </KeyboardAvoidingView>
       </Modal>
 
-      <PaymentGateway
-        isOpen={isOpen && isPaymentOpen}
-        onClose={() => setIsPaymentOpen(false)}
-        onSuccess={handlePaymentSuccess}
-        amount={selectedPkgData?.price ?? 0}
-        currency="GHS"
-        itemName={selectedPkgData ? `${selectedPkgData.coins} Kulcoins` : 'Kulcoins'}
-      />
+      {checkoutPackage ? (
+        <PaymentGateway
+          isOpen={isOpen && isPaymentOpen}
+          onClose={() => setIsPaymentOpen(false)}
+          onSuccess={handlePaymentSuccess}
+          amount={checkoutPackage.price}
+          currency={checkoutPackage.currency}
+          itemName={`${checkoutPackage.coins} Kulcoins`}
+          itemSubtitle="Kulcoin wallet top-up"
+          purchase={{ purpose: 'kulcoin', package_id: checkoutPackage.id }}
+        />
+      ) : null}
     </>
   );
 };

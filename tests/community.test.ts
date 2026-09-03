@@ -31,6 +31,13 @@ describe('community composer validation', () => {
     expect(validateCommunityPost({ type: 'poll', audience: 'public', poll: { options: ['One'] } })).toContain('A poll requires at least two options.');
   });
 
+  it('requires a poll question', () => {
+    expect(validateCommunityPost({ type: 'poll', audience: 'public', poll: { options: ['One', 'Two'] } }))
+      .toContain('A poll question is required.');
+    expect(validateCommunityPost({ type: 'poll', audience: 'public', poll: { question: 'Pick one', options: ['One', 'Two'] } }))
+      .toEqual([]);
+  });
+
   it('allows unlimited images but limits video and mixed-media posts to four items', () => {
     const images = Array.from({ length: 8 }, (_, index) => ({ uri: `file:///image-${index}.jpg`, type: 'image/jpeg' }));
     const videos = Array.from({ length: 5 }, (_, index) => ({ uri: `file:///video-${index}.mp4`, type: 'video/mp4' }));
@@ -48,11 +55,20 @@ describe('community multipart payload', () => {
     const entries = getCommunityPostFormEntries({
       type: 'poll', audience: 'subscribers', content: 'Vote',
       media: [{ uri: 'file:///image.jpg', name: 'image.jpg', type: 'image/jpeg' }],
-      poll: { options: ['One', 'Two'], closes_at: '2026-08-12T00:00:00Z' },
+      poll: {
+        question: 'Which one?',
+        options: ['One', 'Two'],
+        closes_at: '2026-08-12T00:00:00Z',
+        allow_multiple: true,
+        show_results_after_voting: false,
+      },
     });
     expect(entries.map(([key]) => key)).toEqual([
-      'type', 'audience', 'content', 'media[]', 'poll[options][0]', 'poll[options][1]', 'poll[closes_at]',
+      'type', 'audience', 'content', 'media[]', 'poll[question]', 'poll[options][0]', 'poll[options][1]',
+      'poll[closes_at]', 'poll[allow_multiple]', 'poll[show_results_after_voting]',
     ]);
+    expect(entries).toContainEqual(['poll[allow_multiple]', '1']);
+    expect(entries).toContainEqual(['poll[show_results_after_voting]', '0']);
   });
 });
 

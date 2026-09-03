@@ -1,9 +1,10 @@
 import { useEffect, useState } from 'react';
-import { Dimensions, Platform, StyleSheet, useWindowDimensions } from 'react-native';
+import { Platform, StyleSheet, useWindowDimensions } from 'react-native';
 import type { TextStyle } from 'react-native';
 import { configureFonts, MD3DarkTheme, MD3LightTheme } from 'react-native-paper';
 import type { MD3Type } from 'react-native-paper/lib/typescript/types';
 import { PRIMARY_COLOR, THEME_COLORS } from './constants';
+import { PHONE_TYPE, type PhoneType } from './device';
 import { darkMode, subscribeDarkMode } from '../store/app.store';
 export { PRIMARY_COLOR } from './constants';
 
@@ -80,29 +81,18 @@ export const useThemeMode = () => {
 
 export type TypographyRole = 'display' | 'title' | 'body' | 'subheadline' | 'micro' | 'button';
 
-export type DeviceSizeClass = 'compact' | 'medium' | 'large';
+export type DeviceSizeClass = PhoneType;
 
-const screen = Dimensions.get('screen');
-const longestScreenSide = Math.max(screen.width, screen.height);
-const LARGE_NARROW_DEVICE_MAX_WIDTH = 413;
-
-export const DEVICE_SIZE_CLASS: DeviceSizeClass =
-  longestScreenSide <= 830 ? 'compact' : longestScreenSide <= 900 ? 'medium' : 'large';
-
-export const IS_LARGE_NARROW_DEVICE =
-  DEVICE_SIZE_CLASS === 'large' && screen.width <= LARGE_NARROW_DEVICE_MAX_WIDTH;
+// Kept as an alias for existing consumers. Phone type is based on the dp viewport width.
+export const DEVICE_SIZE_CLASS: DeviceSizeClass = PHONE_TYPE;
 
 export const getResponsiveFontSize = (
-  compact: number,
+  small: number,
   medium: number,
   large: number,
-  largeNarrow: number = large - 2,
 ) => {
-  if (DEVICE_SIZE_CLASS === 'compact') return compact;
-  if (DEVICE_SIZE_CLASS === 'large') {
-    return IS_LARGE_NARROW_DEVICE ? largeNarrow : large;
-  }
-  return medium;
+  if (PHONE_TYPE === 'small') return small;
+  return PHONE_TYPE === 'large' ? large : medium;
 };
 
 type NativeTypographyToken = {
@@ -172,26 +162,26 @@ export const FontFamily = {
   displayExtraBold: Platform.select({ ios: 'SF Pro Display', android: isAndroidApi31OrNewer ? 'Google Sans Medium' : 'Roboto', default: undefined }),
 } as const;
 
-const font = 'Poppins'
+const font = 'Inter'
 
 export const fontSize = {
   reactionB1: {
     fontFamily: `${font}_700Bold`,
-    fontSize: getResponsiveFontSize(16, 17, 18, 16),
-    lineHeight: getResponsiveFontSize(21, 22, 24, 21),
+    fontSize: getResponsiveFontSize(16, 17, 18),
+    lineHeight: getResponsiveFontSize(21, 22, 24),
   },
   reactionB3: {
-    fontFamily: `${font}_500Medium`,
+    fontFamily: `${font}_400Regular`,
     fontSize: getResponsiveFontSize(14, 15, 16),
     lineHeight: getResponsiveFontSize(20, 21, 24),
   },
   reactionB4: {
-    fontFamily: `${font}_500Medium`,
+    fontFamily: `${font}_400Regular`,
     fontSize: getResponsiveFontSize(13, 14, 15),
     lineHeight: getResponsiveFontSize(18, 20, 22),
   },
   reactionB5: {
-    fontFamily: `${font}_500Medium`,
+    fontFamily: `${font}_400Regular`,
     fontSize: getResponsiveFontSize(11, 12, 13),
     lineHeight: getResponsiveFontSize(16, 16, 18),
   },
@@ -222,23 +212,23 @@ export const fontSize = {
   },
   b2: {
     fontFamily: `${font}_600SemiBold`,
-    fontSize: getResponsiveFontSize(11, 12, 15, 13),
-    lineHeight: getResponsiveFontSize(13, 14, 17, 15),
+    fontSize: getResponsiveFontSize(11, 12, 15),
+    lineHeight: getResponsiveFontSize(13, 14, 17),
   },
   b3: {
-    fontFamily: `${font}_500Medium`,
+    fontFamily: `${font}_400Regular`,
     fontSize: getResponsiveFontSize(12, 14, 16),
     lineHeight: getResponsiveFontSize(16, 18, 20),
   },
   b4: {
-    fontFamily: `${font}_500Medium`,
+    fontFamily: `${font}_400Regular`,
     fontSize: getResponsiveFontSize(9, 10, 11),
     lineHeight: getResponsiveFontSize(11, 12, 13),
   },
   b5: {
-    fontFamily: `${font}_500Medium`,
-    fontSize: getResponsiveFontSize(10, 12, 14, 12),
-    lineHeight: getResponsiveFontSize(12, 14, 16, 14),
+    fontFamily: `${font}_400Regular`,
+    fontSize: getResponsiveFontSize(10, 12, 14),
+    lineHeight: getResponsiveFontSize(12, 14, 16),
   },
   b5Variant: {
     fontFamily: `${font}_600SemiBold`,
@@ -246,7 +236,7 @@ export const fontSize = {
     lineHeight: getResponsiveFontSize(10, 12, 14),
   },
   b6: {
-    fontFamily: `${font}_500Medium`,
+    fontFamily: `${font}_400Regular`,
     fontSize: getResponsiveFontSize(8, 10, 12),
     lineHeight: getResponsiveFontSize(10, 12, 14),
   },
@@ -281,17 +271,17 @@ export const fontSize = {
     lineHeight: getResponsiveFontSize(9, 11, 13),
   },
   handleTextSmall: {
-    fontFamily: `${font}_500Medium`,
+    fontFamily: `${font}_400Regular`,
     fontSize: getResponsiveFontSize(9, 11, 13),
     lineHeight: getResponsiveFontSize(11,13, 14),
   },
   handleTextMedium: {
-    fontFamily: `${font}_500Medium`,
+    fontFamily: `${font}_400Regular`,
     fontSize: getResponsiveFontSize(12, 16, 18),
     lineHeight: getResponsiveFontSize(14, 18, 20),
   },
   creatorStyleText: {
-    fontFamily: `${font}_500Medium`,
+    fontFamily: `${font}_400Regular`,
     fontSize: getResponsiveFontSize(9, 11, 13),
     lineHeight: getResponsiveFontSize(11, 13, 15),
   },
@@ -311,7 +301,7 @@ export const fontSize = {
     lineHeight: getResponsiveFontSize(15, 17, 19),
   },
   chatMessageText:{
-    fontFamily: `${font}_500Medium`,
+    fontFamily: `${font}_400Regular`,
     fontSize: getResponsiveFontSize(11, 12, 14),
     lineHeight: getResponsiveFontSize(13, 14, 16),
   },
@@ -428,6 +418,7 @@ export const useTypography = () => {
 
   return {
     fontScale,
+    phoneType: PHONE_TYPE,
     deviceSizeClass: DEVICE_SIZE_CLASS,
     tokens: TYPOGRAPHY_TOKENS,
     styles: typographyStyles,

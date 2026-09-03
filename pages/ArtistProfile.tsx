@@ -16,6 +16,7 @@ import { BlurView } from 'expo-blur';
 import VerifiedIcon from '../assets/icons/verified-svg.svg';
 import FireIcon from '../assets/icons/fireIcon-svg.svg';
 import KulCoinPrompt from '../components/KulCoinPrompt';
+import PaymentCheckout from '../components/PaymentCheckout';
 import { fontSize } from '../typography';
 import TicketIcon from '../assets/icons/Ticket1.svg';
 import LocalActivity from '../assets/icons/local_activity.svg';
@@ -31,6 +32,7 @@ import {
   useDeleteCreatorVideoPlaylist,
   useRemoveCreatorVideoFromPlaylist,
   useSubscribeToPlan,
+  usePublicCreatorSubscriptionPlans,
   useSwitchRole,
   useUpdateCreatorVideoPlaylist,
   useUser,
@@ -260,17 +262,23 @@ const  ArtistProfile: React.FC = () => {
   const gridHorizontalPadding = isTablet ? 15 : 3;
   const gridItemWidth = `${99.8 / gridColumns}%` as const;
   const route = useRoute<any>();
+  const creatorIdentifier = route.params?.creatorId ?? route.params?.id;
+  const publicSubscriptionPlansQuery = usePublicCreatorSubscriptionPlans(
+    route.params?.isOwner ? undefined : creatorIdentifier,
+  );
+  const backendSubscriptionPlan = publicSubscriptionPlansQuery.data?.data?.[0];
   const [currentUser, setCurrentUser] = useState<User | null>(user);
   const [isFollowing, setIsFollowing] = useState(false);
   const isOwner = route.params?.isOwner ?? false;
   const { data: meProfile } = useUser(isOwner);
   const profileUser = isOwner ? meProfile ?? currentUser : null;
-  const routeName = route.params?.id || 'Kulsah';
+  const routeName = route.params?.name || route.params?.id || 'Kulsah';
   const name = profileUser?.name?.trim() || routeName;
   const displayName = isOwner ? name : routeName;
-  const displayHandle = profileUser?.handle?.trim() || String(displayName).toLowerCase().replace(/\s+/g, '_');
-  const displayBanner = profileUser?.banner?.trim() || FALLBACK_BANNER;
-  const displayAvatar = profileUser?.avatar?.trim() || FALLBACK_AVATAR;
+  const displayHandle = profileUser?.handle?.trim()
+    || String(route.params?.handle || displayName).replace(/^@/, '').toLowerCase().replace(/\s+/g, '_');
+  const displayBanner = profileUser?.banner?.trim() || route.params?.banner || FALLBACK_BANNER;
+  const displayAvatar = profileUser?.avatar?.trim() || route.params?.avatar || FALLBACK_AVATAR;
   const displayBio = profileUser?.bio?.trim() || 'This is where you bio will show oo aei.What is Kulsah? I dont know what to type here, so lets just type whatever will come to my head. It is nice to do so, well this is nice though, so far so good';
   const displayRole = profileUser?.handle ?? "Creator";
   const isVerified = profileUser ? Boolean(profileUser.verified || profileUser.verified_at) : true;
@@ -289,6 +297,7 @@ const  ArtistProfile: React.FC = () => {
   const [activeTab, setActiveTab] = useState<Tab>('Library');
   const [librarySubTab, setLibrarySubTab] = useState<LibrarySubTab>('All');
   const [selectedSub, setSelectedSub] = useState<SubscriptionTier | null>(null);
+  const [subscriptionPaymentOpen, setSubscriptionPaymentOpen] = useState(false);
   const [isProcessing, setIsProcessing] = useState(false);
   const [showSuccess, setShowSuccess] = useState(false);
   const [coinBalance, setCoinBalance] = useState(1250);
@@ -1611,11 +1620,35 @@ const PlaylistSection = () => {
   };
 
   const subscriptionCost = billingCycle === 'monthly' ? MONTHLY_KULCOINS : YEARLY_KULCOINS;
-  const subscriptionLabel = billingCycle === 'monthly' ? 'Monthly' : 'Annual';
+  const subscriptionLabel = backendSubscriptionPlan
+    ? 'Monthly'
+    : billingCycle === 'monthly' ? 'Monthly' : 'Annual';
+  const displayedSubscription: SubscriptionTier = backendSubscriptionPlan
+    ? {
+        id: String(backendSubscriptionPlan.id),
+        name: backendSubscriptionPlan.name,
+        price: backendSubscriptionPlan.price,
+        perks: backendSubscriptionPlan.description
+          ? [backendSubscriptionPlan.description]
+          : INITIAL_SUBSCRIPTION.perks,
+      }
+    : INITIAL_SUBSCRIPTION;
 
   const openSubscription = () => {
-    setSelectedSub(INITIAL_SUBSCRIPTION);
+    if (publicSubscriptionPlansQuery.isLoading || publicSubscriptionPlansQuery.isFetching) {
+      Alert.alert('Loading subscription', 'Please wait while the creator\'s checkout details load.');
+      return;
+    }
+    if (!backendSubscriptionPlan) {
+      const message = publicSubscriptionPlansQuery.error
+        ? parseApiError(publicSubscriptionPlansQuery.error).message
+        : 'This creator does not have an active subscription plan available for checkout.';
+      Alert.alert('Subscription unavailable', message);
+      return;
+    }
+    setSelectedSub(displayedSubscription);
     setShowSuccess(false);
+    setSubscriptionPaymentOpen(true);
   };
 
   const creatorToggle = async () => {
@@ -1641,6 +1674,7 @@ const PlaylistSection = () => {
   const closeSubscription = () => {
     if (isProcessing) return;
     setSelectedSub(null);
+    setSubscriptionPaymentOpen(false);
     setShowSuccess(false);
   };
 
@@ -1820,7 +1854,7 @@ const PlaylistSection = () => {
               <Pressable style={[s.switchBtn, billingCycle === 'monthly' && s.switchBtnOn]} onPress={() => setBillingCycle('monthly')}>
                 <Text style={[s.switchText, billingCycle === 'monthly' && s.switchTextOn]}>Monthly</Text>
               </Pressable>
-              <Pressable style={[s.switchBtn, billingCycle === 'annually' && s.switchBtnOn]} onPress={() => setBillingCycle('annually')}>
+              {!backendSubscriptionPlan ? <Pressable style={[s.switchBtn, billingCycle === 'annually' && s.switchBtnOn]} onPress={() => setBillingCycle('annually')}>
                 <Text style={[s.switchText, billingCycle === 'annually' && s.switchTextOn]}>Yearly</Text>
                 <View style = {{
                   backgroundColor: "#22c55e30",
@@ -1836,21 +1870,21 @@ const PlaylistSection = () => {
                         textTransform: 'uppercase'
                       }}>-15%</Text>
                 </View>
-              </Pressable>
+              </Pressable> : null}
             </View>
           </View>
 
 
           <Pressable style={[s.card, { backgroundColor: isDark ? '#ffffff0d' : theme.card, borderColor: theme.border, shadowColor: theme.shadow, shadowOpacity: isDark ? 0 : 0.08, shadowRadius: 16, elevation: isDark ? 0 : 2 }]} onPress={openSubscription}>
-            <Text style={[s.cardTitle, { color: theme.textSecondary }]}>{INITIAL_SUBSCRIPTION.name}</Text>
+            <Text style={[s.cardTitle, { color: theme.textSecondary }]}>{displayedSubscription.name}</Text>
             <View style={s.priceLine}>
-              <Text style={[s.cardPrice, { color: theme.text }]}>${calculatePrice(INITIAL_SUBSCRIPTION.price)}</Text>
+              <Text style={[s.cardPrice, { color: theme.text }]}>{backendSubscriptionPlan?.currency ?? 'USD'} {calculatePrice(displayedSubscription.price)}</Text>
               <Text style={[s.priceSuffix, { color: theme.textSecondary }]}>/{billingCycle === 'monthly' ? 'mo' : 'yr'}</Text>
             </View>
             {billingCycle === 'annually' && (
-              <Text style={s.saveText}>Billed yearly. Save ${(parseFloat(INITIAL_SUBSCRIPTION.price) * 12 * 0.15).toFixed(2)}/year</Text>
+              <Text style={s.saveText}>Billed yearly. Save {(parseFloat(displayedSubscription.price) * 12 * 0.15).toFixed(2)} {backendSubscriptionPlan?.currency ?? 'USD'}/year</Text>
             )}
-            {INITIAL_SUBSCRIPTION.perks.map((perk, i) => (
+            {displayedSubscription.perks.map((perk, i) => (
               <View key={i} style={s.perkRow}>
                 <MaterialIcons name="check-circle-outline" size={18} color={PRIMARY_COLOR} />
                 <Text style={[s.perk, { color: theme.text }]}>{perk}</Text>
@@ -2602,6 +2636,25 @@ const PlaylistSection = () => {
           </View>
         ) : null}
       </Modal>
+      {backendSubscriptionPlan ? (
+        <PaymentCheckout
+          isOpen={subscriptionPaymentOpen && !!selectedSub}
+          onClose={closeSubscription}
+          onSuccess={() => {
+            setSubscriptionPaymentOpen(false);
+            ping(`Welcome to ${selectedSub?.name ?? displayName}!`);
+          }}
+          amount={Number(backendSubscriptionPlan.price)}
+          currency={backendSubscriptionPlan.currency}
+          summaryEyebrow="Subscribe to"
+          itemName={`@${displayHandle}`}
+          itemSubtitle={`${subscriptionLabel} Subscription`}
+          merchantName={displayName}
+          itemImageUri={displayAvatar}
+          purchase={{ purpose: 'subscription', subscription_plan_id: backendSubscriptionPlan.id }}
+          allowedMethods={['momo', 'card']}
+        />
+      ) : null}
       <KulCoinPrompt
         isOpen={showKulCoinPrompt}
         onClose={() => setShowKulCoinPrompt(false)}

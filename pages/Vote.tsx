@@ -1,5 +1,6 @@
-import React, { useMemo, useState } from 'react';
+import React, { useMemo } from 'react';
 import {
+  ActivityIndicator,
   ImageBackground,
   KeyboardAvoidingView,
   Platform,
@@ -7,7 +8,6 @@ import {
   ScrollView,
   StyleSheet,
   Text,
-  TextInput,
   View,
 } from 'react-native';
 import { MaterialIcons } from '@expo/vector-icons';
@@ -17,25 +17,16 @@ import { SafeAreaView, useSafeAreaInsets } from 'react-native-safe-area-context'
 import { PRIMARY_COLOR, primaryColorAlpha, useThemeMode } from "../theme";
 import { fontSize } from './typography';
 
-type CoinPack = {
-  id: string;
-  coins: string;
-  price: string;
-  icon: keyof typeof MaterialIcons.glyphMap;
-  featured?: boolean;
-};
-
 type VoteModalContentProps = {
   onClose?: () => void;
   onConfirm?: () => void;
   sheetMode?: boolean;
+  challengeTitle?: string;
+  creatorName?: string;
+  walletBalance?: number;
+  voteCost?: number;
+  isSubmitting?: boolean;
 };
-
-const coinPacks: CoinPack[] = [
-  { id: '100', coins: '100 Coins', price: '$0.99 USD', icon: 'toll' },
-  { id: '500', coins: '500 Coins', price: '$4.49 USD', icon: 'star', featured: true },
-  { id: '1000', coins: '1000 Coins', price: '$8.99 USD', icon: 'workspace-premium' },
-];
 
 const headerArtwork =
   'https://lh3.googleusercontent.com/aida-public/AB6AXuCHfY3OyXbRr7O2uM-hGpQ2GtZ_VGqr9xD19gAb5kYCjaJO43WHvai3t6eINqqbk6o6r2731NNXyeWykLceAlG93ol_jEA-qnSlqvQ0d3m-WRfx0DVj9lFK_J8B5gyzwatjPgSYPTWMN2ruaU-hcvY4k_-cgGZNhaOwV_votLH0l5a_3d3-F9QsbLoSeIPkl-3MxJTpC6pKdlKmGQTQi8rylVsHh-ByGiG7Lq0V8pHo4ad6_tk90DZnKb07kPhkEZqUwqjj7xOc6tCy';
@@ -44,20 +35,18 @@ export const VoteModalContent: React.FC<VoteModalContentProps> = ({
   onClose,
   onConfirm,
   sheetMode = false,
+  challengeTitle = 'Challenge vote',
+  creatorName = 'this creator',
+  walletBalance = 0,
+  voteCost = 10,
+  isSubmitting = false,
 }) => {
   const insets = useSafeAreaInsets();
-  const [selectedPackId, setSelectedPackId] = useState('500');
-  const [voteCount, setVoteCount] = useState('1');
-  const normalizedVoteCount = Math.max(1, Number.parseInt(voteCount, 10) || 1);
-  const walletBalance = 120;
-  const needsTopUp = normalizedVoteCount > walletBalance;
+  const normalizedBalance = Math.max(0, Number(walletBalance) || 0);
+  const normalizedVoteCost = Math.max(1, Number(voteCost) || 10);
+  const needsTopUp = normalizedBalance < normalizedVoteCost;
   const { isDark, theme } = useThemeMode();
   const styles = useMemo(() => createStyles(isDark, theme), [isDark, theme]);
-
-  const updateVoteCount = (value: string) => {
-    const numeric = value.replace(/[^0-9]/g, '');
-    setVoteCount(numeric);
-  };
 
   return (
     <KeyboardAvoidingView
@@ -113,9 +102,9 @@ export const VoteModalContent: React.FC<VoteModalContentProps> = ({
                   {/* <View style={styles.hotBadge}>
                     <Text style={styles.hotBadgeText}>HOT NOW</Text>
                   </View> */}
-                  <Text style={styles.heroTitle}>Electric Sky Challenge</Text>
+                  <Text style={styles.heroTitle}>{challengeTitle}</Text>
                   <Text style={styles.heroSubtitle}>
-                    Vote for your favorite set to push them to the main stage.
+                    Your vote supports {creatorName} and helps decide the winner.
                   </Text>
                 </View>
               </ImageBackground>
@@ -123,117 +112,46 @@ export const VoteModalContent: React.FC<VoteModalContentProps> = ({
 
             <View style={styles.sectionHeader}>
               <Text style={styles.modalTitle}>Cast Your Vote</Text>
-              <Text style={styles.modalSubtitle}>Support your favorite creator</Text>
+              <Text style={styles.modalSubtitle}>One paid ballot choice</Text>
               <BlurView intensity={28} tint={isDark ? 'dark' : 'light'} style={styles.balancePill}>
                 <MaterialIcons name="payments" size={20} color="#deb7ff" />
-              <Text style={styles.balanceText}>Balance: {walletBalance} Coins</Text>
+                <Text style={styles.balanceText}>Balance: {normalizedBalance} KC</Text>
               </BlurView>
             </View>
 
             <View style={styles.voteCounterSection}>
-              <Text style={styles.packLabel}>Number of votes</Text>
+              <Text style={styles.packLabel}>Vote summary</Text>
               <BlurView intensity={28} tint={isDark ? 'dark' : 'light'} style={styles.voteCounterCard}>
-                <Pressable
-                  onPress={() => setVoteCount(String(Math.max(1, (Number.parseInt(voteCount, 10) || 1) - 1)))}
-                  style={styles.voteStepButton}
-                >
-                  <MaterialIcons name="remove" size={22} color="#ffffff" />
-                </Pressable>
-
-                <View style={styles.voteInputWrap}>
-                  <TextInput includeFontPadding={false}
-                    value={voteCount}
-                    onChangeText={updateVoteCount}
-                    keyboardType="number-pad"
-                    placeholder="1"
-                    placeholderTextColor="rgba(255,255,255,0.35)"
-                    textAlign="center"
-                    style={styles.voteInput}
-                  />
-                  <Text style={styles.voteInputCaption}>votes</Text>
+                <View style={styles.voteSummaryIcon}>
+                  <MaterialIcons name="how-to-vote" size={25} color="#ffffff" />
                 </View>
-
-                <Pressable
-                  onPress={() => setVoteCount(String(normalizedVoteCount + 1))}
-                  style={styles.voteStepButton}
-                >
-                  <MaterialIcons name="add" size={22} color="#ffffff" />
-                </Pressable>
+                <View style={styles.voteSummaryCopy}>
+                  <Text style={styles.voteSummaryTitle}>1 vote for {creatorName}</Text>
+                  <Text style={styles.voteSummaryHint}>Ballot changes are charged as a new vote.</Text>
+                </View>
+                <Text style={styles.voteSummaryCost}>{normalizedVoteCost} KC</Text>
               </BlurView>
             </View>
 
             {needsTopUp ? (
-              <View style={styles.packSection}>
-                <Text style={styles.packLabel}>Top up your wallet</Text>
-                {coinPacks.map((pack) => {
-                  const selected = pack.id === selectedPackId;
-                  return (
-                    <Pressable
-                      key={pack.id}
-                      onPress={() => setSelectedPackId(pack.id)}
-                      style={[
-                        styles.packRow,
-                        selected ? styles.packRowSelected : styles.packRowDefault,
-                      ]}
-                    >
-                      <View style={styles.packMain}>
-                        <View
-                          style={[
-                            styles.packIconWrap,
-                            selected ? styles.packIconWrapSelected : styles.packIconWrapDefault,
-                          ]}
-                        >
-                          <MaterialIcons
-                            name={pack.icon}
-                            size={20}
-                            color={selected ? '#ffffff' : PRIMARY_COLOR}
-                          />
-                        </View>
-
-                        <View style={styles.packCopy}>
-                          <Text style={[styles.packCoins, selected && styles.packCoinsSelected]}>
-                            {pack.coins}
-                          </Text>
-                          <Text style={[styles.packPrice, selected && styles.packPriceSelected]}>
-                            {pack.price}
-                          </Text>
-                        </View>
-                      </View>
-
-                      <View style={styles.packActionWrap}>
-                        {pack.featured ? (
-                          <View style={styles.bestValueBadge}>
-                            <Text style={styles.bestValueText}>BEST VALUE</Text>
-                          </View>
-                        ) : null}
-
-                        <View
-                          style={[
-                            styles.packActionButton,
-                            selected ? styles.packActionButtonSelected : styles.packActionButtonDefault,
-                          ]}
-                        >
-                          <Text
-                            style={[
-                              styles.packActionText,
-                              selected ? styles.packActionTextSelected : styles.packActionTextDefault,
-                            ]}
-                          >
-                            {selected ? 'PURCHASE' : 'SELECT'}
-                          </Text>
-                        </View>
-                      </View>
-                    </Pressable>
-                  );
-                })}
+              <View style={styles.insufficientCard}>
+                <MaterialIcons name="account-balance-wallet" size={22} color={PRIMARY_COLOR} />
+                <View style={styles.insufficientCopy}>
+                  <Text style={styles.insufficientTitle}>You need {normalizedVoteCost - normalizedBalance} more KC</Text>
+                  <Text style={styles.insufficientText}>Top up your wallet to submit this ballot.</Text>
+                </View>
               </View>
             ) : null}
 
-            <Pressable style={styles.confirmButton} onPress={onConfirm ?? onClose}>
-              <Text style={styles.confirmButtonText}>
-                Confirm {normalizedVoteCount} Vote{normalizedVoteCount === 1 ? '' : 's'} & Purchase
-              </Text>
-              <MaterialIcons name="arrow-forward" size={20} color="#ffffff" />
+            <Pressable disabled={isSubmitting} style={[styles.confirmButton, isSubmitting && styles.confirmButtonDisabled]} onPress={onConfirm ?? onClose}>
+              {isSubmitting ? <ActivityIndicator size="small" color="#ffffff" /> : (
+                <>
+                  <Text style={styles.confirmButtonText}>
+                    {needsTopUp ? 'Get KulCoins' : `Confirm vote · ${normalizedVoteCost} KC`}
+                  </Text>
+                  <MaterialIcons name={needsTopUp ? 'add-card' : 'arrow-forward'} size={20} color="#ffffff" />
+                </>
+              )}
             </Pressable>
 
             <Pressable style={styles.cancelButton} onPress={onClose}>
@@ -453,6 +371,33 @@ const createStyles = (isDark: boolean, theme: ReturnType<typeof useThemeMode>['t
       backgroundColor: theme.surface,
       overflow: 'hidden',
     },
+    voteSummaryIcon: {
+      width: 46,
+      height: 46,
+      borderRadius: 23,
+      alignItems: 'center',
+      justifyContent: 'center',
+      backgroundColor: PRIMARY_COLOR,
+    },
+    voteSummaryCopy: { flex: 1, minWidth: 0 },
+    voteSummaryTitle: { color: theme.text, ...fontSize.b5, lineHeight: fontSize.b5.lineHeight },
+    voteSummaryHint: { marginTop: 3, color: theme.textSecondary, ...fontSize.b6, lineHeight: fontSize.b6.lineHeight },
+    voteSummaryCost: { color: PRIMARY_COLOR, ...fontSize.b4, lineHeight: fontSize.b4.lineHeight },
+    insufficientCard: {
+      marginHorizontal: 16,
+      marginTop: 14,
+      borderRadius: 16,
+      borderWidth: 1,
+      borderColor: primaryColorAlpha(0.3),
+      backgroundColor: primaryColorAlpha(0.08),
+      padding: 13,
+      flexDirection: 'row',
+      alignItems: 'center',
+      gap: 11,
+    },
+    insufficientCopy: { flex: 1 },
+    insufficientTitle: { color: theme.text, ...fontSize.b5, lineHeight: fontSize.b5.lineHeight },
+    insufficientText: { marginTop: 2, color: theme.textSecondary, ...fontSize.b6, lineHeight: fontSize.b6.lineHeight },
     voteStepButton: {
       width: 42,
       height: 42,
@@ -612,6 +557,7 @@ const createStyles = (isDark: boolean, theme: ReturnType<typeof useThemeMode>['t
       shadowRadius: 22,
       elevation: 10,
     },
+    confirmButtonDisabled: { opacity: 0.6 },
     confirmButtonText: {
       color: '#ffffff',
       ...fontSize.b5, lineHeight: fontSize.b5.lineHeight,

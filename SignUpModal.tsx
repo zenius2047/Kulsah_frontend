@@ -17,8 +17,7 @@ import Apple from './assets/icons/apple-logo-svg.svg';
 import { mediumScreen } from './types';
 import { fontSize } from './typography';
 import { useGoogleAuth } from './src/config/auth-google';
-import { authApi } from './src';
-import { getToken } from './src';
+import { authApi, setAuthToken, setUser } from './src';
 
 type SignUpModalProps = {
   visible: boolean;
@@ -41,16 +40,25 @@ const SignUpModal: React.FC<SignUpModalProps> = ({
     isSigningIn: isGoogleSigningIn,
     error: googleAuthError,
   } = useGoogleAuth({
-    onSuccess: async() => {
-      onClose();
-      navigation.navigate('MainTabs');
-      try{
-        const token = await getToken() ?? "";
-        const res = await authApi.social({token:token, provider: 'google'})
-      }catch(e:any){
-        // console.log()
+    onSuccess: async (firebaseUser) => {
+      const firebaseIdToken = await firebaseUser.getIdToken();
+      const response = await authApi.social({
+        token: firebaseIdToken,
+        provider: 'google',
+      });
+      const { access_token: accessToken, user } = response.data;
+
+      if (!accessToken || !user) {
+        throw new Error('The social-login response did not include an authenticated session.');
       }
 
+      await setAuthToken(accessToken);
+      setUser(user);
+      onClose();
+      navigation.reset({
+        index: 0,
+        routes: [{ name: 'MainTabs' }],
+      });
     },
   });
 

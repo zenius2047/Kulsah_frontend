@@ -13,6 +13,9 @@ export interface User {
   email: string;
   handle: string;
   location?: string | null;
+  country_code?: string | null;
+  country?: string | null;
+  currency?: string | null;
   phone?: string | null;
   total_followers?: number;
   total_subscribers?: number;

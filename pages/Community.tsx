@@ -66,7 +66,7 @@ interface CommunityPost {
   apiComments?: ApiCommunityComment[];
   time: string;
   isLiked: boolean;
-  type: 'text' | 'image' | 'poll' | 'live';
+  type: 'text' | 'image' | 'poll' | 'challenge' | 'live';
   pollOptions?: PollOption[];
   isFollowing: boolean;
   isVerified: boolean;
@@ -390,9 +390,11 @@ const Community: React.FC<{ embedded?: boolean; onCountChange?: (count: number) 
   const mutedText = theme.textSecondary;
   const dimIcon = isDark ? '#9ca3af' : theme.textSecondary;
   const postsQuery = useCommunityPosts();
+  const communityPages = Array.isArray(postsQuery.data?.pages)
+    ? postsQuery.data.pages
+    : [];
   const hasEmptyPostsResponse = postsQuery.isSuccess
-    && postsQuery.data !== undefined
-    && postsQuery.data.pages.every((page) => page.data.length === 0);
+    && communityPages.every((page) => !Array.isArray(page?.data) || page.data.length === 0);
 
   const isCreator = currentUser.role === 'creator';
   const normalizedHandle = (currentUser.handle ?? '').replace('@', '');
@@ -470,8 +472,8 @@ const Community: React.FC<{ embedded?: boolean; onCountChange?: (count: number) 
   }, []);
 
   useEffect(() => {
-    const pages = postsQuery.data?.pages as CommunityPage<ApiCommunityPost>[] | undefined;
-    const apiPosts = pages?.flatMap((page) => page.data) ?? [];
+    const pages = (Array.isArray(postsQuery.data?.pages) ? postsQuery.data.pages : []) as CommunityPage<ApiCommunityPost>[];
+    const apiPosts = pages.flatMap((page) => Array.isArray(page?.data) ? page.data : []);
     setPosts(apiPosts.map(toFeedPost));
     const firstPost = apiPosts[0];
     if (firstPost) onCountChange?.((firstPost.community_count ?? 0) + 1);
@@ -731,7 +733,7 @@ const Community: React.FC<{ embedded?: boolean; onCountChange?: (count: number) 
                   </View>
                   <View>
                     <View style={styles.handleMetaRow}>
-                      <Text style={[styles.handleText, { color: theme.text, marginBottom: 2}]}>@{post.handle}</Text>
+                      <Text style={[styles.handleText, { color: theme.text, marginBottom: 2, fontFamily: 'Inter_600SemiBold'}]}>@{post.handle}</Text>
                       {!post.isVerified ? (
                           <MaterialIcons name="verified" size={16} color='#33aae4'/>
                         ) : null}

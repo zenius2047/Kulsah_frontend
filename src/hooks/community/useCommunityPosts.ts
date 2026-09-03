@@ -7,6 +7,8 @@ export const communityPostsQueryKey = (perPage = 20) => ['community', 'posts', {
 export const communityPostQueryKey = (post?: string | number) => ['community', 'posts', post] as const;
 export const communityCommentsQueryKey = (post?: string | number, perPage = 20) =>
   ['community', 'posts', post, 'comments', { perPage }] as const;
+export const communityHistoryQueryKey = (perPage = 20, type = 'all') =>
+  ['community', 'history', { perPage, type }] as const;
 
 const paginationOf = <T,>(page: CommunityPage<T>) =>
   (page.meta && 'pagination' in page.meta && page.meta.pagination ? page.meta.pagination : page.meta) as PaginationMeta | undefined;
@@ -36,6 +38,16 @@ export const useCommunityPost = (post?: string | number) =>
     enabled: post !== undefined && post !== null && post !== '',
     retry: (count, error: any) => error?.response?.status !== 403 && count < 2,
   });
+
+export const useCommunityHistory = (
+  perPage = 20,
+  type: 'all' | Exclude<import('../../types/community.types').CommunityPost['type'], 'live'> = 'all',
+) => useInfiniteQuery({
+  queryKey: communityHistoryQueryKey(perPage, type),
+  initialPageParam: 1,
+  queryFn: ({ pageParam }) => communityApi.getHistory(pageParam, perPage, type).then((response) => response.data),
+  getNextPageParam: nextPage,
+});
 
 export const useCommunityComments = (post?: string | number, perPage = 20) =>
   useInfiniteQuery({
