@@ -9,10 +9,13 @@ import { queryClient } from '../../lib/queryClient';
 import { useAuthStore } from '../../store/auth.store';
 import { useMessagingStore } from '../../store/messaging.store';
 import {
+  isLiveStartedPushNotification,
   isMessagePushNotification,
   isMessageRequestPushNotification,
+  pushLiveId,
 } from '../../utils/messaging';
 import { conversationRequestsQueryKey } from './useConversations';
+import { liveQueryKeys } from '../live/useLive';
 import { invalidateConversationLists } from '../../utils/messagingRealtime';
 import {
   createFcmDeviceTokenPayload,
@@ -308,6 +311,12 @@ const recordNotification = async (notification: Notifications.Notification) => {
     await Promise.allSettled([
       queryClient.invalidateQueries({ queryKey: conversationRequestsQueryKey }),
       invalidateConversationLists(queryClient),
+    ]);
+  } else if (isLiveStartedPushNotification(data)) {
+    const liveId = pushLiveId(data);
+    await Promise.allSettled([
+      queryClient.invalidateQueries({ queryKey: liveQueryKeys.discovery() }),
+      ...(liveId ? [queryClient.invalidateQueries({ queryKey: liveQueryKeys.session(liveId) })] : []),
     ]);
   }
 

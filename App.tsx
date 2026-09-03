@@ -51,6 +51,7 @@ import {
   clearAuth,
   formatUnreadBadgeCount,
   isChallengeInvitationPushNotification,
+  isLiveStartedPushNotification,
   isMessagePushNotification,
   isMessageRequestAcceptedPushNotification,
   isMessageRequestCreatedPushNotification,
@@ -58,6 +59,7 @@ import {
   messagingApi,
   pushChallengeId,
   pushConversationId,
+  pushLiveId,
   pushVideoId,
   unregisterCurrentPushTokenAsync,
   useAuthStore,
@@ -569,12 +571,14 @@ const App: React.FC = () => {
     const isMessageRequestAccepted = isMessageRequestAcceptedPushNotification(data);
     const isChallengeInvitation = isChallengeInvitationPushNotification(data);
     const isVideoMention = isVideoMentionPushNotification(data);
+    const isLiveStarted = isLiveStartedPushNotification(data);
     if (
       !isMessage
       && !isMessageRequestCreated
       && !isMessageRequestAccepted
       && !isChallengeInvitation
       && !isVideoMention
+      && !isLiveStarted
     ) return;
     if (!navigationRef.isReady()) {
       pendingPushNavigationRef.current = data;
@@ -614,6 +618,14 @@ const App: React.FC = () => {
         inviteId: data.invite_id,
         invitationType: data.invitation_type,
       } as never);
+      return;
+    }
+
+    if (isLiveStarted) {
+      const liveSessionId = pushLiveId(data);
+      if (liveSessionId) {
+        navigationRef.navigate('LiveStream' as never, { liveSessionId } as never);
+      }
       return;
     }
 

@@ -9,6 +9,7 @@ import { RtcSurfaceView, RtcTextureView } from 'react-native-agora';
 import { useThemeMode, PRIMARY_COLOR, primaryColorAlpha } from "../theme";
 import { fontSize } from './typography';
 import { useLiveDiscovery } from '../src/hooks/live/useLive';
+import { useLiveDirectoryRealtime } from '../src/hooks/live/useLiveDirectoryRealtime';
 import { liveApi } from '../src/api/live.api';
 import { useAgoraLive } from '../src/hooks/live/useAgoraLive';
 import type { LiveCredentials, LiveSession } from '../src/types/live.types';
@@ -119,6 +120,7 @@ const LiveFeed: React.FC = () => {
   const [joinTarget, setJoinTarget] = useState<LiveCard | null>(null);
   const [commentsByCard] = useState<Record<string, ChatMessage[]>>({});
   const liveQuery = useLiveDiscovery();
+  useLiveDirectoryRealtime(isFeedFocused);
   const discoveredLives = useMemo(() => flattenLivePages(liveQuery.data?.pages), [liveQuery.data?.pages]);
   const liveCards = useMemo<LiveCard[]>(() => discoveredLives.map((live) => ({
     id: live.id,

@@ -118,6 +118,7 @@ class MessagingPresenceChannel extends MessagingPrivateChannel {
 
 export type MessagingRealtimeClient = {
   connector: { pusher: RealtimePusherClient };
+  channel: (channel: string) => MessagingPrivateChannel;
   private: (channel: string) => MessagingPrivateChannel;
   join: (channel: string) => MessagingPresenceChannel;
   leave: (channel: string) => void;
@@ -184,6 +185,7 @@ const createMessagingRealtimeClient = (
 
   return {
     connector: { pusher },
+    channel: (channel) => new MessagingPrivateChannel(pusher.subscribe(channel)),
     private: (channel) => new MessagingPrivateChannel(pusher.subscribe(`private-${channel}`)),
     join: (channel) => new MessagingPresenceChannel(pusher.subscribe(`presence-${channel}`)),
     leave: (channel) => {

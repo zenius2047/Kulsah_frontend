@@ -252,10 +252,15 @@ export type UpdateGeneralProfileResponse = {
 };
 
 export type WalletBalance = {
-  available_usd: number | string;
-  pending_usd: number | string;
-  held_usd: number | string;
-  total_usd: number | string;
+  currency: string;
+  available: number | string;
+  pending: number | string;
+  held: number | string;
+  total: number | string;
+  available_usd?: number | string;
+  pending_usd?: number | string;
+  held_usd?: number | string;
+  total_usd?: number | string;
 };
 
 export type Wallet = {
@@ -277,7 +282,16 @@ export type WalletResponse = {
 
 export type WalletTransaction = {
   id: string | number;
+  currency?: string;
+  amount?: number | string;
+  usd_amount?: number | string;
+  net_amount?: number | string;
+  net_usd_amount?: number | string;
   amount_usd?: number | string;
+  running_balance?: number | string;
+  running_balance_usd?: number | string;
+  entry_type?: string;
+  narration?: string | null;
   type?: string;
   status?: string;
   description?: string | null;
@@ -294,12 +308,14 @@ export type WalletLedgerEntry = WalletTransaction;
 
 export type WalletTransferPayload = {
   recipient_id: number;
-  amount_usd: number;
+  amount: number;
+  amount_usd?: number;
   description?: string;
 };
 
 export type WalletTopUpPayload = {
-  amount_usd: number;
+  amount: number;
+  amount_usd?: number;
   description?: string;
   payment_reference?: string;
 };

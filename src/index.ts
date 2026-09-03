@@ -69,6 +69,7 @@ export * from './hooks/messaging/useConversations';
 export * from './hooks/messaging/useMessagingRealtime';
 export * from './hooks/stickers/useStickers';
 export * from './hooks/live/useLive';
+export * from './hooks/live/useLiveDirectoryRealtime';
 export * from './hooks/live/useLiveRealtime';
 export * from './hooks/live/useAgoraLive';
 

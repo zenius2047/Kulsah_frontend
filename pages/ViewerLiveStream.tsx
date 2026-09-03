@@ -63,7 +63,13 @@ const ViewerLiveStream: React.FC = () => {
   const likeLive = useLikeLive(liveSessionId);
   const giftLive = useGiftLive(liveSessionId);
   const walletQuery = useKulCoinWallet(Boolean(liveSessionId));
-  useLiveRealtime(liveSessionId, hasJoinedPresence);
+  useLiveRealtime(liveSessionId, hasJoinedPresence, {
+    onComment: (incomingComment) => {
+      setComments((current) => current.some((item) => item.id === incomingComment.id)
+        ? current
+        : [...current, incomingComment]);
+    },
+  });
 
   const agora = useAgoraLive({
     credentials,
@@ -114,7 +120,9 @@ const ViewerLiveStream: React.FC = () => {
     if (!body || commentLive.isPending) return;
     try {
       const created = await commentLive.mutateAsync(body);
-      setComments((current) => [...current, created]);
+      setComments((current) => current.some((item) => item.id === created.id)
+        ? current
+        : [...current, created]);
       setComment('');
     } catch (error) {
       Alert.alert('Comment not sent', getApiErrorMessage(error));

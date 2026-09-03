@@ -27,9 +27,20 @@ import { fontSize } from './typography';
 
 type WalletTab = 'transactions' | 'ledger';
 
-const money = (value: unknown) => {
+const money = (value: unknown, currency = 'GHS') => {
   const numeric = typeof value === 'number' ? value : Number(value ?? 0);
-  return `$${(Number.isFinite(numeric) ? numeric : 0).toFixed(2)}`;
+  const safeValue = Number.isFinite(numeric) ? numeric : 0;
+
+  try {
+    return new Intl.NumberFormat(undefined, {
+      style: 'currency',
+      currency,
+      minimumFractionDigits: 2,
+      maximumFractionDigits: 2,
+    }).format(safeValue);
+  } catch {
+    return `${currency} ${safeValue.toFixed(2)}`;
+  }
 };
 
 const Wallet: React.FC = () => {
@@ -51,6 +62,7 @@ const Wallet: React.FC = () => {
 
   const wallet = walletQuery.data?.data;
   const balances = wallet?.balances;
+  const currency = balances?.currency ?? wallet?.base_currency ?? 'GHS';
   const listData = activeTab === 'transactions'
     ? transactionsQuery.data?.data ?? []
     : ledgerQuery.data?.data ?? [];
@@ -90,6 +102,8 @@ const Wallet: React.FC = () => {
     try {
       await transferMutation.mutateAsync({
         recipient_id: parsedRecipientId,
+        amount: parsedAmount,
+        // Keep the deprecated alias until the backend service reads `amount` directly.
         amount_usd: parsedAmount,
         description: transferDescription.trim() || undefined,
       });
@@ -105,6 +119,8 @@ const Wallet: React.FC = () => {
   const submitTopUp = async () => {
     try {
       await topUpMutation.mutateAsync({
+        amount: Number(topUpAmount),
+        // Keep the deprecated alias until the backend service reads `amount` directly.
         amount_usd: Number(topUpAmount),
         payment_reference: topUpReference.trim() || undefined,
       });
@@ -146,15 +162,15 @@ const Wallet: React.FC = () => {
         <ScrollView contentContainerStyle={styles.content} showsVerticalScrollIndicator={false}>
           <View style={[styles.balanceCard, { backgroundColor: panelBg, borderColor: border }]}>
             <Text style={[styles.label, { color: theme.textSecondary }]}>{wallet?.account_name ?? 'Kulsah Wallet'}</Text>
-            <Text style={[styles.totalBalance, { color: theme.text }]}>{money(balances?.total_usd)}</Text>
+            <Text style={[styles.totalBalance, { color: theme.text }]}>{money(balances?.total ?? balances?.total_usd, currency)}</Text>
             <Text style={[styles.label, { color: theme.textSecondary }]}>
               {wallet?.account_key ?? 'Account key pending'} / {wallet?.status ?? 'active'}
             </Text>
 
             <View style={styles.balanceGrid}>
-              <BalanceTile label="Available" value={money(balances?.available_usd)} />
-              <BalanceTile label="Pending" value={money(balances?.pending_usd)} />
-              <BalanceTile label="Held" value={money(balances?.held_usd)} />
+              <BalanceTile label="Available" value={money(balances?.available ?? balances?.available_usd, currency)} />
+              <BalanceTile label="Pending" value={money(balances?.pending ?? balances?.pending_usd, currency)} />
+              <BalanceTile label="Held" value={money(balances?.held ?? balances?.held_usd, currency)} />
             </View>
           </View>
 
@@ -162,7 +178,7 @@ const Wallet: React.FC = () => {
             <View style={[styles.formCard, { backgroundColor: panelBg, borderColor: border }]}>
               <Text style={[styles.cardTitle, { color: theme.text }]}>Transfer</Text>
               <TextInput includeFontPadding={false} value={recipientId} onChangeText={setRecipientId} keyboardType="number-pad" placeholder="Recipient user id" placeholderTextColor={theme.textMuted} style={[styles.input, { color: theme.text, borderColor: border }]} />
-              <TextInput includeFontPadding={false} value={transferAmount} onChangeText={setTransferAmount} keyboardType="decimal-pad" placeholder="Amount USD" placeholderTextColor={theme.textMuted} style={[styles.input, { color: theme.text, borderColor: border }]} />
+              <TextInput includeFontPadding={false} value={transferAmount} onChangeText={setTransferAmount} keyboardType="decimal-pad" placeholder={`Amount ${currency}`} placeholderTextColor={theme.textMuted} style={[styles.input, { color: theme.text, borderColor: border }]} />
               <TextInput includeFontPadding={false} value={transferDescription} onChangeText={setTransferDescription} placeholder="Description" placeholderTextColor={theme.textMuted} style={[styles.input, { color: theme.text, borderColor: border }]} />
               <Pressable disabled={!canSubmitTransfer} onPress={() => void submitTransfer()} style={[styles.primaryButton, !canSubmitTransfer && styles.disabled]}>
                 {transferMutation.isPending ? <ActivityIndicator color="#fff" /> : <Text style={styles.primaryButtonText}>Send Transfer</Text>}
@@ -171,7 +187,7 @@ const Wallet: React.FC = () => {
 
             <View style={[styles.formCard, { backgroundColor: panelBg, borderColor: border }]}>
               <Text style={[styles.cardTitle, { color: theme.text }]}>Top Up</Text>
-              <TextInput includeFontPadding={false} value={topUpAmount} onChangeText={setTopUpAmount} keyboardType="decimal-pad" placeholder="Amount USD" placeholderTextColor={theme.textMuted} style={[styles.input, { color: theme.text, borderColor: border }]} />
+              <TextInput includeFontPadding={false} value={topUpAmount} onChangeText={setTopUpAmount} keyboardType="decimal-pad" placeholder={`Amount ${currency}`} placeholderTextColor={theme.textMuted} style={[styles.input, { color: theme.text, borderColor: border }]} />
               <TextInput includeFontPadding={false} value={topUpReference} onChangeText={setTopUpReference} placeholder="Payment reference" placeholderTextColor={theme.textMuted} style={[styles.input, { color: theme.text, borderColor: border }]} />
               <Pressable disabled={!canSubmitTopUp} onPress={() => void submitTopUp()} style={[styles.primaryButton, !canSubmitTopUp && styles.disabled]}>
                 {topUpMutation.isPending ? <ActivityIndicator color="#fff" /> : <Text style={styles.primaryButtonText}>Create Top-up</Text>}
@@ -206,10 +222,10 @@ const Wallet: React.FC = () => {
               renderItem={({ item }) => (
                 <View style={[styles.rowCard, { borderColor: border }]}>
                   <View style={{ flex: 1 }}>
-                    <Text style={[styles.rowTitle, { color: theme.text }]}>{String(item.type ?? item.status ?? activeTab)}</Text>
-                    <Text style={[styles.label, { color: theme.textSecondary }]}>{String(item.description ?? item.created_at ?? '')}</Text>
+                    <Text style={[styles.rowTitle, { color: theme.text }]}>{String(item.type ?? item.entry_type ?? item.status ?? activeTab)}</Text>
+                    <Text style={[styles.label, { color: theme.textSecondary }]}>{String(item.description ?? item.narration ?? item.created_at ?? '')}</Text>
                   </View>
-                  <Text style={[styles.rowAmount, { color: PRIMARY_COLOR }]}>{money(item.amount_usd)}</Text>
+                  <Text style={[styles.rowAmount, { color: PRIMARY_COLOR }]}>{money(item.amount ?? item.amount_usd, item.currency ?? currency)}</Text>
                 </View>
               )}
             />

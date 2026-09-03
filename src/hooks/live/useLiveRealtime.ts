@@ -1,11 +1,15 @@
-import { useEffect } from 'react';
+import { useEffect, useRef } from 'react';
 import { useAuthStore } from '../../store/auth.store';
 import { queryClient } from '../../lib/queryClient';
 import {
   getMessagingRealtimeClient,
   isMessagingRealtimeConfigured,
 } from '../../services/messagingRealtime.service';
-import type { LiveUpdatedEvent } from '../../types/live.types';
+import type {
+  LiveRealtimeComment,
+  LiveRealtimeGift,
+  LiveUpdatedEvent,
+} from '../../types/live.types';
 import { isLiveTerminal } from '../../utils/live';
 import { liveQueryKeys, patchCachedLiveSession } from './useLive';
 
@@ -23,9 +27,20 @@ const LIVE_EVENTS = [
   'battle_end',
 ] as const;
 
-export const useLiveRealtime = (liveSession?: string | number, enabled = true) => {
+type LiveRealtimeHandlers = {
+  onComment?: (comment: LiveRealtimeComment) => void;
+  onGift?: (gift: LiveRealtimeGift) => void;
+};
+
+export const useLiveRealtime = (
+  liveSession?: string | number,
+  enabled = true,
+  handlers: LiveRealtimeHandlers = {},
+) => {
   const token = useAuthStore((state) => state.token);
   const liveId = liveSession == null ? '' : String(liveSession);
+  const handlersRef = useRef(handlers);
+  handlersRef.current = handlers;
 
   useEffect(() => {
     if (!enabled || !token || !liveId || !isMessagingRealtimeConfigured) return;
@@ -42,8 +57,11 @@ export const useLiveRealtime = (liveSession?: string | number, enabled = true) =
         likes_count: Number(event.likes_count) || 0,
         comments_count: Number(event.comments_count) || 0,
         gifts_count: Number(event.gifts_count) || 0,
+        gift_value_kc: Number(event.gift_value_kc) || 0,
         termination_reason: event.termination_reason ?? null,
       });
+      if (event.comment) handlersRef.current.onComment?.(event.comment);
+      if (event.gift) handlersRef.current.onGift?.(event.gift);
       if (isLiveTerminal(event.status)) {
         void queryClient.invalidateQueries({ queryKey: liveQueryKeys.discovery() });
       }

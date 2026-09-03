@@ -1,5 +1,18 @@
 export type LiveVisibility = 'public' | 'fans' | 'subscribers';
 
+export type LiveCategory = 'music' | 'gaming' | 'talk_show' | 'lifestyle' | 'education';
+
+export type LiveStreamQuality = '720p_30fps' | '1080p_30fps' | '1080p_60fps';
+
+export type LiveOrientation = 'portrait' | 'landscape' | 'auto_rotate';
+
+export interface LiveModerationSettings {
+  profanity_filter_enabled: boolean;
+  followers_only_chat: boolean;
+  slow_mode_seconds: number | null;
+  blocked_words: string[];
+}
+
 export type LiveStatus =
   | 'scheduled'
   | 'created'
@@ -43,6 +56,11 @@ export interface LiveSession {
   chat_enabled: boolean;
   gifts_enabled: boolean;
   recording_enabled: boolean;
+  notify_followers: boolean;
+  age_restricted: boolean;
+  stream_quality: LiveStreamQuality;
+  orientation: LiveOrientation;
+  moderation: LiveModerationSettings;
   current_viewers: number;
   unique_viewers: number;
   peak_viewers: number;
@@ -98,13 +116,18 @@ export interface LiveCredentialsResponse extends LiveSessionResponse {
 export interface CreateLivePayload {
   title: string;
   description?: string | null;
-  category?: string | null;
+  category: LiveCategory;
   cover_url?: string | null;
-  visibility: LiveVisibility;
+  visibility: Exclude<LiveVisibility, 'fans'>;
   scheduled_at?: string | null;
-  chat_enabled?: boolean;
-  gifts_enabled?: boolean;
-  recording_enabled?: boolean;
+  notify_followers: boolean;
+  chat_enabled: boolean;
+  gifts_enabled: boolean;
+  recording_enabled: boolean;
+  age_restricted: boolean;
+  stream_quality: LiveStreamQuality;
+  orientation: LiveOrientation;
+  moderation: LiveModerationSettings;
 }
 
 export interface LiveHeartbeatPayload {
@@ -127,12 +150,12 @@ export interface LiveCommentUser {
 
 export interface LiveComment {
   id: number;
-  live_session_id: number;
+  live_session_id?: number;
   user_id: number;
   body: string;
   user?: LiveCommentUser;
-  created_at: string;
-  updated_at: string;
+  created_at: string | null;
+  updated_at?: string | null;
 }
 
 export interface LiveLikeResult {
@@ -182,13 +205,50 @@ export interface LiveAnalytics {
 export interface LiveUpdatedEvent {
   live_id: string;
   status: LiveStatus;
+  title: string;
+  creator_id: number;
   current_viewers: number;
   unique_viewers: number;
   peak_viewers: number;
   likes_count: number;
   comments_count: number;
   gifts_count: number;
+  gift_value_kc: number;
   termination_reason: string | null;
+  comment?: LiveRealtimeComment;
+  gift?: LiveRealtimeGift;
+}
+
+export interface LiveRealtimeComment {
+  id: number;
+  user_id: number;
+  body: string;
+  user?: LiveCommentUser;
+  created_at: string | null;
+}
+
+export interface LiveRealtimeGift {
+  transaction_id: number;
+  reference: string;
+  gift_id: number;
+  gift_name: string;
+  quantity: number;
+  coin_amount: number;
+  sender_id: number;
+}
+
+export interface LiveDirectoryUpdatedEvent {
+  live_id: string;
+  creator_id: number;
+  title: string;
+  status: LiveStatus;
+  category: string | null;
+  cover_url: string | null;
+  visibility: LiveVisibility;
+  current_viewers: number;
+  likes_count: number;
+  comments_count: number;
+  gifts_count: number;
 }
 
 export type LiveCohostRequestStatus =

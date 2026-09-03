@@ -120,7 +120,8 @@ export const pushNotificationIdentity = (
   const requestId = data.request_id ?? '';
   const challengeId = data.challenge_id ?? data.challengeId ?? '';
   const videoId = data.video_id ?? '';
-  return `payload:${type}:${String(conversationId)}:${String(messageId)}:${String(requestId)}:${String(challengeId)}:${String(videoId)}`;
+  const liveId = data.live_id ?? '';
+  return `payload:${type}:${String(conversationId)}:${String(messageId)}:${String(requestId)}:${String(challengeId)}:${String(videoId)}:${String(liveId)}`;
 };
 
 export const retainRecentNotificationIds = (ids: string[], limit = 100) => (

@@ -6,6 +6,7 @@ import {
   formatChatPresence,
   formatUnreadBadgeCount,
   isChallengeInvitationPushNotification,
+  isLiveStartedPushNotification,
   isMessagePushNotification,
   isMessageRequestAcceptedPushNotification,
   isMessageRequestCreatedPushNotification,
@@ -14,6 +15,7 @@ import {
   nextUnreadMessageCount,
   pushChallengeId,
   pushConversationId,
+  pushLiveId,
   pushRequestId,
   pushVideoId,
 } from '../src/utils/messaging';
@@ -112,6 +114,13 @@ describe('FCM messaging payload helpers', () => {
     const data = { type: 'video.mentioned', video_id: '93' };
     expect(isVideoMentionPushNotification(data)).toBe(true);
     expect(pushVideoId(data)).toBe('93');
+  });
+
+  it('recognizes live-started notifications and extracts the live session id', () => {
+    const data = { type: 'live.started', live_id: 'live-public-id' };
+    expect(isLiveStartedPushNotification(data)).toBe(true);
+    expect(pushLiveId(data)).toBe('live-public-id');
+    expect(isMessagePushNotification(data)).toBe(false);
   });
 
   it('uses an authoritative unread count when FCM supplies one', () => {

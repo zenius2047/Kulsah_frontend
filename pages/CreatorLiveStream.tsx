@@ -92,7 +92,29 @@ const CreatorLiveStream: React.FC = () => {
   const reconnectLive = useReconnectLive(liveSessionId);
   const endLive = useEndLive(liveSessionId);
   const commentLive = useCommentOnLive(liveSessionId);
-  useLiveRealtime(liveSessionId, Boolean(liveSessionId));
+  useLiveRealtime(liveSessionId, Boolean(liveSessionId), {
+    onComment: (comment) => {
+      setChatMessages((current) => current.some((item) => item.id === comment.id)
+        ? current
+        : [...current, {
+          id: comment.id,
+          user: comment.user?.name ?? comment.user?.username ?? 'Viewer',
+          text: comment.body,
+          avatar: comment.user?.avatar,
+        }]);
+    },
+    onGift: (gift) => {
+      const activityId = -gift.transaction_id;
+      setChatMessages((current) => current.some((item) => item.id === activityId)
+        ? current
+        : [...current, {
+          id: activityId,
+          user: `Viewer #${gift.sender_id}`,
+          text: `sent ${gift.quantity}x ${gift.gift_name} (${gift.coin_amount} KC)`,
+          isTip: true,
+        }]);
+    },
+  });
   const RtcVideoView = Platform.OS === 'android' ? RtcTextureView : RtcSurfaceView;
   const localVideoCanvas = useMemo(
     () => ({
@@ -196,13 +218,15 @@ const CreatorLiveStream: React.FC = () => {
     if (!body || commentLive.isPending) return;
     try {
       const comment = await commentLive.mutateAsync(body);
-      setChatMessages((prev) => [...prev, {
-        id: comment.id,
-        user: comment.user?.name ?? live?.creator?.name ?? 'Host',
-        text: comment.body,
-        avatar: comment.user?.avatar,
-        isSystem: true,
-      }]);
+      setChatMessages((current) => current.some((item) => item.id === comment.id)
+        ? current
+        : [...current, {
+          id: comment.id,
+          user: comment.user?.name ?? live?.creator?.name ?? 'Host',
+          text: comment.body,
+          avatar: comment.user?.avatar,
+          isSystem: true,
+        }]);
       setBroadcastText('');
     } catch (error) {
       Alert.alert('Message not sent', getApiErrorMessage(error));

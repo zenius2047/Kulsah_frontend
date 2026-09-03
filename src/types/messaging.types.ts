@@ -64,6 +64,12 @@ export type PushNotificationData = Record<string, unknown> & {
   mentioned_by?: string | Record<string, unknown>;
   mentions?: string | unknown[];
   hashtags?: string | unknown[];
+  live_id?: string | number;
+  creator_id?: string | number;
+  creator_name?: string;
+  creator_username?: string;
+  category?: string;
+  cover_url?: string | null;
   created_at?: string;
 };
 
