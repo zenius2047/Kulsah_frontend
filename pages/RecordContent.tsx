@@ -21,7 +21,7 @@ import * as ImagePicker from 'expo-image-picker';
 import { VoteSheetContent } from './SoundSelect';
 import { mediumScreen } from '../types';
 import { fontSize } from './typography';
-import type { VideoDisplayOrientation } from '../src';
+import type { MusicTrack, VideoDisplayOrientation } from '../src';
 
 type FilterItem = {
   id: string;
@@ -110,11 +110,7 @@ const RecordContent: React.FC = ({route}:any) => {
   const [isPickingVideo, setIsPickingVideo] = React.useState(false);
   const cameraOrientationRef = React.useRef<VideoDisplayOrientation>('portrait');
   const mountedRef = React.useRef(true);
-  const [sound, setSound] = React.useState<{
-    title:string,
-    id:string,
-    meta:string,
-    usage:string}| null>(null);
+  const [sound, setSound] = React.useState<MusicTrack | null>(null);
 
   const recordingProgress = Math.min(recordedSeconds / MAX_RECORDING_SECONDS, 1);
   const formatSeconds = (value: number) => `00:${String(Math.min(value, MAX_RECORDING_SECONDS)).padStart(2, '0')}`;
@@ -124,14 +120,11 @@ const RecordContent: React.FC = ({route}:any) => {
   }, []);
 
 
-  React.useEffect(()=>{
-          const sound = route?.params?.sound;
-          // console.log(sound);
-          if(sound){
-            // console.log(sound);
-              setSound(sound.sound);
-          }
-      }, [route?.params?.sound])
+  React.useEffect(() => {
+    const routeSound = route?.params?.sound?.sound ?? route?.params?.sound;
+    if (!routeSound || typeof routeSound !== 'object' || !routeSound.provider || !routeSound.external_id) return;
+    setSound(routeSound as MusicTrack);
+  }, [route?.params?.sound]);
 
   React.useEffect(() => {
     if (!isRecording) return undefined;
@@ -392,7 +385,10 @@ const RecordContent: React.FC = ({route}:any) => {
           </BlurView>
         </View>
 
-        <View style={styles.bottomArea}>
+        <View style={[
+          styles.bottomArea,
+          { paddingBottom: 24 + (Platform.OS === 'android' ? insets.bottom : 0) },
+        ]}>
           <LinearGradient
             colors={['rgba(0,0,0,0)', 'rgba(0,0,0,0.45)', 'rgba(0,0,0,0.82)']}
             style={styles.bottomFade}
@@ -483,7 +479,12 @@ const RecordContent: React.FC = ({route}:any) => {
           onRequestClose={() => setSoundSelectOpen(false)}
         >
           <Pressable style={styles.modalBackdrop} onPress={() => setSoundSelectOpen(false)} />
-          <VoteSheetContent sheetMode onClose={() => setSoundSelectOpen(false)} />
+          <VoteSheetContent
+            sheetMode
+            selectedTrackId={sound?.id}
+            onSelect={setSound}
+            onClose={() => setSoundSelectOpen(false)}
+          />
         </Modal>
       </View>}
     </View>

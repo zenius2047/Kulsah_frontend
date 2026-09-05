@@ -162,7 +162,7 @@ export const isMessagingRealtimeConfigured = Boolean(
 
 const createMessagingRealtimeClient = (
   PusherConstructor: RealtimePusherConstructor,
-  token: string,
+  token?: string | null,
 ): MessagingRealtimeClient => {
   const pusher = new PusherConstructor(messagingRealtimeConfig.key, {
     cluster: '',
@@ -177,7 +177,7 @@ const createMessagingRealtimeClient = (
       endpoint: messagingRealtimeConfig.authEndpoint,
       headers: {
         Accept: 'application/json',
-        Authorization: `Bearer ${token}`,
+        ...(token ? { Authorization: `Bearer ${token}` } : {}),
       },
     },
     ...(messagingRealtimeConfig.path ? { wsPath: messagingRealtimeConfig.path } : {}),
@@ -203,9 +203,10 @@ let realtimeClient: MessagingRealtimeClient | null = null;
 let realtimeToken: string | null = null;
 let hasWarnedAboutRealtimeInitialization = false;
 
-export const getMessagingRealtimeClient = (token: string): MessagingRealtimeClient | null => {
-  if (!isMessagingRealtimeConfigured || !token) return null;
-  if (realtimeClient && realtimeToken === token) return realtimeClient;
+export const getMessagingRealtimeClient = (token?: string | null): MessagingRealtimeClient | null => {
+  if (!isMessagingRealtimeConfigured) return null;
+  const normalizedToken = token?.trim() || null;
+  if (realtimeClient && realtimeToken === normalizedToken) return realtimeClient;
 
   realtimeClient?.disconnect();
   try {
@@ -213,8 +214,8 @@ export const getMessagingRealtimeClient = (token: string): MessagingRealtimeClie
     const PusherConstructor = resolvePusherConstructor(pusherPackage);
     if (!PusherConstructor) throw new TypeError('The React Native Pusher constructor could not be resolved.');
 
-    realtimeToken = token;
-    realtimeClient = createMessagingRealtimeClient(PusherConstructor, token);
+    realtimeToken = normalizedToken;
+    realtimeClient = createMessagingRealtimeClient(PusherConstructor, normalizedToken);
   } catch (error) {
     realtimeClient = null;
     realtimeToken = null;

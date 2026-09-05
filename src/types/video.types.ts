@@ -150,6 +150,7 @@ export type UpdateCreatorVideoPayload = {
   content_type?: Array<VideoContentType | string> | string;
   visibility?: VideoVisibility;
   allow_duet?: boolean;
+  music?: import('./music.types').MusicSelectionPayload | null;
 };
 
 export type CreateCreatorVideoDuetDraftPayload = CreateCreatorVideoDraftPayload;

@@ -14,9 +14,13 @@ export const useLiveDirectoryRealtime = (enabled = true) => {
   const token = useAuthStore((state) => state.token);
 
   useEffect(() => {
-    if (!enabled || !token || !isMessagingRealtimeConfigured) return;
+    if (!enabled || !isMessagingRealtimeConfigured) return;
     const realtime = getMessagingRealtimeClient(token);
     if (!realtime) return;
+
+    // Reconcile anything emitted while this screen was unfocused before
+    // listening for subsequent directory changes.
+    void queryClient.invalidateQueries({ queryKey: liveQueryKeys.discovery() });
 
     const handleUpdate = (event: LiveDirectoryUpdatedEvent) => {
       if (!event?.live_id) return;

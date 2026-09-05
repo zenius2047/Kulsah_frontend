@@ -136,6 +136,8 @@ export const endpoints = {
       `media/message-uploads/${attachment}/complete`,
   },
   creator: {
+    music: 'creator/music',
+    musicTrack: (musicTrack: string) => `creator/music/${encodeURIComponent(musicTrack)}`,
     events: 'creator/events',
     event: (event: string | number) => `creator/events/${event}`,
     communityPosts: 'creator/community/posts',

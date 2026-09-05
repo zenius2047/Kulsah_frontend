@@ -25,6 +25,7 @@ import {
   hasCreatorVideoEdits,
   getVideoProcessingState,
   parseApiError,
+  toMusicSelectionPayload,
   useCreatorVideoDirectUpload,
   useSubmitChallengeEntry,
   useUpdateCreatorVideo,
@@ -32,6 +33,7 @@ import {
 } from '../src';
 import type {
   SubmitCreatorVideoEditsPayload,
+  MusicTrack,
   VideoContentType,
   VideoDisplayOrientation,
   VideoPurpose,
@@ -42,12 +44,7 @@ import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 type SubmitEntryRouteParams = {
   video?: VideoUploadSource;
-  sound?: {
-    title?: string;
-    id?: string;
-    meta?: string;
-    usage?: string;
-  } | null;
+  sound?: MusicTrack | null;
   uploadedVideoId?: string | number;
   uploadToExistingDraft?: boolean;
   duetSourceVideoId?: string | number;
@@ -381,6 +378,20 @@ const SubmitEntry: React.FC = () => {
 
     try {
       let submittedVideoId = uploadedVideoId;
+      const music = params.sound ? toMusicSelectionPayload(params.sound) : null;
+
+      if (params.sound && !music) {
+        throw new Error('The selected music track is missing provider information. Please select it again.');
+      }
+
+      const videoDetails = {
+        title: title.trim() || null,
+        caption: description.trim() || null,
+        content_type: contentTypes,
+        visibility: selectedVisibility,
+        allow_duet: allowDuets,
+        ...(music ? { music } : {}),
+      };
 
       if (uploadedVideoId != null) {
         if (params.uploadToExistingDraft) {
@@ -396,13 +407,7 @@ const SubmitEntry: React.FC = () => {
         }
         await updateCreatorVideo({
           video: uploadedVideoId,
-          payload: {
-            title: title.trim() || null,
-            caption: description.trim() || null,
-            content_type: contentTypes,
-            visibility: selectedVisibility,
-            allow_duet: allowDuets,
-          },
+          payload: videoDetails,
         });
       } else {
         const result = await directUpload.upload({
@@ -423,6 +428,7 @@ const SubmitEntry: React.FC = () => {
         });
 
         submittedVideoId = result.video.id;
+        await updateCreatorVideo({ video: result.video.id, payload: videoDetails });
       }
 
       if (params.challengeId != null) {

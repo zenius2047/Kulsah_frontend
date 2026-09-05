@@ -120,7 +120,7 @@ const CreatorLiveStream: React.FC = () => {
     () => ({
       uid: 0,
       sourceType: VideoSourceType.VideoSourceCameraPrimary,
-      renderMode: RenderModeType.RenderModeFit,
+      renderMode: RenderModeType.RenderModeHidden,
     }),
     []
   );
@@ -272,7 +272,7 @@ const CreatorLiveStream: React.FC = () => {
 
   return (
     <KeyboardAvoidingView style={styles.fullScreenRoot} behavior={Platform.OS === 'ios' ? 'padding' : undefined} keyboardVerticalOffset={0}>
-    <View style={styles.safeArea}>
+    <View style={styles.fullScreen}>
       <StatusBar hidden translucent backgroundColor="transparent" barStyle="light-content" />
       {!permissionsGranted ? (
         <View style={styles.permissionScreen}>
@@ -550,11 +550,11 @@ const CreatorLiveStream: React.FC = () => {
 };
 
 const styles = StyleSheet.create({
-  safeArea: {
+  fullScreenRoot: {
     flex: 1,
     backgroundColor: '#000',
   },
-  fullScreenRoot: {
+  fullScreen: {
     flex: 1,
     backgroundColor: '#000',
   },

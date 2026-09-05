@@ -18,6 +18,7 @@ export * from './api/pushNotifications.api';
 export * from './api/messaging.api';
 export * from './api/sticker.api';
 export * from './api/live.api';
+export * from './api/music.api';
 
 export * from './context/AuthContext';
 export * from './hooks/mutations/useRegister';
@@ -46,6 +47,7 @@ export * from './hooks/queries/useCreatorVideoPlaylists';
 export * from './hooks/queries/useCreatorVideos';
 export * from './hooks/queries/useCreatorDashboard';
 export * from './hooks/queries/useFeedVideos';
+export * from './hooks/queries/useMusic';
 export * from './hooks/queries/useLogin';
 export * from './hooks/queries/usePublicCreatorSubscriptionPlans';
 export * from './hooks/queries/useUser';
@@ -102,6 +104,7 @@ export * from './types/creatorDashboard.types';
 export * from './types/messaging.types';
 export * from './types/sticker.types';
 export * from './types/live.types';
+export * from './types/music.types';
 export * from './utils/apiError';
 
 export * from './utils/constants';

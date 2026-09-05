@@ -1,6 +1,7 @@
-import React, { useMemo, useState } from 'react';
+import React, { useCallback, useDeferredValue, useEffect, useMemo, useRef, useState } from 'react';
 import { useThemeMode, PRIMARY_COLOR, primaryColorAlpha } from "../theme";
 import {
+  ActivityIndicator,
   Image,
   Pressable,
   SafeAreaView,
@@ -11,84 +12,97 @@ import {
   View,
 } from 'react-native';
 import { MaterialIcons } from '@expo/vector-icons';
+import { Audio, type AVPlaybackStatus } from 'expo-av';
 import { fontSize } from './typography';
+import { useMusic } from '../src/hooks/queries/useMusic';
+import type { MusicTrack } from '../src/types/music.types';
 
-type VoteTab = 'Hot' | 'For You' | 'Favourites' | 'Recents';
+type MusicTab = 'Trending' | 'Popular';
 
-type Track = {
-  id: string;
-  title: string;
-  artist: string;
-  duration: string;
-  image: string;
-  selected?: boolean;
+const tabs: MusicTab[] = ['Trending', 'Popular'];
+
+const formatDuration = (duration?: number | null) => {
+  const seconds = Math.max(0, Math.round(duration ?? 0));
+  return `${Math.floor(seconds / 60)}:${String(seconds % 60).padStart(2, '0')}`;
 };
 
-const tabs: VoteTab[] = ['Hot', 'For You', 'Favourites', 'Recents'];
-
-const tracks: Track[] = [
-  {
-    id: '1',
-    title: 'Neon Dreams',
-    artist: 'Cyber Pulse',
-    duration: '0:30',
-    image:
-      'https://lh3.googleusercontent.com/aida-public/AB6AXuCwcJyo6lWEKv7asZ4R83Y8odVElZU7RwGNOYMHVqJz5RR0th0hnTHT7fcx9KO1Dj6BIeD7xZKkUXk5SGX8dp_Z2lvppJ2o5HHgLw1xdhyTKtE5_QxR9Vh--IacMc8pqIx-yAS_qm-z7Uh33CvKS2y5xGgJfEvqPyhYfpF8RmSf3V5DoMS_CUnyIlftd9qgT-7aZl24qOL0S2UzI4HY3znALsV4XgSG50sTjgParBuZ9h2qlX1qtkCfuoXrs59Dw8qxs9qJUQSNfseq',
-    selected: true,
-  },
-  {
-    id: '2',
-    title: 'Midnight Echoes',
-    artist: 'The Glitch Collective',
-    duration: '0:15',
-    image:
-      'https://lh3.googleusercontent.com/aida-public/AB6AXuAcs7sQlaAnpuXU45Inkk86gsQ46WNSxnTSMpD0eS5lh-Lvjk9vM1T53ZJR-tJao5DYdKJP87rqK7SLR4eda6o0XjZIeP96ZzVGR2bnB_cqTpFF5HsVFssva31eZVTHBhyYB5h8eySrfql7KjFI9Y66RKpepR8tIEh_58VEEuHZvTdwVICYTCIWn4Qw1kBVkaPnAruM3n7sX0oO3wYyRcH7TsuC3tJjhTL1Ol8XqCVFaEqVM6WV_bCtvE6yJW7r_yCgbi8uN4OPziOq',
-  },
-  {
-    id: '3',
-    title: 'Bassline King',
-    artist: 'Underground Vibe',
-    duration: '0:45',
-    image:
-      'https://lh3.googleusercontent.com/aida-public/AB6AXuBepb023bIzqUXl-vj2pBqn68ofDcUBC1uK2yrwx72bKvSa0a9G2nx0EmnD0MZlKPw9sQjOx1dKX0q7uiuKA1-ge9s6XA6vGTg27TN0l9R2f9qhk4UUKGpgq1thmWV7gRVtJOU1FI3tMjpimjrMlipWRJDLlYv7mUohw9h8lY-2x7tkPsveq5bknhP_0NrBotnIJZbxdqWEfSDab1lQsk96Et92CN0ssNODPodbkMllrRNJ8yYyF1wkIl-NoY8JYL03w8TdZ1uY7Zs7',
-  },
-  {
-    id: '4',
-    title: 'Electric Sky',
-    artist: 'Lunar Horizon',
-    duration: '1:00',
-    image:
-      'https://lh3.googleusercontent.com/aida-public/AB6AXuBTQfqYY7PX35jwpz_04vamBg_x2QuQm55Tnge9QiwAQlN294zrIjLDymbIeR5DLkI3iEqMtNT45x6n0CMA9dS5SZI0ER6dNupNVhok_ObJzNZEpvMi-rrIWcLTJ-rRc-FieWgqw94E_6UVOErUHqdHo4eIRX4HyCG-a9Oo_ndJmiZ1Ia2Tgs0jumAXxaAhzm1RSvZf1U1VvHIZFKyPDo5P5TGk35Wtl4WWHxXD2IAhd6smG-_IETeSpVVHmzXXWkV4en7vYeApytwJ',
-  },
-  {
-    id: '5',
-    title: 'Vortex Flow',
-    artist: 'Aura Beats',
-    duration: '0:24',
-    image:
-      'https://lh3.googleusercontent.com/aida-public/AB6AXuCq5tZb052dujwS85ZD50WDi3Y1Jj6ssDc0uGUHwyNKlm0BdPDDZb9bDQ5V3vrfK-LKxeJfYm41i3zzMEW_Sl5n7CxjA6nTPm9ovytkQIZx-kegbO7j7DKDWYQ8MY-2vR3bz72jpZ65F4_p3HgJ1LVpyQcs2GNO2jkcZj3ZkFka-0M7y6xEZjLlK8mdOSkSEcjbv9G0GcXuf96NVQhx4-ju-jb__73-YDI_Ayc6My0Za3BZgi-kvtVfSlMBKuNsaox0HHRF5ZflQIuT',
-  },
-];
+type PreviewSound = Awaited<ReturnType<typeof Audio.Sound.createAsync>>['sound'];
 
 type VoteSheetContentProps = {
   onClose?: () => void;
   sheetMode?: boolean;
+  selectedTrackId?: string | null;
+  onSelect?: (track: MusicTrack) => void;
 };
 
-export const VoteSheetContent: React.FC<VoteSheetContentProps> = ({ onClose, sheetMode = false }) => {
+export const VoteSheetContent: React.FC<VoteSheetContentProps> = ({
+  onClose,
+  sheetMode = false,
+  selectedTrackId = null,
+  onSelect,
+}) => {
   const { isDark, theme } = useThemeMode();
-  const [activeTab, setActiveTab] = useState<VoteTab>('Hot');
+  const [activeTab, setActiveTab] = useState<MusicTab>('Trending');
   const [query, setQuery] = useState('');
+  const deferredQuery = useDeferredValue(query.trim());
+  const previewRef = useRef<PreviewSound | null>(null);
+  const [playingTrackId, setPlayingTrackId] = useState<string | null>(null);
 
-  const filteredTracks = useMemo(() => {
-    const normalized = query.trim().toLowerCase();
-    if (!normalized) return tracks;
-    return tracks.filter(
-      (track) =>
-        track.title.toLowerCase().includes(normalized) ||
-        track.artist.toLowerCase().includes(normalized),
-    );
-  }, [query]);
+  const musicParams = useMemo(() => (
+    deferredQuery
+      ? { search: deferredQuery, limit: 25 }
+      : activeTab === 'Popular'
+        ? { sort: 'popular' as const, limit: 25 }
+        : { trending: true, limit: 25 }
+  ), [activeTab, deferredQuery]);
+  const music = useMusic(musicParams);
+  const tracks = music.data?.data ?? [];
+
+  const stopPreview = useCallback(async () => {
+    const preview = previewRef.current;
+    previewRef.current = null;
+    setPlayingTrackId(null);
+    if (!preview) return;
+
+    try {
+      await preview.stopAsync();
+    } catch {}
+    try {
+      await preview.unloadAsync();
+    } catch {}
+  }, []);
+
+  useEffect(() => () => {
+    void stopPreview();
+  }, [stopPreview]);
+
+  const togglePreview = useCallback(async (track: MusicTrack) => {
+    if (!track.stream_url) return;
+    if (playingTrackId === track.id) {
+      await stopPreview();
+      return;
+    }
+
+    await stopPreview();
+    try {
+      await Audio.setAudioModeAsync({ playsInSilentModeIOS: true, shouldDuckAndroid: true });
+      const { sound } = await Audio.Sound.createAsync({ uri: track.stream_url }, { shouldPlay: true });
+      previewRef.current = sound;
+      setPlayingTrackId(track.id);
+      sound.setOnPlaybackStatusUpdate((status: AVPlaybackStatus) => {
+        if (!status.isLoaded || status.didJustFinish) void stopPreview();
+      });
+    } catch {
+      await stopPreview();
+    }
+  }, [playingTrackId, stopPreview]);
+
+  const selectTrack = useCallback((track: MusicTrack) => {
+    if (!track.external_id) return;
+    void stopPreview();
+    onSelect?.(track);
+    onClose?.();
+  }, [onClose, onSelect, stopPreview]);
 
   const screenBackground = isDark ? '#0a050d' : theme.background;
   const panelBackground = isDark ? 'rgba(255,255,255,0.03)' : theme.card;
@@ -150,15 +164,43 @@ export const VoteSheetContent: React.FC<VoteSheetContentProps> = ({ onClose, she
           <View style={styles.sectionHeader}>
             <View style={styles.sectionTitleRow}>
               <MaterialIcons name="bolt" size={20} color={PRIMARY_COLOR} />
-              <Text style={[styles.sectionTitle, { color: theme.text }]}>Trending Audio</Text>
+              <Text style={[styles.sectionTitle, { color: theme.text }]}>
+                {deferredQuery ? 'Search results' : activeTab === 'Popular' ? 'Popular Audio' : 'Trending Audio'}
+              </Text>
             </View>
             <View style={styles.hotBadge}>
-              <Text style={styles.hotBadgeText}>Hot Now</Text>
+              <Text style={styles.hotBadgeText}>{deferredQuery ? 'Results' : 'Audius'}</Text>
             </View>
           </View>
 
           <View style={styles.list}>
-            {filteredTracks.map((track) => (
+            {music.isLoading ? (
+              <View style={styles.emptyState}>
+                <ActivityIndicator color={PRIMARY_COLOR} />
+                <Text style={[styles.emptyStateText, { color: mutedText }]}>Loading music…</Text>
+              </View>
+            ) : null}
+
+            {!music.isLoading && music.isError ? (
+              <Pressable style={styles.emptyState} onPress={() => void music.refetch()}>
+                <MaterialIcons name="refresh" size={24} color={PRIMARY_COLOR} />
+                <Text style={[styles.emptyStateText, { color: mutedText }]}>Could not load music. Tap to retry.</Text>
+              </Pressable>
+            ) : null}
+
+            {!music.isLoading && !music.isError && tracks.length === 0 ? (
+              <View style={styles.emptyState}>
+                <MaterialIcons name="music-off" size={24} color={mutedText} />
+                <Text style={[styles.emptyStateText, { color: mutedText }]}>No streamable tracks found.</Text>
+              </View>
+            ) : null}
+
+            {tracks.map((track) => {
+              const isSelected = selectedTrackId === track.id;
+              const isPlaying = playingTrackId === track.id;
+              const artwork = track.thumbnail_artwork ?? track.large_artwork;
+
+              return (
               <View
                 key={track.id}
                 style={[
@@ -171,50 +213,60 @@ export const VoteSheetContent: React.FC<VoteSheetContentProps> = ({ onClose, she
               >
                 <View style={styles.trackMain}>
                   <View style={[styles.coverWrap, { borderColor: ringColor }]}>
-                    <Image source={{ uri: track.image }} style={styles.coverImage} />
+                    {artwork ? <Image source={{ uri: artwork }} style={styles.coverImage} /> : null}
                     <View style={styles.coverOverlay}>
-                      <MaterialIcons name="play-arrow" size={30} color="#fff" />
+                      <MaterialIcons name={isPlaying ? 'pause' : 'play-arrow'} size={30} color="#fff" />
                     </View>
                   </View>
 
                   <View style={styles.trackCopy}>
                     <Text style={[styles.trackTitle, { color: theme.text }]} numberOfLines={1}>
-                      {track.title}
+                      {track.title || 'Untitled track'}
                     </Text>
                     <Text style={[styles.trackArtist, { color: subtleText }]} numberOfLines={1}>
-                      {track.artist}
+                      {track.artist || 'Unknown artist'}
                     </Text>
-                    <Text style={[styles.trackDuration, { color: mutedText }]}>{track.duration}</Text>
+                    <Text style={[styles.trackDuration, { color: mutedText }]}>
+                      {formatDuration(track.duration)} · {track.usage_count.toLocaleString()} uses
+                    </Text>
                   </View>
                 </View>
 
                 <View style={styles.trackActions}>
                   <View style={styles.utilityActions}>
-                    <Pressable style={styles.utilityButton}>
-                      <MaterialIcons name="bookmark-border" size={22} color={PRIMARY_COLOR} />
-                    </Pressable>
-                    <Pressable style={styles.utilityButton}>
-                      <MaterialIcons name="content-cut" size={22} color={PRIMARY_COLOR} />
+                    <Pressable
+                      style={styles.utilityButton}
+                      accessibilityRole="button"
+                      accessibilityLabel={`${isPlaying ? 'Pause' : 'Play'} ${track.title || 'track'} preview`}
+                      disabled={!track.stream_url}
+                      onPress={() => void togglePreview(track)}
+                    >
+                      <MaterialIcons name={isPlaying ? 'pause-circle-outline' : 'play-circle-outline'} size={25} color={PRIMARY_COLOR} />
                     </Pressable>
                   </View>
 
                   <Pressable
                     style={[
                       styles.selectButton,
-                      track.selected
+                      isSelected
                         ? styles.selectButtonActive
                         : { backgroundColor: rowHover },
                     ]}
+                    accessibilityRole="button"
+                    accessibilityLabel={`Use ${track.title || 'this sound'}`}
+                    disabled={!track.external_id}
+                    onPress={() => selectTrack(track)}
                   >
                     <MaterialIcons
-                      name={track.selected ? 'check' : 'add'}
+                      name={isSelected ? 'check' : 'add'}
                       size={22}
                       color="#fff"
                     />
                   </Pressable>
                 </View>
               </View>
-            ))}
+              );
+            })}
           </View>
         </ScrollView>
       </View>
@@ -346,6 +398,18 @@ const styles = StyleSheet.create({
   },
   list: {
     gap: 14,
+  },
+  emptyState: {
+    minHeight: 140,
+    alignItems: 'center',
+    justifyContent: 'center',
+    gap: 10,
+    paddingHorizontal: 24,
+  },
+  emptyStateText: {
+    ...fontSize.b4,
+    lineHeight: fontSize.b4.lineHeight,
+    textAlign: 'center',
   },
   trackRow: {
     flexDirection: 'row',

@@ -35,6 +35,7 @@ export interface LiveCreator {
   avatar?: string | null;
   banner?: string | null;
   verified?: boolean;
+  is_following?: boolean;
 }
 
 export interface LiveSession {

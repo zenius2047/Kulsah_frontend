@@ -37,19 +37,14 @@ import {
   normalizeHexColor,
   parseApiError,
 } from '../src';
-import type { GeneratedEditAsset, SubmitCreatorVideoEditsPayload, VideoDisplayOrientation, VideoPurpose, VideoUploadSource } from '../src';
+import type { GeneratedEditAsset, MusicTrack, SubmitCreatorVideoEditsPayload, VideoDisplayOrientation, VideoPurpose, VideoUploadSource } from '../src';
 
 type EditSubmissionRouteParams = {
   video?: VideoUploadSource;
   uploadedVideoId?: string | number;
   uploadToExistingDraft?: boolean;
   duetSourceVideoId?: string | number;
-  sound?: {
-    title?: string;
-    id?: string;
-    meta?: string;
-    usage?: string;
-  } | null;
+  sound?: MusicTrack | null;
   challengeId?: string | number;
   purpose?: VideoPurpose;
   officialSoundId?: string | number | null;
