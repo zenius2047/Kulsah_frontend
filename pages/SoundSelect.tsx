@@ -12,7 +12,7 @@ import {
   View,
 } from 'react-native';
 import { MaterialIcons } from '@expo/vector-icons';
-import { Audio, type AVPlaybackStatus } from 'expo-av';
+import { Audio } from 'expo-av';
 import { fontSize } from './typography';
 import { useMusic } from '../src/hooks/queries/useMusic';
 import type { MusicTrack } from '../src/types/music.types';
@@ -89,8 +89,9 @@ export const VoteSheetContent: React.FC<VoteSheetContentProps> = ({
       const { sound } = await Audio.Sound.createAsync({ uri: track.stream_url }, { shouldPlay: true });
       previewRef.current = sound;
       setPlayingTrackId(track.id);
-      sound.setOnPlaybackStatusUpdate((status: AVPlaybackStatus) => {
-        if (!status.isLoaded || status.didJustFinish) void stopPreview();
+      sound.setOnPlaybackStatusUpdate((status: unknown) => {
+        const playback = status as { isLoaded?: boolean; didJustFinish?: boolean };
+        if (!playback.isLoaded || playback.didJustFinish) void stopPreview();
       });
     } catch {
       await stopPreview();

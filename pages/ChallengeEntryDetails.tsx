@@ -3,52 +3,29 @@ import { useNavigation, useRoute } from '@react-navigation/native';
 import React, { useMemo } from 'react';
 import {
   ActivityIndicator,
+  Alert,
   Image,
   Pressable,
   ScrollView,
-  Share,
   StatusBar,
   StyleSheet,
   Text,
   View,
 } from 'react-native';
 import { SafeAreaView, useSafeAreaInsets } from 'react-native-safe-area-context';
+import { useAcceptChallengeInvite } from '../src/hooks/challenges/useChallengeMutations';
 import { useChallenge } from '../src/hooks/challenges/useChallenges';
+import { getApiErrorMessage } from '../src/utils/apiError';
 import { challengeRuleResourceToDisplay } from '../src/utils/challenges';
 import { PRIMARY_COLOR, useThemeMode } from '../theme';
 import { fontSize } from './typography';
 
-const FALLBACK_HERO =
-  'https://images.unsplash.com/photo-1547153760-18fc86324498?auto=format&fit=crop&q=85&w=1200';
-const FALLBACK_AVATARS = [
-  'https://i.pravatar.cc/100?img=12',
-  'https://i.pravatar.cc/100?img=15',
-  'https://i.pravatar.cc/100?img=33',
-];
-
 type ChallengeEntryRouteParams = {
   challengeId?: string | number;
-  title?: string;
-  description?: string;
-  image?: string;
+  inviteId?: string | number;
 };
 
 type IconName = keyof typeof MaterialIcons.glyphMap;
-
-const fallbackAgreements = [
-  {
-    title: 'Create an original entry',
-    description: 'Record or upload content made specifically for this challenge.',
-  },
-  {
-    title: 'Follow the challenge brief',
-    description: 'Meet the format, duration, and content requirements.',
-  },
-  {
-    title: 'Keep it fair',
-    description: 'Manipulated engagement or copied content may be disqualified.',
-  },
-];
 
 const compactCount = (value: number) => {
   if (value < 1_000) return `${value}`;
@@ -57,10 +34,10 @@ const compactCount = (value: number) => {
 };
 
 const challengeDuration = (start?: string | null, end?: string | null) => {
-  if (!start || !end) return 'Open';
+  if (!start || !end) return '';
   const startTime = new Date(start).getTime();
   const endTime = new Date(end).getTime();
-  if (!Number.isFinite(startTime) || !Number.isFinite(endTime) || endTime <= startTime) return 'Open';
+  if (!Number.isFinite(startTime) || !Number.isFinite(endTime) || endTime <= startTime) return '';
   const days = Math.max(1, Math.ceil((endTime - startTime) / 86_400_000));
   return `${days} ${days === 1 ? 'Day' : 'Days'}`;
 };
@@ -133,6 +110,7 @@ const ChallengeEntryDetails: React.FC = () => {
   const params = (route.params ?? {}) as ChallengeEntryRouteParams;
   const challengeQuery = useChallenge(params.challengeId);
   const challenge = challengeQuery.data;
+  const acceptChallengeInvite = useAcceptChallengeInvite();
 
   const colors = {
     background: isDark ? '#080b12' : '#f7f9fc',
@@ -147,59 +125,79 @@ const ChallengeEntryDetails: React.FC = () => {
     const media = challenge?.media?.find((item) => (
       item.cover_url || item.video?.poster_url || item.video?.thumbnail
     ));
-    return challenge?.cover_image || media?.cover_url || media?.video?.poster_url || media?.video?.thumbnail || params.image || FALLBACK_HERO;
-  }, [challenge?.cover_image, challenge?.media, params.image]);
+    return challenge?.cover_image || media?.cover_url || media?.video?.poster_url || media?.video?.thumbnail || null;
+  }, [challenge?.cover_image, challenge?.media]);
 
   const participantAvatars = useMemo(() => {
+    const providedAvatars = challenge?.participant_avatars ?? [];
+    if (providedAvatars.length) return providedAvatars.slice(0, 3);
     const standardAvatars = challenge?.entries?.map((entry) => entry.userAvatar) ?? [];
     const battleAvatars = challenge?.participants?.map((participant) => participant.creator.avatar) ?? [];
     const avatars = [...standardAvatars, ...battleAvatars]
       .filter((avatar): avatar is string => Boolean(avatar))
       .slice(0, 3);
-    return avatars?.length ? avatars : FALLBACK_AVATARS;
-  }, [challenge?.entries, challenge?.participants]);
+    return avatars;
+  }, [challenge?.entries, challenge?.participant_avatars, challenge?.participants]);
 
-  const agreements = useMemo(() => {
-    if (!challenge?.rules?.length) return fallbackAgreements;
-    return challenge.rules.slice(0, 4).map((rule) => {
+  const agreements = useMemo(() => (
+    (challenge?.rules ?? []).slice(0, 4).map((rule) => {
       const displayRule = challengeRuleResourceToDisplay(rule);
       return {
         title: displayRule.title,
         description: `${displayRule.description}${displayRule.required ? '' : ' (Optional)'}`,
       };
-    });
-  }, [challenge?.rules]);
+    })
+  ), [challenge?.rules]);
 
   const prize = challenge?.awards?.[0] || challenge?.prizes?.[0];
   const prizeAmount = formatPrizeAmount(prize?.amount, prize?.currency);
-  const title = challenge?.title || params.title || 'Night Vibes Dance Challenge';
-  const description = challenge?.description || params.description
-    || 'Show us your best moves, follow the challenge brief, and share an original entry for a chance to win.';
+  const title = challenge?.title ?? '';
+  const description = challenge?.description ?? '';
   const duration = challengeDuration(
     challenge?.submission?.starts_at || challenge?.schedule?.submission_starts_at,
     challenge?.submission?.ends_at || challenge?.schedule?.submission_ends_at,
   );
-  const participantCount = Number(challenge?.participant_count ?? 1_200);
+  const participantCount = Number(challenge?.participant_count ?? 0);
   const eligibilityLabel = challenge?.mode === 'creator_battle'
     ? 'Battle Creators'
     : challenge?.visibility === 'invite_only' ? 'Invite Only' : 'All Creators';
-  const canSubmit = challenge
-    ? Boolean(challenge.current_user?.can_submit ?? challenge.can_join)
-    : true;
-  const rewardTitle = prize?.title || challenge?.pricing?.title || challenge?.reward_summary || 'Featured Creator Reward';
-  const rewardDescription = prize?.description
-    || (prizeAmount ? `${prizeAmount} for qualifying winner${Number(prize?.quantity || 1) === 1 ? '' : 's'}.` : 'Complete the challenge for a chance to earn the featured reward.');
+  const canSubmit = Boolean(challenge && (challenge.current_user?.can_submit ?? challenge.can_join));
+  const battleInviteId = params.inviteId ?? challenge?.current_user?.pending_invite_id;
+  const canAcceptBattleInvite = Boolean(
+    params.challengeId != null
+    && battleInviteId != null
+    && challenge?.mode === 'creator_battle',
+  );
+  const rewardTitle = prize?.title || challenge?.pricing?.title || challenge?.reward_summary || '';
+  const rewardDescription = prize?.description || '';
 
-  const handleShare = async () => {
-    await Share.share({ message: `${title}\n${description}` });
-  };
-
-  const handleJoin = () => {
+  const openRecorder = () => {
     navigation.navigate('RecordContent', {
       challengeId: params.challengeId,
       purpose: 'challenge_entry',
       officialSoundId: challenge?.official_sound_id,
     });
+  };
+
+  const handleJoin = async () => {
+    if (canAcceptBattleInvite && params.challengeId != null && battleInviteId != null) {
+      try {
+        await acceptChallengeInvite.mutateAsync({
+          challenge: params.challengeId,
+          invite: battleInviteId,
+        });
+        navigation.replace('RecordContent', {
+          challengeId: params.challengeId,
+          purpose: 'challenge_entry',
+          officialSoundId: challenge?.official_sound_id,
+        });
+      } catch (error) {
+        Alert.alert('Unable to accept battle invite', getApiErrorMessage(error));
+      }
+      return;
+    }
+
+    openRecorder();
   };
 
   return (
@@ -229,7 +227,7 @@ const ChallengeEntryDetails: React.FC = () => {
 
         <ScrollView contentContainerStyle={styles.scrollContent} showsVerticalScrollIndicator={false}>
           <View style={styles.heroWrap}>
-            <Image source={{ uri: heroImage }} resizeMode="cover" style={styles.heroImage} />
+            {heroImage ? <Image source={{ uri: heroImage }} resizeMode="cover" style={styles.heroImage} /> : null}
             <View style={styles.featuredBadge}>
               <MaterialIcons name="local-fire-department" size={17} color="#ffffff" />
               <Text style={styles.featuredText}>FEATURED</Text>
@@ -365,12 +363,16 @@ const ChallengeEntryDetails: React.FC = () => {
         <View style={[styles.footer, { backgroundColor: colors.card, borderTopColor: colors.border, paddingBottom: Math.max(insets.bottom, 10) }]}>
           <Pressable
             accessibilityRole="button"
-            disabled={!canSubmit}
-            onPress={handleJoin}
-            style={({ pressed }) => [styles.joinButton, !canSubmit && styles.joinButtonDisabled, pressed && styles.joinButtonPressed]}
+            disabled={(!canSubmit && !canAcceptBattleInvite) || acceptChallengeInvite.isPending}
+            onPress={() => void handleJoin()}
+            style={({ pressed }) => [styles.joinButton, (!canSubmit && !canAcceptBattleInvite) && styles.joinButtonDisabled, pressed && styles.joinButtonPressed]}
           >
             <Text style={styles.joinButtonText}>
-              {canSubmit ? 'I Agree · Join Challenge' : challenge?.mode === 'creator_battle' ? 'Battle invite required' : 'Submissions closed'}
+              {acceptChallengeInvite.isPending
+                ? 'Accepting battle invite...'
+                : canAcceptBattleInvite
+                  ? 'Accept Battle Invite'
+                  : canSubmit ? 'I Agree · Join Challenge' : challenge?.mode === 'creator_battle' ? 'Battle invite required' : 'Submissions closed'}
             </Text>
           </Pressable>
           <View style={styles.leaveRow}>

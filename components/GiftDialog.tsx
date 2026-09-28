@@ -36,6 +36,13 @@ export type GiftSelection = {
   isImage?: boolean;
 };
 
+export type GiftRecipient = {
+  id: string | number;
+  name: string;
+  handle?: string | null;
+  avatar?: string | null;
+};
+
 type GiftItem = {
   id: string;
   code: string;
@@ -50,11 +57,12 @@ interface GiftDialogProps {
   isOpen: boolean;
   onClose: () => void;
   creatorName: string;
+  recipients?: GiftRecipient[];
   currentBalance?: number;
   creatorId?: string | number;
   communityPostId?: string | number;
   message?: string;
-  onSendGift?: (gift: GiftSelection) => void | Promise<void>;
+  onSendGift?: (gift: GiftSelection, recipient?: GiftRecipient) => void | Promise<void>;
   onGiftSent?: (gift: GiftSelection) => void;
   onTopUpSuccess?: (amount: number) => void;
   onRecharge?: () => void;
@@ -83,6 +91,7 @@ const GiftDialog: React.FC<GiftDialogProps> = ({
   isOpen,
   onClose,
   creatorName,
+  recipients,
   currentBalance = 0,
   creatorId,
   communityPostId,
@@ -98,6 +107,12 @@ const GiftDialog: React.FC<GiftDialogProps> = ({
   const [selectedItem, setSelectedItem] = useState<GiftItem | null>(null);
   const [topUpOpen, setTopUpOpen] = useState(false);
   const [isSending, setIsSending] = useState(false);
+  const giftRecipients = useMemo<GiftRecipient[]>(() => (
+    recipients?.length ? recipients : [{ id: creatorId ?? 'creator', name: creatorName }]
+  ), [creatorId, creatorName, recipients]);
+  const [selectedRecipientId, setSelectedRecipientId] = useState<string | number>(giftRecipients[0]?.id ?? 'creator');
+  const selectedRecipient = giftRecipients.find((recipient) => String(recipient.id) === String(selectedRecipientId))
+    ?? giftRecipients[0];
   const hasBackendRecipient = (communityPostId != null && communityPostId !== '') || (creatorId != null && creatorId !== '');
   const giftsQuery = useKulCoinGifts(isOpen);
   const walletQuery = useKulCoinWallet(isOpen && hasBackendRecipient);
@@ -109,6 +124,12 @@ const GiftDialog: React.FC<GiftDialogProps> = ({
       setActiveCategory('all');
     }
   }, [isOpen]);
+
+  useEffect(() => {
+    if (!giftRecipients.some((recipient) => String(recipient.id) === String(selectedRecipientId))) {
+      setSelectedRecipientId(giftRecipients[0]?.id ?? 'creator');
+    }
+  }, [giftRecipients, selectedRecipientId]);
 
   const catalog = useMemo(() => (giftsQuery.data ?? [])
     .filter((gift) => gift.is_active)
@@ -167,9 +188,9 @@ const GiftDialog: React.FC<GiftDialogProps> = ({
         await communityApi.giftPost(communityPostId, payload);
         await queryClient.invalidateQueries({ queryKey: ['community'] });
       } else if (creatorId != null && creatorId !== '') {
-        await kulCoinApi.sendGift({ ...payload, creator_id: creatorId });
+        await kulCoinApi.sendGift({ ...payload, creator_id: selectedRecipient?.id ?? creatorId });
       } else if (onSendGift) {
-        await onSendGift(selection);
+        await onSendGift(selection, selectedRecipient);
       } else {
         throw new Error('A gift recipient is required.');
       }
@@ -177,7 +198,7 @@ const GiftDialog: React.FC<GiftDialogProps> = ({
       await queryClient.invalidateQueries({ queryKey: ['kulcoin', 'wallet'] });
       onGiftSent?.(selection);
       if (communityPostId != null || creatorId != null) {
-        Alert.alert('Gift sent', `${selection.name} was sent to ${creatorName}.`);
+        Alert.alert('Gift sent', `${selection.name} was sent to ${selectedRecipient?.name ?? creatorName}.`);
       }
       setSelectedItem(null);
       onClose();
@@ -208,8 +229,37 @@ const GiftDialog: React.FC<GiftDialogProps> = ({
             <View style={styles.handle} />
 
             <View style={styles.content}>
+            <Text style={[styles.recipientPrompt, { color: theme.textSecondary }]}>Send your gift to</Text>
+            <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={styles.recipientRow}>
+              {giftRecipients.map((recipient) => {
+                const selected = String(recipient.id) === String(selectedRecipient?.id);
+                return (
+                  <Pressable
+                    key={String(recipient.id)}
+                    accessibilityRole="button"
+                    accessibilityState={{ selected }}
+                    accessibilityLabel={`Send gift to ${recipient.name}`}
+                    onPress={() => setSelectedRecipientId(recipient.id)}
+                    style={[styles.recipientCard, { borderColor: selected ? PRIMARY_COLOR : theme.border, backgroundColor: isDark ? 'rgba(255,255,255,0.05)' : '#f8fafc' }]}
+                  >
+                    {recipient.avatar ? (
+                      <Image source={{ uri: recipient.avatar }} style={styles.recipientAvatar} />
+                    ) : (
+                      <View style={[styles.recipientAvatar, styles.recipientAvatarFallback]}>
+                        <Text style={styles.recipientInitial}>{recipient.name.charAt(0).toUpperCase()}</Text>
+                      </View>
+                    )}
+                    <View style={styles.recipientCopy}>
+                      <Text style={[styles.recipientName, { color: theme.text }]} numberOfLines={1}>{recipient.name}</Text>
+                      {recipient.handle ? <Text style={[styles.recipientHandle, { color: theme.textMuted }]} numberOfLines={1}>@{recipient.handle.replace(/^@/, '')}</Text> : null}
+                    </View>
+                    {selected ? <MaterialIcons name="check-circle" size={18} color={PRIMARY_COLOR} /> : null}
+                  </Pressable>
+                );
+              })}
+            </ScrollView>
             <KulsahInputBar
-                placeholder={`Send a gift to ${creatorName}...`}
+                placeholder={`Send a gift to ${selectedRecipient?.name ?? creatorName}...`}
                 placeholderTextColor={theme.textMuted}
                 containerStyle={[styles.fakeInput, { backgroundColor: isDark ? 'rgba(255,255,255,0.05)' : '#f1f5f9', borderColor: theme.border }]}
                 inputStyle={[styles.fakeInputText, { color: theme.text }]}
@@ -425,6 +475,15 @@ const styles = StyleSheet.create({
     paddingBottom: 8,
     gap: 18,
   },
+  recipientPrompt: { ...fontSize.reactionB5, lineHeight: fontSize.reactionB5.lineHeight, marginBottom: 8 },
+  recipientRow: { gap: 8, paddingBottom: 14 },
+  recipientCard: { flexDirection: 'row', alignItems: 'center', gap: 8, minWidth: 172, maxWidth: 220, padding: 8, borderRadius: 14, borderWidth: 1 },
+  recipientAvatar: { width: 34, height: 34, borderRadius: 17 },
+  recipientAvatarFallback: { alignItems: 'center', justifyContent: 'center', backgroundColor: primaryColorAlpha(0.24) },
+  recipientInitial: { color: '#ffffff', fontWeight: '700' },
+  recipientCopy: { flex: 1, minWidth: 0 },
+  recipientName: { ...fontSize.reactionB5, lineHeight: fontSize.reactionB5.lineHeight, fontWeight: '700' },
+  recipientHandle: { fontSize: 11, lineHeight: 14 },
   fakeInput: {
     minHeight: 48,
     borderRadius: 999,

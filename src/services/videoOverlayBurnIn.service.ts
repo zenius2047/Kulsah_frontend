@@ -44,6 +44,22 @@ export type BurnInSticker = {
   end?: number;
 };
 
+export type BurnInImageOverlay = {
+  id: string;
+  x: number;
+  y: number;
+  width: number;
+  height: number;
+  start?: number;
+  end?: number;
+};
+
+export type BurnInAudioTrack = {
+  id: string;
+  duration: number;
+  volume?: number;
+};
+
 export type BurnInCanvasSize = {
   width: number;
   height: number;
@@ -106,6 +122,10 @@ const createBaseProjectTrack = ({
   },
   transform: {
     position: { x, y },
+    // Mobile editor coordinates describe the overlay's top-left corner. The
+    // backend defaults missing anchors to the center, which moves the rendered
+    // asset by half its size and makes the feed disagree with the preview.
+    anchor: { preset: 'top_left', x: 0, y: 0 },
     ...(width !== null || height !== null
       ? { size: { width, height } }
       : {}),
@@ -121,6 +141,8 @@ const createVideoProject = ({
   strokes,
   textStickers,
   stickers,
+  imageOverlays,
+  audioTrack,
   trim,
   drawingFiles,
   generatedAssets,
@@ -131,6 +153,8 @@ const createVideoProject = ({
   strokes: BurnInStroke[];
   textStickers: BurnInTextSticker[];
   stickers: BurnInSticker[];
+  imageOverlays: BurnInImageOverlay[];
+  audioTrack?: BurnInAudioTrack | null;
   trim?: { start: number; end: number };
   drawingFiles: VideoUploadSource[];
   generatedAssets: GeneratedEditAsset[];
@@ -262,6 +286,79 @@ const createVideoProject = ({
       source: { assetId },
     });
   });
+
+  imageOverlays.forEach((overlay, index) => {
+    const generated = generatedAssets.find((asset) => asset.kind === 'image' && asset.sourceId === overlay.id);
+    if (!generated) throw new Error(`Missing selected image for overlay ${index + 1}.`);
+    const fileIndex = generatedAssets.indexOf(generated);
+    const position = toRenderPoint(overlay, canvasSize, targetSize);
+    const renderWidth = Math.max(1, Math.round(toRenderLength(overlay.width, canvasSize, targetSize)));
+    const renderHeight = Math.max(1, Math.round(toRenderLength(overlay.height, canvasSize, targetSize)));
+    const start = clampTime(overlay.start, 0);
+    const end = Math.max(start + 0.1, clampTime(overlay.end, 5));
+    assets.push({
+      id: generated.id,
+      type: 'image',
+      storageProvider: 'local',
+      storageKey: `multipart:asset_files[${fileIndex}]`,
+      file_index: fileIndex,
+      mimeType: generated.file.type ?? 'image/jpeg',
+      fileName: generated.file.name ?? `image-overlay-${index + 1}.jpg`,
+      width: generated.width,
+      height: generated.height,
+    });
+    tracks.push({
+      ...createBaseProjectTrack({
+        id: createProjectId(`image-overlay-${index}`),
+        type: 'image',
+        name: `Image overlay ${index + 1}`,
+        layer: layer++,
+        start,
+        end,
+        x: Math.round(position.x),
+        y: Math.round(position.y),
+        width: renderWidth,
+        height: renderHeight,
+      }),
+      enabled: true,
+      zIndex: layer - 1,
+      source: { assetId: generated.id },
+    });
+  });
+
+  if (audioTrack) {
+    const generated = generatedAssets.find((asset) => asset.kind === 'audio' && asset.sourceId === audioTrack.id);
+    if (!generated) throw new Error('Missing downloaded music asset.');
+    const fileIndex = generatedAssets.indexOf(generated);
+    const duration = Math.max(0.1, audioTrack.duration);
+    assets.push({
+      id: generated.id,
+      type: 'audio',
+      storageProvider: 'local',
+      storageKey: `multipart:asset_files[${fileIndex}]`,
+      file_index: fileIndex,
+      mimeType: generated.file.type ?? 'audio/mpeg',
+      fileName: generated.file.name ?? 'music-overlay.mp3',
+      duration,
+      hasAudio: true,
+    });
+    tracks.push({
+      ...createBaseProjectTrack({
+        id: createProjectId('music-track'),
+        type: 'audio',
+        name: 'Selected music',
+        layer: layer++,
+        start: 0,
+        end: duration,
+        x: 0,
+        y: 0,
+      }),
+      enabled: true,
+      zIndex: layer - 1,
+      source: { assetId: generated.id },
+      audio: { volume: Math.max(0, Math.min(4, audioTrack.volume ?? 1)) },
+    });
+  }
 
   const trackDuration = Math.max(...tracks.map((track) => track.timeline.start + track.timeline.duration), 0.1);
   const duration = trim ? Math.max(0.1, trim.end - trim.start) : trackDuration;
@@ -532,11 +629,15 @@ export const createCreatorVideoEditsPayload = ({
   strokes,
   textStickers,
   stickers = [],
+  imageOverlays = [],
+  audioTrack = null,
   trim,
   drawingFiles = [],
   generatedAssets = [],
 }: Omit<BurnInVideoOverlaysOptions, 'video'> & {
   stickers?: BurnInSticker[];
+  imageOverlays?: BurnInImageOverlay[];
+  audioTrack?: BurnInAudioTrack | null;
   trim?: { start: number; end: number } | null;
   drawingFiles?: VideoUploadSource[];
   generatedAssets?: GeneratedEditAsset[];
@@ -549,7 +650,9 @@ export const createCreatorVideoEditsPayload = ({
 
   const hasTracks = textStickers.some((sticker) => sticker.text.trim().length > 0)
     || (drawingFiles.length > 0 && strokes.some((stroke) => stroke.points.length > 0))
-    || stickers.some((sticker) => sticker.publicId.trim().length > 0);
+    || stickers.some((sticker) => sticker.publicId.trim().length > 0)
+    || imageOverlays.length > 0
+    || Boolean(audioTrack);
   if (!hasTracks && !normalizedTrim) return null;
 
   const project = createVideoProject({
@@ -559,6 +662,8 @@ export const createCreatorVideoEditsPayload = ({
     strokes,
     textStickers,
     stickers,
+    imageOverlays,
+    audioTrack,
     trim: normalizedTrim,
     drawingFiles,
     generatedAssets,

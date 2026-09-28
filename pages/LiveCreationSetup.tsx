@@ -25,12 +25,14 @@ import { getApiErrorMessage } from '../src/utils/apiError';
 
 type Screen = 'setup' | 'more-settings';
 type Audience = 'public' | 'subscribers';
+type LiveType = 'regular' | 'battle';
 type Category = 'Music' | 'Gaming' | 'Talk show' | 'Lifestyle' | 'Education';
 type StreamQualityLabel = '720p · 30fps' | '1080p · 30fps' | '1080p · 60fps';
 type StreamOrientationLabel = 'Portrait' | 'Landscape' | 'Auto-rotate';
 type ScheduleDay = 'Today' | 'Tomorrow' | 'This weekend';
 type ScheduleTime = '10:00 AM' | '2:00 PM' | '7:00 PM' | '9:00 PM';
 type SheetName =
+  | 'live-type'
   | 'category'
   | 'audience'
   | 'quality'
@@ -106,6 +108,11 @@ interface ChoiceOption<T extends string> {
   description: string;
   icon: keyof typeof MaterialIcons.glyphMap;
 }
+
+const liveTypeOptions: ChoiceOption<LiveType>[] = [
+  { value: 'regular', label: 'Regular Live', description: 'Go live and connect with your audience', icon: 'videocam' },
+  { value: 'battle', label: 'Live Battle', description: 'Go live, then invite an online creator to battle', icon: 'sports-mma' },
+];
 
 const categoryOptions: ChoiceOption<Category>[] = [
   { value: 'Music', label: 'Music', description: 'Performances, sessions and listening parties', icon: 'music-note' },
@@ -301,6 +308,7 @@ const LiveCreationSetup: React.FC = () => {
   const [activeSheet, setActiveSheet] = useState<SheetName | null>(null);
   const [title, setTitle] = useState('Sunday vibes ✨ let\'s chill and sing together 💜');
   const [category, setCategory] = useState<Category>('Music');
+  const [liveType, setLiveType] = useState<LiveType>('regular');
   const [audience, setAudience] = useState<Audience>('public');
   const [notificationsEnabled, setNotificationsEnabled] = useState(true);
   const [quality, setQuality] = useState<StreamQualityLabel>('1080p · 60fps');
@@ -375,6 +383,7 @@ const LiveCreationSetup: React.FC = () => {
 
       const live = await createLive.mutateAsync({
         title: title.trim(),
+        live_type: liveType,
         category: categoryPayloadValues[category],
         visibility: subscriberOnly || audience === 'subscribers' ? 'subscribers' : 'public',
         scheduled_at: scheduledAt,
@@ -402,10 +411,11 @@ const LiveCreationSetup: React.FC = () => {
         return;
       }
 
-      navigation.replace('CreatorLiveStream', {
+      navigation.replace(liveType === 'battle' ? 'CreatorBattleParticipantScreen' : 'CreatorLiveStream', {
         liveSessionId: live.id,
         initialLive: live,
         quality: live.stream_quality,
+        liveType,
       });
     } catch (error) {
       Alert.alert(scheduleEnabled ? 'Could not schedule Live' : 'Could not create Live', getApiErrorMessage(error));
@@ -481,6 +491,17 @@ const LiveCreationSetup: React.FC = () => {
 
   const renderSheets = () => (
     <>
+      <ChoiceSheet
+        visible={activeSheet === 'live-type'}
+        title="Choose live type"
+        subtitle="For a battle, invite an opponent once your stream is live. Scheduled streams can start a battle from the participants menu."
+        options={liveTypeOptions}
+        value={liveType}
+        onSelect={setLiveType}
+        onClose={() => setActiveSheet(null)}
+        {...sheetProps}
+      />
+
       <ChoiceSheet
         visible={activeSheet === 'category'}
         title="Choose a category"
@@ -921,6 +942,20 @@ const LiveCreationSetup: React.FC = () => {
               <Text style={[styles.characterCount, { color: muted }]}>{title.length}/100</Text>
             </View>
           </View>
+
+          <Pressable accessibilityRole="button" accessibilityLabel={`Choose live type, ${liveType === 'battle' ? 'Live Battle' : 'Regular Live'}`} testID="live-type-dropdown" onPress={() => setActiveSheet('live-type')} style={({ pressed }) => [styles.selectionCard, { backgroundColor: card, borderColor: border }, pressed && styles.pressed]}>
+            <Text style={[styles.fieldLabel, { color: text }]}>Type of live</Text>
+            <View style={styles.selectionLine}>
+              <View style={styles.selectionIcon}>
+                <MaterialIcons name={liveType === 'battle' ? 'sports-mma' : 'videocam'} size={25} color={ICON_COLOR} />
+              </View>
+              <View style={styles.selectionCopy}>
+                <Text style={[styles.selectionValue, { color: text }]}>{liveType === 'battle' ? 'Live Battle' : 'Regular Live'}</Text>
+                <Text style={[styles.selectionHelper, { color: muted }]}>{liveType === 'battle' ? 'Invite another creator after going live' : 'Connect with your audience'}</Text>
+              </View>
+              <MaterialIcons name="keyboard-arrow-down" size={28} color={muted} />
+            </View>
+          </Pressable>
 
           <Pressable accessibilityRole="button" accessibilityLabel="Choose category" testID="live-category-dropdown" onPress={() => setActiveSheet('category')} style={({ pressed }) => [styles.selectionCard, {backgroundColor: card, borderColor: border }, pressed && styles.pressed]}>
             <Text style={[styles.fieldLabel, { color: text }]}>Category</Text>

@@ -62,6 +62,18 @@ export const useAgoraLive = ({
     setError(null);
     setLocalPreviewReady(false);
 
+    let renewing = false;
+    const renewToken = () => {
+      const renew = renewCredentialsRef.current;
+      if (!renew || renewing || disposed) return;
+      renewing = true;
+      void renew().then((next) => {
+        if (!disposed) assertAgoraResult(engine.renewToken(next.token), 'Agora token renewal');
+      }).catch((caught) => {
+        if (!disposed) setError(caught instanceof Error ? caught.message : 'Live credentials could not be renewed.');
+      }).finally(() => { renewing = false; });
+    };
+
     const handler: IRtcEngineEventHandler = {
       onJoinChannelSuccess: () => {
         if (disposed) return;
@@ -94,15 +106,8 @@ export const useAgoraLive = ({
       onNetworkQuality: (_connection, _remoteUid, txQuality, rxQuality) => {
         if (!disposed) setNetworkQuality(Math.max(Number(txQuality) || 0, Number(rxQuality) || 0));
       },
-      onTokenPrivilegeWillExpire: () => {
-        const renew = renewCredentialsRef.current;
-        if (!renew) return;
-        void renew()
-          .then((nextCredentials) => engine.renewToken(nextCredentials.token))
-          .catch((caught) => {
-            if (!disposed) setError(caught instanceof Error ? caught.message : 'Live credentials could not be renewed.');
-          });
-      },
+      onTokenPrivilegeWillExpire: renewToken,
+      onRequestToken: renewToken,
       onError: (code: ErrorCodeType) => {
         if (!disposed) {
           setError(agoraError(Number(code)));
@@ -136,8 +141,8 @@ export const useAgoraLive = ({
           : ClientRoleType.ClientRoleAudience,
         publishCameraTrack: isBroadcaster,
         publishMicrophoneTrack: isBroadcaster,
-        autoSubscribeAudio: !isBroadcaster,
-        autoSubscribeVideo: !isBroadcaster,
+        autoSubscribeAudio: true,
+        autoSubscribeVideo: true,
       });
       if (result < 0) throw new Error(agoraError(result));
     } catch (caught) {

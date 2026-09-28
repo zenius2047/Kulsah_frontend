@@ -10,6 +10,7 @@ import { useAuthStore } from '../../store/auth.store';
 import { useMessagingStore } from '../../store/messaging.store';
 import {
   isLiveStartedPushNotification,
+  isLiveBattleInvitationPushNotification,
   isMessagePushNotification,
   isMessageRequestPushNotification,
   pushLiveId,
@@ -296,13 +297,15 @@ const markNotificationProcessedAsync = async (
   return true;
 };
 
-const recordNotification = async (notification: Notifications.Notification) => {
-  const data = notificationData(notification);
+const recordNotificationData = async (
+  data: PushNotificationData,
+  nativeIdentifier?: string | null,
+) => {
   const shouldProcess = await markNotificationProcessedAsync(
     data,
-    notification.request.identifier,
+    nativeIdentifier,
   );
-  if (!shouldProcess) return;
+  if (!shouldProcess) return false;
 
   if (isMessagePushNotification(data)) {
     await invalidateConversationLists(queryClient).catch(() => undefined);
@@ -312,18 +315,28 @@ const recordNotification = async (notification: Notifications.Notification) => {
       queryClient.invalidateQueries({ queryKey: conversationRequestsQueryKey }),
       invalidateConversationLists(queryClient),
     ]);
-  } else if (isLiveStartedPushNotification(data)) {
+  } else if (isLiveStartedPushNotification(data) || isLiveBattleInvitationPushNotification(data)) {
     const liveId = pushLiveId(data);
     await Promise.allSettled([
       queryClient.invalidateQueries({ queryKey: liveQueryKeys.discovery() }),
-      ...(liveId ? [queryClient.invalidateQueries({ queryKey: liveQueryKeys.session(liveId) })] : []),
+      ...(liveId ? [queryClient.invalidateQueries({ queryKey: liveQueryKeys.session(liveId) }),
+        queryClient.invalidateQueries({ queryKey: liveQueryKeys.participants(liveId) })] : []),
     ]);
   }
 
   await Notifications.setBadgeCountAsync(
     useMessagingStore.getState().unreadCount,
   ).catch(() => undefined);
+
+  return true;
 };
+
+const recordNotification = (notification: Notifications.Notification) => (
+  recordNotificationData(
+    notificationData(notification),
+    notification.request.identifier,
+  )
+);
 
 const handleNotificationResponseAsync = async (
   response: Notifications.NotificationResponse,
@@ -349,9 +362,10 @@ const handleNotificationResponseAsync = async (
 type UseFcmMessagingOptions = {
   enabled: boolean;
   onNotificationPress: (data: PushNotificationData) => void;
+  onNotificationReceived?: (data: PushNotificationData) => void;
 };
 
-export const useFcmMessaging = ({ enabled, onNotificationPress }: UseFcmMessagingOptions) => {
+export const useFcmMessaging = ({ enabled, onNotificationPress, onNotificationReceived }: UseFcmMessagingOptions) => {
   const userId = useAuthStore((state) => state.user?.id);
 
   useEffect(() => {
@@ -370,8 +384,24 @@ export const useFcmMessaging = ({ enabled, onNotificationPress }: UseFcmMessagin
       });
     });
     const unsubscribeFromTokenRefresh = subscribeToFcmTokenRefresh();
+    // Firebase delivers foreground messages directly to RNFirebase rather than
+    // through Expo Notifications. Process that path as well so a challenge
+    // invite opens its in-app modal while the recipient is already using Kulsah.
+    const nativeFirebase = getNativeFirebaseMessaging();
+    const unsubscribeFromNativeForegroundMessages = nativeFirebase
+      ? nativeFirebase.onMessage(nativeFirebase.getMessaging(), (message) => {
+        const data = normalizePushNotificationData(message.data ?? {});
+        void recordNotificationData(data, message.messageId)
+          .then((processed) => {
+            if (processed) onNotificationReceived?.(data);
+          });
+      })
+      : () => undefined;
     const receivedSubscription = Notifications.addNotificationReceivedListener((notification) => {
-      void recordNotification(notification);
+      const data = notificationData(notification);
+      void recordNotification(notification).then((processed) => {
+        if (processed) onNotificationReceived?.(data);
+      });
     });
     const responseSubscription = Notifications.addNotificationResponseReceivedListener((response) => {
       void handleNotificationResponseAsync(response, onNotificationPress).catch((error) => {
@@ -391,8 +421,9 @@ export const useFcmMessaging = ({ enabled, onNotificationPress }: UseFcmMessagin
     return () => {
       appStateSubscription.remove();
       unsubscribeFromTokenRefresh();
+      unsubscribeFromNativeForegroundMessages();
       receivedSubscription.remove();
       responseSubscription.remove();
     };
-  }, [enabled, onNotificationPress, userId]);
+  }, [enabled, onNotificationPress, onNotificationReceived, userId]);
 };

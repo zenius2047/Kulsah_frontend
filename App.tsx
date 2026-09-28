@@ -1,6 +1,6 @@
 import React, { useCallback, useEffect, useRef, useState } from 'react';
 import { useThemeMode, PRIMARY_COLOR, primaryColorAlpha, KulsahDarkTheme, KulsahTheme } from './theme';
-import { View, StyleSheet, ActivityIndicator, Text, TextInput, Pressable, StatusBar, Image, useWindowDimensions, Platform} from 'react-native';
+import { View, StyleSheet, ActivityIndicator, Modal, Text, TextInput, Pressable, StatusBar, Image, useWindowDimensions, Platform} from 'react-native';
 import { NavigationContainer, createNavigationContainerRef } from '@react-navigation/native';
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
@@ -52,12 +52,14 @@ import {
   formatUnreadBadgeCount,
   isChallengeInvitationPushNotification,
   isLiveStartedPushNotification,
+  isLiveBattleInvitationPushNotification,
   isMessagePushNotification,
   isMessageRequestAcceptedPushNotification,
   isMessageRequestCreatedPushNotification,
   isVideoMentionPushNotification,
   messagingApi,
   pushChallengeId,
+  pushBattleId,
   pushConversationId,
   pushLiveId,
   pushVideoId,
@@ -106,6 +108,8 @@ import winner from './pages/winner';
 import Arena from './pages/Arena';
 import CreateEvent from './pages/CreateEvent';
 import CreatorLiveStream from './pages/CreatorLiveStream';
+import CreatorBattleScreen from './pages/CreatorBattleScreen';
+import CreatorBattleParticipantScreen from './pages/CreatorBattleParticipantScreen';
 import CreateChallenge from './pages/CreateChallengeWizard';
 import ChallengeDrafts from './pages/ChallengeDrafts';
 import RevenueSplit from './pages/RevenueSplit';
@@ -544,6 +548,7 @@ const App: React.FC = () => {
   const [isBooting, setIsBooting] = useState(true);
   const { height: vh, width:vw } = useWindowDimensions();
   const [visible, setVisible] = useState(false);
+  const [battleInvitation, setBattleInvitation] = useState<PushNotificationData | null>(null);
   const pendingPushNavigationRef = useRef<PushNotificationData | null>(null);
 
   useEffect(() => {
@@ -565,6 +570,11 @@ const App: React.FC = () => {
     };
   }, [authToken, currentUser, setUnreadCount]);
 
+  const showBattleInvitation = useCallback((data: PushNotificationData) => {
+    if (!isChallengeInvitationPushNotification(data)) return;
+    setBattleInvitation(data);
+  }, []);
+
   const openPushNotification = useCallback((data: PushNotificationData) => {
     const isMessage = isMessagePushNotification(data);
     const isMessageRequestCreated = isMessageRequestCreatedPushNotification(data);
@@ -572,6 +582,7 @@ const App: React.FC = () => {
     const isChallengeInvitation = isChallengeInvitationPushNotification(data);
     const isVideoMention = isVideoMentionPushNotification(data);
     const isLiveStarted = isLiveStartedPushNotification(data);
+    const isLiveBattleInvitation = isLiveBattleInvitationPushNotification(data);
     if (
       !isMessage
       && !isMessageRequestCreated
@@ -579,6 +590,7 @@ const App: React.FC = () => {
       && !isChallengeInvitation
       && !isVideoMention
       && !isLiveStarted
+      && !isLiveBattleInvitation
     ) return;
     if (!navigationRef.isReady()) {
       pendingPushNavigationRef.current = data;
@@ -613,11 +625,19 @@ const App: React.FC = () => {
     }
 
     if (isChallengeInvitation) {
-      navigationRef.navigate('ChallengeFeed' as never, {
-        challengeId: pushChallengeId(data),
-        inviteId: data.invite_id,
-        invitationType: data.invitation_type,
-      } as never);
+      showBattleInvitation(data);
+      return;
+    }
+
+    if (isLiveBattleInvitation) {
+      const liveSessionId = pushLiveId(data);
+      if (liveSessionId) {
+        navigationRef.navigate('CreatorBattleParticipantScreen' as never, {
+          liveSessionId,
+          battleId: pushBattleId(data),
+          participantRole: 'opponent',
+        } as never);
+      }
       return;
     }
 
@@ -632,16 +652,25 @@ const App: React.FC = () => {
     navigationRef.navigate('VideoPlayer' as never, {
       id: pushVideoId(data),
     } as never);
-  }, []);
+  }, [showBattleInvitation]);
 
   const flushPendingPushNavigation = useCallback(() => {
     const pending = pendingPushNavigationRef.current;
     if (pending) openPushNotification(pending);
   }, [openPushNotification]);
 
+  const handleForegroundPush = useCallback((data: PushNotificationData) => {
+    if (isChallengeInvitationPushNotification(data)) {
+      showBattleInvitation(data);
+      return;
+    }
+    if (isLiveBattleInvitationPushNotification(data)) openPushNotification(data);
+  }, [openPushNotification, showBattleInvitation]);
+
   useFcmMessaging({
     enabled: Boolean(!isBooting && currentUser && currentUser.role !== 'guest' && authToken),
     onNotificationPress: openPushNotification,
+    onNotificationReceived: handleForegroundPush,
   });
   useMessagingRealtime(Boolean(!isBooting && currentUser && currentUser.role !== 'guest' && authToken));
 
@@ -795,6 +824,12 @@ const App: React.FC = () => {
     return null;
   }
 
+  const invitedBy = battleInvitation?.invited_by;
+  const inviterName = typeof invitedBy === 'object' && invitedBy !== null
+    ? String((invitedBy as Record<string, unknown>).name ?? (invitedBy as Record<string, unknown>).username ?? 'A creator')
+    : 'A creator';
+  const battleTitle = String(battleInvitation?.challenge_title ?? 'Creator battle');
+
   return (
     <QueryClientProvider client={queryClient}>
       <AuthProvider>
@@ -855,6 +890,28 @@ const App: React.FC = () => {
                   <Stack.Screen
                     name="CreatorLiveStream"
                     component={CreatorLiveStream}
+                    options={{
+                      headerShown: false,
+                      statusBarHidden: true,
+                      statusBarTranslucent: true,
+                      statusBarColor: 'transparent',
+                      contentStyle: { backgroundColor: '#000' },
+                    }}
+                  />
+                  <Stack.Screen
+                    name="CreatorBattleScreen"
+                    component={CreatorBattleScreen}
+                    options={{
+                      headerShown: false,
+                      statusBarHidden: true,
+                      statusBarTranslucent: true,
+                      statusBarColor: 'transparent',
+                      contentStyle: { backgroundColor: '#000' },
+                    }}
+                  />
+                  <Stack.Screen
+                    name="CreatorBattleParticipantScreen"
+                    component={CreatorBattleParticipantScreen}
                     options={{
                       headerShown: false,
                       statusBarHidden: true,
@@ -940,6 +997,41 @@ const App: React.FC = () => {
                 });
               }}
             />
+            <Modal
+              visible={Boolean(battleInvitation)}
+              transparent
+              animationType="fade"
+              onRequestClose={() => setBattleInvitation(null)}
+            >
+              <View style={styles.battleInvitationOverlay}>
+                <View style={styles.battleInvitationCard}>
+                  <View style={styles.battleInvitationIcon}>
+                    <MaterialIcons name="sports-kabaddi" size={28} color="#fff" />
+                  </View>
+                  <Text style={styles.battleInvitationTitle}>Creator battle invitation</Text>
+                  <Text style={styles.battleInvitationBody}>{inviterName} invited you to compete in {battleTitle}.</Text>
+                  <Pressable
+                    style={styles.battleInvitationPrimary}
+                    onPress={() => {
+                      const invitation = battleInvitation;
+                      setBattleInvitation(null);
+                      const challengeId = pushChallengeId(invitation);
+                      if (challengeId && navigationRef.isReady()) {
+                        navigationRef.navigate('ChallengeEntry' as never, {
+                          challengeId,
+                          inviteId: invitation?.invite_id,
+                        } as never);
+                      }
+                    }}
+                  >
+                    <Text style={styles.battleInvitationPrimaryText}>View invitation</Text>
+                  </Pressable>
+                  <Pressable style={styles.battleInvitationSecondary} onPress={() => setBattleInvitation(null)}>
+                    <Text style={styles.battleInvitationSecondaryText}>Later</Text>
+                  </Pressable>
+                </View>
+              </View>
+            </Modal>
                 </SafeAreaView>
               </NavigationContainer>
             </ErrorBoundary>
@@ -951,6 +1043,67 @@ const App: React.FC = () => {
 };
 
 const styles = StyleSheet.create({
+  battleInvitationOverlay: {
+    flex: 1,
+    justifyContent: 'center',
+    padding: 24,
+    backgroundColor: 'rgba(0,0,0,0.62)',
+  },
+  battleInvitationCard: {
+    borderRadius: 24,
+    padding: 24,
+    alignItems: 'center',
+    backgroundColor: '#111722',
+    borderWidth: 1,
+    borderColor: 'rgba(255,255,255,0.13)',
+  },
+  battleInvitationIcon: {
+    width: 58,
+    height: 58,
+    borderRadius: 29,
+    alignItems: 'center',
+    justifyContent: 'center',
+    backgroundColor: PRIMARY_COLOR,
+  },
+  battleInvitationTitle: {
+    marginTop: 16,
+    color: '#fff',
+    fontSize: 20,
+    lineHeight: 25,
+    fontFamily: 'Poppins_700Bold',
+    textAlign: 'center',
+  },
+  battleInvitationBody: {
+    marginTop: 9,
+    color: '#b8c2d4',
+    fontSize: 14,
+    lineHeight: 21,
+    textAlign: 'center',
+  },
+  battleInvitationPrimary: {
+    width: '100%',
+    height: 52,
+    marginTop: 23,
+    borderRadius: 26,
+    alignItems: 'center',
+    justifyContent: 'center',
+    backgroundColor: PRIMARY_COLOR,
+  },
+  battleInvitationPrimaryText: {
+    color: '#fff',
+    fontSize: 15,
+    fontFamily: 'Poppins_700Bold',
+  },
+  battleInvitationSecondary: {
+    height: 42,
+    marginTop: 4,
+    justifyContent: 'center',
+  },
+  battleInvitationSecondaryText: {
+    color: '#b8c2d4',
+    fontSize: 14,
+    fontFamily: 'Poppins_500Medium',
+  },
   center: {
     flex: 1,
     justifyContent: 'center',

@@ -12,6 +12,8 @@ import {
 
 const live = (id: string): LiveSession => ({
   id,
+  live_type: 'regular',
+  is_battle: false,
   creator: { id: 8, name: 'Mila', handle: 'mila' },
   title: `Live ${id}`,
   description: null,

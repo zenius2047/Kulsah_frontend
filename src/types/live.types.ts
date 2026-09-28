@@ -40,6 +40,8 @@ export interface LiveCreator {
 
 export interface LiveSession {
   id: string;
+  live_type: 'regular' | 'battle';
+  is_battle: boolean;
   creator: LiveCreator;
   title: string;
   description: string | null;
@@ -116,6 +118,7 @@ export interface LiveCredentialsResponse extends LiveSessionResponse {
 
 export interface CreateLivePayload {
   title: string;
+  live_type: 'regular' | 'battle';
   description?: string | null;
   category: LiveCategory;
   cover_url?: string | null;
@@ -167,6 +170,7 @@ export interface LiveLikeResult {
 export interface SendLiveGiftPayload {
   gift_id: number;
   quantity?: number;
+  recipient_id?: number | string;
   idempotency_key: string;
   message?: string | null;
 }
@@ -204,6 +208,7 @@ export interface LiveAnalytics {
 }
 
 export interface LiveUpdatedEvent {
+  moderation?: { target_id: number; action: LiveModerationPayload['action'] };
   live_id: string;
   status: LiveStatus;
   title: string;
@@ -218,6 +223,8 @@ export interface LiveUpdatedEvent {
   termination_reason: string | null;
   comment?: LiveRealtimeComment;
   gift?: LiveRealtimeGift;
+  battle?: LiveBattle;
+  vote?: LiveBattleVoteEvent;
 }
 
 export interface LiveRealtimeComment {
@@ -238,12 +245,21 @@ export interface LiveRealtimeGift {
   sender_id: number;
 }
 
+export interface LiveBattleVoteEvent {
+  transaction_id: number;
+  target_user_id: number;
+  vote_count: number;
+  coin_amount: number;
+}
+
 export interface LiveDirectoryUpdatedEvent {
   live_id: string;
   creator_id: number;
   title: string;
   status: LiveStatus;
   category: string | null;
+  live_type: 'regular' | 'battle';
+  is_battle: boolean;
   cover_url: string | null;
   visibility: LiveVisibility;
   current_viewers: number;
@@ -262,6 +278,7 @@ export type LiveCohostRequestStatus =
   | 'removed';
 
 export interface LiveCohostRequest {
+  requester?: LiveCommentUser;
   id: number;
   live_session_id: number;
   requester_id: number;
@@ -274,13 +291,54 @@ export interface LiveCohostRequest {
 }
 
 export interface LiveCohostAcceptance {
-  cohost: Record<string, unknown>;
-  credentials: LiveCredentials;
+  request: LiveCohostRequest;
+  cohost: LiveCohost | null;
+  credentials: LiveCredentials | null;
+}
+
+export interface LiveCohost {
+  id: number;
+  user_id: number;
+  status: string;
+  user?: LiveCommentUser;
+}
+
+export interface LiveParticipants {
+  vote_price_kc: number;
+  battle_stage?: {
+    all_accepted: boolean;
+    participants: {
+      user_id: number;
+      rtc_uid: number;
+      name: string;
+      username?: string | null;
+      avatar?: string | null;
+      verified?: boolean;
+      accepted: boolean;
+    }[];
+  } | null;
+  requests: LiveCohostRequest[];
+  cohosts: LiveCohost[];
+  viewers: LiveCommentUser[];
+  battles: LiveBattle[];
+}
+
+export interface SendLiveBattleVotePayload {
+  target_user_id: number;
+  vote_count: number;
+  idempotency_key: string;
+}
+
+export interface LiveBattleVoteResult extends LiveBattleVoteEvent {
+  battle: LiveBattle;
 }
 
 export type LiveBattleStatus = 'pending' | 'accepted' | 'active' | 'ended' | 'cancelled' | 'expired' | 'failed';
 
 export interface LiveBattle {
+  metadata?: { shared_stage?: boolean };
+  creator?: LiveCommentUser;
+  opponent?: LiveCommentUser;
   id: number;
   public_id: string;
   creator_live_session_id: number;
@@ -294,4 +352,9 @@ export interface LiveBattle {
   accepted_at: string | null;
   started_at: string | null;
   ended_at: string | null;
+}
+
+export interface LiveBattleCreatorsPage {
+  data: { id: number; name: string; handle: string; avatar_url: string | null; is_online: boolean }[];
+  meta: { current_page: number; has_more: boolean };
 }

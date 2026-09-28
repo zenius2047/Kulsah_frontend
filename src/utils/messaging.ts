@@ -49,6 +49,9 @@ export const isVideoMentionPushNotification = (data?: PushNotificationData | nul
 export const isLiveStartedPushNotification = (data?: PushNotificationData | null) =>
   pushNotificationType(data) === 'live.started';
 
+export const isLiveBattleInvitationPushNotification = (data?: PushNotificationData | null) =>
+  pushNotificationType(data) === 'live.battle_invited';
+
 export const pushConversationId = (data?: PushNotificationData | null) => {
   const value = data?.conversation_id ?? data?.conversationId;
   return value == null || String(value).trim() === '' ? undefined : String(value);
@@ -71,6 +74,11 @@ export const pushVideoId = (data?: PushNotificationData | null) => {
 
 export const pushLiveId = (data?: PushNotificationData | null) => {
   const value = data?.live_id;
+  return hasPushValue(value) ? String(value) : undefined;
+};
+
+export const pushBattleId = (data?: PushNotificationData | null) => {
+  const value = data?.battle_id;
   return hasPushValue(value) ? String(value) : undefined;
 };
 

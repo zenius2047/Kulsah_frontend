@@ -260,7 +260,9 @@ export type CreatorVideoProgress = {
   progress_percentage: number;
   requires_editing?: boolean;
   upload_state?: string | null;
+  upload_status?: string | null;
   processing_state?: string | null;
+  processing_status?: string | null;
   streaming_url?: string | null;
   stream_url?: string | null;
   cdn_url?: string | null;

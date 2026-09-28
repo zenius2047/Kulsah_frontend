@@ -20,8 +20,10 @@ import { SafeAreaView, useSafeAreaInsets } from 'react-native-safe-area-context'
 import { LinearGradient } from 'expo-linear-gradient';
 import { MaterialIcons } from '@expo/vector-icons';
 import { useNavigation, useRoute } from '@react-navigation/native';
-import { RtcSurfaceView, RtcTextureView } from 'react-native-agora';
-import GiftDialog, { type GiftSelection } from '../components/GiftDialog';
+import { RtcSurfaceView, RtcTextureView, VideoSourceType } from 'react-native-agora';
+import GiftDialog, { type GiftRecipient, type GiftSelection } from '../components/GiftDialog';
+import LiveParticipantsPanel from '../components/LiveParticipantsPanel';
+import LiveBattleStage from '../components/LiveBattleStage';
 import KulsahWhite from '../assets/icons/kulsah-white-svg.svg';
 import { PRIMARY_COLOR } from '../theme';
 import { liveApi } from '../src/api/live.api';
@@ -33,6 +35,7 @@ import {
   useJoinLive,
   useLikeLive,
   useLiveSession,
+  useLiveParticipants,
 } from '../src/hooks/live/useLive';
 import { useLiveRealtime } from '../src/hooks/live/useLiveRealtime';
 import { useKulCoinWallet } from '../src/hooks/kulcoin/useKulCoin';
@@ -51,6 +54,8 @@ type ViewerLiveRoute = {
   params?: {
     liveSessionId?: string;
     initialLive?: LiveSession;
+    openGuests?: boolean;
+    openGift?: boolean;
   };
 };
 
@@ -81,17 +86,21 @@ const ViewerLiveStream: React.FC = () => {
   const [comment, setComment] = useState('');
   const [isMuted, setIsMuted] = useState(false);
   const [isFollowing, setIsFollowing] = useState(false);
-  const [giftOpen, setGiftOpen] = useState(false);
+  const [giftOpen, setGiftOpen] = useState(Boolean(route.params?.openGift));
   const [hasJoinedPresence, setHasJoinedPresence] = useState(false);
+  const [accessRevoked, setAccessRevoked] = useState(false);
   const [showLikeHearts, setShowLikeHearts] = useState(false);
   const joinStartedRef = useRef(false);
   const joinedPresenceRef = useRef(false);
+  const promotedAtRef = useRef(0);
   const commentScrollRef = useRef<ScrollView | null>(null);
   const lastStreamTapRef = useRef<number | null>(null);
   const heartAnimations = useRef(HEARTS.map(() => new Animated.Value(0))).current;
 
   const liveQuery = useLiveSession(liveSessionId, Boolean(liveSessionId));
   const live = liveQuery.data ?? route.params?.initialLive;
+  const participants = useLiveParticipants(liveSessionId, hasJoinedPresence && !accessRevoked && !isLiveTerminal(live?.status));
+  const battleStage = participants.data?.battle_stage;
   const joinLive = useJoinLive(liveSessionId);
   const commentLive = useCommentOnLive(liveSessionId);
   const likeLive = useLikeLive(liveSessionId);
@@ -99,6 +108,15 @@ const ViewerLiveStream: React.FC = () => {
   const followCreator = useFollowCreatorMutation();
   const walletQuery = useKulCoinWallet(Boolean(liveSessionId));
   useLiveRealtime(liveSessionId, hasJoinedPresence, {
+    onModeration: (moderation) => {
+      if (String(moderation.target_id) !== String(currentUser?.id)) return;
+      if (['remove', 'ban_from_live'].includes(moderation.action)) {
+        setAccessRevoked(true);
+        setCredentials(null);
+        setHasJoinedPresence(false);
+        Alert.alert('Removed from Live', 'The creator has removed you from this Live.', [{ text: 'OK', onPress: () => navigation.goBack() }]);
+      }
+    },
     onComment: (incomingComment) => {
       setComments((current) => current.some((item) => item.id === incomingComment.id)
         ? current
@@ -114,12 +132,37 @@ const ViewerLiveStream: React.FC = () => {
 
   const agora = useAgoraLive({
     credentials,
+    enabled: !accessRevoked && !isLiveTerminal(live?.status),
     renewCredentials: async () => {
+      if (credentials?.role === 'broadcaster') {
+        const response = await liveApi.cohostCredentials(liveSessionId);
+        setCredentials(response.data.data);
+        return response.data.data;
+      }
       const response = await joinLive.mutateAsync();
       setCredentials(response.credentials);
       return response.credentials;
     },
   });
+
+  const leaveStage = async () => {
+    // Stop publishing immediately, even if restoring audience credentials fails.
+    setCredentials(null);
+    try {
+      const response = await joinLive.mutateAsync();
+      setCredentials(response.credentials);
+    } catch (error) {
+      Alert.alert('Unable to reconnect', getApiErrorMessage(error));
+    }
+  };
+
+  useEffect(() => {
+    if (credentials?.role !== 'broadcaster' || !participants.data
+      || participants.dataUpdatedAt <= promotedAtRef.current || participants.isFetching) return;
+    if (!participants.data.cohosts.some((cohost) => String(cohost.user_id) === String(currentUser?.id))) {
+      void leaveStage();
+    }
+  }, [participants.dataUpdatedAt, participants.isFetching, credentials?.role]);
 
   useEffect(() => {
     if (!liveSessionId || joinStartedRef.current) return;
@@ -157,7 +200,7 @@ const ViewerLiveStream: React.FC = () => {
   const creatorHandle = live?.creator?.handle
     ?? live?.creator?.username
     ?? creatorName.toLowerCase().replace(/\s+/g, '');
-  const terminal = isLiveTerminal(live?.status);
+  const terminal = accessRevoked || isLiveTerminal(live?.status);
   const remoteUid = agora.remoteUids[0];
   const RtcVideoView = Platform.OS === 'android' ? RtcTextureView : RtcSurfaceView;
   const isCompact = width < 375 || height < 720;
@@ -186,18 +229,32 @@ const ViewerLiveStream: React.FC = () => {
     }
   };
 
-  const sendGift = async (gift: GiftSelection) => {
+  const giftRecipients = useMemo<GiftRecipient[]>(() => {
+    const host = live?.creator ? [{
+      id: live.creator.id,
+      name: live.creator.name,
+      handle: live.creator.handle ?? live.creator.username,
+      avatar: live.creator.avatar,
+    }] : [];
+    const battleCreators = battleStage?.participants.map((participant) => ({
+      id: participant.user_id,
+      name: participant.name || participant.username || 'Creator',
+      handle: participant.username,
+      avatar: participant.avatar,
+    })) ?? [];
+    const uniqueRecipients = [...host, ...battleCreators].filter((recipient, index, all) => (
+      all.findIndex((candidate) => String(candidate.id) === String(recipient.id)) === index
+    ));
+    return uniqueRecipients.length ? uniqueRecipients : [{ id: 'creator', name: creatorName }];
+  }, [battleStage?.participants, creatorName, live?.creator]);
+
+  const sendGift = async (gift: GiftSelection, recipient?: GiftRecipient) => {
     await giftLive.mutateAsync({
       gift_id: Number(gift.id),
       quantity: 1,
+      recipient_id: recipient?.id,
       idempotency_key: createLiveIdempotencyKey(liveSessionId, 'gift'),
     });
-  };
-
-  const requestCohost = () => {
-    void liveApi.requestCohost(liveSessionId, 'I would like to join this Live.')
-      .then(() => Alert.alert('Request sent', 'The creator can now review your guest request.'))
-      .catch((error) => Alert.alert('Request not sent', getApiErrorMessage(error)));
   };
 
   const shareLive = () => {
@@ -259,7 +316,6 @@ const ViewerLiveStream: React.FC = () => {
   const openMoreActions = () => {
     Alert.alert('Live options', undefined, [
       { text: isMuted ? 'Unmute Live' : 'Mute Live', onPress: toggleMute },
-      { text: 'Request to join as guest', onPress: requestCohost },
       {
         text: 'Report Live',
         style: 'destructive',
@@ -287,6 +343,8 @@ const ViewerLiveStream: React.FC = () => {
       <StatusBar barStyle="light-content" translucent backgroundColor="transparent" />
       <SafeAreaView style={styles.screen} edges={[]}>
         <View style={styles.media}>
+          {battleStage && !terminal ? <LiveBattleStage stage={battleStage} credentials={credentials}
+            remoteUids={agora.remoteUids} localPreviewReady={agora.localPreviewReady} top={insets.top + 140} /> : <>
           {remoteUid != null ? (
             <RtcVideoView canvas={{ uid: remoteUid }} style={StyleSheet.absoluteFill} />
           ) : live?.cover_url ? (
@@ -294,6 +352,13 @@ const ViewerLiveStream: React.FC = () => {
           ) : (
             <LinearGradient colors={['#23102f', '#090d19', '#020204']} style={StyleSheet.absoluteFill} />
           )}
+          <View pointerEvents="none" style={{ position: 'absolute', right: 12, top: 120, width: 208, flexDirection: 'row', flexWrap: 'wrap', gap: 8 }}>
+            {credentials?.role === 'broadcaster' && agora.localPreviewReady &&
+              <RtcVideoView canvas={{ uid: 0, sourceType: VideoSourceType.VideoSourceCameraPrimary }} style={{ width: 100, height: 140, borderRadius: 12 }} />}
+            {agora.remoteUids.slice(1).map((uid) =>
+              <RtcVideoView key={uid} canvas={{ uid }} style={{ width: 100, height: 140, borderRadius: 12 }} />)}
+          </View>
+          </>}
           <LinearGradient
             colors={['rgba(0,0,0,0.72)', 'transparent', 'transparent', 'rgba(0,0,0,0.94)']}
             locations={[0, 0.24, 0.54, 1]}
@@ -405,7 +470,7 @@ const ViewerLiveStream: React.FC = () => {
             </View>
           ) : null} */}
 
-          {remoteUid == null || terminal ? (
+          {(!battleStage && remoteUid == null) || terminal ? (
             <View pointerEvents="box-none" style={styles.connectionState}>
               <View style={styles.connectionCard}>
                 {!terminal && !joinLive.isError && !agora.error ? (
@@ -554,10 +619,14 @@ const ViewerLiveStream: React.FC = () => {
                 <Text style={styles.dockLabel}>Gift</Text>
               </Pressable>
             ) : null}
-            <Pressable style={styles.dockAction} disabled={terminal} onPress={requestCohost}>
-              <MaterialIcons name="group" size={27} color="#fff" />
-              <Text style={styles.dockLabel}>Guests</Text>
-            </Pressable>
+            <LiveParticipantsPanel liveSessionId={liveSessionId} enabled={hasJoinedPresence && !terminal}
+              initiallyOpen={route.params?.openGuests}
+              broadcasting={credentials?.role === 'broadcaster'}
+              onCredentials={(next) => {
+                if (next) { promotedAtRef.current = Date.now(); setCredentials(next); }
+                else void leaveStage();
+              }}
+              onMute={agora.setMuted} onCamera={agora.switchCamera} />
             <Pressable style={styles.dockAction} onPress={openMoreActions}>
               <MaterialIcons name="more-horiz" size={28} color="#fff" />
               <Text style={styles.dockLabel}>More</Text>
@@ -569,6 +638,7 @@ const ViewerLiveStream: React.FC = () => {
           isOpen={giftOpen}
           onClose={() => setGiftOpen(false)}
           creatorName={creatorName}
+          recipients={giftRecipients}
           currentBalance={walletQuery.data?.total_kc ?? 0}
           onSendGift={sendGift}
           onGiftSent={() => void liveQuery.refetch()}

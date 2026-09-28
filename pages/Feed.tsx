@@ -47,6 +47,7 @@ import ErrorBoundary from '../components/ErrorBoundary';
 import SparkleIcon from '../assets/icons/sparkle-style.svg';
 import CommentIcon from '../assets/icons/comment-svg.svg';
 import KulCoinPrompt from '../components/KulCoinPrompt';
+import PaymentCheckout from '../components/PaymentCheckout';
 import CreatorShareSheet from './CreatorShareSheet';
 import { VoteModalContent } from './Vote';
 import Premium from '../assets/icons/kulsah_premium_icon.svg';
@@ -63,7 +64,6 @@ import {
   useGeneralFeed,
   useLikeVideoMutation,
   useRecordVideoViewMutation,
-  useSubscribeToPlan,
   useCreateCreatorVideoDuetDraft,
   useCastChallengeBallot,
   useKulCoinWallet,
@@ -118,6 +118,7 @@ interface FeedSubscriptionSelection {
   creatorId?: string;
   creatorHandle: string;
   creatorName: string;
+  creatorAvatar: string;
 }
 
 const LiveFeedCreatorAvatar: React.FC<{
@@ -661,6 +662,9 @@ const FeedSubscriptionModal: React.FC<{
   } = usePublicCreatorSubscriptionPlans(visible ? creatorIdentifier : undefined);
   const plan = plansData?.data?.find((item) => item.is_active) ?? plansData?.data?.[0] ?? null;
   const parsedPlansError = plansError ? parseApiError(plansError) : null;
+  const perks = plan?.description
+    ? [plan.description]
+    : ['Exclusive Feed Access', 'Direct Messaging', 'Badge of Honor'];
 
   return (
     <Modal visible={visible} transparent animationType="slide" statusBarTranslucent onRequestClose={onClose}>
@@ -838,27 +842,30 @@ const FeedSubscriptionModal: React.FC<{
                       letterSpacing: 3,
                     }}
                   >
-                    Description
+                    Unlocked Privileges
                   </Text>
-                  <View
-                    style={{
-                      borderRadius: 24,
-                      borderWidth: 1,
-                      paddingHorizontal: 16,
-                      paddingVertical: 15,
-                      backgroundColor: isDark ? 'rgba(255,255,255,0.04)' : '#fff',
-                      borderColor: isDark ? 'rgba(255,255,255,0.06)' : 'rgba(15,23,42,0.06)',
-                    }}
-                  >
-                    <Text
+                  {perks.map((perk, index) => (
+                    <View
+                      key={`${perk}-${index}`}
                       style={{
-                        color: theme.text,
-                        ...fontSize.b4, lineHeight: fontSize.b4.lineHeight,
+                        borderRadius: 24,
+                        borderWidth: 1,
+                        paddingHorizontal: 16,
+                        paddingVertical: 15,
+                        backgroundColor: isDark ? 'rgba(255,255,255,0.04)' : '#fff',
+                        borderColor: isDark ? 'rgba(255,255,255,0.06)' : 'rgba(15,23,42,0.06)',
                       }}
                     >
-                      {plan.description || 'No description added yet.'}
-                    </Text>
-                  </View>
+                      <View style={{ flexDirection: 'row', alignItems: 'center', columnGap: 12 }}>
+                        <View style={{ width: 32, height: 32, borderRadius: 12, backgroundColor: primaryColorAlpha(0.12), alignItems: 'center', justifyContent: 'center' }}>
+                          <MaterialIcons name="check-circle" size={16} color={PRIMARY_COLOR} />
+                        </View>
+                        <Text style={{ flex: 1, color: theme.text, ...fontSize.b4, lineHeight: fontSize.b4.lineHeight }}>
+                          {perk.trim()}
+                        </Text>
+                      </View>
+                    </View>
+                  ))}
 
                   <View
                     style={{
@@ -919,8 +926,8 @@ const FeedSubscriptionModal: React.FC<{
                   onPress={() => onPurchase(plan)}
                   disabled={isProcessing}
                   style={{
-                    minHeight: 72,
-                    borderRadius: 30,
+                    minHeight: 55,
+                    borderRadius: 999,
                     backgroundColor: PRIMARY_COLOR,
                     alignItems: 'center',
                     justifyContent: 'center',
@@ -928,7 +935,7 @@ const FeedSubscriptionModal: React.FC<{
                   }}
                 >
                   {isProcessing ? (
-                    <MaterialIcons name="autorenew" size={24} color="#fff" />
+                    <ActivityIndicator size="small" color="#fff" />
                   ) : (
                     <View style={{ flexDirection: 'row', alignItems: 'center', columnGap: 10 }}>
                       <Text
@@ -1080,6 +1087,7 @@ type VideoFeedItemProps = {
   onToggleLike: (item: FeedItem, liked: boolean) => void;
   onToggleBookmark: (item: FeedItem, bookmarked: boolean) => void;
   onRecordView: (item: FeedItem) => void;
+  onCommentAdded?: (item: FeedItem) => void;
   isGlobalMuted: boolean;
   isLive?: boolean;
   onToggleMute: () => void;
@@ -1105,6 +1113,7 @@ const VideoFeedItemComponent: React.FC<VideoFeedItemProps> = ({
   onToggleLike,
   onToggleBookmark,
   onRecordView,
+  onCommentAdded,
   isGlobalMuted,
   onToggleMute,
   isPlaying,
@@ -1921,6 +1930,7 @@ useEffect(() => {
           title={`${item.comments} Reactions`}
           currentBalance={coinBalance}
           onBalanceChange={onBalanceChange}
+          onCommentAdded={() => onCommentAdded?.(item)}
         />
       </Modal>
 
@@ -1973,7 +1983,7 @@ type FeedBattleRowProps = {
   isCreatorViewer: boolean;
 };
 
-const FeedBattleRow = React.memo<FeedBattleRowProps>(({
+const FeedBattleRow = React.memo<FeedBattleRowProps>(({ 
   battle,
   height,
   topInset,
@@ -2030,6 +2040,7 @@ type FeedVideoRowProps = {
   onToggleLike: VideoFeedItemProps['onToggleLike'];
   onToggleBookmark: VideoFeedItemProps['onToggleBookmark'];
   onRecordView: VideoFeedItemProps['onRecordView'];
+  onCommentAdded?: VideoFeedItemProps['onCommentAdded'];
   isGlobalMuted: boolean;
   onToggleMute: () => void;
   coinBalance: number;
@@ -2046,6 +2057,7 @@ const FeedVideoRow = React.memo<FeedVideoRowProps>(({
   onToggleLike,
   onToggleBookmark,
   onRecordView,
+  onCommentAdded,
   isGlobalMuted,
   onToggleMute,
   coinBalance,
@@ -2074,6 +2086,7 @@ const FeedVideoRow = React.memo<FeedVideoRowProps>(({
           onToggleLike={onToggleLike}
           onToggleBookmark={onToggleBookmark}
           onRecordView={onRecordView}
+          onCommentAdded={onCommentAdded}
           isGlobalMuted={isGlobalMuted}
           onToggleMute={onToggleMute}
           isLive={item.isLive}
@@ -3404,17 +3417,19 @@ const Feed: React.FC = () => {
 
   const [activeIndex, setActiveIndex] = useState(0);
   const [selectedSubscription, setSelectedSubscription] = useState<FeedSubscriptionSelection | null>(null);
+  const [subscriptionCheckoutPlan, setSubscriptionCheckoutPlan] = useState<CreatorSubscriptionPlan | null>(null);
   const [subscriptionBillingCycle] = useState<'monthly' | 'annually'>('monthly');
   const [coinBalance, setCoinBalance] = useState(1250);
-  const [isProcessingSubscription, setIsProcessingSubscription] = useState(false);
-  const [showSubscriptionSuccess, setShowSubscriptionSuccess] = useState(false);
   const [showKulCoinPrompt, setShowKulCoinPrompt] = useState(false);
   const [isCreatorViewer, setIsCreatorViewer] = useState(user?.role === 'creator');
   const [shakeToRefreshEnabled, setShakeToRefreshEnabled] = useState(false);
   const [isShakeRefreshing, setIsShakeRefreshing] = useState(false);
   const [followToast, setFollowToast] = useState<string | null>(null);
-  const { mutateAsync: subscribeToPlan } = useSubscribeToPlan();
-
+  const subscriptionCreatorIdentifier = selectedSubscription?.creatorId ?? selectedSubscription?.creatorHandle;
+  const subscriptionPlansQuery = usePublicCreatorSubscriptionPlans(subscriptionCreatorIdentifier);
+  const foryou = 'foryou';
+  const premium = 'premium';
+  const following = 'following';
   const feedLimit = 20;
   const {
     data: feedData,
@@ -3559,14 +3574,35 @@ const Feed: React.FC = () => {
   });
 
 
+  useEffect(() => {
+    if (!selectedSubscription || subscriptionCheckoutPlan || subscriptionPlansQuery.isLoading) return;
+
+    const plan = subscriptionPlansQuery.data?.data?.find((item) => item.is_active)
+      ?? subscriptionPlansQuery.data?.data?.[0];
+
+    if (plan) {
+      setSubscriptionCheckoutPlan(plan);
+      return;
+    }
+
+    if (subscriptionPlansQuery.error || subscriptionPlansQuery.data) {
+      const message = subscriptionPlansQuery.error
+        ? parseApiError(subscriptionPlansQuery.error).message
+        : `${selectedSubscription.creatorName} does not have an active subscription plan yet.`;
+      Alert.alert('Subscription unavailable', message);
+      setSelectedSubscription(null);
+    }
+  }, [selectedSubscription, subscriptionCheckoutPlan, subscriptionPlansQuery.data, subscriptionPlansQuery.error, subscriptionPlansQuery.isLoading]);
+
   const handleSubscribe = useCallback((feedItem: FeedItem) => {
+    setSubscriptionCheckoutPlan(null);
     setSelectedSubscription({
       itemId: feedItem.id,
       creatorId: feedItem.creatorId,
       creatorHandle: feedItem.handle,
       creatorName: feedItem.artist,
+      creatorAvatar: feedItem.avatar,
     });
-    setShowSubscriptionSuccess(false);
   }, []);
 
   const handleFollow = useCallback((feedItem: FeedItem) => {
@@ -3704,56 +3740,28 @@ const Feed: React.FC = () => {
     });
   }, [mutateRecordVideoView]);
 
-  const closeSubscriptionModal = useCallback(() => {
-    if (isProcessingSubscription) return;
-    setSelectedSubscription(null);
-    setShowSubscriptionSuccess(false);
-  }, [isProcessingSubscription]);
+  const handleCommentAdded = useCallback((feedItem: FeedItem) => {
+    setItems((previous) => previous.map((item) => (
+      item.id === feedItem.id
+        ? { ...item, comments: formatFeedCount(parseFeedCount(item.comments) + 1) }
+        : item
+    )));
+  }, []);
 
-  const handleSubscriptionPurchase = useCallback(async (plan: CreatorSubscriptionPlan) => {
+  const closeSubscriptionModal = useCallback(() => {
+    setSubscriptionCheckoutPlan(null);
+    setSelectedSubscription(null);
+  }, []);
+
+  const handleSubscriptionPaymentSuccess = useCallback(() => {
     if (!selectedSubscription) return;
 
-    const subscriptionCost =
-      subscriptionBillingCycle === 'monthly' ? MONTHLY_KULCOINS : YEARLY_KULCOINS;
-
-    if (coinBalance < subscriptionCost) {
-      setShowKulCoinPrompt(true);
-      return;
-    }
-
-    try {
-      setIsProcessingSubscription(true);
-      await subscribeToPlan({
-        subscriptionPlan: plan.id,
-        payload: {
-          name: plan.name.trim(),
-          description: plan.description || null,
-          price: Number.parseFloat(String(plan.price)),
-          currency: plan.currency,
-          billing_interval: plan.billing_interval,
-        },
-      });
-
-      setItems((prev) =>
-        prev.map((item) =>
-          item.id === selectedSubscription.itemId ? { ...item, isSubscribed: true } : item
-        )
-      );
-      setCoinBalance((prev) => prev - subscriptionCost);
-      setShowSubscriptionSuccess(true);
-      setTimeout(() => {
-        setSelectedSubscription(null);
-        setShowSubscriptionSuccess(false);
-      }, 1800);
-    } catch (error: any) {
-      Alert.alert(
-        'Subscription failed',
-        error?.response?.data?.message || error?.message || 'Please try again.'
-      );
-    } finally {
-      setIsProcessingSubscription(false);
-    }
-  }, [coinBalance, selectedSubscription, subscribeToPlan, subscriptionBillingCycle]);
+    setItems((prev) => prev.map((item) => (
+      item.id === selectedSubscription.itemId ? { ...item, isSubscribed: true } : item
+    )));
+    setSubscriptionCheckoutPlan(null);
+    setSelectedSubscription(null);
+  }, [selectedSubscription]);
 
   const handleToggleMute = useCallback(() => {
     setIsGlobalMuted((v) => !v);
@@ -3889,6 +3897,7 @@ const Feed: React.FC = () => {
         onToggleLike={handleToggleLike}
         onToggleBookmark={handleToggleBookmark}
         onRecordView={handleRecordView}
+        onCommentAdded={handleCommentAdded}
         isGlobalMuted={isGlobalMuted}
         onToggleMute={handleToggleMute}
         coinBalance={coinBalance}
@@ -3896,7 +3905,7 @@ const Feed: React.FC = () => {
         isCreatorViewer={isCreatorViewer}
       />
     );
-  }, [activeIndex, coinBalance, feedItemHeight, handleFollow, handleOpenCreatorBattle, handleRecordView, handleSubscribe, handleToggleBookmark, handleToggleLike, handleToggleMute, insets.top, isCreatorViewer, isGlobalMuted]);
+  }, [activeIndex, coinBalance, feedItemHeight, handleCommentAdded, handleFollow, handleOpenCreatorBattle, handleRecordView, handleSubscribe, handleToggleBookmark, handleToggleLike, handleToggleMute, insets.top, isCreatorViewer, isGlobalMuted]);
 
   const keyExtractor = useCallback((item: FeedRow) => item.id, []);
 
@@ -3996,7 +4005,7 @@ const Feed: React.FC = () => {
                         activeTab === "foryou" && {color: 'white', letterSpacing: 1, fontFamily: 'Inter_700Bold'}]}>
                         FOR YOU
                       </Text>
-                      {activeTab === "foryou" && <View style={{
+                      {activeTab === foryou && <View style={{
                         backgroundColor: PRIMARY_COLOR,
                         height: 2,
                         width: 20,
@@ -4014,7 +4023,7 @@ const Feed: React.FC = () => {
                         activeTab === "following" && {color: 'white', letterSpacing: 1, fontFamily: 'Inter_700Bold'}]}>
                         FOLLOWING
                       </Text>
-                      {activeTab === "following" && <View style={{
+                      {activeTab === following && <View style={{
                         backgroundColor: PRIMARY_COLOR,
                         height: 2,
                         width: 20,
@@ -4045,7 +4054,7 @@ const Feed: React.FC = () => {
                         activeTab === "premium" && {color: 'white', letterSpacing: 1, fontFamily: 'Inter_700Bold', marginBottom: 5}]}>
                         PREMIUM
                       </Text>
-                      {activeTab === "premium" && <View style={{
+                      {activeTab === premium && <View style={{
                         backgroundColor: PRIMARY_COLOR,
                         height: 2,
                         width: 20,
@@ -4240,16 +4249,22 @@ const Feed: React.FC = () => {
         </View>
       ) : null}
 
-      <FeedSubscriptionModal
-        visible={Boolean(selectedSubscription)}
-        selection={selectedSubscription}
-        billingCycle={subscriptionBillingCycle}
-        coinBalance={coinBalance}
-        isProcessing={isProcessingSubscription}
-        showSuccess={showSubscriptionSuccess}
-        onClose={closeSubscriptionModal}
-        onPurchase={(plan) => void handleSubscriptionPurchase(plan)}
-      />
+      {selectedSubscription && subscriptionCheckoutPlan ? (
+        <PaymentCheckout
+          isOpen
+          onClose={closeSubscriptionModal}
+          onSuccess={handleSubscriptionPaymentSuccess}
+          amount={Number(subscriptionCheckoutPlan.price)}
+          currency={subscriptionCheckoutPlan.currency}
+          summaryEyebrow="Subscribe to"
+          itemName={`@${selectedSubscription.creatorHandle}`}
+          itemSubtitle={`${subscriptionBillingCycle === 'monthly' ? 'Monthly' : 'Annual'} Subscription`}
+          merchantName={selectedSubscription.creatorName}
+          itemImageUri={selectedSubscription.creatorAvatar}
+          purchase={{ purpose: 'subscription', subscription_plan_id: subscriptionCheckoutPlan.id }}
+          allowedMethods={['momo', 'card']}
+        />
+      ) : null}
 
       <KulCoinPrompt
         isOpen={showKulCoinPrompt}

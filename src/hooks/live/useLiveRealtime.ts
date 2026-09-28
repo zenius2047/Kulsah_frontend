@@ -15,19 +15,24 @@ import { liveQueryKeys, patchCachedLiveSession } from './useLive';
 
 const LIVE_EVENTS = [
   'status',
+  'viewer_count',
   'ended',
   'chat_created',
   'like_count',
   'gift_created',
   'moderation_applied',
   'cohost_accepted',
+  'cohost_requested',
+  'cohost_declined',
   'cohost_removed',
   'battle_start',
+  'battle_vote',
   'battle_score',
   'battle_end',
 ] as const;
 
 type LiveRealtimeHandlers = {
+  onModeration?: (moderation: NonNullable<LiveUpdatedEvent['moderation']>) => void;
   onComment?: (comment: LiveRealtimeComment) => void;
   onGift?: (gift: LiveRealtimeGift) => void;
 };
@@ -62,6 +67,7 @@ export const useLiveRealtime = (
       });
       if (event.comment) handlersRef.current.onComment?.(event.comment);
       if (event.gift) handlersRef.current.onGift?.(event.gift);
+      if (event.moderation) handlersRef.current.onModeration?.(event.moderation);
       if (isLiveTerminal(event.status)) {
         void queryClient.invalidateQueries({ queryKey: liveQueryKeys.discovery() });
       }
@@ -69,7 +75,12 @@ export const useLiveRealtime = (
 
     const channelName = `lives.${liveId}`;
     const channel = realtime.private(channelName);
-    LIVE_EVENTS.forEach((event) => channel.listen(`.live.${event}`, handleUpdate));
+    LIVE_EVENTS.forEach((event) => channel.listen(`.live.${event}`, (payload: LiveUpdatedEvent) => {
+      handleUpdate(payload);
+      if (event.startsWith('cohost_') || event.startsWith('battle_') || event === 'viewer_count') {
+        void queryClient.invalidateQueries({ queryKey: liveQueryKeys.participants(liveId) });
+      }
+    }));
 
     return () => realtime.leave(channelName);
   }, [enabled, liveId, token]);

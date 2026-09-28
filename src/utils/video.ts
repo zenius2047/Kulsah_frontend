@@ -17,6 +17,9 @@ export type VideoPosterFields = {
 export type VideoProcessingFields = {
   status?: string | null;
   render_status?: string | null;
+  processing_status?: string | null;
+  processing_state?: string | null;
+  render_completed_at?: string | null;
   metadata?: { edit_status?: string | null } | null;
 };
 
@@ -36,12 +39,37 @@ export const getVideoPoster = (video: VideoPosterFields): string | null =>
   video.thumbnail_url ??
   null;
 
-export const getVideoProcessingState = ({ status, render_status: renderStatus, metadata }: VideoProcessingFields) => {
-  const editStatus = metadata?.edit_status;
+export const getVideoProcessingState = ({
+  status,
+  render_status: renderStatus,
+  processing_status: processingStatus,
+  processing_state: processingState,
+  render_completed_at: renderCompletedAt,
+  metadata,
+}: VideoProcessingFields) => {
+  const normalize = (value?: string | null) => value?.trim().toLowerCase() ?? '';
+  const statusState = normalize(status);
+  const pipelineStates = [renderStatus, processingStatus, processingState, metadata?.edit_status]
+    .map(normalize)
+    .filter(Boolean);
+  const states = [statusState, ...pipelineStates];
+  const activeStates = new Set(['queued', 'pending', 'processing', 'rendering', 'rendering_edit', 'awaiting_edit']);
+  const readyStates = new Set(['ready', 'completed', 'complete', 'processed', 'succeeded', 'success']);
+  const failedStates = new Set(['failed', 'error', 'cancelled', 'canceled']);
+  const hasFailed = states.some((state) => failedStates.has(state));
+  const hasPipelineState = pipelineStates.length > 0;
+  const hasActivePipelineState = pipelineStates.some((state) => activeStates.has(state));
+  const isRendering = !hasFailed && (
+    hasActivePipelineState
+    || (!hasPipelineState && !renderCompletedAt && activeStates.has(statusState))
+  );
+  const hasReadyState = pipelineStates.some((state) => readyStates.has(state))
+    || (!hasActivePipelineState && readyStates.has(statusState));
+
   return {
-    isRendering: ['queued', 'processing'].includes(renderStatus ?? editStatus ?? status ?? ''),
-    hasFailed: renderStatus === 'failed' || editStatus === 'failed' || status === 'failed',
-    isReady: renderStatus === 'ready' || editStatus === 'ready' || (status === 'ready' && !renderStatus && !editStatus),
+    isRendering,
+    hasFailed,
+    isReady: !hasFailed && !isRendering && (hasReadyState || Boolean(renderCompletedAt)),
   };
 };
 

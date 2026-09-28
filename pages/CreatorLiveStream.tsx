@@ -30,6 +30,7 @@ import {
   useConfirmLive,
   useEndLive,
   useLiveSession,
+  useLiveParticipants,
   useReconnectLive,
   useStartLive,
 } from '../src/hooks/live/useLive';
@@ -38,6 +39,9 @@ import { useLiveRealtime } from '../src/hooks/live/useLiveRealtime';
 import type { LiveCredentials, LiveSession } from '../src/types/live.types';
 import { getApiErrorMessage } from '../src/utils/apiError';
 import { formatLiveCount } from '../src/utils/live';
+import { isLiveTerminal } from '../src/utils/live';
+import LiveParticipantsPanel from '../components/LiveParticipantsPanel';
+import LiveBattleStage from '../components/LiveBattleStage';
 
 interface ChatMessage {
   id: number;
@@ -53,6 +57,7 @@ type CreatorLiveRoute = {
     liveSessionId?: string;
     initialLive?: LiveSession;
     quality?: string;
+    liveType?: 'regular' | 'battle';
   };
 };
 
@@ -63,10 +68,15 @@ const statsConfig = [
   { label: 'Uplink', icon: 'signal-cellular-alt' as const, color: '#34d399' },
 ];
 
-const CreatorLiveStream: React.FC = () => {
+type CreatorLiveStreamProps = {
+  liveType?: 'regular' | 'battle';
+};
+
+const CreatorLiveStream: React.FC<CreatorLiveStreamProps> = ({ liveType: liveTypeOverride }) => {
   const { isDark, theme } = useThemeMode();
   const navigation = useNavigation<any>();
   const route = useRoute<CreatorLiveRoute>();
+  const liveType = liveTypeOverride ?? route.params?.liveType ?? 'regular';
   const liveSessionId = route.params?.liveSessionId ?? route.params?.initialLive?.id ?? '';
   const chatScrollRef = useRef<ScrollView | null>(null);
   const insets = useSafeAreaInsets();
@@ -87,6 +97,8 @@ const CreatorLiveStream: React.FC = () => {
 
   const liveQuery = useLiveSession(liveSessionId, Boolean(liveSessionId));
   const live = liveQuery.data ?? route.params?.initialLive;
+  const participants = useLiveParticipants(liveSessionId, Boolean(credentials) && !isLiveTerminal(live?.status));
+  const battleStage = participants.data?.battle_stage;
   const startLive = useStartLive(liveSessionId);
   const confirmLive = useConfirmLive(liveSessionId);
   const reconnectLive = useReconnectLive(liveSessionId);
@@ -127,7 +139,7 @@ const CreatorLiveStream: React.FC = () => {
 
   const agora = useAgoraLive({
     credentials,
-    enabled: permissionsGranted,
+    enabled: permissionsGranted && !isLiveTerminal(live?.status),
     onJoined: async () => {
       if (confirmedRef.current) return;
       confirmedRef.current = true;
@@ -300,6 +312,8 @@ const CreatorLiveStream: React.FC = () => {
       ) : (
       <View style={[styles.screen, { backgroundColor: theme.screen }]}>
         <View style={styles.background}>
+          {battleStage ? <LiveBattleStage stage={battleStage} credentials={credentials}
+            remoteUids={agora.remoteUids} localPreviewReady={agora.localPreviewReady} top={insets.top + 140} /> : <>
           {credentials && agora.localPreviewReady ? (
             <RtcVideoView canvas={localVideoCanvas} style={StyleSheet.absoluteFill} />
           ) : (
@@ -310,7 +324,7 @@ const CreatorLiveStream: React.FC = () => {
           )}
               {agora.remoteUids.length > 0 ? (
             <View style={styles.remoteGrid}>
-              {agora.remoteUids.slice(0, 3).map((uid) => (
+              {agora.remoteUids.map((uid) => (
                 <RtcVideoView
                   key={uid}
                   canvas={{
@@ -323,6 +337,7 @@ const CreatorLiveStream: React.FC = () => {
               ))}
             </View>
           ) : null}
+          </>}
           <LinearGradient
             colors={['rgba(0,0,0,0.72)', 'rgba(0,0,0,0.2)', 'rgba(0,0,0,0.92)']}
             style={StyleSheet.absoluteFill}
@@ -336,6 +351,14 @@ const CreatorLiveStream: React.FC = () => {
               </View>
 
               <View style={styles.topActions}>
+                <LiveParticipantsPanel
+                  liveSessionId={liveSessionId}
+                  creator
+                  showInviteButton
+                  enabled={Boolean(credentials) && live?.status === 'live'}
+                  initialTab={liveType === 'battle' ? 'battles' : 'guests'}
+                  initiallyOpen={liveType === 'battle' && live?.status === 'live'}
+                />
                 <Pressable
                   onPress={() => setShowEndConfirm(true)}
                   style={styles.endSessionButton}
@@ -574,6 +597,9 @@ const styles = StyleSheet.create({
     position: 'absolute',
     top: 118,
     right: 14,
+    width: 224,
+    flexDirection: 'row',
+    flexWrap: 'wrap',
     gap: 8,
     zIndex: 2,
   },

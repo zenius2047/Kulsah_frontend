@@ -4,6 +4,8 @@ import type {
   CreateLivePayload,
   LiveAnalytics,
   LiveBattle,
+  LiveBattleCreatorsPage,
+  LiveBattleVoteResult,
   LiveCohostAcceptance,
   LiveCohostRequest,
   LiveComment,
@@ -12,14 +14,25 @@ import type {
   LiveLikeResult,
   LiveModerationPayload,
   LivePage,
+  LiveParticipants,
+  LiveCredentials,
   LiveSessionResponse,
   SendLiveGiftPayload,
+  SendLiveBattleVotePayload,
 } from '../types/live.types';
 
 type DataEnvelope<T> = { data: T; message?: string };
 
 export const liveApi = {
-  discover: (params: { page?: number; per_page?: number } = {}) =>
+  battleCreators: (liveSession: string | number, params: { search_query?: string; page?: number; limit?: number } = {}) =>
+    api.get<LiveBattleCreatorsPage>(endpoints.creator.liveBattleCreators(liveSession), { params }),
+  participants: (liveSession: string | number) =>
+    api.get<DataEnvelope<LiveParticipants>>(endpoints.general.liveParticipants(liveSession)),
+  cohostCredentials: (liveSession: string | number) =>
+    api.post<DataEnvelope<LiveCredentials>>(endpoints.general.liveCohostCredentials(liveSession)),
+  leaveCohost: (liveSession: string | number) =>
+    api.post(endpoints.general.liveCohostLeave(liveSession)),
+  discover: (params: { page?: number; per_page?: number; search_query?: string } = {}) =>
     api.get<LivePage>(endpoints.general.live, { params }),
   get: (liveSession: string | number) =>
     api.get<LiveSessionResponse>(endpoints.general.liveSession(liveSession)),
@@ -61,12 +74,14 @@ export const liveApi = {
     api.delete<DataEnvelope<Record<string, unknown>>>(endpoints.creator.liveCohostRemove(liveSession, user), {
       data: { reason },
     }),
-  inviteBattle: (liveSession: string | number, opponentLiveSessionPublicId: string) =>
+  inviteBattle: (liveSession: string | number, opponentId: number) =>
     api.post<DataEnvelope<LiveBattle>>(endpoints.creator.liveBattleInvite(liveSession), {
-      opponent_live_session_public_id: opponentLiveSessionPublicId,
+      opponent_id: opponentId,
     }),
   acceptBattle: (battle: string | number) =>
-    api.post<DataEnvelope<LiveBattle>>(endpoints.general.liveBattleAccept(battle)),
+    api.post<DataEnvelope<LiveBattle> & { credentials?: LiveCredentials | null }>(endpoints.general.liveBattleAccept(battle)),
+  voteBattle: (battle: string | number, payload: SendLiveBattleVotePayload) =>
+    api.post<DataEnvelope<LiveBattleVoteResult>>(endpoints.general.liveBattleVotes(battle), payload),
   scoreBattle: (battle: string | number) =>
     api.post<DataEnvelope<LiveBattle>>(endpoints.general.liveBattleScore(battle)),
   endBattle: (battle: string | number) =>

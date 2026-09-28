@@ -1,9 +1,10 @@
 import { MaterialIcons } from '@expo/vector-icons';
 import { useNavigation } from '@react-navigation/native';
 import { LinearGradient } from 'expo-linear-gradient';
-import React, { useState } from 'react';
+import React, { useDeferredValue, useState } from 'react';
 import {
   Image,
+  Keyboard,
   Platform,
   Pressable,
   ScrollView,
@@ -16,8 +17,18 @@ import { SafeAreaView, useSafeAreaInsets } from 'react-native-safe-area-context'
 import { useThemeMode, PRIMARY_COLOR, primaryColorAlpha } from "../theme";
 import KulsahInputBar from '../components/KulsahInputBar';
 import { fontSize } from '../typography';
+import { useQuery } from '@tanstack/react-query';
+import { musicApi } from '../src/api/music.api';
+import { useDiscovery } from '../src/hooks/queries/useDiscovery';
+import { liveApi } from '../src/api/live.api';
+import type { DiscoveryCreator, DiscoveryVideo } from '../src/types/discovery.types';
+import type { MusicTrack } from '../src/types/music.types';
+import { formatLiveCount } from '../src/utils/live';
 
 type SearchTab = 'Top' | 'Users' | 'Videos' | 'Sounds' | 'LIVE' | 'Hashtags';
+
+type SearchUser = Pick<DiscoveryCreator, 'id' | 'name' | 'handle' | 'avatar_url' | 'is_verified' | 'followers_count'>;
+type SearchVideo = Pick<DiscoveryVideo, 'id' | 'title' | 'caption' | 'creator' | 'thumbnail_url' | 'playback_url' | 'stats'>;
 
 const tabs: SearchTab[] = ['Top', 'Users', 'Videos', 'Sounds', 'LIVE', 'Hashtags'];
 
@@ -44,34 +55,6 @@ const suggestedCreators = [
   { name: 'Sox Jazz', followers: '542K FOLLOWERS', img: 'https://picsum.photos/seed/soxjazz/400/600' },
 ];
 
-const mockVideos = [
-  { id: 'v1', title: 'Neon Night Walk in Tokyo', author: 'CyberPunker', views: '1.2M', img: 'https://picsum.photos/seed/v1/400/250' },
-  { id: 'v2', title: 'Afrobeat Dance Challenge', author: 'DanceKing', views: '850K', img: 'https://picsum.photos/seed/v2/400/250' },
-  { id: 'v3', title: 'How to make a viral hit', author: 'ProducerPro', views: '420K', img: 'https://picsum.photos/seed/v3/400/250' },
-  { id: 'v4', title: 'Gaming Highlights 2024', author: 'EliteGamer', views: '120K', img: 'https://picsum.photos/seed/v4/400/250' },
-];
-
-const mockSounds = [
-  { id: 's1', title: 'Midnight City Remix', artist: 'Urban Echo', duration: '0:30', usage: '1.2M', img: 'https://picsum.photos/seed/s1/100/100' },
-  { id: 's2', title: 'Lofi Study Beats', artist: 'ChillCat', duration: '1:00', usage: '850K', img: 'https://picsum.photos/seed/s2/100/100' },
-  { id: 's3', title: 'Summer Vibe', artist: 'ProducerPro', duration: '0:15', usage: '420K', img: 'https://picsum.photos/seed/s3/100/100' },
-  { id: 's4', title: 'Epic Orchestral', artist: 'ComposerX', duration: '0:45', usage: '120K', img: 'https://picsum.photos/seed/s4/100/100' },
-];
-
-const mockLive = [
-  { id: 'l1', title: 'Late Night Chill & Chat', user: 'Alex Vibe', viewers: '4.2K', img: 'https://picsum.photos/seed/l1/400/600' },
-  { id: 'l2', title: 'Ranked Push to Global', user: 'EliteGamer', viewers: '12K', img: 'https://picsum.photos/seed/l2/400/600' },
-  { id: 'l3', title: 'Cooking authentic Jollof', user: 'ChefK', viewers: '1.8K', img: 'https://picsum.photos/seed/l3/400/600' },
-];
-
-const mockUsers = [
-  { name: 'Alex Vibe', handle: '@alex_vibe', img: 'https://picsum.photos/seed/alexvibe/150/150', followers: '1.2M' },
-  { name: 'Jordan DJ', handle: '@jordan_dj', img: 'https://picsum.photos/seed/jordondj/150/150', followers: '850K' },
-  { name: 'Sara Pulse', handle: '@sara_pulse', img: 'https://picsum.photos/seed/sarapulse/150/150', followers: '420K' },
-  { name: 'Pixel Pro', handle: '@pixel_pro', img: 'https://picsum.photos/seed/pixelpro/150/150', followers: '120K' },
-  { name: 'Echo Nomad', handle: '@echo_nomad', img: 'https://picsum.photos/seed/echonomad/150/150', followers: '95K' },
-];
-
 const Search: React.FC = () => {
   const navigation = useNavigation<any>();
   const insets = useSafeAreaInsets();
@@ -79,6 +62,30 @@ const Search: React.FC = () => {
   const { isDark, theme } = useThemeMode();
   const [searchQuery, setSearchQuery] = useState('');
   const [activeTab, setActiveTab] = useState<SearchTab>('Top');
+  const deferredSearch = useDeferredValue(searchQuery.trim());
+  const hasQuery = deferredSearch.length > 0;
+  const discoveryTab = activeTab === 'Users' ? 'creators' : activeTab === 'Videos' ? 'videos' : 'all';
+  const discoveryQuery = useDiscovery(
+    { tab: discoveryTab, page: 1, limit: 30, ...(hasQuery ? { search_query: deferredSearch } : {}) },
+    { enabled: hasQuery && (activeTab === 'Top' || activeTab === 'Users' || activeTab === 'Videos') },
+  );
+  const soundsQuery = useQuery({
+    queryKey: ['search', 'sounds', deferredSearch],
+    queryFn: () => musicApi.browse({ search: deferredSearch, limit: 30, sort: 'relevant' }).then((response) => response.data.data),
+    enabled: hasQuery && (activeTab === 'Top' || activeTab === 'Sounds'),
+    staleTime: 60_000,
+  });
+  const liveQuery = useQuery({
+    queryKey: ['search', 'live', deferredSearch],
+    queryFn: () => liveApi.discover({ page: 1, per_page: 30, search_query: deferredSearch }).then((response) => response.data),
+    enabled: hasQuery && (activeTab === 'Top' || activeTab === 'LIVE'),
+    staleTime: 15_000,
+  });
+  const users = discoveryQuery.data?.data.creators ?? [];
+  const videos = discoveryQuery.data?.data.videos ?? [];
+  const sounds = soundsQuery.data ?? [];
+  const liveResults = liveQuery.data?.data ?? [];
+  const isSearching = discoveryQuery.isLoading || soundsQuery.isLoading || liveQuery.isLoading;
 
   const cardGap = 14;
   const contentWidth = width - 32;
@@ -101,26 +108,43 @@ const Search: React.FC = () => {
     accent: theme.accent,
   };
 
-  const openProfile = (name: string) => {
-    navigation.navigate('ArtistProfile', { id: name, isOwner: false });
+  const openProfile = (user: SearchUser | string) => {
+    navigation.navigate('ArtistProfile', { id: typeof user === 'string' ? user : user.id, isOwner: false });
   };
 
-  const renderUserRow = (user: (typeof mockUsers)[number], compact = false) => (
+  const openVideo = (video: SearchVideo) => {
+    navigation.navigate('VideoPlayer', {
+      id: video.id,
+      item: {
+        id: video.id,
+        artist: video.creator.name,
+        handle: video.creator.handle,
+        avatar: video.creator.avatar_url,
+        caption: video.caption ?? video.title ?? '',
+        video: video.playback_url,
+        thumbnail_url: video.thumbnail_url,
+        likes: String(video.stats.likes_count),
+        comments: String(video.stats.comments_count),
+      },
+    });
+  };
+
+  const renderUserRow = (user: SearchUser, compact = false) => (
     <Pressable
       key={user.handle}
-      onPress={() => openProfile(user.name)}
+      onPress={() => openProfile(user)}
       style={({ pressed }) => [styles.userRow, compact && styles.userRowCompact, pressed && { backgroundColor: colors.surfacePressed }]}
     >
-      <Image source={{ uri: user.img }} style={[styles.avatar, { backgroundColor: colors.card, borderColor: colors.border }, compact ? styles.avatarCompact : null]} />
+      {user.avatar_url ? <Image source={{ uri: user.avatar_url }} style={[styles.avatar, { backgroundColor: colors.card, borderColor: colors.border }, compact ? styles.avatarCompact : null]} /> : <View style={[styles.avatar, { backgroundColor: colors.card, borderColor: colors.border }, compact ? styles.avatarCompact : null]} />}
       <View style={styles.userCopy}>
         <View style={styles.inlineCenter}>
           <Text style={[styles.userName, { color: colors.text }]} numberOfLines={1}>{user.name}</Text>
-          <MaterialIcons name="verified" size={compact ? 14 : 16} color={colors.accent} />
+          {user.is_verified ? <MaterialIcons name="verified" size={compact ? 14 : 16} color={colors.accent} /> : null}
         </View>
         <Text style={[styles.userMeta, { color: colors.textMuted }]} numberOfLines={1}>
-          {user.handle.toLowerCase()} {compact ? `- ${user.followers} followers` : ''}
+          @{user.handle.replace(/^@/, '')} {compact ? `- ${formatLiveCount(user.followers_count)} followers` : ''}
         </Text>
-        {!compact ? <Text style={[styles.userFollowers, { color: colors.textFaint }]}>{user.followers} followers</Text> : null}
+        {!compact ? <Text style={[styles.userFollowers, { color: colors.textFaint }]}>{formatLiveCount(user.followers_count)} followers</Text> : null}
       </View>
       <Pressable style={({ pressed }) => [styles.followButton, { backgroundColor: colors.followBg }, pressed && styles.buttonPressed]}>
         <Text style={[styles.followText, { color: colors.followText }]}>Follow</Text>
@@ -128,20 +152,24 @@ const Search: React.FC = () => {
     </Pressable>
   );
 
-  const renderVideoCard = (vid: (typeof mockVideos)[number]) => (
-    <Pressable key={vid.id} style={{ width: twoColumnWidth }}>
+  const renderVideoCard = (vid: SearchVideo) => (
+    <Pressable
+      key={vid.id}
+      onPress={() => openVideo(vid)}
+      style={({ pressed }) => [{ width: twoColumnWidth }, pressed && styles.cardPressed]}
+    >
       <View style={[styles.videoThumb, { backgroundColor: colors.card }]}>
-        <Image source={{ uri: vid.img }} style={styles.fillImage} />
+        {vid.thumbnail_url ? <Image source={{ uri: vid.thumbnail_url }} style={styles.fillImage} /> : null}
         <LinearGradient colors={['transparent', 'rgba(0,0,0,0.72)']} style={StyleSheet.absoluteFillObject} />
         <View style={styles.viewsBadge}>
           <MaterialIcons name="play-arrow" size={13} color="#fff" />
-          <Text style={styles.viewsText}>{vid.views}</Text>
+          <Text style={styles.viewsText}>{formatLiveCount(vid.stats.views_count)}</Text>
         </View>
       </View>
-      <Text style={[styles.videoTitle, { color: colors.text }]} numberOfLines={2}>{vid.title}</Text>
+      <Text style={[styles.videoTitle, { color: colors.text }]} numberOfLines={2}>{vid.title ?? vid.caption ?? 'Untitled video'}</Text>
       <View style={styles.authorRow}>
         <View style={styles.authorDot} />
-        <Text style={[styles.authorText, { color: colors.textMuted }]} numberOfLines={1}>{vid.author}</Text>
+        <Text style={[styles.authorText, { color: colors.textMuted }]} numberOfLines={1}>{vid.creator.name}</Text>
       </View>
     </Pressable>
   );
@@ -152,10 +180,10 @@ const Search: React.FC = () => {
         return (
           <View style={styles.resultsStack}>
             <SectionHeader title="Users" action="See more" colors={colors} onPress={() => setActiveTab('Users')} />
-            <View style={styles.stackSmall}>{mockUsers.slice(0, 3).map((user) => renderUserRow(user, true))}</View>
+            <View style={styles.stackSmall}>{users.slice(0, 3).map((user) => renderUserRow(user, true))}</View>
 
             <SectionHeader title="Videos" action="See more" colors={colors} onPress={() => setActiveTab('Videos')} />
-            <View style={styles.gridRow}>{mockVideos.slice(0, 2).map(renderVideoCard)}</View>
+            <View style={styles.gridRow}>{videos.slice(0, 2).map(renderVideoCard)}</View>
 
             <View style={[styles.keywordBlock, { borderTopColor: colors.border }]}>
               <Text style={[styles.kicker, { color: colors.textMuted }]}>Related keywords</Text>
@@ -174,24 +202,24 @@ const Search: React.FC = () => {
           </View>
         );
       case 'Users':
-        return <View style={styles.stackSmall}>{mockUsers.map((user) => renderUserRow(user))}</View>;
+        return <View style={styles.stackSmall}>{users.map((user) => renderUserRow(user))}</View>;
       case 'Videos':
-        return <View style={styles.gridRow}>{mockVideos.map(renderVideoCard)}</View>;
+        return <View style={styles.gridRow}>{videos.map(renderVideoCard)}</View>;
       case 'Sounds':
         return (
           <View style={styles.stackSmall}>
-            {mockSounds.map((sound) => (
+            {sounds.map((sound: MusicTrack) => (
               <Pressable key={sound.id} style={({ pressed }) => [styles.soundRow, pressed && { backgroundColor: colors.surfacePressed }]}>
                 <View style={[styles.soundCover, { backgroundColor: colors.card }]}>
-                  <Image source={{ uri: sound.img }} style={styles.fillImage} />
+                  {sound.thumbnail_artwork ? <Image source={{ uri: sound.thumbnail_artwork }} style={styles.fillImage} /> : null}
                   <View style={styles.soundPlay}>
                     <MaterialIcons name="play-arrow" size={20} color="#fff" />
                   </View>
                 </View>
                 <View style={styles.userCopy}>
-                  <Text style={[styles.soundTitle, { color: colors.text }]} numberOfLines={1}>{sound.title}</Text>
-                  <Text style={[styles.userMeta, { color: colors.textMuted }]}>{sound.artist} - {sound.duration}</Text>
-                  <Text style={[styles.userFollowers, { color: colors.textFaint }]}>{sound.usage} videos</Text>
+                  <Text style={[styles.soundTitle, { color: colors.text }]} numberOfLines={1}>{sound.title ?? 'Untitled sound'}</Text>
+                  <Text style={[styles.userMeta, { color: colors.textMuted }]}>{sound.artist ?? 'Unknown artist'}</Text>
+                  <Text style={[styles.userFollowers, { color: colors.textFaint }]}>{formatLiveCount(sound.usage_count)} videos</Text>
                 </View>
                 <MaterialIcons name="bookmark-border" size={24} color={colors.textMuted} />
               </Pressable>
@@ -201,33 +229,33 @@ const Search: React.FC = () => {
       case 'LIVE':
         return (
           <View style={styles.gridRow}>
-            {mockLive.map((live) => (
-              <Pressable key={live.id} style={[styles.liveCard, { width: twoColumnWidth, backgroundColor: colors.card }]}>
-                <Image source={{ uri: live.img }} style={styles.fillImage} />
+            {liveResults.map((live) => (
+              <Pressable key={live.id} onPress={() => navigation.navigate('LiveStream', { liveSessionId: live.id, initialLive: live })} style={[styles.liveCard, { width: twoColumnWidth, backgroundColor: colors.card }]}>
+                {live.cover_url ? <Image source={{ uri: live.cover_url }} style={styles.fillImage} /> : null}
                 <LinearGradient colors={['transparent', 'rgba(0,0,0,0.86)']} style={StyleSheet.absoluteFillObject} />
                 <View style={styles.liveBadge}>
                   <View style={styles.liveDot} />
                   <Text style={styles.liveBadgeText}>LIVE</Text>
                 </View>
                 <View style={styles.viewerBadge}>
-                  <Text style={styles.viewerText}>{live.viewers} watching</Text>
+                  <Text style={styles.viewerText}>{formatLiveCount(live.current_viewers)} watching</Text>
                 </View>
                 <View style={styles.liveBottom}>
                   <Text style={styles.liveTitle} numberOfLines={1}>{live.title}</Text>
                   <View style={styles.inlineCenter}>
                     <View style={styles.liveAvatar} />
-                    <Text style={styles.liveUser}>{live.user}</Text>
+                    <Text style={styles.liveUser}>{live.creator?.name ?? 'Creator'}</Text>
                   </View>
                 </View>
               </Pressable>
             ))}
           </View>
         );
-      default:
+      case 'Hashtags':
         return (
           <View style={styles.emptyState}>
             <MaterialIcons name="search-off" size={58} color={colors.textFaint} />
-            <Text style={[styles.emptyText, { color: colors.textFaint }]}>No results for "{activeTab}"</Text>
+            <Text style={[styles.emptyText, { color: colors.textFaint }]}>Hashtag search is not available yet.</Text>
           </View>
         );
     }
@@ -267,7 +295,7 @@ const Search: React.FC = () => {
                   </>
                 )}
               />
-            <Pressable>
+            <Pressable onPress={Keyboard.dismiss}>
               <Text style={[styles.searchAction, { color: colors.accent }]}>Search</Text>
             </Pressable>
           </View>
@@ -346,6 +374,11 @@ const Search: React.FC = () => {
                 </View>
               </View>
             </>
+          ) : isSearching ? (
+            <View style={styles.emptyState}>
+              <MaterialIcons name="search" size={42} color={colors.textFaint} />
+              <Text style={[styles.emptyText, { color: colors.textFaint }]}>Searching</Text>
+            </View>
           ) : (
             renderSearchResults()
           )}

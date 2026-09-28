@@ -1,8 +1,10 @@
 import React, { useState } from 'react';
 import * as FileSystem from 'expo-file-system/legacy';
+import * as ImagePicker from 'expo-image-picker';
 import { useThemeMode, PRIMARY_COLOR, primaryColorAlpha } from "../theme";
 import {
   Alert,
+  Image,
   KeyboardAvoidingView,
   PanResponder,
   Platform,
@@ -36,6 +38,7 @@ import {
   hasVideoOverlays,
   normalizeHexColor,
   parseApiError,
+  useAuthStore,
 } from '../src';
 import type { GeneratedEditAsset, MusicTrack, SubmitCreatorVideoEditsPayload, VideoDisplayOrientation, VideoPurpose, VideoUploadSource } from '../src';
 
@@ -50,7 +53,7 @@ type EditSubmissionRouteParams = {
   officialSoundId?: string | number | null;
 };
 
-type EditorTool = 'none' | 'draw' | 'text' | 'sticker' | 'trim';
+type EditorTool = 'none' | 'draw' | 'text' | 'sticker' | 'image' | 'trim';
 
 type DrawingPoint = {
   x: number;
@@ -88,11 +91,34 @@ type TimelineSticker = {
   end: number;
 };
 
+type ImageOverlay = {
+  id: string;
+  uri: string;
+  name: string;
+  type: string;
+  sourceWidth: number;
+  sourceHeight: number;
+  x: number;
+  y: number;
+  width: number;
+  height: number;
+  start: number;
+  end: number;
+};
+
 type DraggableTextStickerProps = {
   sticker: TextSticker;
   editable: boolean;
+  highlighted: boolean;
   onMove: (id: string, deltaX: number, deltaY: number) => void;
   onPress: (id: string) => void;
+};
+
+type DrawingBounds = {
+  left: number;
+  top: number;
+  right: number;
+  bottom: number;
 };
 
 type DraggableTimelineStickerProps = {
@@ -135,6 +161,7 @@ const getOrientationFromTrack = (track?: Record<string, any> | null): VideoDispl
 const quickActions = [
   { id: 'draw', label: 'Draw', icon: 'brush' as const },
   { id: 'text', label: 'Text', icon: 'text-fields' as const },
+  { id: 'image', label: 'Image', icon: 'add-photo-alternate' as const },
   { id: 'sticker', label: 'Sticker', icon: 'emoji-emotions' as const },
   { id: 'trim', label: 'Trim', icon: 'content-cut' as const },
 ];
@@ -171,6 +198,31 @@ const getVideoRenderTransform = (
   return { scale: 1 / safeScale, translateX: -offsetX / safeScale, translateY: -offsetY / safeScale };
 };
 
+const getVideoPreviewBounds = (
+  preview: { width: number; height: number },
+  output: { width: number; height: number },
+): DrawingBounds => {
+  if (!preview.width || !preview.height || !output.width || !output.height) {
+    return { left: 0, top: 0, right: preview.width, bottom: preview.height };
+  }
+
+  const landscape = output.width > output.height;
+  const scale = landscape
+    ? Math.min(preview.width / output.width, preview.height / output.height)
+    : Math.max(preview.width / output.width, preview.height / output.height);
+  const renderedWidth = output.width * scale;
+  const renderedHeight = output.height * scale;
+  const offsetX = (preview.width - renderedWidth) / 2;
+  const offsetY = (preview.height - renderedHeight) / 2;
+
+  return {
+    left: Math.max(0, offsetX),
+    top: Math.max(0, offsetY),
+    right: Math.min(preview.width, offsetX + renderedWidth),
+    bottom: Math.min(preview.height, offsetY + renderedHeight),
+  };
+};
+
 const getTextStickerLayout = (sticker: TextSticker) => {
   const previewFontSize = Math.max(16, sticker.fontSize * 0.42);
   return {
@@ -178,6 +230,27 @@ const getTextStickerLayout = (sticker: TextSticker) => {
     width: Math.min(260, Math.max(48, sticker.text.length * previewFontSize * 0.62 + 24)),
     height: previewFontSize * 1.35 + 16,
   };
+};
+
+const getDrawingBounds = (strokes: DrawingStroke[]): DrawingBounds | null => {
+  const visibleStrokes = strokes.filter((stroke) => stroke.points.length > 0);
+  if (!visibleStrokes.length) return null;
+
+  let left = Number.POSITIVE_INFINITY;
+  let top = Number.POSITIVE_INFINITY;
+  let right = Number.NEGATIVE_INFINITY;
+  let bottom = Number.NEGATIVE_INFINITY;
+
+  visibleStrokes.forEach((stroke) => {
+    stroke.points.forEach((point) => {
+      left = Math.min(left, point.x);
+      top = Math.min(top, point.y);
+      right = Math.max(right, point.x);
+      bottom = Math.max(bottom, point.y);
+    });
+  });
+
+  return { left, top, right, bottom };
 };
 
 const SkiaStroke: React.FC<{
@@ -241,9 +314,19 @@ const SkiaTextSticker: React.FC<{ sticker: TextSticker }> = ({ sticker }) => {
   );
 };
 
-const DraggableTextSticker: React.FC<DraggableTextStickerProps> = ({ sticker, editable, onMove, onPress }) => {
+const DraggableTextSticker: React.FC<DraggableTextStickerProps> = ({
+  sticker,
+  editable,
+  highlighted,
+  onMove,
+  onPress,
+}) => {
   const layout = getTextStickerLayout(sticker);
   const lastDeltaRef = React.useRef({ x: 0, y: 0 });
+  const onMoveRef = React.useRef(onMove);
+  const onPressRef = React.useRef(onPress);
+  onMoveRef.current = onMove;
+  onPressRef.current = onPress;
   const panResponder = React.useMemo(
     () =>
       PanResponder.create({
@@ -257,19 +340,26 @@ const DraggableTextSticker: React.FC<DraggableTextStickerProps> = ({ sticker, ed
           const deltaX = gestureState.dx - lastDeltaRef.current.x;
           const deltaY = gestureState.dy - lastDeltaRef.current.y;
           lastDeltaRef.current = { x: gestureState.dx, y: gestureState.dy };
-          onMove(sticker.id, deltaX, deltaY);
+          onMoveRef.current(sticker.id, deltaX, deltaY);
         },
-        onPanResponderRelease: () => {
+        onPanResponderRelease: (_event, gestureState) => {
+          if (Math.abs(gestureState.dx) < 3 && Math.abs(gestureState.dy) < 3) {
+            onPressRef.current(sticker.id);
+          }
           lastDeltaRef.current = { x: 0, y: 0 };
         },
+        onPanResponderTerminate: () => {
+          lastDeltaRef.current = { x: 0, y: 0 };
+        },
+        onPanResponderTerminationRequest: () => false,
+        onShouldBlockNativeResponder: () => true,
       }),
-    [editable, onMove, sticker.id],
+    [editable, sticker.id],
   );
 
   return (
-    <Pressable
+    <View
       {...panResponder.panHandlers}
-      onPress={() => onPress(sticker.id)}
       style={[
         styles.textSticker,
         {
@@ -277,10 +367,70 @@ const DraggableTextSticker: React.FC<DraggableTextStickerProps> = ({ sticker, ed
           top: sticker.y,
           width: layout.width,
           height: layout.height,
-          borderColor: editable ? 'rgba(255,255,255,0.34)' : 'transparent',
+          borderColor: highlighted ? 'rgba(255,255,255,0.52)' : 'transparent',
         },
       ]}
     />
+  );
+};
+
+const DraggableDrawingOverlay: React.FC<{
+  bounds: DrawingBounds;
+  editable: boolean;
+  highlighted: boolean;
+  onMove: (deltaX: number, deltaY: number) => void;
+}> = ({ bounds, editable, highlighted, onMove }) => {
+  const handlePadding = 12;
+  const lastDeltaRef = React.useRef({ x: 0, y: 0 });
+  const onMoveRef = React.useRef(onMove);
+  onMoveRef.current = onMove;
+  const panResponder = React.useMemo(
+    () => PanResponder.create({
+      onStartShouldSetPanResponder: () => editable,
+      onMoveShouldSetPanResponder: (_event, gesture) =>
+        editable && (Math.abs(gesture.dx) > 3 || Math.abs(gesture.dy) > 3),
+      onPanResponderGrant: () => {
+        lastDeltaRef.current = { x: 0, y: 0 };
+      },
+      onPanResponderMove: (_event, gesture) => {
+        const deltaX = gesture.dx - lastDeltaRef.current.x;
+        const deltaY = gesture.dy - lastDeltaRef.current.y;
+        lastDeltaRef.current = { x: gesture.dx, y: gesture.dy };
+        onMoveRef.current(deltaX, deltaY);
+      },
+      onPanResponderRelease: () => {
+        lastDeltaRef.current = { x: 0, y: 0 };
+      },
+      onPanResponderTerminate: () => {
+        lastDeltaRef.current = { x: 0, y: 0 };
+      },
+      onPanResponderTerminationRequest: () => false,
+      onShouldBlockNativeResponder: () => true,
+    }),
+    [editable],
+  );
+
+  return (
+    <View
+      {...panResponder.panHandlers}
+      pointerEvents={editable ? 'auto' : 'none'}
+      style={[
+        styles.draggableDrawing,
+        {
+          left: bounds.left - handlePadding,
+          top: bounds.top - handlePadding,
+          width: Math.max(handlePadding * 2, bounds.right - bounds.left + handlePadding * 2),
+          height: Math.max(handlePadding * 2, bounds.bottom - bounds.top + handlePadding * 2),
+          borderColor: highlighted ? 'rgba(255,255,255,0.55)' : 'transparent',
+        },
+      ]}
+    >
+      {highlighted ? (
+        <View style={styles.drawingMoveBadge}>
+          <MaterialIcons name="open-with" size={16} color="#fff" />
+        </View>
+      ) : null}
+    </View>
   );
 };
 
@@ -310,6 +460,58 @@ const DraggableTimelineSticker: React.FC<DraggableTimelineStickerProps> = ({ sti
   );
 };
 
+const DraggableImageOverlay: React.FC<{
+  overlay: ImageOverlay;
+  editable: boolean;
+  highlighted: boolean;
+  onMove: (id: string, deltaX: number, deltaY: number) => void;
+  onRemove: (id: string) => void;
+}> = ({ overlay, editable, highlighted, onMove, onRemove }) => {
+  const lastDeltaRef = React.useRef({ x: 0, y: 0 });
+  const onMoveRef = React.useRef(onMove);
+  onMoveRef.current = onMove;
+  const panResponder = React.useMemo(() => PanResponder.create({
+    onStartShouldSetPanResponder: () => false,
+    onMoveShouldSetPanResponder: (_event, gesture) =>
+      editable && (Math.abs(gesture.dx) > 3 || Math.abs(gesture.dy) > 3),
+    onPanResponderGrant: () => { lastDeltaRef.current = { x: 0, y: 0 }; },
+    onPanResponderMove: (_event, gesture) => {
+      const deltaX = gesture.dx - lastDeltaRef.current.x;
+      const deltaY = gesture.dy - lastDeltaRef.current.y;
+      lastDeltaRef.current = { x: gesture.dx, y: gesture.dy };
+      onMoveRef.current(overlay.id, deltaX, deltaY);
+    },
+    onPanResponderRelease: () => { lastDeltaRef.current = { x: 0, y: 0 }; },
+    onPanResponderTerminate: () => { lastDeltaRef.current = { x: 0, y: 0 }; },
+    onPanResponderTerminationRequest: () => false,
+    onShouldBlockNativeResponder: () => true,
+  }), [editable, overlay.id]);
+
+  return (
+    <View
+      {...panResponder.panHandlers}
+      pointerEvents={editable ? 'auto' : 'none'}
+      style={[
+        styles.imageOverlay,
+        {
+          left: overlay.x,
+          top: overlay.y,
+          width: overlay.width,
+          height: overlay.height,
+          borderColor: highlighted ? '#fff' : 'transparent',
+        },
+      ]}
+    >
+      <Image source={{ uri: overlay.uri }} resizeMode="contain" style={styles.imageOverlayMedia} />
+      {highlighted ? (
+        <Pressable style={styles.imageRemoveButton} onPress={() => onRemove(overlay.id)}>
+          <MaterialIcons name="close" size={16} color="#fff" />
+        </Pressable>
+      ) : null}
+    </View>
+  );
+};
+
 const EditSubmission: React.FC = () => {
   const { isDark, theme } = useThemeMode();
   const navigation = useNavigation<any>();
@@ -323,11 +525,13 @@ const EditSubmission: React.FC = () => {
   const [isPlaying, setIsPlaying] = useState(true);
   const [isMuted, setIsMuted] = useState(false);
   const [activeTool, setActiveTool] = useState<EditorTool>('none');
+  const [drawingMode, setDrawingMode] = useState<'draw' | 'move'>('draw');
   const [drawingColor, setDrawingColor] = useState(PRIMARY_COLOR);
   const [drawingWidth, setDrawingWidth] = useState(5);
   const [strokes, setStrokes] = useState<DrawingStroke[]>([]);
   const [textStickers, setTextStickers] = useState<TextSticker[]>([]);
   const [timelineStickers, setTimelineStickers] = useState<TimelineSticker[]>([]);
+  const [imageOverlays, setImageOverlays] = useState<ImageOverlay[]>([]);
   const [textComposerVisible, setTextComposerVisible] = useState(false);
   const [composerText, setComposerText] = useState('');
   const [composerColor, setComposerColor] = useState('#fff');
@@ -364,6 +568,8 @@ const EditSubmission: React.FC = () => {
   const isLandscapePreview = previewOrientation === 'landscape';
   const renderTargetSize = RENDER_TARGET_SIZES[previewOrientation];
   const drawingRenderTransform = getVideoRenderTransform(editorCanvasSize, renderTargetSize);
+  const videoPreviewBounds = getVideoPreviewBounds(editorCanvasSize, renderTargetSize);
+  const drawingBounds = React.useMemo(() => getDrawingBounds(strokes), [strokes]);
   const shouldRenderVideo = Boolean(videoUri && isFocused);
   const nextButtonLabel = isRenderingVideo ? 'Preparing edits' : 'Next';
 
@@ -453,10 +659,12 @@ const EditSubmission: React.FC = () => {
   const drawingResponder = React.useMemo(
     () =>
       PanResponder.create({
-        onStartShouldSetPanResponder: () => activeTool === 'draw',
-        onMoveShouldSetPanResponder: () => activeTool === 'draw',
+        onStartShouldSetPanResponder: () => activeTool === 'draw' && drawingMode === 'draw',
+        onMoveShouldSetPanResponder: () => activeTool === 'draw' && drawingMode === 'draw',
         onPanResponderGrant: (event) => {
           const { locationX, locationY } = event.nativeEvent;
+          const x = Math.max(videoPreviewBounds.left, Math.min(videoPreviewBounds.right, locationX));
+          const y = Math.max(videoPreviewBounds.top, Math.min(videoPreviewBounds.bottom, locationY));
           const overlayEnd = videoDuration || Math.max(0.1, Number(player.duration) || 5);
           const stroke: DrawingStroke = {
             id: `${Date.now()}-${Math.random().toString(36).slice(2)}`,
@@ -464,12 +672,14 @@ const EditSubmission: React.FC = () => {
             width: drawingWidth,
             start: 0,
             end: overlayEnd,
-            points: [{ x: locationX, y: locationY }],
+            points: [{ x, y }],
           };
           setStrokes((current) => [...current, stroke]);
         },
         onPanResponderMove: (event) => {
           const { locationX, locationY } = event.nativeEvent;
+          const x = Math.max(videoPreviewBounds.left, Math.min(videoPreviewBounds.right, locationX));
+          const y = Math.max(videoPreviewBounds.top, Math.min(videoPreviewBounds.bottom, locationY));
           setStrokes((current) => {
             const lastStroke = current[current.length - 1];
             if (!lastStroke) return current;
@@ -478,28 +688,64 @@ const EditSubmission: React.FC = () => {
               ...current.slice(0, -1),
               {
                 ...lastStroke,
-                points: [...lastStroke.points, { x: locationX, y: locationY }],
+                points: [...lastStroke.points, { x, y }],
               },
             ];
           });
         },
       }),
-    [activeTool, drawingColor, drawingWidth, player, videoDuration],
+    [
+      activeTool,
+      drawingColor,
+      drawingMode,
+      drawingWidth,
+      player,
+      videoDuration,
+      videoPreviewBounds.bottom,
+      videoPreviewBounds.left,
+      videoPreviewBounds.right,
+      videoPreviewBounds.top,
+    ],
   );
+
+  const moveDrawing = React.useCallback((deltaX: number, deltaY: number) => {
+    setStrokes((current) => {
+      const bounds = getDrawingBounds(current);
+      if (!bounds) return current;
+
+      const appliedDeltaX = Math.max(
+        videoPreviewBounds.left - bounds.left,
+        Math.min(videoPreviewBounds.right - bounds.right, deltaX),
+      );
+      const appliedDeltaY = Math.max(
+        videoPreviewBounds.top - bounds.top,
+        Math.min(videoPreviewBounds.bottom - bounds.bottom, deltaY),
+      );
+
+      if (appliedDeltaX === 0 && appliedDeltaY === 0) return current;
+      return current.map((stroke) => ({
+        ...stroke,
+        points: stroke.points.map((point) => ({
+          x: point.x + appliedDeltaX,
+          y: point.y + appliedDeltaY,
+        })),
+      }));
+    });
+  }, [videoPreviewBounds.bottom, videoPreviewBounds.left, videoPreviewBounds.right, videoPreviewBounds.top]);
 
   const moveTextSticker = React.useCallback((id: string, deltaX: number, deltaY: number) => {
     setTextStickers((current) =>
-      current.map((sticker) =>
-        sticker.id === id
-          ? {
-              ...sticker,
-              x: Math.max(12, Math.min(Math.max(12, editorCanvasSize.width - 96), sticker.x + deltaX)),
-              y: Math.max(84, Math.min(Math.max(84, editorCanvasSize.height - 120), sticker.y + deltaY)),
-            }
-          : sticker,
-      ),
+      current.map((sticker) => {
+        if (sticker.id !== id) return sticker;
+        const layout = getTextStickerLayout(sticker);
+        return {
+          ...sticker,
+          x: Math.max(videoPreviewBounds.left, Math.min(videoPreviewBounds.right - layout.width, sticker.x + deltaX)),
+          y: Math.max(videoPreviewBounds.top, Math.min(videoPreviewBounds.bottom - layout.height, sticker.y + deltaY)),
+        };
+      }),
     );
-  }, [editorCanvasSize.height, editorCanvasSize.width]);
+  }, [videoPreviewBounds.bottom, videoPreviewBounds.left, videoPreviewBounds.right, videoPreviewBounds.top]);
 
   const moveTimelineSticker = React.useCallback((id: string, deltaX: number, deltaY: number) => {
     setTimelineStickers((current) => current.map((sticker) => sticker.id === id
@@ -510,6 +756,16 @@ const EditSubmission: React.FC = () => {
         }
       : sticker));
   }, [editorCanvasSize.height, editorCanvasSize.width]);
+
+  const moveImageOverlay = React.useCallback((id: string, deltaX: number, deltaY: number) => {
+    setImageOverlays((current) => current.map((overlay) => overlay.id === id
+      ? {
+          ...overlay,
+          x: Math.max(videoPreviewBounds.left, Math.min(videoPreviewBounds.right - overlay.width, overlay.x + deltaX)),
+          y: Math.max(videoPreviewBounds.top, Math.min(videoPreviewBounds.bottom - overlay.height, overlay.y + deltaY)),
+        }
+      : overlay));
+  }, [videoPreviewBounds.bottom, videoPreviewBounds.left, videoPreviewBounds.right, videoPreviewBounds.top]);
 
   const editTextSticker = React.useCallback(
     (id: string) => {
@@ -541,6 +797,47 @@ const EditSubmission: React.FC = () => {
     playPreview();
   };
 
+  const pickImageOverlay = async () => {
+    const permission = await ImagePicker.requestMediaLibraryPermissionsAsync();
+    if (!permission.granted) {
+      Alert.alert('Photo access required', 'Allow photo access to add a picture over your video.');
+      return;
+    }
+
+    const result = await ImagePicker.launchImageLibraryAsync({
+      mediaTypes: ['images'],
+      allowsMultipleSelection: false,
+      quality: 1,
+    });
+    if (result.canceled || !result.assets[0]) return;
+
+    const asset = result.assets[0];
+    const sourceWidth = Math.max(1, asset.width || 1);
+    const sourceHeight = Math.max(1, asset.height || 1);
+    const availableWidth = Math.max(80, videoPreviewBounds.right - videoPreviewBounds.left);
+    const availableHeight = Math.max(80, videoPreviewBounds.bottom - videoPreviewBounds.top);
+    const scale = Math.min((availableWidth * 0.45) / sourceWidth, (availableHeight * 0.35) / sourceHeight);
+    const width = Math.max(1, sourceWidth * scale);
+    const height = Math.max(1, sourceHeight * scale);
+    const overlayEnd = videoDuration || Math.max(0.1, Number(player.duration) || 5);
+
+    setImageOverlays((current) => [...current, {
+      id: `${Date.now()}-${Math.random().toString(36).slice(2)}`,
+      uri: asset.uri,
+      name: asset.fileName ?? `image-overlay-${current.length + 1}.jpg`,
+      type: asset.mimeType ?? 'image/jpeg',
+      sourceWidth,
+      sourceHeight,
+      x: videoPreviewBounds.left + Math.max(0, (availableWidth - width) / 2),
+      y: videoPreviewBounds.top + Math.max(0, (availableHeight - height) / 2),
+      width: Math.min(width, availableWidth),
+      height: Math.min(height, availableHeight),
+      start: 0,
+      end: overlayEnd,
+    }]);
+    setActiveTool('image');
+  };
+
   const handleQuickAction = (actionId: string) => {
     if (actionId === 'text') {
       setActiveTool('text');
@@ -559,7 +856,16 @@ const EditSubmission: React.FC = () => {
       return;
     }
 
-    setActiveTool((current) => (current === 'draw' ? 'none' : 'draw'));
+    if (actionId === 'image') {
+      void pickImageOverlay();
+      return;
+    }
+
+    setActiveTool((current) => {
+      if (current === 'draw') return 'none';
+      setDrawingMode('draw');
+      return 'draw';
+    });
   };
 
   const addSticker = (preset: (typeof STICKER_PRESETS)[number]) => {
@@ -617,6 +923,11 @@ const EditSubmission: React.FC = () => {
 
     if (activeTool === 'sticker' && timelineStickers.length > 0) {
       setTimelineStickers((current) => current.slice(0, -1));
+      return;
+    }
+
+    if (activeTool === 'image' && imageOverlays.length > 0) {
+      setImageOverlays((current) => current.slice(0, -1));
     }
   };
 
@@ -742,6 +1053,30 @@ const EditSubmission: React.FC = () => {
     }));
   };
 
+  const exportMusicAsset = async (track: MusicTrack | null | undefined): Promise<GeneratedEditAsset[]> => {
+    if (!track) return [];
+    if (!track.stream_url) throw new Error('The selected sound does not have an available audio stream.');
+    if (!FileSystem.cacheDirectory) throw new Error('Music export cache is not available on this device.');
+
+    const uri = `${FileSystem.cacheDirectory}kulsah-music-${Date.now()}.mp3`;
+    const token = useAuthStore.getState().token;
+    const result = await FileSystem.downloadAsync(track.stream_url, uri, {
+      headers: token ? { Authorization: `Bearer ${token}` } : undefined,
+    });
+    if (result.status < 200 || result.status >= 300) {
+      throw new Error(`The selected sound could not be downloaded (${result.status}).`);
+    }
+
+    return [{
+      id: `audio-asset-${track.id}`,
+      sourceId: `music-${track.id}`,
+      kind: 'audio',
+      file: { uri: result.uri, name: 'selected-music.mp3', type: 'audio/mpeg' },
+      width: 0,
+      height: 0,
+    }];
+  };
+
   const handleNext = async () => {
     if (!video) {
       Alert.alert('No video selected', 'Record or choose a video before continuing.');
@@ -757,6 +1092,7 @@ const EditSubmission: React.FC = () => {
       }
 
       setIsRenderingVideo(true);
+      const fullVideoDuration = videoDuration || Number(player.duration) || 0;
       const textAssets = await exportTextAssets(textStickers);
       const stickerAssets = await exportStickerAssets(timelineStickers);
       const drawingFiles = await exportDrawingFiles();
@@ -768,9 +1104,17 @@ const EditSubmission: React.FC = () => {
         width: renderTargetSize.width,
         height: renderTargetSize.height,
       }));
-      const generatedAssets = [...textAssets, ...stickerAssets, ...drawingAssets];
+      const imageAssets: GeneratedEditAsset[] = imageOverlays.map((overlay) => ({
+        id: `image-asset-${overlay.id}`,
+        sourceId: overlay.id,
+        kind: 'image',
+        file: { uri: overlay.uri, name: overlay.name, type: overlay.type },
+        width: overlay.sourceWidth,
+        height: overlay.sourceHeight,
+      }));
+      const musicAssets = await exportMusicAsset(params.sound);
+      const generatedAssets = [...textAssets, ...stickerAssets, ...drawingAssets, ...imageAssets, ...musicAssets];
       const assetFiles = generatedAssets.map((asset) => asset.file);
-      const fullVideoDuration = videoDuration || Number(player.duration) || 0;
       const durationBoundStrokes = fullVideoDuration > 0
         ? strokes.map((stroke) => ({ ...stroke, start: 0, end: fullVideoDuration }))
         : strokes;
@@ -780,14 +1124,25 @@ const EditSubmission: React.FC = () => {
       const durationBoundStickers = fullVideoDuration > 0
         ? timelineStickers.map((sticker) => ({ ...sticker, start: 0, end: fullVideoDuration }))
         : timelineStickers;
+      const durationBoundImages = fullVideoDuration > 0
+        ? imageOverlays.map((overlay) => ({ ...overlay, start: 0, end: fullVideoDuration }))
+        : imageOverlays;
 
-      if (hasVideoOverlays(strokes, textStickers) || timelineStickers.length > 0 || trimEnabled) {
+      if (hasVideoOverlays(strokes, textStickers) || timelineStickers.length > 0 || imageOverlays.length > 0 || params.sound || trimEnabled) {
         editPayload = createCreatorVideoEditsPayload({
           orientation: previewOrientation,
           canvasSize: editorCanvasSize,
           strokes: durationBoundStrokes,
           textStickers: durationBoundText,
           stickers: durationBoundStickers,
+          imageOverlays: durationBoundImages,
+          audioTrack: params.sound && musicAssets[0]
+            ? {
+                id: `music-${params.sound.id}`,
+                duration: Math.max(0.1, fullVideoDuration || params.sound.duration || 5),
+                volume: 1,
+              }
+            : null,
           trim: trimEnabled
             ? {
                 start: Math.max(0, Number(trimStart) || 0),
@@ -902,16 +1257,28 @@ const EditSubmission: React.FC = () => {
 
         <View
           {...drawingResponder.panHandlers}
-          pointerEvents={activeTool === 'draw' ? 'auto' : 'none'}
+          pointerEvents={activeTool === 'draw' && drawingMode === 'draw' ? 'auto' : 'none'}
           style={styles.drawingGestureLayer}
         />
 
-        <View pointerEvents={activeTool === 'draw' ? 'none' : 'box-none'} style={styles.stickerLayer}>
+        <View
+          pointerEvents={activeTool === 'draw' && drawingMode === 'draw' ? 'none' : 'box-none'}
+          style={styles.stickerLayer}
+        >
+          {drawingBounds ? (
+            <DraggableDrawingOverlay
+              bounds={drawingBounds}
+              editable={activeTool === 'none' || (activeTool === 'draw' && drawingMode === 'move')}
+              highlighted={activeTool === 'draw' && drawingMode === 'move'}
+              onMove={moveDrawing}
+            />
+          ) : null}
           {textStickers.map((sticker) => (
             <DraggableTextSticker
               key={sticker.id}
               sticker={sticker}
-              editable={activeTool === 'text'}
+              editable={activeTool === 'text' || activeTool === 'none'}
+              highlighted={activeTool === 'text'}
               onMove={moveTextSticker}
               onPress={editTextSticker}
             />
@@ -923,6 +1290,16 @@ const EditSubmission: React.FC = () => {
               editable={activeTool === 'sticker'}
               onMove={moveTimelineSticker}
               onRemove={(id) => setTimelineStickers((current) => current.filter((item) => item.id !== id))}
+            />
+          ))}
+          {imageOverlays.map((overlay) => (
+            <DraggableImageOverlay
+              key={overlay.id}
+              overlay={overlay}
+              editable={activeTool === 'image' || activeTool === 'none'}
+              highlighted={activeTool === 'image'}
+              onMove={moveImageOverlay}
+              onRemove={(id) => setImageOverlays((current) => current.filter((item) => item.id !== id))}
             />
           ))}
         </View>
@@ -1090,6 +1467,15 @@ const EditSubmission: React.FC = () => {
               </View>
 
               <View style={styles.toolActions}>
+                {strokes.length > 0 ? (
+                  <Pressable
+                    style={[styles.secondaryToolButton, drawingMode === 'move' && styles.secondaryToolButtonActive]}
+                    onPress={() => setDrawingMode((current) => current === 'draw' ? 'move' : 'draw')}
+                  >
+                    <MaterialIcons name={drawingMode === 'draw' ? 'open-with' : 'edit'} size={18} color="#fff" />
+                    <Text style={styles.secondaryToolText}>{drawingMode === 'draw' ? 'Move' : 'Draw'}</Text>
+                  </Pressable>
+                ) : null}
                 <Pressable style={styles.secondaryToolButton} onPress={undoEditorAction}>
                   <MaterialIcons name="undo" size={18} color="#fff" />
                   <Text style={styles.secondaryToolText}>Undo</Text>
@@ -1132,6 +1518,23 @@ const EditSubmission: React.FC = () => {
               <View style={styles.toolActions}>
                 <Pressable style={styles.secondaryToolButton} onPress={undoEditorAction}><MaterialIcons name="undo" size={18} color="#fff" /><Text style={styles.secondaryToolText}>Undo</Text></Pressable>
                 <Pressable style={styles.doneButton} onPress={() => setActiveTool('none')}><Text style={styles.doneButtonText}>Done</Text></Pressable>
+              </View>
+            </View>
+          ) : activeTool === 'image' ? (
+            <View style={styles.toolPanel}>
+              <Text style={styles.toolPanelTitle}>Picture overlay</Text>
+              <View style={styles.toolActions}>
+                <Pressable style={styles.secondaryToolButton} onPress={() => void pickImageOverlay()}>
+                  <MaterialIcons name="add-photo-alternate" size={18} color="#fff" />
+                  <Text style={styles.secondaryToolText}>Add picture</Text>
+                </Pressable>
+                <Pressable style={styles.secondaryToolButton} onPress={undoEditorAction}>
+                  <MaterialIcons name="undo" size={18} color="#fff" />
+                  <Text style={styles.secondaryToolText}>Undo</Text>
+                </Pressable>
+                <Pressable style={styles.doneButton} onPress={() => setActiveTool('none')}>
+                  <Text style={styles.doneButtonText}>Done</Text>
+                </Pressable>
               </View>
             </View>
           ) : activeTool === 'trim' ? (
@@ -1391,6 +1794,25 @@ const styles = StyleSheet.create({
     ...StyleSheet.absoluteFillObject,
     zIndex: 14,
   },
+  draggableDrawing: {
+    position: 'absolute',
+    borderWidth: 1,
+    borderStyle: 'dashed',
+    borderRadius: 8,
+  },
+  drawingMoveBadge: {
+    position: 'absolute',
+    right: -13,
+    top: -13,
+    width: 26,
+    height: 26,
+    borderRadius: 13,
+    alignItems: 'center',
+    justifyContent: 'center',
+    backgroundColor: PRIMARY_COLOR,
+    borderWidth: 1,
+    borderColor: '#fff',
+  },
   drawingExportSurface: {
     position: 'absolute',
     left: -10000,
@@ -1414,6 +1836,29 @@ const styles = StyleSheet.create({
   timelineStickerEditable: {
     borderWidth: 1,
     borderColor: 'rgba(255,255,255,0.5)',
+  },
+  imageOverlay: {
+    position: 'absolute',
+    borderWidth: 1,
+    borderRadius: 10,
+  },
+  imageOverlayMedia: {
+    width: '100%',
+    height: '100%',
+    borderRadius: 9,
+  },
+  imageRemoveButton: {
+    position: 'absolute',
+    right: -12,
+    top: -12,
+    width: 26,
+    height: 26,
+    borderRadius: 13,
+    alignItems: 'center',
+    justifyContent: 'center',
+    backgroundColor: '#ef4444',
+    borderWidth: 1,
+    borderColor: '#fff',
   },
   textComposerOverlay: {
     position: 'absolute',
@@ -1601,6 +2046,9 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     gap: 6,
     backgroundColor: 'rgba(255,255,255,0.1)',
+  },
+  secondaryToolButtonActive: {
+    backgroundColor: PRIMARY_COLOR,
   },
   secondaryToolText: {
     color: '#fff',

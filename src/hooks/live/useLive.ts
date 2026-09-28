@@ -21,7 +21,15 @@ export const liveQueryKeys = {
   discovery: () => ['live', 'discovery'] as const,
   session: (liveSession: string | number) => ['live', 'session', String(liveSession)] as const,
   analytics: (liveSession: string | number) => ['live', 'analytics', String(liveSession)] as const,
+  participants: (liveSession: string | number) => ['live', 'participants', String(liveSession)] as const,
 };
+
+export const useLiveParticipants = (liveSession: string, enabled = true) => useQuery({
+  queryKey: liveQueryKeys.participants(liveSession),
+  queryFn: () => liveApi.participants(liveSession).then((response) => response.data.data),
+  enabled: Boolean(liveSession) && enabled,
+  refetchInterval: 5000,
+});
 
 export const setCachedLiveSession = (client: QueryClient, live: LiveSession) => {
   client.setQueryData(liveQueryKeys.session(live.id), live);

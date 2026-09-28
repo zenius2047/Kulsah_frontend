@@ -2558,7 +2558,7 @@ const PlaylistSection = () => {
         </View>
       </Modal>
 
-      <Modal visible={!!selectedSub} transparent animationType="slide" statusBarTranslucent onRequestClose={closeSubscription}>
+      {/* <Modal visible={!!selectedSub} transparent animationType="slide" statusBarTranslucent onRequestClose={closeSubscription}>
         {selectedSub ? (
           <View style={s.overlay}>
             <Pressable style={StyleSheet.absoluteFillObject} onPress={closeSubscription} />
@@ -2635,7 +2635,7 @@ const PlaylistSection = () => {
             </View>
           </View>
         ) : null}
-      </Modal>
+      </Modal> */}
       {backendSubscriptionPlan ? (
         <PaymentCheckout
           isOpen={subscriptionPaymentOpen && !!selectedSub}

@@ -8,7 +8,7 @@ import { useAuthStore } from '../../store/auth.store';
 import type { LiveDirectoryUpdatedEvent } from '../../types/live.types';
 import { liveQueryKeys, patchCachedLiveSession } from './useLive';
 
-const LIVE_DIRECTORY_EVENTS = ['status', 'ended'] as const;
+const LIVE_DIRECTORY_EVENTS = ['status', 'ended', 'battle'] as const;
 
 export const useLiveDirectoryRealtime = (enabled = true) => {
   const token = useAuthStore((state) => state.token);
@@ -29,6 +29,8 @@ export const useLiveDirectoryRealtime = (enabled = true) => {
         title: event.title,
         status: event.status,
         category: event.category,
+        live_type: event.live_type,
+        is_battle: event.is_battle,
         cover_url: event.cover_url,
         visibility: event.visibility,
         current_viewers: Number(event.current_viewers) || 0,

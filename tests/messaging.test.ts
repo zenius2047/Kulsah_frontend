@@ -7,6 +7,7 @@ import {
   formatUnreadBadgeCount,
   isChallengeInvitationPushNotification,
   isLiveStartedPushNotification,
+  isLiveBattleInvitationPushNotification,
   isMessagePushNotification,
   isMessageRequestAcceptedPushNotification,
   isMessageRequestCreatedPushNotification,
@@ -14,6 +15,7 @@ import {
   isVideoMentionPushNotification,
   nextUnreadMessageCount,
   pushChallengeId,
+  pushBattleId,
   pushConversationId,
   pushLiveId,
   pushRequestId,
@@ -114,6 +116,14 @@ describe('FCM messaging payload helpers', () => {
     const data = { type: 'video.mentioned', video_id: '93' };
     expect(isVideoMentionPushNotification(data)).toBe(true);
     expect(pushVideoId(data)).toBe('93');
+  });
+
+  it('recognizes live battle invitations separately from live-started notifications', () => {
+    const data = { type: 'live.battle_invited', live_id: 'host-live-id', battle_id: 27 };
+    expect(isLiveBattleInvitationPushNotification(data)).toBe(true);
+    expect(isLiveStartedPushNotification(data)).toBe(false);
+    expect(pushLiveId(data)).toBe('host-live-id');
+    expect(pushBattleId(data)).toBe('27');
   });
 
   it('recognizes live-started notifications and extracts the live session id', () => {

@@ -14,6 +14,7 @@ import type { GeneralComment } from '../src/types/general.types';
 import type { CommunityComment } from '../src/types/community.types';
 import type { Sticker } from '../src/types/sticker.types';
 import { parseApiError } from '../src/utils/apiError';
+import { useAuthStore } from '../src/store/auth.store';
 
 
 // type ReactionTab =  'Gifts'| null;
@@ -86,6 +87,7 @@ type ReactionsProps = {
   title?: string;
   currentBalance?: number;
   onBalanceChange?: (nextBalance: number) => void;
+  onCommentAdded?: () => void;
   communityComments?: CommunityComment[];
 };
 
@@ -144,9 +146,11 @@ const Reactions: React.FC<ReactionsProps> = ({
   title = 'Reactions',
   currentBalance,
   onBalanceChange,
+  onCommentAdded,
   communityComments,
 }) => {
   const { isDark, theme } = useThemeMode();
+  const currentUser = useAuthStore((state) => state.user);
   const insets = useSafeAreaInsets();
   // const [activeTab, setActiveTab] = useState<ReactionTab>(null);
   const [replyingTo, setReplyingTo] = useState<ReplyTarget | null>(null);
@@ -175,6 +179,10 @@ const Reactions: React.FC<ReactionsProps> = ({
   const sheetHeight = useMemo(() => 0.85, []);
   const [keyboardHeight, setKeyboardHeight] = useState(0);
   const coinBalance = currentBalance ?? localCoinBalance;
+  const currentUserComment = {
+    handle: normalizeHandle(currentUser?.handle ?? currentUser?.name),
+    avatar: currentUser?.avatar || CURRENT_USER.avatar,
+  };
   const isSendingMessage = addCommentMutation.isPending || replyToCommentMutation.isPending || communityCommentMutation.isPending || sendingMessageRef.current;
   const hasTypedMessage = message.trim().length > 0;
 
@@ -223,8 +231,8 @@ const Reactions: React.FC<ReactionsProps> = ({
 
   const createComment = (overrides: Partial<ReactionComment>): ReactionComment => ({
     id: `comment-${Date.now()}`,
-    handle: CURRENT_USER.handle,
-    avatar: CURRENT_USER.avatar,
+    handle: currentUserComment.handle,
+    avatar: currentUserComment.avatar,
     text: '',
     time: 'Now',
     likes: 0,
@@ -269,6 +277,7 @@ const Reactions: React.FC<ReactionsProps> = ({
           return prev.map((comment) => comment.id === optimisticComment?.id ? nextComment : comment);
         });
         setReplyingTo(null);
+        if (!replyingTo) onCommentAdded?.();
         void communityCommentsQuery.refetch();
       } catch (error) {
         if (optimisticComment) setComments((prev) => prev.filter((comment) => comment.id !== optimisticComment.id));
@@ -287,8 +296,8 @@ const Reactions: React.FC<ReactionsProps> = ({
               ? {
                   ...comment,
                   reply: {
-                    handle: CURRENT_USER.handle,
-                    avatar: CURRENT_USER.avatar,
+                    handle: currentUserComment.handle,
+                    avatar: currentUserComment.avatar,
                     text: nextMessage,
                     time: 'Now',
                   },
@@ -336,6 +345,7 @@ const Reactions: React.FC<ReactionsProps> = ({
         return prev.map((comment) => (comment.id === optimisticComment?.id ? nextComment : comment));
       });
       setReplyingTo(null);
+      if (!replyingTo) onCommentAdded?.();
       void commentsQuery.refetch();
     } catch (error: any) {
       if (optimisticComment) {
@@ -348,13 +358,14 @@ const Reactions: React.FC<ReactionsProps> = ({
   };
 
   const handleStickerSelect = async (stickerUrl: string, sticker?: Sticker) => {
+    if (!sticker || (!videoId && !postId)) {
+      Alert.alert('Sticker unavailable', 'This conversation cannot accept stickers right now.');
+      return;
+    }
+
     const optimisticComment = createComment({ stickerUrl, optimistic: true });
     setComments((prev) => [optimisticComment, ...prev]);
     setReplyingTo(null);
-
-    if (!sticker || (!videoId && !postId)) {
-      return;
-    }
 
     try {
       const payload = { body: sticker.media_url, sticker_id: sticker.id };
@@ -364,6 +375,7 @@ const Reactions: React.FC<ReactionsProps> = ({
       setComments((prev) => prev.map((comment) => (
         comment.id === optimisticComment.id ? nextComment : comment
       )));
+      onCommentAdded?.();
       if (postId) {
         void communityCommentsQuery.refetch();
       } else {

@@ -270,6 +270,7 @@ export type ChallengeResource = {
   schedule: Record<string, string | null>;
   leaderboard: { enabled: boolean; mode: string };
   participant_count: number;
+  participant_avatars?: string[];
   participant_limit?: number | null;
   entry_count: number;
   current_phase: ChallengeStatus;
@@ -315,6 +316,7 @@ export type ChallengeResource = {
     can_vote: boolean;
     can_submit: boolean;
     can_manage: boolean;
+    pending_invite_id?: string | number | null;
   };
   result?: {
     winner_entry_id: string | number;

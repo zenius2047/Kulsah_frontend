@@ -47,7 +47,7 @@ export interface VideoProjectAsset {
 export type GeneratedEditAsset = {
   id: string;
   sourceId: string;
-  kind: 'text' | 'drawing' | 'sticker';
+  kind: 'text' | 'drawing' | 'sticker' | 'image' | 'audio';
   file: import('./video.types').VideoUploadSource;
   width: number;
   height: number;

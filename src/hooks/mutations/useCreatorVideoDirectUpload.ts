@@ -13,6 +13,7 @@ import type {
 } from '../../types/video.types';
 import { CREATOR_VIDEO_ANALYTICS_QUERY_KEY } from '../queries/useCreatorVideoAnalytics';
 import { CREATOR_VIDEOS_QUERY_KEY } from '../queries/useCreatorVideos';
+import { getVideoProcessingState } from '../../utils/video';
 
 export type CreatorVideoDirectUploadState = {
   status: CreatorVideoUploadStatus;
@@ -77,14 +78,16 @@ export const useCreatorVideoDirectUpload = () => {
           },
         });
 
-        const finalStatus = result.progress.status === 'ready' ? 'ready' : 'processing';
+        const finalStatus = getVideoProcessingState(result.progress).isReady ? 'ready' : 'processing';
 
         setState((current) => ({
           ...current,
           status: finalStatus,
           progress: 100,
           uploadProgress: 100,
-          backendProgress: result.progress.progress_percentage ?? current.backendProgress,
+          backendProgress: finalStatus === 'ready'
+            ? 100
+            : result.progress.progress_percentage ?? current.backendProgress,
           videoId: result.video.id,
           video: result.video,
           processing: result.progress,

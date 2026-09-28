@@ -14,86 +14,12 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 import { useThemeMode, PRIMARY_COLOR, primaryColorAlpha } from "../theme";
 import { mediumScreen } from '../types';
 import { fontSize } from './typography';
+import { useDiscovery } from '../src/hooks/queries/useDiscovery';
+import type { DiscoveryVideo } from '../src/types/discovery.types';
 
 type TrendingRange = 'day' | 'week' | 'month';
 
-type TrendingVideo = {
-  id: string;
-  title: string;
-  creator: string;
-  creatorHandle: string;
-  creatorAvatar: string;
-  thumbnail: string;
-  views: string;
-  likes: string;
-  rank: number;
-  tags: string[];
-};
-
 const genres = ['All', 'AfroBeats', 'Soul', 'HighLife', 'Drill', 'Acoustic', 'Jazz'];
-
-const trendingVideos: TrendingVideo[] = [
-  {
-    id: 'v1',
-    title: 'Midnight Fusion - Lagos Live Session',
-    creator: 'Elena Rose',
-    creatorHandle: 'elena_rose',
-    creatorAvatar: 'https://picsum.photos/seed/elena/150',
-    thumbnail: 'https://images.unsplash.com/photo-1516450360452-9312f5e86fc7?auto=format&fit=crop&q=80&w=800',
-    views: '1.2M',
-    likes: '85K',
-    rank: 1,
-    tags: ['AfroBeats', 'Live'],
-  },
-  {
-    id: 'v2',
-    title: 'Breaking the Beat - Drum Solo Challenge',
-    creator: 'Jax Rhythm',
-    creatorHandle: 'jax_rhythm',
-    creatorAvatar: 'https://picsum.photos/seed/jax/150',
-    thumbnail: 'https://images.unsplash.com/photo-1510915361894-db8b60106cb1?auto=format&fit=crop&q=80&w=800',
-    views: '850K',
-    likes: '42K',
-    rank: 2,
-    tags: ['HighLife', 'Skill'],
-  },
-  {
-    id: 'v3',
-    title: 'Neon Soul Acoustic Cover',
-    creator: 'Mila Ray',
-    creatorHandle: 'milaray',
-    creatorAvatar: 'https://picsum.photos/seed/mila/150',
-    thumbnail: 'https://images.unsplash.com/photo-1514525253361-bee8718a74a2?auto=format&fit=crop&q=80&w=800',
-    views: '420K',
-    likes: '12K',
-    rank: 3,
-    tags: ['Acoustic', 'Soul'],
-  },
-  {
-    id: 'v4',
-    title: 'Urban Flow - Street Dance Battle',
-    creator: 'CyberVibe',
-    creatorHandle: 'cyber_vibe',
-    creatorAvatar: 'https://picsum.photos/seed/cyber/150',
-    thumbnail: 'https://images.unsplash.com/photo-1508700115892-45ecd05ae2ad?auto=format&fit=crop&q=80&w=800',
-    views: '2.1M',
-    likes: '150K',
-    rank: 4,
-    tags: ['Drill', 'Battle'],
-  },
-  {
-    id: 'v5',
-    title: 'Electronic Dreams Masterclass',
-    creator: 'Nova Beats',
-    creatorHandle: 'nova_beats',
-    creatorAvatar: 'https://picsum.photos/seed/nova/150',
-    thumbnail: 'https://images.unsplash.com/photo-1550745165-9bc0b252726f?auto=format&fit=crop&q=80&w=800',
-    views: '150K',
-    likes: '18K',
-    rank: 5,
-    tags: ['Jazz', 'Synth'],
-  },
-];
 
 const TrendingVideos: React.FC = () => {
   const navigation = useNavigation<any>();
@@ -101,6 +27,7 @@ const TrendingVideos: React.FC = () => {
   const [activeTab, setActiveTab] = useState<TrendingRange>('day');
   const [searchQuery, setSearchQuery] = useState('');
   const [activeGenre, setActiveGenre] = useState('All');
+  const discoveryQuery = useDiscovery({ tab: 'videos', page: 1, limit: 100 });
 
   const glass = isDark ? 'rgba(255,255,255,0.06)' : theme.card;
   const softBorder = isDark ? 'rgba(255,255,255,0.08)' : theme.border;
@@ -111,18 +38,37 @@ const TrendingVideos: React.FC = () => {
   const headerBorder = isDark ? 'rgba(255,255,255,0.05)' : 'rgba(15,23,42,0.06)';
 
   const filteredVideos = useMemo(() => {
-    return trendingVideos.filter((video) => {
+    return (discoveryQuery.data?.data.videos ?? []).filter((video) => {
+      const category = video.category ?? '';
       const matchesSearch =
         !searchQuery ||
-        video.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
-        video.creator.toLowerCase().includes(searchQuery.toLowerCase()) ||
-        video.creatorHandle.toLowerCase().includes(searchQuery.toLowerCase());
+        (video.title ?? '').toLowerCase().includes(searchQuery.toLowerCase()) ||
+        (video.caption ?? '').toLowerCase().includes(searchQuery.toLowerCase()) ||
+        video.creator.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
+        video.creator.handle.toLowerCase().includes(searchQuery.toLowerCase());
 
-      const matchesGenre = activeGenre === 'All' || video.tags.includes(activeGenre);
+      const matchesGenre = activeGenre === 'All' || category.toLowerCase() === activeGenre.toLowerCase();
 
       return matchesSearch && matchesGenre;
     });
-  }, [activeGenre, searchQuery]);
+  }, [activeGenre, discoveryQuery.data?.data.videos, searchQuery]);
+
+  const openVideo = (video: DiscoveryVideo) => {
+    navigation.navigate('VideoPlayer', {
+      id: video.id,
+      item: {
+        id: video.id,
+        artist: video.creator.name,
+        handle: video.creator.handle,
+        avatar: video.creator.avatar_url,
+        caption: video.caption ?? video.title ?? '',
+        video: video.playback_url,
+        thumbnail_url: video.thumbnail_url,
+        likes: String(video.stats.likes_count),
+        comments: String(video.stats.comments_count),
+      },
+    });
+  };
 
   return (
     <SafeAreaView style={[styles.safeArea, { backgroundColor: theme.background }]} edges={['top', 'left', 'right']}>
@@ -215,15 +161,19 @@ const TrendingVideos: React.FC = () => {
         </View>
 
         <ScrollView showsVerticalScrollIndicator={false} contentContainerStyle={styles.content}>
-          {filteredVideos.length > 0 ? (
+          {discoveryQuery.isLoading ? (
+            <View style={styles.emptyState}>
+              <Text style={[styles.emptyBody, { color: secondaryText }]}>Loading trending videos...</Text>
+            </View>
+          ) : filteredVideos.length > 0 ? (
             filteredVideos.map((video, idx) => (
               <Pressable
                 key={video.id}
-                onPress={() => navigation.navigate('Feed')}
+                onPress={() => openVideo(video)}
                 style={[styles.videoCard, { backgroundColor: surface, borderColor: softBorder }]}
               >
                 <View style={styles.visualWrap}>
-                  <Image source={{ uri: video.thumbnail }} style={styles.videoImage} />
+                  {video.thumbnail_url ? <Image source={{ uri: video.thumbnail_url }} style={styles.videoImage} /> : null}
                   <View style={styles.imageOverlay} />
 
                   <View style={styles.rankBadge}>
@@ -234,7 +184,7 @@ const TrendingVideos: React.FC = () => {
                         { color: idx < 3 ? PRIMARY_COLOR : '#0f172a' },
                       ]}
                     >
-                      #{video.rank}
+                      #{idx + 1}
                     </Text>
                   </View>
 
@@ -246,13 +196,13 @@ const TrendingVideos: React.FC = () => {
 
                   <View style={styles.visualCopy}>
                     <View style={styles.tagRow}>
-                      {video.tags.map((tag) => (
+                      {(video.category ? [video.category] : ['Trending']).map((tag) => (
                         <View key={tag} style={styles.tagChip}>
                           <Text style={styles.tagText}>{tag}</Text>
                         </View>
                       ))}
                     </View>
-                    <Text style={styles.videoTitle}>{video.title}</Text>
+                    <Text style={styles.videoTitle}>{video.title ?? video.caption ?? 'Untitled video'}</Text>
                   </View>
                 </View>
 
@@ -260,7 +210,7 @@ const TrendingVideos: React.FC = () => {
                   <View style={styles.metaRow}>
                     <View style={styles.creatorWrap}>
                       <View style={styles.creatorAvatarWrap}>
-                        <Image source={{ uri: video.creatorAvatar }} style={styles.creatorAvatar} />
+                        {video.creator.avatar_url ? <Image source={{ uri: video.creator.avatar_url }} style={styles.creatorAvatar} /> : <View style={[styles.creatorAvatar, { backgroundColor: chipIdleBg }]} />}
                         <View style={styles.creatorVerify}>
                           <MaterialIcons name="verified" size={10} color="#ffffff" />
                         </View>
@@ -268,13 +218,13 @@ const TrendingVideos: React.FC = () => {
 
                       <View>
                         <Text style={[styles.metaLabel, { color: mutedText }]}>Creator</Text>
-                        <Text style={[styles.creatorName, { color: theme.text }]}>{video.creator}</Text>
+                        <Text style={[styles.creatorName, { color: theme.text }]}>{video.creator.name}</Text>
                       </View>
                     </View>
 
                     <View style={styles.impactWrap}>
                       <Text style={[styles.metaLabel, { color: mutedText }]}>Impact</Text>
-                      <Text style={styles.impactValue}>{video.views} Views</Text>
+                      <Text style={styles.impactValue}>{video.stats.views_count.toLocaleString()} Views</Text>
                     </View>
                   </View>
                 </View>

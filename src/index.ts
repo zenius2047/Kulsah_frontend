@@ -46,6 +46,7 @@ export * from './hooks/queries/useCreatorVideoProgress';
 export * from './hooks/queries/useCreatorVideoPlaylists';
 export * from './hooks/queries/useCreatorVideos';
 export * from './hooks/queries/useCreatorDashboard';
+export * from './hooks/queries/useNotifications';
 export * from './hooks/queries/useFeedVideos';
 export * from './hooks/queries/useMusic';
 export * from './hooks/queries/useLogin';

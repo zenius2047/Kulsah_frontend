@@ -1,307 +1,148 @@
-import React from 'react';
-import {
-  Image,
-  Pressable,
-  ScrollView,
-  StyleSheet,
-  Text,
-  View,
-} from 'react-native';
+import React, { useCallback, useMemo } from 'react';
+import { ActivityIndicator, FlatList, Pressable, StyleSheet, Text, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { MaterialIcons } from '@expo/vector-icons';
-import { useThemeMode, PRIMARY_COLOR, primaryColorAlpha } from "../theme";
-import { mediumScreen } from '../types';
+import { useNavigation } from '@react-navigation/native';
+import { PRIMARY_COLOR, primaryColorAlpha, useThemeMode } from '../theme';
+import { useMarkNotificationRead, useNotifications } from '../src/hooks/queries/useNotifications';
+import type { AppNotification } from '../src/types/notification.types';
+import { getApiErrorMessage } from '../src/utils/apiError';
 import { fontSize } from './typography';
 
-const Notifications: React.FC = () => {
-  const { isDark, theme } = useThemeMode();
+const field = (data: Record<string, unknown>, name: string) => {
+  const value = data[name];
+  return value == null || String(value).trim() === '' ? undefined : String(value);
+};
 
-  const shell = isDark ? '#060913' : theme.background;
-  const card = isDark ? 'rgba(255,255,255,0.05)' : theme.card;
-  const border = isDark ? 'rgba(255,255,255,0.1)' : theme.border;
-  const textPrimary = isDark ? '#f7f5f8' : theme.text;
-  const textMuted = isDark ? '#94a3b8' : theme.textSecondary;
-  const sectionLabel = isDark ? '#64748b' : theme.textMuted;
+const timeAgo = (value?: string | null) => {
+  if (!value) return '';
+  const minutes = Math.max(0, Math.floor((Date.now() - new Date(value).getTime()) / 60_000));
+  if (minutes < 1) return 'Just now';
+  if (minutes < 60) return `${minutes}m ago`;
+  const hours = Math.floor(minutes / 60);
+  if (hours < 24) return `${hours}h ago`;
+  const days = Math.floor(hours / 24);
+  return days === 1 ? 'Yesterday' : `${days}d ago`;
+};
+
+const notificationIcon = (type: string): keyof typeof MaterialIcons.glyphMap => {
+  if (type === 'challenge.invited') return 'sports-kabaddi';
+  if (type === 'live.battle_invited') return 'sports-mma';
+  if (type === 'live.started') return 'live-tv';
+  if (type.includes('message')) return 'chat-bubble';
+  if (type.includes('mention')) return 'alternate-email';
+  if (type.includes('follow')) return 'person-add';
+  if (type.includes('wallet') || type.includes('payout')) return 'account-balance-wallet';
+  return 'notifications';
+};
+
+const Notifications: React.FC = () => {
+  const navigation = useNavigation<any>();
+  const { isDark, theme } = useThemeMode();
+  const notificationsQuery = useNotifications();
+  const markRead = useMarkNotificationRead();
+  const colors = useMemo(() => ({
+    background: isDark ? '#060913' : theme.background,
+    card: isDark ? '#111722' : theme.card,
+    border: isDark ? 'rgba(255,255,255,0.1)' : theme.border,
+    text: isDark ? '#f7f5f8' : theme.text,
+    secondary: isDark ? '#94a3b8' : theme.textSecondary,
+    unread: isDark ? 'rgba(255,43,131,0.14)' : primaryColorAlpha(0.08),
+  }), [isDark, theme]);
+
+  const openNotification = useCallback(async (notification: AppNotification) => {
+    if (!notification.read_at) {
+      try {
+        await markRead.mutateAsync(notification.id);
+      } catch (error) {
+        console.warn('Unable to mark notification as read.', getApiErrorMessage(error));
+      }
+    }
+
+    const type = notification.type.toLowerCase();
+    const data = notification.data;
+    if (type === 'challenge.invited') {
+      const challengeId = field(data, 'challenge_id') ?? field(data, 'challengeId');
+      if (challengeId) navigation.navigate('ChallengeEntry', { challengeId, inviteId: field(data, 'invite_id') });
+    } else if (type === 'live.battle_invited') {
+      const liveSessionId = field(data, 'live_id');
+      if (liveSessionId) navigation.navigate('CreatorBattleParticipantScreen', {
+        liveSessionId,
+        battleId: field(data, 'battle_id'),
+        participantRole: 'opponent',
+      });
+    } else if (type === 'live.started') {
+      const liveSessionId = field(data, 'live_id');
+      if (liveSessionId) navigation.navigate('LiveStream', { liveSessionId });
+    } else if (type.includes('message')) {
+      const conversationId = field(data, 'conversation_id') ?? field(data, 'conversationId');
+      if (conversationId) navigation.navigate('Chat', { conversationId, senderId: field(data, 'sender_id') });
+    } else if (type.includes('mention')) {
+      const videoId = field(data, 'video_id');
+      if (videoId) navigation.navigate('VideoPlayer', { id: videoId });
+    }
+  }, [markRead, navigation]);
+
+  const renderNotification = ({ item }: { item: AppNotification }) => (
+    <Pressable
+      accessibilityRole="button"
+      accessibilityLabel={item.title}
+      onPress={() => void openNotification(item)}
+      style={({ pressed }) => [styles.card, { backgroundColor: item.read_at ? colors.card : colors.unread, borderColor: colors.border }, pressed && styles.pressed]}
+    >
+      <View style={styles.iconWrap}><MaterialIcons name={notificationIcon(item.type)} size={22} color="#fff" /></View>
+      <View style={styles.copy}>
+        <View style={styles.titleRow}>
+          <Text numberOfLines={1} style={[styles.title, { color: colors.text }]}>{item.title}</Text>
+          {!item.read_at ? <View style={styles.unreadDot} /> : null}
+        </View>
+        {item.message ? <Text numberOfLines={2} style={[styles.message, { color: colors.secondary }]}>{item.message}</Text> : null}
+        <Text style={[styles.time, { color: colors.secondary }]}>{timeAgo(item.created_at)}</Text>
+      </View>
+    </Pressable>
+  );
 
   return (
-    <SafeAreaView style={[styles.safeArea, { backgroundColor: shell }]} edges={['top', 'left', 'right']}>
-      <View style={[styles.screen, { backgroundColor: shell }]}>
-        <ScrollView contentContainerStyle={styles.content} showsVerticalScrollIndicator={false}>
-          <View style={styles.section}>
-            <Text style={[styles.sectionTitle, { color: sectionLabel }]}>TODAY</Text>
-
-            <View style={[styles.card, { backgroundColor: card, borderColor: border }]}>
-              <View style={styles.hotBadgeWrap}>
-                <Text style={styles.hotBadge}>HOT NOW</Text>
-              </View>
-              <View style={styles.rowStart}>
-                <View style={styles.eventIconWrap}>
-                  <MaterialIcons name="emoji-events" size={24} color="#ffffff" />
-                </View>
-                <View style={styles.flexOne}>
-                  <Text style={[styles.titleText, { color: textPrimary }]}>
-                    New Challenge Live: <Text style={styles.accentText}>Urban Beats</Text>
-                  </Text>
-                  <Text style={[styles.bodyText, { color: textMuted }]}>
-                    The streets are calling. Show your best moves and climb the Arena.
-                  </Text>
-                  <Pressable style={styles.joinButton}>
-                    <Text style={styles.joinButtonText}>Join</Text>
-                  </Pressable>
-                </View>
-              </View>
+    <SafeAreaView style={[styles.safeArea, { backgroundColor: colors.background }]} edges={['top', 'left', 'right']}>
+      <View style={[styles.screen, { backgroundColor: colors.background }]}>
+        <View style={styles.header}><Text style={[styles.headerTitle, { color: colors.text }]}>Notifications</Text></View>
+        <FlatList
+          data={notificationsQuery.data?.data ?? []}
+          keyExtractor={(item) => item.id}
+          renderItem={renderNotification}
+          contentContainerStyle={styles.content}
+          refreshing={notificationsQuery.isRefetching}
+          onRefresh={() => void notificationsQuery.refetch()}
+          ListEmptyComponent={notificationsQuery.isLoading ? (
+            <View style={styles.state}><ActivityIndicator color={PRIMARY_COLOR} /></View>
+          ) : (
+            <View style={styles.state}>
+              <MaterialIcons name="notifications-none" size={42} color={colors.secondary} />
+              <Text style={[styles.stateTitle, { color: colors.text }]}>{notificationsQuery.isError ? 'Notifications are unavailable' : 'You are all caught up'}</Text>
+              <Text style={[styles.stateMessage, { color: colors.secondary }]}>{notificationsQuery.isError ? 'Pull down to try again.' : 'New activity will appear here.'}</Text>
             </View>
-
-            <View style={[styles.card, { backgroundColor: card, borderColor: border }]}>
-              <View style={styles.rowBetween}>
-                <View style={styles.rowStart}>
-                  <Image
-                    source={{
-                      uri: 'https://lh3.googleusercontent.com/aida-public/AB6AXuAoPdaH-0B-Kqt5PhkG-jZ4Xmb3ulH0TYtrlTYhLukxjbGK2tonsGP9wWPuy13aEOqNjEo7kGJ-HmoqKEngktWtLmtf1ZOwU_OeHqt7weQYV8C_F1PRtjKg-AY6Bc9tWnq6hN10qqWX-Ct2y-yEEUoTlHSpTKbIx91G13CGQ2-HewrKFQIiGu9b-aqujPnQuWKMeQjiWVfZCPE7FY-NB2w5QeqC4rWNxMSYbm49C5rYyxgH2ZQdgLazUu4I8y3E7-nJKFiZhBcVeT4N',
-                    }}
-                    style={[styles.avatar, { borderColor: border }]}
-                  />
-                  <View>
-                    <Text style={[styles.inlineText, { color: textPrimary }]}>
-                      <Text style={styles.strongText}>Luna.AI </Text>
-                      <Text style={{ color: textMuted }}>liked your video</Text>
-                    </Text>
-                    <Text style={[styles.timeText, { color: sectionLabel }]}>2m ago</Text>
-                  </View>
-                </View>
-                <Image
-                  source={{
-                    uri: 'https://lh3.googleusercontent.com/aida-public/AB6AXuA-XVdF537pncEQjBHy3Hcf5kb_tbR1bbcdeWQ0OXDZOorwmkSjaEMQlDjw6VKelmQ4re9vpX0Okp4asmOuy5gUo7Opf8MWyvGkYSrqs_t1q6FZ0kIeXi0dyHGYXUuyDiOw1euuGMti64cqabSf03fYoYPL0k28POzCWxGs0RvYXKg4R35POrq1D3G1B-FpEt1i4dv_nQsnSeOUvF1oVAfrjq3priwfQp8PyKtewZ4EITahdPaHskkK3jH4EKxJbmuROs4TpgEyg2Zg',
-                  }}
-                  style={[styles.videoThumb, { borderColor: border }]}
-                />
-              </View>
-            </View>
-
-            <View
-              style={[
-                styles.card,
-                styles.walletCard,
-                { backgroundColor: card, borderColor: border },
-              ]}
-            >
-              <View style={styles.walletIcon}>
-                <MaterialIcons name="account-balance-wallet" size={20} color={PRIMARY_COLOR} />
-              </View>
-              <View style={styles.flexOne}>
-                <Text style={[styles.titleSmall, { color: textPrimary }]}>Payout processed</Text>
-                <Text style={[styles.bodyText, { color: textMuted }]}>
-                  Your weekly earnings of $142.50 have been sent.
-                </Text>
-                <Text style={[styles.timeText, { color: sectionLabel }]}>1h ago</Text>
-              </View>
-            </View>
-          </View>
-
-          <View style={styles.section}>
-            <Text style={[styles.sectionTitle, { color: sectionLabel }]}>EARLIER</Text>
-
-            <View style={[styles.card, { backgroundColor: card, borderColor: border }]}>
-              <View style={styles.rowStart}>
-                <Image
-                  source={{
-                    uri: 'https://lh3.googleusercontent.com/aida-public/AB6AXuD5wV9IJv8ZkWVZsvSFaz95HUimvzeQqN5Kz8T2l8GsoCpiHFKzv_h6sNwozHXfOPbT4zJLXL-dfyTldFLtr2_BD5BliqGS_qR4Gv0jkDCVpaXA6oXx8gBqaeFx-zmcsAC_7-MOhMBP3GceV5gmhC98dK2pIBfXqUw1e782fniMb5dXn_yr-N7up9oJ3HNc41_itvf8ZTIx8xx9GICHag8h6XN5dOk1j0vO7hyxr8hPZSZ50OfYfn_XgmjvkKzMPOmbOpwgLEBM9sbD',
-                  }}
-                  style={[styles.avatar, { borderColor: border }]}
-                />
-                <View>
-                  <Text
-                  numberOfLines={2}
-                  style={[styles.inlineText, { color: textPrimary }]}>
-                    <Text style={styles.strongText}>Alex.VFX </Text>
-                    <Text style={{ color: textMuted }}>mentioned you in a comment</Text>
-                  </Text>
-                  <Text style={[styles.timeText, { color: sectionLabel }]}>5h ago</Text>
-                </View>
-              </View>
-              <View style={[styles.quoteBox, { backgroundColor: isDark ? 'rgba(255,255,255,0.05)' : 'rgba(15,23,42,0.05)' }]}>
-                <Text style={[styles.quoteText, { color: textMuted }]}>
-                  "The lighting in this frame is insane! How did you achieve that neon glow effect? @creative_user"
-                </Text>
-                <Pressable>
-                  <Text style={styles.replyText}>Reply</Text>
-                </Pressable>
-              </View>
-            </View>
-
-            <View style={[styles.card, { backgroundColor: card, borderColor: border }]}>
-              <View style={styles.rowBetween}>
-                <View style={styles.rowStart}>
-                  <Image
-                    source={{
-                      uri: 'https://lh3.googleusercontent.com/aida-public/AB6AXuCmnrg-NcGH-Bniuga3vuqjjMTn3JpRsNIGTS-dpwP1AZQl_lL-HyduvY7gTASQiBmF1OCnGDzWtX5YjfgSmP0zZYyz2rIB-TGQgN6S7oK8h1r0hbj1yl7SjOg43R0oD3Y4GQPHZAYSKQ5Kw4BGH2d7QOnBDK7m8qR6nFlJRMZRHc9V3a4nSDaRNPSlNYtUK1gDLVclqmxMeJql0hkpPpdUspZnjeK88BgeNk1Qm_TsZpRrIo69WJyQZKKNZa3uMHAFQtEv7Odx1e6G',
-                    }}
-                    style={[styles.avatar, { borderColor: border }]}
-                  />
-                  <View style={{
-                    overflow: 'hidden'
-                  }}>
-                    <Text 
-                    numberOfLines = {2}
-                    style={[styles.inlineText, { color: textPrimary }]}>
-                      <Text style={styles.strongText}>Synth.Pop </Text>
-                      <Text style={{ color: textMuted }}>started following you</Text>
-                    </Text>
-                    <Text style={[styles.timeText, { color: sectionLabel }]}>10h ago</Text>
-                  </View>
-                </View>
-                
-              </View>
-              <Pressable style={[styles.followButton, { borderColor: PRIMARY_COLOR }]}>
-                  <Text style={styles.followButtonText}>Follow Back</Text>
-                </Pressable>
-            </View>
-          </View>
-        </ScrollView>
+          )}
+        />
       </View>
     </SafeAreaView>
   );
 };
 
 const styles = StyleSheet.create({
-  safeArea: { flex: 1 },
-  screen: { flex: 1 },
-  content: { paddingHorizontal: 16, paddingBottom: 28, paddingTop: 10 },
-  section: { marginBottom: 24 },
-  sectionTitle: {
-    ...fontSize.mediumTitleText, lineHeight: fontSize.mediumTitleText.lineHeight,
-    letterSpacing: 2,
-    marginBottom: 14,
-  },
-  card: {
-    borderWidth: 1,
-    borderRadius: 18,
-    padding: 14,
-    marginBottom: 10,
-    overflow: 'hidden'
-  },
-  rowStart: { flexDirection: 'row', alignItems: 'flex-start', gap: 12 },
-  rowBetween: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', gap: 8 },
-  flexOne: { flex: 1 },
-  hotBadgeWrap: { position: 'absolute', top: 10, right: 10, zIndex: 2 },
-  hotBadge: {
-    backgroundColor: primaryColorAlpha(0.2),
-    color: PRIMARY_COLOR,
-    ...fontSize.b5, lineHeight: fontSize.b5.lineHeight,
-    paddingHorizontal: 8,
-    paddingVertical: 4,
-    borderRadius: 999,
-    letterSpacing: 1,
-  },
-  eventIconWrap: {
-    width: 48,
-    height: 48,
-    borderRadius: 14,
-    backgroundColor: PRIMARY_COLOR,
-    alignItems: 'center',
-    justifyContent: 'center',
-    marginTop: 2,
-  },
-  titleText: {
-    ...fontSize.b5, lineHeight: fontSize.b5.lineHeight,
-    marginBottom: 6,
-    paddingRight: 70,
-  },
-  titleSmall: {
-    ...fontSize.b5, lineHeight: fontSize.b5.lineHeight,
-    marginBottom: 4,
-  },
-  accentText: { color: PRIMARY_COLOR },
-  bodyText: {
-    ...fontSize.b5,
-    lineHeight: fontSize.b3.lineHeight,
-    marginBottom: 10,
-  },
-  inlineText: {
-    ...fontSize.b5, lineHeight: fontSize.b5.lineHeight,
-    marginBottom: 4,
-  },
-  strongText: {  },
-  timeText: {
-    ...fontSize.b5, lineHeight: fontSize.b5.lineHeight,
-    textTransform: 'uppercase',
-  },
-  joinButton: {
-    alignSelf: 'flex-start',
-    backgroundColor: PRIMARY_COLOR,
-    borderRadius: 999,
-    paddingHorizontal: 16,
-    paddingVertical: 9,
-    shadowColor: PRIMARY_COLOR,
-    shadowOffset: { width: 0, height: 0 },
-    shadowOpacity: 0.35,
-    shadowRadius: 10,
-    elevation: 4,
-  },
-  joinButtonText: {
-    color: '#ffffff',
-    ...fontSize.b5, lineHeight: fontSize.b5.lineHeight,
-    textTransform: 'uppercase',
-    letterSpacing: 1.3,
-  },
-  avatar: {
-    width: 48,
-    height: 48,
-    borderRadius: 24,
-    borderWidth: 1,
-  },
-  videoThumb: {
-    width: 46,
-    height: 64,
-    borderRadius: 8,
-    borderWidth: 1,
-  },
-  walletCard: { borderLeftWidth: 4, borderLeftColor: PRIMARY_COLOR },
-  walletIcon: {
-    width: 44,
-    height: 44,
-    borderRadius: 22,
-    backgroundColor: primaryColorAlpha(0.12),
-    alignItems: 'center',
-    justifyContent: 'center',
-    marginRight: 12,
-  },
-  quoteBox: {
-    marginTop: 12,
-    marginLeft: 60,
-    borderRadius: 12,
-    paddingHorizontal: 12,
-    paddingVertical: 10,
-  },
-  quoteText: {
-    ...fontSize.b5,
-    fontStyle: 'italic',
-    lineHeight: fontSize.b3.lineHeight,
-  },
-  replyText: {
-    marginTop: 8,
-    color: PRIMARY_COLOR,
-    ...fontSize.b5, lineHeight: fontSize.b5.lineHeight,
-    textTransform: 'uppercase',
-    letterSpacing: 1,
-  },
-  followButton: {
-    position: 'absolute',
-    right: 10,
-    bottom: 10,
-    alignSelf: 'baseline',
-    borderWidth: 1,
-    borderRadius: 999,
-    paddingHorizontal: mediumScreen ? 12:10,
-    paddingVertical: 8,
-    // width: '20%'
-  },
-  followButtonText: {
-    color: PRIMARY_COLOR,
-    ...fontSize.b5Variant, lineHeight: fontSize.b5Variant.lineHeight,
-    textTransform: 'uppercase',
-    letterSpacing: 0.2,
-  },
+  safeArea: { flex: 1 }, screen: { flex: 1 },
+  header: { minHeight: 64, paddingHorizontal: 20, justifyContent: 'center' },
+  headerTitle: { ...fontSize.mediumTitleText, fontFamily: 'Poppins_700Bold' },
+  content: { paddingHorizontal: 16, paddingBottom: 28, gap: 10 },
+  card: { minHeight: 82, borderWidth: 1, borderRadius: 18, padding: 14, flexDirection: 'row', gap: 12 },
+  pressed: { opacity: 0.72 },
+  iconWrap: { width: 44, height: 44, borderRadius: 14, backgroundColor: PRIMARY_COLOR, alignItems: 'center', justifyContent: 'center' },
+  copy: { flex: 1, minWidth: 0 }, titleRow: { flexDirection: 'row', alignItems: 'center', gap: 7 },
+  title: { flex: 1, ...fontSize.b5, fontFamily: 'Poppins_600SemiBold' },
+  unreadDot: { width: 8, height: 8, borderRadius: 4, backgroundColor: PRIMARY_COLOR },
+  message: { marginTop: 3, ...fontSize.b6, lineHeight: 19 }, time: { marginTop: 6, ...fontSize.b6 },
+  state: { minHeight: 260, paddingHorizontal: 30, alignItems: 'center', justifyContent: 'center', gap: 9 },
+  stateTitle: { ...fontSize.b3, fontFamily: 'Poppins_600SemiBold', textAlign: 'center' },
+  stateMessage: { ...fontSize.b6, textAlign: 'center' },
 });
 
 export default Notifications;

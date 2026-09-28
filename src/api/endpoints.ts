@@ -30,6 +30,8 @@ export const endpoints = {
     notificationDevice: (device: string | number) => `auth/notification-devices/${device}`,
   },
   general: {
+    notifications: 'general/notifications',
+    notificationRead: (notification: string) => `general/notifications/${notification}/read`,
     events: 'general/events',
     event: (event: string | number) => `general/events/${event}`,
     eventTicketPurchase: (event: string | number) => `general/events/${event}/tickets/purchase`,
@@ -116,11 +118,15 @@ export const endpoints = {
     liveGifts: (liveSession: string | number) => `general/live/${liveSession}/gifts`,
     liveReports: (liveSession: string | number) => `general/live/${liveSession}/reports`,
     liveCohostRequests: (liveSession: string | number) => `general/live/${liveSession}/cohost-requests`,
+    liveParticipants: (liveSession: string | number) => `general/live/${liveSession}/participants`,
+    liveCohostCredentials: (liveSession: string | number) => `general/live/${liveSession}/cohosts/credentials`,
+    liveCohostLeave: (liveSession: string | number) => `general/live/${liveSession}/cohosts/leave`,
     liveCohostRequestAccept: (cohostRequest: string | number) =>
       `general/live/cohost-requests/${cohostRequest}/accept`,
     liveCohostRequestDecline: (cohostRequest: string | number) =>
       `general/live/cohost-requests/${cohostRequest}/decline`,
     liveBattleAccept: (battle: string | number) => `general/live/battles/${battle}/accept`,
+    liveBattleVotes: (battle: string | number) => `general/live/battles/${battle}/votes`,
     liveBattleScore: (battle: string | number) => `general/live/battles/${battle}/score`,
     liveBattleEnd: (battle: string | number) => `general/live/battles/${battle}/end`,
   },
@@ -193,6 +199,7 @@ export const endpoints = {
     liveCohostRemove: (liveSession: string | number, user: string | number) =>
       `creator/live/${liveSession}/cohosts/${user}`,
     liveBattleInvite: (liveSession: string | number) => `creator/live/${liveSession}/battles/invite`,
+    liveBattleCreators: (liveSession: string | number) => `creator/live/${liveSession}/battle-creators`,
     liveAnalytics: (liveSession: string | number) => `creator/live/${liveSession}/analytics`,
   },
   subscription: {
