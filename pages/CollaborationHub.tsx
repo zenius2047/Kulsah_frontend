@@ -14,7 +14,7 @@ import {
 } from 'react-native';
 import { useNavigation, useRoute } from '@react-navigation/native';
 import { MaterialIcons } from '@expo/vector-icons';
-import { GoogleGenAI } from '@google/genai';
+import { aiApi } from '../src';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { fontSize } from '../typography';
 
@@ -59,8 +59,8 @@ const DISCOVER_TYPES: Exclude<ProjectType, 'All'>[] = ['Public Feed Track', 'Pre
 const BRAND = PRIMARY_COLOR;
 const CollaborationHub: React.FC = () => {
   const { isDark, theme } = useThemeMode();
-  const navigation = useNavigation<any>();
-  const route = useRoute<any>();
+  const navigation = useNavigation();
+  const route = useRoute();
   const insets = useSafeAreaInsets();
 
   const [activeTab, setActiveTab] = useState<CollabTab>('discover');
@@ -132,14 +132,10 @@ const CollaborationHub: React.FC = () => {
     if (!vibeQuery.trim()) return;
     setIsAiSearching(true);
     try {
-      const apiKey = (globalThis as any)?.process?.env?.EXPO_PUBLIC_GEMINI_API_KEY;
-      if (apiKey) {
-        const ai = new GoogleGenAI({ apiKey });
-        await ai.models.generateContent({
-          model: 'gemini-2.0-flash',
-          contents: `You are a music industry scout. A creator says: "${vibeQuery}". Analyze synergy and provide updated match scores for our partner network.`,
-        });
-      }
+      await aiApi.generate('collaboration_match', {
+        query: vibeQuery,
+        partners: partners.map(({ id, genres, vibeMatch }) => ({ id, genres, vibeMatch })),
+      });
       setPartners((prev) =>
         prev.map((p) => ({
           ...p,

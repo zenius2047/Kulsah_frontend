@@ -20,7 +20,7 @@ const STEP = 100;
 
 const RevenueSplit: React.FC = () => {
   const { isDark, theme } = useThemeMode();
-  const navigation = useNavigation<any>();
+  const navigation = useNavigation();
   const [projectedRevenue, setProjectedRevenue] = useState(1000);
 
   const breakdown = useMemo(

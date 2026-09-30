@@ -18,7 +18,7 @@ const ElephantLogo = () => (
 
 const Onboarding: React.FC<OnboardingProps> = ({ onLogin }) => {
   const { isDark, theme } = useThemeMode();
-  const navigation = useNavigation<any>();
+  const navigation = useNavigation();
 
   return (
     <View style={{ flex: 1, backgroundColor: '#060913' }}>

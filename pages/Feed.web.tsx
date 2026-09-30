@@ -27,7 +27,7 @@ const VideoFeedItem: React.FC<{
   isGlobalMuted: boolean;
   onToggleMute: () => void;
 }> = ({ item, onSubscribe, isGlobalMuted, onToggleMute }) => {
-  const navigation = useNavigation<any>();
+  const navigation = useNavigation();
   const navigate = (path: string) => {
     if (path === '/discover') return navigation.navigate('Discover');
     if (path === '/notifications') return;
@@ -294,7 +294,7 @@ const VideoFeedItem: React.FC<{
 
 const Feed: React.FC = () => {
   const { isDark, theme } = useThemeMode();
-  const navigation = useNavigation<any>();
+  const navigation = useNavigation();
   const navigate = (path: string) => {
     if (path === '/discover') return navigation.navigate('Discover');
     if (path === '/notifications') return;

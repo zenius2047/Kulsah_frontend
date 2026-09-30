@@ -30,8 +30,8 @@ type TicketDetailPayload = {
 
 const FanTicketDetail: React.FC = () => {
   const { isDark, theme } = useThemeMode();
-  const navigation = useNavigation<any>();
-  const route = useRoute<any>();
+  const navigation = useNavigation();
+  const route = useRoute();
   const insets = useSafeAreaInsets();
   const routePayload = route.params?.ticket && route.params?.event
     ? { ticket: route.params.ticket, event: route.params.event, purchase: route.params.purchase ?? null } as TicketDetailPayload

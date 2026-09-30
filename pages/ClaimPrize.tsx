@@ -83,7 +83,7 @@ const MOCK_SUBMISSIONS: ClaimSubmission[] = [
 ];
 
 const ClaimPrize: React.FC = () => {
-  const navigation = useNavigation<any>();
+  const navigation = useNavigation();
   const { isDark, theme } = useThemeMode();
   const styles = useMemo(() => createStyles(isDark, theme), [isDark, theme]);
   const placeholderColor = theme.textMuted;

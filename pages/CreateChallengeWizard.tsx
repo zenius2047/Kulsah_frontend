@@ -143,8 +143,8 @@ const creatorFromStoredValue = (value: unknown): BattleCreator | null => {
 };
 
 const CreateChallengeWizard: React.FC = () => {
-  const navigation = useNavigation<any>();
-  const route = useRoute<any>();
+  const navigation = useNavigation();
+  const route = useRoute();
   const { user } = useAuth();
   const routeDraft = route.params?.draft as StoredChallenge | undefined;
   const { isDark, theme } = useThemeMode();

@@ -90,7 +90,7 @@ const CreateEvent: React.FC = () => {
   const { isDark, theme } = useThemeMode();
   const [activeTemplateTab, setActiveTemplateTab] = useState('For You');
   const visibleTemplates = templateCards;
-  const navigation = useNavigation<any>();
+  const navigation = useNavigation();
   const bgGradient = isDark
     ? ['#120816', '#0a050d', '#050207']
     : ['#f8fafc', '#eef2ff', '#f8fafc'];

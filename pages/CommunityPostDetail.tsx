@@ -203,8 +203,8 @@ const DetailFullscreenVideo: React.FC<{ uri: string }> = ({ uri }) => {
 };
 
 const CommunityPostDetail: React.FC = () => {
-  const navigation = useNavigation<any>();
-  const route = useRoute<any>();
+  const navigation = useNavigation();
+  const route = useRoute();
   const { isDark, theme } = useThemeMode();
   const { width: viewportWidth } = useWindowDimensions();
   const muted = theme.textMuted;

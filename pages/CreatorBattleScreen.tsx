@@ -380,7 +380,7 @@ export type CreatorBattleScreenProps = {
 };
 
 const CreatorBattleScreen: React.FC<CreatorBattleScreenProps> = ({ participantLayout = false }) => {
-  const navigation = useNavigation<any>();
+  const navigation = useNavigation();
   const route = useRoute<CreatorBattleRoute>();
   const insets = useSafeAreaInsets();
   const currentUser = useAuthStore((state) => state.user);

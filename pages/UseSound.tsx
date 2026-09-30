@@ -85,7 +85,7 @@ const creations: Creation[] = [
 
 const UseSound: React.FC = () => {
   const { isDark, theme } = useThemeMode();
-  const navigation = useNavigation<any>();
+  const navigation = useNavigation();
   const insets = useSafeAreaInsets();
   const { width } = useWindowDimensions();
   const isTablet = width >= 768;

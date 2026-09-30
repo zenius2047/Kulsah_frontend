@@ -1,12 +1,22 @@
 import { MaterialIcons } from '@expo/vector-icons';
-import { useNavigation } from '@react-navigation/native';
+import AsyncStorage from '@react-native-async-storage/async-storage';
+import { useNavigation, useRoute } from '@react-navigation/native';
 import React, { useState } from 'react';
-import { Pressable, ScrollView, StyleSheet, Text, View } from 'react-native';
+import { ActivityIndicator, Pressable, ScrollView, StyleSheet, Text, View } from 'react-native';
 import { SafeAreaView, useSafeAreaInsets } from 'react-native-safe-area-context';
 import { PRIMARY_COLOR, primaryColorAlpha, useThemeMode } from '../theme';
 import { fontSize } from './typography';
+import type { RootStackParamList } from '../src';
 
 type PolicyTab = 'terms' | 'community' | 'commerce';
+
+type TermsPoliciesRouteParams = {
+  onboarding?: boolean;
+  nextRoute?: keyof RootStackParamList;
+};
+
+const TERMS_VERSION = '2026-06-08';
+const TERMS_ACCEPTANCE_KEY = 'kulsah_terms_acceptance';
 
 const tabs: Array<{ id: PolicyTab; label: string }> = [
   { id: 'terms', label: 'Terms' },
@@ -91,10 +101,15 @@ const commerceGroups = [
 ];
 
 const TermsPolicies: React.FC = () => {
-  const navigation = useNavigation<any>();
+  const navigation = useNavigation();
+  const route = useRoute();
   const insets = useSafeAreaInsets();
   const { isDark, theme } = useThemeMode();
   const [activeTab, setActiveTab] = useState<PolicyTab>('terms');
+  const [hasAccepted, setHasAccepted] = useState(false);
+  const [isSavingAcceptance, setIsSavingAcceptance] = useState(false);
+  const params = (route.params ?? {}) as TermsPoliciesRouteParams;
+  const isOnboarding = params.onboarding === true;
 
   const surface = isDark ? 'rgba(255,255,255,0.05)' : theme.card;
   const softSurface = isDark ? 'rgba(255,255,255,0.06)' : theme.surface;
@@ -102,6 +117,21 @@ const TermsPolicies: React.FC = () => {
   const border = isDark ? 'rgba(255,255,255,0.1)' : theme.border;
   const muted = isDark ? 'rgba(255,255,255,0.36)' : theme.textMuted;
   const secondary = isDark ? 'rgba(255,255,255,0.62)' : theme.textSecondary;
+
+  const handleAcceptAndContinue = async () => {
+    if (!hasAccepted || isSavingAcceptance) return;
+
+    setIsSavingAcceptance(true);
+    try {
+      await AsyncStorage.setItem(
+        TERMS_ACCEPTANCE_KEY,
+        JSON.stringify({ version: TERMS_VERSION, acceptedAt: new Date().toISOString() })
+      );
+      navigation.replace(params.nextRoute || 'VibePicker', { firstSignIn: true });
+    } finally {
+      setIsSavingAcceptance(false);
+    }
+  };
 
   const renderTerms = () => (
     <View style={styles.tabContent}>
@@ -190,8 +220,20 @@ const TermsPolicies: React.FC = () => {
     <SafeAreaView style={[styles.safeArea, { backgroundColor: theme.screen }]} edges={['top']}>
       <View style={[styles.header, { backgroundColor: isDark ? 'rgba(6,9,19,0.94)' : 'rgba(255,255,255,0.94)', borderBottomColor: border }]}>
         <View style={styles.headerLeft}>
+          {navigation.canGoBack() ? (
+            <Pressable
+              accessibilityRole="button"
+              accessibilityLabel="Go back"
+              onPress={() => navigation.goBack()}
+              style={[styles.iconButton, { backgroundColor: softSurface }]}
+            >
+              <MaterialIcons name="arrow-back" size={22} color={theme.text} />
+            </Pressable>
+          ) : null}
           <View style={styles.headerCopy}>
-            <Text style={[styles.headerTitle, { color: theme.text }]}>Terms & Policies</Text>
+            <Text style={[styles.headerTitle, { color: theme.text }]}>
+              {isOnboarding ? 'Terms & Conditions' : 'Terms & Policies'}
+            </Text>
             {/* <Text style={[styles.headerSubtitle, { color: muted }]}>Ecosystem Charter</Text> */}
           </View>
         </View>
@@ -224,6 +266,47 @@ const TermsPolicies: React.FC = () => {
             Node code last compiled June 2026. Submitting transactions or broadcasting streams conforms to this compiled revision.
           </Text>
         </View>
+
+        {isOnboarding ? (
+          <View style={[styles.acceptanceCard, { backgroundColor: cardSurface, borderColor: border }]}>
+            <Pressable
+              accessibilityRole="checkbox"
+              accessibilityState={{ checked: hasAccepted }}
+              accessibilityLabel="Accept the Terms and Conditions"
+              onPress={() => setHasAccepted((current) => !current)}
+              style={styles.acceptanceRow}
+            >
+              <View
+                style={[
+                  styles.checkbox,
+                  { borderColor: hasAccepted ? PRIMARY_COLOR : border },
+                  hasAccepted && styles.checkboxChecked,
+                ]}
+              >
+                {hasAccepted ? <MaterialIcons name="done" size={17} color="#ffffff" /> : null}
+              </View>
+              <Text style={[styles.acceptanceText, { color: secondary }]}>
+                I have read and agree to Kulsah&apos;s Terms and Conditions, Community Guidelines, and Commerce terms.
+              </Text>
+            </Pressable>
+
+            <Pressable
+              accessibilityRole="button"
+              disabled={!hasAccepted || isSavingAcceptance}
+              onPress={() => void handleAcceptAndContinue()}
+              style={[
+                styles.acceptButton,
+                (!hasAccepted || isSavingAcceptance) && styles.acceptButtonDisabled,
+              ]}
+            >
+              {isSavingAcceptance ? (
+                <ActivityIndicator color="#ffffff" />
+              ) : (
+                <Text style={styles.acceptButtonText}>Accept and continue</Text>
+              )}
+            </Pressable>
+          </View>
+        ) : null}
       </ScrollView>
     </SafeAreaView>
   );
@@ -422,6 +505,52 @@ const styles = StyleSheet.create({
     letterSpacing: 0.8,
     fontWeight: '800',
     textAlign: 'center',
+  },
+  acceptanceCard: {
+    borderWidth: 1,
+    borderRadius: 24,
+    padding: 18,
+    gap: 18,
+  },
+  acceptanceRow: {
+    flexDirection: 'row',
+    alignItems: 'flex-start',
+    gap: 12,
+  },
+  checkbox: {
+    width: 24,
+    height: 24,
+    borderRadius: 7,
+    borderWidth: 2,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  checkboxChecked: {
+    backgroundColor: PRIMARY_COLOR,
+  },
+  acceptanceText: {
+    flex: 1,
+    ...fontSize.b5,
+    lineHeight: fontSize.b5.lineHeight,
+    fontWeight: '600',
+  },
+  acceptButton: {
+    minHeight: 54,
+    borderRadius: 18,
+    backgroundColor: PRIMARY_COLOR,
+    alignItems: 'center',
+    justifyContent: 'center',
+    paddingHorizontal: 20,
+  },
+  acceptButtonDisabled: {
+    opacity: 0.4,
+  },
+  acceptButtonText: {
+    color: '#ffffff',
+    ...fontSize.b4,
+    lineHeight: fontSize.b4.lineHeight,
+    fontWeight: '800',
+    textTransform: 'uppercase',
   },
 });
 

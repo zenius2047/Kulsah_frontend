@@ -100,7 +100,7 @@ const upcomingEvents: CalendarEvent[] = [
 ];
 
 const Events: React.FC = () => {
-  const navigation = useNavigation<any>();
+  const navigation = useNavigation();
   const { isDark, theme } = useThemeMode();
   const [selectedMonth, setSelectedMonth] = useState(new Date());
   const [activeFilter, setActiveFilter] = useState<EventStatusFilter>('upcoming');

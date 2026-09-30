@@ -15,7 +15,7 @@ import {
 import { MaterialIcons } from '@expo/vector-icons';
 import { useNavigation } from '@react-navigation/native';
 import { SafeAreaView, useSafeAreaInsets } from 'react-native-safe-area-context';
-import { GoogleGenAI } from '@google/genai';
+import { aiApi } from '../src';
 import { PRIMARY_COLOR, primaryColorAlpha, useThemeMode } from '../theme';
 import { fontSize } from '../typography';
 import { parseApiError, useBlockCreatorSubscription } from '../src';
@@ -70,7 +70,7 @@ const statusColors: Record<FanStatus, string> = {
 
 const Subscribers: React.FC = () => {
   const { isDark, theme } = useThemeMode();
-  const navigation = useNavigation<any>();
+  const navigation = useNavigation();
   const insets = useSafeAreaInsets();
   const [activeTab, setActiveTab] = useState<TabType>('subs');
   const [search, setSearch] = useState('');
@@ -106,12 +106,9 @@ const Subscribers: React.FC = () => {
   const runAudiencePulse = async () => {
     setIsAuditing(true);
     try {
-      const apiKey = process.env.EXPO_PUBLIC_GOOGLE_API_KEY || process.env.API_KEY;
-      if (!apiKey) throw new Error('Missing API key');
-      const ai = new GoogleGenAI({ apiKey });
-      const response = await ai.models.generateContent({
-        model: 'gemini-2.5-flash',
-        contents: "Analyze a creator community with 842 paid subscribers and 14.2k followers. Alex Rivera is at risk with a 42% engagement score. Give one concise retention action.",
+      const response = await aiApi.generate('audience_retention', {
+        memberCount: source.length,
+        atRiskMembers: source.filter((member) => member.fanStatus === 'at-risk').map(({ id, name, score }) => ({ id, name, score })),
       });
       setAiInsight(response.text || 'Reach out to Alex with a personal preview of the next member drop before their engagement declines further.');
     } catch {

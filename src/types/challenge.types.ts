@@ -399,6 +399,7 @@ export type ChallengeListResource = {
   category?: string | number | null;
   title: string;
   description: string;
+  status?: ChallengeStatus;
   reward?: string | null;
   deadline?: string | null;
   mode: ChallengeMode;

@@ -68,7 +68,8 @@ describe('video overlay project coordinates', () => {
     expect(audioTrack).toMatchObject({
       type: 'audio',
       source: { assetId: 'music-asset-1' },
-      audio: { volume: 1 },
+      audio: { volume: 1, replaceOriginal: true },
+      timeline: { loop: true },
     });
     expect(payload?.assetFiles).toHaveLength(2);
   });

@@ -6,7 +6,7 @@ import { useNavigation } from '@react-navigation/native';
 
 const FanVaults: React.FC = () => {
   const { isDark, theme } = useThemeMode();
-  const navigation = useNavigation<any>();
+  const navigation = useNavigation();
 
   const vaults = [
     { name: 'Elena Rose', contentCount: 42, newCount: 3, img: 'https://picsum.photos/seed/elena/200', lastUpdate: '2h ago' },
@@ -43,7 +43,7 @@ const FanVaults: React.FC = () => {
           {vaults.map((vault) => (
             <Pressable 
               key={vault.name}
-              onPress={() => navigation.navigate('/premium')}
+              onPress={() => navigation.navigate('Premium')}
              
             >
               <View>

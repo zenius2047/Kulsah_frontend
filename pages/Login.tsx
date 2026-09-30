@@ -28,7 +28,7 @@ const previewImages = [
 ];
 
 const Login: React.FC<LoginProps> = ({ onLogin }) => {
-  const navigation = useNavigation<any>();
+  const navigation = useNavigation();
   const { isDark } = useThemeMode();
 
   return (
@@ -84,8 +84,8 @@ const Login: React.FC<LoginProps> = ({ onLogin }) => {
 
             <Text style={styles.legalText}>
               By continuing, you agree to Kulsah&apos;s{' '}
-              <Text style={styles.legalLink}>Terms of Service</Text> and{' '}
-              <Text style={styles.legalLink}>Privacy Policy</Text>.
+              <Text style={styles.legalLink} onPress={() => navigation.navigate('TermsPolicies')}>Terms and Conditions</Text> and{' '}
+              <Text style={styles.legalLink} onPress={() => navigation.navigate('PrivacyCentre')}>Privacy Policy</Text>.
             </Text>
           </View>
 

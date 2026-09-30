@@ -3,9 +3,11 @@ import * as FileSystem from 'expo-file-system/legacy';
 import * as ImagePicker from 'expo-image-picker';
 import { useThemeMode, PRIMARY_COLOR, primaryColorAlpha } from "../theme";
 import {
+  ActivityIndicator,
   Alert,
   Image,
   KeyboardAvoidingView,
+  Modal,
   PanResponder,
   Platform,
   Pressable,
@@ -18,8 +20,9 @@ import {
 } from 'react-native';
 import { MaterialIcons } from '@expo/vector-icons';
 import { Poppins_500Medium } from '@expo-google-fonts/poppins';
+import { Audio } from 'expo-av';
 import { LinearGradient } from 'expo-linear-gradient';
-import { useEvent } from 'expo';
+import { useEvent, useEventListener } from 'expo';
 import { useFocusEffect, useIsFocused, useNavigation, useRoute } from '@react-navigation/native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useVideoPlayer, VideoView } from 'expo-video';
@@ -33,6 +36,7 @@ import {
   useFont,
 } from '@shopify/react-native-skia';
 import { fontSize } from './typography';
+import { VoteSheetContent } from './SoundSelect';
 import {
   createCreatorVideoEditsPayload,
   hasVideoOverlays,
@@ -40,13 +44,15 @@ import {
   parseApiError,
   useAuthStore,
 } from '../src';
-import type { GeneratedEditAsset, MusicTrack, SubmitCreatorVideoEditsPayload, VideoDisplayOrientation, VideoPurpose, VideoUploadSource } from '../src';
+import type { DuetLayout, GeneratedEditAsset, MusicTrack, SubmitCreatorVideoEditsPayload, VideoDisplayOrientation, VideoPurpose, VideoUploadSource } from '../src';
 
 type EditSubmissionRouteParams = {
   video?: VideoUploadSource;
   uploadedVideoId?: string | number;
   uploadToExistingDraft?: boolean;
   duetSourceVideoId?: string | number;
+  duetSourceVideoUrl?: string;
+  duetLayout?: DuetLayout;
   sound?: MusicTrack | null;
   challengeId?: string | number;
   purpose?: VideoPurpose;
@@ -54,6 +60,24 @@ type EditSubmissionRouteParams = {
 };
 
 type EditorTool = 'none' | 'draw' | 'text' | 'sticker' | 'image' | 'trim';
+
+type PreviewSound = Awaited<ReturnType<typeof Audio.Sound.createAsync>>['sound'];
+
+const SELECTED_MUSIC_VOLUME = 1;
+
+const hashDuetSourceUrl = (value: string) => {
+  let hash = 2166136261;
+  for (let index = 0; index < value.length; index += 1) {
+    hash ^= value.charCodeAt(index);
+    hash = Math.imul(hash, 16777619);
+  }
+  return (hash >>> 0).toString(36);
+};
+
+const getDuetCacheExtension = (url: string) => {
+  const match = url.match(/\.(mp4|m4v|mov|webm)(?:$|[?#])/i);
+  return match?.[1]?.toLowerCase() ?? 'mp4';
+};
 
 type DrawingPoint = {
   x: number;
@@ -87,6 +111,7 @@ type TimelineSticker = {
   icon: keyof typeof MaterialIcons.glyphMap;
   x: number;
   y: number;
+  size: number;
   start: number;
   end: number;
 };
@@ -111,6 +136,7 @@ type DraggableTextStickerProps = {
   editable: boolean;
   highlighted: boolean;
   onMove: (id: string, deltaX: number, deltaY: number) => void;
+  onScale: (id: string, factor: number) => void;
   onPress: (id: string) => void;
 };
 
@@ -125,6 +151,7 @@ type DraggableTimelineStickerProps = {
   sticker: TimelineSticker;
   editable: boolean;
   onMove: (id: string, deltaX: number, deltaY: number) => void;
+  onScale: (id: string, factor: number) => void;
   onRemove: (id: string) => void;
 };
 
@@ -227,7 +254,7 @@ const getTextStickerLayout = (sticker: TextSticker) => {
   const previewFontSize = Math.max(16, sticker.fontSize * 0.42);
   return {
     fontSize: previewFontSize,
-    width: Math.min(260, Math.max(48, sticker.text.length * previewFontSize * 0.62 + 24)),
+    width: Math.max(48, sticker.text.length * previewFontSize * 0.62 + 24),
     height: previewFontSize * 1.35 + 16,
   };
 };
@@ -251,6 +278,14 @@ const getDrawingBounds = (strokes: DrawingStroke[]): DrawingBounds | null => {
   });
 
   return { left, top, right, bottom };
+};
+
+const getPinchDistance = (event: any) => {
+  const touches = event?.nativeEvent?.touches;
+  if (!Array.isArray(touches) || touches.length < 2) return 0;
+  const deltaX = Number(touches[0]?.pageX ?? 0) - Number(touches[1]?.pageX ?? 0);
+  const deltaY = Number(touches[0]?.pageY ?? 0) - Number(touches[1]?.pageY ?? 0);
+  return Math.hypot(deltaX, deltaY);
 };
 
 const SkiaStroke: React.FC<{
@@ -319,13 +354,18 @@ const DraggableTextSticker: React.FC<DraggableTextStickerProps> = ({
   editable,
   highlighted,
   onMove,
+  onScale,
   onPress,
 }) => {
   const layout = getTextStickerLayout(sticker);
   const lastDeltaRef = React.useRef({ x: 0, y: 0 });
   const onMoveRef = React.useRef(onMove);
+  const onScaleRef = React.useRef(onScale);
   const onPressRef = React.useRef(onPress);
+  const lastPinchDistanceRef = React.useRef(0);
+  const didPinchRef = React.useRef(false);
   onMoveRef.current = onMove;
+  onScaleRef.current = onScale;
   onPressRef.current = onPress;
   const panResponder = React.useMemo(
     () =>
@@ -335,21 +375,36 @@ const DraggableTextSticker: React.FC<DraggableTextStickerProps> = ({
           editable && (Math.abs(gestureState.dx) > 3 || Math.abs(gestureState.dy) > 3),
         onPanResponderGrant: () => {
           lastDeltaRef.current = { x: 0, y: 0 };
+          lastPinchDistanceRef.current = 0;
+          didPinchRef.current = false;
         },
-        onPanResponderMove: (_event, gestureState) => {
+        onPanResponderMove: (event, gestureState) => {
+          const pinchDistance = getPinchDistance(event);
+          if (pinchDistance > 0) {
+            if (lastPinchDistanceRef.current > 0) {
+              onScaleRef.current(sticker.id, pinchDistance / lastPinchDistanceRef.current);
+              didPinchRef.current = true;
+            }
+            lastPinchDistanceRef.current = pinchDistance;
+            lastDeltaRef.current = { x: gestureState.dx, y: gestureState.dy };
+            return;
+          }
+          lastPinchDistanceRef.current = 0;
           const deltaX = gestureState.dx - lastDeltaRef.current.x;
           const deltaY = gestureState.dy - lastDeltaRef.current.y;
           lastDeltaRef.current = { x: gestureState.dx, y: gestureState.dy };
           onMoveRef.current(sticker.id, deltaX, deltaY);
         },
         onPanResponderRelease: (_event, gestureState) => {
-          if (Math.abs(gestureState.dx) < 3 && Math.abs(gestureState.dy) < 3) {
+          if (!didPinchRef.current && Math.abs(gestureState.dx) < 3 && Math.abs(gestureState.dy) < 3) {
             onPressRef.current(sticker.id);
           }
           lastDeltaRef.current = { x: 0, y: 0 };
+          lastPinchDistanceRef.current = 0;
         },
         onPanResponderTerminate: () => {
           lastDeltaRef.current = { x: 0, y: 0 };
+          lastPinchDistanceRef.current = 0;
         },
         onPanResponderTerminationRequest: () => false,
         onShouldBlockNativeResponder: () => true,
@@ -379,11 +434,15 @@ const DraggableDrawingOverlay: React.FC<{
   editable: boolean;
   highlighted: boolean;
   onMove: (deltaX: number, deltaY: number) => void;
-}> = ({ bounds, editable, highlighted, onMove }) => {
+  onScale: (factor: number) => void;
+}> = ({ bounds, editable, highlighted, onMove, onScale }) => {
   const handlePadding = 12;
   const lastDeltaRef = React.useRef({ x: 0, y: 0 });
   const onMoveRef = React.useRef(onMove);
+  const onScaleRef = React.useRef(onScale);
+  const lastPinchDistanceRef = React.useRef(0);
   onMoveRef.current = onMove;
+  onScaleRef.current = onScale;
   const panResponder = React.useMemo(
     () => PanResponder.create({
       onStartShouldSetPanResponder: () => editable,
@@ -391,8 +450,19 @@ const DraggableDrawingOverlay: React.FC<{
         editable && (Math.abs(gesture.dx) > 3 || Math.abs(gesture.dy) > 3),
       onPanResponderGrant: () => {
         lastDeltaRef.current = { x: 0, y: 0 };
+        lastPinchDistanceRef.current = 0;
       },
-      onPanResponderMove: (_event, gesture) => {
+      onPanResponderMove: (event, gesture) => {
+        const pinchDistance = getPinchDistance(event);
+        if (pinchDistance > 0) {
+          if (lastPinchDistanceRef.current > 0) {
+            onScaleRef.current(pinchDistance / lastPinchDistanceRef.current);
+          }
+          lastPinchDistanceRef.current = pinchDistance;
+          lastDeltaRef.current = { x: gesture.dx, y: gesture.dy };
+          return;
+        }
+        lastPinchDistanceRef.current = 0;
         const deltaX = gesture.dx - lastDeltaRef.current.x;
         const deltaY = gesture.dy - lastDeltaRef.current.y;
         lastDeltaRef.current = { x: gesture.dx, y: gesture.dy };
@@ -400,9 +470,11 @@ const DraggableDrawingOverlay: React.FC<{
       },
       onPanResponderRelease: () => {
         lastDeltaRef.current = { x: 0, y: 0 };
+        lastPinchDistanceRef.current = 0;
       },
       onPanResponderTerminate: () => {
         lastDeltaRef.current = { x: 0, y: 0 };
+        lastPinchDistanceRef.current = 0;
       },
       onPanResponderTerminationRequest: () => false,
       onShouldBlockNativeResponder: () => true,
@@ -434,28 +506,59 @@ const DraggableDrawingOverlay: React.FC<{
   );
 };
 
-const DraggableTimelineSticker: React.FC<DraggableTimelineStickerProps> = ({ sticker, editable, onMove, onRemove }) => {
+const DraggableTimelineSticker: React.FC<DraggableTimelineStickerProps> = ({ sticker, editable, onMove, onScale, onRemove }) => {
   const lastDeltaRef = React.useRef({ x: 0, y: 0 });
+  const lastPinchDistanceRef = React.useRef(0);
+  const onMoveRef = React.useRef(onMove);
+  const onScaleRef = React.useRef(onScale);
+  onMoveRef.current = onMove;
+  onScaleRef.current = onScale;
   const panResponder = React.useMemo(() => PanResponder.create({
     onStartShouldSetPanResponder: () => editable,
     onMoveShouldSetPanResponder: (_event, gesture) => editable && (Math.abs(gesture.dx) > 3 || Math.abs(gesture.dy) > 3),
-    onPanResponderGrant: () => { lastDeltaRef.current = { x: 0, y: 0 }; },
-    onPanResponderMove: (_event, gesture) => {
+    onPanResponderGrant: () => {
+      lastDeltaRef.current = { x: 0, y: 0 };
+      lastPinchDistanceRef.current = 0;
+    },
+    onPanResponderMove: (event, gesture) => {
+      const pinchDistance = getPinchDistance(event);
+      if (pinchDistance > 0) {
+        if (lastPinchDistanceRef.current > 0) {
+          onScaleRef.current(sticker.id, pinchDistance / lastPinchDistanceRef.current);
+        }
+        lastPinchDistanceRef.current = pinchDistance;
+        lastDeltaRef.current = { x: gesture.dx, y: gesture.dy };
+        return;
+      }
+      lastPinchDistanceRef.current = 0;
       const deltaX = gesture.dx - lastDeltaRef.current.x;
       const deltaY = gesture.dy - lastDeltaRef.current.y;
       lastDeltaRef.current = { x: gesture.dx, y: gesture.dy };
-      onMove(sticker.id, deltaX, deltaY);
+      onMoveRef.current(sticker.id, deltaX, deltaY);
     },
-    onPanResponderRelease: () => { lastDeltaRef.current = { x: 0, y: 0 }; },
-  }), [editable, onMove, sticker.id]);
+    onPanResponderRelease: () => {
+      lastDeltaRef.current = { x: 0, y: 0 };
+      lastPinchDistanceRef.current = 0;
+    },
+    onPanResponderTerminate: () => {
+      lastDeltaRef.current = { x: 0, y: 0 };
+      lastPinchDistanceRef.current = 0;
+    },
+    onPanResponderTerminationRequest: () => false,
+    onShouldBlockNativeResponder: () => true,
+  }), [editable, sticker.id]);
 
   return (
     <Pressable
       {...panResponder.panHandlers}
       onLongPress={() => editable && onRemove(sticker.id)}
-      style={[styles.timelineSticker, { left: sticker.x, top: sticker.y }, editable && styles.timelineStickerEditable]}
+      style={[
+        styles.timelineSticker,
+        { left: sticker.x, top: sticker.y, width: sticker.size, height: sticker.size },
+        editable && styles.timelineStickerEditable,
+      ]}
     >
-      <MaterialIcons name={sticker.icon} size={48} color="#fff" />
+      <MaterialIcons name={sticker.icon} size={sticker.size * (48 / 58)} color="#fff" />
     </Pressable>
   );
 };
@@ -465,24 +568,47 @@ const DraggableImageOverlay: React.FC<{
   editable: boolean;
   highlighted: boolean;
   onMove: (id: string, deltaX: number, deltaY: number) => void;
+  onScale: (id: string, factor: number) => void;
   onRemove: (id: string) => void;
-}> = ({ overlay, editable, highlighted, onMove, onRemove }) => {
+}> = ({ overlay, editable, highlighted, onMove, onScale, onRemove }) => {
   const lastDeltaRef = React.useRef({ x: 0, y: 0 });
   const onMoveRef = React.useRef(onMove);
+  const onScaleRef = React.useRef(onScale);
+  const lastPinchDistanceRef = React.useRef(0);
   onMoveRef.current = onMove;
+  onScaleRef.current = onScale;
   const panResponder = React.useMemo(() => PanResponder.create({
     onStartShouldSetPanResponder: () => false,
     onMoveShouldSetPanResponder: (_event, gesture) =>
-      editable && (Math.abs(gesture.dx) > 3 || Math.abs(gesture.dy) > 3),
-    onPanResponderGrant: () => { lastDeltaRef.current = { x: 0, y: 0 }; },
-    onPanResponderMove: (_event, gesture) => {
+      editable && (gesture.numberActiveTouches >= 2 || Math.abs(gesture.dx) > 3 || Math.abs(gesture.dy) > 3),
+    onPanResponderGrant: () => {
+      lastDeltaRef.current = { x: 0, y: 0 };
+      lastPinchDistanceRef.current = 0;
+    },
+    onPanResponderMove: (event, gesture) => {
+      const pinchDistance = getPinchDistance(event);
+      if (pinchDistance > 0) {
+        if (lastPinchDistanceRef.current > 0) {
+          onScaleRef.current(overlay.id, pinchDistance / lastPinchDistanceRef.current);
+        }
+        lastPinchDistanceRef.current = pinchDistance;
+        lastDeltaRef.current = { x: gesture.dx, y: gesture.dy };
+        return;
+      }
+      lastPinchDistanceRef.current = 0;
       const deltaX = gesture.dx - lastDeltaRef.current.x;
       const deltaY = gesture.dy - lastDeltaRef.current.y;
       lastDeltaRef.current = { x: gesture.dx, y: gesture.dy };
       onMoveRef.current(overlay.id, deltaX, deltaY);
     },
-    onPanResponderRelease: () => { lastDeltaRef.current = { x: 0, y: 0 }; },
-    onPanResponderTerminate: () => { lastDeltaRef.current = { x: 0, y: 0 }; },
+    onPanResponderRelease: () => {
+      lastDeltaRef.current = { x: 0, y: 0 };
+      lastPinchDistanceRef.current = 0;
+    },
+    onPanResponderTerminate: () => {
+      lastDeltaRef.current = { x: 0, y: 0 };
+      lastPinchDistanceRef.current = 0;
+    },
     onPanResponderTerminationRequest: () => false,
     onShouldBlockNativeResponder: () => true,
   }), [editable, overlay.id]);
@@ -514,9 +640,9 @@ const DraggableImageOverlay: React.FC<{
 
 const EditSubmission: React.FC = () => {
   const { isDark, theme } = useThemeMode();
-  const navigation = useNavigation<any>();
+  const navigation = useNavigation();
   const isFocused = useIsFocused();
-  const route = useRoute<any>();
+  const route = useRoute();
   const insets = useSafeAreaInsets();
   const params = (route.params ?? {}) as EditSubmissionRouteParams;
   const video = params.video;
@@ -524,6 +650,8 @@ const EditSubmission: React.FC = () => {
   const uploadedVideoId = params.uploadedVideoId;
   const [isPlaying, setIsPlaying] = useState(true);
   const [isMuted, setIsMuted] = useState(false);
+  const [selectedSound, setSelectedSound] = useState<MusicTrack | null>(params.sound ?? null);
+  const [soundSelectOpen, setSoundSelectOpen] = useState(false);
   const [activeTool, setActiveTool] = useState<EditorTool>('none');
   const [drawingMode, setDrawingMode] = useState<'draw' | 'move'>('draw');
   const [drawingColor, setDrawingColor] = useState(PRIMARY_COLOR);
@@ -549,8 +677,17 @@ const EditSubmission: React.FC = () => {
   const [videoDuration, setVideoDuration] = useState(0);
   const [editorCanvasSize, setEditorCanvasSize] = useState({ width: 0, height: 0 });
   const [isRenderingVideo, setIsRenderingVideo] = useState(false);
+  const [selectedSoundReady, setSelectedSoundReady] = useState(false);
+  const [duetPreviewPrepared, setDuetPreviewPrepared] = useState(false);
+  const [duetDownloadProgress, setDuetDownloadProgress] = useState<number | null>(null);
+  const [duetPlaybackIsLocal, setDuetPlaybackIsLocal] = useState(false);
   const loadedPreviewUriRef = React.useRef<string | null>(null);
   const playbackStateRef = React.useRef<boolean | null>(null);
+  const duetDownloadProgressRef = React.useRef(-1);
+  const duetFallbackAttemptedRef = React.useRef(false);
+  const duetLocalUriRef = React.useRef<string | null>(null);
+  const selectedSoundRef = React.useRef<PreviewSound | null>(null);
+  const soundSyncInFlightRef = React.useRef(false);
   const drawingExportRef = useCanvasRef();
   const textExportFont = useFont(Poppins_500Medium, 48);
   const stickerExportFont = useFont(MaterialIcons.font.material, 48);
@@ -558,10 +695,99 @@ const EditSubmission: React.FC = () => {
   const player = useVideoPlayer(null, (instance) => {
     instance.loop = true;
     instance.muted = false;
+    instance.volume = 1;
+    instance.audioMixingMode = 'mixWithOthers';
     instance.keepScreenOnWhilePlaying = false;
     instance.timeUpdateEventInterval = 0.5;
   });
+  const duetSourcePlayer = useVideoPlayer(null, (instance) => {
+    instance.loop = true;
+    instance.muted = false;
+    instance.volume = 1;
+    instance.audioMixingMode = 'mixWithOthers';
+    instance.keepScreenOnWhilePlaying = false;
+    instance.timeUpdateEventInterval = 0.5;
+    instance.preservesPitch = true;
+    instance.bufferOptions = {
+      preferredForwardBufferDuration: Platform.OS === 'ios' ? 45 : 30,
+      minBufferForPlayback: Platform.OS === 'ios' ? 6 : 4,
+      maxBufferBytes: (Platform.OS === 'ios' ? 64 : 48) * 1024 * 1024,
+      prioritizeTimeOverSizeThreshold: true,
+      waitsToMinimizeStalling: true,
+    };
+  });
   const loadedMetadata = useEvent(player, 'sourceLoad');
+  const responsePlayerStatus = useEvent(player, 'statusChange', { status: player.status });
+  const duetSourceStatus = useEvent(duetSourcePlayer, 'statusChange', { status: duetSourcePlayer.status });
+  const duetLayout = params.duetLayout ?? 'side_by_side';
+  const isDuetPreview = Boolean(params.duetSourceVideoId != null && params.duetSourceVideoUrl);
+  const isDuetBuffering = isDuetPreview && !duetPreviewPrepared;
+  const playbackSyncStateRef = React.useRef({
+    isDuetPreview,
+    isFocused,
+    isPlaying,
+    selectedSoundReady,
+  });
+  playbackSyncStateRef.current = {
+    isDuetPreview,
+    isFocused,
+    isPlaying,
+    selectedSoundReady,
+  };
+
+  // Keep synchronization off React's render path. Re-rendering this editor and
+  // its Skia overlays on every native time update visibly drops video frames.
+  useEventListener(player, 'timeUpdate', ({ currentTime }) => {
+    const syncState = playbackSyncStateRef.current;
+
+    if (syncState.isDuetPreview && syncState.isFocused && syncState.isPlaying) {
+      try {
+        const responseTime = Number(currentTime ?? player.currentTime ?? 0);
+        const sourceTime = Number(duetSourcePlayer.currentTime || 0);
+        const drift = sourceTime - responseTime;
+        const absoluteDrift = Math.abs(drift);
+
+        if (absoluteDrift > 1.25) {
+          duetSourcePlayer.playbackRate = 1;
+          duetSourcePlayer.currentTime = responseTime;
+        } else if (absoluteDrift > 0.12) {
+          duetSourcePlayer.playbackRate = drift > 0 ? 0.98 : 1.02;
+        } else if (absoluteDrift < 0.06) {
+          duetSourcePlayer.playbackRate = 1;
+        }
+      } catch {
+        // A navigation transition can release either native player first.
+      }
+    }
+
+    const sound = selectedSoundRef.current;
+    if (
+      !sound
+      || !syncState.selectedSoundReady
+      || !syncState.isFocused
+      || !syncState.isPlaying
+      || soundSyncInFlightRef.current
+    ) return;
+
+    soundSyncInFlightRef.current = true;
+    void (async () => {
+      try {
+        const status = await sound.getStatusAsync();
+        if (!status.isLoaded) return;
+        const durationMillis = status.durationMillis ?? 0;
+        const targetPositionMillis = durationMillis > 0
+          ? Math.max(0, Number(currentTime) * 1000) % durationMillis
+          : Math.max(0, Number(currentTime) * 1000);
+        if (Math.abs(status.positionMillis - targetPositionMillis) > 900) {
+          await sound.setPositionAsync(targetPositionMillis);
+        }
+      } catch {
+        // The next native time update will retry synchronization.
+      } finally {
+        soundSyncInFlightRef.current = false;
+      }
+    })();
+  });
 
   const routeOrientation = video?.orientation ?? null;
   const previewOrientation = routeOrientation ?? 'portrait';
@@ -572,6 +798,139 @@ const EditSubmission: React.FC = () => {
   const drawingBounds = React.useMemo(() => getDrawingBounds(strokes), [strokes]);
   const shouldRenderVideo = Boolean(videoUri && isFocused);
   const nextButtonLabel = isRenderingVideo ? 'Preparing edits' : 'Next';
+
+  React.useEffect(() => {
+    if (!isDuetPreview || !isFocused) return;
+    void Audio.setAudioModeAsync({
+      allowsRecordingIOS: false,
+      playsInSilentModeIOS: true,
+      shouldDuckAndroid: false,
+      playThroughEarpieceAndroid: false,
+    }).catch(() => undefined);
+  }, [isDuetPreview, isFocused]);
+
+  React.useEffect(() => {
+    const sourceUrl = params.duetSourceVideoUrl;
+    if (!isDuetPreview || !sourceUrl) return;
+
+    let cancelled = false;
+    let downloadTask: ReturnType<typeof FileSystem.createDownloadResumable> | null = null;
+    let partialUri: string | null = null;
+    duetFallbackAttemptedRef.current = false;
+    duetLocalUriRef.current = null;
+    duetDownloadProgressRef.current = -1;
+    setDuetDownloadProgress(null);
+    setDuetPlaybackIsLocal(false);
+
+    const remoteSource = {
+      uri: sourceUrl,
+      useCaching: Platform.OS !== 'ios',
+      contentType: /\.m3u8(?:$|[?#])/i.test(sourceUrl) ? ('hls' as const) : ('auto' as const),
+    };
+
+    const prepareDuetSource = async () => {
+      try {
+        // An HLS URL points to a playlist, not a self-contained video file.
+        if (/\.m3u8(?:$|[?#])/i.test(sourceUrl) || !FileSystem.cacheDirectory) {
+          await duetSourcePlayer.replaceAsync(remoteSource);
+          return;
+        }
+
+        const cacheKey = hashDuetSourceUrl(sourceUrl);
+        const extension = getDuetCacheExtension(sourceUrl);
+        const cachedUri = `${FileSystem.cacheDirectory}kulsah-duet-${cacheKey}.${extension}`;
+        partialUri = `${cachedUri}.part`;
+        const cachedFile = await FileSystem.getInfoAsync(cachedUri);
+
+        if (cancelled) return;
+        if (cachedFile.exists && Number(cachedFile.size ?? 0) > 0) {
+          duetLocalUriRef.current = cachedUri;
+          setDuetPlaybackIsLocal(true);
+          setDuetDownloadProgress(100);
+          await duetSourcePlayer.replaceAsync({ uri: cachedUri, contentType: 'auto' });
+          return;
+        }
+
+        await FileSystem.deleteAsync(partialUri, { idempotent: true });
+        const token = useAuthStore.getState().token;
+        downloadTask = FileSystem.createDownloadResumable(
+          sourceUrl,
+          partialUri,
+          { headers: token ? { Authorization: `Bearer ${token}` } : undefined },
+          ({ totalBytesWritten, totalBytesExpectedToWrite }) => {
+            if (cancelled || totalBytesExpectedToWrite <= 0) return;
+            const progress = Math.min(99, Math.round((totalBytesWritten / totalBytesExpectedToWrite) * 100));
+            if (progress === duetDownloadProgressRef.current) return;
+            duetDownloadProgressRef.current = progress;
+            setDuetDownloadProgress(progress);
+          },
+        );
+        const result = await downloadTask.downloadAsync();
+        if (cancelled || !result) return;
+        if (result.status < 200 || result.status >= 300) {
+          throw new Error(`The duet source could not be downloaded (${result.status}).`);
+        }
+
+        await FileSystem.moveAsync({ from: result.uri, to: cachedUri });
+        partialUri = null;
+        if (cancelled) return;
+        duetLocalUriRef.current = cachedUri;
+        setDuetPlaybackIsLocal(true);
+        setDuetDownloadProgress(100);
+        await duetSourcePlayer.replaceAsync({ uri: cachedUri, contentType: 'auto' });
+      } catch {
+        if (cancelled) return;
+        setDuetPlaybackIsLocal(false);
+        setDuetDownloadProgress(null);
+        await duetSourcePlayer.replaceAsync(remoteSource).catch(() => undefined);
+      }
+    };
+
+    void prepareDuetSource();
+
+    return () => {
+      cancelled = true;
+      if (downloadTask) void downloadTask.cancelAsync().catch(() => undefined);
+      if (partialUri) void FileSystem.deleteAsync(partialUri, { idempotent: true }).catch(() => undefined);
+    };
+  }, [duetSourcePlayer, isDuetPreview, params.duetSourceVideoUrl]);
+
+  React.useEffect(() => {
+    const sourceUrl = params.duetSourceVideoUrl;
+    if (
+      !sourceUrl
+      || duetSourceStatus.status !== 'error'
+      || !duetPlaybackIsLocal
+      || duetFallbackAttemptedRef.current
+    ) return;
+
+    duetFallbackAttemptedRef.current = true;
+    const invalidLocalUri = duetLocalUriRef.current;
+    duetLocalUriRef.current = null;
+    setDuetPlaybackIsLocal(false);
+    if (invalidLocalUri) {
+      void FileSystem.deleteAsync(invalidLocalUri, { idempotent: true }).catch(() => undefined);
+    }
+    void duetSourcePlayer.replaceAsync({
+      uri: sourceUrl,
+      useCaching: Platform.OS !== 'ios',
+      contentType: /\.m3u8(?:$|[?#])/i.test(sourceUrl) ? 'hls' : 'auto',
+    }).catch(() => undefined);
+  }, [duetPlaybackIsLocal, duetSourcePlayer, duetSourceStatus.status, params.duetSourceVideoUrl]);
+
+  React.useEffect(() => {
+    setDuetPreviewPrepared(false);
+  }, [params.duetSourceVideoUrl, videoUri]);
+
+  React.useEffect(() => {
+    if (
+      isDuetPreview
+      && duetSourceStatus.status === 'readyToPlay'
+      && responsePlayerStatus.status === 'readyToPlay'
+    ) {
+      setDuetPreviewPrepared(true);
+    }
+  }, [duetSourceStatus.status, isDuetPreview, responsePlayerStatus.status]);
 
   React.useEffect(() => {
     const nextDuration = Number(loadedMetadata?.duration ?? player.duration ?? 0);
@@ -596,8 +955,12 @@ const EditSubmission: React.FC = () => {
     try {
       player.pause();
     } catch {}
+    try {
+      duetSourcePlayer.playbackRate = 1;
+      duetSourcePlayer.pause();
+    } catch {}
     setIsPlaying(false);
-  }, [player]);
+  }, [duetSourcePlayer, player]);
 
   const playPreview = React.useCallback(() => {
     if (!videoUri) return;
@@ -610,21 +973,30 @@ const EditSubmission: React.FC = () => {
         try {
           player.pause();
         } catch {}
+        try {
+          duetSourcePlayer.playbackRate = 1;
+          duetSourcePlayer.pause();
+        } catch {}
         playbackStateRef.current = null;
       };
-    }, [player]),
+    }, [duetSourcePlayer, player]),
   );
 
   React.useEffect(() => {
     let cancelled = false;
-    const shouldPlay = Boolean(videoUri && isFocused && isPlaying);
+    const shouldPlay = Boolean(
+      videoUri
+      && isFocused
+      && isPlaying
+      && (!isDuetPreview || duetPreviewPrepared),
+    );
 
     if (playbackStateRef.current === shouldPlay && loadedPreviewUriRef.current === videoUri) return;
     playbackStateRef.current = shouldPlay;
 
     const syncPlayback = async () => {
       try {
-        if (!videoUri || !shouldPlay) {
+        if (!videoUri) {
           player.pause();
           return;
         }
@@ -635,7 +1007,12 @@ const EditSubmission: React.FC = () => {
           loadedPreviewUriRef.current = videoUri;
         }
 
-        player.muted = isMuted;
+        if (!shouldPlay) {
+          player.pause();
+          return;
+        }
+
+        player.muted = isMuted || Boolean(selectedSound);
         player.play();
       } catch (error: any) {
         if (!cancelled) {
@@ -650,11 +1027,138 @@ const EditSubmission: React.FC = () => {
     return () => {
       cancelled = true;
     };
-  }, [isFocused, isMuted, isPlaying, player, videoUri]);
+  }, [duetPreviewPrepared, isDuetPreview, isFocused, isMuted, isPlaying, player, selectedSound, videoUri]);
 
   React.useEffect(() => {
-    player.muted = isMuted;
-  }, [isMuted, player]);
+    if (!isDuetPreview) return;
+    try {
+      duetSourcePlayer.muted = isMuted;
+      duetSourcePlayer.volume = 1;
+      if (
+        !isFocused
+        || !isPlaying
+        || !duetPreviewPrepared
+        || duetSourceStatus.status !== 'readyToPlay'
+        || responsePlayerStatus.status !== 'readyToPlay'
+      ) {
+        duetSourcePlayer.playbackRate = 1;
+        duetSourcePlayer.pause();
+        return;
+      }
+      duetSourcePlayer.playbackRate = 1;
+      duetSourcePlayer.currentTime = Number(player.currentTime || 0);
+      duetSourcePlayer.play();
+    } catch {
+      // The source player can be released while navigating away from the editor.
+    }
+  }, [duetPreviewPrepared, duetSourcePlayer, duetSourceStatus.status, isDuetPreview, isFocused, isMuted, isPlaying, player, responsePlayerStatus.status]);
+
+  React.useEffect(() => {
+    player.muted = isMuted || Boolean(selectedSound);
+  }, [isMuted, player, selectedSound]);
+
+  React.useEffect(() => {
+    let cancelled = false;
+    let loadedSound: PreviewSound | null = null;
+    let downloadedSoundUri: string | null = null;
+    const streamUrl = selectedSound?.stream_url;
+
+    setSelectedSoundReady(false);
+
+    const loadSelectedSound = async () => {
+      if (!streamUrl) return;
+
+      try {
+        if (!FileSystem.cacheDirectory) throw new Error('Audio preview cache is unavailable on this device.');
+        await Audio.setAudioModeAsync({ playsInSilentModeIOS: true, shouldDuckAndroid: true });
+        const token = useAuthStore.getState().token;
+        const safeTrackId = String(selectedSound?.id ?? 'selected').replace(/[^a-z0-9_-]/gi, '-');
+        const previewUri = `${FileSystem.cacheDirectory}kulsah-preview-music-${safeTrackId}-${Date.now()}.mp3`;
+        const download = await FileSystem.downloadAsync(streamUrl, previewUri, {
+          headers: token ? { Authorization: `Bearer ${token}` } : undefined,
+        });
+        if (download.status < 200 || download.status >= 300) {
+          throw new Error(`The selected sound could not be downloaded (${download.status}).`);
+        }
+        downloadedSoundUri = download.uri;
+        const result = await Audio.Sound.createAsync(
+          { uri: download.uri },
+          { shouldPlay: false, isLooping: true, volume: SELECTED_MUSIC_VOLUME },
+        );
+        loadedSound = result.sound;
+
+        if (cancelled) {
+          await loadedSound.unloadAsync();
+          if (downloadedSoundUri) {
+            await FileSystem.deleteAsync(downloadedSoundUri, { idempotent: true }).catch(() => undefined);
+          }
+          return;
+        }
+
+        selectedSoundRef.current = loadedSound;
+        setSelectedSoundReady(true);
+      } catch (error: any) {
+        if (!cancelled) {
+          Alert.alert('Sound preview unavailable', error?.message || 'We could not play the selected sound.');
+        }
+      }
+    };
+
+    void loadSelectedSound();
+
+    return () => {
+      cancelled = true;
+      setSelectedSoundReady(false);
+      if (selectedSoundRef.current === loadedSound) selectedSoundRef.current = null;
+      if (loadedSound) void loadedSound.unloadAsync().catch(() => undefined);
+      if (downloadedSoundUri) {
+        void FileSystem.deleteAsync(downloadedSoundUri, { idempotent: true }).catch(() => undefined);
+      }
+    };
+  }, [selectedSound?.id, selectedSound?.stream_url]);
+
+  React.useEffect(() => {
+    const syncSelectedSoundPlayback = async () => {
+      const sound = selectedSoundRef.current;
+      if (!sound || !selectedSoundReady) return;
+
+      try {
+        const status = await sound.getStatusAsync();
+        if (!status.isLoaded) return;
+
+        await sound.setIsMutedAsync(isMuted);
+        await sound.setVolumeAsync(SELECTED_MUSIC_VOLUME);
+        const shouldPlay = Boolean(videoUri && isFocused && isPlaying);
+
+        if (!shouldPlay) {
+          if (status.isPlaying) await sound.pauseAsync();
+          return;
+        }
+
+        const durationMillis = status.durationMillis ?? 0;
+        const videoPositionMillis = Math.max(0, Number(player.currentTime || 0) * 1000);
+        const targetPositionMillis = durationMillis > 0 ? videoPositionMillis % durationMillis : videoPositionMillis;
+        await sound.setPositionAsync(targetPositionMillis);
+        await sound.playAsync();
+      } catch {
+        // Keep the video preview usable if the audio stream is interrupted.
+      }
+    };
+
+    void syncSelectedSoundPlayback();
+  }, [isFocused, isMuted, isPlaying, player, selectedSoundReady, videoUri]);
+
+  const removeSelectedSound = React.useCallback(() => {
+    setSelectedSound(null);
+    setIsMuted(false);
+    navigation.setParams?.({ sound: null });
+  }, [navigation]);
+
+  const selectSound = React.useCallback((track: MusicTrack) => {
+    setSelectedSound(track);
+    setIsMuted(false);
+    navigation.setParams?.({ sound: track });
+  }, [navigation]);
 
   const drawingResponder = React.useMemo(
     () =>
@@ -733,6 +1237,52 @@ const EditSubmission: React.FC = () => {
     });
   }, [videoPreviewBounds.bottom, videoPreviewBounds.left, videoPreviewBounds.right, videoPreviewBounds.top]);
 
+  const scaleDrawing = React.useCallback((factor: number) => {
+    if (!Number.isFinite(factor) || factor <= 0) return;
+    setStrokes((current) => {
+      const bounds = getDrawingBounds(current);
+      if (!bounds) return current;
+      const width = Math.max(1, bounds.right - bounds.left);
+      const height = Math.max(1, bounds.bottom - bounds.top);
+      const availableWidth = Math.max(1, videoPreviewBounds.right - videoPreviewBounds.left);
+      const availableHeight = Math.max(1, videoPreviewBounds.bottom - videoPreviewBounds.top);
+      const currentSpan = Math.max(width, height);
+      const appliedFactor = Math.max(
+        Math.min(1, 24 / currentSpan),
+        Math.min(2, availableWidth / width, availableHeight / height, factor),
+      );
+      const centerX = (bounds.left + bounds.right) / 2;
+      const centerY = (bounds.top + bounds.bottom) / 2;
+      let scaled = current.map((stroke) => ({
+        ...stroke,
+        width: Math.max(1, Math.min(40, stroke.width * appliedFactor)),
+        points: stroke.points.map((point) => ({
+          x: centerX + (point.x - centerX) * appliedFactor,
+          y: centerY + (point.y - centerY) * appliedFactor,
+        })),
+      }));
+      const scaledBounds = getDrawingBounds(scaled);
+      if (!scaledBounds) return current;
+      const shiftX = scaledBounds.left < videoPreviewBounds.left
+        ? videoPreviewBounds.left - scaledBounds.left
+        : scaledBounds.right > videoPreviewBounds.right
+          ? videoPreviewBounds.right - scaledBounds.right
+          : 0;
+      const shiftY = scaledBounds.top < videoPreviewBounds.top
+        ? videoPreviewBounds.top - scaledBounds.top
+        : scaledBounds.bottom > videoPreviewBounds.bottom
+          ? videoPreviewBounds.bottom - scaledBounds.bottom
+          : 0;
+      if (shiftX !== 0 || shiftY !== 0) {
+        scaled = scaled.map((stroke) => ({
+          ...stroke,
+          points: stroke.points.map((point) => ({ x: point.x + shiftX, y: point.y + shiftY })),
+        }));
+      }
+      return scaled;
+    });
+  }, [videoPreviewBounds.bottom, videoPreviewBounds.left, videoPreviewBounds.right, videoPreviewBounds.top]);
+
   const moveTextSticker = React.useCallback((id: string, deltaX: number, deltaY: number) => {
     setTextStickers((current) =>
       current.map((sticker) => {
@@ -747,15 +1297,61 @@ const EditSubmission: React.FC = () => {
     );
   }, [videoPreviewBounds.bottom, videoPreviewBounds.left, videoPreviewBounds.right, videoPreviewBounds.top]);
 
+  const scaleTextSticker = React.useCallback((id: string, factor: number) => {
+    if (!Number.isFinite(factor) || factor <= 0) return;
+    setTextStickers((current) => current.map((sticker) => {
+      if (sticker.id !== id) return sticker;
+      const oldLayout = getTextStickerLayout(sticker);
+      const availableWidth = Math.max(1, videoPreviewBounds.right - videoPreviewBounds.left);
+      const availableHeight = Math.max(1, videoPreviewBounds.bottom - videoPreviewBounds.top);
+      let fontSize = Math.max(24, Math.min(180, sticker.fontSize * factor));
+      let nextSticker = { ...sticker, fontSize };
+      let nextLayout = getTextStickerLayout(nextSticker);
+      if (nextLayout.width > availableWidth || nextLayout.height > availableHeight) {
+        const fitFactor = Math.min(availableWidth / nextLayout.width, availableHeight / nextLayout.height);
+        fontSize = Math.max(24, fontSize * fitFactor);
+        nextSticker = { ...sticker, fontSize };
+        nextLayout = getTextStickerLayout(nextSticker);
+      }
+      const centeredX = sticker.x + (oldLayout.width - nextLayout.width) / 2;
+      const centeredY = sticker.y + (oldLayout.height - nextLayout.height) / 2;
+      return {
+        ...nextSticker,
+        x: Math.max(videoPreviewBounds.left, Math.min(videoPreviewBounds.right - nextLayout.width, centeredX)),
+        y: Math.max(videoPreviewBounds.top, Math.min(videoPreviewBounds.bottom - nextLayout.height, centeredY)),
+      };
+    }));
+  }, [videoPreviewBounds.bottom, videoPreviewBounds.left, videoPreviewBounds.right, videoPreviewBounds.top]);
+
   const moveTimelineSticker = React.useCallback((id: string, deltaX: number, deltaY: number) => {
     setTimelineStickers((current) => current.map((sticker) => sticker.id === id
       ? {
           ...sticker,
-          x: Math.max(0, Math.min(Math.max(0, editorCanvasSize.width - 58), sticker.x + deltaX)),
-          y: Math.max(0, Math.min(Math.max(0, editorCanvasSize.height - 58), sticker.y + deltaY)),
+          x: Math.max(videoPreviewBounds.left, Math.min(videoPreviewBounds.right - sticker.size, sticker.x + deltaX)),
+          y: Math.max(videoPreviewBounds.top, Math.min(videoPreviewBounds.bottom - sticker.size, sticker.y + deltaY)),
         }
       : sticker));
-  }, [editorCanvasSize.height, editorCanvasSize.width]);
+  }, [videoPreviewBounds.bottom, videoPreviewBounds.left, videoPreviewBounds.right, videoPreviewBounds.top]);
+
+  const scaleTimelineSticker = React.useCallback((id: string, factor: number) => {
+    if (!Number.isFinite(factor) || factor <= 0) return;
+    setTimelineStickers((current) => current.map((sticker) => {
+      if (sticker.id !== id) return sticker;
+      const availableSize = Math.max(1, Math.min(
+        videoPreviewBounds.right - videoPreviewBounds.left,
+        videoPreviewBounds.bottom - videoPreviewBounds.top,
+      ));
+      const size = Math.max(28, Math.min(availableSize, sticker.size * factor));
+      const centeredX = sticker.x + (sticker.size - size) / 2;
+      const centeredY = sticker.y + (sticker.size - size) / 2;
+      return {
+        ...sticker,
+        size,
+        x: Math.max(videoPreviewBounds.left, Math.min(videoPreviewBounds.right - size, centeredX)),
+        y: Math.max(videoPreviewBounds.top, Math.min(videoPreviewBounds.bottom - size, centeredY)),
+      };
+    }));
+  }, [videoPreviewBounds.bottom, videoPreviewBounds.left, videoPreviewBounds.right, videoPreviewBounds.top]);
 
   const moveImageOverlay = React.useCallback((id: string, deltaX: number, deltaY: number) => {
     setImageOverlays((current) => current.map((overlay) => overlay.id === id
@@ -765,6 +1361,31 @@ const EditSubmission: React.FC = () => {
           y: Math.max(videoPreviewBounds.top, Math.min(videoPreviewBounds.bottom - overlay.height, overlay.y + deltaY)),
         }
       : overlay));
+  }, [videoPreviewBounds.bottom, videoPreviewBounds.left, videoPreviewBounds.right, videoPreviewBounds.top]);
+
+  const scaleImageOverlay = React.useCallback((id: string, factor: number) => {
+    if (!Number.isFinite(factor) || factor <= 0) return;
+    setImageOverlays((current) => current.map((overlay) => {
+      if (overlay.id !== id) return overlay;
+      const availableWidth = Math.max(1, videoPreviewBounds.right - videoPreviewBounds.left);
+      const availableHeight = Math.max(1, videoPreviewBounds.bottom - videoPreviewBounds.top);
+      const minFactor = Math.min(1, 48 / Math.max(overlay.width, overlay.height));
+      const appliedFactor = Math.max(
+        minFactor,
+        Math.min(2, availableWidth / overlay.width, availableHeight / overlay.height, factor),
+      );
+      const width = overlay.width * appliedFactor;
+      const height = overlay.height * appliedFactor;
+      const centeredX = overlay.x + (overlay.width - width) / 2;
+      const centeredY = overlay.y + (overlay.height - height) / 2;
+      return {
+        ...overlay,
+        width,
+        height,
+        x: Math.max(videoPreviewBounds.left, Math.min(videoPreviewBounds.right - width, centeredX)),
+        y: Math.max(videoPreviewBounds.top, Math.min(videoPreviewBounds.bottom - height, centeredY)),
+      };
+    }));
   }, [videoPreviewBounds.bottom, videoPreviewBounds.left, videoPreviewBounds.right, videoPreviewBounds.top]);
 
   const editTextSticker = React.useCallback(
@@ -878,6 +1499,7 @@ const EditSubmission: React.FC = () => {
         icon: preset.icon,
         x: Math.max(24, editorCanvasSize.width / 2 - 28),
         y: Math.max(100, editorCanvasSize.height / 2 - 28),
+        size: 58,
         start: 0,
         end: overlayEnd,
       },
@@ -1016,8 +1638,8 @@ const EditSubmission: React.FC = () => {
     if (!typeface) throw new Error('The sticker font is not ready.');
 
     return Promise.all(stickers.map(async (sticker, index) => {
-      const size = 58;
-      const font = Skia.Font(typeface, 48);
+      const size = Math.max(28, Math.round(sticker.size));
+      const font = Skia.Font(typeface, size * (48 / 58));
       const glyph = String.fromCodePoint(Number(MaterialIcons.glyphMap[sticker.icon]));
       const bounds = font.measureText(glyph);
       const metrics = font.getMetrics();
@@ -1112,7 +1734,7 @@ const EditSubmission: React.FC = () => {
         width: overlay.sourceWidth,
         height: overlay.sourceHeight,
       }));
-      const musicAssets = await exportMusicAsset(params.sound);
+      const musicAssets = await exportMusicAsset(selectedSound);
       const generatedAssets = [...textAssets, ...stickerAssets, ...drawingAssets, ...imageAssets, ...musicAssets];
       const assetFiles = generatedAssets.map((asset) => asset.file);
       const durationBoundStrokes = fullVideoDuration > 0
@@ -1128,7 +1750,7 @@ const EditSubmission: React.FC = () => {
         ? imageOverlays.map((overlay) => ({ ...overlay, start: 0, end: fullVideoDuration }))
         : imageOverlays;
 
-      if (hasVideoOverlays(strokes, textStickers) || timelineStickers.length > 0 || imageOverlays.length > 0 || params.sound || trimEnabled) {
+      if (hasVideoOverlays(strokes, textStickers) || timelineStickers.length > 0 || imageOverlays.length > 0 || selectedSound || trimEnabled) {
         editPayload = createCreatorVideoEditsPayload({
           orientation: previewOrientation,
           canvasSize: editorCanvasSize,
@@ -1136,11 +1758,11 @@ const EditSubmission: React.FC = () => {
           textStickers: durationBoundText,
           stickers: durationBoundStickers,
           imageOverlays: durationBoundImages,
-          audioTrack: params.sound && musicAssets[0]
+          audioTrack: selectedSound && musicAssets[0]
             ? {
-                id: `music-${params.sound.id}`,
-                duration: Math.max(0.1, fullVideoDuration || params.sound.duration || 5),
-                volume: 1,
+                id: `music-${selectedSound.id}`,
+                duration: Math.max(0.1, fullVideoDuration || selectedSound.duration || 5),
+                volume: SELECTED_MUSIC_VOLUME,
               }
             : null,
           trim: trimEnabled
@@ -1165,8 +1787,10 @@ const EditSubmission: React.FC = () => {
         autoStartUpload: uploadedVideoId == null,
         uploadToExistingDraft: params.uploadToExistingDraft,
         duetSourceVideoId: params.duetSourceVideoId,
+        duetSourceVideoUrl: params.duetSourceVideoUrl,
+        duetLayout: params.duetLayout,
         editPayload,
-        sound: params.sound ?? null,
+        sound: selectedSound,
         orientation: previewOrientation,
         challengeId: params.challengeId,
         purpose: params.purpose,
@@ -1192,12 +1816,59 @@ const EditSubmission: React.FC = () => {
       >
         {videoUri ? (
           shouldRenderVideo ? (
-            <VideoView
-              player={player}
-              nativeControls={false}
-              contentFit={isLandscapePreview ? 'contain' : 'cover'}
-              style={[styles.videoBackground, isLandscapePreview && styles.landscapeVideoBackground]}
-            />
+            isDuetPreview ? (
+              <View style={[
+                styles.duetPreviewStage,
+                duetLayout === 'side_by_side' && styles.duetPreviewSideBySide,
+                duetLayout === 'stacked' && styles.duetPreviewStacked,
+              ]}>
+                <View style={[
+                  styles.duetPreviewPanel,
+                  duetLayout === 'side_by_side' && styles.duetPreviewPanelSideBySide,
+                  duetLayout === 'stacked' && styles.duetPreviewPanelStacked,
+                  duetLayout === 'picture_in_picture' && styles.duetPreviewSourcePip,
+                ]}>
+                  <VideoView
+                    player={duetSourcePlayer}
+                    nativeControls={false}
+                    contentFit={duetLayout === 'side_by_side' ? 'contain' : 'cover'}
+                    surfaceType={duetLayout === 'picture_in_picture' ? 'textureView' : 'surfaceView'}
+                    style={StyleSheet.absoluteFill}
+                  />
+                </View>
+                <View style={[
+                  styles.duetPreviewPanel,
+                  duetLayout === 'side_by_side' && styles.duetPreviewPanelSideBySide,
+                  duetLayout === 'stacked' && styles.duetPreviewPanelStacked,
+                  duetLayout === 'picture_in_picture' && styles.duetPreviewResponsePip,
+                ]}>
+                  <VideoView
+                    player={player}
+                    nativeControls={false}
+                    contentFit={duetLayout === 'side_by_side' ? 'contain' : 'cover'}
+                    surfaceType={duetLayout === 'picture_in_picture' ? 'textureView' : 'surfaceView'}
+                    style={StyleSheet.absoluteFill}
+                  />
+                </View>
+                {isDuetBuffering ? (
+                  <View pointerEvents="none" style={styles.duetPreviewLoader}>
+                    <ActivityIndicator size="small" color={PRIMARY_COLOR} />
+                    <Text style={styles.duetPreviewLoaderText}>
+                      {duetDownloadProgress != null && duetDownloadProgress < 100
+                        ? `Preparing duet preview ${duetDownloadProgress}%`
+                        : 'Preparing duet preview'}
+                    </Text>
+                  </View>
+                ) : null}
+              </View>
+            ) : (
+              <VideoView
+                player={player}
+                nativeControls={false}
+                contentFit={isLandscapePreview ? 'contain' : 'cover'}
+                style={[styles.videoBackground, isLandscapePreview && styles.landscapeVideoBackground]}
+              />
+            )
           ) : (
             <View style={styles.previewPlaceholder}>
               <MaterialIcons name="play-circle-outline" size={64} color="rgba(255,255,255,0.72)" />
@@ -1222,6 +1893,14 @@ const EditSubmission: React.FC = () => {
             </Pressable>
             {/* <Text style={styles.headerTitle}>Edit Submission</Text> */}
           </View>
+          {!isDuetPreview ? (
+            <Pressable style={styles.headerSoundButton} onPress={() => setSoundSelectOpen(true)}>
+              <MaterialIcons name="music-note" size={18} color={PRIMARY_COLOR} />
+              <Text style={styles.headerSoundButtonText} numberOfLines={1}>
+                {selectedSound?.title ?? 'Add sound'}
+              </Text>
+            </Pressable>
+          ) : null}
         </View>
 
         <Pressable style={styles.videoTapLayer} onPress={handleTogglePlayback}>
@@ -1271,6 +1950,7 @@ const EditSubmission: React.FC = () => {
               editable={activeTool === 'none' || (activeTool === 'draw' && drawingMode === 'move')}
               highlighted={activeTool === 'draw' && drawingMode === 'move'}
               onMove={moveDrawing}
+              onScale={scaleDrawing}
             />
           ) : null}
           {textStickers.map((sticker) => (
@@ -1280,6 +1960,7 @@ const EditSubmission: React.FC = () => {
               editable={activeTool === 'text' || activeTool === 'none'}
               highlighted={activeTool === 'text'}
               onMove={moveTextSticker}
+              onScale={scaleTextSticker}
               onPress={editTextSticker}
             />
           ))}
@@ -1287,8 +1968,9 @@ const EditSubmission: React.FC = () => {
             <DraggableTimelineSticker
               key={sticker.id}
               sticker={sticker}
-              editable={activeTool === 'sticker'}
+              editable={activeTool === 'sticker' || activeTool === 'none'}
               onMove={moveTimelineSticker}
+              onScale={scaleTimelineSticker}
               onRemove={(id) => setTimelineStickers((current) => current.filter((item) => item.id !== id))}
             />
           ))}
@@ -1299,6 +1981,7 @@ const EditSubmission: React.FC = () => {
               editable={activeTool === 'image' || activeTool === 'none'}
               highlighted={activeTool === 'image'}
               onMove={moveImageOverlay}
+              onScale={scaleImageOverlay}
               onRemove={(id) => setImageOverlays((current) => current.filter((item) => item.id !== id))}
             />
           ))}
@@ -1549,10 +2232,19 @@ const EditSubmission: React.FC = () => {
                 <Pressable style={styles.doneButton} onPress={() => { setTrimEnabled(true); setActiveTool('none'); }}><Text style={styles.doneButtonText}>Apply trim</Text></Pressable>
               </View>
             </View>
-          ) : params.sound?.title ? (
+          ) : selectedSound?.title ? (
             <View style={styles.soundPill}>
               <MaterialIcons name="music-note" size={16} color={PRIMARY_COLOR} />
-              <Text style={styles.soundPillText} numberOfLines={1}>{params.sound.title}</Text>
+              <Text style={styles.soundPillText} numberOfLines={1}>{selectedSound.title}</Text>
+              <Pressable
+                accessibilityRole="button"
+                accessibilityLabel="Remove background music"
+                hitSlop={8}
+                onPress={removeSelectedSound}
+                style={styles.soundPillClose}
+              >
+                <MaterialIcons name="close" size={16} color="#fff" />
+              </Pressable>
             </View>
           ) : null}
 
@@ -1589,6 +2281,21 @@ const EditSubmission: React.FC = () => {
           </View>
         </View>
       </KeyboardAvoidingView>
+      <Modal
+        visible={soundSelectOpen}
+        transparent
+        animationType="slide"
+        statusBarTranslucent
+        onRequestClose={() => setSoundSelectOpen(false)}
+      >
+        <Pressable style={styles.soundModalBackdrop} onPress={() => setSoundSelectOpen(false)} />
+        <VoteSheetContent
+          sheetMode
+          selectedTrackId={selectedSound?.id}
+          onSelect={selectSound}
+          onClose={() => setSoundSelectOpen(false)}
+        />
+      </Modal>
     </SafeAreaView>
   );
 };
@@ -1605,6 +2312,65 @@ const styles = StyleSheet.create({
     ...StyleSheet.absoluteFillObject,
     width: '100%',
     height: '100%',
+  },
+  duetPreviewStage: {
+    ...StyleSheet.absoluteFillObject,
+    overflow: 'hidden',
+    backgroundColor: '#000',
+  },
+  duetPreviewSideBySide: {
+    flexDirection: 'row',
+  },
+  duetPreviewStacked: {
+    flexDirection: 'column',
+  },
+  duetPreviewPanel: {
+    flex: 1,
+    overflow: 'hidden',
+    backgroundColor: '#000',
+  },
+  duetPreviewPanelSideBySide: {
+    flex: 0,
+    width: '50%',
+    height: '100%',
+  },
+  duetPreviewPanelStacked: {
+    flex: 0,
+    width: '100%',
+    height: '50%',
+  },
+  duetPreviewSourcePip: {
+    ...StyleSheet.absoluteFillObject,
+  },
+  duetPreviewResponsePip: {
+    position: 'absolute',
+    right: 18,
+    bottom: 180,
+    width: '36%',
+    height: '28%',
+    borderRadius: 18,
+    overflow: 'hidden',
+    zIndex: 2,
+    elevation: 8,
+  },
+  duetPreviewLoader: {
+    position: 'absolute',
+    top: 108,
+    alignSelf: 'center',
+    zIndex: 5,
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
+    gap: 8,
+    paddingHorizontal: 14,
+    paddingVertical: 9,
+    borderRadius: 999,
+    backgroundColor: 'rgba(0,0,0,0.76)',
+  },
+  duetPreviewLoaderText: {
+    color: '#fff',
+    ...fontSize.b5,
+    lineHeight: fontSize.b5.lineHeight,
   },
   landscapeVideoBackground: {
     backgroundColor: '#000',
@@ -1654,6 +2420,25 @@ const styles = StyleSheet.create({
     backgroundColor: 'rgba(0,0,0,0.36)',
     borderWidth: 1,
     borderColor: 'rgba(255,255,255,0.12)',
+  },
+  headerSoundButton: {
+    maxWidth: '68%',
+    minHeight: 40,
+    paddingHorizontal: 14,
+    borderRadius: 20,
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 7,
+    backgroundColor: 'rgba(0,0,0,0.5)',
+    borderWidth: 1,
+    borderColor: 'rgba(255,255,255,0.14)',
+  },
+  headerSoundButtonText: {
+    flexShrink: 1,
+    color: '#fff',
+    ...fontSize.b5,
+    lineHeight: fontSize.b5.lineHeight,
+    fontWeight: '700',
   },
   headerTitle: {
     color: '#fff',
@@ -1767,9 +2552,23 @@ const styles = StyleSheet.create({
     backgroundColor: primaryColorAlpha(0.16),
   },
   soundPillText: {
+    flexShrink: 1,
     color: '#fff',
     ...fontSize.b5,
     lineHeight: fontSize.b5.lineHeight,
+  },
+  soundPillClose: {
+    width: 24,
+    height: 24,
+    marginRight: -4,
+    borderRadius: 12,
+    alignItems: 'center',
+    justifyContent: 'center',
+    backgroundColor: 'rgba(255,255,255,0.14)',
+  },
+  soundModalBackdrop: {
+    ...StyleSheet.absoluteFillObject,
+    backgroundColor: 'rgba(10,5,13,0.48)',
   },
   bottomNextButton: {
     minWidth: 76,

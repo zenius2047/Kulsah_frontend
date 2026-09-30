@@ -41,8 +41,8 @@ const VIBES: Vibe[] = [
 ];
 
 const VibePicker: React.FC = () => {
-  const navigation = useNavigation<any>();
-  const route = useRoute<any>();
+  const navigation = useNavigation();
+  const route = useRoute();
   const insets = useSafeAreaInsets();
   const { width } = useWindowDimensions();
   const { isDark, theme } = useThemeMode();
@@ -57,7 +57,7 @@ const VibePicker: React.FC = () => {
   const cardBorder = isDark ? 'rgba(255,255,255,0.06)' : theme.border;
   const cardBackground = isDark ? 'rgba(255,255,255,0.04)' : 'rgba(255,255,255,0.94)';
   const footerBase = isDark ? '#060913' : theme.background;
-  const isFirstSignIn = route.name === '/vibe-picker';
+  const isFirstSignIn = route.params?.firstSignIn === true;
 
   const toggleVibe = (id: string) => {
     setSelected((prev) => {

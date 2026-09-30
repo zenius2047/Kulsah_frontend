@@ -6,7 +6,7 @@ import { useNavigation } from '@react-navigation/native';
 
 const FanPremium: React.FC = () => {
   const { isDark, theme } = useThemeMode();
-  const navigation = useNavigation<any>();
+  const navigation = useNavigation();
 
   const premiums = [
     { name: 'Elena Rose', contentCount: 42, newCount: 3, img: 'https://picsum.photos/seed/elena/200', lastUpdate: '2h ago' },
@@ -43,7 +43,7 @@ const FanPremium: React.FC = () => {
           {premiums.map((prem) => (
             <Pressable 
               key={prem.name}
-              onPress={() => navigation.navigate('/premium')}
+              onPress={() => navigation.navigate('Premium')}
              
             >
               <View>

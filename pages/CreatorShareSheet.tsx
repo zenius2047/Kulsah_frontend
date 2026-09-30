@@ -40,6 +40,7 @@ type ShareAction = {
 type CreatorShareSheetProps = {
   visible: boolean;
   onClose: () => void;
+  onShare?: () => void;
   onAction?: (actionId: ShareAction['id']) => void;
   disabledActions?: ShareAction['id'][];
 };
@@ -72,6 +73,7 @@ const shareActions: ShareAction[] = [
 const CreatorShareSheet: React.FC<CreatorShareSheetProps> = ({
   visible,
   onClose,
+  onShare,
   onAction,
   disabledActions = [],
 }) => {
@@ -123,7 +125,7 @@ const CreatorShareSheet: React.FC<CreatorShareSheetProps> = ({
 
               <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={styles.friendsRow}>
                 {shareFriends.map((friend) => (
-                  <Pressable key={friend.id} style={styles.friendCard}>
+                  <Pressable key={friend.id} onPress={onShare} style={styles.friendCard}>
                     <View style={styles.friendAvatarWrap}>
                       <View style={styles.friendGradientRing}>
                         <Image source={{ uri: friend.avatar }} style={styles.friendAvatar} />
@@ -143,7 +145,7 @@ const CreatorShareSheet: React.FC<CreatorShareSheetProps> = ({
 
               <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={styles.platformRow}>
                 {sharePlatforms.map((platform) => (
-                  <Pressable key={platform.id} style={styles.platformCard}>
+                  <Pressable key={platform.id} onPress={onShare} style={styles.platformCard}>
                     <View
                       style={[
                         styles.platformIconWrap,

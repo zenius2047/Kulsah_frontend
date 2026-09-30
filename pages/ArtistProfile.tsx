@@ -242,7 +242,7 @@ const initialLibraryVideos: LibraryVideo[] = [
 const  ArtistProfile: React.FC = () => {
   const { isDark, theme } = useThemeMode();
   const { width } = useWindowDimensions();
-  const navigation = useNavigation<any>();
+  const navigation = useNavigation();
   const { data: latestFanTicket, isLoading: isTicketLoading } = useLatestFanTicket();
   const tickets = useMemo(() => latestFanTicket ? [{
     id: String(latestFanTicket.ticket.id),
@@ -261,7 +261,7 @@ const  ArtistProfile: React.FC = () => {
   const gridGap = isTablet ? 5 : 1;
   const gridHorizontalPadding = isTablet ? 15 : 3;
   const gridItemWidth = `${99.8 / gridColumns}%` as const;
-  const route = useRoute<any>();
+  const route = useRoute();
   const creatorIdentifier = route.params?.creatorId ?? route.params?.id;
   const publicSubscriptionPlansQuery = usePublicCreatorSubscriptionPlans(
     route.params?.isOwner ? undefined : creatorIdentifier,
@@ -772,7 +772,7 @@ const musicReleases = [
 
 
 const PlaylistSection = () => {
-  const navigation = useNavigation<any>();
+  const navigation = useNavigation();
   const { isDark, theme } = useThemeMode();
   const isSubscribed = false;
   const [openingPlaylistId, setOpeningPlaylistId] = useState<number | null>(null);
@@ -1790,7 +1790,7 @@ const PlaylistSection = () => {
             {canShowSubscriberStat ? (
               <>
                 <View style={s.sep} />
-                <Pressable style={s.statBlock} onPress={() => isOwner && navigation.navigate('/subscribers')}>
+                <Pressable style={s.statBlock} onPress={() => isOwner && navigation.navigate('Subscribers')}>
                   <Text style={[s.statValue, {color: theme.text}]}>{formatProfileCount(subscriberCount)}</Text>
                   <Text style={[s.statLabel, {color: theme.text}]}>Subscribers</Text>
                 </Pressable>

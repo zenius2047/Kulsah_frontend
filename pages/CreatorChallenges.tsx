@@ -194,7 +194,7 @@ export const CREATOR_CHALLENGE_UPDATE_COUNT =
   CHALLENGES.length + SUBMISSIONS.length + DRAFTS.length + INVITES.length;
 
 const CreatorChallenges: React.FC = () => {
-  const navigation = useNavigation<any>();
+  const navigation = useNavigation();
   const { width: screenWidth } = useWindowDimensions();
   const { isDark, theme } = useThemeMode();
   const [activeTab, setActiveTab] = useState<Tab>('challenges');

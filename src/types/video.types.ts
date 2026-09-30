@@ -1,5 +1,6 @@
 export type VideoVisibility = 'public' | 'premium';
 export type VideoDisplayOrientation = 'portrait' | 'landscape';
+export type DuetLayout = 'side_by_side' | 'stacked' | 'picture_in_picture';
 export type VideoContentType = 'music' | 'dance' | 'comedy' | 'tutorial' | 'lifestyle' | 'behind_the_scenes';
 export type VideoPurpose = 'post_video' | 'challenge_video' | 'challenge_instruction_video' | 'challenge_entry' | 'message_video' | 'other';
 
@@ -150,6 +151,9 @@ export type UpdateCreatorVideoPayload = {
   content_type?: Array<VideoContentType | string> | string;
   visibility?: VideoVisibility;
   allow_duet?: boolean;
+  duet_layout?: DuetLayout;
+  duet_source_audio?: boolean;
+  duet_response_audio?: boolean;
   music?: import('./music.types').MusicSelectionPayload | null;
 };
 
@@ -166,6 +170,7 @@ export type CreatorVideo = {
   allowDuet?: boolean;
   isDuet?: boolean;
   duetSourceVideoId?: string | number | null;
+  duetLayout?: DuetLayout | null;
   is_premium?: boolean;
   cdn_url?: string | null;
   stream_url?: string | null;

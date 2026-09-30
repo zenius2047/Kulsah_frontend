@@ -3,7 +3,7 @@ import { useThemeMode, PRIMARY_COLOR } from "../theme";
 import { View, Text, Pressable, Image, TextInput } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
 
-import { GoogleGenAI } from "@google/genai";
+import { aiApi } from '../src';
 
 interface Track {
   id: string;
@@ -23,7 +23,7 @@ const INITIAL_QUEUE: Track[] = [
 
 const NowPlaying: React.FC = () => {
   const { isDark, theme } = useThemeMode();
-  const navigation = useNavigation<any>();
+  const navigation = useNavigation();
   const audioRef = useRef<HTMLAudioElement>(null);
   const [isQueueOpen, setIsQueueOpen] = useState(false);
   const [currentTrack, setCurrentTrack] = useState<Track>(INITIAL_QUEUE[0]);
@@ -103,10 +103,10 @@ const NowPlaying: React.FC = () => {
   const runAiSonicAudit = async () => {
     setIsAiLoading(true);
     try {
-      const ai = new GoogleGenAI({ apiKey: process.env.API_KEY });
-      const response = await ai.models.generateContent({
-        model: 'gemini-3-flash-preview',
-        contents: `Analyze the sonic profile of "${currentTrack.title}" by ${currentTrack.artist}. It's in the ${currentTrack.album} album. Give a 1-sentence poetic audit focusing on soundscapes and emotional resonance.`,
+      const response = await aiApi.generate('sonic_audit', {
+        title: currentTrack.title,
+        artist: currentTrack.artist,
+        album: currentTrack.album,
       });
       setAiAudit(response.text || "A cascading arrangement of lush pads and driving percussion.");
     } catch (e) {

@@ -28,7 +28,10 @@ export const authApi = {
     api.post(endpoints.auth.forgotPassword, payload),
   resetPassword: (payload: ResetPasswordPayload) =>
     api.post(endpoints.auth.resetPassword, payload),
-  logout: (token?: string) => api.post(endpoints.auth.logout, {}, authHeaderConfig(token)),
+  logout: (token?: string, refreshToken?: string) =>
+    api.post(endpoints.auth.logout, { refresh_token: refreshToken }, authHeaderConfig(token)),
+  logoutAll: () => api.post(endpoints.auth.logoutAll),
+  refresh: (refreshToken: string) => api.post(endpoints.auth.refresh, {}, authHeaderConfig(refreshToken)),
   updateVibe: (payload: UpdateVibePayload) => api.post(endpoints.auth.updateVibe, payload),
   switchRole: (payload: SwitchRolePayload, token?: string) =>
     api.post(endpoints.auth.switchRole, payload, authHeaderConfig(token)),

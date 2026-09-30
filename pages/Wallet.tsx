@@ -45,7 +45,7 @@ const money = (value: unknown, currency = 'GHS') => {
 
 const Wallet: React.FC = () => {
   const { isDark, theme } = useThemeMode();
-  const navigation = useNavigation<any>();
+  const navigation = useNavigation();
   const { user } = useAuth();
   const [activeTab, setActiveTab] = useState<WalletTab>('transactions');
   const [recipientId, setRecipientId] = useState('');

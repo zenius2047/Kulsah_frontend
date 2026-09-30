@@ -112,7 +112,7 @@ const VideoFeedItem: React.FC<{
   onSubscribe: (id: string) => void;
   onRequireAuth: () => void;
 }> = ({ item, isPlaying, isGlobalMuted, isGuest, onSubscribe, onRequireAuth }) => {
-  const navigation = useNavigation<any>();
+  const navigation = useNavigation();
   const player = useVideoPlayer(item.video || FALLBACK_VIDEO, (p) => {
     p.loop = true;
     p.muted = isGlobalMuted;
@@ -286,7 +286,7 @@ const VideoFeedItem: React.FC<{
 
 const FeedCopy: React.FC = () => {
   const { isDark, theme } = useThemeMode();
-  const navigation = useNavigation<any>();
+  const navigation = useNavigation();
   const [activeTab, setActiveTab] = useState<FeedTab>('foryou');
   const [isGlobalMuted, setIsGlobalMuted] = useState(false);
   const [isGuest, setIsGuest] = useState(true);

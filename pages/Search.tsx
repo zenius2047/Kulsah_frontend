@@ -56,7 +56,7 @@ const suggestedCreators = [
 ];
 
 const Search: React.FC = () => {
-  const navigation = useNavigation<any>();
+  const navigation = useNavigation();
   const insets = useSafeAreaInsets();
   const { width } = useWindowDimensions();
   const { isDark, theme } = useThemeMode();

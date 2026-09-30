@@ -104,8 +104,8 @@ const FeatureChip = ({
 
 const ChallengeEntryDetails: React.FC = () => {
   const { isDark } = useThemeMode();
-  const navigation = useNavigation<any>();
-  const route = useRoute<any>();
+  const navigation = useNavigation();
+  const route = useRoute();
   const insets = useSafeAreaInsets();
   const params = (route.params ?? {}) as ChallengeEntryRouteParams;
   const challengeQuery = useChallenge(params.challengeId);

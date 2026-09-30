@@ -30,7 +30,7 @@ const USER_KEY = 'pulsar_user';
 const KULCOIN_ICON = require('../assets/coin.png');
 
 const TopUpCoins: React.FC = () => {
-  const navigation = useNavigation<any>();
+  const navigation = useNavigation();
   const { isDark, theme } = useThemeMode();
   const [selectedPackage, setSelectedPackage] = useState<string | number | null>(null);
   const [isPaymentOpen, setIsPaymentOpen] = useState(false);

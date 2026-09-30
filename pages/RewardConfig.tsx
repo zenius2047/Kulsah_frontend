@@ -56,7 +56,7 @@ const rewardTypes = [
 
 const RewardConfig: React.FC = () => {
   const { isDark, theme } = useThemeMode();
-  const navigation = useNavigation<any>();
+  const navigation = useNavigation();
   const [strategy, setStrategy] = useState<'high-likes' | 'no-reward'>('high-likes');
   const [selectedReward, setSelectedReward] = useState('artist-merch');
   const [customReward, setCustomReward] = useState('');

@@ -23,7 +23,7 @@ const completedChallenges = [
 
 const winner: React.FC = () => {
   const { theme } = useThemeMode();
-  const navigation = useNavigation<any>();
+  const navigation = useNavigation();
 
   return (
     <SafeAreaView style={[styles.safeArea, { backgroundColor: theme.background }]} edges={['top', 'left', 'right']}>

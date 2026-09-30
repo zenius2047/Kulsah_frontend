@@ -8,7 +8,7 @@ import { useVerifyEventTicket } from '../src/hooks/events/useEventMutations';
 import { fontSize } from './typography';
 
 export default function TicketVerification() {
-  const navigation = useNavigation<any>(); const { theme } = useThemeMode(); const verify = useVerifyEventTicket();
+  const navigation = useNavigation(); const { theme } = useThemeMode(); const verify = useVerifyEventTicket();
   const [ticketId, setTicketId] = useState(''); const [signature, setSignature] = useState(''); const [result, setResult] = useState<any>(null);
   const submit = () => Alert.alert('Consume ticket?', 'Verification may immediately mark this ticket as used.', [
     { text: 'Cancel', style: 'cancel' },

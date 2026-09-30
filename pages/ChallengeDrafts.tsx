@@ -1,4 +1,3 @@
-import AsyncStorage from '@react-native-async-storage/async-storage';
 import { MaterialIcons } from '@expo/vector-icons';
 import { useNavigation, useRoute } from '@react-navigation/native';
 import { LinearGradient } from 'expo-linear-gradient';
@@ -20,6 +19,7 @@ import { PRIMARY_COLOR, primaryColorAlpha, useThemeMode } from '../theme';
 import { fontSize } from '../typography';
 import { ListSkeleton } from '../components/PageSkeleton';
 import { user } from '../types';
+import { challengesApi, getApiErrorMessage, useCreatorChallengeDrafts } from '../src';
 
 type ChallengeDraft = {
   id: string;
@@ -35,9 +35,6 @@ type ChallengeDraft = {
   wizard?: Record<string, unknown>;
 };
 
-const DRAFTS_KEY = 'pulsar_challenge_drafts';
-const ACTIVE_KEY = 'pulsar_challenges';
-
 const coverPresets = [
   { title: 'Acoustic Cover', url: 'https://images.unsplash.com/photo-1510915361894-db8b60106cb1?auto=format&fit=crop&q=80&w=800' },
   { title: 'Neon Jam', url: 'https://images.unsplash.com/photo-1508700115892-45ecd05ae2ad?auto=format&fit=crop&q=80&w=800' },
@@ -45,48 +42,24 @@ const coverPresets = [
   { title: 'Midnight Live', url: 'https://images.unsplash.com/photo-1493225255756-d9584f8606e9?auto=format&fit=crop&q=80&w=800' },
 ];
 
-const fallbackDrafts: ChallengeDraft[] = [
-  {
-    id: 'd1',
-    creatorId: 'mila_ray_01',
-    title: 'Acoustic Soul Session',
-    description: 'Record your best acoustic cover of my latest track.',
-    reward: '$200 + Signed Vinyl',
-    deadline: '14 Days',
-    participants: 0,
-    status: 'draft',
-    image: coverPresets[0].url,
-  },
-  {
-    id: 'd2',
-    creatorId: 'mila_ray_01',
-    title: 'Dance Choreography',
-    description: 'Create a 15 second dance routine for the chorus.',
-    reward: 'Feature in Music Video',
-    deadline: '7 Days',
-    participants: 0,
-    status: 'draft',
-    image: coverPresets[1].url,
-  },
-  {
-    id: 'd3',
-    creatorId: 'mila_ray_01',
-    title: 'Lyric Video Contest',
-    description: 'Design a creative lyric video for Neon Nights.',
-    reward: '$150 + Credit',
-    deadline: '21 Days',
-    participants: 0,
-    status: 'draft',
-    image: coverPresets[3].url,
-  },
-];
-
 const ChallengeDrafts: React.FC = () => {
-  const navigation = useNavigation<any>();
-  const route = useRoute<any>();
+  const navigation = useNavigation();
+  const route = useRoute();
   const { isDark, theme } = useThemeMode();
-  const [loading, setLoading] = useState(true);
-  const [drafts, setDrafts] = useState<ChallengeDraft[]>([]);
+  const draftsQuery = useCreatorChallengeDrafts();
+  const loading = draftsQuery.isLoading;
+  const drafts = useMemo<ChallengeDraft[]>(() => (draftsQuery.data ?? []).map((draft) => ({
+    id: String(draft.id),
+    creatorId: String(draft.creatorId),
+    creatorName: draft.creatorName,
+    title: draft.title,
+    description: draft.description,
+    reward: draft.reward || 'Reward details pending',
+    deadline: draft.deadline ? new Date(draft.deadline).toLocaleDateString() : 'Not scheduled',
+    participants: draft.participants,
+    status: 'draft',
+    image: draft.image || coverPresets[0].url,
+  })), [draftsQuery.data]);
   const [editingDraft, setEditingDraft] = useState<ChallengeDraft | null>(null);
   const [editTitle, setEditTitle] = useState('');
   const [editDesc, setEditDesc] = useState('');
@@ -110,11 +83,6 @@ const ChallengeDrafts: React.FC = () => {
     setTimeout(() => setToastMessage(''), 3000);
   };
 
-  const persistDrafts = async (nextDrafts: ChallengeDraft[]) => {
-    setDrafts(nextDrafts);
-    await AsyncStorage.setItem(DRAFTS_KEY, JSON.stringify(nextDrafts));
-  };
-
   const startResume = (draft: ChallengeDraft) => {
     setEditingDraft(draft);
     setEditTitle(draft.title);
@@ -125,30 +93,6 @@ const ChallengeDrafts: React.FC = () => {
   };
 
   useEffect(() => {
-    let mounted = true;
-    AsyncStorage.getItem(DRAFTS_KEY)
-      .then(async (saved: string | null) => {
-        const nextDrafts = saved ? JSON.parse(saved) : fallbackDrafts;
-        if (!saved) {
-          await AsyncStorage.setItem(DRAFTS_KEY, JSON.stringify(fallbackDrafts));
-        }
-        if (mounted) {
-          setDrafts(nextDrafts);
-          setLoading(false);
-        }
-      })
-      .catch(() => {
-        if (mounted) {
-          setDrafts(fallbackDrafts);
-          setLoading(false);
-        }
-      });
-    return () => {
-      mounted = false;
-    };
-  }, []);
-
-  useEffect(() => {
     if (!loading && routeDraft) {
       const storedDraft = drafts.find((draft) => draft.id === routeDraft.id) || routeDraft;
       startResume(storedDraft);
@@ -157,41 +101,34 @@ const ChallengeDrafts: React.FC = () => {
 
   const handleSaveDraftEdit = async () => {
     if (!editingDraft) return;
-    const updatedDrafts = drafts.map((draft) => (
-      draft.id === editingDraft.id
-        ? { ...draft, title: editTitle, description: editDesc, reward: editReward, deadline: editDeadline, image: editImage }
-        : draft
-    ));
-    await persistDrafts(updatedDrafts);
-    triggerToast('Draft settings successfully saved!');
-    setEditingDraft(null);
+    try {
+      const days = Number.parseInt(editDeadline, 10);
+      await challengesApi.updateChallenge(editingDraft.id, {
+        title: editTitle.trim(),
+        description: editDesc.trim(),
+        ...(Number.isFinite(days) ? { submission_ends_at: new Date(Date.now() + days * 86_400_000).toISOString() } : {}),
+      });
+      await draftsQuery.refetch();
+      triggerToast('Draft settings successfully saved!');
+      setEditingDraft(null);
+    } catch (error) {
+      Alert.alert('Draft not saved', getApiErrorMessage(error));
+    }
   };
 
   const handleLaunchDraft = async () => {
     if (!editingDraft) return;
-    const newChallenge: ChallengeDraft = {
-      ...editingDraft,
-      id: `c_${Date.now()}`,
-      creatorId: String(user?.id || editingDraft.creatorId || 'mila_ray_01'),
-      creatorName: user?.name || 'Nova Pulse',
-      title: editTitle,
-      description: editDesc,
-      reward: editReward,
-      deadline: editDeadline,
-      participants: 0,
-      status: 'active',
-      image: editImage,
-    };
-
-    const savedActive = await AsyncStorage.getItem(ACTIVE_KEY);
-    const activeList = savedActive ? JSON.parse(savedActive) : [];
-    await AsyncStorage.setItem(ACTIVE_KEY, JSON.stringify([newChallenge, ...activeList]));
-
-    const updatedDrafts = drafts.filter((draft) => draft.id !== editingDraft.id);
-    await persistDrafts(updatedDrafts);
-    setCelebratedChallenge(newChallenge);
-    setShowCelebrate(true);
-    setEditingDraft(null);
+    try {
+      await challengesApi.updateChallenge(editingDraft.id, { title: editTitle.trim(), description: editDesc.trim() });
+      await challengesApi.transitionChallenge(editingDraft.id, { status: 'pending_review' });
+      const launched: ChallengeDraft = { ...editingDraft, title: editTitle, description: editDesc, status: 'active' };
+      await draftsQuery.refetch();
+      setCelebratedChallenge(launched);
+      setShowCelebrate(true);
+      setEditingDraft(null);
+    } catch (error) {
+      Alert.alert('Challenge not launched', getApiErrorMessage(error));
+    }
   };
 
   const handleDeleteDraft = (id: string) => {
@@ -201,9 +138,14 @@ const ChallengeDrafts: React.FC = () => {
         text: 'Discard',
         style: 'destructive',
         onPress: async () => {
-          await persistDrafts(drafts.filter((draft) => draft.id !== id));
-          triggerToast('Draft discarded successfully.');
-          setEditingDraft(null);
+          try {
+            await challengesApi.deleteChallengeDraft(id);
+            await draftsQuery.refetch();
+            triggerToast('Draft discarded successfully.');
+            setEditingDraft(null);
+          } catch (error) {
+            Alert.alert('Draft not discarded', getApiErrorMessage(error));
+          }
         },
       },
     ]);

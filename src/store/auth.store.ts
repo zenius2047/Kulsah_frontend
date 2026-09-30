@@ -56,8 +56,11 @@ const normalizeUser = (value: User | null | undefined | Record<string, unknown>)
 type AuthState = {
   user: User | null;
   token: string;
+  refreshToken: string;
+  tokenExpiresAt: number | null;
   setUser: (value: User | null) => void;
   setToken: (value: string) => void;
+  setSession: (accessToken: string, refreshToken?: string, expiresIn?: number) => void;
   clearAuth: () => void;
 };
 
@@ -67,14 +70,23 @@ export const useAuthStore = create<AuthState>()(
       (set) => ({
         user: null,
         token: '',
+        refreshToken: '',
+        tokenExpiresAt: null,
         setUser: (value) => set({ user: normalizeUser(value) }),
         setToken: (value) => set({ token: value }),
-        clearAuth: () => set({ user: null, token: '' }),
+        setSession: (accessToken, refreshToken = '', expiresIn) => set({
+          token: accessToken,
+          refreshToken,
+          tokenExpiresAt: expiresIn ? Date.now() + expiresIn * 1000 : null,
+        }),
+        clearAuth: () => set({ user: null, token: '', refreshToken: '', tokenExpiresAt: null }),
       }),
       {
         name: 'pulsar_auth',
         storage: createJSONStorage(() => AsyncStorage),
-        partialize: (state) => ({ user: state.user, token: state.token }),
+        // Credentials are persisted by token.service using the platform keychain.
+        // AsyncStorage only retains the non-sensitive user snapshot.
+        partialize: (state) => ({ user: state.user }),
         version: 2,
         migrate: (persistedState) => ({
           ...(persistedState as Record<string, unknown>),

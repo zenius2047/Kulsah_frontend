@@ -12,7 +12,7 @@ import {
   View,
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
-import { GoogleGenAI } from '@google/genai';
+import { aiApi } from '../src';
 import Svg, {
   Circle,
   Defs,
@@ -48,7 +48,7 @@ const getSmoothPath = (points: ChartPoint[]) =>
 
 const CreatorAnalytics: React.FC = () => {
   const { isDark, theme } = useThemeMode();
-  const navigation = useNavigation<any>();
+  const navigation = useNavigation();
   const [isAiLoading, setIsAiLoading] = useState(false);
   const [aiInsight, setAiInsight] = useState('');
   const [activeRange, setActiveRange] = useState<RangeOption>('30d');
@@ -162,19 +162,12 @@ const CreatorAnalytics: React.FC = () => {
   const runAIAudit = async () => {
     setIsAiLoading(true);
     try {
-      const apiKey = process.env.EXPO_PUBLIC_GOOGLE_API_KEY || process.env.API_KEY;
-      if (!apiKey) {
-        throw new Error('Missing API key');
-      }
-
-      const ai = new GoogleGenAI({ apiKey });
-      const response = await ai.models.generateContent({
-        model: 'gemini-2.5-flash',
-        contents:
-          'You are a creator performance analyst for Pulsar. Review these stats: 2,842 subs, 45k views, 15% conversion rate. Weekend engagement is 3x higher than weekdays. Give a specific 2-sentence performance audit for Mila Ray.',
+      const response = await aiApi.generate('creator_analytics_audit', {
+        latestGrowth: adjustedGrowth.at(-1)?.subs ?? 0,
+        totalEngagement: adjustedEngagement.reduce((sum, item) => sum + item.value, 0),
+        range: activeRange,
       });
-
-      const text = (response as { text?: string }).text;
+      const text = response.text;
       setAiInsight(
         text || 'Engagement is peaking during weekend live sessions. Schedule high-value content drops on Saturdays to maximize conversion.',
       );

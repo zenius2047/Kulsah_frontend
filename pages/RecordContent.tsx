@@ -3,25 +3,35 @@ import { useThemeMode, PRIMARY_COLOR, primaryColorAlpha } from "../theme";
 import {
   ActivityIndicator,
   Alert,
+  LayoutChangeEvent,
   Modal,
   Platform,
   Pressable,
   ScrollView,
   StyleSheet,
+  StatusBar,
   Text,
   View,
 } from 'react-native';
-import { useSafeAreaInsets } from 'react-native-safe-area-context';
+import { SafeAreaView, useSafeAreaInsets } from 'react-native-safe-area-context';
 import { BlurView } from 'expo-blur';
 import { LinearGradient } from 'expo-linear-gradient';
 import { MaterialIcons } from '@expo/vector-icons';
 import { useIsFocused, useNavigation } from '@react-navigation/native';
 import { CameraView, useCameraPermissions, useMicrophonePermissions } from 'expo-camera';
+import { Audio } from 'expo-av';
+import { useEvent, useEventListener } from 'expo';
+import { useVideoPlayer, VideoView } from 'expo-video';
+import Svg, { Circle } from 'react-native-svg';
+import * as FileSystem from 'expo-file-system/legacy';
 import * as ImagePicker from 'expo-image-picker';
 import { VoteSheetContent } from './SoundSelect';
 import { mediumScreen } from '../types';
 import { fontSize } from './typography';
-import type { MusicTrack, VideoDisplayOrientation } from '../src';
+import { useAuthStore } from '../src';
+import type { DuetLayout, MusicTrack, VideoDisplayOrientation } from '../src';
+
+type PreviewSound = Awaited<ReturnType<typeof Audio.Sound.createAsync>>['sound'];
 
 type FilterItem = {
   id: string;
@@ -86,7 +96,25 @@ const sideControls: SideControl[] = [
 ];
 
 const modes = ['Live', 'Post', 'Create'] as const;
-const MAX_RECORDING_SECONDS = 30;
+const RECORDING_PROGRESS_CYCLE_SECONDS = 60;
+const DUET_COUNTDOWN_SECONDS = 3;
+const RECORD_PROGRESS_SIZE = 88;
+const RECORD_PROGRESS_STROKE = 4;
+const RECORD_PROGRESS_RADIUS = (RECORD_PROGRESS_SIZE - RECORD_PROGRESS_STROKE) / 2;
+const RECORD_PROGRESS_CIRCUMFERENCE = 2 * Math.PI * RECORD_PROGRESS_RADIUS;
+const RECORD_BUTTON_SIZE = 76;
+const RECORD_RING_OVERHANG = (RECORD_PROGRESS_SIZE - RECORD_BUTTON_SIZE) / 2;
+const RECORD_CONTROLS_BOTTOM_PADDING = 24;
+
+const duetLayouts: Array<{
+  id: DuetLayout;
+  label: string;
+  icon: keyof typeof MaterialIcons.glyphMap;
+}> = [
+  { id: 'side_by_side', label: 'Side by side', icon: 'view-column' },
+  { id: 'stacked', label: 'Stacked', icon: 'view-stream' },
+  { id: 'picture_in_picture', label: 'Picture in picture', icon: 'picture-in-picture-alt' },
+];
 
 const getOrientationFromCamera = (orientation?: string): VideoDisplayOrientation =>
   orientation?.startsWith('landscape') ? 'landscape' : 'portrait';
@@ -96,7 +124,7 @@ const getOrientationFromSize = (width?: number | null, height?: number | null): 
 
 const RecordContent: React.FC = ({route}:any) => {
   const { isDark, theme } = useThemeMode();
-  const navigation = useNavigation<any>();
+  const navigation = useNavigation();
   const isFocused = useIsFocused();
   const insets = useSafeAreaInsets();
   const [permission, requestPermission] = useCameraPermissions();
@@ -110,14 +138,111 @@ const RecordContent: React.FC = ({route}:any) => {
   const [isPickingVideo, setIsPickingVideo] = React.useState(false);
   const cameraOrientationRef = React.useRef<VideoDisplayOrientation>('portrait');
   const mountedRef = React.useRef(true);
+  const recordingRef = React.useRef(false);
+  const countdownRunRef = React.useRef(0);
   const [sound, setSound] = React.useState<MusicTrack | null>(null);
+  const selectedSoundPlaybackRef = React.useRef<PreviewSound | null>(null);
+  const isDuet = route?.params?.duetDraftId != null;
+  const duetSourceVideoUrl = typeof route?.params?.duetSourceVideoUrl === 'string'
+    ? route.params.duetSourceVideoUrl
+    : null;
+  const [duetLayout, setDuetLayout] = React.useState<DuetLayout>(route?.params?.duetLayout ?? 'side_by_side');
+  const [countdown, setCountdown] = React.useState<number | null>(null);
+  const [isStartingRecording, setIsStartingRecording] = React.useState(false);
+  const [duetSettingsOpen, setDuetSettingsOpen] = React.useState(false);
+  const [recordingToolsOpen, setRecordingToolsOpen] = React.useState(false);
+  const [effectsOpen, setEffectsOpen] = React.useState(false);
+  const [duetCameraPanelSize, setDuetCameraPanelSize] = React.useState({ width: 0, height: 0 });
+  const duetSource = duetSourceVideoUrl
+    ? {
+        uri: duetSourceVideoUrl,
+        useCaching: Platform.OS !== 'ios',
+        contentType: /\.m3u8(?:$|[?#])/i.test(duetSourceVideoUrl) ? ('hls' as const) : ('auto' as const),
+      }
+    : null;
+  const duetPlayer = useVideoPlayer(duetSource, (player) => {
+    player.loop = false;
+    player.muted = false;
+    player.volume = 1;
+    player.audioMixingMode = 'mixWithOthers';
+    player.bufferOptions = {
+      preferredForwardBufferDuration: Platform.OS === 'ios' ? 45 : 30,
+      minBufferForPlayback: Platform.OS === 'ios' ? 6 : 4,
+      maxBufferBytes: (Platform.OS === 'ios' ? 64 : 48) * 1024 * 1024,
+      prioritizeTimeOverSizeThreshold: true,
+      waitsToMinimizeStalling: true,
+    };
+  });
+  const duetPlayerStatus = useEvent(duetPlayer, 'statusChange', { status: duetPlayer.status });
+  const duetSourceMetadata = useEvent(duetPlayer, 'sourceLoad');
+  const duetDurationSeconds = isDuet && Number(duetSourceMetadata?.duration) > 0
+    ? Math.ceil(Number(duetSourceMetadata?.duration))
+    : undefined;
+  const secondsIntoProgressCycle = recordedSeconds % RECORDING_PROGRESS_CYCLE_SECONDS;
+  const recordingProgress = recordedSeconds > 0 && secondsIntoProgressCycle === 0
+    ? 1
+    : secondsIntoProgressCycle / RECORDING_PROGRESS_CYCLE_SECONDS;
+  const recordProgressOffset = RECORD_PROGRESS_CIRCUMFERENCE * (1 - recordingProgress);
+  const duetStageBottom = RECORD_CONTROLS_BOTTOM_PADDING
+    + (Platform.OS === 'android' ? insets.bottom : 0)
+    + RECORD_BUTTON_SIZE
+    + RECORD_RING_OVERHANG;
+  const duetCameraPreviewSize = React.useMemo(() => {
+    const { width, height } = duetCameraPanelSize;
+    if (width <= 0 || height <= 0) return null;
 
-  const recordingProgress = Math.min(recordedSeconds / MAX_RECORDING_SECONDS, 1);
-  const formatSeconds = (value: number) => `00:${String(Math.min(value, MAX_RECORDING_SECONDS)).padStart(2, '0')}`;
+    const portraitCameraAspectRatio = 9 / 16;
+    if (width / height > portraitCameraAspectRatio) {
+      return { width: height * portraitCameraAspectRatio, height };
+    }
+    return { width, height: width / portraitCameraAspectRatio };
+  }, [duetCameraPanelSize]);
+  const formatSeconds = (value: number) => {
+    const minutes = Math.floor(value / 60);
+    const seconds = value % 60;
+    return `${String(minutes).padStart(2, '0')}:${String(seconds).padStart(2, '0')}`;
+  };
 
   const updateCameraOrientation = React.useCallback((orientation: VideoDisplayOrientation) => {
     cameraOrientationRef.current = orientation;
   }, []);
+
+  const updateDuetCameraPanelSize = React.useCallback((event: LayoutChangeEvent) => {
+    const { width, height } = event.nativeEvent.layout;
+    setDuetCameraPanelSize((current) => (
+      current.width === width && current.height === height ? current : { width, height }
+    ));
+  }, []);
+
+  const pauseDuetPlayback = React.useCallback(() => {
+    if (!isDuet) return;
+    try {
+      duetPlayer.pause();
+    } catch {
+      // useVideoPlayer releases its native shared object automatically. A focus
+      // or recording callback can race with that release while navigating away.
+    }
+  }, [duetPlayer, isDuet]);
+
+  const startDuetPlayback = React.useCallback(() => {
+    if (!isDuet) return true;
+    try {
+      duetPlayer.currentTime = 0;
+      duetPlayer.play();
+      return true;
+    } catch {
+      return false;
+    }
+  }, [duetPlayer, isDuet]);
+
+  React.useEffect(() => {
+    recordingRef.current = isRecording;
+  }, [isRecording]);
+
+  useEventListener(duetPlayer, 'playToEnd', () => {
+    if (!recordingRef.current) return;
+    cameraRef.current?.stopRecording?.();
+  });
 
 
   React.useEffect(() => {
@@ -127,28 +252,95 @@ const RecordContent: React.FC = ({route}:any) => {
   }, [route?.params?.sound]);
 
   React.useEffect(() => {
+    let cancelled = false;
+    let loadedSound: PreviewSound | null = null;
+    let downloadedSoundUri: string | null = null;
+
+    const startSelectedSound = async () => {
+      if (!sound?.stream_url || !FileSystem.cacheDirectory) return;
+
+      try {
+        await Audio.setAudioModeAsync({ playsInSilentModeIOS: true, shouldDuckAndroid: true });
+        const token = useAuthStore.getState().token;
+        const safeTrackId = String(sound.id).replace(/[^a-z0-9_-]/gi, '-');
+        const previewUri = `${FileSystem.cacheDirectory}kulsah-recording-music-${safeTrackId}-${Date.now()}.mp3`;
+        const download = await FileSystem.downloadAsync(sound.stream_url, previewUri, {
+          headers: token ? { Authorization: `Bearer ${token}` } : undefined,
+        });
+        if (download.status < 200 || download.status >= 300) {
+          throw new Error(`The selected sound could not be downloaded (${download.status}).`);
+        }
+        downloadedSoundUri = download.uri;
+        const result = await Audio.Sound.createAsync(
+          { uri: download.uri },
+          { shouldPlay: isFocused, isLooping: true, volume: 1 },
+        );
+        loadedSound = result.sound;
+
+        if (cancelled) {
+          await loadedSound.unloadAsync();
+          await FileSystem.deleteAsync(download.uri, { idempotent: true }).catch(() => undefined);
+          return;
+        }
+
+        selectedSoundPlaybackRef.current = loadedSound;
+      } catch (error: any) {
+        if (!cancelled) {
+          Alert.alert('Sound unavailable', error?.message || 'We could not play the selected music.');
+        }
+      }
+    };
+
+    void startSelectedSound();
+
+    return () => {
+      cancelled = true;
+      if (selectedSoundPlaybackRef.current === loadedSound) selectedSoundPlaybackRef.current = null;
+      if (loadedSound) void loadedSound.unloadAsync().catch(() => undefined);
+      if (downloadedSoundUri) {
+        void FileSystem.deleteAsync(downloadedSoundUri, { idempotent: true }).catch(() => undefined);
+      }
+    };
+  }, [sound?.id, sound?.stream_url]);
+
+  React.useEffect(() => {
+    const selectedSoundPlayback = selectedSoundPlaybackRef.current;
+    if (!selectedSoundPlayback) return;
+    if (isFocused) {
+      void selectedSoundPlayback.playAsync().catch(() => undefined);
+    } else {
+      void selectedSoundPlayback.pauseAsync().catch(() => undefined);
+    }
+  }, [isFocused, sound?.id]);
+
+  React.useEffect(() => {
     if (!isRecording) return undefined;
 
     setRecordedSeconds(0);
     const interval = setInterval(() => {
-      setRecordedSeconds((current) => Math.min(current + 1, MAX_RECORDING_SECONDS));
+      setRecordedSeconds((current) => current + 1);
     }, 1000);
 
     return () => clearInterval(interval);
   }, [isRecording]);
 
   React.useEffect(() => {
+    mountedRef.current = true;
     return () => {
       mountedRef.current = false;
+      countdownRunRef.current += 1;
       cameraRef.current?.stopRecording?.();
     };
   }, []);
 
   React.useEffect(() => {
-    if (isFocused || !isRecording) return;
-
-    cameraRef.current?.stopRecording();
-  }, [isFocused, isRecording]);
+    if (isFocused) return;
+    countdownRunRef.current += 1;
+    setCountdown(null);
+    setIsStartingRecording(false);
+    pauseDuetPlayback();
+    if (isRecording) cameraRef.current?.stopRecording();
+  }, [isFocused, isRecording, pauseDuetPlayback]);
 
   const handleSideControlPress = async (controlId: string) => {
     if (controlId === 'flip') {
@@ -173,6 +365,8 @@ const RecordContent: React.FC = ({route}:any) => {
       uploadedVideoId: route?.params?.duetDraftId,
       uploadToExistingDraft: route?.params?.duetDraftId != null,
       duetSourceVideoId: route?.params?.duetSourceVideoId,
+      duetSourceVideoUrl,
+      duetLayout: isDuet ? duetLayout : undefined,
       challengeId: route?.params?.challengeId,
       purpose: route?.params?.purpose,
       officialSoundId: route?.params?.officialSoundId,
@@ -193,8 +387,18 @@ const RecordContent: React.FC = ({route}:any) => {
   };
 
   const handleRecordPress = async () => {
+    setDuetSettingsOpen(false);
+    setRecordingToolsOpen(false);
+    setEffectsOpen(false);
     if (isRecording) {
+      pauseDuetPlayback();
       cameraRef.current?.stopRecording();
+      return;
+    }
+    if (isStartingRecording) {
+      countdownRunRef.current += 1;
+      setCountdown(null);
+      setIsStartingRecording(false);
       return;
     }
 
@@ -212,10 +416,48 @@ const RecordContent: React.FC = ({route}:any) => {
         return;
       }
 
+      if (isDuet && !duetSourceVideoUrl) {
+        Alert.alert('Duet unavailable', 'The original video could not be loaded. Please return to the feed and try again.');
+        return;
+      }
+      if (isDuet && duetPlayerStatus.status === 'error') {
+        Alert.alert('Duet unavailable', 'The original video failed to load. Please return to the feed and try again.');
+        return;
+      }
+      if (isDuet && duetPlayerStatus.status !== 'readyToPlay') {
+        Alert.alert('Original video loading', 'Wait a moment for the original video to finish loading, then try again.');
+        return;
+      }
+
+      if (isDuet) {
+        await Audio.setAudioModeAsync({
+          allowsRecordingIOS: true,
+          playsInSilentModeIOS: true,
+          shouldDuckAndroid: true,
+          playThroughEarpieceAndroid: false,
+        });
+        setIsStartingRecording(true);
+        const countdownRun = ++countdownRunRef.current;
+        for (let remaining = DUET_COUNTDOWN_SECONDS; remaining > 0; remaining -= 1) {
+          if (!mountedRef.current || countdownRunRef.current !== countdownRun) return;
+          setCountdown(remaining);
+          await new Promise((resolve) => setTimeout(resolve, 1000));
+        }
+        if (!mountedRef.current || countdownRunRef.current !== countdownRun) return;
+        setCountdown(null);
+        setIsStartingRecording(false);
+      }
+
       setIsRecording(true);
-      const recording = await cameraRef.current.recordAsync({
-        // maxDuration: MAX_RECORDING_SECONDS,
-      });
+      const recordingPromise = cameraRef.current.recordAsync(
+        duetDurationSeconds ? { maxDuration: duetDurationSeconds } : undefined,
+      );
+      if (isDuet && !startDuetPlayback()) {
+        cameraRef.current?.stopRecording?.();
+        throw new Error('The original video player is no longer available. Please reopen the duet.');
+      }
+      const recording = await recordingPromise;
+      pauseDuetPlayback();
 
       if (recording?.uri) {
         goToUploadPreview({
@@ -226,9 +468,14 @@ const RecordContent: React.FC = ({route}:any) => {
         });
       }
     } catch (error: any) {
-      Alert.alert('Recording failed', error?.message || 'Please try recording again.');
+      pauseDuetPlayback();
+      if (mountedRef.current) {
+        Alert.alert('Recording failed', error?.message || 'Please try recording again.');
+      }
     } finally {
       if (mountedRef.current) {
+        setCountdown(null);
+        setIsStartingRecording(false);
         setIsRecording(false);
         setRecordedSeconds(0);
       }
@@ -277,7 +524,15 @@ const RecordContent: React.FC = ({route}:any) => {
   };
 
   return (
-    <View style={[styles.safeArea, { backgroundColor: theme.background }]}>
+    <SafeAreaView
+      edges={isDuet ? ['top'] : []}
+      style={styles.safeArea}
+    >
+      <StatusBar
+        barStyle="light-content"
+        backgroundColor={isDuet ? '#000' : 'transparent'}
+        translucent
+      />
       {!permission?.granted ? <View style= {styles.screen}>
         {!permission ? (
               <>
@@ -292,7 +547,7 @@ const RecordContent: React.FC = ({route}:any) => {
                 alignItems: 'center'
                }}>
                  <MaterialIcons name="photo-camera" size={40} color="#ffffff" style={{
-                  marginTop: Platform.OS === "ios" ? 54 : insets.top,
+                  marginTop: isDuet ? 8 : Platform.OS === "ios" ? 54 : insets.top,
                 }} />
                </View>
                 <Text style={styles.permissionTitle}>Camera access needed</Text>
@@ -305,64 +560,126 @@ const RecordContent: React.FC = ({route}:any) => {
               </>
             )
             }
-      </View> :  <View style={[styles.screen, { backgroundColor: theme.screen }]}>
+      </View> :  <View style={[styles.screen, { backgroundColor: isDuet ? '#000' : theme.screen }]}>
         {/* <LinearGradient
           colors={['rgba(0,0,0,0.35)', 'rgba(0,0,0,0.08)', 'rgba(0,0,0,0.55)']}
           style={StyleSheet.absoluteFill}
         /> */}
 
-        {isFocused ? (
-          <CameraView
-            ref={cameraRef}
-            style={StyleSheet.absoluteFill}
-            facing={facing}
-            mode="video"
-          />
+        {isDuet ? (
+          <View style={[
+            styles.duetStage,
+            { bottom: duetStageBottom },
+            duetLayout === 'side_by_side' && styles.duetStageSideBySide,
+            duetLayout === 'stacked' && styles.duetStageStacked,
+          ]}>
+            <View style={[
+              styles.duetSourcePanel,
+              duetLayout === 'side_by_side' && styles.duetPanelSideBySide,
+              duetLayout === 'stacked' && styles.duetPanelStacked,
+              duetLayout === 'picture_in_picture' && styles.duetSourcePanelPip,
+            ]}>
+              <VideoView
+                player={duetPlayer}
+                style={StyleSheet.absoluteFill}
+                contentFit={duetLayout === 'side_by_side' ? 'contain' : 'cover'}
+                nativeControls={false}
+                surfaceType="textureView"
+              />
+            </View>
+            <View style={[
+              styles.duetCameraPanel,
+              duetLayout === 'side_by_side' && styles.duetPanelSideBySide,
+              duetLayout === 'stacked' && styles.duetPanelStacked,
+              duetLayout === 'picture_in_picture' && styles.duetCameraPanelPip,
+            ]} onLayout={updateDuetCameraPanelSize}>
+              {isFocused ? (
+                <CameraView
+                  ref={cameraRef}
+                  style={duetLayout === 'side_by_side'
+                    ? duetCameraPreviewSize ?? StyleSheet.absoluteFill
+                    : StyleSheet.absoluteFill}
+                  facing={facing}
+                  mode="video"
+                  mute={false}
+                />
+              ) : null}
+            </View>
+          </View>
+        ) : isFocused ? (
+          <CameraView ref={cameraRef} style={StyleSheet.absoluteFill} facing={facing} mode="video" />
         ) : null}
 
-        <View style={[styles.topArea, { paddingTop: Platform.OS === 'ios' ? 54 : insets.top }]}>
+        <View style={[styles.topArea, { paddingTop: isDuet ? 8 : Platform.OS === 'ios' ? 54 : insets.top }]}>
           <LinearGradient
             colors={['rgba(0,0,0,0.65)', 'rgba(0,0,0,0)']}
             style={styles.topFade}
           />
 
-          <View style={styles.progressMeta}>
-            <View style={styles.progressRow}>
-              <Text style={styles.progressLabel}>{isRecording ? 'Recording' : 'Ready'}</Text>
-              <Text style={styles.progressTime}>
-                {formatSeconds(recordedSeconds)} 
-                {/* / 00:{MAX_RECORDING_SECONDS
-                } */}
-              </Text>
-            </View>
-            <View style={styles.progressTrack}>
-              <View style={[styles.progressFill, { width: `${recordingProgress * 100}%` }]} />
-            </View>
-          </View>
-
           <View style={styles.headerRow}>
-            <BlurView intensity={28} tint="dark" style={styles.iconCircle}>
-              <Pressable style={styles.fillButton} onPress={() => navigation.goBack()}>
-                <MaterialIcons name="close" size={24} color="#fff" />
+            {!isDuet ? (
+              <BlurView intensity={28} tint="dark" style={styles.iconCircle}>
+                <Pressable style={styles.fillButton} onPress={() => navigation.goBack()}>
+                  <MaterialIcons name="close" size={24} color="#fff" />
+                </Pressable>
+              </BlurView>
+            ) : <View style={styles.headerIconSpacer} />}
+
+            {!isDuet ? (
+              <Pressable style={styles.soundButton} onPress={() => setSoundSelectOpen(true)}>
+                <MaterialIcons name="music-note" size={20} color={PRIMARY_COLOR} />
+                <Text style={styles.soundButtonText} numberOfLines={1}>
+                  {sound != null ? sound.title : 'Add Sound'}
+                </Text>
               </Pressable>
-            </BlurView>
-
-            <Pressable style={styles.soundButton} onPress={() => setSoundSelectOpen(true)}>
-              <MaterialIcons name="music-note" size={20} color={PRIMARY_COLOR} />
-              <Text style={styles.soundButtonText} numberOfLines={1}>
-                {sound != null ? sound.title : 'Add Sound'}
-              </Text>
-            </Pressable>
+            ) : <View style={styles.headerSpacer} />}
 
             <BlurView intensity={28} tint="dark" style={styles.iconCircle}>
-              <Pressable style={styles.fillButton}>
+              <Pressable
+                disabled={isRecording || isStartingRecording}
+                style={styles.fillButton}
+                onPress={() => {
+                  if (isDuet) {
+                    setDuetSettingsOpen((open) => !open);
+                  } else {
+                    setRecordingToolsOpen((open) => !open);
+                  }
+                }}
+              >
                 <MaterialIcons name="settings" size={22} color="#fff" />
               </Pressable>
             </BlurView>
           </View>
+          {isDuet && duetSettingsOpen ? (
+            <View style={styles.duetSettingsMenu}>
+              <Text style={styles.duetSettingsTitle}>Layout</Text>
+              <View style={styles.layoutSelector}>
+              {duetLayouts.map((layout) => {
+                const selected = duetLayout === layout.id;
+                return (
+                  <Pressable
+                    key={layout.id}
+                    accessibilityRole="button"
+                    accessibilityLabel={layout.label}
+                    accessibilityState={{ selected, disabled: isRecording || isStartingRecording }}
+                    disabled={isRecording || isStartingRecording}
+                    onPress={() => {
+                      setDuetLayout(layout.id);
+                      setDuetSettingsOpen(false);
+                    }}
+                    style={[styles.layoutOption, selected && styles.layoutOptionSelected]}
+                  >
+                    <MaterialIcons name={layout.icon} size={20} color="#fff" />
+                    <Text style={[styles.layoutOptionText, selected && styles.layoutOptionTextSelected]}>{layout.label}</Text>
+                  </Pressable>
+                );
+              })}
+              </View>
+            </View>
+          ) : null}
         </View>
 
-        <View style={styles.sideRailWrap}>
+        {!isDuet && recordingToolsOpen ? <View style={styles.sideRailWrap}>
           <BlurView intensity={24} tint="dark" style={styles.sideRail}>
             {sideControls.map((control) => (
               <Pressable
@@ -383,18 +700,19 @@ const RecordContent: React.FC = ({route}:any) => {
               </Pressable>
             ))}
           </BlurView>
-        </View>
+        </View> : null}
 
         <View style={[
           styles.bottomArea,
-          { paddingBottom: 24 + (Platform.OS === 'android' ? insets.bottom : 0) },
+          isDuet && styles.duetBottomArea,
+          { paddingBottom: RECORD_CONTROLS_BOTTOM_PADDING + (Platform.OS === 'android' ? insets.bottom : 0) },
         ]}>
-          <LinearGradient
+          {!isDuet ? <LinearGradient
             colors={['rgba(0,0,0,0)', 'rgba(0,0,0,0.45)', 'rgba(0,0,0,0.82)']}
             style={styles.bottomFade}
-          />
+          /> : null}
 
-          <ScrollView
+          {!isDuet && effectsOpen ? <ScrollView
             horizontal
             showsHorizontalScrollIndicator={false}
             contentContainerStyle={styles.filterScroll}
@@ -414,10 +732,10 @@ const RecordContent: React.FC = ({route}:any) => {
                 </Text>
               </Pressable>
             ))}
-          </ScrollView>
+          </ScrollView> : null}
 
-          <View style={styles.primaryActions}>
-            <Pressable style={styles.utilityAction} onPress={() => void handleUploadPress()} disabled={isPickingVideo}>
+          <View style={[styles.primaryActions, isDuet && styles.duetPrimaryActions]}>
+            {!isDuet ? <Pressable style={styles.utilityAction} onPress={() => void handleUploadPress()} disabled={isPickingVideo}>
               <View style={styles.galleryThumbWrap}>
                 <View style={styles.galleryThumb}>
                   <MaterialIcons name="video-library" size={22} color="#fff" />
@@ -429,24 +747,61 @@ const RecordContent: React.FC = ({route}:any) => {
                 ) : null}
               </View>
               <Text style={styles.utilityLabel}>Upload</Text>
-            </Pressable>
+            </Pressable> : null}
 
             <Pressable style={styles.recordWrap} onPress={() => void handleRecordPress()}>
-              <View style={[styles.recordOuterRing, isRecording ? styles.recordOuterRingActive : null]}>
-                <View style={[styles.recordInnerButton, isRecording ? styles.recordInnerButtonActive : null]} />
+              <Svg
+                pointerEvents="none"
+                width={RECORD_PROGRESS_SIZE}
+                height={RECORD_PROGRESS_SIZE}
+                style={styles.recordProgressRing}
+              >
+                <Circle
+                  cx={RECORD_PROGRESS_SIZE / 2}
+                  cy={RECORD_PROGRESS_SIZE / 2}
+                  r={RECORD_PROGRESS_RADIUS}
+                  fill="none"
+                  stroke="rgba(255,255,255,0.42)"
+                  strokeWidth={RECORD_PROGRESS_STROKE}
+                />
+                <Circle
+                  cx={RECORD_PROGRESS_SIZE / 2}
+                  cy={RECORD_PROGRESS_SIZE / 2}
+                  r={RECORD_PROGRESS_RADIUS}
+                  fill="none"
+                  stroke={PRIMARY_COLOR}
+                  strokeWidth={RECORD_PROGRESS_STROKE}
+                  strokeLinecap="round"
+                  strokeDasharray={`${RECORD_PROGRESS_CIRCUMFERENCE} ${RECORD_PROGRESS_CIRCUMFERENCE}`}
+                  strokeDashoffset={recordProgressOffset}
+                  rotation={-90}
+                  origin={`${RECORD_PROGRESS_SIZE / 2}, ${RECORD_PROGRESS_SIZE / 2}`}
+                />
+              </Svg>
+              <View style={[
+                styles.recordOuterRing,
+                (isRecording || isStartingRecording) ? styles.recordOuterRingActive : null,
+              ]}>
+                <View style={[styles.recordInnerButton, (isRecording || isStartingRecording) ? styles.recordInnerButtonActive : null]} />
               </View>
-              {isRecording ? <Text style={styles.recordHint}>Tap to stop</Text> : null}
+              {isRecording ? <Text style={styles.recordHint}>{formatSeconds(recordedSeconds)}</Text> : null}
             </Pressable>
 
-            <Pressable style={styles.utilityAction}>
-              <BlurView intensity={24} tint="dark" style={styles.effectsCircle}>
-                <MaterialIcons name="auto-fix-high" size={28} color={PRIMARY_COLOR} />
+            {!isDuet ? <Pressable
+              accessibilityRole="button"
+              accessibilityLabel={effectsOpen ? 'Hide effects' : 'Show effects'}
+              accessibilityState={{ expanded: effectsOpen }}
+              style={styles.utilityAction}
+              onPress={() => setEffectsOpen((open) => !open)}
+            >
+              <BlurView intensity={24} tint="dark" style={[styles.effectsCircle, effectsOpen && styles.effectsCircleActive]}>
+                <MaterialIcons name="auto-fix-high" size={28} color={effectsOpen ? PRIMARY_COLOR : '#fff'} />
               </BlurView>
-              <Text style={[styles.utilityLabel, styles.utilityLabelActive]}>Effects</Text>
-            </Pressable>
+              <Text style={[styles.utilityLabel, effectsOpen && styles.utilityLabelActive]}>Effects</Text>
+            </Pressable> : null}
           </View>
 
-          <View style={styles.modeRow}>
+          {!isDuet ? <View style={styles.modeRow}>
             {modes.map((mode) => (
               <Pressable
               onPress= {
@@ -469,8 +824,13 @@ const RecordContent: React.FC = ({route}:any) => {
                 {mode === 'Post' && activeMode === 'Post' && <View style={styles.modeUnderline} /> }
               </Pressable>
             ))}
-          </View>
+          </View> : null}
         </View>
+        {countdown != null ? (
+          <View pointerEvents="none" style={styles.countdownOverlay}>
+            <Text style={styles.countdownText}>{countdown}</Text>
+          </View>
+        ) : null}
         <Modal
           visible={soundSelectOpen}
           transparent
@@ -487,18 +847,66 @@ const RecordContent: React.FC = ({route}:any) => {
           />
         </Modal>
       </View>}
-    </View>
+    </SafeAreaView>
   );
 };
 
 const styles = StyleSheet.create({
   safeArea: {
     flex: 1,
-    backgroundColor: '#0a050c',
+    backgroundColor: '#000',
   },
   screen: {
     flex: 1,
     backgroundColor: '#0a050c',
+  },
+  duetStage: {
+    ...StyleSheet.absoluteFillObject,
+    backgroundColor: '#000',
+    overflow: 'hidden',
+  },
+  duetStageSideBySide: {
+    flexDirection: 'row',
+  },
+  duetStageStacked: {
+    flexDirection: 'column',
+  },
+  duetSourcePanel: {
+    flex: 1,
+    overflow: 'hidden',
+    backgroundColor: '#050505',
+  },
+  duetPanelSideBySide: {
+    flex: 0,
+    width: '50%',
+    height: '100%',
+  },
+  duetPanelStacked: {
+    flex: 0,
+    width: '100%',
+    height: '50%',
+  },
+  duetSourcePanelPip: {
+    ...StyleSheet.absoluteFillObject,
+  },
+  duetCameraPanel: {
+    flex: 1,
+    overflow: 'hidden',
+    backgroundColor: '#111',
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  duetCameraPanelPip: {
+    position: 'absolute',
+    right: 18,
+    bottom: 210,
+    width: '36%',
+    height: '28%',
+    borderRadius: 18,
+    borderWidth: 2,
+    borderColor: '#fff',
+    zIndex: 2,
+    elevation: 8,
   },
   modalBackdrop: {
     ...StyleSheet.absoluteFillObject,
@@ -549,48 +957,67 @@ const styles = StyleSheet.create({
   topFade: {
     ...StyleSheet.absoluteFillObject,
   },
-  progressMeta: {
-    marginBottom: 16,
-  },
-  progressRow: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'center',
-    paddingHorizontal: 2,
-    marginBottom: 8,
-  },
-  progressLabel: {
-    color: 'rgba(255,255,255,0.85)',
-    ...fontSize.b5, lineHeight: fontSize.b5.lineHeight,
-    textTransform: 'uppercase',
-    letterSpacing: 1,
-  },
-  progressTime: {
-    color: '#fff',
-    ...fontSize.b4, lineHeight: fontSize.b4.lineHeight,
-  },
-  progressTrack: {
-    height: 6,
-    borderRadius: 999,
-    backgroundColor: 'rgba(255,255,255,0.2)',
-    overflow: 'hidden',
-  },
-  progressFill: {
-    width: '40%',
-    height: '100%',
-    borderRadius: 999,
-    backgroundColor: PRIMARY_COLOR,
-    shadowColor: PRIMARY_COLOR,
-    shadowOffset: { width: 0, height: 0 },
-    shadowOpacity: 0.9,
-    shadowRadius: 10,
-    elevation: 6,
-  },
   headerRow: {
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'space-between',
     gap: 14,
+  },
+  headerIconSpacer: {
+    width: 40,
+    height: 40,
+  },
+  headerSpacer: {
+    flex: 1,
+  },
+  duetSettingsMenu: {
+    alignSelf: 'flex-end',
+    width: '100%',
+    marginTop: 10,
+    padding: 10,
+    borderRadius: 20,
+    backgroundColor: 'rgba(0,0,0,0.88)',
+    borderWidth: 1,
+    borderColor: 'rgba(255,255,255,0.14)',
+  },
+  duetSettingsTitle: {
+    color: '#fff',
+    ...fontSize.b5,
+    lineHeight: fontSize.b5.lineHeight,
+    textTransform: 'uppercase',
+    letterSpacing: 1,
+    marginBottom: 6,
+    marginLeft: 4,
+  },
+  layoutSelector: {
+    flexDirection: 'row',
+    gap: 7,
+    padding: 5,
+    borderRadius: 18,
+    backgroundColor: 'rgba(0,0,0,0.48)',
+    borderWidth: 1,
+    borderColor: 'rgba(255,255,255,0.12)',
+  },
+  layoutOption: {
+    flex: 1,
+    minHeight: 48,
+    borderRadius: 14,
+    alignItems: 'center',
+    justifyContent: 'center',
+    paddingHorizontal: 4,
+    gap: 2,
+  },
+  layoutOptionSelected: {
+    backgroundColor: PRIMARY_COLOR,
+  },
+  layoutOptionText: {
+    color: '#fff',
+    fontSize: 9,
+    lineHeight: 12,
+    textAlign: 'center',
+  },
+  layoutOptionTextSelected: {
+    color: '#fff',
   },
   iconCircle: {
     width: 40,
@@ -665,6 +1092,9 @@ const styles = StyleSheet.create({
     paddingBottom: 24,
     zIndex: 3,
   },
+  duetBottomArea: {
+    backgroundColor: '#000',
+  },
   bottomFade: {
     ...StyleSheet.absoluteFillObject,
   },
@@ -719,6 +1149,9 @@ const styles = StyleSheet.create({
     justifyContent: 'space-between',
     paddingHorizontal: 34,
   },
+  duetPrimaryActions: {
+    justifyContent: 'center',
+  },
   utilityAction: {
     alignItems: 'center',
     width: 72,
@@ -757,23 +1190,27 @@ const styles = StyleSheet.create({
   recordWrap: {
     alignItems: 'center',
     justifyContent: 'center',
+    position: 'relative',
+  },
+  recordProgressRing: {
+    position: 'absolute',
+    top: -6,
+    left: -6,
   },
   recordOuterRing: {
     width: 76,
     height: 76,
     borderRadius: 48,
-    borderWidth: 4,
-    borderColor: '#fff',
+    borderWidth: 0,
     alignItems: 'center',
     justifyContent: 'center',
-    padding: 6,
+    padding: 0,
     shadowColor: '#fff',
     shadowOffset: { width: 0, height: 0 },
     shadowOpacity: 0.12,
     shadowRadius: 12,
   },
   recordOuterRingActive: {
-    borderColor: '#ef4444',
     shadowColor: '#ef4444',
     shadowOpacity: 0.32,
   },
@@ -795,7 +1232,7 @@ const styles = StyleSheet.create({
   },
   recordHint: {
     position: 'absolute',
-    bottom: -22,
+    top: RECORD_BUTTON_SIZE + RECORD_RING_OVERHANG + 2,
     color: '#fff',
     ...fontSize.b5,
     lineHeight: fontSize.b5.lineHeight,
@@ -810,6 +1247,10 @@ const styles = StyleSheet.create({
     borderColor: 'rgba(255,255,255,0.1)',
     alignItems: 'center',
     justifyContent: 'center',
+  },
+  effectsCircleActive: {
+    borderColor: PRIMARY_COLOR,
+    backgroundColor: primaryColorAlpha(0.16),
   },
   modeRow: {
     flexDirection: 'row',
@@ -834,6 +1275,22 @@ const styles = StyleSheet.create({
     borderRadius: 999,
     backgroundColor: PRIMARY_COLOR,
     marginTop: 6,
+  },
+  countdownOverlay: {
+    ...StyleSheet.absoluteFillObject,
+    zIndex: 20,
+    alignItems: 'center',
+    justifyContent: 'center',
+    backgroundColor: 'rgba(0,0,0,0.18)',
+  },
+  countdownText: {
+    color: '#fff',
+    fontSize: 92,
+    lineHeight: 104,
+    fontWeight: '800',
+    textShadowColor: 'rgba(0,0,0,0.55)',
+    textShadowOffset: { width: 0, height: 4 },
+    textShadowRadius: 14,
   },
 });
 

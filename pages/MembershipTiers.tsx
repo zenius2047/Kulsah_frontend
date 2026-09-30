@@ -54,7 +54,7 @@ const tierFromPlan = (plan: CreatorSubscriptionPlan): SubscriptionTier => ({
 });
 
 const MembershipTiers: React.FC = () => {
-  const navigation = useNavigation<any>();
+  const navigation = useNavigation();
   const { isDark, theme } = useThemeMode();
   const { data, isLoading, isRefetching, error, refetch } = useCreatorSubscriptionPlans();
   const [isSaving, setIsSaving] = useState(false);

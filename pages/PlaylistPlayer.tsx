@@ -90,8 +90,8 @@ const seedComments: CommentItem[] = [
 ];
 
 const PlaylistPlayer: React.FC = () => {
-  const navigation = useNavigation<any>();
-  const route = useRoute<any>();
+  const navigation = useNavigation();
+  const route = useRoute();
   const insets = useSafeAreaInsets();
   const { isDark, theme } = useThemeMode();
 

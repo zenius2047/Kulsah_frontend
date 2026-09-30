@@ -25,6 +25,11 @@ export const useChallenges = () => useInfiniteQuery({
   getNextPageParam: nextChallengePage,
 });
 
+export const useCreatorChallengeDrafts = () => useQuery({
+  queryKey: ['creator', 'challenges', 'drafts'],
+  queryFn: () => challengesApi.getCreatorChallenges({ status: 'draft', per_page: 100 }).then((response) => response.data.data),
+});
+
 export const useChallenge = (challenge?: string | number, enabled = true) => useQuery({
   queryKey: challengeQueryKey(challenge),
   queryFn: () => challengesApi.getChallenge(challenge!).then((response) => unwrapChallengeShowResponse(response.data)),

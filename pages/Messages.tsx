@@ -103,7 +103,7 @@ const tabLabel = (tab: MessageTab) => {
 
 const Messages: React.FC = () => {
   const { isDark, theme } = useThemeMode();
-  const navigation = useNavigation<any>();
+  const navigation = useNavigation();
   const [activeTab, setActiveTab] = useState<MessageTab>('direct');
   const [search, setSearch] = useState('');
 

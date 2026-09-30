@@ -46,8 +46,8 @@ const CONTENT_TYPES = ['music', 'dance', 'comedy', 'tutorial', 'lifestyle', 'beh
 
 const UploadContent: React.FC = () => {
   const { isDark, theme } = useThemeMode();
-  const navigation = useNavigation<any>();
-  const route = useRoute<any>();
+  const navigation = useNavigation();
+  const route = useRoute();
   const [step, setStep] = useState<Step>('select');
   const [tool, setTool] = useState<ActiveTool>('none');
   const [selectedMediaId, setSelectedMediaId] = useState('m1');

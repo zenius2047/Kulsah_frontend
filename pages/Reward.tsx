@@ -22,7 +22,7 @@ const HERO_IMAGE =
 
 const Reward: React.FC = () => {
   const { isDark, theme } = useThemeMode();
-  const navigation = useNavigation<any>();
+  const navigation = useNavigation();
   const [enabled, setEnabled] = useState(true);
   const [rewardTitle, setRewardTitle] = useState('Professional Studio Time (8 Hours)');
   const [rewardTerms, setRewardTerms] = useState(

@@ -74,7 +74,7 @@ type CreatorLiveStreamProps = {
 
 const CreatorLiveStream: React.FC<CreatorLiveStreamProps> = ({ liveType: liveTypeOverride }) => {
   const { isDark, theme } = useThemeMode();
-  const navigation = useNavigation<any>();
+  const navigation = useNavigation();
   const route = useRoute<CreatorLiveRoute>();
   const liveType = liveTypeOverride ?? route.params?.liveType ?? 'regular';
   const liveSessionId = route.params?.liveSessionId ?? route.params?.initialLive?.id ?? '';

@@ -14,7 +14,7 @@ interface ExploreProps {
 
 const Explore: React.FC<ExploreProps> = ({ onLogout }) => {
   const { isDark, theme } = useThemeMode();
-  const navigation = useNavigation<any>();
+  const navigation = useNavigation();
 
   const vibes = [
     { name: 'Afro-Cinema', stats: '1.2M Viewing', img: 'https://images.unsplash.com/photo-1516450360452-9312f5e86fc7?auto=format&fit=crop&q=80&w=400' },
@@ -42,14 +42,14 @@ const Explore: React.FC<ExploreProps> = ({ onLogout }) => {
           </View>
           <View>
             <Pressable 
-              onPress={() => navigation.navigate('/notifications')}
+              onPress={() => navigation.navigate('Notification')}
              
             >
               <Text>notifications</Text>
               <Text></Text>
             </Pressable>
             <Pressable 
-              onPress={() => navigation.navigate('/fan/profile')}
+              onPress={() => navigation.navigate('MainTabs', { screen: 'Profile' })}
              
             >
               <Image source={{ uri: "https://picsum.photos/seed/profile/100" }} />
@@ -103,7 +103,7 @@ const Explore: React.FC<ExploreProps> = ({ onLogout }) => {
               <Pressable
                 key={creator.name} 
                 
-                onPress={() => navigation.navigate(`/profile/${creator.name}`)}
+                onPress={() => navigation.navigate('ArtistProfile', { creatorName: creator.name })}
               >
                 <View>
                   <Image source={{ uri: creator.img }} />
@@ -128,7 +128,7 @@ const Explore: React.FC<ExploreProps> = ({ onLogout }) => {
             <Pressable>arrow_forward</Pressable>
           </View>
           <Pressable
-            onPress={() => navigation.navigate('/event/burna-boy')}
+            onPress={() => navigation.navigate('EventDetail', { eventId: 'burna-boy' })}
            
           >
             <Image source={{ uri: "https://images.unsplash.com/photo-1470229722913-7c0e2dbbafd3?auto=format&fit=crop&q=80&w=800" }} />

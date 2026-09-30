@@ -17,7 +17,7 @@ import { BlurView } from 'expo-blur';
 import { useThemeMode, PRIMARY_COLOR, primaryColorAlpha } from "../theme";
 import { mediumScreen } from '../types';
 import { fontSize } from '../typography';
-import { authApi, setAuthToken, useAuth, setUser as setAuthStoreUser } from '../src';
+import { authApi, setAuthSession, setAuthToken, useAuth, setUser as setAuthStoreUser } from '../src';
 import DotTrioLoader from '../components/DotTrioLoader';
 
 
@@ -39,8 +39,8 @@ const extractMessage = (error: any, fallback: string) => {
 };
 
 const VerifyOtp: React.FC = () => {
-  const navigation = useNavigation<any>();
-  const route = useRoute<any>();
+  const navigation = useNavigation();
+  const route = useRoute();
   const { isDark, theme } = useThemeMode();
   const insets = useSafeAreaInsets();
   const [otp, setOtp] = useState<string[]>(Array(OTP_LENGTH).fill(''));
@@ -224,7 +224,11 @@ const VerifyOtp: React.FC = () => {
       const responseToken = extractToken(responseData);
 
       if (typeof responseToken === 'string' && responseToken.length > 0) {
-        await setAuthToken(responseToken);
+        await setAuthSession({
+          accessToken: responseToken,
+          refreshToken: responseData.refresh_token,
+          expiresIn: responseData.expires_in,
+        });
       }
 
       console.log('Verification done', responseData);

@@ -3,7 +3,7 @@ import { useThemeMode, primaryColorAlpha } from "../theme";
 import { View, Text, Pressable, Image, TextInput } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
 
-import { GoogleGenAI } from "@google/genai";
+import { aiApi } from '../src';
 
 interface CreatorOnboardingProps {
   onComplete: () => void;
@@ -43,7 +43,7 @@ const STYLE_TAGS = [
 
 const CreatorOnboarding: React.FC<CreatorOnboardingProps> = ({ onComplete }) => {
   const { isDark, theme } = useThemeMode();
-  const navigation = useNavigation<any>();
+  const navigation = useNavigation();
   const [step, setStep] = useState<OnboardingStep>('pre');
   const [signupMethod, setSignupMethod] = useState<SignupMethod>('select');
   const [monSubStep, setMonSubStep] = useState<MonetizationSubStep>('list');
@@ -85,18 +85,12 @@ const CreatorOnboarding: React.FC<CreatorOnboardingProps> = ({ onComplete }) => 
     setIsGenerating(true);
     const baseName = formData.name || 'Star_Creator';
     try {
-      const ai = new GoogleGenAI({ apiKey: process.env.API_KEY });
-      const prompt = `Generate a unique creator handle and a Kulsah ID (Format: KUL-XXXX-XX) for an artist named "${baseName}". Output only JSON: {"handle": "@handle", "id": "KUL-0000-AA"}`;
-      const response = await ai.models.generateContent({
-        model: 'gemini-3-flash-preview',
-        contents: prompt,
-        config: { responseMimeType: "application/json" }
-      });
-      const data = JSON.parse(response.text || '{}');
+      const response = await aiApi.generate('creator_identity', { name: baseName });
+      const data = response.structured ?? {};
       setFormData(prev => ({ 
         ...prev, 
-        handle: data.handle || `@kulsah/${baseName.toLowerCase().replace(/\s/g, '_')}`,
-        kulsahId: data.id || `KUL-${Math.floor(1000 + Math.random() * 9000)}-AA`
+        handle: typeof data.handle === 'string' ? data.handle : `@kulsah/${baseName.toLowerCase().replace(/\s/g, '_')}`,
+        kulsahId: typeof data.id === 'string' ? data.id : `KUL-${Math.floor(1000 + Math.random() * 9000)}-AA`
       }));
     } catch (e) {
       console.error("Identity Generation Failed", e);

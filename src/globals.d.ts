@@ -1,10 +1,16 @@
 import type { FontSize as AppFontSize } from './utils/helpers';
+import type { RootStackParamList } from './types/user.types';
+
+declare global {
+  namespace ReactNavigation {
+    interface RootParamList extends RootStackParamList {}
+  }
+}
 
 declare global {
   const FontSize: typeof AppFontSize;
   const value: any;
   const theme: any;
-  const navigation: any;
   const useParams: any;
 }
 

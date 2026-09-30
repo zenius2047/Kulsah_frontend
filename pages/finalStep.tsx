@@ -40,7 +40,7 @@ const checklistItems = [
 
 const FinalStep: React.FC = () => {
   const { isDark, theme } = useThemeMode();
-  const navigation = useNavigation<any>();
+  const navigation = useNavigation();
   const bgGradient = isDark
     ? ['#120617', '#0a050d', '#050207']
     : ['#f8fafc', '#eef2ff', '#f8fafc'];

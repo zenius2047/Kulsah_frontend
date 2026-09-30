@@ -25,6 +25,7 @@ import {
   PanResponder,
   NativeScrollEvent,
   NativeSyntheticEvent,
+  Share,
 } from 'react-native';
 import { useIsFocused, useNavigation } from '@react-navigation/native';
 import { MaterialIcons } from '@expo/vector-icons';
@@ -33,7 +34,6 @@ import { SafeAreaView, useSafeAreaInsets } from 'react-native-safe-area-context'
 import { useVideoPlayer, VideoView } from 'expo-video';
 import type { VideoPlayer } from 'expo-video';
 import { getVideoPlaybackUrl, getVideoPoster, getVideoSource } from '../src/utils/video';
-import { TurnCoverage } from '@google/genai/web';
 import { useEvent } from 'expo';
 import { NativeStackScreenProps } from '@react-navigation/native-stack';
 import { mediumScreen, RootStackParamList, smallWidth } from '../types';
@@ -84,6 +84,7 @@ export interface FeedItem {
   caption: string;
   background: string;
   video: string;
+  duetSourceUrl?: string;
   likes: string;
   comments: string;
   isLiked: boolean;
@@ -95,6 +96,7 @@ export interface FeedItem {
   allowDuet?: boolean;
   isDuet?: boolean;
   duetSourceVideoId?: string | number | null;
+  duetLayout?: import('../src').DuetLayout | null;
   canDuet?: boolean;
   ticketsAvailable: boolean;
   ticketLocation?: string;
@@ -328,6 +330,7 @@ const mapFeedVideoToItem = (rawValue: unknown, index: number): FeedItem | null =
   const raw = asRecord(rawValue);
   const creator = asRecord(raw.creator ?? raw.user ?? raw.owner ?? raw.author ?? raw.artist);
   const videoValue = asRecord(raw.video);
+  const playbackValue = asRecord(raw.playback ?? videoValue.playback);
   const video = getVideoPlaybackUrl({
     streaming_url: firstString(raw.streaming_url, videoValue.streaming_url) || null,
     stream_url: firstString(raw.stream_url, videoValue.stream_url) || null,
@@ -349,6 +352,31 @@ const mapFeedVideoToItem = (rawValue: unknown, index: number): FeedItem | null =
   );
 
   if (!video) return null;
+
+  // Feed playback benefits from adaptive streaming, while duet editing needs a
+  // self-contained file that can be staged locally for stable dual playback.
+  const duetSourceUrl = firstString(
+    raw.video,
+    raw.videoUrl,
+    raw.video_url,
+    raw.videoURL,
+    raw.cdn_url,
+    videoValue.cdn_url,
+    raw.rendered_url,
+    videoValue.rendered_url,
+    playbackValue.fallbackUrl,
+    playbackValue.fallback_url,
+    raw.videoPath,
+    raw.video_path,
+    raw.mediaUrl,
+    raw.media_url,
+    raw.fileUrl,
+    raw.file_url,
+    asRecord(raw.videoFile).url,
+    videoValue.url,
+    videoValue.secure_url,
+    video,
+  );
 
   const handle = firstString(
     raw.handle,
@@ -385,6 +413,7 @@ const mapFeedVideoToItem = (rawValue: unknown, index: number): FeedItem | null =
       thumbnail_url: firstString(raw.thumbnail_url, videoValue.thumbnail_url) || null,
     }) ?? firstString(raw.cover, raw.coverUrl, raw.cover_url, FALLBACK_FEED_BACKGROUND),
     video,
+    duetSourceUrl,
     likes: formatFeedCount(raw.likes ?? raw.likesCount ?? raw.like_count),
     comments: formatFeedCount(raw.comments ?? raw.commentsCount ?? raw.comment_count),
     isLiked: Boolean(raw.isLiked ?? raw.liked),
@@ -396,7 +425,8 @@ const mapFeedVideoToItem = (rawValue: unknown, index: number): FeedItem | null =
     allowDuet: Boolean(raw.allowDuet ?? raw.allow_duet),
     isDuet: Boolean(raw.isDuet ?? raw.is_duet),
     duetSourceVideoId: raw.duetSourceVideoId ?? raw.duet_source_video_id ?? null,
-    canDuet: Boolean(raw.canDuet ?? raw.can_duet),
+    duetLayout: raw.duetLayout ?? raw.duet_layout ?? null,
+    canDuet: Boolean(raw.canDuet ?? raw.can_duet ?? raw.allowDuet ?? raw.allow_duet),
     ticketsAvailable: Boolean(raw.ticketsAvailable ?? raw.tickets_available ?? raw.hasTickets),
     ticketLocation: firstString(raw.ticketLocation, raw.ticket_location, raw.location) || undefined,
     isLive: Boolean(raw.isLive ?? raw.live),
@@ -413,7 +443,8 @@ const mapFeedVideoToItem = (rawValue: unknown, index: number): FeedItem | null =
 const FeedQuickMenuModal: React.FC<{
   visible: boolean;
   onClose: () => void;
-}> = ({ visible, onClose }) => {
+  onShare: () => void;
+}> = ({ visible, onClose, onShare }) => {
   const { isDark, theme } = useThemeMode();
   const panelBg = isDark ? 'rgba(10,5,13,0.92)' : 'rgba(255,255,255,0.96)';
   const panelBorder = isDark ? 'rgba(255,255,255,0.12)' : theme.border;
@@ -452,6 +483,27 @@ const FeedQuickMenuModal: React.FC<{
           </View>
 
           <ScrollView showsVerticalScrollIndicator={false} contentContainerStyle={{ paddingHorizontal: 16, paddingBottom: 10 }} keyboardShouldPersistTaps="handled">
+            <Pressable
+              onPress={onShare}
+              style={{
+                minHeight: 52,
+                marginBottom: 12,
+                borderRadius: 14,
+                paddingHorizontal: 14,
+                flexDirection: 'row',
+                alignItems: 'center',
+                gap: 14,
+                backgroundColor: primaryColorAlpha(0.14),
+                borderWidth: 1,
+                borderColor: primaryColorAlpha(0.3),
+              }}
+            >
+              <MaterialIcons name="share" size={22} color={PRIMARY_COLOR} />
+              <Text style={{ color: textPrimary, ...fontSize.b4, lineHeight: fontSize.b4.lineHeight }}>
+                Share video
+              </Text>
+            </Pressable>
+
             <View style={{ flexDirection: 'row', gap: 8, marginBottom: 18 }}>
               {[
                 { icon: 'bookmark', label: 'Save' },
@@ -1128,7 +1180,7 @@ const VideoFeedItemComponent: React.FC<VideoFeedItemProps> = ({
 }) => {
   // console.log("Viewport Height:", SCREEN_HEIGHT);
   // console.log("Viewport Width:", SCREEN_WIDTH);
-  const navigation = useNavigation<any>();
+  const navigation = useNavigation();
   const createDuetDraft = useCreateCreatorVideoDuetDraft();
   const isFocused = useIsFocused();
   const [showComments, setShowComments] = useState(false);
@@ -1158,6 +1210,10 @@ const VideoFeedItemComponent: React.FC<VideoFeedItemProps> = ({
       Alert.alert('Duet unavailable', 'This creator has not enabled duets for this video.');
       return;
     }
+    if (!item.video) {
+      Alert.alert('Duet unavailable', 'The original video is not ready for playback yet.');
+      return;
+    }
 
     try {
       const draft = await createDuetDraft.mutateAsync({ sourceVideo: item.id });
@@ -1165,12 +1221,29 @@ const VideoFeedItemComponent: React.FC<VideoFeedItemProps> = ({
       navigation.navigate('RecordContent', {
         duetDraftId: draft.id,
         duetSourceVideoId: item.id,
+        duetSourceVideoUrl: item.duetSourceUrl ?? item.video,
+        duetLayout: 'side_by_side',
         purpose: 'post_video',
       });
     } catch (error) {
       Alert.alert('Could not start duet', getApiErrorMessage(error));
     }
   };
+
+  const handleNativeShare = useCallback(async () => {
+    setShowMoreMenu(false);
+
+    try {
+      await new Promise<void>((resolve) => setTimeout(resolve, 180));
+      await Share.share({
+        title: item.caption || `Video by ${item.artist}`,
+        message: `${item.caption || `Watch ${item.artist} on Kulsah`}\n\n${item.video}`,
+        ...(Platform.OS === 'ios' ? { url: item.video } : {}),
+      });
+    } catch (error) {
+      Alert.alert('Unable to share', getApiErrorMessage(error));
+    }
+  }, [item.artist, item.caption, item.video]);
   // const [videoSize, setVideoSize] = useState({ width: 0, height: 0 });
 
   const rotation = rotateValue.interpolate({
@@ -1220,6 +1293,13 @@ const VideoFeedItemComponent: React.FC<VideoFeedItemProps> = ({
   const configurePlayer = useCallback((p: any) => {
     p.loop = true;
     p.timeUpdateEventInterval = 0;
+    p.bufferOptions = {
+      preferredForwardBufferDuration: 20,
+      minBufferForPlayback: 2.5,
+      maxBufferBytes: 32 * 1024 * 1024,
+      prioritizeTimeOverSizeThreshold: true,
+      waitsToMinimizeStalling: true,
+    };
   }, []);
 
   const player = useVideoPlayer(getVideoSource(item.video), configurePlayer);
@@ -1626,7 +1706,7 @@ useEffect(() => {
             }}>{item.saves}</Text>
         </Pressable>
 
-        <Pressable onPress={() => {}} style={{
+        <Pressable onPress={() => void handleNativeShare()} style={{
           shadowColor: '#000',
           shadowOffset: { width: 0, height: 2 },
           shadowOpacity: 0.5,
@@ -1938,6 +2018,7 @@ useEffect(() => {
         <CreatorShareSheet
           visible={showMoreMenu}
           onClose={() => setShowMoreMenu(false)}
+          onShare={() => void handleNativeShare()}
           onAction={handleCreatorShareAction}
           disabledActions={item.canDuet ? [] : ['duet']}
         />
@@ -1945,6 +2026,7 @@ useEffect(() => {
         <FeedQuickMenuModal
           visible={showMoreMenu}
           onClose={() => setShowMoreMenu(false)}
+          onShare={() => void handleNativeShare()}
         />
       )}
     </View>
@@ -2035,6 +2117,7 @@ type FeedVideoRowProps = {
   item: FeedItem;
   height: number;
   isActive: boolean;
+  shouldPrepare: boolean;
   onSubscribe: VideoFeedItemProps['onSubscribe'];
   onFollow: VideoFeedItemProps['onFollow'];
   onToggleLike: VideoFeedItemProps['onToggleLike'];
@@ -2052,6 +2135,7 @@ const FeedVideoRow = React.memo<FeedVideoRowProps>(({
   item,
   height,
   isActive,
+  shouldPrepare,
   onSubscribe,
   onFollow,
   onToggleLike,
@@ -2077,10 +2161,10 @@ const FeedVideoRow = React.memo<FeedVideoRowProps>(({
         </View>
       }
     >
-      {isActive ? (
+      {shouldPrepare ? (
         <VideoFeedItem
           item={item}
-          isPlaying
+          isPlaying={isActive}
           onSubscribe={onSubscribe}
           onFollow={onFollow}
           onToggleLike={onToggleLike}
@@ -2103,6 +2187,7 @@ const FeedVideoRow = React.memo<FeedVideoRowProps>(({
   prev.item === next.item
   && prev.height === next.height
   && prev.isActive === next.isActive
+  && prev.shouldPrepare === next.shouldPrepare
   && prev.isCreatorViewer === next.isCreatorViewer
   && (!next.isActive || (
     prev.isGlobalMuted === next.isGlobalMuted
@@ -2249,7 +2334,7 @@ const CreatorBattleParticipantPager = React.memo<CreatorBattleParticipantPagerPr
   isCreatorViewer,
 }) => {
   const { width } = useWindowDimensions();
-  const navigation = useNavigation<any>();
+  const navigation = useNavigation();
   const challengeQuery = useChallenge(battle.id, isActive);
   const walletQuery = useKulCoinWallet(isActive);
   const castBallot = useCastChallengeBallot();
@@ -2603,7 +2688,7 @@ const CreatorBattleParticipantPager = React.memo<CreatorBattleParticipantPagerPr
 
 const Feed: React.FC = () => {
   const { isDark, theme } = useThemeMode();
-  const navigation = useNavigation<any>();
+  const navigation = useNavigation();
   const isFeedFocused = useIsFocused();
   const [activeTab, setActiveTab] = useState<'premium' | 'foryou' | 'following' >('foryou');
   const [isGlobalMuted, setIsGlobalMuted] = useState(false);
@@ -3886,12 +3971,16 @@ const Feed: React.FC = () => {
 
     const videoItem = row.item;
     const isActiveVideo = index === activeIndex;
+    // Keep one previous player warm for reverse swipes and prepare two ahead.
+    // Only the active player is allowed to play.
+    const shouldPrepareVideo = index >= activeIndex - 1 && index <= activeIndex + 2;
 
     return (
       <FeedVideoRow
         item={videoItem}
         height={feedItemHeight}
         isActive={isActiveVideo}
+        shouldPrepare={shouldPrepareVideo}
         onSubscribe={handleSubscribe}
         onFollow={handleFollow}
         onToggleLike={handleToggleLike}
@@ -4156,10 +4245,10 @@ const Feed: React.FC = () => {
             onViewableItemsChanged={onViewRef.current}
             viewabilityConfig={viewConfigRef.current}
             removeClippedSubviews
-            initialNumToRender={1}
-            windowSize={3}
-            maxToRenderPerBatch={1}
-            updateCellsBatchingPeriod={75}
+            initialNumToRender={3}
+            windowSize={5}
+            maxToRenderPerBatch={3}
+            updateCellsBatchingPeriod={25}
           />
         </View>
       ) : (

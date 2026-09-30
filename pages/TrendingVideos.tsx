@@ -22,7 +22,7 @@ type TrendingRange = 'day' | 'week' | 'month';
 const genres = ['All', 'AfroBeats', 'Soul', 'HighLife', 'Drill', 'Acoustic', 'Jazz'];
 
 const TrendingVideos: React.FC = () => {
-  const navigation = useNavigation<any>();
+  const navigation = useNavigation();
   const { isDark, theme } = useThemeMode();
   const [activeTab, setActiveTab] = useState<TrendingRange>('day');
   const [searchQuery, setSearchQuery] = useState('');

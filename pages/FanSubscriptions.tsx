@@ -65,7 +65,7 @@ const subscriptions: SubscriptionItem[] = [
 
 const FanSubscriptions: React.FC = () => {
   const { isDark, theme } = useThemeMode();
-  const navigation = useNavigation<any>();
+  const navigation = useNavigation();
   const insets = useSafeAreaInsets();
   const [selectedSub, setSelectedSub] = useState<SubscriptionItem | null>(null);
   const [isManaging, setIsManaging] = useState(false);

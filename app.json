@@ -127,7 +127,8 @@
             "useFrameworks": "dynamic"
           }
         }
-      ]
+      ],
+      "expo-secure-store"
     ],
     "extra": {
       "eas": {

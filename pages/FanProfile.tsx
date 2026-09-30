@@ -89,7 +89,7 @@ const FanProfile: React.FC<FanProfileProps> = ({ onToggleRole }) => {
     payload: latestFanTicket,
   }] : [], [latestFanTicket]);
   const { isDark, theme } = useThemeMode();
-  const navigation = useNavigation<any>();
+  const navigation = useNavigation();
   const { width } = useWindowDimensions();
   const [activeTab, setActiveTab] = useState<ProfileTab>('Video');
   const [streak, setStreak] = useState<StreakData>({ count: 7 });

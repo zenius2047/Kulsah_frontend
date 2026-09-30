@@ -166,8 +166,8 @@ const createBannerCropData = async (asset: ImagePicker.ImagePickerAsset, offsetY
 
 const CreatorSettings: React.FC<CreatorSettingsProps> = ({ onLogout, isDarkMode, onToggleTheme, onToggleRole }) => {
   const { isDark, theme } = useThemeMode();
-  const navigation = useNavigation<any>();
-  const route = useRoute<any>();
+  const navigation = useNavigation();
+  const route = useRoute();
   const activeSubView = (route.params?.view as SettingsSubView | undefined) ?? 'main';
   const openSettingsPage = useCallback(
     (view: Exclude<SettingsSubView, 'main'>) => navigation.push('Settings', { view }),

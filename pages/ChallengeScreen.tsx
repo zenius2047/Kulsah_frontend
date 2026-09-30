@@ -84,7 +84,7 @@ const VideoPreview: React.FC<Props> = ({ videoLink }) => {
 const ChallengeScreen : React.FC = () => {
   const { isDark, theme } = useThemeMode();
 const [activeTab, setActiveTab] = useState< string |"Active" | "Featured" | "My Entry" | "History" >("Active");
-const navigation = useNavigation<any>()
+const navigation = useNavigation()
 
     const tabs= [
         'Active',

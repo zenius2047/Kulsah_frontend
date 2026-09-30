@@ -48,7 +48,7 @@ import { AuthProvider } from './src/context/AuthContext';
 import { signOutGoogleAsync } from './src/config/auth-google';
 import {
   authApi,
-  clearAuth,
+  clearAuthToken,
   formatUnreadBadgeCount,
   isChallengeInvitationPushNotification,
   isLiveStartedPushNotification,
@@ -64,12 +64,14 @@ import {
   pushLiveId,
   pushVideoId,
   unregisterCurrentPushTokenAsync,
+  hydrateAuthSession,
   useAuthStore,
   useFcmMessaging,
   useMessagingRealtime,
   useMessagingStore,
 } from './src';
 import type { PushNotificationData } from './src';
+import type { RootStackParamList } from './src';
 // import MaterialSymbols from 'react-native-vector-icons/MaterialSymbolsOutlined';
 
 // import Icon from 'react-native-vector-icons/MaterialIcons';
@@ -171,7 +173,7 @@ import { fontSize } from './typography';
 import { DENSITY_ADJUSTED_HANDSET_WIDTH_DP, DP_HEIGHT, DP_RATIO, DP_WIDTH, PHONE_TYPE, SHORTEST_SIDE_DP } from './src/utils/device';
 import VideoPlayer from './pages/VideoPlayer';
 
-const Stack = createNativeStackNavigator();
+const Stack = createNativeStackNavigator<RootStackParamList>();
 const Tab = createBottomTabNavigator();
 const SCREEN_HEIGHT = DP_HEIGHT;
 const SCREEN_WIDTH = DP_WIDTH;
@@ -741,6 +743,7 @@ const App: React.FC = () => {
   const loadInitialData = async () => {
     try {
       await useAuthStore.persist.rehydrate();
+      await hydrateAuthSession();
 
       const [savedUser, savedDarkMode] = await Promise.all([
         AsyncStorage.getItem('pulsar_user'),
@@ -788,12 +791,13 @@ const App: React.FC = () => {
 
   const handleLogout = async () => {
     const token = useAuthStore.getState().token;
+    const refreshToken = useAuthStore.getState().refreshToken;
     await unregisterCurrentPushTokenAsync().catch((error) => {
       console.warn('Push-token revocation failed; local notification state was cleared.', error);
     });
     if (token) {
       try {
-        await authApi.logout(token);
+        await authApi.logout(token, refreshToken);
       } catch (error) {
         console.warn('Logout request failed, clearing local auth anyway.', error);
       }
@@ -806,7 +810,7 @@ const App: React.FC = () => {
     await AsyncStorage.removeItem('pulsar_user');
     queryClient.clear();
     clearUnreadCount();
-    clearAuth();
+    await clearAuthToken();
     setUser(null);
     setCurrentUser(null);
 
@@ -875,7 +879,6 @@ const App: React.FC = () => {
                   <Stack.Screen name="FanSettings" options={themeAwareStatusBarOptions}>{() => <FanSettings onLogout={handleLogout} />}</Stack.Screen>
                   <Stack.Screen name="GoLive" component={GoLiveSetup} />
                   <Stack.Screen name="CreatorEvents" component={CreatorEvents} options={themeAwareStatusBarOptions} />
-                  <Stack.Screen name="/creator/analytics" component={CreatorAnalytics} options={themeAwareStatusBarOptions} />
                   <Stack.Screen name="CreatorAnalytics" component={CreatorAnalytics} options={themeAwareStatusBarOptions} />
                   <Stack.Screen name="CreatorRevenue" component={CreatorRevenue} options={themeAwareStatusBarOptions} />
                   <Stack.Screen name="FanSubscriptions" component={FanSubscriptions} options={themeAwareStatusBarOptions} />
@@ -970,7 +973,10 @@ const App: React.FC = () => {
               ) : (
                 <>
                   <Stack.Screen name="GetStarted" component={GetStarted} />
-                  <Stack.Screen name="/vibe-picker" component={VibePicker} options={themeAwareStatusBarOptions} />
+                  <Stack.Screen name="Login">{() => <Login onLogin={handleLogin} />}</Stack.Screen>
+                  <Stack.Screen name="TermsPolicies" component={TermsPolicies} options={themeAwareStatusBarOptions} />
+                  <Stack.Screen name="PrivacyCentre" component={PrivacyCentre} options={themeAwareStatusBarOptions} />
+                  <Stack.Screen name="VibePicker" component={VibePicker} options={themeAwareStatusBarOptions} />
                   {/* <Stack.Screen name="Signup">{() => <Signup onLogin={handleLogin} />}</Stack.Screen> */}
                   <Stack.Screen
                     name="EmailPhone"

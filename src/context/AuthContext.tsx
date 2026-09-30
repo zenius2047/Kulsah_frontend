@@ -3,6 +3,7 @@ import { authApi } from '../api/auth.api';
 import { signOutGoogleAsync } from '../config/auth-google';
 import { unregisterCurrentPushTokenAsync } from '../hooks/messaging/useFcmMessaging';
 import { useAuthStore } from '../store/auth.store';
+import { clearAuthToken, setAuthToken, tokenService } from '../services/token.service';
 import type { User } from '../types/user.types';
 
 type AuthContextValue = {
@@ -30,10 +31,11 @@ export const AuthProvider: React.FC<React.PropsWithChildren> = ({ children }) =>
         useAuthStore.getState().setUser(nextUser);
       },
       setAuthToken: async (nextToken) => {
-        useAuthStore.getState().setToken(nextToken);
+        await setAuthToken(nextToken);
       },
       logout: async () => {
         const token = useAuthStore.getState().token;
+        const refreshToken = useAuthStore.getState().refreshToken;
         try {
           await unregisterCurrentPushTokenAsync();
         } catch {
@@ -42,7 +44,7 @@ export const AuthProvider: React.FC<React.PropsWithChildren> = ({ children }) =>
 
         if (token) {
           try {
-            await authApi.logout(token);
+            await authApi.logout(token, refreshToken);
           } catch {
             // Ignore network failures during logout and still clear local auth.
           }
@@ -54,9 +56,18 @@ export const AuthProvider: React.FC<React.PropsWithChildren> = ({ children }) =>
           // Always clear local application auth even if a provider SDK fails.
         }
 
-        useAuthStore.getState().clearAuth();
+        await clearAuthToken();
       },
-      refresh: async () => undefined,
+      refresh: async () => {
+        const refreshToken = await tokenService.getRefreshToken();
+        if (!refreshToken) return;
+        const response = await authApi.refresh(refreshToken);
+        await tokenService.setSession({
+          accessToken: response.data.access_token,
+          refreshToken: response.data.refresh_token || refreshToken,
+          expiresIn: response.data.expires_in,
+        });
+      },
     }),
     [token, user]
   );

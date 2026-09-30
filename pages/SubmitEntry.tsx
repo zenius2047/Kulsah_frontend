@@ -32,6 +32,7 @@ import {
   videoApi,
 } from '../src';
 import type {
+  DuetLayout,
   SubmitCreatorVideoEditsPayload,
   MusicTrack,
   VideoContentType,
@@ -48,6 +49,8 @@ type SubmitEntryRouteParams = {
   uploadedVideoId?: string | number;
   uploadToExistingDraft?: boolean;
   duetSourceVideoId?: string | number;
+  duetSourceVideoUrl?: string;
+  duetLayout?: DuetLayout;
   autoStartUpload?: boolean;
   uploadStatus?: string;
   uploadProgressPercentage?: number;
@@ -77,7 +80,7 @@ const getUploadLabel = (status: string, progress: number, hasEdits: boolean) => 
   if (status === 'uploading') return `Uploading original video ${progress}%`;
   if (status === 'finalizing') return 'Completing original upload...';
   if (status === 'submitting_edits') return 'Upload complete · rendering edits queued...';
-  if (status === 'processing') return hasEdits ? 'Render processing...' : 'Video processing...';
+  if (status === 'processing') return hasEdits ? 'Render queued · processing in background' : 'Video processing in background';
   if (status === 'ready') return 'Finished';
   if (status === 'failed') return 'Upload failed';
   return 'Starting...';
@@ -100,8 +103,8 @@ const formatFrameTime = (time: number) => {
 
 const SubmitEntry: React.FC = () => {
   const { isDark, theme } = useThemeMode();
-  const navigation = useNavigation<any>();
-  const route = useRoute<any>();
+  const navigation = useNavigation();
+  const route = useRoute();
   const params = (route.params ?? {}) as SubmitEntryRouteParams;
   const video = params.video;
   const videoUri = video?.uri ?? null;
@@ -150,11 +153,10 @@ const SubmitEntry: React.FC = () => {
   const uploadIsTerminal = progressStatus === 'ready' || progressStatus === 'processing' || progressStatus === 'failed';
   const postIsBusy =
     directUpload.isActive ||
-    (hasCreatorVideoEdits(editPayload) && directUpload.status === 'processing') ||
     isUpdating ||
     submitChallengeEntry.isPending ||
     isUploadingExistingDraft ||
-    (editSubmitStatus === 'submitting_edits' || editSubmitStatus === 'processing') ||
+    editSubmitStatus === 'submitting_edits' ||
     autoUploadPending;
   const selectedVisibility: VideoVisibility = subscribersOnly ? 'premium' : 'public';
   const autoUploadStartedRef = React.useRef(false);
@@ -181,7 +183,10 @@ const SubmitEntry: React.FC = () => {
           allowDuet: allowDuets,
         }, {
           ...(editPayload ? { edits: editPayload } : {}),
-          waitForProcessing: params.challengeId != null || Boolean(editPayload),
+          // A successful edits request means the backend has persisted the assets
+          // and queued the render. Ordinary posts should not wait for FFmpeg or
+          // Cloudinary to finish before the creator can leave this screen.
+          waitForProcessing: params.challengeId != null,
         });
 
         setUploadedVideoId(result.video.id);
@@ -326,6 +331,8 @@ const SubmitEntry: React.FC = () => {
       officialSoundId: params.officialSoundId,
       uploadToExistingDraft: params.uploadToExistingDraft,
       duetSourceVideoId: params.duetSourceVideoId,
+      duetSourceVideoUrl: params.duetSourceVideoUrl,
+      duetLayout: params.duetLayout,
     });
   };
 
@@ -376,6 +383,21 @@ const SubmitEntry: React.FC = () => {
       return;
     }
 
+    if (!title.trim()) {
+      Alert.alert('Title required', 'Add a title before posting your video.');
+      return;
+    }
+
+    if (!description.trim()) {
+      Alert.alert('Description required', 'Add a description before posting your video.');
+      return;
+    }
+
+    if (contentTypes.length === 0) {
+      Alert.alert('Content type required', 'Choose at least one content type before posting your video.');
+      return;
+    }
+
     try {
       let submittedVideoId = uploadedVideoId;
       const music = params.sound ? toMusicSelectionPayload(params.sound) : null;
@@ -390,6 +412,9 @@ const SubmitEntry: React.FC = () => {
         content_type: contentTypes,
         visibility: selectedVisibility,
         allow_duet: allowDuets,
+        ...(params.duetSourceVideoId != null && params.duetLayout
+          ? { duet_layout: params.duetLayout, duet_source_audio: true, duet_response_audio: true }
+          : {}),
         ...(music ? { music } : {}),
       };
 
@@ -397,6 +422,12 @@ const SubmitEntry: React.FC = () => {
         if (params.uploadToExistingDraft) {
           setIsUploadingExistingDraft(true);
           try {
+            // Persist the composition before upload so the processing worker
+            // renders the response with the correct duet layout and audio mix.
+            await updateCreatorVideo({
+              video: uploadedVideoId,
+              payload: videoDetails,
+            });
             await videoApi.uploadCreatorVideoToDraft(uploadedVideoId, { video });
             if (hasCreatorVideoEdits(editPayload)) {
               await videoApi.submitCreatorVideoEdits(uploadedVideoId, editPayload!);
@@ -404,11 +435,12 @@ const SubmitEntry: React.FC = () => {
           } finally {
             setIsUploadingExistingDraft(false);
           }
+        } else {
+          await updateCreatorVideo({
+            video: uploadedVideoId,
+            payload: videoDetails,
+          });
         }
-        await updateCreatorVideo({
-          video: uploadedVideoId,
-          payload: videoDetails,
-        });
       } else {
         const result = await directUpload.upload({
           video: {
@@ -424,7 +456,7 @@ const SubmitEntry: React.FC = () => {
           allowDuet: allowDuets,
         }, {
           ...(editPayload ? { edits: editPayload } : {}),
-          waitForProcessing: params.challengeId != null || Boolean(editPayload),
+          waitForProcessing: params.challengeId != null,
         });
 
         submittedVideoId = result.video.id;
@@ -454,10 +486,8 @@ const SubmitEntry: React.FC = () => {
       }
 
       Alert.alert('Posted', params.uploadToExistingDraft
-        ? 'Your duet uploaded. Processing will continue in the background.'
-        : uploadedVideoId != null
-          ? 'Your video details were saved.'
-          : 'Your video uploaded. Processing will continue in the background.', [
+        ? 'Your duet was posted. Rendering will continue in the background.'
+        : 'Your video was posted. Rendering will continue in the background.', [
         {
           text: 'Done',
           onPress: () =>
@@ -532,7 +562,7 @@ const SubmitEntry: React.FC = () => {
 
           <View style={styles.formColumn}>
             <View style={styles.inputGroup}>
-              <Text style={[styles.inputLabel, { color: mutedText }]}>Title</Text>
+              <Text style={[styles.inputLabel, { color: mutedText }]}>Title *</Text>
               <TextInput includeFontPadding={false}
                 value={title}
                 onChangeText={setTitle}
@@ -542,11 +572,12 @@ const SubmitEntry: React.FC = () => {
                   styles.input,
                   { backgroundColor: subtleSurface, color: theme.text },
                 ]}
+                maxLength={255}
               />
             </View>
 
             <View style={styles.inputGroup}>
-              <Text style={[styles.inputLabel, { color: mutedText }]}>Description</Text>
+              <Text style={[styles.inputLabel, { color: mutedText }]}>Description *</Text>
               <TextInput includeFontPadding={false}
                 value={description}
                 onChangeText={setDescription}
@@ -557,6 +588,7 @@ const SubmitEntry: React.FC = () => {
                   styles.textArea,
                   { backgroundColor: subtleSurface, color: theme.text },
                 ]}
+                maxLength={5000}
               />
             </View>
           </View>

@@ -3,7 +3,7 @@ import { useThemeMode } from '../theme';
 import { View, Text, Pressable, Image, TextInput } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
 
-import { GoogleGenAI } from "@google/genai";
+import { aiApi } from '../src';
 
 interface StoreItem {
   id: string;
@@ -25,7 +25,7 @@ const INITIAL_ITEMS: StoreItem[] = [
 
 const CreatorStore: React.FC = () => {
   const { isDark, theme } = useThemeMode();
-  const navigation = useNavigation<any>();
+  const navigation = useNavigation();
   const [items, setItems] = useState<StoreItem[]>(INITIAL_ITEMS);
   const [isSaving, setIsSaving] = useState(false);
   const [showSaveSuccess, setShowSaveSuccess] = useState(false);
@@ -89,11 +89,7 @@ const CreatorStore: React.FC = () => {
     if (!editingItem?.name) return;
     setIsAiLoading(true);
     try {
-      const ai = new GoogleGenAI({ apiKey: process.env.API_KEY });
-      const response = await ai.models.generateContent({
-        model: 'gemini-3-flash-preview',
-        contents: `You are a high-end luxury merch copywriter. Write a 1-sentence magnetic product description for a creator item named "${editingItem.name}". Focus on exclusivity and the "galaxy" vibe.`,
-      });
+      const response = await aiApi.generate('store_description', { name: editingItem.name });
       setEditingItem(prev => prev ? { ...prev, description: response.text || "" } : null);
     } catch (e) {
       setEditingItem(prev => prev ? { ...prev, description: "A limited celestial artifact for true cosmic collectors." } : null);

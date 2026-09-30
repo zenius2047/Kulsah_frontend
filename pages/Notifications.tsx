@@ -37,7 +37,7 @@ const notificationIcon = (type: string): keyof typeof MaterialIcons.glyphMap => 
 };
 
 const Notifications: React.FC = () => {
-  const navigation = useNavigation<any>();
+  const navigation = useNavigation();
   const { isDark, theme } = useThemeMode();
   const notificationsQuery = useNotifications();
   const markRead = useMarkNotificationRead();

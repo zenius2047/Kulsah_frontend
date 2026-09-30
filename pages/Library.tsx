@@ -85,7 +85,7 @@ const mediaItems: MediaItem[] = [
 
 const Library: React.FC = () => {
   const { isDark, theme } = useThemeMode();
-  const navigation = useNavigation<any>();
+  const navigation = useNavigation();
   const insets = useSafeAreaInsets();
   const [activeFilter, setActiveFilter] = useState<FilterKey>('Videos');
   const [selectedId, setSelectedId] = useState<string>('2');

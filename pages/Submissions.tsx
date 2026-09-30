@@ -100,7 +100,7 @@ const dummySubmissions: ChallengeSubmission[] = [
 ];
 
 const Submissions: React.FC = () => {
-  const navigation = useNavigation<any>();
+  const navigation = useNavigation();
   const insets = useSafeAreaInsets();
   const { isDark, theme } = useThemeMode();
   const styles = useMemo(() => createStyles(isDark), [isDark]);

@@ -113,7 +113,7 @@ const participants: Participant[] = [
 
 const ChallengeParticipants: React.FC = () => {
   const { isDark, theme } = useThemeMode();
-  const navigation = useNavigation<any>();
+  const navigation = useNavigation();
   const { width } = useWindowDimensions();
   const [query, setQuery] = useState('');
   const [activeFilter, setActiveFilter] = useState<FilterKey>('Trending');

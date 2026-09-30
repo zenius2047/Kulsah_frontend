@@ -299,7 +299,7 @@ const Discover: React.FC<DiscoverProps> = ({
   onCountChange,
 }) => {
   const { isDark, theme } = useThemeMode();
-  const navigation = useNavigation<any>();
+  const navigation = useNavigation();
   const insets = useSafeAreaInsets();
   const styles = useMemo(() => createStyles(isDark), [isDark]);
   const [activeTab, setActiveTab] = useState<DiscoverTab>('all');

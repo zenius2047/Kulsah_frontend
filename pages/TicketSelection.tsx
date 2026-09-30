@@ -1,6 +1,6 @@
 import { useThemeMode, PRIMARY_COLOR, primaryColorAlphaHex } from "../theme";
 import React, { useMemo, useState } from 'react';
-import { GoogleGenAI } from '@google/genai';
+import { aiApi } from '../src';
 import { useNavigation, useRoute } from '@react-navigation/native';
 import { MaterialIcons } from '@expo/vector-icons';
 import {
@@ -35,8 +35,8 @@ const TIERS: TicketTier[] = [
 
 const TicketSelection: React.FC = () => {
   const { isDark, theme } = useThemeMode();
-  const route = useRoute<any>();
-  const navigation = useNavigation<any>();
+  const route = useRoute();
+  const navigation = useNavigation();
   const eventId = route.params?.id;
 
   const [quantities, setQuantities] = useState<Record<string, number>>({});
@@ -81,15 +81,10 @@ const TicketSelection: React.FC = () => {
   const getAiRecommendation = async () => {
     setAiLoading(true);
     try {
-      const apiKey = process.env.EXPO_PUBLIC_GOOGLE_API_KEY || process.env.API_KEY;
-      if (!apiKey) throw new Error('Missing API key');
-      const ai = new GoogleGenAI({ apiKey });
-      const response = await ai.models.generateContent({
-        model: 'gemini-2.5-flash',
-        contents:
-          "Based on Burna Boy's high-energy Afrobeats performance style at the O2 Arena, should a fan choose the Pit for dancing or Mezzanine for visuals? Give a 1-sentence recommendation.",
+      const response = await aiApi.generate('ticket_recommendation', {
+        tiers: TIERS.map(({ name, price, description }) => ({ name, price, description })),
       });
-      const text = (response as { text?: string }).text;
+      const text = response.text;
       setAiSuggestion(text || 'Choose the Pit for the most immersive Afrobeats energy.');
     } catch {
       setAiSuggestion('Choose the Pit for the highest-energy experience.');

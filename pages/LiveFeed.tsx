@@ -514,7 +514,7 @@ const LiveCardOverlay: React.FC<LiveCardOverlayProps> = ({
 };
 
 const LiveFeed: React.FC = () => {
-  const navigation = useNavigation<any>();
+  const navigation = useNavigation();
   const [requestCard, setRequestCard] = useState<LiveCard | null>(null);
   const requestInFlight = useRef(false);
   const shownInvitations = useRef(new Set<string>());

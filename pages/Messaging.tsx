@@ -8,7 +8,7 @@ type MessageTab = 'direct' | 'subs' | 'pitches';
 
 const Messaging: React.FC = () => {
   const { isDark, theme } = useThemeMode();
-  const navigation = useNavigation<any>();
+  const navigation = useNavigation();
   const [activeTab, setActiveTab] = useState<MessageTab>('direct');
   const [search, setSearch] = useState("");
 
@@ -100,8 +100,8 @@ const Messaging: React.FC = () => {
           <View 
             key={i} 
             onPress={() => {
-              if (chat.type === 'pitches') navigation.navigate('/creator/collaborations', { state: { tab: 'incoming' } });
-              else navigation.navigate(`/chat/${chat.id}`);
+              if (chat.type === 'pitches') navigation.navigate('ConnectHub', { tab: 'incoming' });
+              else navigation.navigate('Chat', { conversationId: chat.id });
             }}
            
           >

@@ -100,6 +100,7 @@ const createBaseProjectTrack = ({
   y,
   width = null,
   height = null,
+  loop = false,
 }: {
   id: string;
   type: VideoProjectTrack['type'];
@@ -111,6 +112,7 @@ const createBaseProjectTrack = ({
   y: number;
   width?: number | null;
   height?: number | null;
+  loop?: boolean;
 }): VideoProjectTrack => ({
   id,
   type,
@@ -119,6 +121,7 @@ const createBaseProjectTrack = ({
   timeline: {
     start,
     duration: Math.max(0.1, end - start),
+    ...(loop ? { loop: true } : {}),
   },
   transform: {
     position: { x, y },
@@ -352,11 +355,15 @@ const createVideoProject = ({
         end: duration,
         x: 0,
         y: 0,
+        loop: true,
       }),
       enabled: true,
       zIndex: layer - 1,
       source: { assetId: generated.id },
-      audio: { volume: Math.max(0, Math.min(4, audioTrack.volume ?? 1)) },
+      audio: {
+        volume: Math.max(0, Math.min(4, audioTrack.volume ?? 1)),
+        replaceOriginal: true,
+      },
     });
   }
 

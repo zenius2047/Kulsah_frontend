@@ -42,25 +42,6 @@ type RankingItem = {
 const DEFAULT_AVATAR = 'https://picsum.photos/seed/challenge-user/200';
 const DEFAULT_COVER = 'https://images.unsplash.com/photo-1547153760-18fc86324498?auto=format&fit=crop&q=85&w=1000';
 
-const MOCK_RANKINGS: RankingItem[] = [
-  { id: '1', rank: 1, name: 'Dance Mira', handle: '@dancemira', points: 25780, avatar: 'https://i.pravatar.cc/160?img=47', creatorId: 'mira', verified: true },
-  { id: '2', rank: 2, name: 'Move With Jay', handle: '@move.with.jay', points: 18450, avatar: 'https://i.pravatar.cc/160?img=11', creatorId: 'jay', verified: true },
-  { id: '3', rank: 3, name: 'Rhythm Kid', handle: '@rhythm_kid', points: 14230, avatar: 'https://i.pravatar.cc/160?img=14', creatorId: 'rhythm', verified: true },
-  { id: '4', rank: 4, name: 'Step By Step Ella', handle: '@stepbystep_ella', points: 11980, avatar: 'https://i.pravatar.cc/120?img=45', creatorId: 'ella', verified: true },
-  { id: '5', rank: 5, name: 'Groove Master', handle: '@groove.master', points: 10450, avatar: 'https://i.pravatar.cc/120?img=12', creatorId: 'groove', verified: true },
-  { id: '6', rank: 6, name: 'Beat With Luna', handle: '@beat.with.luna', points: 9870, avatar: 'https://i.pravatar.cc/120?img=44', creatorId: 'luna', verified: true },
-  { id: '7', rank: 7, name: 'Vibez Only', handle: '@vibez_only', points: 8620, avatar: 'https://i.pravatar.cc/120?img=8', creatorId: 'vibez', verified: true },
-  { id: '8', rank: 8, name: 'Dance Bree', handle: '@dance.bree', points: 7430, avatar: 'https://i.pravatar.cc/120?img=49', creatorId: 'bree' },
-  { id: '9', rank: 9, name: 'Twist King', handle: '@twist.king', points: 6250, avatar: 'https://i.pravatar.cc/120?img=5', creatorId: 'twist', verified: true },
-  { id: '10', rank: 10, name: 'Moves By Nia', handle: '@moves.by.nia', points: 5940, avatar: 'https://i.pravatar.cc/120?img=32', creatorId: 'nia', verified: true },
-];
-
-const FALLBACK_PRIZES: ChallengePrizeResource[] = [
-  { id: 1, rank_from: 1, rank_to: 1, reward_type: 'cash', title: 'Grand Prize', description: 'Cash reward and a featured creator spotlight.', currency: 'USD', amount: 1000, quantity: 1 },
-  { id: 2, rank_from: 2, rank_to: 2, reward_type: 'feature', title: 'Runner Up', description: 'Featured placement and creator merchandise.', quantity: 1 },
-  { id: 3, rank_from: 3, rank_to: 3, reward_type: 'badge', title: 'Third Place', description: 'Challenge badge and profile recognition.', quantity: 1 },
-];
-
 const tabs: Array<{ key: LeaderboardTab; label: string }> = [
   { key: 'ranking', label: 'Ranking' },
   { key: 'rules', label: 'Rules' },
@@ -109,8 +90,8 @@ const IconTile = ({ icon, isDark }: { icon: IconName; isDark: boolean }) => (
 );
 
 const ChallengeLeaderboardDetails: React.FC = () => {
-  const navigation = useNavigation<any>();
-  const route = useRoute<any>();
+  const navigation = useNavigation();
+  const route = useRoute();
   const insets = useSafeAreaInsets();
   const { isDark } = useThemeMode();
   const challengeId = route.params?.challengeId as string | number | undefined;
@@ -138,7 +119,7 @@ const ChallengeLeaderboardDetails: React.FC = () => {
   }, [challenge?.cover_image, challenge?.media]);
 
   const rankings = useMemo<RankingItem[]>(() => {
-    if (challengeId == null) return MOCK_RANKINGS;
+    if (challengeId == null) return [];
     const pages = leaderboardQuery.data?.pages;
     if (!Array.isArray(pages)) return [];
     return pages.flatMap((page) => Array.isArray(page.data) ? page.data : []).map((entry, index) => {
@@ -195,8 +176,8 @@ const ChallengeLeaderboardDetails: React.FC = () => {
         return `${display.title}: ${display.description}`;
       });
     return {
-      submission: submission.length ? submission : ['15–60 seconds', 'Vertical format (9:16)', 'Original video only', 'Clear audio and good lighting', 'Challenge hashtag required'],
-      content: content.length ? content : ['No hate speech', 'No nudity or unsafe content', 'Respect copyright', 'Be respectful and authentic'],
+      submission,
+      content,
     };
   }, [challenge?.rules]);
 
@@ -209,19 +190,13 @@ const ChallengeLeaderboardDetails: React.FC = () => {
         value: Number.isFinite(weight) ? `${weight / 100}%` : '—',
       };
     });
-    return parsed.length ? parsed : [
-      { label: 'Creativity', value: '40%' },
-      { label: 'Performance', value: '35%' },
-      { label: 'Engagement', value: '25%' },
-    ];
+    return parsed;
   }, [challenge?.scoring_components]);
 
-  const prizes = challenge
-    ? challenge.awards?.length ? challenge.awards : challenge.prizes || []
-    : FALLBACK_PRIZES;
+  const prizes = challenge?.awards?.length ? challenge.awards : challenge?.prizes || [];
   const rewardSummary = challenge?.reward_summary || challenge?.pricing?.reward_summary;
-  const title = challenge?.title || 'Dance Remix Challenge';
-  const description = challenge?.description || 'Show your best remix dance move and tag #DanceRemixChallenge';
+  const title = challenge?.title || 'Challenge';
+  const description = challenge?.description || 'Challenge details are unavailable.';
   const submissionStartsAt = challenge?.submission?.starts_at || challenge?.schedule?.submission_starts_at;
   const submissionEndsAt = challenge?.submission?.ends_at || challenge?.schedule?.submission_ends_at;
   const duration = durationLabel(submissionStartsAt, submissionEndsAt);

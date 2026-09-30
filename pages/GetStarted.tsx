@@ -62,7 +62,7 @@ const featureCards = [
 ];
 
 const GetStarted: React.FC = () => {
-  const navigation = useNavigation<any>();
+  const navigation = useNavigation();
   const insets = useSafeAreaInsets();
   const {isDark, theme} = useThemeMode();
   const subtitleColor = isDark ? '#d0c1d8' : theme.textSecondary;
@@ -153,7 +153,10 @@ const GetStarted: React.FC = () => {
             </Text>
           </View>
 
-          <Pressable onPress={() => navigation.navigate('/vibe-picker')} style={s.ctaButton}>
+          <Pressable
+            onPress={() => navigation.navigate('TermsPolicies', { onboarding: true, nextRoute: 'VibePicker' })}
+            style={s.ctaButton}
+          >
             <LinearGradient
               colors={ctaGradient}
               start={{ x: 0, y: 0.5 }}
@@ -165,7 +168,7 @@ const GetStarted: React.FC = () => {
           </Pressable>
 
           <Text style={[s.disclaimer, { color: disclaimerColor }]}>
-            By tapping Get Started, you agree to our Terms of Service and Privacy Policy. You can upgrade to a Creator account anytime in settings.
+            You&apos;ll review and accept our Terms and Conditions before continuing. You can upgrade to a Creator account anytime in settings.
           </Text>
         </View>
       </ScrollView>

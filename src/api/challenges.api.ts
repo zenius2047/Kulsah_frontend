@@ -23,6 +23,20 @@ import type {
 export const unwrapChallengeShowResponse = (response: ChallengeShowResponse) => response.data.challenge;
 
 export const challengesApi = {
+  getMyRewards: () => api.get<{
+    data: Array<{
+      id: string | number;
+      status: string;
+      amount?: string | number | null;
+      currency?: string | null;
+      allocated_at?: string | null;
+      processed_at?: string | null;
+      challenge?: { id?: string | number | null; title?: string | null };
+      entry?: { id?: string | number | null; score?: string | number | null; video_thumbnail?: string | null };
+      creator?: { id?: string | number | null; name?: string | null; handle?: string | null; avatar?: string | null };
+      prize?: { title?: string | null; description?: string | null; reward_type?: string | null };
+    }>;
+  }>(endpoints.general.challengeRewards),
   getChallenges: (params: ChallengeListParams = {}) =>
     api.get<ChallengePage>(endpoints.challenges.list, {
       params,
@@ -30,6 +44,8 @@ export const challengesApi = {
     }),
   getChallenge: (challenge: string | number) =>
     api.get<ChallengeShowResponse>(endpoints.challenges.item(challenge)),
+  getCreatorChallenges: (params: ChallengeListParams = {}) =>
+    api.get<ChallengePage>(endpoints.creator.challenges, { params }),
   getChallengeLeaderboard: (challenge: string | number, page = 1, perPage = 25) =>
     api.get<ChallengeEntryPage>(endpoints.challenges.leaderboard(challenge), {
       params: { page, per_page: perPage },
@@ -42,6 +58,8 @@ export const challengesApi = {
     api.post<ChallengeItemResponse>(endpoints.creator.challengeDrafts, payload),
   updateChallenge: (challenge: string | number, payload: Partial<CreateChallengePayload>) =>
     api.patch<ChallengeItemResponse>(endpoints.creator.challenge(challenge), payload),
+  deleteChallengeDraft: (challenge: string | number) =>
+    api.delete(endpoints.creator.challenge(challenge)),
   transitionChallenge: (challenge: string | number, payload: TransitionChallengePayload) =>
     api.post<ChallengeItemResponse>(endpoints.creator.challengeTransition(challenge), payload),
   submitChallengeEntry: (challenge: string | number, payload: SubmitChallengeEntryPayload) =>

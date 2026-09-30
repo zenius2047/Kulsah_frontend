@@ -2,7 +2,7 @@ import React, { useMemo, useState } from 'react';
 import { useThemeMode, PRIMARY_COLOR, primaryColorAlphaHex } from "../theme";
 import { MaterialIcons } from '@expo/vector-icons';
 import { useNavigation } from '@react-navigation/native';
-import { GoogleGenAI } from '@google/genai';
+import { aiApi } from '../src';
 import {
   ActivityIndicator,
   Image,
@@ -48,7 +48,7 @@ type Collab = {
 
 const ArtistDashboard: React.FC<ArtistDashboardProps> = ({ onToggleRole }) => {
   const { isDark, theme } = useThemeMode();
-  const navigation = useNavigation<any>();
+  const navigation = useNavigation();
   const insets = useSafeAreaInsets();
   const [insight, setInsight] = useState<string>('');
   const [loading, setLoading] = useState(false);
@@ -87,18 +87,8 @@ const ArtistDashboard: React.FC<ArtistDashboardProps> = ({ onToggleRole }) => {
   const generateAIStrategy = async () => {
     setLoading(true);
     try {
-      const apiKey = process.env.EXPO_PUBLIC_GOOGLE_API_KEY || process.env.API_KEY;
-      if (!apiKey) throw new Error('Missing API key');
-
-      const ai = new GoogleGenAI({ apiKey });
-      const response = await ai.models.generateContent({
-        model: 'gemini-3-flash-preview',
-        contents:
-          "You are a creator manager. Give a 1-sentence 'power move' for a video creator based on 80% of their fans being active right now. Focus on video content.",
-      });
-
-      const text = (response as { text?: string }).text;
-      setInsight(text || 'Fans are peaking - perfect time for a surprise Live Transmission.');
+      const response = await aiApi.generate('creator_power_move', { activeFanPercentage: 80, contentType: 'video' });
+      setInsight(response.text || 'Fans are peaking - perfect time for a surprise Live Transmission.');
     } catch {
       setInsight("Network density is high. Initiate a 'Flash Stream' now to capture the 400+ active viewers.");
     } finally {
@@ -120,7 +110,7 @@ const ArtistDashboard: React.FC<ArtistDashboardProps> = ({ onToggleRole }) => {
                 <Text style={s.commander}>Good Morning.</Text>
               </View>
             </View>
-            <Pressable onPress={() => navigation.navigate('/notifications')} style={s.iconButton}>
+            <Pressable onPress={() => navigation.navigate('Notification')} style={s.iconButton}>
               <NotificationIcon height={20} width={20} fill="#fff" />
             </Pressable>
           </View>

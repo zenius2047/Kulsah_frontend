@@ -42,92 +42,6 @@ type BoostPackage = {
 
 type BoostUser = User & { balance?: number };
 
-const mockTopThree = [
-  { rank: 2, name: 'MusicLover99', votes: '12.8k', avatar: 'https://picsum.photos/seed/fan1/200' },
-  {
-    rank: 1,
-    name: 'Champion Fan',
-    votes: '15.4k',
-    avatar: 'https://picsum.photos/seed/fan2/200',
-    isWinner: true,
-  },
-  { rank: 3, name: 'BassMaster', votes: '10.2k', avatar: 'https://picsum.photos/seed/fan3/200' },
-];
-
-const mockGlobalRankings = [
-  {
-    rank: 4,
-    name: 'MelodyJane',
-    votes: '8.9k',
-    avatar: 'https://picsum.photos/seed/fan4/200',
-    entry: 'https://picsum.photos/seed/e1/100',
-  },
-  {
-    rank: 5,
-    name: 'RetroVibe_X',
-    votes: '7.4k',
-    avatar: 'https://picsum.photos/seed/fan5/200',
-    entry: 'https://picsum.photos/seed/e2/100',
-  },
-  {
-    rank: 6,
-    name: 'DigitalGhost',
-    votes: '6.1k',
-    avatar: 'https://picsum.photos/seed/fan6/200',
-    entry: 'https://picsum.photos/seed/e3/100',
-  },
-  {
-    rank: 7,
-    name: 'NeonDancer',
-    votes: '5.8k',
-    avatar: 'https://picsum.photos/seed/fan7/200',
-    entry: 'https://picsum.photos/seed/e4/100',
-  },
-];
-
-const mockRules = [
-  {
-    title: 'Original Content',
-    desc: 'All submissions must be your own original work or a remix of the provided stems.',
-  },
-  {
-    title: 'Video Format',
-    desc: 'Videos should be between 15-60 seconds in vertical 9:16 format.',
-  },
-  {
-    title: 'No Explicit Content',
-    desc: 'Keep it clean. Any offensive or explicit content will be disqualified immediately.',
-  },
-  {
-    title: 'Voting Period',
-    desc: 'Voting remains open until the challenge deadline. One vote per user per day.',
-  },
-];
-
-const mockPrizes = [
-  {
-    rank: 'Grand Prize',
-    prize: '$1,000 + Studio Session',
-    desc: 'The ultimate winner gets a cash prize and a 4-hour studio session with the creator.',
-    colors: ['#fbbf24', '#f97316'] as const,
-    icon: 'workspace-premium' as const,
-  },
-  {
-    rank: 'Runner Up',
-    prize: '$500 + Signed Merch',
-    desc: 'Second place receives a cash prize and a limited edition signed merchandise bundle.',
-    colors: ['#cbd5e1', '#64748b'] as const,
-    icon: 'military-tech' as const,
-  },
-  {
-    rank: 'Third Place',
-    prize: '$250 + Shoutout',
-    desc: "Third place gets a cash prize and a permanent shoutout on the creator's main profile.",
-    colors: ['#d97706', '#92400e'] as const,
-    icon: 'stars' as const,
-  },
-];
-
 const tabItems: { key: LeaderboardTab; label: string }[] = [
   { key: 'rankings', label: 'Rankings' },
   { key: 'rules', label: 'Rules' },
@@ -569,8 +483,8 @@ export const BoostEntryDialog = ({
 };
 
 const ChallengeLeaderboard: React.FC = () => {
-  const navigation = useNavigation<any>();
-  const route = useRoute<any>();
+  const navigation = useNavigation();
+  const route = useRoute();
   const challengeId = route.params?.challengeId as string | number | undefined;
   const challengeQuery = useChallenge(challengeId);
   const leaderboardQuery = useChallengeLeaderboard(challengeId);
@@ -601,22 +515,15 @@ const ChallengeLeaderboard: React.FC = () => {
     });
   }, [leaderboardQuery.data]);
 
-  const topThree = challengeId == null
-    ? mockTopThree
-    : apiRankings.length >= 3
+  const topThree = apiRankings.length >= 3
       ? [apiRankings[1], apiRankings[0], apiRankings[2]]
       : [];
-  const globalRankings = challengeId == null
-    ? mockGlobalRankings
-    : apiRankings.length >= 3
+  const globalRankings = apiRankings.length >= 3
       ? apiRankings.slice(3)
       : apiRankings;
-  const currentUserRanking = challengeId == null
-    ? null
-    : apiRankings.find((entry) => entry.creatorId === String(user?.id ?? ''));
+  const currentUserRanking = apiRankings.find((entry) => entry.creatorId === String(user?.id ?? ''));
 
   const rules = useMemo(() => {
-    if (challengeId == null) return mockRules;
     const challengeRules = challengeQuery.data?.rules;
     if (Array.isArray(challengeRules) && challengeRules.length > 0) {
       return challengeRules.map((rule) => {
@@ -631,7 +538,6 @@ const ChallengeLeaderboard: React.FC = () => {
   }, [challengeId, challengeQuery.data]);
 
   const prizes = useMemo(() => {
-    if (challengeId == null) return mockPrizes;
     const challengePrizes = challengeQuery.data?.prizes;
     if (!Array.isArray(challengePrizes)) return [];
 

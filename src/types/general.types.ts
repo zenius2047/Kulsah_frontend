@@ -52,6 +52,7 @@ export type GeneralFeedCard = {
   allowDuet?: boolean;
   isDuet?: boolean;
   duetSourceVideoId?: string | number | null;
+  duetLayout?: import('./video.types').DuetLayout | null;
   canDuet?: boolean;
   ticketsAvailable?: boolean;
   ticketLocation?: string;
@@ -88,6 +89,7 @@ export type GeneralVideo = {
   allowDuet?: boolean;
   isDuet?: boolean;
   duetSourceVideoId?: string | number | null;
+  duetLayout?: import('./video.types').DuetLayout | null;
   content_type?: string | null;
   content_types?: string[];
   is_premium?: boolean;

@@ -55,7 +55,7 @@ const invitedCreators = [
 
 const CreateChallenge: React.FC = () => {
   const { isDark, theme } = useThemeMode();
-  const navigation = useNavigation<any>();
+  const navigation = useNavigation();
   const [challengeTitle, setChallengeTitle] = useState('');
   const [rules, setRules] = useState('');
   const [search, setSearch] = useState('');

@@ -99,8 +99,8 @@ const eventDetails: Record<
 
 const EventDetail: React.FC = () => {
   const { isDark, theme } = useThemeMode();
-  const navigation = useNavigation<any>();
-  const route = useRoute<any>();
+  const navigation = useNavigation();
+  const route = useRoute();
   const insets = useSafeAreaInsets();
   const eventId = route.params?.id ?? 'burna-boy';
   const apiEventId = /^(?:event_)?\d+$/.test(String(eventId)) ? eventId : undefined;

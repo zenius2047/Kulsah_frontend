@@ -23,8 +23,8 @@ const BG_TEXTURE =
   'https://lh3.googleusercontent.com/aida-public/AB6AXuCK2h3MxuDAaZYN13G081f-gGAFc3Gr7qMVku-Y6ajENgzwIRyvoQDqHcEnCQu_sDwkqkUcEAk_PSS305kzvelcygxH6NqWDlPjvAUte1bpTgLnrVxTLlsPUdhwiUur-HLLBrukrmOzbYnyLcPpnnzdBqdqOepB7TJTWMM17JUYBS4z_m92vzUYxu3UCUfdjNUtRP1AvUwCfR3QoRpDxs11C0Q1kHTWxhSxzi2TP2E740AeiwSefwybNZ9oySfxJ8DFXm-2jMHCk_LT';
 
 const EmailVerification: React.FC = () => {
-  const navigation = useNavigation<any>();
-  const route = useRoute<any>();
+  const navigation = useNavigation();
+  const route = useRoute();
   const { isDark, theme } = useThemeMode();
   const insets = useSafeAreaInsets();
   const routeEmail = typeof route.params?.email === 'string' ? route.params.email : '';

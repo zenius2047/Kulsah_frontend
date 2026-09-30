@@ -19,6 +19,7 @@ export * from './api/messaging.api';
 export * from './api/sticker.api';
 export * from './api/live.api';
 export * from './api/music.api';
+export * from './api/ai.api';
 
 export * from './context/AuthContext';
 export * from './hooks/mutations/useRegister';

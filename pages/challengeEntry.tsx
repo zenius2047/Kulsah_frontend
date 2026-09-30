@@ -23,7 +23,7 @@ const AUDIO_ART =
 
 const ChallengeEntry: React.FC = () => {
   const { isDark, theme } = useThemeMode();
-  const navigation = useNavigation<any>();
+  const navigation = useNavigation();
   const headerBackground = isDark ? 'rgba(15, 8, 20, 0.84)' : 'rgba(255,255,255,0.94)';
   const headerBorder = isDark ? 'rgba(217, 21, 210, 0.12)' : theme.border;
   const iconSurface = isDark ? 'rgba(255,255,255,0.04)' : theme.surface;

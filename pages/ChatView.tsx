@@ -23,6 +23,7 @@ import { fontSize } from './typography';
 import { LinearGradient } from 'expo-linear-gradient';
 import * as ImagePicker from 'expo-image-picker';
 import {
+  aiApi,
   createClientMessageId,
   flattenConversationMessagePages,
   formatChatPresence,
@@ -123,8 +124,8 @@ const serverMessageToView = (
 
 const ChatView: React.FC = () => {
   const { isDark, theme } = useThemeMode();
-  const navigation = useNavigation<any>();
-  const route = useRoute<any>();
+  const navigation = useNavigation();
+  const route = useRoute();
   const params = (route.params ?? {}) as ChatRouteParams;
   const routedConversationId = numericId(params.conversationId);
   const participantId = numericId(params.senderId ?? params.id);
@@ -305,25 +306,13 @@ const ChatView: React.FC = () => {
   }, [callStatus]);
 
   const generateSmartReplies = async (lastMessage: string) => {
-    setSmartReplies(['Thank you!', 'More coming soon!', 'Stay cosmic!']);
-    return;
-    /* Direct client-side AI generation is disabled until the backend exposes
-       an authenticated AI endpoint.
     setIsGeneratingReplies(true);
     setIsTyping(true);
 
     try {
-      const apiKey = (globalThis as any)?.process?.env?.EXPO_PUBLIC_GEMINI_API_KEY;
-      if (!apiKey) throw new Error('Missing EXPO_PUBLIC_GEMINI_API_KEY');
-
-      const ai = new GoogleGenAI({ apiKey });
-      const response = await ai.models.generateContent({
-        model: 'gemini-2.0-flash',
-        contents: `You are Mila Ray, a synthwave creator. A fan said: "${lastMessage}". Suggest 3 short brand-aligned replies as comma-separated text.`,
-      });
-
+      const response = await aiApi.generate('smart_replies', { message: lastMessage });
       const replies = response.text
-        ?.split(',')
+        .split(/\r?\n|,/)
         .map((r: string) => r.trim().replace(/^"|"$/g, ''))
         .filter(Boolean);
 
@@ -334,7 +323,6 @@ const ChatView: React.FC = () => {
       setIsGeneratingReplies(false);
       setIsTyping(false);
     }
-    */
   };
 
   const resolveConversationId = async () => {

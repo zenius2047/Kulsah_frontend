@@ -301,7 +301,7 @@ const MoreSettingRow: React.FC<MoreSettingRowProps> = ({
 
 const LiveCreationSetup: React.FC = () => {
   const { isDark, theme } = useThemeMode();
-  const navigation = useNavigation<any>();
+  const navigation = useNavigation();
   const [cameraPermission, requestCameraPermission] = useCameraPermissions();
   const [microphonePermission, requestMicrophonePermission] = useMicrophonePermissions();
   const [screen, setScreen] = useState<Screen>('setup');

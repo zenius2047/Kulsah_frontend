@@ -248,8 +248,8 @@ const getPickedAvatarSource = (asset: ImagePicker.ImagePickerAsset): AvatarUploa
 
 const FanSettings: React.FC<FanSettingsProps> = ({ onLogout, isDarkMode, onToggleTheme, onToggleRole }) => {
   const { isDark, theme } = useThemeMode();
-  const navigation = useNavigation<any>();
-  const route = useRoute<any>();
+  const navigation = useNavigation();
+  const route = useRoute();
   const [currentUser, setCurrentUser] = useState<User | null>(user);
   const [activeView, setActiveView] = useState<SubView>('main');
   const [currentSlide, setCurrentSlide] = useState(0);

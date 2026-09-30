@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import { useThemeMode } from '../theme';
 import { View, Text, Pressable, Image, TextInput, KeyboardAvoidingView, Platform } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
-import { GoogleGenAI } from '@google/genai';
+import { aiApi } from '../src';
 
 interface ChatMessage {
   id: number;
@@ -13,7 +13,7 @@ interface ChatMessage {
 
 const LiveStream: React.FC = () => {
   const { isDark, theme } = useThemeMode();
-  const navigation = useNavigation<any>();
+  const navigation = useNavigation();
   const [aiInsight, setAiInsight] = useState<string | null>(null);
   const [msg, setMsg] = useState('');
   const [isTippingModalOpen, setIsTippingModalOpen] = useState(false);
@@ -37,11 +37,8 @@ const LiveStream: React.FC = () => {
       return;
     }
     try {
-      const ai = new GoogleGenAI({ apiKey: process.env.API_KEY });
-      const response = await ai.models.generateContent({
-        model: 'gemini-3-flash-preview',
-        contents:
-          "Pretend you are an AI moderator in a live stream for a pop star named Melody Rose. Summarize the chat energy in one short sentence.",
+      const response = await aiApi.generate('live_chat_summary', {
+        messages: messages.slice(-20).map(({ user, text }) => ({ user, text })),
       });
       setAiInsight(response.text || 'Fans are loving the vibe!');
     } catch (e) {

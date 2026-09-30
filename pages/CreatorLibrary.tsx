@@ -1,6 +1,6 @@
 import React, { useMemo, useState } from 'react';
 import { useThemeMode, PRIMARY_COLOR, primaryColorAlphaHex } from "../theme";
-import { GoogleGenAI } from '@google/genai';
+import { aiApi } from '../src';
 import { useNavigation } from '@react-navigation/native';
 import { MaterialIcons } from '@expo/vector-icons';
 import {
@@ -47,7 +47,7 @@ const TRENDING = [
 ];
 
 export default function CreatorLibrary() {
-  const navigation = useNavigation<any>();
+  const navigation = useNavigation();
   const { isDark } = useThemeMode();
   const [items, setItems] = useState(INITIAL_DATA);
   const [activeTab, setActiveTab] = useState<ContentType>('all');
@@ -79,14 +79,8 @@ export default function CreatorLibrary() {
   const runAudit = async () => {
     setIsAuditing(true);
     try {
-      const apiKey = process.env.EXPO_PUBLIC_GOOGLE_API_KEY || process.env.API_KEY;
-      if (!apiKey) throw new Error('Missing API key');
-      const ai = new GoogleGenAI({ apiKey });
-      const r = await ai.models.generateContent({
-        model: 'gemini-2.5-flash',
-        contents: 'Give a 1-sentence strategy for creator libraries with high premium engagement.',
-      });
-      setAudit((r as { text?: string }).text || 'Premium interest is high. Gate best-performing follow-up episodes for conversion.');
+      const response = await aiApi.generate('creator_library_audit', { items: items.length, activeTab });
+      setAudit(response.text || 'Premium interest is high. Gate best-performing follow-up episodes for conversion.');
     } catch {
       setAudit('Public reach is strong. Convert top highlights into first-look premium drops.');
     } finally {

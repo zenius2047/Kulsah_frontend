@@ -75,7 +75,7 @@ const categoryLabel = (category?: string | null) => {
 };
 
 const ViewerLiveStream: React.FC = () => {
-  const navigation = useNavigation<any>();
+  const navigation = useNavigation();
   const route = useRoute<ViewerLiveRoute>();
   const { width, height } = useWindowDimensions();
   const liveSessionId = route.params?.liveSessionId ?? route.params?.initialLive?.id ?? '';

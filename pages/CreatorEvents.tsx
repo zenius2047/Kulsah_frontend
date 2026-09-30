@@ -52,8 +52,8 @@ const EVENT_TYPES: Array<CreatorEvent['type']> = ['Physical', 'Live Stream', 'Wo
 
 const CreatorEvents: React.FC = () => {
   const { isDark, theme } = useThemeMode();
-  const navigation = useNavigation<any>();
-  const route = useRoute<any>();
+  const navigation = useNavigation();
+  const route = useRoute();
   const creatorEventsQuery = useCreatorEvents();
   const createEventMutation = useCreateEvent();
   const updateEventMutation = useUpdateEvent();
@@ -453,7 +453,7 @@ const CreatorEvents: React.FC = () => {
                         style={[styles.eventActionButton, { backgroundColor: inputBg }]}
                         onPress={(pressEvent) => {
                           pressEvent.stopPropagation();
-                          navigation.navigate('/creator/analytics', { event: event.id });
+                          navigation.navigate('CreatorAnalytics', { event: event.id });
                         }}
                       >
                         <MaterialIcons name="insert-chart" size={16} color={textSecondary} />

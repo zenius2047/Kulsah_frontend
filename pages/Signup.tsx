@@ -111,8 +111,8 @@ export const SignupVibesStep: React.FC<SignupVibesStepProps> = ({
 
 const Signup: React.FC<SignupProps> = ({ onLogin }) => {
   const { isDark, theme } = useThemeMode();
-  const navigation = useNavigation<any>();
-  const route = useRoute<any>();
+  const navigation = useNavigation();
+  const route = useRoute();
   const params = (route.params ?? {}) as SignupRouteParams;
   const [step, setStep] = useState<OnboardingStep>(params.initialStep ?? 'welcome');
   const [showPassword, setShowPassword] = useState(false);

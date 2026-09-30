@@ -50,7 +50,7 @@ const conversationTime = (value?: string | null) => {
 
 const Inbox: React.FC = () => {
   const { isDark, theme } = useThemeMode();
-  const navigation = useNavigation<any>();
+  const navigation = useNavigation();
   const shell = isDark ? '#0a050d' : theme.background;
   const card = isDark ? 'rgba(255,255,255,0.03)' : theme.card;
   const border = isDark ? 'rgba(255,255,255,0.1)' : theme.border;

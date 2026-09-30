@@ -356,7 +356,7 @@ const CommunityFeedSkeleton = memo<{ isDark: boolean }>(({ isDark }) => {
 
 const Community: React.FC<{ embedded?: boolean; onCountChange?: (count: number) => void }> = ({ embedded = false, onCountChange }) => {
   const { isDark, theme } = useThemeMode();
-  const navigation = useNavigation<any>();
+  const navigation = useNavigation();
   const { width: viewportWidth } = useWindowDimensions();
   const [currentUser, setCurrentUser] = useState<CurrentUser>({});
   const [posts, setPosts] = useState<CommunityPost[]>([]);

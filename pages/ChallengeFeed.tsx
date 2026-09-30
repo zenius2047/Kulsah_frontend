@@ -258,7 +258,7 @@ const ChallengeFeedCard: React.FC<{
 
 const ChallengeFeed: React.FC = () => {
   const { isDark, theme } = useThemeMode();
-  const navigation = useNavigation<any>();
+  const navigation = useNavigation();
   const { height: windowHeight } = useWindowDimensions();
   const [activeIndex, setActiveIndex] = useState(0);
   const [voteOpen, setVoteOpen] = useState(false);

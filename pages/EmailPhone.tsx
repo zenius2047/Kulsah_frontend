@@ -29,7 +29,7 @@ import KulsahWhite from '../assets/icons/kulsah-white-svg.svg';
 import { fontSize } from '../typography';
 import DateTimePicker, { type DateTimePickerEvent } from '@react-native-community/datetimepicker';
 import DotTrioLoader from '../components/DotTrioLoader';
-import { authApi, setAuthToken, setUser as setAuthStoreUser } from '../src';
+import { authApi, setAuthSession, setAuthToken, setUser as setAuthStoreUser } from '../src';
 
 const COUNTRY_OPTIONS = [
   { cca2: 'GH', callingCode: '233', label: 'Ghana' },
@@ -62,7 +62,7 @@ const extractAuthUser = (data: Record<string, any>, fallbackIdentifier: string):
 
 
 const EmailPhone: React.FC = () => {
-  const navigation = useNavigation<any>();
+  const navigation = useNavigation();
   const { isDark, theme } = useThemeMode();
   const insets = useSafeAreaInsets();
   const [identifier, setIdentifier] = useState('');
@@ -92,7 +92,7 @@ const EmailPhone: React.FC = () => {
   const phoneDigits = normalizedIdentifier.replace(/\D/g, '');
   const isEmail = /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(emailCandidate);
   const isPhone = phoneDigits.length >= 7;
-  const route = useRoute<any>();
+  const route = useRoute();
   const [isCreateAccount, setIsCreateAccount] = useState(false);
   const [step, setStep] = useState(0);
   const [showPassword, setShowPassword] = useState(false);
@@ -473,7 +473,11 @@ const EmailPhone: React.FC = () => {
         '';
 
       if (typeof sessionToken === 'string' && sessionToken.length > 0) {
-        await setAuthToken(sessionToken);
+        await setAuthSession({
+          accessToken: sessionToken,
+          refreshToken: responseData.refresh_token,
+          expiresIn: responseData.expires_in,
+        });
       }
 
       setAuthStoreUser(extractAuthUser(responseData, normalizedValue));
@@ -542,7 +546,11 @@ const EmailPhone: React.FC = () => {
       });
       // console.log('Registration successful:', res.data);
       // console.log('this is the access_token:', res.data['access_token']);
-      setAuthToken(res.data['access_token']);
+      await setAuthSession({
+        accessToken: res.data.access_token,
+        refreshToken: res.data.refresh_token,
+        expiresIn: res.data.expires_in,
+      });
 
       // Navigate only if registration succeeds
       navigation.navigate('VerifyOtp', {
@@ -1119,6 +1127,17 @@ const EmailPhone: React.FC = () => {
                 <Text style={[styles.socialText, { color: titleColor }]}>Apple</Text>
               </Pressable>
             </View>
+            <Text style={[styles.loginLegalText, { color: footerMuted }]}>
+              By continuing, you agree to Kulsah&apos;s{' '}
+              <Text
+                accessibilityRole="link"
+                onPress={() => navigation.navigate('TermsPolicies')}
+                style={styles.loginLegalLink}
+              >
+                Terms and Conditions
+              </Text>
+              .
+            </Text>
             </View>}
           </View>
 
@@ -1558,6 +1577,18 @@ const styles = StyleSheet.create({
   },
   socialText: {
     ...fontSize.b5, lineHeight: fontSize.b5.lineHeight,
+  },
+  loginLegalText: {
+    marginTop: 20,
+    paddingHorizontal: 12,
+    textAlign: 'center',
+    ...fontSize.b5,
+    lineHeight: fontSize.b5.lineHeight,
+  },
+  loginLegalLink: {
+    color: PRIMARY_COLOR,
+    textDecorationLine: 'underline',
+    fontWeight: '700',
   },
   footer: {
     alignItems: 'center',

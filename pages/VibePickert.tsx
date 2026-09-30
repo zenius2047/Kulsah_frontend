@@ -38,7 +38,7 @@ const VIBES: Vibe[] = [
 ];
 
 const VibePickert: React.FC = () => {
-  const navigation = useNavigation<any>();
+  const navigation = useNavigation();
   const insets = useSafeAreaInsets();
   const { width } = useWindowDimensions();
   const [selected, setSelected] = useState<Set<string>>(new Set());

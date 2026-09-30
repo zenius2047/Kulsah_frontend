@@ -30,8 +30,8 @@ const seedComments: CommentItem[] = [
 
 const Player: React.FC = () => {
   const { isDark, theme } = useThemeMode();
-  const navigation = useNavigation<any>();
-  const route = useRoute<any>();
+  const navigation = useNavigation();
+  const route = useRoute();
   const insets = useSafeAreaInsets();
   const [activeId, setActiveId] = useState(route.params?.id ?? 'v1');
   const [role, setRole] = useState<'fan' | 'creator'>('fan');

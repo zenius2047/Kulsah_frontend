@@ -48,7 +48,7 @@ const VideoFeedItem: React.FC<{
   isGlobalMuted: boolean;
   onToggleMute: () => void;
 }> = ({ item, viewportHeight, onSubscribe, isGlobalMuted, onToggleMute }) => {
-  const navigation = useNavigation<any>();
+  const navigation = useNavigation();
   const [showComments, setShowComments] = useState(false);
   const [isLiked, setIsLiked] = useState(item.isLiked);
 
@@ -194,7 +194,7 @@ const VideoFeedItem: React.FC<{
 
 const Feed: React.FC = () => {
   const { isDark, theme } = useThemeMode();
-  const navigation = useNavigation<any>();
+  const navigation = useNavigation();
   const { height: viewportHeight } = useWindowDimensions();
 
   const [activeTab, setActiveTab] = useState<"following" | "foryou">("foryou");

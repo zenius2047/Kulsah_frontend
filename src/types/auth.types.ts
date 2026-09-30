@@ -38,7 +38,10 @@ export type SwitchRolePayload = {
 };
 
 export type AuthSession = {
-  token: string;
+  access_token: string;
+  refresh_token?: string;
+  token_type?: 'Bearer';
+  expires_in?: number;
 };
 
 export type SocialLoginProvider = 'google' | 'apple' | 'facebook';
@@ -51,5 +54,7 @@ export type SocialLoginPayload = {
 export type SocialLoginResponse = {
   message: string;
   access_token: string;
+  refresh_token?: string;
+  expires_in?: number;
   user: User;
 };

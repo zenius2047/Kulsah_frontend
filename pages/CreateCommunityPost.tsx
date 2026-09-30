@@ -105,7 +105,7 @@ const ComposerVideoPreview: React.FC<{ uri: string }> = ({ uri }) => {
 };
 
 const CreateCommunityPost: React.FC = () => {
-  const navigation = useNavigation<any>();
+  const navigation = useNavigation();
   const { isDark, theme } = useThemeMode();
   const [content, setContent] = useState('');
   const [targetAudience, setTargetAudience] = useState<Audience>('all');

@@ -31,7 +31,7 @@ const formatDuration = (startedAt?: string | null, endedAt?: string | null) => {
 };
 
 const CreatorLiveSummary: React.FC = () => {
-  const navigation = useNavigation<any>();
+  const navigation = useNavigation();
   const route = useRoute<LiveSummaryRoute>();
   const liveSessionId = route.params?.liveSessionId ?? route.params?.endedLive?.id ?? '';
   const liveQuery = useLiveSession(liveSessionId, Boolean(liveSessionId));

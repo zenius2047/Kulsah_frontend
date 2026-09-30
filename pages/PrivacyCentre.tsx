@@ -24,7 +24,7 @@ type ProtocolNode = {
 };
 
 const PrivacyCentre: React.FC = () => {
-  const navigation = useNavigation<any>();
+  const navigation = useNavigation();
   const insets = useSafeAreaInsets();
   const { isDark, theme } = useThemeMode();
   const exportTimerRef = useRef<ReturnType<typeof setInterval> | null>(null);

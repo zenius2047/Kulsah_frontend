@@ -10,7 +10,7 @@ import { fontSize } from './typography';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 const SignupVibes: React.FC = () => {
-  const navigation = useNavigation<any>();
+  const navigation = useNavigation();
   const [selectedVibes, setSelectedVibes] = useState<Set<string>>(new Set());
   const insets = useSafeAreaInsets();
   const { isDark, theme } = useThemeMode();

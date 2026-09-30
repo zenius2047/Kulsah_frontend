@@ -32,7 +32,7 @@ const Arena :React.FC = ({route}:any)=>{
     const [activeTab, setActiveTab] = useState<ArenaTab>('community');
     const [isDiscoverSwipeAreaActive, setIsDiscoverSwipeAreaActive] = useState(false);
     const [updateCounts, setUpdateCounts] = useState<Record<ArenaTab, number>>(ARENA_UPDATE_COUNTS);
-    const navigation = useNavigation<any>();
+    const navigation = useNavigation();
     const insets = useSafeAreaInsets();
     const styles = useMemo(() => createStyles(), []);
     const faintSurface = isDark ? 'rgba(255,255,255,0.04)' : theme.surface;

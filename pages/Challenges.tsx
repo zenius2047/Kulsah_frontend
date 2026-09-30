@@ -17,6 +17,7 @@ import { SafeAreaView, useSafeAreaInsets } from 'react-native-safe-area-context'
 import { PRIMARY_COLOR, primaryColorAlpha, useThemeMode } from '../theme';
 import { mediumScreen } from '../types';
 import { fontSize } from './typography';
+import { useChallenges } from '../src';
 
 type ChallengeStatus = 'active' | 'completed';
 type ChallengeTab = 'all' | 'newest' | 'active' | 'completed';
@@ -37,93 +38,40 @@ type FanChallenge = {
 
 const challengeTabs: ChallengeTab[] = ['all', 'newest', 'active', 'completed'];
 
-const fallbackChallenges: FanChallenge[] = [
-  {
-    id: 'c1',
-    creatorId: 'mila_ray_01',
-    creatorName: 'Mila Ray',
-    title: 'Night Vibes Dance Challenge',
-    description: 'Show us your best moves under the neon lights! Use the official track and tag #NightVibes for a chance to be featured.',
-    reward: '$500 + Feature',
-    deadline: '7 Days',
-    participants: 1200,
-    status: 'active',
-    image: 'https://images.unsplash.com/photo-1547153760-18fc86324498?auto=format&fit=crop&q=80&w=800',
-  },
-  {
-    id: 'c2',
-    creatorId: 'elena_rose',
-    creatorName: 'Elena Rose',
-    title: 'Nebula Vocal Challenge',
-    description: 'Sing your heart out to the chorus of Nebula. Best vocal texture wins a studio session!',
-    reward: 'Studio Session + $1000',
-    deadline: '12 Days',
-    participants: 850,
-    status: 'active',
-    image: 'https://images.unsplash.com/photo-1516450360452-9312f5e86fc7?auto=format&fit=crop&q=80&w=800',
-  },
-  {
-    id: 'c3',
-    creatorId: 'alex_rivera_42',
-    creatorName: 'Alex Rivera',
-    title: 'Drone Hyperlapse Speedrun',
-    description: 'Record an incredible sunset hyperlapse within 30 seconds. Seamless loop is mandatory.',
-    reward: '5,000 KulCoins',
-    deadline: 'Expired',
-    participants: 2400,
-    status: 'completed',
-    image: 'https://images.unsplash.com/photo-1498038432885-c6f3f1b912ee?auto=format&fit=crop&q=80&w=800',
-  },
-  {
-    id: 'c4',
-    creatorId: 'lucas_dupont',
-    creatorName: 'Lucas Dupont',
-    title: 'Cinematic Vlog Sequence',
-    description: 'Color-grade an atmospheric B-roll sequence using our custom Cinematic LUTs pack.',
-    reward: 'Premium Creator Pass',
-    deadline: 'Finished',
-    participants: 1950,
-    status: 'completed',
-    image: 'https://images.unsplash.com/photo-1536440136628-849c177e76a1?auto=format&fit=crop&q=80&w=800',
-  },
-  {
-    id: 'c5',
-    creatorId: 'mila_ray_01',
-    creatorName: 'Mila Ray',
-    title: 'Solstice Light Painting',
-    description: 'Get ready for the summer solstice! Capture beautiful long-exposure photography using flashlight strokes.',
-    reward: 'Feature + 10,000 KulCoins',
-    deadline: '3 Days',
-    participants: 12,
-    status: 'active',
-    image: 'https://images.unsplash.com/photo-1507608869274-d3177c8bb4c7?auto=format&fit=crop&q=80&w=800',
-  },
-  {
-    id: 'c6',
-    creatorId: 'alex_rivera_42',
-    creatorName: 'Alex Rivera',
-    title: 'Neon Synth Soundscape',
-    description: 'Produce a 15-second retro synthwave loop using our sound seed. Best bass design wins a hardware synth!',
-    reward: 'Hardware Synth + $1500',
-    deadline: '14 Days',
-    participants: 120,
-    status: 'active',
-    image: 'https://images.unsplash.com/photo-1511671782779-c97d3d27a1d4?auto=format&fit=crop&q=80&w=800',
-    isNew: true,
-  },
-];
-
 const Challenges: React.FC = () => {
-  const navigation = useNavigation<any>();
+  const navigation = useNavigation();
   const insets = useSafeAreaInsets();
   const { isDark, theme } = useThemeMode();
   const styles = useMemo(() => createStyles(isDark), [isDark]);
   const [searchQuery, setSearchQuery] = useState('');
   const [activeTab, setActiveTab] = useState<ChallengeTab>('all');
+  const challengesQuery = useChallenges();
+
+  const challenges = useMemo<FanChallenge[]>(() => (
+    challengesQuery.data?.pages.flatMap((page) => page.data).map((challenge) => {
+      const completedStatuses = ['completed', 'finalized', 'archived'];
+      const deadlineDate = challenge.deadline ? new Date(challenge.deadline) : null;
+      return {
+        id: String(challenge.id),
+        creatorId: String(challenge.creatorId),
+        creatorName: challenge.creatorName,
+        title: challenge.title,
+        description: challenge.description,
+        reward: challenge.reward || 'Reward details pending',
+        deadline: deadlineDate && Number.isFinite(deadlineDate.getTime())
+          ? deadlineDate.toLocaleDateString()
+          : 'Not scheduled',
+        participants: challenge.participants,
+        status: completedStatuses.includes(String(challenge.status)) ? 'completed' : 'active',
+        image: challenge.image || '',
+        isNew: challenge.isNew,
+      };
+    }) ?? []
+  ), [challengesQuery.data]);
 
   const displayChallenges = useMemo(() => {
     const query = searchQuery.trim().toLowerCase();
-    const filtered = fallbackChallenges.filter((challenge) => {
+    const filtered = challenges.filter((challenge) => {
       if (query) {
         const haystack = [
           challenge.title,
@@ -144,7 +92,7 @@ const Challenges: React.FC = () => {
     }
 
     return filtered;
-  }, [activeTab, searchQuery]);
+  }, [activeTab, challenges, searchQuery]);
 
   const clearFilters = () => {
     setSearchQuery('');
@@ -225,10 +173,24 @@ const Challenges: React.FC = () => {
         {displayChallenges.length === 0 ? (
           <View style={[styles.emptyCard, { backgroundColor: isDark ? '#18181b' : '#ffffff', borderColor: theme.border }]}>
             <MaterialIcons name="search-off" size={40} color={theme.textMuted} />
-            <Text style={[styles.emptyTitle, { color: theme.text }]}>No challenges found matching query</Text>
-            <Pressable onPress={clearFilters} style={styles.clearButton}>
-              <Text style={styles.clearButtonText}>Clear Filters</Text>
-            </Pressable>
+            <Text style={[styles.emptyTitle, { color: theme.text }]}> 
+              {challengesQuery.isLoading
+                ? 'Loading challenges...'
+                : challengesQuery.isError
+                  ? 'Challenges could not be loaded'
+                  : searchQuery || activeTab !== 'all'
+                    ? 'No challenges match these filters'
+                    : 'No challenges are available yet'}
+            </Text>
+            {searchQuery || activeTab !== 'all' ? (
+              <Pressable onPress={clearFilters} style={styles.clearButton}>
+                <Text style={styles.clearButtonText}>Clear Filters</Text>
+              </Pressable>
+            ) : challengesQuery.isError ? (
+              <Pressable onPress={() => void challengesQuery.refetch()} style={styles.clearButton}>
+                <Text style={styles.clearButtonText}>Try Again</Text>
+              </Pressable>
+            ) : null}
           </View>
         ) : (
           <View style={styles.challengeList}>
@@ -260,7 +222,7 @@ const ChallengeCard = ({
 
   return (
     <Pressable onPress={onPress} style={styles.challengeCard}>
-      <ImageBackground source={{ uri: challenge.image }} resizeMode="cover" style={styles.challengeImage}>
+      <ImageBackground source={challenge.image ? { uri: challenge.image } : undefined} resizeMode="cover" style={styles.challengeImage}>
         <LinearGradient colors={['rgba(0,0,0,0.08)', 'rgba(0,0,0,0.28)', 'rgba(0,0,0,0.96)']} style={StyleSheet.absoluteFillObject} />
 
         <View style={[styles.statusPill, { backgroundColor: statusConfig.background, borderColor: statusConfig.border }]}>

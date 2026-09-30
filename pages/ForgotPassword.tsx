@@ -39,7 +39,7 @@ const extractMessage = (error: any, fallback: string) => {
 };
 
 const ForgotPassword: React.FC = () => {
-  const navigation = useNavigation<any>();
+  const navigation = useNavigation();
   const insets = useSafeAreaInsets();
   const { isDark, theme } = useThemeMode();
   const [identifier, setIdentifier] = useState('');

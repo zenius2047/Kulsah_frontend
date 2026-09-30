@@ -27,7 +27,7 @@ const previewImages = [
 ];
 
 const CreateAccount: React.FC = () => {
-  const navigation = useNavigation<any>();
+  const navigation = useNavigation();
   const { isDark } = useThemeMode();
   const { width } = useWindowDimensions();
   const showPreviewGrid = width >= 768;

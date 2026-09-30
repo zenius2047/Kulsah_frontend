@@ -81,7 +81,7 @@ const categories: Array<{ id: ActiveCategory; label: string; icon: keyof typeof 
 const ticketCategories = ['General Inquiry', 'Account Access & Identity', 'KulCoins & Transactions', 'Stream or Signal Disruption'];
 
 const HelpCentre: React.FC = () => {
-  const navigation = useNavigation<any>();
+  const navigation = useNavigation();
   const insets = useSafeAreaInsets();
   const { isDark, theme } = useThemeMode();
   const [searchQuery, setSearchQuery] = useState('');

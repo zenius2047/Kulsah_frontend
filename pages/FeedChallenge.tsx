@@ -133,7 +133,7 @@ const ChallengeVideoItem: React.FC<ChallengeVideoItemProps> = ({
   voteCost,
   onBalanceChange,
 }) => {
-  const navigation = useNavigation<any>();
+  const navigation = useNavigation();
   const isFocused = useIsFocused();
   const insets = useSafeAreaInsets();
   const player = useVideoPlayer(entry.videoUrl, (instance) => {
@@ -539,8 +539,8 @@ const ChallengeVideoItem: React.FC<ChallengeVideoItemProps> = ({
 };
 
 const FeedChallenge: React.FC = () => {
-  const navigation = useNavigation<any>();
-  const route = useRoute<any>();
+  const navigation = useNavigation();
+  const route = useRoute();
   const challengeId = route.params?.challengeId as string | number | undefined;
   const challengeQuery = useChallenge(challengeId);
   const leaderboardQuery = useChallengeLeaderboard(challengeId, 100);

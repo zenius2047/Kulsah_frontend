@@ -1,5 +1,5 @@
 import React, { useEffect, useMemo, useState } from 'react';
-import { GoogleGenAI } from '@google/genai';
+import { aiApi } from '../src';
 import { useNavigation, useRoute } from '@react-navigation/native';
 import { MaterialIcons } from '@expo/vector-icons';
 import {
@@ -72,8 +72,8 @@ const availableBalance = 12450.0;
 
 const CreatorRevenue: React.FC = () => {
   const { isDark, theme } = useThemeMode();
-  const navigation = useNavigation<any>();
-  const route = useRoute<any>();
+  const navigation = useNavigation();
+  const route = useRoute();
   const insets = useSafeAreaInsets();
 
   const [loading, setLoading] = useState(false);
@@ -104,17 +104,12 @@ const CreatorRevenue: React.FC = () => {
   const getFinancialAdvice = async () => {
     setLoading(true);
     try {
-      const apiKey = process.env.EXPO_PUBLIC_GOOGLE_API_KEY || process.env.API_KEY;
-      if (!apiKey) throw new Error('Missing API key');
-      const ai = new GoogleGenAI({ apiKey });
-      const prompt =
-        "Analyze this creator revenue breakdown: $12,450 available for payout. Sources: 60% Subscriptions, 30% Tickets, 10% Tips. Subscriber growth is steady at 5%. Give a 2-sentence financial strategic advice on how to optimize tips during live sessions for a musician named Mila Ray. Use cosmic metaphors.";
-      const response = await ai.models.generateContent({
-        model: 'gemini-2.5-flash',
-        contents: prompt,
+      const response = await aiApi.generate('revenue_advice', {
+        availableBalance,
+        revenueSources: revenueData,
       });
       setAiAdvice(
-        (response as { text?: string }).text ||
+        response.text ||
           'Your financial nebula is expanding. Focus on increasing tip velocity through cosmic live interactions.',
       );
     } catch {

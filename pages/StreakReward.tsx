@@ -34,7 +34,7 @@ const getStreakData = (): StreakData => ({ count: 6 });
 
 const StreakReward: React.FC = () => {
   const { isDark, theme } = useThemeMode();
-  const navigation = useNavigation<any>();
+  const navigation = useNavigation();
   const [streak, setStreak] = useState<StreakData>(getStreakData());
 
   useEffect(() => {

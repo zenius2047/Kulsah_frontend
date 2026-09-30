@@ -3,7 +3,7 @@ import { useThemeMode } from '../theme';
 import { View, Text, Pressable, Image, TextInput } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
 
-import { GoogleGenAI } from "@google/genai";
+import { aiApi } from '../src';
 
 type ContentType = 'all' | 'public' | 'premium' | 'live' | 'draft';
 type TierType = 'bronze' | 'silver' | 'gold';
@@ -36,7 +36,7 @@ const INITIAL_DATA: LibraryItem[] = [
 
 const CreatorContentLibrary: React.FC = () => {
   const { isDark, theme } = useThemeMode();
-  const navigation = useNavigation<any>();
+  const navigation = useNavigation();
   const videoRef = useRef<HTMLVideoElement>(null);
   
   const [items, setItems] = useState<LibraryItem[]>(INITIAL_DATA);
@@ -69,11 +69,7 @@ const CreatorContentLibrary: React.FC = () => {
   const runContentAudit = async () => {
     setIsAuditing(true);
     try {
-      const ai = new GoogleGenAI({ apiKey: process.env.API_KEY });
-      const response = await ai.models.generateContent({
-        model: 'gemini-3-flash-preview',
-        contents: "You are a content strategist. Give a 1-sentence strategic recommendation for a creator library with high premium engagement.",
-      });
+      const response = await aiApi.generate('content_library_audit', { items: items.length, activeTab });
       setAiInsight(response.text || "Your Premium engagement is peaking. Convert more public highlights to subscriber-only to drive growth.");
     } catch (e) {
       setAiInsight("Public reach is strong, but Premium conversion is low. Consider offering a 'First Look' draft to your Top Supporters.");
@@ -85,10 +81,10 @@ const CreatorContentLibrary: React.FC = () => {
   const fetchItemAiStrategy = async (item: LibraryItem) => {
     setIsItemAiLoading(true);
     try {
-      const ai = new GoogleGenAI({ apiKey: process.env.API_KEY });
-      const response = await ai.models.generateContent({
-        model: 'gemini-3-flash-preview',
-        contents: `Analyze this content: "${item.title}". It has ${item.stats.primary} and ${item.stats.retention} retention. Give 1 sentence of advice for the next part of this series.`,
+      const response = await aiApi.generate('content_item_strategy', {
+        title: item.title,
+        performance: item.stats.primary,
+        retention: item.stats.retention,
       });
       setItemAiInsight(response.text || "Strong retention on the mid-section. Focus more on long-form rehearsal footage in Part 2.");
     } catch (e) {
@@ -154,7 +150,7 @@ const CreatorContentLibrary: React.FC = () => {
   };
 
   const handleEditItem = (item: LibraryItem) => {
-    navigation.navigate('/upload', { state: { editing: item.id, item } });
+    navigation.navigate('UploadContent', { editing: item.id, item });
   };
 
   const closeTheatre = () => {
@@ -223,10 +219,10 @@ const CreatorContentLibrary: React.FC = () => {
       <View>
         <View>
           <View>
-            <Pressable onPress={() => navigation.navigate('/dashboard')}>chevron_left</Pressable>
+            <Pressable onPress={() => navigation.navigate('MainTabs')}>chevron_left</Pressable>
             <Text>Media Library</Text>
           </View>
-          <Pressable onPress={() => navigation.navigate('/upload')}>
+          <Pressable onPress={() => navigation.navigate('UploadContent')}>
             <Text>add</Text>
           </Pressable>
         </View>
