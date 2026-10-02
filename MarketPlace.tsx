@@ -34,14 +34,7 @@ interface CheckoutItem extends Product {
   quantity: number;
 }
 
-const MOCK_PRODUCTS: Product[] = [
-  { id: 'm1', name: '5,000 Kulcoins', artist: 'Official', price: 50, priceString: '50 GHS', img: 'https://images.unsplash.com/photo-1621416894569-0f39ed31d247?auto=format&fit=crop&q=80&w=400', category: 'Currency', description: 'Universal currency for the Kulsah ecosystem. Use these to purchase gifts for creators during live transmissions.' },
-  { id: 'm2', name: 'Golden Microphone', artist: 'Official', price: 25, priceString: '2500 KC', img: 'https://images.unsplash.com/photo-1590602847861-f357a9332bbc?auto=format&fit=crop&q=80&w=400', category: 'Gifts', description: 'A premium virtual gift to show your appreciation. Increases creator visibility.' },
-  { id: 'm3', name: 'Diamond Heart', artist: 'Official', price: 50, priceString: '5000 KC', img: 'https://images.unsplash.com/photo-1518196775791-2e1bbd3a3180?auto=format&fit=crop&q=80&w=400', category: 'Gifts', description: 'The ultimate symbol of fan devotion. Notifies everyone in the stream.' },
-  { id: 'm4', name: 'Rocket Boost', artist: 'Official', price: 15, priceString: '1500 KC', img: 'https://images.unsplash.com/photo-1517976487492-5750f3195933?auto=format&fit=crop&q=80&w=400', category: 'Powerups', description: 'Launch a creator into the global orbit with this massive engagement surge.' },
-  { id: 'm5', name: 'Legendary Crown', artist: 'Official', price: 100, priceString: '10,000 KC', img: 'https://images.unsplash.com/photo-1581338834647-b0fb40704e21?auto=format&fit=crop&q=80&w=400', category: 'Badges', description: 'Limited edition badge of honor for the most dedicated supporters.' },
-  { id: 'm6', name: 'VIP Pass', artist: 'Official', price: 200, priceString: '20,000 KC', img: 'https://images.unsplash.com/photo-1514525253361-bee8718a74a2?auto=format&fit=crop&q=80&w=800', category: 'Passes', description: 'Unlock premium emojis and priority chat for 30 days.' },
-];
+const products: Product[] = [];
 
 type CheckoutStep = 'details' | 'payment' | 'success';
 type PaymentMethod = 'wallet' | 'card' | 'momo';
@@ -50,7 +43,7 @@ type MomoProvider = 'mtn' | 'airtel' | 'telecel';
 const categories = ['All', 'Currency', 'Gifts', 'Badges', 'Powerups', 'Passes'];
 
 const MarketPlace: React.FC = () => {
-  const navigation = useNavigation<any>();
+  const navigation = useNavigation();
   const { isDark, theme } = useThemeMode();
   const { width } = useWindowDimensions();
   const isTablet = width >= 768;
@@ -70,7 +63,7 @@ const MarketPlace: React.FC = () => {
 
   const filteredProducts = useMemo(
     () =>
-      MOCK_PRODUCTS.filter((product) => {
+      products.filter((product) => {
         const matchesCategory = activeCategory === 'All' || product.category === activeCategory;
         const query = searchQuery.trim().toLowerCase();
         const matchesSearch =
@@ -272,7 +265,7 @@ const MarketPlace: React.FC = () => {
               <View style={[s.emptyIconWrap, { backgroundColor: isDark ? 'rgba(255,255,255,0.05)' : theme.surface, borderColor: theme.border }]}>
                 <MaterialIcons name="shopping-bag" size={44} color={theme.textMuted} />
               </View>
-              <Text style={[s.emptyTitle, { color: theme.textSecondary }]}>No items found in this orbit</Text>
+              <Text style={[s.emptyTitle, { color: theme.textSecondary }]}>Marketplace items are not available yet</Text>
               <Pressable
                 onPress={() => {
                   setActiveCategory('All');

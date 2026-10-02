@@ -51,71 +51,6 @@ type ChallengeVideoItemProps = {
 
 const DEFAULT_VOTE_COST = 10;
 const KULCOIN_ICON = require('../assets/coin.png');
-const SING_CHALLENGE_VIDEO_URL = 'https://res.cloudinary.com/dh0dywpzm/video/upload/v1779794760/kulsah_sing_vgqxne.mp4';
-const DANCE_CHALLENGE_VIDEO_URL = 'https://res.cloudinary.com/dh0dywpzm/video/upload/v1779795517/dance_cha_001_p1flkl.mp4';
-
-const baseEntries: ChallengeEntry[] = [
-  {
-    id: 'e1',
-    userName: 'MusicLover99',
-    userHandle: 'musiclover',
-    userAvatar: 'https://picsum.photos/seed/fan1/200',
-    videoUrl: DANCE_CHALLENGE_VIDEO_URL,
-    thumbnailUrl: 'https://images.unsplash.com/photo-1511379938547-c1f69419868d?auto=format&fit=crop&q=80&w=800',
-    caption:
-      'My entry for the Night Vibes Challenge! Hope you guys like the choreography. #NightVibes #Kulsah',
-    likes: 1240,
-    comments: 88100,
-    votes: 450,
-    isLiked: false,
-    isVoted: false,
-    originalSound: true,
-    tag: 'ChallengeEntry',
-    isVote: true,
-  },
-  {
-    id: 'e2 ',
-    userName: 'BassMaster',
-    userHandle: 'bassmaster',
-    userAvatar: 'https://picsum.photos/seed/fan3/200',
-    videoUrl: 'https://res.cloudinary.com/dh0dywpzm/video/upload/v1779795719/dance-0000_fumuie.mp4',
-    thumbnailUrl: 'https://images.unsplash.com/photo-1501386761578-eac5c94b800a?auto=format&fit=crop&q=80&w=800',
-    caption:
-      'Adding some low-end to the Night Vibes. #NightVibes #ChallengeEntry',
-    likes: 2100,
-    comments: 12200,
-    votes: 680,
-    isLiked: false,
-    isVoted: true,
-    originalSound: false,
-    soundArtist: 'BassMaster',
-    soundTitle: 'Low End Echo',
-    tag: 'ChallengeEntry',
-    isVote: true,
-  },
-  {
-    id: 'e3',
-    userName: 'Champion Fan',
-    userHandle: 'champion',
-    userAvatar: 'https://picsum.photos/seed/fan2/200',
-    videoUrl: 'https://res.cloudinary.com/dh0dywpzm/video/upload/v1779790223/K12242_wmlewi.mp4',
-    thumbnailUrl: 'https://images.unsplash.com/photo-1493225457124-a3eb161ffa5f?auto=format&fit=crop&q=80&w=800',
-    caption:
-      'Late night vibes only. This track is a masterpiece! #NightVibes #ElenaRose',
-    likes: 890,
-    comments: 4500,
-    votes: 320,
-    isLiked: true,
-    isVoted: false,
-    originalSound: false,
-    soundArtist: 'Elena Rose',
-    soundTitle: 'Night Vibes',
-    tag: 'ChallengeEntry',
-    isVote: true,
-  },
-  
-];
-
 const formatCount = (num: number) => {
   if (num >= 1000000) return `${(num / 1000000).toFixed(1)}M`;
   if (num >= 1000) return `${(num / 1000).toFixed(1)}K`;
@@ -457,8 +392,9 @@ const ChallengeVideoItem: React.FC<ChallengeVideoItemProps> = ({
           </View>
 
           <Pressable
-          onPress={()=>{
-            navigation.navigate("ChallengeEntry", { challengeId })
+          disabled={challengeId == null}
+          onPress={() => {
+            if (challengeId != null) navigation.navigate("ChallengeEntry", { challengeId });
           }}
           style={styles.entryBadge}>
             {/* <MaterialIcons
@@ -562,26 +498,7 @@ const FeedChallenge: React.FC = () => {
       return [...detailItems, ...leaderboardItems];
     }
 
-    return [{
-      id: 'ov-night-vibes',
-      userName: 'Mila Ray',
-      userHandle: 'milaray',
-      userAvatar: 'https://picsum.photos/seed/mila/150',
-      videoUrl: SING_CHALLENGE_VIDEO_URL,
-      thumbnailUrl: 'https://images.unsplash.com/photo-1547153760-18fc86324498?auto=format&fit=crop&q=80&w=800',
-      caption: 'OFFICIAL SEED: The Night Vibes Challenge is officially LIVE. Show me your best moves to win a backstage pass. #NightVibes #OfficialSeed',
-      likes: 85000,
-      comments: 88100,
-      votes: 0,
-      isLiked: false,
-      isVoted: false,
-      originalSound: false,
-      soundArtist: 'Mila Ray',
-      soundTitle: 'Night Vibes Official Seed',
-      isSeed: true,
-      tag: 'officialChallengeVideo',
-      isVote: false,
-    }, ...baseEntries];
+    return [];
   }, [challengeId, challengeQuery.data, leaderboardQuery.data]);
   const [activeIndex, setActiveIndex] = useState(0);
   const [localBalanceAdjustment, setLocalBalanceAdjustment] = useState(0);
@@ -759,7 +676,10 @@ const FeedChallenge: React.FC = () => {
           ) : null}
 
           <Pressable
-            onPress={() => navigation.navigate('ChallengeLeaderboard', { challengeId })}
+            disabled={challengeId == null}
+            onPress={() => {
+              if (challengeId != null) navigation.navigate('ChallengeLeaderboard', { challengeId });
+            }}
             style={styles.headerButton}
           >
             <MaterialIcons name="leaderboard" size={22} color="#ffffff" />

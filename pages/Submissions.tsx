@@ -1,6 +1,6 @@
 import { MaterialIcons } from '@expo/vector-icons';
 import { LinearGradient } from 'expo-linear-gradient';
-import React, { useEffect, useMemo, useState } from 'react';
+import React, { useMemo, useState } from 'react';
 import {
   Image,
   ImageBackground,
@@ -15,9 +15,11 @@ import {
 } from 'react-native';
 import { SafeAreaView, useSafeAreaInsets } from 'react-native-safe-area-context';
 import { PRIMARY_COLOR, primaryColorAlpha, useThemeMode } from '../theme';
-import { useNavigation } from '@react-navigation/native';
+import { useNavigation, useRoute } from '@react-navigation/native';
 import { fontSize } from './typography';
 import { ListSkeleton } from '../components/PageSkeleton';
+import { useChallenge, useChallengeLeaderboard } from '../src/hooks/challenges/useChallenges';
+import { getVideoPlaybackUrl, getVideoPoster } from '../src/utils/video';
 
 type SubmissionTab =
   | 'all'
@@ -40,72 +42,15 @@ type ChallengeSubmission = {
   votes: number;
 };
 
-const dummySubmissions: ChallengeSubmission[] = [
-  {
-    id: 's1',
-    challengeId: 'c1',
-    challengeTitle: 'Night Vibes Dance Challenge',
-    userId: 'fan_1',
-    userName: 'MusicLover99',
-    userHandle: '@musiclover',
-    userAvatar: 'https://picsum.photos/seed/fan1/200',
-    contentUrl: '#',
-    thumbnailUrl: 'https://images.unsplash.com/photo-1508700115892-45ecd05ae2ad?auto=format&fit=crop&q=80&w=800',
-    submittedAt: '2 hours ago',
-    likes: 124,
-    votes: 45,
-  },
-  {
-    id: 's2',
-    challengeId: 'c1',
-    challengeTitle: 'Night Vibes Dance Challenge',
-    userId: 'fan_2',
-    userName: 'Champion Fan',
-    userHandle: '@champion',
-    userAvatar: 'https://picsum.photos/seed/fan2/200',
-    contentUrl: '#',
-    thumbnailUrl: 'https://images.unsplash.com/photo-1514525253161-7a46d19cd819?auto=format&fit=crop&q=80&w=800',
-    submittedAt: '5 hours ago',
-    likes: 89,
-    votes: 32,
-  },
-  {
-    id: 's3',
-    challengeId: 'c2',
-    challengeTitle: 'Vocal Harmony Challenge',
-    userId: 'fan_3',
-    userName: 'BassMaster',
-    userHandle: '@bassmaster',
-    userAvatar: 'https://picsum.photos/seed/fan3/200',
-    contentUrl: '#',
-    thumbnailUrl: 'https://images.unsplash.com/photo-1470225620780-dba8ba36b745?auto=format&fit=crop&q=80&w=800',
-    submittedAt: '1 day ago',
-    likes: 210,
-    votes: 78,
-  },
-  {
-    id: 's4',
-    challengeId: 'c3',
-    challengeTitle: 'Summer Solstice Synthwave',
-    userId: 'fan_4',
-    userName: 'RetroLover',
-    userHandle: '@retro_sol',
-    userAvatar: 'https://picsum.photos/seed/fan4/200',
-    contentUrl: '#',
-    thumbnailUrl: 'https://images.unsplash.com/photo-1511671782779-c97d3d27a1d4?auto=format&fit=crop&q=80&w=800',
-    submittedAt: '3 days ago',
-    likes: 312,
-    votes: 114,
-  },
-];
-
 const Submissions: React.FC = () => {
   const navigation = useNavigation();
+  const route = useRoute();
+  const challengeId = route.params?.challengeId as string | number | undefined;
+  const challengeQuery = useChallenge(challengeId);
+  const leaderboardQuery = useChallengeLeaderboard(challengeId, 100);
   const insets = useSafeAreaInsets();
   const { isDark, theme } = useThemeMode();
   const styles = useMemo(() => createStyles(isDark), [isDark]);
-  const [submissions, setSubmissions] = useState<ChallengeSubmission[]>([]);
-  const [loading, setLoading] = useState(true);
   const [searchQuery, setSearchQuery] = useState('');
   const [activeTab, setActiveTab] = useState<SubmissionTab>('all');
   const [viewMode, setViewMode] = useState<ViewMode>('list');
@@ -117,10 +62,30 @@ const Submissions: React.FC = () => {
   const [volume, setVolume] = useState(80);
   const [toastMessage, setToastMessage] = useState<string | null>(null);
 
-  useEffect(() => {
-    setSubmissions(dummySubmissions);
-    setLoading(false);
-  }, []);
+  const submissions = useMemo<ChallengeSubmission[]>(() => {
+    const entries = leaderboardQuery.data?.pages.flatMap((page) => page.data) ?? [];
+    return entries.flatMap((entry) => {
+      const contentUrl = entry.video ? getVideoPlaybackUrl(entry.video) : null;
+      if (!contentUrl) return [];
+      const submittedAt = entry.submitted_at ? new Date(entry.submitted_at) : null;
+      return [{
+        id: String(entry.id),
+        challengeId: String(entry.challenge_id),
+        challengeTitle: challengeQuery.data?.title || 'Challenge',
+        userId: String(entry.creator?.id ?? entry.creator_id),
+        userName: entry.creator?.name || 'Creator',
+        userHandle: `@${entry.creator?.handle || 'creator'}`,
+        userAvatar: entry.creator?.avatar || '',
+        contentUrl,
+        thumbnailUrl: entry.video ? (getVideoPoster(entry.video) || '') : '',
+        submittedAt: submittedAt && Number.isFinite(submittedAt.getTime()) ? submittedAt.toLocaleString() : 'Submission date unavailable',
+        likes: 0,
+        votes: Number(entry.current_score) || 0,
+      }];
+    });
+  }, [challengeQuery.data?.title, leaderboardQuery.data]);
+  const loading = Boolean(challengeId) && (challengeQuery.isLoading || leaderboardQuery.isLoading);
+  const loadError = challengeQuery.isError || leaderboardQuery.isError;
 
   const showToast = (message: string) => {
     setToastMessage(message);
@@ -285,7 +250,13 @@ const Submissions: React.FC = () => {
         ) : filteredSubmissions.length === 0 ? (
           <View style={[styles.emptyCard, { backgroundColor: isDark ? 'rgba(255,255,255,0.05)' : '#f8fafc', borderColor: theme.border }]}>
             <MaterialIcons name="playlist-remove" size={34} color={theme.textMuted} />
-            <Text style={[styles.emptyText, { color: theme.textSecondary }]}>No submissions fit criteria</Text>
+            <Text style={[styles.emptyText, { color: theme.textSecondary }]}>
+              {!challengeId
+                ? 'Choose a challenge to review its submissions.'
+                : loadError
+                  ? 'Submissions could not be loaded.'
+                  : 'No submissions fit the selected criteria.'}
+            </Text>
             <Pressable onPress={resetFilters}>
               <Text style={styles.resetText}>Reset Filters</Text>
             </Pressable>

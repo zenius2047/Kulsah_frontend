@@ -38,11 +38,13 @@ import {
   useMarkConversationRead,
   useMessagingStore,
   useConversationRealtime,
+  useAgoraLive,
   useReportSignalContent,
   useSendConversationMessage,
   uploadMessageAttachment,
+  voiceCallApi,
 } from '../src';
-import type { ConversationMessage, ConversationMessageRequest, SendConversationMessagePayload, Sticker } from '../src';
+import type { ConversationMessage, ConversationMessageRequest, LiveCredentials, SendConversationMessagePayload, Sticker, VoiceCall } from '../src';
 
 interface Message {
   id: number | string;
@@ -57,8 +59,7 @@ interface Message {
   payload?: SendConversationMessagePayload;
 }
 
-type CallType = 'audio' | 'video';
-type CallStatus = 'idle' | 'dialing' | 'connected' | 'ended';
+type CallStatus = 'idle' | 'incoming' | 'dialing' | 'connected' | 'ended' | 'failed';
 
 interface CurrentUser {
   role?: 'creator' | 'fan';
@@ -72,6 +73,7 @@ type ChatRouteParams = {
   avatar?: string;
   isOnline?: boolean;
   lastSeenAt?: string;
+  callId?: string | number;
 };
 
 const numericId = (value: unknown) => {
@@ -175,6 +177,9 @@ const ChatView: React.FC = () => {
   const lastMarkedReadRef = useRef<number | null>(null);
   const typingTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   const typingActiveRef = useRef(false);
+  const pendingRetryIdsRef = useRef(new Set<string>());
+  const attachmentUploadPendingRef = useRef(false);
+  const lastSendIntentRef = useRef<{ key: string; at: number } | null>(null);
 
   const [currentUser, setCurrentUser] = useState<CurrentUser>({});
   const [msg, setMsg] = useState('');
@@ -187,9 +192,10 @@ const ChatView: React.FC = () => {
   const [pendingMessageRequest, setPendingMessageRequest] = useState<ConversationMessageRequest | null>(null);
 
   const [callStatus, setCallStatus] = useState<CallStatus>('idle');
-  const [callType, setCallType] = useState<CallType>('audio');
+  const [activeCall, setActiveCall] = useState<VoiceCall | null>(null);
+  const [callCredentials, setCallCredentials] = useState<LiveCredentials | null>(null);
+  const [isCallActionPending, setIsCallActionPending] = useState(false);
   const [isMuted, setIsMuted] = useState(false);
-  const [isVideoOff, setIsVideoOff] = useState(false);
   const [callDuration, setCallDuration] = useState(0);
 
   const [messages, setMessages] = useState<Message[]>([]);
@@ -305,6 +311,74 @@ const ChatView: React.FC = () => {
     return () => clearInterval(timer);
   }, [callStatus]);
 
+  const agoraCall = useAgoraLive({
+    credentials: callCredentials,
+    enabled: Boolean(callCredentials && (callStatus === 'dialing' || callStatus === 'connected')),
+    audioOnly: true,
+    renewCredentials: activeCall
+      ? async () => {
+          const response = await voiceCallApi.credentials(activeCall.id);
+          setCallCredentials(response.data.credentials);
+          return response.data.credentials;
+        }
+      : undefined,
+  });
+
+  useEffect(() => {
+    agoraCall.setMuted(isMuted);
+  }, [agoraCall.setMuted, isMuted]);
+
+  useEffect(() => {
+    const callId = numericId(params.callId);
+    if (!callId) return;
+    let active = true;
+    void voiceCallApi.get(callId).then((response) => {
+      if (!active) return;
+      const call = response.data.data;
+      setActiveCall(call);
+      setCallDuration(0);
+      setCallStatus(call.status === 'ringing' ? 'incoming' : call.status === 'connected' ? 'connected' : 'ended');
+    }).catch((error) => {
+      if (active) Alert.alert('Call unavailable', getApiErrorMessage(error));
+    });
+    return () => { active = false; };
+  }, [params.callId]);
+
+  useEffect(() => {
+    if (!activeCall || !['incoming', 'dialing', 'connected'].includes(callStatus)) return;
+    let active = true;
+    const poll = async () => {
+      try {
+        const response = await voiceCallApi.get(activeCall.id);
+        if (!active) return;
+        const call = response.data.data;
+        setActiveCall(call);
+        if (call.status === 'connected') setCallStatus('connected');
+        if (['declined', 'ended', 'missed'].includes(call.status)) {
+          setCallCredentials(null);
+          setCallStatus('ended');
+        }
+      } catch {
+        // A transient polling failure must not tear down an active audio channel.
+      }
+    };
+    const interval = setInterval(() => { void poll(); }, 2_000);
+    return () => { active = false; clearInterval(interval); };
+  }, [activeCall?.id, callStatus]);
+
+  useEffect(() => {
+    if (agoraCall.error) setCallStatus('failed');
+  }, [agoraCall.error]);
+
+  useEffect(() => {
+    if (callStatus !== 'ended') return;
+    const timeout = setTimeout(() => {
+      setCallStatus('idle');
+      setActiveCall(null);
+    }, 1_200);
+    return () => clearTimeout(timeout);
+  }, [callStatus]);
+
   const generateSmartReplies = async (lastMessage: string) => {
     setIsGeneratingReplies(true);
     setIsTyping(true);
@@ -367,6 +441,13 @@ const ChatView: React.FC = () => {
     if (pendingMessageRequest) return false;
     const textToSend = textOverride ?? msg;
     if (!textToSend.trim() && type === 'text') return false;
+    const sendIntentKey = JSON.stringify([type, textToSend.trim(), amount ?? '', payloadOverrides.sticker_id ?? '']);
+    const now = Date.now();
+    if (
+      lastSendIntentRef.current?.key === sendIntentKey
+      && now - lastSendIntentRef.current.at < 750
+    ) return false;
+    lastSendIntentRef.current = { key: sendIntentKey, at: now };
 
     const clientMessageId = createClientMessageId();
     const payload: SendConversationMessagePayload = {
@@ -451,10 +532,17 @@ const ChatView: React.FC = () => {
 
   const retryMessage = async (message: Message) => {
     if (!activeConversationId || !message.payload) return;
+    const retryId = message.clientMessageId ?? String(message.id);
+    if (pendingRetryIdsRef.current.has(retryId)) return;
+    pendingRetryIdsRef.current.add(retryId);
     setMessages((current) => current.map((item) => (
       item.clientMessageId === message.clientMessageId ? { ...item, status: 'sending' } : item
     )));
-    await submitMessage(activeConversationId, { ...message, status: 'sending' }, message.payload);
+    try {
+      await submitMessage(activeConversationId, { ...message, status: 'sending' }, message.payload);
+    } finally {
+      pendingRetryIdsRef.current.delete(retryId);
+    }
   };
 
   const cancelPendingMessageRequest = async () => {
@@ -472,18 +560,33 @@ const ChatView: React.FC = () => {
   };
 
   const pickAndSendImage = async () => {
-    if (isUploadingAttachment) return;
-    const permission = await ImagePicker.requestMediaLibraryPermissionsAsync();
+    if (isUploadingAttachment || attachmentUploadPendingRef.current) return;
+    attachmentUploadPendingRef.current = true;
+    const permission = await ImagePicker.requestMediaLibraryPermissionsAsync().catch(() => null);
+    if (!permission) {
+      attachmentUploadPendingRef.current = false;
+      Alert.alert('Photo access unavailable', 'Photo access could not be requested. Please try again.');
+      return;
+    }
     if (!permission.granted) {
       Alert.alert('Photo access required', 'Allow photo access to attach an image.');
+      attachmentUploadPendingRef.current = false;
       return;
     }
 
     const selection = await ImagePicker.launchImageLibraryAsync({
       mediaTypes: ['images'],
       quality: 0.9,
-    });
-    if (selection.canceled || !selection.assets[0]) return;
+    }).catch(() => null);
+    if (!selection) {
+      attachmentUploadPendingRef.current = false;
+      Alert.alert('Photo picker unavailable', 'The photo picker could not be opened. Please try again.');
+      return;
+    }
+    if (selection.canceled || !selection.assets[0]) {
+      attachmentUploadPendingRef.current = false;
+      return;
+    }
 
     setIsUploadingAttachment(true);
     try {
@@ -521,19 +624,68 @@ const ChatView: React.FC = () => {
       Alert.alert('Attachment failed', 'The image could not be uploaded. Please try again.');
     } finally {
       setIsUploadingAttachment(false);
+      attachmentUploadPendingRef.current = false;
     }
   };
 
-  const startCall = (type: CallType) => {
-    setCallType(type);
-    setCallStatus('dialing');
+  const startCall = async () => {
+    if (!activeConversationId || isCallActionPending) {
+      if (!activeConversationId) Alert.alert('Call unavailable', 'Send a message first to start this conversation.');
+      return;
+    }
+    setIsCallActionPending(true);
     setCallDuration(0);
-    setTimeout(() => setCallStatus('connected'), 2000);
+    setIsMuted(false);
+    try {
+      const response = await voiceCallApi.start(activeConversationId);
+      setActiveCall(response.data.data);
+      setCallCredentials(response.data.credentials ?? null);
+      setCallStatus('dialing');
+    } catch (error) {
+      Alert.alert('Could not start call', getApiErrorMessage(error));
+    } finally {
+      setIsCallActionPending(false);
+    }
   };
 
-  const endCall = () => {
+  const endCall = async () => {
+    if (isCallActionPending) return;
+    setIsCallActionPending(true);
+    if (activeCall) await voiceCallApi.end(activeCall.id).catch(() => undefined);
+    setCallCredentials(null);
     setCallStatus('ended');
-    setTimeout(() => setCallStatus('idle'), 1000);
+    setTimeout(() => {
+      setCallStatus('idle');
+      setActiveCall(null);
+      setIsCallActionPending(false);
+    }, 800);
+  };
+
+  const acceptCall = async () => {
+    if (!activeCall || isCallActionPending) return;
+    setIsCallActionPending(true);
+    try {
+      const response = await voiceCallApi.accept(activeCall.id);
+      setActiveCall(response.data.data);
+      setCallCredentials(response.data.credentials ?? null);
+      setCallDuration(0);
+      setCallStatus('connected');
+    } catch (error) {
+      setCallStatus('failed');
+      Alert.alert('Could not join call', getApiErrorMessage(error));
+    } finally {
+      setIsCallActionPending(false);
+    }
+  };
+
+  const declineCall = async () => {
+    if (!activeCall || isCallActionPending) return;
+    setIsCallActionPending(true);
+    await voiceCallApi.decline(activeCall.id).catch(() => undefined);
+    setCallCredentials(null);
+    setActiveCall(null);
+    setCallStatus('idle');
+    setIsCallActionPending(false);
   };
 
   const formatDuration = (sec: number) => {
@@ -631,31 +783,45 @@ const ChatView: React.FC = () => {
       behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
       keyboardVerticalOffset={0}
     >
-    <View style={styles.screen}>
+    <View style={[styles.screen, styles.tabletScreen]}>
       <Modal visible={callStatus !== 'idle'} transparent animationType="fade" statusBarTranslucent>
-        <View style={[styles.callOverlay, {}]}>
+        <View style={[styles.callOverlay, { backgroundColor: callOverlayBg }]}>
           <View style={styles.callTop}>
             <Image source={{ uri: avatar }} style={styles.callAvatar} />
             <Text style={[styles.callName, { color: primaryText }]}>{id.replace('_', ' ')}</Text>
             <Text style={styles.callStatus}>
-              {callStatus === 'dialing'
-                ? `Requesting ${callType} connection...`
-                : callStatus === 'connected'
-                ? `Connected • ${formatDuration(callDuration)}`
-                : 'Signal Lost'}
+              {callStatus === 'incoming'
+                ? 'Incoming voice call'
+                : callStatus === 'dialing'
+                  ? 'Ringing...'
+                  : callStatus === 'connected'
+                    ? `${agoraCall.connectionState === 'reconnecting' ? 'Reconnecting' : 'Connected'} • ${formatDuration(callDuration)}`
+                    : callStatus === 'failed'
+                      ? (agoraCall.error ?? 'Call connection failed')
+                      : 'Call ended'}
             </Text>
           </View>
 
           <View style={styles.callActions}>
-            <Pressable onPress={() => setIsMuted((v) => !v)} style={[styles.callBtn, isMuted && styles.callBtnActive]}>
-              <MaterialIcons name={isMuted ? 'mic-off' : 'mic'} size={22} color={isMuted ? '#000' : '#fff'} />
-            </Pressable>
-            <Pressable onPress={endCall} style={styles.callEndBtn}>
-              <MaterialIcons name="call-end" size={32} color="#fff" />
-            </Pressable>
-            <Pressable onPress={() => setIsVideoOff((v) => !v)} style={[styles.callBtn, isVideoOff && styles.callBtnActive]}>
-              <MaterialIcons name={isVideoOff ? 'videocam-off' : 'videocam'} size={22} color={isVideoOff ? '#000' : '#fff'} />
-            </Pressable>
+            {callStatus === 'incoming' ? (
+              <>
+                <Pressable disabled={isCallActionPending} onPress={() => void declineCall()} style={styles.callEndBtn}>
+                  <MaterialIcons name="call-end" size={32} color="#fff" />
+                </Pressable>
+                <Pressable disabled={isCallActionPending} onPress={() => void acceptCall()} style={[styles.callEndBtn, styles.callAcceptBtn]}>
+                  <MaterialIcons name="call" size={32} color="#fff" />
+                </Pressable>
+              </>
+            ) : (
+              <>
+                <Pressable disabled={callStatus !== 'connected'} onPress={() => setIsMuted((v) => !v)} style={[styles.callBtn, isMuted && styles.callBtnActive]}>
+                  <MaterialIcons name={isMuted ? 'mic-off' : 'mic'} size={22} color={isMuted ? '#000' : '#fff'} />
+                </Pressable>
+                <Pressable disabled={isCallActionPending} onPress={() => void endCall()} style={styles.callEndBtn}>
+                  <MaterialIcons name="call-end" size={32} color="#fff" />
+                </Pressable>
+              </>
+            )}
           </View>
         </View>
       </Modal>
@@ -694,12 +860,15 @@ const ChatView: React.FC = () => {
             </Pressable>
           ) : null}
 
-          {/* <Pressable onPress={() => startCall('audio')} style={[styles.iconBtn, { backgroundColor: iconBtnBg, borderColor: iconBtnBorder }]}>
+          <Pressable
+            disabled={!activeConversationId || isCallActionPending}
+            onPress={() => void startCall()}
+            accessibilityRole="button"
+            accessibilityLabel="Start voice call"
+            style={[styles.iconBtn, { backgroundColor: iconBtnBg, borderColor: iconBtnBorder, opacity: activeConversationId ? 1 : 0.45 }]}
+          >
             <MaterialIcons name="call" size={18} color={primaryText} />
           </Pressable>
-          <Pressable onPress={() => startCall('video')} style={[styles.iconBtn, { backgroundColor: iconBtnBg, borderColor: iconBtnBorder }]}>
-            <MaterialIcons name="videocam" size={18} color={primaryText} />
-          </Pressable> */}
         </View>
 
         {/* <View style={[styles.metaCard, { backgroundColor: softSurface, borderColor: border }]}>
@@ -961,6 +1130,7 @@ const ChatView: React.FC = () => {
 
 const styles = StyleSheet.create({
   screen: { flex: 1 },
+  tabletScreen: { width: '100%', maxWidth: 900, alignSelf: 'center' },
   keyboardAvoidingView: { flex: 1 },
   callOverlay: {
     flex: 1,
@@ -987,6 +1157,7 @@ const styles = StyleSheet.create({
   },
   callBtnActive: { backgroundColor: '#fff' },
   callEndBtn: { width: 74, height: 74, borderRadius: 24, backgroundColor: '#ef4444', justifyContent: 'center', alignItems: 'center' },
+  callAcceptBtn: { backgroundColor: '#22c55e' },
   header: {
     paddingTop: 52,
     paddingHorizontal: 14,

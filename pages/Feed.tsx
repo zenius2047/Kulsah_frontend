@@ -30,7 +30,6 @@ import {
 import { useIsFocused, useNavigation } from '@react-navigation/native';
 import { MaterialIcons } from '@expo/vector-icons';
 import { SafeAreaView, useSafeAreaInsets } from 'react-native-safe-area-context';
-// import { ResizeMode, Video } from 'expo-video';
 import { useVideoPlayer, VideoView } from 'expo-video';
 import type { VideoPlayer } from 'expo-video';
 import { getVideoPlaybackUrl, getVideoPoster, getVideoSource } from '../src/utils/video';
@@ -100,6 +99,8 @@ export interface FeedItem {
   canDuet?: boolean;
   ticketsAvailable: boolean;
   ticketLocation?: string;
+  eventId?: string;
+  challengeId?: string;
   isLive?: boolean;
   originalSound: boolean;
   soundArtist?: string;
@@ -429,6 +430,8 @@ const mapFeedVideoToItem = (rawValue: unknown, index: number): FeedItem | null =
     canDuet: Boolean(raw.canDuet ?? raw.can_duet ?? raw.allowDuet ?? raw.allow_duet),
     ticketsAvailable: Boolean(raw.ticketsAvailable ?? raw.tickets_available ?? raw.hasTickets),
     ticketLocation: firstString(raw.ticketLocation, raw.ticket_location, raw.location) || undefined,
+    eventId: firstString(raw.eventId, raw.event_id, raw.event?.id) || undefined,
+    challengeId: firstString(raw.challengeId, raw.challenge_id, raw.challenge?.id) || undefined,
     isLive: Boolean(raw.isLive ?? raw.live),
     originalSound: raw.originalSound == null ? true : Boolean(raw.originalSound),
     soundArtist: firstString(raw.soundArtist, raw.sound_artist, raw.audioArtist, raw.audio_artist) || undefined,
@@ -1244,8 +1247,6 @@ const VideoFeedItemComponent: React.FC<VideoFeedItemProps> = ({
       Alert.alert('Unable to share', getApiErrorMessage(error));
     }
   }, [item.artist, item.caption, item.video]);
-  // const [videoSize, setVideoSize] = useState({ width: 0, height: 0 });
-
   const rotation = rotateValue.interpolate({
     inputRange: [0, 1],
     outputRange: ['0deg', '360deg'],
@@ -1257,8 +1258,6 @@ const VideoFeedItemComponent: React.FC<VideoFeedItemProps> = ({
   
 
   const togglePlayPause = () => {
-    // console.log("Video is tapped");
-    // console.log("The value of more:", more);
     if(captionExceedsThreshold && !more){
       setMore(true);
       setLineNumber(1);
@@ -1289,7 +1288,6 @@ const VideoFeedItemComponent: React.FC<VideoFeedItemProps> = ({
       singleTapTimeoutRef.current = null;
     }, 250);
   };
-  // const videoRef = React.useRef<VideoRef>(null);
   const configurePlayer = useCallback((p: any) => {
     p.loop = true;
     p.timeUpdateEventInterval = 0;
@@ -1303,12 +1301,6 @@ const VideoFeedItemComponent: React.FC<VideoFeedItemProps> = ({
   }, []);
 
   const player = useVideoPlayer(getVideoSource(item.video), configurePlayer);
-
-  // const [currentPlayer, setCurrentPlayer] = useState(player);
-  // const [videoDimensions, setVideoDimensions] = useState({
-  //   width: 0,
-  //   height: 0,
-  // });
 
   const loadedMetadata = useEvent(player, 'sourceLoad');
   const { status } = useEvent(player, 'statusChange', { status: player.status });
@@ -1328,22 +1320,12 @@ const VideoFeedItemComponent: React.FC<VideoFeedItemProps> = ({
     : 0;
 
   React.useEffect(() => {
-    if (loadedMetadata) {
-      // console.log('sourceLoad payload:', JSON.stringify(loadedMetadata, null, 2));
-      // console.log('video track:', JSON.stringify(loadedTrack, null, 2));
-      // console.log('track size:', loadedTrack?.size);
-      // console.log('possible rotation:', (loadedTrack as any)?.rotation);
-      // console.log('possible orientation:', (loadedTrack as any)?.orientation);
-    }
-
     if (loadedWidth > 0 && loadedHeight > 0) {
       const width = loadedWidth;
       const height = loadedHeight;
       setDimensions((prev) => (
         prev.width === width && prev.height === height ? prev : { width, height }
       ));
-      // console.log(`This is the height : ${height} for the user ${item.handle} video with caption ${item.caption} and the video is portrait? ${isPortraitVideo}` )
-      // console.log(`This is the width : ${width} for the user ${item.handle} video`)
     }
 
     if (typeof loadedDuration === 'number' && loadedDuration > 0) {
@@ -1389,33 +1371,6 @@ const VideoFeedItemComponent: React.FC<VideoFeedItemProps> = ({
       }
     };
   }, []);
-  // const replacePlayer = useCallback(async () => {
-  //   currentPlayer.pause();
-  //   if (currentPlayer === player) {
-  //     setCurrentPlayer(nextPlayer);
-  //     player.pause();
-  //     nextPlayer.play();
-  //   } else {
-  //     setCurrentPlayer(player);
-  //     nextPlayer.pause();
-  //     player.play();
-  //   }
-  // }, [player, nextVideo]);
-  // const sourceLoad = useEvent(player, 'sourceLoad');
-  // useEffect(()=>{
-  //   const tracks = sourceLoad?.availableVideoTracks;
-  //   if (tracks && tracks.length > 0) {
-  //     const { width, height } = tracks[0].size;
-  //     console.log(`This is the height : ${height}`)
-  //     console.log(`This is the width : ${width}`)
-  //     // setVideoDimensions({ width, height });
-  //   }
-  // }, [sourceLoad])
-  // useEffect(player, 'sourceLoad', () => {
-  //   const tracks = event?.availableVideoTracks;
-
-  // });
-
    useEffect(() => {
   if (!player) return;
 
@@ -1459,7 +1414,6 @@ useEffect(() => {
   player.muted = isGlobalMuted;
 }, [isGlobalMuted, player]);
 
-// const { buffering } = useEvent(player, 'bufferingChange', { buffering: true });
   const isVideoLoading = status !== 'readyToPlay' && status !== 'error';
 
   const viewConfigRef = React.useRef({
@@ -1551,13 +1505,6 @@ useEffect(() => {
           }}
         />
       ) : null}
-
-      {/* Top mute button */}
-      {/* <View style={{ position: 'absolute', top: 40, right: 16 }}>
-        <Pressable onPress={onToggleMute}>
-          <MaterialIcons name={isGlobalMuted ? 'volume-off' : 'volume-up'} size={28} color="white" />
-        </Pressable>
-      </View> */}
 
       {/* Right-side overlay buttons */}
       <View style={{
@@ -1653,44 +1600,6 @@ useEffect(() => {
           </View>
         ) : null}
 
-        {/* <Pressable onPress={() => navigation.navigate('ArtistProfile')} style={{
-          shadowColor: '#000',
-          shadowOffset: { width: 0, height: 2 },
-          shadowOpacity: 0.5,
-          shadowRadius: 6,
-          elevation: 4,
-          alignItems: 'center' }}>
-          <View style={{
-            // borderRadius: 20,
-            // width: 40,
-            // height: 40,
-            // borderColor: item.isSubscribed ? PRIMARY_COLOR : 'white',
-            // borderWidth: 1,
-            justifyContent: 'center',
-            alignItems: 'center',
-          }}>
-            <View style={{
-              // borderWidth: 2,
-              // borderColor: item.isSubscribed ? PRIMARY_COLOR : 'white',
-              // height: 24,
-              // width: 24,
-              // borderRadius: 12,
-              justifyContent: 'center',
-              alignItems: 'center',
-              shadowColor: '#000',
-              shadowOffset: { width: 0, height: 2 },
-              shadowOpacity: 0.5,
-              shadowRadius: 6,
-              elevation: 4,
-            }}>
-              <MaterialIcons name="star" size={36} color={item.isSubscribed ? PRIMARY_COLOR : 'white'} />
-            </View>
-          </View>
-          <Text style={{ color: item.isSubscribed ? PRIMARY_COLOR : 'white', ...fontSize.b4, lineHeight: fontSize.b4.lineHeight }}>
-            {item.isSubscribed ? 'SUBBED' : 'Sub'}
-          </Text>
-        </Pressable> */}
-
         <Pressable onPress={() => onToggleBookmark(item, !item.isBookmarked)} style={{
           shadowColor: '#000',
           shadowOffset: { width: 0, height: 2 },
@@ -1729,7 +1638,6 @@ useEffect(() => {
           elevation: 4,
           alignItems: 'center' }}>
           <MaterialIcons name="more-horiz" size={30} color="white" />
-          {/* <Text style={{ color: 'white', ...fontSize.b4, lineHeight: fontSize.b4.lineHeight }}>More</Text> */}
         </Pressable>
 
         <View style={
@@ -1930,10 +1838,10 @@ useEffect(() => {
 
         </View>
 
-        {item.ticketsAvailable && (
+        {item.ticketsAvailable && item.eventId && (
           <Pressable
             onPress={()=>{
-              navigation.navigate('EventDetail')
+              navigation.navigate('EventDetail', { eventId: item.eventId })
             }}
             style={{
               marginTop: 10,
@@ -1957,9 +1865,9 @@ useEffect(() => {
           </Pressable>
         )}
 
-        {item.isChallenge ? (
+        {item.isChallenge && item.challengeId ? (
           <Pressable
-            onPress={() => navigation.navigate('ChallengeEntry')}
+            onPress={() => navigation.navigate('ChallengeEntry', { challengeId: item.challengeId! })}
             style={{
               marginTop: 10,
               width: '80%',
@@ -1993,7 +1901,6 @@ useEffect(() => {
           overlayBottomInset={overlayBottomInset}
         />
 
-        {/* <Text style={{ color: '#cbd5e1', marginTop: 6, ...fontSize.b5, lineHeight: fontSize.b5.lineHeight }}>{isPlaying ? 'Playing' : 'Paused'} preview</Text> */}
       </View>
 
       {/* Comments modal */}
@@ -2196,25 +2103,21 @@ const FeedVideoRow = React.memo<FeedVideoRowProps>(({
 ));
 
 type CreatorBattleStatusHeaderProps = {
-  title: string;
   topInset: number;
   votingStatus?: string;
   votingEndsAt?: string | null;
   fallbackSeconds?: number | null;
   dataUpdatedAt: number;
   isActive: boolean;
-  onOpen: () => void;
 };
 
 const CreatorBattleStatusHeader = React.memo<CreatorBattleStatusHeaderProps>(({
-  title,
   topInset,
   votingStatus,
   votingEndsAt,
   fallbackSeconds,
   dataUpdatedAt,
   isActive,
-  onOpen,
 }) => {
   const [clockNow, setClockNow] = useState(Date.now());
 
@@ -2251,15 +2154,6 @@ const CreatorBattleStatusHeader = React.memo<CreatorBattleStatusHeaderProps>(({
         alignItems: 'center',
       }}
     >
-      {/* <Pressable onPress={onOpen} style={{ alignItems: 'center', maxWidth: '72%' }}>
-        <Text
-          numberOfLines={1}
-          style={{ ...fontSize.n3, color: '#ffffff', textShadowColor: 'rgba(0,0,0,0.85)', textShadowRadius: 8 }}
-        >
-          {title}
-        </Text>
-      </Pressable> */}
-
       <View
         style={{
           minHeight: 28,
@@ -2594,14 +2488,12 @@ const CreatorBattleParticipantPager = React.memo<CreatorBattleParticipantPagerPr
       />
 
       <CreatorBattleStatusHeader
-        title={detail?.title || battle.title}
         topInset={topInset}
         votingStatus={votingStatus}
         votingEndsAt={votingEndsAt}
         fallbackSeconds={detail?.time_remaining_seconds}
         dataUpdatedAt={challengeQuery.dataUpdatedAt}
         isActive={isActive}
-        onOpen={handleOpenBattle}
       />
 
       {participantItems.length > 1 ? (
@@ -2701,775 +2593,7 @@ const Feed: React.FC = () => {
   const insets= useSafeAreaInsets();
   const feedItemHeight = FEED_ITEM_HEIGHT - (Platform.OS === 'ios' ? 0 : insets.bottom);
   const [feedViewportHeight, setFeedViewportHeight] = useState(0);
-  const [items, setItems] = useState<FeedItem[]>([
-    // {
-    //   id: '86',
-    //   artist: 'drop',
-    //   handle: 'gibson',
-    //   avatar: 'https://picsum.photos/seed/elena/150/150',
-    //   caption: "PRIVATE DROP: Working on 'Nebula' vocal layers. This is the raw studio session for my supporters only. #BTS #KulsahExclusive",
-    //   background: 'https://images.unsplash.com/photo-1598488035139-bdbb2231ce04?auto=format&fit=crop&q=80&w=800',
-    //   video: 'https://res.cloudinary.com/dh0dywpzm/video/upload/v1779790948/K50526_sfmxi0.mp4',
-    //   likes: '2.4M',
-    //   comments: '88.1K',
-    //   isLiked: false,
-    //   isSubscribed: true,
-    //   isPremium: true,
-    //   ticketsAvailable: false,
-    //   // ticketLocation: 'London, UK',
-    //   originalSound: true,
-    //   // soundArtist: 'Synthwave Kid',
-    //   // soundTitle: 'Neon Dreams',
-    //   following: false,
-    //   bookmarks: '2.5k',
-    //   saves: '2.5k',
-    //   isLive: true,
-    // },
-    // {
-    //   id: '83',
-    //   artist: 'Kulsah Headquarters',
-    //   handle: 'kulsah_hq',
-    //   avatar: 'https://picsum.photos/seed/elena/150/150',
-    //   caption: "Working on 'Nebula' vocal layers. This is the raw studio session for my supporters only. #BTS #KulsahExclusive",
-    //   background: 'https://images.unsplash.com/photo-1598488035139-bdbb2231ce04?auto=format&fit=crop&q=80&w=800',
-    //   video: 'https://res.cloudinary.com/dh0dywpzm/video/upload/v1779794760/kulsah_sing_vgqxne.mp4',
-    //   likes: '2.4M',
-    //   comments: '88.1K',
-    //   isLiked: false,
-    //   isSubscribed: false,
-    //   isPremium: true,
-    //   t  const [items, setItems] = useState<FeedItem[]>([
-    // {
-    //   id: '86',
-    //   artist: 'drop',
-    //   handle: 'gibson',
-    //   avatar: 'https://picsum.photos/seed/elena/150/150',
-    //   caption: "PRIVATE DROP: Working on 'Nebula' vocal layers. This is the raw studio session for my supporters only. #BTS #KulsahExclusive",
-    //   background: 'https://images.unsplash.com/photo-1598488035139-bdbb2231ce04?auto=format&fit=crop&q=80&w=800',
-    //   video: 'https://res.cloudinary.com/dh0dywpzm/video/upload/v1779790948/K50526_sfmxi0.mp4',
-    //   likes: '2.4M',
-    //   comments: '88.1K',
-    //   isLiked: false,
-    //   isSubscribed: true,
-    //   isPremium: true,
-    //   ticketsAvailable: false,
-    //   // ticketLocation: 'London, UK',
-    //   originalSound: true,
-    //   // soundArtist: 'Synthwave Kid',
-    //   // soundTitle: 'Neon Dreams',
-    //   following: false,
-    //   bookmarks: '2.5k',
-    //   saves: '2.5k',
-    //   isLive: true,
-    // },
-    // {
-    //   id: '83',
-    //   artist: 'Kulsah Headquarters',
-    //   handle: 'kulsah_hq',
-    //   avatar: 'https://picsum.photos/seed/elena/150/150',
-    //   caption: "Working on 'Nebula' vocal layers. This is the raw studio session for my supporters only. #BTS #KulsahExclusive",
-    //   background: 'https://images.unsplash.com/photo-1598488035139-bdbb2231ce04?auto=format&fit=crop&q=80&w=800',
-    //   video: 'https://res.cloudinary.com/dh0dywpzm/video/upload/v1779794760/kulsah_sing_vgqxne.mp4',
-    //   likes: '2.4M',
-    //   comments: '88.1K',
-    //   isLiked: false,
-    //   isSubscribed: false,
-    //   isPremium: true,
-    //   ticketsAvailable: true,
-    //   ticketLocation: 'London, UK',
-    //   originalSound: false,
-    //   soundArtist: 'Rollex Bills',
-    //   soundTitle: 'Kulsah Theme',
-    //   following: false,
-    //   bookmarks: '2.5k',
-    //   saves: '2.5k',
-    // },
-    //  {
-    //   id: '84',
-    //   artist: 'Kulsah Headquarters',
-    //   handle: 'kulsah_hq',
-    //   avatar: 'https://picsum.photos/seed/elena/150/150',
-    //   caption: "Working on 'Nebula' vocal layers. This is the raw studio session for my supporters only. #BTS #KulsahExclusive",
-    //   background: 'https://images.unsplash.com/photo-1598488035139-bdbb2231ce04?auto=format&fit=crop&q=80&w=800',
-    //   video: 'https://res.cloudinary.com/dh0dywpzm/video/upload/v1779791753/0526k_293_jg9442.mp4',
-    //   likes: '2.4M',
-    //   comments: '88.1K',
-    //   isLiked: false,
-    //   isSubscribed: false,
-    //   isPremium: true,
-    //   ticketsAvailable: true,
-    //   ticketLocation: 'London, UK',
-    //   originalSound: false,
-    //   soundArtist: 'Rollex Bills',
-    //   soundTitle: 'Kulsah Theme',
-    //   following: false,
-    //   bookmarks: '2.5k',
-    //   saves: '2.5k',
-    // },
-    // {
-    //   id: '79',
-    //   artist: 'Kulsah Landscape',
-    //   handle: 'Kulsah_landscape',
-    //   avatar: 'https://picsum.photos/seed/elena/150/150',
-    //   caption: "PRIVATE DROP: Working on 'Nebula' vocal layers. This is the raw studio session for my supporters only. #BTS #KulsahExclusive",
-    //   background: 'https://images.unsplash.com/photo-1598488035139-bdbb2231ce04?auto=format&fit=crop&q=80&w=800',
-    //   video: 'https://res.cloudinary.com/dh0dywpzm/video/upload/v1779790082/k434_live_qaebmy.mp4',
-    //   likes: '2.4M',
-    //   comments: '88.1K',
-    //   isLiked: false,
-    //   isSubscribed: true,
-    //   isPremium: true,
-    //   ticketsAvailable: true,
-    //   ticketLocation: 'London, UK',
-    //   originalSound: true,
-    //   // soundArtist: 'Synthwave Kid',
-    //   // soundTitle: 'Neon Dreams',
-    //   following: false,
-    //   bookmarks: '2.5k',
-    //   saves: '2.5k',
-    // },
-    // {
-    //   id: '78',
-    //   artist: 'Kulsah Landscape',
-    //   handle: 'Kulsah_landscape',
-    //   avatar: 'https://picsum.photos/seed/elena/150/150',
-    //   caption: "PRIVATE DROP: Working on 'Nebula' vocal layers. This is the raw studio session for my supporters only. #BTS #KulsahExclusive",
-    //   background: 'https://images.unsplash.com/photo-1598488035139-bdbb2231ce04?auto=format&fit=crop&q=80&w=800',
-    //   video: 'https://res.cloudinary.com/dh0dywpzm/video/upload/v1779790256/K53234_snaapi.mp4',
-    //   likes: '2.4M',
-    //   comments: '88.1K',
-    //   isLiked: false,
-    //   isSubscribed: false,
-    //   isPremium: true,
-    //   ticketsAvailable: true,
-    //   ticketLocation: 'London, UK',
-    //   originalSound: true,
-    //   // soundArtist: 'Synthwave Kid',
-    //   // soundTitle: 'Neon Dreams',
-    //   following: false,
-    //   bookmarks: '2.5k',
-    //   saves: '2.5k',
-    // },
-    // {
-    //   id: '85',
-    //   artist: 'Kulsah Landscape',
-    //   handle: 'Kulsah_landscape',
-    //   avatar: 'https://picsum.photos/seed/elena/150/150',
-    //   caption: "PRIVATE DROP: Working on 'Nebula' vocal layers. This is the raw studio session for my supporters only. #BTS #KulsahExclusive",
-    //   background: 'https://images.unsplash.com/photo-1598488035139-bdbb2231ce04?auto=format&fit=crop&q=80&w=800',
-    //   video: 'https://res.cloudinary.com/dh0dywpzm/video/upload/v1779790223/K12242_wmlewi.mp4',
-    //   likes: '2.4M',
-    //   comments: '88.1K',
-    //   isLiked: false,
-    //   isSubscribed: true,
-    //   isPremium: true,
-    //   ticketsAvailable: true,
-    //   ticketLocation: 'London, UK',
-    //   originalSound: true,
-    //   // soundArtist: 'Synthwave Kid',
-    //   // soundTitle: 'Neon Dreams',
-    //   following: false,
-    //   bookmarks: '2.5k',
-    //   saves: '2.5k',
-    // },
-    // {
-    //   id: '80',
-    //   artist: 'Kulsah Alpha',
-    //   handle: 'Kulsah_alpha',
-    //   avatar: 'https://picsum.photos/seed/elena/150/150',
-    //   caption: "PRIVATE DROP: Working on 'Nebula' vocal layers. This is the raw studio session for my supporters only. #BTS #KulsahExclusive",
-    //   background: 'https://images.unsplash.com/photo-1598488035139-bdbb2231ce04?auto=format&fit=crop&q=80&w=800',
-    //   video: 'https://res.cloudinary.com/dh0dywpzm/video/upload/v1779790193/K0526_ocu8xt.mp4',
-    //   likes: '2.4M',
-    //   comments: '88.1K',
-    //   isLiked: false,
-    //   isSubscribed: true,
-    //   isPremium: true,
-    //   ticketsAvailable: true,
-    //   ticketLocation: 'London, UK',
-    //   originalSound: true,
-    //   // soundArtist: 'Synthwave Kid',
-    //   // soundTitle: 'Neon Dreams',
-    //   following: false,
-    //   bookmarks: '2.5k',
-    //   saves: '2.5k',
-    // },
-    // {
-    //   id: '10',
-    //   artist: 'Big Things',
-    //   handle: 'big_t',
-    //   avatar: 'https://picsum.photos/seed/elena/150/150',
-    //   caption: "PRIVATE DROP: Working on 'Nebula' vocal layers. This is the raw studio session for my supporters only. #BTS #KulsahExclusive",
-    //   background: 'https://images.unsplash.com/photo-1598488035139-bdbb2231ce04?auto=format&fit=crop&q=80&w=800',
-    //   video: 'https://res.cloudinary.com/dh0dywpzm/video/upload/v1779791584/0526_KLIVE_hwldte.mp4',
-    //   likes: '2.4M',
-    //   comments: '88.1K',
-    //   isLiked: false,
-    //   isSubscribed: true,
-    //   isPremium: true,
-    //   ticketsAvailable: true,
-    //   ticketLocation: 'London, UK',
-    //   originalSound: false,
-    //   soundArtist: 'Synthwave Kid',
-    //   soundTitle: 'Neon Dreams',
-    //   following: false,
-    //   bookmarks: '2.5k',
-    //   saves: '2.5k',
-    // },
-    // {
-    //   id: '6',
-    //   artist: 'Sarkodie',
-    //   handle: 'sarkodie',
-    //   avatar: 'https://picsum.photos/seed/elena/150/150',
-    //   caption: "PRIVATE DROP: Working on 'Nebula' vocal layers. This is the raw studio session for my supporters only. #BTS #KulsahExclusive",
-    //   background: 'https://images.unsplash.com/photo-1598488035139-bdbb2231ce04?auto=format&fit=crop&q=80&w=800',
-    //   video: 'https://res.cloudinary.com/dh0dywpzm/video/upload/v1779795517/dance_cha_001_p1flkl.mp4',
-    //   likes: '2.4M',
-    //   comments: '88.1K',
-    //   isLiked: false,
-    //   isSubscribed: true,
-    //   isPremium: true,
-    //   ticketsAvailable: true,
-    //   ticketLocation: 'London, UK',
-    //   originalSound: false,
-    //   soundArtist: 'Synthwave Kid',
-    //   soundTitle: 'Neon Dreams',
-    //   following: false,
-    //   bookmarks: '2.5k',
-    //   saves: '2.5k',
-    // },
-    // {
-    //   id: '15',
-    //   artist: 'Elena Rose',
-    //   handle: 'elena_rose',
-    //   avatar: 'https://picsum.photos/seed/elena/150/150',
-    //   caption: "PRIVATE DROP: Working on 'Nebula' vocal layers. This is the raw studio session for my supporters only. #BTS #KulsahExclusive",
-    //   background: 'https://images.unsplash.com/photo-1598488035139-bdbb2231ce04?auto=format&fit=crop&q=80&w=800',
-    //   video: 'https://res.cloudinary.com/dh0dywpzm/video/upload/v1779795719/dance-0000_fumuie.mp4',
-    //   likes: '2.4M',
-    //   comments: '88.1K',
-    //   isLiked: false,
-    //   isSubscribed: true,
-    //   isPremium: true,
-    //   ticketsAvailable: true,
-    //   ticketLocation: 'London, UK',
-    //   originalSound: false,
-    //   soundArtist: 'Synthwave Kid',
-    //   soundTitle: 'Neon Dreams',
-    //   following: false,
-    //   bookmarks: '2.5k',
-    //   saves: '2.5k',
-    // },
-    // {
-    //   id: '1',
-    //   artist: 'Okenneth',
-    //   handle: 'o_kenneth',
-    //   avatar: 'https://picsum.photos/seed/elena/150/150',
-    //   caption: "PRIVATE DROP: Working on 'Nebula' vocal layers. This is the raw studio session for my supporters only. #BTS #KulsahExclusive",
-    //   background: 'https://images.unsplash.com/photo-1598488035139-bdbb2231ce04?auto=format&fit=crop&q=80&w=800',
-    //   video: 'https://res.cloudinary.com/dmznckja5/video/upload/v1776090888/IMG_2292_quwrue.mp4',
-    //   likes: '2.4M',
-    //   comments: '88.1K',
-    //   isLiked: false,
-    //   isSubscribed: true,
-    //   isPremium: true,
-    //   ticketsAvailable: true,
-    //   ticketLocation: 'London, UK',
-    //   following: true,
-    //   bookmarks: '2.5k',
-    //   saves: '2.5k',
-    //   originalSound: true,
-    // },
-    // {
-    //   id: '4',
-    //   artist: 'Shatta Wale',
-    //   handle: 'sm_movement',
-    //   avatar: 'https://picsum.photos/seed/mthorne/150/150',
-    //   caption: "SUBSCRIBER REHEARSAL: Early draft of the winter tour set. Gold Tier circle, let's vibe.",
-    //   background: 'https://images.unsplash.com/photo-1511671782779-c97d3d27a1d4?auto=format&fit=crop&q=80&w=800',
-    //   video: 'https://res.cloudinary.com/dmznckja5/video/upload/v1776090886/IMG_2290_pqm8im.mp4',
-    //   likes: '450K',
-    //   comments: '12.2K',
-    //   isLiked: false,
-    //   isSubscribed: true,
-    //   isPremium: true,
-    //   ticketsAvailable: false,
-    //   isLive: true,
-    //   following: false,
-    //   bookmarks: '2.5k',
-    //   saves: '2.5k',
-    //   originalSound: true,
-    // },
-    // {
-    //   id: '2',
-    //   artist: 'Shatta Wale',
-    //   handle: 'sm_movement',
-    //   avatar: 'https://picsum.photos/seed/zion/150/150',
-    //   caption: 'Live from the main stage! This crowd is unmatched. #Kulsah #LiveMusic #Afrobeats',
-    //   background: 'https://images.unsplash.com/photo-1514525253361-bee8718a74a2?auto=format&fit=crop&q=80&w=800',
-    //   video: 'https://res.cloudinary.com/dmznckja5/video/upload/v1776090870/IMG_2289_hdsiis.mp4',
-    //   likes: '1.2M',
-    //   comments: '45.8K',
-    //   isLiked: true,
-    //   isSubscribed: false,
-    //   isPremium: false,
-    //   ticketsAvailable: false,
-    //   following: true,
-    //   bookmarks: '2.5k',
-    //   saves: '2.5k',
-    //   originalSound: true,
-    // },
-    // {
-    //   id: '5',
-    //   artist: 'Sarah Chen',
-    //   handle: 'schen_music',
-    //   avatar: 'https://picsum.photos/seed/sarah/150/150',
-    //   caption: "VIP MASTERCLASS: Layering vocal chains for the 'Galaxy' sound. #ProducerLife #PremiumContent",
-    //   background: 'https://images.unsplash.com/photo-1520529277867-dbf8c5e0b340?auto=format&fit=crop&q=80&w=800',
-    //   video: 'https://res.cloudinary.com/dmznckja5/video/upload/v1776093916/IMG_2294_nu53zb.mp4',
-    //   likes: '89K',
-    //   comments: '4.5K',
-    //   isLiked: true,
-    //   isSubscribed: true,
-    //   isPremium: true,
-    //   ticketsAvailable: false,
-    //   following: false,
-    //   bookmarks: '2.5k',
-    //   saves: '2.5k',
-    //   originalSound: true,
-    // },
-    // {
-    //   id: '8',
-    //   artist: 'Gabriel Music',
-    //   handle: 'gabbeat',
-    //   avatar: 'https://picsum.photos/seed/sarah/150/150',
-    //   caption: "VIP MASTERCLASS: Layering vocal chains for the 'Galaxy' sound. #ProducerLife #PremiumContent",
-    //   background: 'https://images.unsplash.com/photo-1520529277867-dbf8c5e0b340?auto=format&fit=crop&q=80&w=800',
-    //   video: 'https://res.cloudinary.com/dmznckja5/video/upload/v1776093923/IMG_2295_lplsoq.mp4',
-    //   likes: '89K',
-    //   comments: '4.5K',
-    //   isLiked: true,
-    //   isSubscribed: true,
-    //   isPremium: true,
-    //   ticketsAvailable: false,
-    //   following: true,
-    //   bookmarks: '2.5k',
-    //   saves: '2.5k',
-    //   originalSound: true,
-    // },
-    // {
-    //   id: '20',
-    //   artist: 'Kulsah',
-    //   handle: 'kulsah_development',
-    //   avatar: 'https://picsum.photos/seed/sarah/150/150',
-    //   caption: "VIP MASTERCLASS: Layering vocal chains for the 'Galaxy' sound. #ProducerLife #PremiumContent",
-    //   background: 'https://images.unsplash.com/photo-1520529277867-dbf8c5e0b340?auto=format&fit=crop&q=80&w=800',
-    //   video: 'https://res.cloudinary.com/dmznckja5/video/upload/v1776094013/IMG_2296_gz8efi.mp4',
-    //   likes: '89K',
-    //   comments: '4.5K',
-    //   isLiked: true,
-    //   isSubscribed: true,
-    //   isPremium: true,
-    //   ticketsAvailable: false,
-    //   following: false,
-    //   bookmarks: '2.5k',
-    //   saves: '2.5k',
-    //   originalSound: true,
-    // },
-    // {
-    //   id: '3',
-    //   artist: 'Amara',
-    //   handle: 'amara_official',
-    //   avatar: 'https://picsum.photos/seed/amara/150/150',
-    //   caption: 'EXCLUSIVE: Late night neon dance rehearsal. The tour visuals are finally ready for my subscribers.',
-    //   background: 'https://images.unsplash.com/photo-1516450360452-9312f5e86fc7?auto=format&fit=crop&q=80&w=800',
-    //   video: 'https://res.cloudinary.com/dmznckja5/video/upload/v1776093939/IMG_2297_aqcyf2.mp4',
-    //   likes: '890K',
-    //   comments: '12.4K',
-    //   isLiked: false,
-    //   isSubscribed: true,
-    //   isPremium: true,
-    //   ticketsAvailable: false,
-    //   following: true,
-    //   bookmarks: '2.5k',
-    //   saves: '2.5k',
-    //   originalSound: true,
-    // },
-    // {
-    //   id: '11',
-    //   artist: 'Bill',
-    //   handle: 'bill_official',
-    //   avatar: 'https://picsum.photos/seed/amara/150/150',
-    //   caption: 'EXCLUSIVE: Late night neon dance rehearsal. The tour visuals are finally ready for my subscribers.',
-    //   background: 'https://images.unsplash.com/photo-1516450360452-9312f5e86fc7?auto=format&fit=crop&q=80&w=800',
-    //   video: 'https://dozi-chat-s3.s3.us-east-1.amazonaws.com/kul/Kulsah+videos/kul+poll200.mp4',
-    //   likes: '890K',
-    //   comments: '12.4K',
-    //   isLiked: false,
-    //   isSubscribed: true,
-    //   isPremium: false,
-    //   ticketsAvailable: false,
-    //   following: false,
-    //   bookmarks: '2.5k',
-    //   saves: '2.5k',
-    //   originalSound: true,
-    // },
-    // {
-    //   id: '9',
-    //   artist: 'Godfred',
-    //   handle: 'Godfred_Kofi',
-    //   avatar: 'https://picsum.photos/seed/amara/150/150',
-    //   caption: 'EXCLUSIVE: Late night neon dance rehearsal. The tour visuals are finally ready for my subscribers.',
-    //   background: 'https://images.unsplash.com/photo-1516450360452-9312f5e86fc7?auto=format&fit=crop&q=80&w=800',
-    //   video: 'https://res.cloudinary.com/dmznckja5/video/upload/v1776094108/kul_video_podcast_sd2qei.mp4',
-    //   likes: '890K',
-    //   comments: '12.4K',
-    //   isLiked: false,
-    //   isSubscribed: true,
-    //   isPremium: false,
-    //   ticketsAvailable: false,
-    //   following: true,
-    //   bookmarks: '2.5k',
-    //   saves: '2.5k',
-    //   originalSound: true,
-    // },
-    // {
-    //   id: '12',
-    //   artist: 'Godfred',
-    //   handle: 'Godfred_Kofi',
-    //   avatar: 'https://picsum.photos/seed/amara/150/150',
-    //   caption: 'EXCLUSIVE: Late night neon dance rehearsal. The tour visuals are finally ready for my subscribers.',
-    //   background: 'https://images.unsplash.com/photo-1516450360452-9312f5e86fc7?auto=format&fit=crop&q=80&w=800',
-    //   video: 'https://us-east-1.console.aws.amazon.com/s3/object/dozi-chat-s3?region=us-east-1&prefix=kul/WhatsApp+Video+2026-03-18+at+11.10.25+AM.mp4',
-    //   likes: '890K',
-    //   comments: '12.4K',
-    //   isLiked: false,
-    //   isSubscribed: true,
-    //   isPremium: false,
-    //   ticketsAvailable: false,
-    //   following: false,
-    //   bookmarks: '2.5k',
-    //   saves: '2.5k',
-    //   originalSound: true,
-    // },
-    // {
-    //   id: '97',
-    //   artist: 'louis',
-    //   handle: 'louis_artist',
-    //   avatar: 'https://picsum.photos/seed/amara/150/150',
-    //   caption: 'EXCLUSIVE: Late night neon dance rehearsal. The tour visuals are finally ready for my subscribers.',
-    //   background: 'https://images.unsplash.com/photo-1516450360452-9312f5e86fc7?auto=format&fit=crop&q=80&w=800',
-    //   video: 'https://us-east-1.console.aws.amazon.com/s3/object/dozi-chat-s3?region=us-east-1&prefix=kul/WhatsApp+Video+2026-03-18+at+11.58.23+AM.mp4',
-    //   likes: '890K',
-    //   comments: '12.4K',
-    //   isLiked: false,
-    //   isSubscribed: true,
-    //   isPremium: false,
-    //   ticketsAvailable: false,
-    //   following: false,
-    //   bookmarks: '2.5k',
-    //   saves: '2.5k',
-    //   originalSound: true,
-    // },
-    // {
-    //   id: '96',
-    //   artist: 'prin_cella',
-    //   handle: 'cella_music',
-    //   avatar: 'https://picsum.photos/seed/amara/150/150',
-    //   caption: 'EXCLUSIVE: Late night neon dance rehearsal. The tour visuals are finally ready for my subscribers.',
-    //   background: 'https://images.unsplash.com/photo-1516450360452-9312f5e86fc7?auto=format&fit=crop&q=80&w=800',
-    //   video: 'https://us-east-1.console.aws.amazon.com/s3/object/dozi-chat-s3?region=us-east-1&prefix=kul/WhatsApp+Video+2026-03-18+at+12.55.09+PM.mp4',
-    //   likes: '890K',
-    //   comments: '12.4K',
-    //   isLiked: false,
-    //   isSubscribed: true,
-    //   isPremium: false,
-    //   ticketsAvailable: false,
-    //   following: false,
-    //   bookmarks: '2.5k',
-    //   saves: '2.5k',
-    //   originalSound:true,
-    // },
-    // {
-    //   id: '13',
-    //   artist: 'Gabriel',
-    //   handle: 'Prince',
-    //   avatar: 'https://picsum.photos/seed/amara/150/150',
-    //   caption: 'EXCLUSIVE: Late night neon dance rehearsal. The tour visuals are finally ready for my subscribers.',
-    //   background: 'https://images.unsplash.com/photo-1516450360452-9312f5e86fc7?auto=format&fit=crop&q=80&w=800',
-    //   video: 'https://us-east-1.console.aws.amazon.com/s3/object/dozi-chat-s3?region=us-east-1&prefix=kul/WhatsApp+Video+2026-03-18+at+12.55.44+PM.mp4',
-    //   likes: '890K',
-    //   comments: '12.4K',
-    //   isLiked: false,
-    //   isSubscribed: true,
-    //   isPremium: false,
-    //   ticketsAvailable: false,
-    //   following: true,
-    //   bookmarks: '2.5k',
-    //   saves: '2.5k',
-    //   originalSound: true,
-    // },
-    // {
-    //   id: '14',
-    //   artist: 'Prince Gabriel',
-    //   handle: 'Prince_Gabriel',
-    //   avatar: 'https://picsum.photos/seed/amara/150/150',
-    //   caption: 'EXCLUSIVE: Late night neon dance rehearsal. The tour visuals are finally ready for my subscribers.',
-    //   background: 'https://images.unsplash.com/photo-1516450360452-9312f5e86fc7?auto=format&fit=crop&q=80&w=800',
-    //   video: 'https://dozi-chat-s3.s3.us-east-1.amazonaws.com/kul/WhatsApp+Video+2026-03-18+at+12.55.44+PM.mp4',
-    //   likes: '890K',
-    //   comments: '12.4K',
-    //   isLiked: false,
-    //   isSubscribed: true,
-    //   isPremium: false,
-    //   ticketsAvailable: false,
-    //   following: false,
-    // },
-    // {
-    //   id: '99',
-    //   artist: 'shpirit',
-    //   handle: 'minister_spirit',
-    //   avatar: 'https://picsum.photos/seed/elena/150/150',
-    //   caption: "PRIVATE DROP: Working on 'Nebula' vocal layers. This is the raw studio session for my supporters only. #BTS #KulsahExclusive",
-    //   background: 'https://images.unsplash.com/photo-1598488035139-bdbb2231ce04?auto=format&fit=crop&q=80&w=800',
-    //   video: 'https://us-east-1.console.aws.amazon.com/s3/object/dozi-chat-s3?region=us-east-1&prefix=kul/WhatsApp+Video+2026-03-18+at+12.56.01+PM.mp4',
-    //   likes: '2.4M',
-    //   comments: '88.1K',
-    //   isLiked: false,
-    //   isSubscribed: true,
-    //   isPremium: true,
-    //   ticketsAvailable: true,
-    //   ticketLocation: 'London, UK',
-    //   originalSound: false,
-    //   soundArtist: 'Synthwave Kid',
-    //   soundTitle: 'Neon Dreams',
-    //   following: false,
-    //   bookmarks: '2.5k',
-    //   saves: '2.5k',
-    // },
-    // {
-    //   id: '95',
-    //   artist: 'kulsah',
-    //   handle: 'kulsah_hq',
-    //   avatar: 'https://picsum.photos/seed/elena/150/150',
-    //   caption: "PRIVATE DROP: Working on 'Nebula' vocal layers. This is the raw studio session for my supporters only. #BTS #KulsahExclusive",
-    //   background: 'https://images.unsplash.com/photo-1598488035139-bdbb2231ce04?auto=format&fit=crop&q=80&w=800',
-    //   video: 'http://us-east-1.console.aws.amazon.com/s3/object/dozi-chat-s3?region=us-east-1&prefix=kul/WhatsApp+Video+2026-03-18+at+12.56.16+PM.mp4',
-    //   likes: '2.4M',
-    //   comments: '88.1K',
-    //   isLiked: false,
-    //   isSubscribed: true,
-    //   isPremium: true,
-    //   ticketsAvailable: false,
-    //   ticketLocation: 'London, UK',
-    //   originalSound: false,
-    //   soundArtist: 'Synthwave Kid',
-    //   soundTitle: 'Neon Dreams',
-    //   following: false,
-    //   bookmarks: '2.5k',
-    //   saves: '2.5k',
-    // },
-    // {
-    //   id: '94',
-    //   artist: 'bliss',
-    //   handle: 'bliss_k',
-    //   avatar: 'https://picsum.photos/seed/elena/150/150',
-    //   caption: "PRIVATE DROP: Working on 'Nebula' vocal layers. This is the raw studio session for my supporters only. #BTS #KulsahExclusive",
-    //   background: 'https://images.unsplash.com/photo-1598488035139-bdbb2231ce04?auto=format&fit=crop&q=80&w=800',
-    //   video: 'https://res.cloudinary.com/dmznckja5/video/upload/v1775809866/IMG_2157_jhxsl5.mp4',
-    //   likes: '2.4M',
-    //   comments: '88.1K',
-    //   isLiked: false,
-    //   isSubscribed: true,
-    //   isPremium: true,
-    //   ticketsAvailable: true,
-    //   ticketLocation: 'London, UK',
-    //   originalSound: false,
-    //   soundArtist: 'Synthwave Kid',
-    //   soundTitle: 'Neon Dreams',
-    //   following: false,
-    //   bookmarks: '2.5k',
-    //   saves: '2.5k',
-    // },
-    // {
-    //   id: '93',
-    //   artist: 'lynx',
-    //   handle: 'lynx_music',
-    //   avatar: 'https://picsum.photos/seed/elena/150/150',
-    //   caption: "PRIVATE DROP: Working on 'Nebula' vocal layers. This is the raw studio session for my supporters only. #BTS #KulsahExclusive",
-    //   background: 'https://images.unsplash.com/photo-1598488035139-bdbb2231ce04?auto=format&fit=crop&q=80&w=800',
-    //   video: 'https://res.cloudinary.com/dmznckja5/video/upload/v1775809856/IMG_2155_uv5gqu.mp4',
-    //   likes: '2.4M',
-    //   comments: '88.1K',
-    //   isLiked: false,
-    //   isSubscribed: true,
-    //   isPremium: true,
-    //   ticketsAvailable: true,
-    //   ticketLocation: 'London, UK',
-    //   originalSound: false,
-    //   soundArtist: 'Bill',
-    //   soundTitle: 'Bills Beat',
-    //   following: false,
-    //   bookmarks: '2.5k',
-    //   saves: '2.5k',
-    // },
-    // {
-    //   id: '92',
-    //   artist: 'Annu',
-    //   handle: 'Annu_naki',
-    //   avatar: 'https://picsum.photos/seed/elena/150/150',
-    //   caption: "PRIVATE DROP: Working on 'Nebula' vocal layers. This is the raw studio session for my supporters only. #BTS #KulsahExclusive",
-    //   background: 'https://images.unsplash.com/photo-1598488035139-bdbb2231ce04?auto=format&fit=crop&q=80&w=800',
-    //   video: 'https://res.cloudinary.com/dmznckja5/video/upload/v1775809849/WhatsApp_Video_2026-04-09_at_5.16.37_PM_oibjkk.mp4',
-    //   likes: '2.4M',
-    //   comments: '88.1K',
-    //   isLiked: false,
-    //   isSubscribed: true,
-    //   isPremium: true,
-    //   ticketsAvailable: false,
-    //   // ticketLocation: 'London, UK',
-    //   // originalSound: true,
-    //   // soundArtist: 'Synthwave Kid',
-    //   // soundTitle: 'Neon Dreams',
-    //   following: false,
-    //   bookmarks: '2.5k',
-    //   saves: '2.5k',
-    //   originalSound: true,
-    // },
-    // {
-    //   id: '91',
-    //   artist: 'cypher',
-    //   handle: 'cypher_t',
-    //   avatar: 'https://picsum.photos/seed/elena/150/150',
-    //   caption: "PRIVATE DROP: Working on 'Nebula' vocal layers. This is the raw studio session for my supporters only. #BTS #KulsahExclusive",
-    //   background: 'https://images.unsplash.com/photo-1598488035139-bdbb2231ce04?auto=format&fit=crop&q=80&w=800',
-    //   video: 'https://res.cloudinary.com/dmznckja5/video/upload/v1775809848/IMG_2158_arvxda.mp4',
-    //   likes: '2.4M',
-    //   comments: '88.1K',
-    //   isLiked: false,
-    //   isSubscribed: true,
-    //   isPremium: true,
-    //   ticketsAvailable: true,
-    //   ticketLocation: 'London, UK',
-    //   originalSound: false,
-    //   soundArtist: 'Synthwave Kid',
-    //   soundTitle: 'Neon Dreams',
-    //   following: false,
-    //   bookmarks: '2.5k',
-    //   saves: '2.5k',
-    // },
-    // {
-    //   id: '90',
-    //   artist: 'flatEarth',
-    //   handle: 'earth_is_flat',
-    //   avatar: 'https://picsum.photos/seed/elena/150/150',
-    //   caption: "PRIVATE DROP: Working on 'Nebula' vocal layers. This is the raw studio session for my supporters only. #BTS #KulsahExclusive",
-    //   background: 'https://images.unsplash.com/photo-1598488035139-bdbb2231ce04?auto=format&fit=crop&q=80&w=800',
-    //   video: 'https://res.cloudinary.com/dmznckja5/video/upload/v1775809831/IMG_2160_i4yqd9.mp4',
-    //   likes: '2.4M',
-    //   comments: '88.1K',
-    //   isLiked: false,
-    //   isSubscribed: true,
-    //   isPremium: true,
-    //   ticketsAvailable: true,
-    //   ticketLocation: 'London, UK',
-    //   originalSound: false,
-    //   soundArtist: 'Synthwave Kid',
-    //   soundTitle: 'Neon Dreams',
-    //   following: false,
-    //   bookmarks: '2.5k',
-    //   saves: '2.5k',
-    // },
-    // {
-    //   id: '89',
-    //   artist: 'Gothic',
-    //   handle: 'gothic_g',
-    //   avatar: 'https://picsum.photos/seed/elena/150/150',
-    //   caption: "PRIVATE DROP: Working on 'Nebula' vocal layers. This is the raw studio session for my supporters only. #BTS #KulsahExclusive",
-    //   background: 'https://images.unsplash.com/photo-1598488035139-bdbb2231ce04?auto=format&fit=crop&q=80&w=800',
-    //   video: 'https://res.cloudinary.com/dmznckja5/video/upload/v1775809824/IMG_2161_lphffv.mp4',
-    //   likes: '2.4M',
-    //   comments: '88.1K',
-    //   isLiked: false,
-    //   isSubscribed: true,
-    //   isPremium: true,
-    //   ticketsAvailable: true,
-    //   ticketLocation: 'London, UK',
-    //   originalSound: true,
-    //   // soundArtist: 'Synthwave Kid',
-    //   // soundTitle: 'Neon Dreams',
-    //   following: false,
-    //   bookmarks: '2.5k',
-    //   saves: '2.5k',
-    // },
-    // {
-    //   id: '88',
-    //   artist: 'bliss',
-    //   handle: 'bliss_k',
-    //   avatar: 'https://picsum.photos/seed/elena/150/150',
-    //   caption: "PRIVATE DROP: Working on 'Nebula' vocal layers. This is the raw studio session for my supporters only. #BTS #KulsahExclusive",
-    //   background: 'https://images.unsplash.com/photo-1598488035139-bdbb2231ce04?auto=format&fit=crop&q=80&w=800',
-    //   video: 'https://res.cloudinary.com/dmznckja5/video/upload/v1775809866/IMG_2157_jhxsl5.mp4',
-    //   likes: '2.4M',
-    //   comments: '88.1K',
-    //   isLiked: false,
-    //   isSubscribed: true,
-    //   isPremium: true,
-    //   ticketsAvailable: true,
-    //   ticketLocation: 'London, UK',
-    //   originalSound: true,
-    //   // soundArtist: 'Synthwave Kid',
-    //   // soundTitle: 'Neon Dreams',
-    //   following: false,
-    //   bookmarks: '2.5k',
-    //   saves: '2.5k',
-    // },
-    // {
-    //   id: '87',
-    //   artist: 'burner',
-    //   handle: 'mic_burner',
-    //   avatar: 'https://picsum.photos/seed/elena/150/150',
-    //   caption: "PRIVATE DROP: Working on 'Nebula' vocal layers. This is the raw studio session for my supporters only. #BTS #KulsahExclusive",
-    //   background: 'https://images.unsplash.com/photo-1598488035139-bdbb2231ce04?auto=format&fit=crop&q=80&w=800',
-    //   video: 'https://res.cloudinary.com/dmznckja5/video/upload/v1775809820/IMG_2159_1_lhwqgo.mp4',
-    //   likes: '2.4M',
-    //   comments: '88.1K',
-    //   isLiked: false,
-    //   isSubscribed: true,
-    //   isPremium: true,
-    //   ticketsAvailable: false,
-    //   // ticketLocation: 'London, UK',
-    //   originalSound: true,
-    //   // soundArtist: 'Synthwave Kid',
-    //   // soundTitle: 'Neon Dreams',
-    //   following: false,
-    //   bookmarks: '2.5k',
-    //   saves: '2.5k',
-    // },
-
-    // {
-    //   id: '85',
-    //   artist: 'nasa',
-    //   handle: 'nasa_isL',
-    //   avatar: 'https://picsum.photos/seed/elena/150/150',
-    //   caption: "PRIVATE DROP: Working on 'Nebula' vocal layers. This is the raw studio session for my supporters only. #BTS #KulsahExclusive",
-    //   background: 'https://images.unsplash.com/photo-1598488035139-bdbb2231ce04?auto=format&fit=crop&q=80&w=800',
-    //   video: 'https://res.cloudinary.com/dmznckja5/video/upload/v1775810765/Download_49_kumjek.mp4',
-    //   likes: '2.4M',
-    //   comments: '88.1K',
-    //   isLiked: false,
-    //   isSubscribed: true,
-    //   isPremium: true,
-    //   ticketsAvailable: true,
-    //   ticketLocation: 'London, UK',
-    //   originalSound: true,
-    //   // soundArtist: 'Synthwave Kid',
-    //   // soundTitle: 'Neon Dreams',
-    //   following: false,
-    //   bookmarks: '2.5k',
-    //   saves: '2.5k',
-    // },
-  ]);
+  const [items, setItems] = useState<FeedItem[]>([]);
   const displayedItems = useMemo(() => {
     if (activeTab === 'following') return items.filter((item) => item.following);
     if (activeTab === 'premium') return items.filter((item) => item.isPremium);

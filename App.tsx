@@ -1,5 +1,5 @@
 import React, { useCallback, useEffect, useRef, useState } from 'react';
-import { useThemeMode, PRIMARY_COLOR, primaryColorAlpha, KulsahDarkTheme, KulsahTheme } from './theme';
+import { useThemeMode, PRIMARY_COLOR, KulsahDarkTheme, KulsahTheme } from './theme';
 import { View, StyleSheet, ActivityIndicator, Modal, Text, TextInput, Pressable, StatusBar, Image, useWindowDimensions, Platform} from 'react-native';
 import { NavigationContainer, createNavigationContainerRef } from '@react-navigation/native';
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
@@ -36,9 +36,7 @@ import {
 } from '@expo-google-fonts/plus-jakarta-sans'
 import * as ExpoSplashScreen from 'expo-splash-screen';
 import { PaperProvider } from 'react-native-paper';
-import { LinearGradient } from 'expo-linear-gradient';
 import ExploreIcon from './assets/icons/explore-svg.svg';
-// import LocalLibraryIcon from './assets/icons/local_library-svg.svg';
 import MovieIcon from './assets/icons/movieIcon-svg.svg';
 import HomeIcon from './assets/icons/home-svg.svg';
 import ForumIcon from './assets/icons/forum-svg.svg';
@@ -57,11 +55,13 @@ import {
   isMessageRequestAcceptedPushNotification,
   isMessageRequestCreatedPushNotification,
   isVideoMentionPushNotification,
+  isVoiceCallPushNotification,
   messagingApi,
   pushChallengeId,
   pushBattleId,
   pushConversationId,
   pushLiveId,
+  resolveConversationPushNavigation,
   pushVideoId,
   unregisterCurrentPushTokenAsync,
   hydrateAuthSession,
@@ -72,17 +72,11 @@ import {
 } from './src';
 import type { PushNotificationData } from './src';
 import type { RootStackParamList } from './src';
-// import MaterialSymbols from 'react-native-vector-icons/MaterialSymbolsOutlined';
-
-// import Icon from 'react-native-vector-icons/MaterialIcons';
-
-import { user, User, UserRole, setUser, setHeight, setWidth, setScreenType, mediumScreen, setSmallWith, setDark, subscribeUser } from './types';
-// import ArtistDashboard from './pages/ArtistDashboard';
+import { user, User, setUser, setHeight, setWidth, setScreenType, mediumScreen, setSmallWith, setDark, subscribeUser } from './types';
 import ViewerLiveStream from './pages/ViewerLiveStream';
 import CreatorLiveSummary from './pages/CreatorLiveSummary';
 import ChatView from './pages/ChatView';
 import Feed from './pages/Feed';
-import Signup from './pages/Signup';
 import Community from './pages/Community';
 import { BlurView } from 'expo-blur';
 import ArtistProfile from './pages/ArtistProfile';
@@ -92,20 +86,16 @@ import { SafeAreaProvider } from 'react-native-safe-area-context';
 import UploadContent from './pages/UploadContent';
 import Messages from './pages/Messages';
 import FanSettings from './pages/FanSettings';
-// import FanLibrary from './pages/CreatorLibrary';
 import GoLiveSetup from './pages/LiveCreationSetup';
 import CreatorEvents from './pages/CreatorEvents';
 import CreatorAnalytics from './pages/CreatorAnalytics';
 import CreatorRevenue from './pages/CreatorRevenue';
 import FanSubscriptions from './pages/FanSubscriptions';
-import CreatorLibrary from './pages/CreatorLibrary';
 import Challenges from './pages/Challenges';
 import UseSound from './pages/UseSound';
 import UseEffect from './pages/UseEffect';
 import RecordContent from './pages/RecordContent';
 import ChallengeEntry from './pages/ChallengeEntryDetails';
-import ParticipantHistory from './pages/ParticipantHistory';
-import MyEntry from './pages/MyEntry';
 import winner from './pages/winner';
 import Arena from './pages/Arena';
 import CreateEvent from './pages/CreateEvent';
@@ -114,12 +104,6 @@ import CreatorBattleScreen from './pages/CreatorBattleScreen';
 import CreatorBattleParticipantScreen from './pages/CreatorBattleParticipantScreen';
 import CreateChallenge from './pages/CreateChallengeWizard';
 import ChallengeDrafts from './pages/ChallengeDrafts';
-import RevenueSplit from './pages/RevenueSplit';
-import NoReward from './pages/NoReward';
-import RewardConfig from './pages/RewardConfig';
-import Reward from './pages/Reward';
-import FinalStep from './pages/finalStep';
-import ChallengeParticipants from './pages/ChallengeParticipants';
 import FeedChallenge from './pages/FeedChallenge';
 import Vote from './pages/SoundSelect';
 import FanArena from './pages/FanArena';
@@ -137,6 +121,8 @@ import Notifications from './pages/Notifications';
 import StreakReward from './pages/StreakReward';
 import ClaimPrize from './pages/ClaimPrize';
 import ErrorBoundary from './components/ErrorBoundary';
+import OfflineNotice from './components/OfflineNotice';
+import { withValidatedRoute } from './components/ValidatedRouteScreen';
 import CreateCommunityPost from './pages/CreateCommunityPost';
 import CommunityPostDetail from './pages/CommunityPostDetail';
 import MembershipTiers from './pages/MembershipTiers';
@@ -155,6 +141,7 @@ import VibePicker from './pages/VibePicker';
 import FanTicketDetail from './pages/FanTicketDetail';
 import MarketPlace from './MarketPlace';
 import TopUpCoins from './pages/TopUpCoins';
+import Wallet from './pages/Wallet';
 import ChallengeLeaderboard from './pages/ChallengeLeaderboardDetails';
 import Events from './pages/Events';
 import TrendingVideos from './pages/TrendingVideos';
@@ -174,10 +161,49 @@ import { DENSITY_ADJUSTED_HANDSET_WIDTH_DP, DP_HEIGHT, DP_RATIO, DP_WIDTH, PHONE
 import VideoPlayer from './pages/VideoPlayer';
 
 const Stack = createNativeStackNavigator<RootStackParamList>();
+const ValidatedEmailPhone = withValidatedRoute('EmailPhone', EmailPhone);
+const ValidatedEmailVerification = withValidatedRoute('EmailVerification', EmailVerification);
+const ValidatedVerifyOtp = withValidatedRoute('VerifyOtp', VerifyOtp);
+const ValidatedResetPassword = withValidatedRoute('ResetPassword', ResetPassword);
+const ValidatedTermsPolicies = withValidatedRoute('TermsPolicies', TermsPolicies);
+const ValidatedVibePicker = withValidatedRoute('VibePicker', VibePicker);
+const ValidatedChatView = withValidatedRoute('Chat', ChatView);
+const ValidatedCreatorSettings = withValidatedRoute('Settings', CreatorSettings);
+const ValidatedFanSettings = withValidatedRoute('FanSettings', FanSettings);
+const ValidatedArtistProfile = withValidatedRoute('ArtistProfile', ArtistProfile);
+const ValidatedUploadContent = withValidatedRoute('UploadContent', UploadContent);
+const ValidatedCreatorEvents = withValidatedRoute('CreatorEvents', CreatorEvents);
+const ValidatedCreatorAnalytics = withValidatedRoute('CreatorAnalytics', CreatorAnalytics);
+const ValidatedCreatorRevenue = withValidatedRoute('CreatorRevenue', CreatorRevenue);
+const ValidatedRecordContent = withValidatedRoute('RecordContent', RecordContent);
+const ValidatedCreatorLiveStream = withValidatedRoute('CreatorLiveStream', CreatorLiveStream);
+const ValidatedCreatorBattleScreen = withValidatedRoute('CreatorBattleScreen', CreatorBattleScreen);
+const ValidatedCreatorBattleParticipantScreen = withValidatedRoute('CreatorBattleParticipantScreen', CreatorBattleParticipantScreen);
+const ValidatedViewerLiveStream = withValidatedRoute('LiveStream', ViewerLiveStream);
+const ValidatedCreatorLiveSummary = withValidatedRoute('StreamEnded', CreatorLiveSummary);
+const ValidatedCreateChallenge = withValidatedRoute('CreateChallenge', CreateChallenge);
+const ValidatedChallengeDrafts = withValidatedRoute('ChallengeDrafts', ChallengeDrafts);
+const ValidatedFeedChallenge = withValidatedRoute('ChallengeFeed', FeedChallenge);
+const ValidatedPlayer = withValidatedRoute('Video', Player);
+const ValidatedEventDetail = withValidatedRoute('EventDetail', EventDetail);
+const ValidatedSelectTickets = withValidatedRoute('SelectTickets', SelectTickets);
+const ValidatedTicketVerification = withValidatedRoute('TicketVerification', TicketVerification);
+const ValidatedChallengeEntry = withValidatedRoute('ChallengeEntry', ChallengeEntry);
+const ValidatedEditSubmission = withValidatedRoute('EditSubmission', EditSubmission);
+const ValidatedSubmitEntry = withValidatedRoute('SubmitEntry', SubmitEntry);
+const ValidatedCollaborationHub = withValidatedRoute('ConnectHub', CollaborationHub);
+const ValidatedCommunityPostDetail = withValidatedRoute('CommunityPostDetail', CommunityPostDetail);
+const ValidatedUseSound = withValidatedRoute('UseSound', UseSound);
+const ValidatedUseEffect = withValidatedRoute('UseEffect', UseEffect);
+const ValidatedFanTicketDetail = withValidatedRoute('FanTicket', FanTicketDetail);
+const ValidatedChallengeLeaderboard = withValidatedRoute('ChallengeLeaderboard', ChallengeLeaderboard);
+const ValidatedSubmissions = withValidatedRoute('Submissions', Submissions);
+const ValidatedVideoPlayer = withValidatedRoute('VideoPlayer', VideoPlayer);
+const ValidatedPlaylistPlayer = withValidatedRoute('PlaylistPlayer', PlaylistPlayer);
 const Tab = createBottomTabNavigator();
 const SCREEN_HEIGHT = DP_HEIGHT;
 const SCREEN_WIDTH = DP_WIDTH;
-const navigationRef = createNavigationContainerRef();
+const navigationRef = createNavigationContainerRef<RootStackParamList>();
 
 void ExpoSplashScreen.preventAutoHideAsync();
 
@@ -317,7 +343,7 @@ const CreatorTabs = ({ isDarkMode }: TabsProps) => {
     />
     <Tab.Screen
       name=" "
-      component={RecordContent}
+      component={ValidatedRecordContent}
       listeners={({ navigation }: TabListenerParams) => ({
         tabPress: (e: TabPressEvent) => {
           e.preventDefault();
@@ -330,22 +356,6 @@ const CreatorTabs = ({ isDarkMode }: TabsProps) => {
                   <View style={styles.creatorCreatePlusVertical} />
                   <View style={styles.creatorCreatePlusHorizontal} />
                 </View>
-          // <View style={styles.creatorCreateTabOuter}>
-          //   <View style={styles.creatorCreateGlow} />
-          //   <LinearGradient
-          //     colors={['#ff4fd8', PRIMARY_COLOR, '#4f46e5']}
-          //     start={{ x: 0.06, y: 0 }}
-          //     end={{ x: 1, y: 1 }}
-          //     style={styles.creatorCreateButton}
-          //   >
-          //     <View style={styles.creatorCreateInner}>
-          //       <View style={styles.creatorCreateHalo} />
-                
-          //       <View style={[styles.creatorCreateCorner, styles.creatorCreateCornerTop]} />
-          //       <View style={[styles.creatorCreateCorner, styles.creatorCreateCornerBottom]} />
-          //     </View>
-          //   </LinearGradient>
-          // </View>
         ),
       }}
     />
@@ -367,7 +377,7 @@ const CreatorTabs = ({ isDarkMode }: TabsProps) => {
     />
     <Tab.Screen
       name="Profile"
-      component={ArtistProfile}
+      component={ValidatedArtistProfile}
       initialParams={{
         isOwner: true,
         handle: user?.handle,
@@ -585,6 +595,7 @@ const App: React.FC = () => {
     const isVideoMention = isVideoMentionPushNotification(data);
     const isLiveStarted = isLiveStartedPushNotification(data);
     const isLiveBattleInvitation = isLiveBattleInvitationPushNotification(data);
+    const isVoiceCall = isVoiceCallPushNotification(data);
     if (
       !isMessage
       && !isMessageRequestCreated
@@ -593,6 +604,7 @@ const App: React.FC = () => {
       && !isVideoMention
       && !isLiveStarted
       && !isLiveBattleInvitation
+      && !isVoiceCall
     ) return;
     if (!navigationRef.isReady()) {
       pendingPushNavigationRef.current = data;
@@ -600,29 +612,30 @@ const App: React.FC = () => {
     }
 
     pendingPushNavigationRef.current = null;
+    const conversationDestination = resolveConversationPushNavigation(data);
+    if (conversationDestination) {
+      navigationRef.navigate('Chat', conversationDestination);
+      return;
+    }
+    if (isVoiceCall) {
+      return;
+    }
     if (isMessage) {
-      navigationRef.navigate('Chat' as never, {
-        conversationId: pushConversationId(data),
-        senderId: data.sender_id ?? data.senderId,
-      } as never);
       return;
     }
 
     if (isMessageRequestAccepted) {
       const conversationId = pushConversationId(data);
       if (conversationId) {
-        navigationRef.navigate('Chat' as never, {
-          conversationId,
-          senderId: data.receiver_id ?? data.sender_id,
-        } as never);
+        navigationRef.navigate('Chat', { conversationId });
       } else {
-        navigationRef.navigate('MainTabs' as never, { screen: 'Signal' } as never);
+        navigationRef.navigate('MainTabs', { screen: 'Signal' });
       }
       return;
     }
 
     if (isMessageRequestCreated) {
-      navigationRef.navigate('MainTabs' as never, { screen: 'Signal' } as never);
+      navigationRef.navigate('MainTabs', { screen: 'Signal' });
       return;
     }
 
@@ -634,11 +647,11 @@ const App: React.FC = () => {
     if (isLiveBattleInvitation) {
       const liveSessionId = pushLiveId(data);
       if (liveSessionId) {
-        navigationRef.navigate('CreatorBattleParticipantScreen' as never, {
+        navigationRef.navigate('CreatorBattleParticipantScreen', {
           liveSessionId,
           battleId: pushBattleId(data),
           participantRole: 'opponent',
-        } as never);
+        });
       }
       return;
     }
@@ -646,14 +659,14 @@ const App: React.FC = () => {
     if (isLiveStarted) {
       const liveSessionId = pushLiveId(data);
       if (liveSessionId) {
-        navigationRef.navigate('LiveStream' as never, { liveSessionId } as never);
+        navigationRef.navigate('LiveStream', { liveSessionId });
       }
       return;
     }
 
-    navigationRef.navigate('VideoPlayer' as never, {
+    navigationRef.navigate('VideoPlayer', {
       id: pushVideoId(data),
-    } as never);
+    });
   }, [showBattleInvitation]);
 
   const flushPendingPushNavigation = useCallback(() => {
@@ -662,6 +675,10 @@ const App: React.FC = () => {
   }, [openPushNotification]);
 
   const handleForegroundPush = useCallback((data: PushNotificationData) => {
+    if (isVoiceCallPushNotification(data)) {
+      openPushNotification(data);
+      return;
+    }
     if (isChallengeInvitationPushNotification(data)) {
       showBattleInvitation(data);
       return;
@@ -776,19 +793,6 @@ const App: React.FC = () => {
     }
   };
 
-  const handleLogin = async (role: UserRole) => {
-    const mockUser: User = {
-      id: role === 'creator' ? 1 : 2,
-      name: role === 'creator' ? 'Mila Ray' : 'Alex Rivera',
-      role,
-      email: role === 'creator' ? 'mila@kulsah.com' : 'alex@kulsah.com',
-      handle: role === 'creator' ? 'mila_ray_01' : 'alex_rivera_42',
-    };
-    setUser(mockUser);
-    setCurrentUser(mockUser);
-    await AsyncStorage.setItem('pulsar_user', JSON.stringify(mockUser));
-  };
-
   const handleLogout = async () => {
     const token = useAuthStore.getState().token;
     const refreshToken = useAuthStore.getState().refreshToken;
@@ -843,6 +847,7 @@ const App: React.FC = () => {
               fallbackTitle="App error"
               fallbackMessage="An unexpected error occurred. Retry to reload the app."
             >
+              <View style={styles.appShell}>
               <NavigationContainer ref={navigationRef} onReady={flushPendingPushNavigation}>
                 <SafeAreaView edges={Platform.OS === 'ios'? []: []} style={{ flex: 1 }}>
 
@@ -861,132 +866,119 @@ const App: React.FC = () => {
               ) : currentUser ? (
                 <>
                   <Stack.Screen name="MainTabs">{() => (currentUser.role === 'creator' ? <CreatorTabs isDarkMode={isDark} user={currentUser} /> : <FanTabs isDarkMode={isDark} user={currentUser} onTap={onTap} />)}</Stack.Screen>
-                  <Stack.Screen name="Login">{() => <Login onLogin={handleLogin} />}</Stack.Screen>
+                  <Stack.Screen name="Login" component={Login} />
                   <Stack.Screen
                     name="EmailPhone"
-                    component={EmailPhone}
+                    component={ValidatedEmailPhone}
                     options={{ gestureEnabled: false }}
                   />
-                  <Stack.Screen name="EmailVerification" component={EmailVerification} />
-                  <Stack.Screen name="VerifyOtp" component={VerifyOtp} />
+                  <Stack.Screen name="EmailVerification" component={ValidatedEmailVerification} />
+                  <Stack.Screen name="VerifyOtp" component={ValidatedVerifyOtp} />
                   <Stack.Screen name="ForgotPassword" component={ForgotPassword} />
-                  <Stack.Screen name="ResetPassword" component={ResetPassword} />
-                  <Stack.Screen name="Chat" component={ChatView} />
-                  <Stack.Screen name="Settings" options={themeAwareStatusBarOptions}>{() => <CreatorSettings onLogout={handleLogout} />}</Stack.Screen>
+                  <Stack.Screen name="ResetPassword" component={ValidatedResetPassword} />
+                  <Stack.Screen name="Chat" component={ValidatedChatView} />
+                  <Stack.Screen name="Settings" options={themeAwareStatusBarOptions}>{(props) => <ValidatedCreatorSettings {...props} onLogout={handleLogout} />}</Stack.Screen>
                   <Stack.Screen name="MembershipTiers" component={MembershipTiers} options={themeAwareStatusBarOptions} />
-                  <Stack.Screen name="ArtistProfile" component={ArtistProfile} />
-                  <Stack.Screen name="UploadContent" component={UploadContent} />
-                  <Stack.Screen name="FanSettings" options={themeAwareStatusBarOptions}>{() => <FanSettings onLogout={handleLogout} />}</Stack.Screen>
+                  <Stack.Screen name="ArtistProfile" component={ValidatedArtistProfile} />
+                  <Stack.Screen name="UploadContent" component={ValidatedUploadContent} />
+                  <Stack.Screen name="FanSettings" options={themeAwareStatusBarOptions}>{(props) => <ValidatedFanSettings {...props} onLogout={handleLogout} />}</Stack.Screen>
                   <Stack.Screen name="GoLive" component={GoLiveSetup} />
-                  <Stack.Screen name="CreatorEvents" component={CreatorEvents} options={themeAwareStatusBarOptions} />
-                  <Stack.Screen name="CreatorAnalytics" component={CreatorAnalytics} options={themeAwareStatusBarOptions} />
-                  <Stack.Screen name="CreatorRevenue" component={CreatorRevenue} options={themeAwareStatusBarOptions} />
+                  <Stack.Screen name="CreatorEvents" component={ValidatedCreatorEvents} options={themeAwareStatusBarOptions} />
+                  <Stack.Screen name="CreatorAnalytics" component={ValidatedCreatorAnalytics} options={themeAwareStatusBarOptions} />
+                  <Stack.Screen name="CreatorRevenue" component={ValidatedCreatorRevenue} options={themeAwareStatusBarOptions} />
                   <Stack.Screen name="FanSubscriptions" component={FanSubscriptions} options={themeAwareStatusBarOptions} />
-                  <Stack.Screen name="Community" component={Community} />
-                  <Stack.Screen name="Analytics" component={CreatorAnalytics} />
                   {currentUser.role === 'creator' ? (
                     <Stack.Screen name="Subscribers" component={Subscribers} options={themeAwareStatusBarOptions} />
                   ) : null}
                   <Stack.Screen name="Challenges" component={Challenges} />
-                  <Stack.Screen name="RecordContent" component={RecordContent}/>
+                  <Stack.Screen name="RecordContent" component={ValidatedRecordContent}/>
                   <Stack.Screen name="CreateContent" component={CreateEvent}/>
                   <Stack.Screen
                     name="CreatorLiveStream"
-                    component={CreatorLiveStream}
+                    component={ValidatedCreatorLiveStream}
                     options={{
                       headerShown: false,
                       statusBarHidden: true,
                       statusBarTranslucent: true,
-                      statusBarColor: 'transparent',
                       contentStyle: { backgroundColor: '#000' },
                     }}
                   />
                   <Stack.Screen
                     name="CreatorBattleScreen"
-                    component={CreatorBattleScreen}
+                    component={ValidatedCreatorBattleScreen}
                     options={{
                       headerShown: false,
                       statusBarHidden: true,
                       statusBarTranslucent: true,
-                      statusBarColor: 'transparent',
                       contentStyle: { backgroundColor: '#000' },
                     }}
                   />
                   <Stack.Screen
                     name="CreatorBattleParticipantScreen"
-                    component={CreatorBattleParticipantScreen}
+                    component={ValidatedCreatorBattleParticipantScreen}
                     options={{
                       headerShown: false,
                       statusBarHidden: true,
                       statusBarTranslucent: true,
-                      statusBarColor: 'transparent',
                       contentStyle: { backgroundColor: '#000' },
                     }}
                   />
-                  <Stack.Screen name="LiveStream" component={ViewerLiveStream}/>
-                  <Stack.Screen name="StreamEnded" component={CreatorLiveSummary}/>
-                  <Stack.Screen name="CreateChallenge" component={CreateChallenge}/>
-                  <Stack.Screen name="ChallengeDrafts" component={ChallengeDrafts}/>
-                  <Stack.Screen name="RevenueSplit" component={RevenueSplit}/>
-                  <Stack.Screen name="NoReward" component={NoReward}/>
-                  <Stack.Screen name="RewardConfig" component={RewardConfig}/>
-                  <Stack.Screen name="Reward" component={Reward}/>
-                  <Stack.Screen name="finalStep" component={FinalStep}/>
-                  <Stack.Screen name="challengeParticipants" component={ChallengeParticipants}/>
-                  <Stack.Screen name="ChallengeFeed" component={FeedChallenge}/>
+                  <Stack.Screen name="LiveStream" component={ValidatedViewerLiveStream}/>
+                  <Stack.Screen name="StreamEnded" component={ValidatedCreatorLiveSummary}/>
+                  <Stack.Screen name="CreateChallenge" component={ValidatedCreateChallenge}/>
+                  <Stack.Screen name="ChallengeDrafts" component={ValidatedChallengeDrafts}/>
+                  <Stack.Screen name="ChallengeFeed" component={ValidatedFeedChallenge}/>
                   <Stack.Screen name="Vote" component={Vote}/>
-                  <Stack.Screen name="Video" component={Player}/>
-                  <Stack.Screen name="EventDetail" component={EventDetail}/>
-                  <Stack.Screen name="SelectTickets" component={SelectTickets}/>
-                  <Stack.Screen name="TicketVerification" component={TicketVerification}/>
-                  <Stack.Screen name="ChallengeEntry" component={ChallengeEntry}/>
+                  <Stack.Screen name="Video" component={ValidatedPlayer}/>
+                  <Stack.Screen name="EventDetail" component={ValidatedEventDetail}/>
+                  <Stack.Screen name="SelectTickets" component={ValidatedSelectTickets}/>
+                  <Stack.Screen name="TicketVerification" component={ValidatedTicketVerification}/>
+                  <Stack.Screen name="ChallengeEntry" component={ValidatedChallengeEntry}/>
                   <Stack.Screen name= "Library" component={Library}/>
-                  <Stack.Screen name= "EditSubmission" component={EditSubmission}/>
-                  <Stack.Screen name= "SubmitEntry" component={SubmitEntry}/>
+                  <Stack.Screen name= "EditSubmission" component={ValidatedEditSubmission}/>
+                  <Stack.Screen name= "SubmitEntry" component={ValidatedSubmitEntry}/>
                   <Stack.Screen name= "Livefeed" component={LiveFeed}/>
-                  <Stack.Screen name= "ConnectHub" component={CollaborationHub} options={themeAwareStatusBarOptions}/>
+                  <Stack.Screen name= "ConnectHub" component={ValidatedCollaborationHub} options={themeAwareStatusBarOptions}/>
                   <Stack.Screen name= "Notification" component={Notifications} options={themeAwareStatusBarOptions}/>
                   <Stack.Screen name= "StreakReward" component={StreakReward} options={themeAwareStatusBarOptions}/>
                   <Stack.Screen name= "ClaimPrize" component={ClaimPrize} options={themeAwareStatusBarOptions}/>
                   <Stack.Screen name= "CommunityPost" component={CreateCommunityPost}/>
-                  <Stack.Screen name= "CommunityPostDetail" component={CommunityPostDetail}/>
+                  <Stack.Screen name= "CommunityPostDetail" component={ValidatedCommunityPostDetail}/>
                   <Stack.Screen name= "MarketPlace" component={MarketPlace}/>
-                  <Stack.Screen name= "UseSound" component={UseSound}/>
-                  <Stack.Screen name= "UseEffect" component={UseEffect}/>
-                  <Stack.Screen name= "VibePicker" component={VibePicker} options={themeAwareStatusBarOptions}/>
-                  <Stack.Screen name= "FanTicket" component={FanTicketDetail}/>
+                  <Stack.Screen name= "UseSound" component={ValidatedUseSound}/>
+                  <Stack.Screen name= "UseEffect" component={ValidatedUseEffect}/>
+                  <Stack.Screen name= "VibePicker" component={ValidatedVibePicker} options={themeAwareStatusBarOptions}/>
+                  <Stack.Screen name= "FanTicket" component={ValidatedFanTicketDetail}/>
                   <Stack.Screen name="TopUpCoins" component={TopUpCoins} />
-                  <Stack.Screen name="ChallengeLeaderboard" component={ChallengeLeaderboard}/>
+                  <Stack.Screen name="Wallet" component={Wallet} options={themeAwareStatusBarOptions} />
+                  <Stack.Screen name="ChallengeLeaderboard" component={ValidatedChallengeLeaderboard}/>
                   <Stack.Screen name="Events" component={Events}/>
                   <Stack.Screen name="TrendingVideos" component={TrendingVideos}/>
                   <Stack.Screen name="Search" component={Search}/>
-                  <Stack.Screen name="Submissions" component={Submissions}/>
+                  <Stack.Screen name="Submissions" component={ValidatedSubmissions}/>
                   <Stack.Screen name="Premium" component={Premium}/>
-                  <Stack.Screen name="VideoPlayer" component={VideoPlayer}/>
-                  <Stack.Screen name="PlaylistPlayer" component={PlaylistPlayer}/>
+                  <Stack.Screen name="VideoPlayer" component={ValidatedVideoPlayer}/>
+                  <Stack.Screen name="PlaylistPlayer" component={ValidatedPlaylistPlayer}/>
                   <Stack.Screen name="HelpCentre" component={HelpCentre} options={themeAwareStatusBarOptions}/>
-                  <Stack.Screen name="TermsPolicies" component={TermsPolicies} options={themeAwareStatusBarOptions}/>
+                  <Stack.Screen name="TermsPolicies" component={ValidatedTermsPolicies} options={themeAwareStatusBarOptions}/>
                   <Stack.Screen name="PrivacyCentre" component={PrivacyCentre} options={themeAwareStatusBarOptions}/>
-                  <Stack.Screen name="VibeSignature" component={VibePicker} options={themeAwareStatusBarOptions}/>
-                  {/* <Stack.Screen name="GetStarted" component={GetStarted} /> */}
                 </>
               ) : (
                 <>
                   <Stack.Screen name="GetStarted" component={GetStarted} />
-                  <Stack.Screen name="Login">{() => <Login onLogin={handleLogin} />}</Stack.Screen>
-                  <Stack.Screen name="TermsPolicies" component={TermsPolicies} options={themeAwareStatusBarOptions} />
+                  <Stack.Screen name="Login" component={Login} />
+                  <Stack.Screen name="TermsPolicies" component={ValidatedTermsPolicies} options={themeAwareStatusBarOptions} />
                   <Stack.Screen name="PrivacyCentre" component={PrivacyCentre} options={themeAwareStatusBarOptions} />
-                  <Stack.Screen name="VibePicker" component={VibePicker} options={themeAwareStatusBarOptions} />
-                  {/* <Stack.Screen name="Signup">{() => <Signup onLogin={handleLogin} />}</Stack.Screen> */}
+                  <Stack.Screen name="VibePicker" component={ValidatedVibePicker} options={themeAwareStatusBarOptions} />
                   <Stack.Screen
                     name="EmailPhone"
-                    component={EmailPhone}
+                    component={ValidatedEmailPhone}
                     options={{ gestureEnabled: false }}
                   />
-                  <Stack.Screen name="EmailVerification" component={EmailVerification} />
-                  <Stack.Screen name="VerifyOtp" component={VerifyOtp} />
+                  <Stack.Screen name="EmailVerification" component={ValidatedEmailVerification} />
+                  <Stack.Screen name="VerifyOtp" component={ValidatedVerifyOtp} />
                   <Stack.Screen name="ForgotPassword" component={ForgotPassword} />
-                  <Stack.Screen name="ResetPassword" component={ResetPassword} />
+                  <Stack.Screen name="ResetPassword" component={ValidatedResetPassword} />
                 </>
               )}
             </Stack.Navigator>
@@ -998,7 +990,7 @@ const App: React.FC = () => {
                 setVisible(false);
                 requestAnimationFrame(() => {
                   if (navigationRef.isReady()) {
-                    navigationRef.navigate('EmailPhone' as never);
+                    navigationRef.navigate('EmailPhone');
                   }
                 });
               }}
@@ -1023,10 +1015,10 @@ const App: React.FC = () => {
                       setBattleInvitation(null);
                       const challengeId = pushChallengeId(invitation);
                       if (challengeId && navigationRef.isReady()) {
-                        navigationRef.navigate('ChallengeEntry' as never, {
+                        navigationRef.navigate('ChallengeEntry', {
                           challengeId,
                           inviteId: invitation?.invite_id,
-                        } as never);
+                        });
                       }
                     }}
                   >
@@ -1040,6 +1032,8 @@ const App: React.FC = () => {
             </Modal>
                 </SafeAreaView>
               </NavigationContainer>
+              <OfflineNotice />
+              </View>
             </ErrorBoundary>
           </SafeAreaProvider>
         </PaperProvider>
@@ -1049,6 +1043,9 @@ const App: React.FC = () => {
 };
 
 const styles = StyleSheet.create({
+  appShell: {
+    flex: 1,
+  },
   battleInvitationOverlay: {
     flex: 1,
     justifyContent: 'center',
@@ -1158,59 +1155,6 @@ const styles = StyleSheet.create({
     fontSize: 9,
     lineHeight: 16,
   },
-  creatorCreateTabOuter: {
-    width: 66,
-    height: 66,
-    marginBottom: -18,
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
-  creatorCreateGlow: {
-    position: 'absolute',
-    width: 70,
-    height: 48,
-    borderRadius: 24,
-    backgroundColor: primaryColorAlpha(0.34),
-    shadowColor: PRIMARY_COLOR,
-    shadowOpacity: 0.72,
-    shadowRadius: 22,
-    shadowOffset: { width: 0, height: 10 },
-    elevation: 12,
-  },
-  creatorCreateButton: {
-    width: 64,
-    height: 50,
-    borderRadius: 25,
-    borderWidth: 2,
-    borderColor: 'rgba(255,255,255,0.9)',
-    alignItems: 'center',
-    justifyContent: 'center',
-    shadowColor: PRIMARY_COLOR,
-    shadowOpacity: 0.44,
-    shadowRadius: 14,
-    shadowOffset: { width: 0, height: 8 },
-    elevation: 10,
-  },
-  creatorCreateInner: {
-    width: 52,
-    height: 38,
-    borderRadius: 19,
-    alignItems: 'center',
-    justifyContent: 'center',
-    overflow: 'hidden',
-    backgroundColor: 'rgba(12,9,32,0.28)',
-    borderWidth: 1,
-    borderColor: 'rgba(255,255,255,0.26)',
-  },
-  creatorCreateHalo: {
-    position: 'absolute',
-    width: 42,
-    height: 42,
-    borderRadius: 21,
-    borderWidth: 1,
-    borderColor: 'rgba(255,255,255,0.32)',
-    backgroundColor: 'rgba(255,255,255,0.08)',
-  },
   creatorCreatePlusPlate: {
     width: 48,
     height: 48,
@@ -1238,26 +1182,6 @@ const styles = StyleSheet.create({
     height: 5,
     borderRadius: 3,
     backgroundColor: PRIMARY_COLOR,
-  },
-  creatorCreateCorner: {
-    position: 'absolute',
-    width: 8,
-    height: 8,
-    borderColor: 'rgba(255,255,255,0.88)',
-  },
-  creatorCreateCornerTop: {
-    top: 7,
-    left: 8,
-    borderTopWidth: 2,
-    borderLeftWidth: 2,
-    borderTopLeftRadius: 4,
-  },
-  creatorCreateCornerBottom: {
-    right: 8,
-    bottom: 7,
-    borderRightWidth: 2,
-    borderBottomWidth: 2,
-    borderBottomRightRadius: 4,
   },
 });
 

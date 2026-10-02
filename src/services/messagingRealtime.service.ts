@@ -16,6 +16,7 @@ type RealtimePusherClient = {
   subscribe: (channel: string) => RealtimePusherChannel;
   unsubscribe: (channel: string) => void;
   allChannels: () => RealtimePusherChannel[];
+  connect: () => void;
   disconnect: () => void;
 };
 
@@ -238,16 +239,25 @@ export const disconnectMessagingRealtime = () => {
   realtimeToken = null;
 };
 
-const processedEventIds = new Set<string>();
+export const realtimeReconnectDelay = (attempt: number) => (
+  Math.min(30_000, 1_000 * (2 ** Math.max(0, Math.min(attempt, 5))))
+);
 
-export const acceptRealtimeEvent = (eventId?: string | null) => {
-  if (!eventId) return true;
-  if (processedEventIds.has(eventId)) return false;
+export const createRecentEventGuard = (limit = 500) => {
+  const processedEventIds = new Set<string>();
 
-  if (processedEventIds.size >= 500) {
-    const oldestEventId = processedEventIds.values().next().value;
-    if (oldestEventId) processedEventIds.delete(oldestEventId);
-  }
-  processedEventIds.add(eventId);
-  return true;
+  return (eventId?: string | null) => {
+    if (!eventId) return true;
+    if (processedEventIds.has(eventId)) return false;
+
+    while (processedEventIds.size >= Math.max(1, limit)) {
+      const oldestEventId = processedEventIds.values().next().value;
+      if (!oldestEventId) break;
+      processedEventIds.delete(oldestEventId);
+    }
+    processedEventIds.add(eventId);
+    return true;
+  };
 };
+
+export const acceptRealtimeEvent = createRecentEventGuard();

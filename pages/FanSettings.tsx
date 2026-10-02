@@ -36,8 +36,10 @@ import { fontSize } from '../typography';
 import { parseApiError, useSwitchRole, useUpdateProfile, useUploadAvatar } from '../src';
 import type { AvatarUploadSource, User } from '../src';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
+import type { RootStackParamList } from '../src';
 
 type SubView = 'main' | 'profile' | 'identity' | 'gifts' | 'payments' | 'notifications';
+const SUB_VIEWS: readonly SubView[] = ['main', 'profile', 'identity', 'gifts', 'payments', 'notifications'];
 
 type FanSettingsProps = {
   onLogout?: () => void;
@@ -68,7 +70,7 @@ interface SettingItem {
   onToggle?: () => void;
   onClick?: () => void;
   id?: SubView;
-  path?: string;
+  path?: keyof RootStackParamList;
 }
 
 type CoinPack = {
@@ -400,8 +402,9 @@ const FanSettings: React.FC<FanSettingsProps> = ({ onLogout, isDarkMode, onToggl
   ];
 
   useEffect(() => {
-    if (route.params?.view) {
-      setActiveView(route.params.view as SubView);
+    const requestedView = route.params?.view;
+    if (requestedView && SUB_VIEWS.includes(requestedView)) {
+      setActiveView(requestedView);
     }
   }, [route]);
 
@@ -1405,7 +1408,7 @@ const FanSettings: React.FC<FanSettingsProps> = ({ onLogout, isDarkMode, onToggl
                 onPress={() => {
                   if (item.onClick) item.onClick();
                   else if (item.id) setActiveView(item.id as SubView);
-                  else if (item.path) navigation.navigate(item.path);
+                  else if (item.path) navigation.navigate(item.path as never);
                 }}
               >
                 <View style={s.itemLeft}>

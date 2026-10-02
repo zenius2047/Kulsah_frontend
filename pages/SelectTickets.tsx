@@ -52,7 +52,7 @@ const SelectTickets: React.FC = () => {
   const route = useRoute();
   const navigation = useNavigation();
   const insets = useSafeAreaInsets();
-  const eventId = route.params?.id ?? 'burna-boy';
+  const eventId = route.params?.id;
   const apiEventId = /^(?:event_)?\d+$/.test(String(eventId)) ? eventId : undefined;
   const eventQuery = useEvent(apiEventId);
   const purchaseMutation = usePurchaseEventTickets(apiEventId ?? 1);

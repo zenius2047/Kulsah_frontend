@@ -130,13 +130,6 @@ const Library: React.FC = () => {
           <Text style={[styles.headerTitle, { color: theme.text }]}>Library</Text>
         </View>
 
-        <Pressable
-        onPress={()=>(
-          navigation.navigate("EditSubmission")
-        )}
-        style={styles.selectButton}>
-          <Text style={styles.selectButtonText}>Select</Text>
-        </Pressable>
       </View>
 
       <ScrollView

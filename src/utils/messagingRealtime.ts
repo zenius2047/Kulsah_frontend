@@ -53,16 +53,19 @@ export const mergeRealtimeMessage = (client: QueryClient, message: ConversationM
         || Boolean(message.client_message_id && item.client_message_id === message.client_message_id)
       )));
       if (duplicate) {
+        let reconciled = false;
         return {
           ...current,
           pages: current.pages.map((page) => ({
             ...page,
-            data: page.data.map((item) => (
-              item.id === message.id
-              || Boolean(message.client_message_id && item.client_message_id === message.client_message_id)
-                ? message
-                : item
-            )),
+            data: page.data.flatMap((item) => {
+              const matches = item.id === message.id
+                || Boolean(message.client_message_id && item.client_message_id === message.client_message_id);
+              if (!matches) return [item];
+              if (reconciled) return [];
+              reconciled = true;
+              return [message];
+            }),
           })),
         };
       }

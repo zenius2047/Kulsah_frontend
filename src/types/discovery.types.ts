@@ -62,3 +62,8 @@ export type DiscoveryResponse = {
     pagination: { current_page: number; per_page: number; has_more: boolean };
   };
 };
+
+export type DiscoveryHashtag = {
+  tag: string;
+  posts_count: number;
+};

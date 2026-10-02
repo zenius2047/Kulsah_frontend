@@ -1,4 +1,3 @@
-import AsyncStorage from '@react-native-async-storage/async-storage';
 import { MaterialIcons } from '@expo/vector-icons';
 import { useNavigation } from '@react-navigation/native';
 import React, { useRef, useState } from 'react';
@@ -9,11 +8,13 @@ import {
   ScrollView,
   StyleSheet,
   Text,
+  TextInput,
   View,
 } from 'react-native';
 import { SafeAreaView, useSafeAreaInsets } from 'react-native-safe-area-context';
 import { PRIMARY_COLOR, primaryColorAlpha, useThemeMode } from '../theme';
 import { fontSize } from './typography';
+import { authApi, clearAuthToken, getApiErrorMessage } from '../src';
 
 type ProtocolNode = {
   label: string;
@@ -38,6 +39,8 @@ const PrivacyCentre: React.FC = () => {
   const [showToast, setShowToast] = useState<string | null>(null);
   const [isConfirmEraseOpen, setIsConfirmEraseOpen] = useState(false);
   const [eraseStep, setEraseStep] = useState(1);
+  const [accountPassword, setAccountPassword] = useState('');
+  const [deleteError, setDeleteError] = useState('');
 
   const triggerToast = (msg: string) => {
     setShowToast(msg);
@@ -68,14 +71,15 @@ const PrivacyCentre: React.FC = () => {
 
   const executeNodeWipe = async () => {
     setEraseStep(2);
-    setTimeout(() => {
-      void (async () => {
-        await AsyncStorage.multiRemove(['pulsar_challenge_drafts', 'pulsar_challenges']);
-        setIsConfirmEraseOpen(false);
-        setEraseStep(1);
-        triggerToast('Your diagnostic node registry has been soft-erased!');
-      })();
-    }, 2000);
+    setDeleteError('');
+    try {
+      await authApi.deleteAccount(accountPassword.trim() || undefined);
+      await clearAuthToken();
+      navigation.reset({ index: 0, routes: [{ name: 'Login' }] });
+    } catch (error) {
+      setDeleteError(getApiErrorMessage(error));
+      setEraseStep(1);
+    }
   };
 
   const surface = isDark ? 'rgba(255,255,255,0.05)' : theme.card;
@@ -206,9 +210,9 @@ const PrivacyCentre: React.FC = () => {
                 <MaterialIcons name="delete-sweep" size={21} color="#ef4444" />
               </View>
               <View style={styles.headerCopy}>
-                <Text style={styles.eraseTitle}>Purge Node Coordinates</Text>
+                <Text style={styles.eraseTitle}>Delete Account</Text>
                 <Text style={[styles.archiveBody, { color: muted }]}>
-                  Clear your cached challenges, locally constructed workspace blueprints, and settings metadata.
+                  Permanently remove your identity and revoke every signed-in device. Financial and safety records are retained only in anonymized form where required.
                 </Text>
               </View>
             </View>
@@ -216,12 +220,14 @@ const PrivacyCentre: React.FC = () => {
             <Pressable
               onPress={() => {
                 setEraseStep(1);
+                setAccountPassword('');
+                setDeleteError('');
                 setIsConfirmEraseOpen(true);
               }}
               style={styles.eraseButton}
             >
               <MaterialIcons name="dangerous" size={16} color="#ef4444" />
-              <Text style={styles.eraseButtonText}>Execute Node Purge Protocol</Text>
+              <Text style={styles.eraseButtonText}>Delete My Account</Text>
             </Pressable>
           </View>
         </View>
@@ -237,14 +243,23 @@ const PrivacyCentre: React.FC = () => {
                   <MaterialIcons name="warning" size={34} color="#ef4444" />
                 </View>
                 <View style={styles.modalCopy}>
-                  <Text style={[styles.modalTitle, { color: theme.text }]}>Confirm Node Purge</Text>
-                  <Text style={[styles.modalBody, { color: secondary }]}>
-                    This action will soft-purge your drafts history and saved orbits. Your cloud authenticated credentials will remain secure. Are you sure you want to proceed?
-                  </Text>
+                   <Text style={[styles.modalTitle, { color: theme.text }]}>Delete your account?</Text>
+                   <Text style={[styles.modalBody, { color: secondary }]}>
+                     This cannot be undone. Enter your password to confirm. Social-login accounts may leave this field empty.
+                   </Text>
+                   <TextInput
+                     value={accountPassword}
+                     onChangeText={setAccountPassword}
+                     placeholder="Password"
+                     placeholderTextColor={muted}
+                     secureTextEntry
+                     style={[styles.deleteInput, { color: theme.text, borderColor: border, backgroundColor: softSurface }]}
+                   />
+                   {deleteError ? <Text style={styles.deleteError}>{deleteError}</Text> : null}
                 </View>
                 <View style={styles.modalActions}>
                   <Pressable onPress={() => void executeNodeWipe()} style={styles.confirmButton}>
-                    <Text style={styles.confirmButtonText}>Confirm Wipe</Text>
+                     <Text style={styles.confirmButtonText}>Delete Permanently</Text>
                   </Pressable>
                   <Pressable onPress={() => setIsConfirmEraseOpen(false)} style={[styles.abortButton, { backgroundColor: softSurface, borderColor: border }]}>
                     <Text style={[styles.abortButtonText, { color: theme.text }]}>Abort</Text>
@@ -254,7 +269,7 @@ const PrivacyCentre: React.FC = () => {
             ) : (
               <View style={styles.purgingBlock}>
                 <ActivityIndicator size="large" color="#ef4444" />
-                <Text style={styles.purgingText}>Purging telemetry indexes...</Text>
+                 <Text style={styles.purgingText}>Deleting account...</Text>
               </View>
             )}
           </View>
@@ -566,6 +581,19 @@ const styles = StyleSheet.create({
   modalBody: {
     ...fontSize.b4,
     lineHeight: fontSize.b4.lineHeight,
+    textAlign: 'center',
+  },
+  deleteInput: {
+    width: '100%',
+    minHeight: 48,
+    borderWidth: 1,
+    borderRadius: 12,
+    paddingHorizontal: 14,
+    ...fontSize.b4,
+  },
+  deleteError: {
+    color: '#ef4444',
+    ...fontSize.b5,
     textAlign: 'center',
   },
   modalActions: {

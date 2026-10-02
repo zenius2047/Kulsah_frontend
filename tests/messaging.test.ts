@@ -27,13 +27,18 @@ import { applyRealtimeReadReceipt, mergeRealtimeMessage } from '../src/utils/mes
 import {
   normalizePresenceMember,
   normalizePresenceMembers,
+  createRecentEventGuard,
+  realtimeReconnectDelay,
   resolvePusherConstructor,
 } from '../src/services/messagingRealtime.service';
+import { resolveConversationPushNavigation } from '../src/utils/pushNavigation';
 import {
   createFcmDeviceTokenPayload,
+  isVoiceCallPushNotification,
   normalizePushNotificationData,
   parseStoredPushRegistration,
   pushNotificationIdentity,
+  pushCallId,
   retainRecentNotificationIds,
 } from '../src/utils/pushNotifications';
 import type { Conversation, ConversationMessage, ConversationMessagesPage } from '../src/types/messaging.types';
@@ -180,7 +185,9 @@ describe('FCM messaging payload helpers', () => {
       ],
     } as Conversation;
     const newest = { data: [message(3), message(4)] } as ConversationMessagesPage;
-    const older = { data: [message(1), message(2), message(3)] } as ConversationMessagesPage;
+    const older = {
+      data: [message(1), message(2), message(3), { ...message(40), client_message_id: 'client-4' }],
+    } as ConversationMessagesPage;
 
     expect(conversationDisplayName(conversation, 1)).toBe('Ari');
     expect(flattenConversationMessagePages([newest, older]).map((item) => item.id)).toEqual([1, 2, 3, 4]);
@@ -227,6 +234,42 @@ describe('push registration and delivery identity', () => {
     });
   });
 
+  it('routes Android FCM and iOS notification payloads to the same conversation', () => {
+    const androidData = normalizePushNotificationData({
+      type: 'conversation.message.created',
+      conversation_id: '42',
+      sender_id: '9',
+    });
+    const iosData = normalizePushNotificationData({
+      type: 'conversation.message.created',
+      conversation_id: 42,
+      sender_id: 9,
+    });
+
+    expect(resolveConversationPushNavigation(androidData)).toEqual({ conversationId: '42', senderId: '9' });
+    expect(resolveConversationPushNavigation(iosData)).toEqual({ conversationId: '42', senderId: 9 });
+    expect(resolveConversationPushNavigation({
+      type: 'signal.message_request.accepted',
+      conversation_id: 42,
+      receiver_id: 11,
+    })).toEqual({ conversationId: '42', senderId: 11 });
+  });
+
+  it('routes an incoming call to its conversation with caller context', () => {
+    expect(resolveConversationPushNavigation(normalizePushNotificationData({
+      type: 'voice_call.incoming',
+      conversation_id: '42',
+      call_id: '7',
+      caller: '{"id":9,"name":"Ari","avatar":"https://example.com/a.jpg"}',
+    }))).toEqual({
+      conversationId: '42',
+      callId: 7,
+      senderId: 9,
+      name: 'Ari',
+      avatar: 'https://example.com/a.jpg',
+    });
+  });
+
   it('reads the current registration shape and migrates a legacy token payload', () => {
     const payload = { token: 'native-token', platform: 'android' as const, provider: 'fcm' as const };
 
@@ -254,9 +297,31 @@ describe('push registration and delivery identity', () => {
   it('retains unique recent delivery ids within the configured limit', () => {
     expect(retainRecentNotificationIds(['one', 'two', 'one', 'three'], 2)).toEqual(['two', 'three']);
   });
+
+  it('recognizes incoming voice calls and extracts a valid call id', () => {
+    const payload = { type: 'voice_call.incoming', call_id: '42', conversation_id: 9 };
+    expect(isVoiceCallPushNotification(payload)).toBe(true);
+    expect(pushCallId(payload)).toBe(42);
+    expect(isVoiceCallPushNotification({ ...payload, call_id: 'invalid' })).toBe(false);
+  });
 });
 
 describe('realtime messaging cache updates', () => {
+  it('uses bounded event identities to reject duplicate deliveries', () => {
+    const accept = createRecentEventGuard(2);
+    expect(accept('event-1')).toBe(true);
+    expect(accept('event-1')).toBe(false);
+    expect(accept('event-2')).toBe(true);
+    expect(accept('event-3')).toBe(true);
+    expect(accept('event-1')).toBe(true);
+  });
+
+  it('backs off reconnect attempts while keeping the delay bounded', () => {
+    expect(realtimeReconnectDelay(0)).toBe(1_000);
+    expect(realtimeReconnectDelay(3)).toBe(8_000);
+    expect(realtimeReconnectDelay(20)).toBe(30_000);
+  });
+
   it('appends a broadcast message once and reconciles matching client ids', () => {
     const client = new QueryClient();
     const queryKey = conversationMessagesQueryKey(9);
@@ -291,5 +356,22 @@ describe('realtime messaging cache updates', () => {
 
     const data = client.getQueryData<{ pages: ConversationMessagesPage[] }>(queryKey);
     expect(data?.pages[0].data.map((item) => item.delivery_status)).toEqual(['read', 'sent']);
+  });
+
+  it('reconciles one optimistic message even if cursor pages contain duplicates', () => {
+    const client = new QueryClient();
+    const queryKey = conversationMessagesQueryKey(9);
+    const optimistic = { ...message(2), id: -2, client_message_id: 'retry-safe-id' };
+    client.setQueryData(queryKey, {
+      pages: [
+        { data: [optimistic], meta: { has_more: true, next_before_message_id: 1 } },
+        { data: [{ ...optimistic }], meta: { has_more: false, next_before_message_id: null } },
+      ],
+      pageParams: [undefined, 1],
+    });
+
+    mergeRealtimeMessage(client, { ...message(22), client_message_id: 'retry-safe-id' });
+    const data = client.getQueryData<{ pages: ConversationMessagesPage[] }>(queryKey);
+    expect(data?.pages.flatMap((page) => page.data).map((item) => item.id)).toEqual([22]);
   });
 });

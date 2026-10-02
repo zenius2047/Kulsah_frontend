@@ -24,7 +24,10 @@ export type CommunityMedia = {
   width?: number | null;
   height?: number | null;
   duration_seconds?: number | null;
+  metadata?: Record<string, unknown>;
 };
+
+export type CommunityTaggedUser = Pick<CommunityAuthor, 'id' | 'name' | 'handle' | 'avatar_url'>;
 
 export type CommunityPollOption = {
   id: string | number;
@@ -40,6 +43,11 @@ export type CommunityPost = {
   content: string | null;
   audience: CommunityAudience;
   status: string;
+  location_name?: string | null;
+  hashtags?: string[];
+  scheduled_at?: string | null;
+  published_at?: string | null;
+  tagged_users?: CommunityTaggedUser[];
   author: CommunityAuthor;
   media: CommunityMedia[];
   poll: {
@@ -124,6 +132,16 @@ export type CreateCommunityPostPayload = {
   audience: CommunityAudience;
   content?: string;
   media?: CommunityMediaSource[];
+  location_name?: string;
+  scheduled_at?: string;
+  tagged_user_ids?: Array<string | number>;
+  media_options?: Array<{
+    filter?: 'original' | 'warm' | 'cool' | 'vivid' | 'mono' | 'fade';
+    cover_frame_ms?: number;
+    trim_start_ms?: number;
+    trim_end_ms?: number | null;
+    captions_enabled?: boolean;
+  }>;
   poll?: {
     question?: string;
     options: string[];

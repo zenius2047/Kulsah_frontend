@@ -1,6 +1,7 @@
 import React, { useState, useRef, useEffect, useMemo } from 'react';
 import { useThemeMode } from '../theme';
 import { useNavigation } from '@react-navigation/native';
+import { useFeedVideos } from '../src';
 
 interface FeedItem {
   id: string;
@@ -19,8 +20,6 @@ interface FeedItem {
   ticketLocation?: string;
 }
 
-const FALLBACK_VIDEO = 'https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/BigBuckBunny.mp4';
-
 const VideoFeedItem: React.FC<{
   item: FeedItem;
   onSubscribe: (id: string) => void;
@@ -29,9 +28,9 @@ const VideoFeedItem: React.FC<{
 }> = ({ item, onSubscribe, isGlobalMuted, onToggleMute }) => {
   const navigation = useNavigation();
   const navigate = (path: string) => {
-    if (path === '/discover') return navigation.navigate('Discover');
+    if (path === '/discover') return navigation.navigate('MainTabs', { screen: 'Discover' });
     if (path === '/notifications') return;
-    if (path.startsWith('/video/')) return navigation.navigate('Video');
+    if (path.startsWith('/video/')) return navigation.navigate('Video', { id: path.slice('/video/'.length) });
     if (path.startsWith('/profile/')) return;
     if (path.startsWith('/event/')) return;
   };
@@ -104,7 +103,7 @@ const VideoFeedItem: React.FC<{
     >
       <video
         ref={videoRef}
-        src={hasSourceError ? FALLBACK_VIDEO : item.video || FALLBACK_VIDEO}
+        src={hasSourceError ? undefined : item.video}
         poster={item.background}
         muted={isGlobalMuted}
         onPlay={() => setIsPlaying(true)}
@@ -240,7 +239,7 @@ const VideoFeedItem: React.FC<{
           <button
             onClick={(e) => {
               e.stopPropagation();
-              navigate('/event/burna-boy');
+              navigate('/events');
             }}
             className="bg-green-500 text-black w-fit px-5 h-10 rounded-full flex items-center gap-2 shadow-soft active:scale-95 transition-all mt-1 pointer-events-auto"
           >
@@ -262,24 +261,7 @@ const VideoFeedItem: React.FC<{
               </button>
             </div>
             <div className="space-y-6 max-h-[40vh] overflow-y-auto no-scrollbar mb-6">
-              {[1, 2, 3, 4, 5].map((i) => (
-                <div key={i} className="flex gap-3 text-left">
-                  <div className="size-10 rounded-full bg-black/10 dark:bg-white/5 overflow-hidden border border-white/10">
-                    <img src={`https://picsum.photos/seed/fan${i}/100`} className="size-full object-cover" />
-                  </div>
-                  <div className="flex-1">
-                    <p className="text-xs font-black text-slate-900 dark:text-white/90">GalaxyFan_{i}</p>
-                    <p className="text-sm text-slate-600 dark:text-white/60 mt-0.5">This visual is absolute fire! {i % 2 === 0 ? 'SkyFire' : 'SparkAudio'}</p>
-                    <div className="flex items-center gap-4 mt-2">
-                      <p className="text-[10px] text-slate-400 font-bold uppercase">2h</p>
-                      <p className="text-[10px] text-slate-400 font-bold uppercase">Reply</p>
-                    </div>
-                  </div>
-                  <button className="text-slate-400">
-                    <span className="material-symbols-outlined text-sm">favorite</span>
-                  </button>
-                </div>
-              ))}
+              <p className="text-sm text-slate-500 dark:text-white/50">Comments are not available in the web preview yet.</p>
             </div>
             <div className="flex items-center gap-3 bg-black/5 dark:bg-white/5 rounded-2xl p-4 border border-black/5 dark:border-white/10">
               <input className="flex-1 bg-transparent text-sm focus:outline-none text-slate-900 dark:text-white" placeholder="Add a comment..." />
@@ -296,91 +278,39 @@ const Feed: React.FC = () => {
   const { isDark, theme } = useThemeMode();
   const navigation = useNavigation();
   const navigate = (path: string) => {
-    if (path === '/discover') return navigation.navigate('Discover');
+    if (path === '/discover') return navigation.navigate('MainTabs', { screen: 'Discover' });
     if (path === '/notifications') return;
   };
 
   const [activeTab, setActiveTab] = useState<'following' | 'foryou'>('foryou');
   const [isGlobalMuted, setIsGlobalMuted] = useState(true);
 
-  const [items, setItems] = useState<FeedItem[]>([
-    {
-      id: '1',
-      artist: 'Elena Rose',
-      handle: 'elena_rose',
-      avatar: 'https://picsum.photos/seed/elena/150/150',
-      caption: "PRIVATE DROP: Working on 'Nebula' vocal layers. This is the raw studio session for my supporters only. #BTS #KulsahExclusive",
-      background: 'https://images.unsplash.com/photo-1598488035139-bdbb2231ce04?auto=format&fit=crop&q=80&w=800',
-      video: 'https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/ElephantsDream.mp4',
-      likes: '2.4M',
-      comments: '88.1K',
-      isLiked: false,
-      isSubscribed: true,
-      isPremium: true,
-      ticketsAvailable: true,
-      ticketLocation: 'London, UK',
-    },
-    {
-      id: '4',
-      artist: 'Marcus Thorne',
-      handle: 'mthorne_bass',
-      avatar: 'https://picsum.photos/seed/mthorne/150/150',
-      caption: "SUBSCRIBER REHEARSAL: Early draft of the winter tour set. Gold Tier circle, let's vibe. #PrivatDrop",
-      background: 'https://images.unsplash.com/photo-1511671782779-c97d3d27a1d4?auto=format&fit=crop&q=80&w=800',
-      video: 'https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/Sintel.mp4',
-      likes: '450K',
-      comments: '12.2K',
-      isLiked: false,
-      isSubscribed: true,
-      isPremium: true,
-      ticketsAvailable: false,
-    },
-    {
-      id: '2',
-      artist: 'Zion King',
-      handle: 'zionking_afro',
-      avatar: 'https://picsum.photos/seed/zion/150/150',
-      caption: 'Live from the main stage! This crowd is unmatched. #Kulsah #LiveMusic #Afrobeats',
-      background: 'https://images.unsplash.com/photo-1514525253361-bee8718a74a2?auto=format&fit=crop&q=80&w=800',
-      video: 'https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/TearsOfSteel.mp4',
-      likes: '1.2M',
-      comments: '45.8K',
-      isLiked: true,
-      isSubscribed: false,
-      isPremium: false,
-      ticketsAvailable: false,
-    },
-    {
-      id: '5',
-      artist: 'Sarah Chen',
-      handle: 'schen_music',
-      avatar: 'https://picsum.photos/seed/sarah/150/150',
-      caption: "VIP MASTERCLASS: Layering vocal chains for the 'Galaxy' sound. #ProducerLife #PremiumContent",
-      background: 'https://images.unsplash.com/photo-1520529277867-dbf8c5e0b340?auto=format&fit=crop&q=80&w=800',
-      video: 'https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/BigBuckBunny.mp4',
-      likes: '89K',
-      comments: '4.5K',
-      isLiked: true,
-      isSubscribed: true,
-      isPremium: true,
-      ticketsAvailable: false,
-    },
-    {
-      id: '3',
-      artist: 'Amara',
-      handle: 'amara_official',
-      avatar: 'https://picsum.photos/seed/amara/150/150',
-      caption: 'EXCLUSIVE: Late night neon dance rehearsal. The tour visuals are finally ready for my subscribers.',
-      background: 'https://images.unsplash.com/photo-1516450360452-9312f5e86fc7?auto=format&fit=crop&q=80&w=800',
-      video: 'https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/ElephantsDream.mp4',
-      likes: '890K',
-      comments: '12.4K',
-      isLiked: false,
-      isSubscribed: true,
-      isPremium: true,
-      ticketsAvailable: false,
-    },
-  ]);
+  const feedQuery = useFeedVideos({ page: 1, limit: 50 });
+  const [subscribedIds, setSubscribedIds] = useState<Set<string>>(new Set());
+  const items = useMemo<FeedItem[]>(() => (feedQuery.data?.data ?? []).flatMap((raw) => {
+    const creator = raw.creator && typeof raw.creator === 'object' ? raw.creator as Record<string, unknown> : {};
+    const video = [raw.rendered_url, raw.streaming_url, raw.stream_url, raw.cdn_url, raw.video]
+      .find((value): value is string => typeof value === 'string' && value.length > 0);
+    if (!video) return [];
+    const id = String(raw.id);
+    const handle = String(raw.handle || creator.username || creator.handle || 'creator').replace(/^@/, '');
+    return [{
+      id,
+      artist: String(creator.name || handle),
+      handle,
+      avatar: String(raw.avatar || creator.avatar || ''),
+      caption: String(raw.caption || ''),
+      background: String(raw.poster_url || raw.thumbnail_url || raw.thumbnail || raw.background || ''),
+      video,
+      likes: String(raw.likes ?? 0),
+      comments: String(raw.comments ?? 0),
+      isLiked: Boolean(raw.isLiked),
+      isSubscribed: Boolean(raw.isSubscribed || subscribedIds.has(id)),
+      isPremium: Boolean(raw.isPremium),
+      ticketsAvailable: Boolean(raw.ticketsAvailable),
+      ticketLocation: typeof raw.ticketLocation === 'string' ? raw.ticketLocation : undefined,
+    }];
+  }), [feedQuery.data, subscribedIds]);
 
   const displayedItems = useMemo(() => {
     if (activeTab === 'following') return items.filter((i) => i.isSubscribed);
@@ -388,7 +318,7 @@ const Feed: React.FC = () => {
   }, [activeTab, items]);
 
   const handleSubscribe = (id: string) => {
-    setItems((prev) => prev.map((item) => (item.id === id ? { ...item, isSubscribed: true } : item)));
+    setSubscribedIds((current) => new Set(current).add(id));
   };
 
   const toggleMute = () => setIsGlobalMuted(!isGlobalMuted);

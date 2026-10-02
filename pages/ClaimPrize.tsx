@@ -1,4 +1,4 @@
-import React, { useMemo, useState } from 'react';
+import React, { useEffect, useMemo, useState } from 'react';
 import {
   ActivityIndicator,
   Alert,
@@ -18,8 +18,10 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 import { LinearGradient } from 'expo-linear-gradient';
 import { MaterialIcons } from '@expo/vector-icons';
 import { useNavigation } from '@react-navigation/native';
+import { useQuery } from '@tanstack/react-query';
 import { PRIMARY_COLOR, primaryColorAlpha, useThemeMode } from '../theme';
 import { fontSize } from './typography';
+import { challengesApi, useAuthStore } from '../src';
 
 type RewardType = 'digital' | 'physical' | 'custom' | 'coins' | 'money';
 type PayoutMethod = 'coins' | 'momo' | 'bank';
@@ -40,50 +42,20 @@ type ClaimSubmission = {
   claimed?: boolean;
   claimedAt?: string;
   claimMethod?: string;
+  status: string;
 };
 
-const MOCK_SUBMISSIONS: ClaimSubmission[] = [
-  {
-    id: 'mock-sub-0',
-    challengeTitle: 'Cyberpunk Street Dance Challenge',
-    userName: 'Alex Rivera',
-    userHandle: '@Alex_Beats',
-    userAvatar: 'https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?auto=format&fit=crop&w=300',
-    thumbnailUrl: 'https://images.unsplash.com/photo-1508700115892-45ecd05ae2ad?auto=format&fit=crop&q=80&w=800',
-    votes: 8900,
-    likes: 3450,
-    reward: 'VIP Pass Access & Download Bundle',
-    rewardType: 'digital',
-    accessCode: 'VIP-CYBER-PULSE-9X99',
-  },
-  {
-    id: 'mock-sub-1',
-    challengeTitle: 'Drone Hyperlapse Speedrun',
-    userName: 'Alex Rivera',
-    userHandle: '@Alex_Beats',
-    userAvatar: 'https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?auto=format&fit=crop&w=300',
-    thumbnailUrl: 'https://images.unsplash.com/photo-1498038432885-c6f3f1b912ee?auto=format&fit=crop&q=80&w=800',
-    votes: 2400,
-    likes: 1200,
-    reward: 'Premium Creator Hoodie + Stickers',
-    rewardType: 'physical',
-  },
-  {
-    id: 'mock-sub-2',
-    challengeTitle: 'Cinematic Vlog Sequence',
-    userName: 'Alex Rivera',
-    userHandle: '@Alex_Beats',
-    userAvatar: 'https://images.unsplash.com/photo-1536440136628-849c177e76a1?auto=format&fit=crop&q=80&w=800',
-    thumbnailUrl: 'https://images.unsplash.com/photo-1536440136628-849c177e76a1?auto=format&fit=crop&q=80&w=800',
-    votes: 1950,
-    likes: 850,
-    reward: '1:1 Private Zoom Consultation Session',
-    rewardType: 'custom',
-  },
-];
+const toRewardType = (value?: string | null): RewardType => {
+  if (value === 'cash') return 'money';
+  if (value === 'wallet_credit') return 'coins';
+  if (value === 'physical_product') return 'physical';
+  if (value === 'voucher' || value === 'subscription' || value === 'badge' || value === 'feature') return 'digital';
+  return 'custom';
+};
 
 const ClaimPrize: React.FC = () => {
   const navigation = useNavigation();
+  const authenticatedUser = useAuthStore((state) => state.user);
   const { isDark, theme } = useThemeMode();
   const styles = useMemo(() => createStyles(isDark, theme), [isDark, theme]);
   const placeholderColor = theme.textMuted;
@@ -91,7 +63,11 @@ const ClaimPrize: React.FC = () => {
   const screenGradient: readonly [ColorValue, ColorValue, ColorValue] = isDark
     ? [primaryColorAlpha(0.32), '#09060f', '#050207']
     : [primaryColorAlpha(0.16), theme.background, theme.screen];
-  const [submissions, setSubmissions] = useState<ClaimSubmission[]>(MOCK_SUBMISSIONS);
+  const rewardsQuery = useQuery({
+    queryKey: ['challenge-rewards'],
+    queryFn: () => challengesApi.getMyRewards().then((response) => response.data.data),
+  });
+  const [submissions, setSubmissions] = useState<ClaimSubmission[]>([]);
   const [claimHistory, setClaimHistory] = useState<ClaimSubmission[]>([]);
   const [activeWinIndex, setActiveWinIndex] = useState(0);
   const [selectedSub, setSelectedSub] = useState<ClaimSubmission | null>(null);
@@ -112,16 +88,41 @@ const ClaimPrize: React.FC = () => {
   const [txRef, setTxRef] = useState('');
   const [toast, setToast] = useState<string | null>(null);
 
-  const activeWin = submissions[Math.min(activeWinIndex, Math.max(submissions.length - 1, 0))] ?? claimHistory[0] ?? MOCK_SUBMISSIONS[0];
+  useEffect(() => {
+    if (!rewardsQuery.data) return;
+    setSubmissions(rewardsQuery.data.map((allocation) => {
+      const amount = allocation.amount == null ? '' : `${allocation.currency ?? ''} ${allocation.amount}`.trim();
+      const reward = allocation.prize?.title || amount || allocation.prize?.description || 'Challenge reward';
+      const status = String(allocation.status || 'pending');
+      return {
+        id: String(allocation.id),
+        challengeTitle: allocation.challenge?.title || 'Challenge reward',
+        userName: authenticatedUser?.name || allocation.creator?.name || 'Kulsah creator',
+        userHandle: authenticatedUser?.handle ? `@${authenticatedUser.handle.replace(/^@/, '')}` : '',
+        userAvatar: authenticatedUser?.avatar || allocation.creator?.avatar || '',
+        thumbnailUrl: allocation.entry?.video_thumbnail || '',
+        votes: Number(allocation.entry?.score || 0),
+        likes: 0,
+        reward,
+        rewardType: toRewardType(allocation.prize?.reward_type),
+        status,
+        claimed: status === 'processed' || status === 'completed',
+        claimedAt: allocation.processed_at || undefined,
+      };
+    }));
+    setActiveWinIndex(0);
+  }, [authenticatedUser, rewardsQuery.data]);
+
+  const activeWin = submissions[Math.min(activeWinIndex, Math.max(submissions.length - 1, 0))] ?? claimHistory[0] ?? null;
   const totalWins = submissions.length + claimHistory.length;
 
   const rewardInfo = useMemo(() => {
-    const text = activeWin.reward.toUpperCase();
+    const text = activeWin?.reward.toUpperCase() ?? '';
     return {
       coins: text.match(/([\d,]+)/)?.[1] ?? '500',
       access: text.includes('VIP') ? 'VIP PASS' : text.includes('PREMIUM') ? 'PREMIUM PASS' : 'ACCESS PASS',
     };
-  }, [activeWin.reward]);
+  }, [activeWin?.reward]);
 
   const triggerToast = (message: string) => {
     setToast(message);
@@ -129,11 +130,12 @@ const ClaimPrize: React.FC = () => {
   };
 
   const handleStartClaim = (sub: ClaimSubmission) => {
-    setSelectedSub(sub);
-    setClaimStep(1);
-    setPayoutMethod('coins');
-    setPhoneOrAccount('');
-    setTxRef('');
+    Alert.alert(
+      sub.claimed ? 'Reward processed' : 'Reward fulfillment in progress',
+      sub.claimed
+        ? 'This reward has been processed by Kulsah.'
+        : 'Kulsah is processing this reward. Its status will update here when fulfillment is complete.',
+    );
   };
 
   const handleProcessClaim = () => {
@@ -147,24 +149,7 @@ const ClaimPrize: React.FC = () => {
       return;
     }
 
-    setClaiming(true);
-    setTimeout(() => {
-      const reference = `TXN-${Math.floor(100000 + Math.random() * 900000)}-KUL`;
-      const claimedSub = {
-        ...selectedSub,
-        claimed: true,
-        claimedAt: new Date().toISOString(),
-        claimMethod: selectedSub.rewardType === 'physical' ? 'shipping' : selectedSub.rewardType === 'digital' ? 'download_unlock' : payoutMethod,
-      };
-      setTxRef(reference);
-      setSubmissions((prev) => prev.filter((sub) => sub.id !== selectedSub.id));
-      setClaimHistory((prev) => [claimedSub, ...prev]);
-      setActiveWinIndex(0);
-      setClaimStep(4);
-      setClaiming(false);
-      closeClaim();
-      triggerToast(`Claim successful for ${selectedSub.challengeTitle}`);
-    }, 5000);
+    Alert.alert('Reward fulfillment', 'Reward settlement is performed securely by the Kulsah backend. Check this screen for the latest status.');
   };
 
   const closeClaim = () => {
@@ -344,6 +329,33 @@ const ClaimPrize: React.FC = () => {
     );
   };
 
+  if (rewardsQuery.isLoading) {
+    return (
+      <SafeAreaView style={styles.safeArea}>
+        <ActivityIndicator color={PRIMARY_COLOR} style={{ flex: 1 }} />
+      </SafeAreaView>
+    );
+  }
+
+  if (rewardsQuery.isError || !activeWin) {
+    return (
+      <SafeAreaView style={styles.safeArea}>
+        <View style={styles.centerBlock}>
+          <MaterialIcons name={rewardsQuery.isError ? 'error-outline' : 'workspace-premium'} size={44} color={PRIMARY_COLOR} />
+          <Text style={styles.modalTitle}>{rewardsQuery.isError ? 'REWARDS UNAVAILABLE' : 'NO REWARDS YET'}</Text>
+          <Text style={styles.modalSubtitle}>
+            {rewardsQuery.isError ? 'We could not load your rewards. Please try again.' : 'Challenge rewards allocated to you will appear here.'}
+          </Text>
+          {rewardsQuery.isError ? (
+            <Pressable style={styles.primaryBtn} onPress={() => rewardsQuery.refetch()}>
+              <Text style={styles.primaryBtnText}>TRY AGAIN</Text>
+            </Pressable>
+          ) : null}
+        </View>
+      </SafeAreaView>
+    );
+  }
+
   return (
     <SafeAreaView style={styles.safeArea} edges={['top', 'left', 'right']}>
       <LinearGradient colors={screenGradient} style={StyleSheet.absoluteFillObject} />
@@ -378,7 +390,7 @@ const ClaimPrize: React.FC = () => {
           <View style={styles.cardGlowTwo} /> */}
           <View style={styles.avatarStage}>
             <LinearGradient colors={[PRIMARY_COLOR, primaryColorAlpha(0.78), primaryColorAlpha(0.5)]} style={styles.avatarRing}>
-              <Image source={{ uri: activeWin.userAvatar }} style={styles.avatar} />
+              {activeWin.userAvatar ? <Image source={{ uri: activeWin.userAvatar }} style={styles.avatar} /> : <MaterialIcons name="person" size={56} color="#fff" />}
             </LinearGradient>
             <View style={styles.starBadge}>
               <MaterialIcons name="star" size={22} color="#3f2500" />
@@ -406,9 +418,9 @@ const ClaimPrize: React.FC = () => {
           </View>
         </View>
 
-        <Pressable style={styles.claimBtn} onPress={() => handleStartClaim(activeWin)} disabled={!!activeWin.claimed}>
-          <Text style={styles.claimBtnText}>{activeWin.claimed ? 'PRIZE CLAIMED' : 'CLAIM YOUR PRIZE'}</Text>
-          <MaterialIcons name={activeWin.claimed ? 'check-circle' : 'celebration'} size={20} color="#fff" />
+        <Pressable style={styles.claimBtn} onPress={() => handleStartClaim(activeWin)}>
+          <Text style={styles.claimBtnText}>{activeWin.claimed ? 'REWARD PROCESSED' : 'FULFILLMENT IN PROGRESS'}</Text>
+          <MaterialIcons name={activeWin.claimed ? 'check-circle' : 'schedule'} size={20} color="#fff" />
         </Pressable>
 
         <Text style={styles.sectionTitle}>WIN REGISTRY</Text>
@@ -419,13 +431,13 @@ const ClaimPrize: React.FC = () => {
               onPress={() => setActiveWinIndex(index)}
               style={[styles.registryCard, activeWin.id === sub.id && styles.registryCardActive]}
             >
-              <Image source={{ uri: sub.thumbnailUrl }} style={styles.registryImage} />
+              {sub.thumbnailUrl ? <Image source={{ uri: sub.thumbnailUrl }} style={styles.registryImage} /> : <View style={styles.registryImage} />}
               <View style={styles.registryCopy}>
                 <Text style={styles.registryTitle} numberOfLines={1}>{sub.challengeTitle}</Text>
-                <Text style={styles.registryMeta}>{sub.votes.toLocaleString()} votes · {sub.likes.toLocaleString()} likes</Text>
+                <Text style={styles.registryMeta}>Score: {sub.votes.toLocaleString()}</Text>
               </View>
               <View style={[styles.statusChip, sub.claimed && styles.statusClaimed]}>
-                <Text style={[styles.statusText, sub.claimed && styles.statusTextClaimed]}>{sub.claimed ? 'CLAIMED' : 'READY'}</Text>
+                <Text style={[styles.statusText, sub.claimed && styles.statusTextClaimed]}>{sub.status.replace(/_/g, ' ').toUpperCase()}</Text>
               </View>
             </Pressable>
           ))}

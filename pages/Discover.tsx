@@ -20,7 +20,7 @@ import { PRIMARY_COLOR, primaryColorAlpha, useThemeMode } from '../theme';
 import CalenderIcon from '../assets/icons/calendar-svg.svg';
 import LocationIcon from '../assets/icons/location-svg.svg';
 import { fontSize } from './typography';
-import { discoveryApi, useDiscovery, useFollowCreatorMutation } from '../src';
+import { discoveryApi, useChallenges, useDiscovery, useFollowCreatorMutation } from '../src';
 
 
 type DiscoverTab = 'all' | 'creators' | 'tickets' | 'videos' | 'challenges';
@@ -87,85 +87,22 @@ interface ChallengeItem {
   id: string;
   tag: string;
   creator: string;
+  avatar: string;
   prizePool: string;
   participants: number;
-  type: 'VFX Overlay' | 'Seamless Transition' | 'Cinematic Vlog' | 'Drone Hyperlapse';
+  type: string;
   endTime: string;
   img: string;
 }
 
-const topCreators: CreatorItem[] = [
-  { id: 'sarah_vfx', name: 'Sarah Chen', handle: '@sarahvfx', isLive: true, avatar: 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&q=80&w=200', style: '3D VFX & Neon Transitions', tool: 'After Effects • Blender', followers: '3.1M', isPremium: true },
-  { id: 'devon_vlog', name: 'Devon Carter', handle: '@devoncarter', isLive: false, avatar: 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?auto=format&fit=crop&q=80&w=200', style: 'Cinematic Travel Vlogs', tool: 'DaVinci Resolve • Red Komodo', followers: '1.8M', isPremium: true },
-  { id: 'aisha_cgi', name: 'Aisha Rahman', handle: '@aishacgi', isLive: false, avatar: 'https://images.unsplash.com/photo-1544005313-94ddf0286df2?auto=format&fit=crop&q=80&w=200', style: 'Virtual Production & CGI', tool: 'Unreal Engine 5 • Nuke', followers: '2.9M', isPremium: true },
-  { id: 'elena_edits', name: 'Elena Rostova', handle: '@elenacuts', isLive: true, avatar: 'https://images.unsplash.com/photo-1517841905240-472988babdf9?auto=format&fit=crop&q=80&w=200', style: 'Cyberpunk Drone Hyperlapses', tool: 'Premiere Pro • DJI Mavic 3 Pro', followers: '2.5M' },
-  { id: 'marcus_focus', name: 'Marcus Thorne', handle: '@marcuscinemas', isLive: false, avatar: 'https://images.unsplash.com/photo-1500648767791-00dcc994a43e?auto=format&fit=crop&q=80&w=200', style: 'Anamorphic Storytelling', tool: 'Sony FX3 • Sirui 50mm', followers: '4.2M', isPremium: true },
-  { id: 'kenji_tokyo', name: 'Kenji Sato', handle: '@kenjitokyo', isLive: false, avatar: 'https://images.unsplash.com/photo-1501196354995-cbb51c65aaea?auto=format&fit=crop&q=80&w=200', style: 'First-Person Hyperlapse', tool: 'Insta360 Pro • Gimbal Rig', followers: '1.2M' },
-  { id: 'liam_drone', name: 'Liam Gallagher', handle: '@liamdrone', isLive: true, avatar: 'https://images.unsplash.com/photo-1506794778202-cad84cf45f1d?auto=format&fit=crop&q=80&w=200', style: 'FPV Mountain Speedflying', tool: 'GoPro Hero 12 • Custom Quad', followers: '1.5M' },
-  { id: 'alex_rivera', name: 'Alex Rivera', handle: '@alexrivera', isLive: false, avatar: 'https://images.unsplash.com/photo-1500648767791-00dcc994a43e?auto=format&fit=crop&q=80&w=200', style: 'Cyberpunk CGI Concept', tool: 'Unreal Engine 5 • Blender', followers: '1.4M', isPremium: true },
-  { id: 'amara_vfx', name: 'Amara Lopez', handle: '@amaralopez', isLive: false, avatar: 'https://images.unsplash.com/photo-1494790108377-be9c29b29330?auto=format&fit=crop&q=80&w=200', style: 'Hyperreal Motion Design', tool: 'Cinema 4D • Octane', followers: '2.1M' },
-  { id: 'lucas_3d', name: 'Lucas Dupont', handle: '@lucas3d', isLive: true, avatar: 'https://images.unsplash.com/photo-1539571696357-5a69c17a67c6?auto=format&fit=crop&q=80&w=200', style: 'Anamorphic Real-time Sim', tool: 'Houdini • Unreal Engine 5', followers: '1.9M', isPremium: true },
-];
+const formatChallengeDeadline = (deadline?: string | null) => {
+  if (!deadline) return 'No deadline';
+  const date = new Date(deadline);
+  if (!Number.isFinite(date.getTime())) return 'Deadline unavailable';
+  return `Ends ${date.toLocaleDateString(undefined, { month: 'short', day: 'numeric' })}`;
+};
 
-const ticketShows: TicketItem[] = [
-  { id: 'tix-grading', eventTitle: 'Mastering Cinematic Color Grading', creator: 'Devon Carter', date: 'JUN 15, 2026', venue: 'Metropolis Theater & Virtual Dome', price: 120, currency: 'KulCoins', img: 'https://images.unsplash.com/photo-1470229722913-7c0e2dbbafd3?auto=format&fit=crop&q=80&w=400', colors: ['rgba(245,158,11,0.3)', 'rgba(244,63,94,0.04)'], duration: '4 Hour Live Lab' },
-  { id: 'tix-blender', eventTitle: 'Real-time 3D Blender Integrations', creator: 'Sarah Chen', date: 'JUL 08, 2026', venue: 'Tokyo Creative Hub (Online)', price: 90, currency: 'KulCoins', img: 'https://images.unsplash.com/photo-1550745165-9bc0b252726f?auto=format&fit=crop&q=80&w=400', colors: ['rgba(6,182,212,0.3)', 'rgba(59,130,246,0.04)'], duration: '3 Hour Interactive Stream' },
-  { id: 'tix-mavic', eventTitle: 'Advanced Drone Cinematography Camp', creator: 'Elena Rostova', date: 'AUG 12, 2026', venue: 'Grand Canyon Scenic Reserve', price: 250, currency: 'KulCoins', img: 'https://images.unsplash.com/photo-1508214751196-bcfd4ca60f91?auto=format&fit=crop&q=80&w=400', colors: ['rgba(168,85,247,0.3)', 'rgba(99,102,241,0.04)'], duration: 'Full Day Hybrid Pass' },
-  { id: 'tix-anamorphic', eventTitle: 'Short Film Premiere & Q&A Board', creator: 'Marcus Thorne', date: 'SEP 04, 2026', venue: 'Rooftop Cinema Lounge, LA', price: 60, currency: 'KulCoins', img: 'https://images.unsplash.com/photo-1514525253161-7a46d19cd819?auto=format&fit=crop&q=80&w=400', colors: ['rgba(236,72,153,0.3)', 'rgba(168,85,247,0.04)'], duration: '2 Hour Exclusive Stream' },
-];
-
-const trendingVideos: VideoItem[] = [
-  { id: 'cl1', title: 'How I filmed this surreal cyberpunk look in Shibuya utilizing pure camera tricks', creator: 'Sarah Chen', views: '4.8M', likes: 312000, img: 'https://images.unsplash.com/photo-1511671782779-c97d3d27a1d4?auto=format&fit=crop&q=80&w=400', duration: '8:45', category: 'VFX Tutorial' },
-  { id: 'cl2', title: 'The art of the whip-pan seamless cinematic transition - 60 seconds masterclass', creator: 'Devon Carter', views: '2.1M', likes: 184000, img: 'https://images.unsplash.com/photo-1598488035139-bdbb2231ce04?auto=format&fit=crop&q=80&w=400', duration: '1:00', category: 'Transition' },
-  { id: 'cl3', title: 'Tracking 4K cinematic FPV drone shots through Tokyo alleyways', creator: 'Elena Rostova', views: '3.6M', likes: 295000, img: 'https://images.unsplash.com/photo-1516450360452-9312f5e86fc7?auto=format&fit=crop&q=80&w=400', duration: '11:20', category: 'Cinematic Drone' },
-  { id: 'cl4', title: 'Lighting setups that make a $1,000 camera body look like an Alexa LF', creator: 'Marcus Thorne', views: '1.9M', likes: 104500, img: 'https://images.unsplash.com/photo-1501386761578-eac5c94b800a?auto=format&fit=crop&q=80&w=400', duration: '14:32', category: 'Studio Lighting' },
-];
-
-const activeChallenges: ChallengeItem[] = [
-    {
-      id: 'ch-seamless',
-      tag: 'ContinuousMatchCutChallenge',
-      creator: 'Devon Carter',
-      prizePool: 'GH₵ 8,000',
-      participants: 41200,
-      type: 'Seamless Transition',
-      endTime: 'Ends in 2 days',
-      img: 'https://images.unsplash.com/photo-1520523839897-bd0b52f945a0?auto=format&fit=crop&q=80&w=150'
-    },
-    {
-      id: 'ch-cyberneon',
-      tag: 'CyberpunkColorVibeGrading',
-      creator: 'Sarah Chen',
-      prizePool: 'GH₵ 5,500',
-      participants: 28900,
-      type: 'VFX Overlay',
-      endTime: 'Ends in 4 days',
-      img: 'https://images.unsplash.com/photo-1518609878373-06d740f60d8b?auto=format&fit=crop&q=80&w=150'
-    },
-    {
-      id: 'ch-hyperlapse',
-      tag: 'InfiniteSpeedRampHyperlapse',
-      creator: 'Elena Rostova',
-      prizePool: 'GH₵ 10,000',
-      participants: 51000,
-      type: 'Drone Hyperlapse',
-      endTime: 'Ends in 12 hours',
-      img: 'https://images.unsplash.com/photo-1498038432885-c6f3f1b912ee?auto=format&fit=crop&q=80&w=150'
-    },
-    {
-      id: 'ch-anamorphic',
-      tag: 'AnamorphicAtmosphericDepth',
-      creator: 'Lucas Dupont',
-      prizePool: 'GH₵ 12,500',
-      participants: 34500,
-      type: 'Cinematic Vlog',
-      endTime: 'Ends in 3 days',
-      img: 'https://images.unsplash.com/photo-1536440136628-849c177e76a1?auto=format&fit=crop&q=80&w=150'
-    }
-  ];
-
-export const DISCOVER_UPDATE_COUNT =
-  topCreators.length + ticketShows.length + trendingVideos.length + activeChallenges.length;
+export const DISCOVER_UPDATE_COUNT = 0;
 
 const tabs: { id: DiscoverTab; label: string }[] = [
   { id: 'all', label: 'All Spotlights' },
@@ -314,6 +251,7 @@ const Discover: React.FC<DiscoverProps> = ({
   const recordedDiscoveryViews = useRef(new Set<string>());
   const query = searchQuery.trim().toLowerCase();
   const discoveryQuery = useDiscovery({ tab: 'all', page: 1, limit: 100, ...(debouncedSearch ? { search_query: debouncedSearch } : {}) });
+  const challengesQuery = useChallenges();
   const followCreatorMutation = useFollowCreatorMutation();
   const faintSurface = isDark ? 'rgba(255,255,255,0.04)' : theme.surface;
   const filteredCreators: CreatorItem[] = useMemo(() => (discoveryQuery.data?.data.creators ?? []).map((creator) => ({
@@ -336,7 +274,22 @@ const Discover: React.FC<DiscoverProps> = ({
     img: video.thumbnail_url || `https://picsum.photos/seed/video-${video.id}/400/600`,
     duration: formatDuration(video.duration_seconds), category: video.category || 'Video', isLiked: video.viewer.is_liked, discoveryCount: video.discovery_count,
   })), [discoveryQuery.data]);
-  const filteredChallenges = useMemo(() => activeChallenges.filter((challenge) => [challenge.tag, challenge.creator, challenge.type].some((value) => value.toLowerCase().includes(query))), [query]);
+  const filteredChallenges = useMemo<ChallengeItem[]>(() => {
+    const challenges = challengesQuery.data?.pages.flatMap((page) => page.data).map((challenge) => ({
+      id: String(challenge.id),
+      tag: challenge.title,
+      creator: challenge.creatorName,
+      avatar: challenge.avatar || '',
+      prizePool: challenge.reward || 'Reward details pending',
+      participants: challenge.participants,
+      type: String(challenge.category || challenge.mode || 'Challenge'),
+      endTime: formatChallengeDeadline(challenge.deadline),
+      img: challenge.image || '',
+    })) ?? [];
+
+    return challenges.filter((challenge) => [challenge.tag, challenge.creator, challenge.type]
+      .some((value) => value.toLowerCase().includes(query)));
+  }, [challengesQuery.data, query]);
 
   useEffect(() => {
     const timeout = setTimeout(() => setDebouncedSearch(searchQuery.trim()), 300);
@@ -453,10 +406,6 @@ const Discover: React.FC<DiscoverProps> = ({
                         <Text style={styles.headerSubtitle}>Galaxy Universe</Text>
                       </View>
               
-                      {/* <View style={styles.headerSpacer} /> */}
-                      {/* <Pressable onPress={() => navigation.navigate('Inbox')} style={[styles.headerRoundBtn, { backgroundColor: faintSurface, borderColor: softBorder }]}>
-                        <MaterialIcons name="notifications-none" size={22} color={theme.text} />
-                      </Pressable> */}
                     </View>
           ) : null}
           <View/>
@@ -602,20 +551,20 @@ const Discover: React.FC<DiscoverProps> = ({
           {!discoveryQuery.isLoading && (activeTab === 'all' || activeTab === 'challenges') && (
             <View style={styles.section}>
               <SectionHeader icon="emoji-events" title="Creator Challenges" color={PRIMARY_COLOR} action="view more" onAction={() => navigation.navigate('Challenges')} />
-              {filteredChallenges.length === 0 ? renderEmpty('No creator challenges matching your query.') : (
+              {challengesQuery.isLoading ? (
+                <ActivityIndicator color={PRIMARY_COLOR} style={{ marginVertical: 24 }} />
+              ) : challengesQuery.isError ? renderEmpty('Unable to load creator challenges right now.') : filteredChallenges.length === 0 ? renderEmpty('No creator challenges matching your query.') : (
                 <View style={styles.twoColumnGrid}>
-                  {filteredChallenges.map((challenge) => {
-                    const matchedCreator = topCreators.find((creator) => creator.name === challenge.creator);
-                    return (
+                  {filteredChallenges.map((challenge) => (
                       <Pressable key={challenge.id} onPress={() => navigation.navigate('ChallengeFeed', { challengeId: challenge.id })} style={styles.challengeCard}>
                         <View style={styles.challengeImageWrap}>
-                          <Image source={{ uri: challenge.img }} style={styles.challengeImage} />
+                          {challenge.img ? <Image source={{ uri: challenge.img }} style={styles.challengeImage} /> : null}
                           {/* <Text numberOfLines={1} style={styles.challengeType}>{challenge.type}</Text> */}
                           <LinearGradient colors={['transparent', 'rgba(0,0,0,0.42)']} style={styles.challengeImageFade} />
                         </View>
                         <View style={styles.challengeBody}>
                           <View style={styles.challengeCreatorRow}>
-                            <Image source={{ uri: matchedCreator?.avatar || challenge.img }} style={styles.challengeAvatar} />
+                            {challenge.avatar || challenge.img ? <Image source={{ uri: challenge.avatar || challenge.img }} style={styles.challengeAvatar} /> : null}
                             <Text numberOfLines={1} style={styles.challengeCreator}>@{challenge.creator}</Text>
                           </View>
                           <Text numberOfLines={2} style={styles.challengeTitle}>#{challenge.tag}</Text>
@@ -626,7 +575,7 @@ const Discover: React.FC<DiscoverProps> = ({
                           </View>
                           <View style={styles.dashedLine} />
                           <View style={styles.challengeFooter}>
-                            <Text numberOfLines={1} style={styles.joinedText}>+{(challenge.participants - 110).toLocaleString()} joined</Text>
+                            <Text numberOfLines={1} style={styles.joinedText}>{challenge.participants.toLocaleString()} joined</Text>
                             {/* <Pressable onPress={(event) => handleViewChallenge(challenge.id, event)} style={styles.joinButton}>
                               <MaterialIcons name="visibility" size={11} color="#fff" />
                               <Text style={[styles.joinText, { color: '#fff' }]}>View</Text>
@@ -634,8 +583,7 @@ const Discover: React.FC<DiscoverProps> = ({
                           </View>
                         </View>
                       </Pressable>
-                    );
-                  })}
+                  ))}
                 </View>
               )}
             </View>

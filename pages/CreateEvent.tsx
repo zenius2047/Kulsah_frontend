@@ -172,7 +172,8 @@ const CreateEvent: React.FC = () => {
                 key={card.title}
                 onPress={() => {
                   if (card.route) {
-                    navigation.navigate(card.route, card.params);
+                    if (card.route === 'CreatorEvents') navigation.navigate('CreatorEvents', card.params);
+                    if (card.route === 'CreateChallenge') navigation.navigate('CreateChallenge');
                   }
                 }}
                 style={[styles.actionCard, { backgroundColor: cardBg, borderColor: cardBorder }]}

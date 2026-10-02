@@ -78,20 +78,8 @@ const CollaborationHub: React.FC = () => {
   const [isNegotiating, setIsNegotiating] = useState(false);
   const [negotiateDraft, setNegotiateDraft] = useState('');
 
-  const [partners, setPartners] = useState<CreatorPartner[]>([
-    { id: 'p1', name: 'Zion King', handle: '@zion_afro', avatar: 'https://picsum.photos/seed/zion/150', genres: ['Afrobeats', 'Soul'], vibeMatch: 94, status: 'available', bio: 'Afrobeats pioneer looking for global sounds.' },
-    { id: 'p2', name: 'Elena Rose', handle: '@elena_r', avatar: 'https://picsum.photos/seed/elena/150', genres: ['Synthwave', 'Indie'], vibeMatch: 88, status: 'selective', bio: 'Ethereal vocals and analog synthesis.' },
-    { id: 'p3', name: 'Luna Ray', handle: '@luna_ray', avatar: 'https://picsum.photos/seed/luna/150', genres: ['Pop', 'Electronic'], vibeMatch: 72, status: 'busy', bio: 'Vibrant pop productions for the galaxy.' },
-    { id: 'p4', name: 'The Glitch', handle: '@glitch_ops', avatar: 'https://picsum.photos/seed/glitch/150', genres: ['Techno', 'House'], vibeMatch: 65, status: 'available', bio: 'Industrial soundscapes and deep house.' },
-  ]);
-
-  const [requests, setRequests] = useState<CollabRequest[]>([
-    { id: 'r1', partner: 'Amara', handle: '@amara_vocal', avatar: 'https://picsum.photos/seed/amara/100', genres: ['Afrobeats', 'R&B'], type: 'Event', title: 'Winter Solstice Live', message: 'Hey! Want to co-headline the Winter Solstice show in Berlin? Your synth style fits the venue perfectly.', split: '50/50', date: '2h ago', status: 'pending', isIncoming: true, isNew: true, matchScore: 92 },
-    { id: 'r2', partner: 'Echo Vibe', handle: '@echo_beats', avatar: 'https://picsum.photos/seed/echo/100', genres: ['Trap', 'Experimental'], type: 'Public Feed Track', title: 'Cosmic Bass (Edit)', message: "I have a heavy beat that needs your ethereal pads. Let's finish this for the next drop.", split: '60/40', date: '1d ago', status: 'accepted', isIncoming: true, matchScore: 85 },
-    { id: 'r3', partner: 'Marcus Thorne', handle: '@mthorne', avatar: 'https://picsum.photos/seed/mthorne/100', genres: ['Indie', 'Alternative'], type: 'Premium Locked Release', title: 'Studio BTS Series', message: 'Doing a documentary on emerging synth-soul creators. Would love a 20-min segment with you.', split: '70/30', date: '3h ago', status: 'pending', isIncoming: true, isNew: true, matchScore: 78 },
-    { id: 'o1', partner: 'The Glitch', handle: '@glitch_ops', avatar: 'https://picsum.photos/seed/glitch/150', genres: ['Techno', 'House'], type: 'Live Session', title: 'Techno-Soul Improv', message: 'Loved your last industrial set. I think adding some soul vocals live would create a unique contrast.', split: '40/60', date: '5h ago', status: 'pending', isIncoming: false, matchScore: 65 },
-    { id: 'o2', partner: 'Luna Ray', handle: '@luna_ray', avatar: 'https://picsum.photos/seed/luna/150', genres: ['Pop', 'Electronic'], type: 'Public Feed Track', title: 'Starlight Remix', message: "I've drafted a synthwave remix of Starlight. Let's collaborate on the final master.", split: '50/50', date: '2d ago', status: 'negotiating', isIncoming: false, matchScore: 72 },
-  ]);
+  const [partners, setPartners] = useState<CreatorPartner[]>([]);
+  const [requests, setRequests] = useState<CollabRequest[]>([]);
 
   const [collabType, setCollabType] = useState<Exclude<ProjectType, 'All'>>('Public Feed Track');
   const [projectTitle, setProjectTitle] = useState('');
@@ -293,7 +281,12 @@ const CollaborationHub: React.FC = () => {
             </View>
 
             <Text style={[styles.sectionKicker, { color: muted }]}>Recommended Partners</Text>
-            {partners.map((p) => (
+            {partners.length === 0 ? (
+              <View style={styles.emptyState}>
+                <MaterialIcons name="people-outline" size={36} color={muted} />
+                <Text style={[styles.emptyText, { color: muted }]}>No collaboration partners are available yet</Text>
+              </View>
+            ) : partners.map((p) => (
               <Pressable
                 key={p.id}
                 onPress={() => {
@@ -507,7 +500,7 @@ const CollaborationHub: React.FC = () => {
 
                 {r.status !== 'withdrawn' && r.status !== 'accepted' ? (
                   <View style={styles.actionRow}>
-                    <Pressable onPress={() => navigation.navigate('Inbox')} style={[styles.followUpBtn, { backgroundColor: softBg, borderColor: border }]}>
+                    <Pressable onPress={() => navigation.navigate('MainTabs', { screen: 'Signal' })} style={[styles.followUpBtn, { backgroundColor: softBg, borderColor: border }]}>
                       <MaterialIcons name="chat-bubble-outline" size={16} color={theme.text} />
                       <Text style={[styles.followUpText, { color: theme.text }]}>Follow Up</Text>
                     </Pressable>

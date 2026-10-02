@@ -37,6 +37,7 @@ import {
   useUpdateCreatorVideoPlaylist,
   useUser,
   useLatestFanTicket,
+  useKulCoinWallet,
   useWatchedVideos,
   videoApi,
 } from '../src';
@@ -189,55 +190,14 @@ const INITIAL_SUBSCRIPTION: SubscriptionTier = {
 const MONTHLY_KULCOINS = 100;
 const YEARLY_KULCOINS = 1000;
 const INCOGNITO_SUBS_STORAGE_KEY = 'pulsar_incognito_subs';
-const videos = [
-  { id: 'v1', title: 'Moonlight Symphony', views: '1.2M', duration: '4:20', img: 'https://images.unsplash.com/photo-1598488035139-bdbb2231ce04?auto=format&fit=crop&q=80&w=600' },
-  { id: 'v2', title: 'Summer Tour Highlights', views: '450K', duration: '12:15', img: 'https://images.unsplash.com/photo-1514525253361-bee8718a74a2?auto=format&fit=crop&q=80&w=600' },
-  { id: 'v3', title: 'Velvet Signal', views: '856K', duration: '3:41', img: 'https://images.unsplash.com/photo-1501386761578-eac5c94b800a?auto=format&fit=crop&q=80&w=600' },
-  { id: 'v4', title: 'Orbit Session', views: '2.1M', duration: '5:08', img: 'https://images.unsplash.com/photo-1503095396549-807759245b35?auto=format&fit=crop&q=80&w=600' },
-  { id: 'v5', title: 'Neon Rehearsal', views: '432K', duration: '2:57', img: 'https://images.unsplash.com/photo-1493225457124-a3eb161ffa5f?auto=format&fit=crop&q=80&w=600' },
-  { id: 'v6', title: 'Pulse Room', views: '1.5M', duration: '4:56', img: 'https://images.unsplash.com/photo-1516280440614-37939bbacd81?auto=format&fit=crop&q=80&w=600' },
-];
-const premiumVideos = [
-  { id: 'p1', title: 'Project Node #103', views: 'Members only', img: 'https://picsum.photos/seed/prem1/800/450' },
-  { id: 'p2', title: 'Project Node #104', views: 'Premium drop', img: 'https://picsum.photos/seed/prem2/800/450' },
-  { id: 'p3', title: 'Project Node #105', views: 'Vault access', img: 'https://picsum.photos/seed/prem3/800/450' },
-  { id: 'p4', title: 'Studio Artifact', views: 'Exclusive cut', img: 'https://picsum.photos/seed/prem4/800/450' },
-  { id: 'p5', title: 'Signal Archive', views: 'Private replay', img: 'https://picsum.photos/seed/prem5/800/450' },
-  { id: 'p6', title: 'Afterglow Session', views: 'Locked episode', img: 'https://picsum.photos/seed/prem6/800/450' },
-];
-const events = [
-  { id: 'e1', title: 'Neon Nights: Live Concert', meta: 'Sept 15, 2024', price: 'Free', img: 'https://images.unsplash.com/photo-1470225620780-dba8ba36b745?auto=format&fit=crop&q=80&w=600', location: 'Virtual Arena' },
-  { id: 'e2', title: 'Synthwave Workshop', meta: 'Sept 20, 2024', price: '$25.00', img: 'https://images.unsplash.com/photo-1514525253361-bee8718a74a2?auto=format&fit=crop&q=80&w=600', location: 'Creator Studio' },
-];
-const tickets = [
-  { id: 't1', title: 'Neon Nights: Live Concert', date: 'Sept 15, 2026', venue: 'Virtual Arena', city: 'Online', status: 'VIP Access', img: 'https://images.unsplash.com/photo-1501386761578-eac5c94b800a?auto=format&fit=crop&q=85&w=900' },
-  { id: 't2', title: 'Synthwave Workshop', date: 'Sept 20, 2026', venue: 'Creator Studio', city: 'London', status: 'Admit One', img: 'https://images.unsplash.com/photo-1492684223066-81342ee5ff30?auto=format&fit=crop&q=85&w=900' },
-];
-const challenges = [
-  { id: 'c1', title: 'Vocal Harmony Challenge', meta: '45 fans - $300 + Feature', img: 'https://images.unsplash.com/photo-1516280440614-37939bbacd81?auto=format&fit=crop&q=80&w=800' },
-  { id: 'c2', title: 'Midnight Remix', meta: '12 fans - Studio Equipment', img: 'https://images.unsplash.com/photo-1598488035139-bdbb2231ce04?auto=format&fit=crop&q=80&w=800' },
-];
-const favorites = [
-  { id: 'f1', title: 'Urban Rhythm', views: '240K', img: 'https://images.unsplash.com/photo-1493225255756-d9584f8606e9?auto=format&fit=crop&q=80&w=600' },
-  { id: 'f2', title: 'Digital Dreams', views: '1.1M', img: 'https://images.unsplash.com/photo-1550745165-9bc0b252726f?auto=format&fit=crop&q=80&w=600' },
-];
-const sounds = [
-  { id: 's1', title: 'Midnight Echoes (Stem)', meta: 'Kulsah Beats - 0:30', usage: '1.2K uses' },
-  { id: 's2', title: 'Synthwave Pulse', meta: 'Retro Wave - 0:15', usage: '850 uses' },
-];
-const initialLibraryVideos: LibraryVideo[] = [
-  { id: 'v1', title: 'Moonlight Symphony (Official Track)', views: '1.2M', date: 'Aug 24, 2024', duration: '4:20', category: 'Music Videos', img: 'https://images.unsplash.com/photo-1598488035139-bdbb2231ce04?auto=format&fit=crop&q=80&w=600', likes: '142K' },
-  { id: 'v2', title: 'Summer Tour Highlights Vlog', views: '450K', date: 'Aug 22, 2024', duration: '12:15', category: 'Vlogs', img: 'https://images.unsplash.com/photo-1514525253361-bee8718a74a2?auto=format&fit=crop&q=80&w=600', likes: '54K' },
-  { id: 'v3', title: 'Studio Rehearsal Session #4 (Behind the Scenes)', views: '120K', date: 'Aug 20, 2024', duration: '45:00', category: 'Sessions', img: 'https://images.unsplash.com/photo-1520529277867-dbf8c5e0b340?auto=format&fit=crop&q=80&w=600', likes: '12K' },
-  { id: 'v4', title: 'Late Night Synth Production & Sound Layering', views: '89K', date: 'Aug 18, 2024', duration: '3:45', category: 'Tutorials', img: 'https://images.unsplash.com/photo-1511671782779-c97d3d27a1d4?auto=format&fit=crop&q=80&w=600', likes: '9.8K' },
-  { id: 'pv1', title: 'Odo Pa feat. Kweku Flick (Official Video)', views: '849K', date: 'Jul 15, 2024', duration: '2:36', category: 'Music Videos', img: 'https://images.unsplash.com/photo-1598488035139-bdbb2231ce04?auto=format&fit=crop&q=80&w=800', likes: '98K', premium: true },
-  { id: 'pv4', title: 'You & I [Remix] (Official Lyric Video)', views: '64K', date: 'Jun 10, 2024', duration: '2:41', category: 'Sessions', img: 'https://images.unsplash.com/photo-1511671782779-c97d3d27a1d4?auto=format&fit=crop&q=80&w=800', likes: '8K', premium: true },
-  { id: 'pv6', title: 'Put It On God ft. AlorG (Exclusive Raw Tape)', views: '403K', date: 'May 05, 2024', duration: '3:32', category: 'Sessions', img: 'https://images.unsplash.com/photo-1470225620780-dba8ba36b745?auto=format&fit=crop&q=80&w=800', likes: '42K', premium: true },
-  { id: 'v5', title: 'Acoustic Soul Session (Direct Studio Feed)', views: '210K', date: 'Apr 28, 2024', duration: '3:10', category: 'Sessions', img: 'https://images.unsplash.com/photo-1508700115892-45ecd05ae2ad?auto=format&fit=crop&q=80&w=600', likes: '19K' },
-  { id: 'v6', title: 'In-Ear Focus & Audio Monitor Setup Guide', views: '73K', date: 'Mar 15, 2024', duration: '8:45', category: 'Tutorials', img: 'https://images.unsplash.com/photo-1470225620780-dba8ba36b745?auto=format&fit=crop&q=80&w=600', likes: '6.7K' },
-  { id: '4', title: 'Secret Project 24 (Visual Album Outline)', views: '0', date: 'Just now', duration: '9:15', category: 'Drafts', img: 'https://images.unsplash.com/photo-1514525253361-bee8718a74a2?auto=format&fit=crop&q=80&w=400', likes: '0', draft: true },
-  { id: 'dv2', title: 'Cyberpunk Beats Jam [WIP Raw Take]', views: '0', date: 'Just now', duration: '5:40', category: 'Drafts', img: 'https://images.unsplash.com/photo-1511671782779-c97d3d27a1d4?auto=format&fit=crop&q=80&w=400', likes: '0', draft: true },
-];
+const videos: any[] = [];
+const premiumVideos: any[] = [];
+const events: any[] = [];
+const tickets: any[] = [];
+const challenges: any[] = [];
+const favorites: any[] = [];
+const sounds: any[] = [];
+const initialLibraryVideos: LibraryVideo[] = [];
 
 const  ArtistProfile: React.FC = () => {
   const { isDark, theme } = useThemeMode();
@@ -279,12 +239,12 @@ const  ArtistProfile: React.FC = () => {
     || String(route.params?.handle || displayName).replace(/^@/, '').toLowerCase().replace(/\s+/g, '_');
   const displayBanner = profileUser?.banner?.trim() || route.params?.banner || FALLBACK_BANNER;
   const displayAvatar = profileUser?.avatar?.trim() || route.params?.avatar || FALLBACK_AVATAR;
-  const displayBio = profileUser?.bio?.trim() || 'This is where you bio will show oo aei.What is Kulsah? I dont know what to type here, so lets just type whatever will come to my head. It is nice to do so, well this is nice though, so far so good';
+  const displayBio = profileUser?.bio?.trim() || 'No bio provided.';
   const displayRole = profileUser?.handle ?? "Creator";
-  const isVerified = profileUser ? Boolean(profileUser.verified || profileUser.verified_at) : true;
-  const followerCount = profileUser?.total_followers ?? (isFollowing ? 14201 : 14200);
-  const likeCount = profileUser?.total_likes ?? 84200;
-  const subscriberCount = profileUser?.total_subscribers ?? 2842;
+  const isVerified = Boolean(profileUser?.verified || profileUser?.verified_at);
+  const followerCount = profileUser?.total_followers ?? 0;
+  const likeCount = profileUser?.total_likes ?? 0;
+  const subscriberCount = profileUser?.total_subscribers ?? 0;
   const isFanViewer = !isOwner && currentUser?.role === 'fan';
   const canManageCreatorLibrary = isOwner || currentUser?.role === 'creator' || profileUser?.role === 'creator';
   // const isOwner = !route.params?.id || route.params?.id === 'Me';
@@ -300,7 +260,6 @@ const  ArtistProfile: React.FC = () => {
   const [subscriptionPaymentOpen, setSubscriptionPaymentOpen] = useState(false);
   const [isProcessing, setIsProcessing] = useState(false);
   const [showSuccess, setShowSuccess] = useState(false);
-  const [coinBalance, setCoinBalance] = useState(1250);
   const [showKulCoinPrompt, setShowKulCoinPrompt] = useState(false);
   const [toast, setToast] = useState('');
   const [following, setFollowing] = useState(false);
@@ -328,6 +287,8 @@ const  ArtistProfile: React.FC = () => {
   const [addingToPlaylistId, setAddingToPlaylistId] = useState<number | null>(null);
   const [selectedCreator, setSelectedCreator] = useState<string | null>(null);
   const { mutateAsync: subscribeToPlan } = useSubscribeToPlan();
+  const { data: kulCoinWallet, refetch: refetchKulCoinWallet } = useKulCoinWallet();
+  const coinBalance = kulCoinWallet?.available_kc ?? 0;
   const { mutateAsync: switchRole } = useSwitchRole();
   const {
     data: creatorVideosResponse,
@@ -400,9 +361,6 @@ const  ArtistProfile: React.FC = () => {
         handle: `@${displayHandle}`,
         premiumCount: libraryVideos.filter((item) => item.premium && !item.draft).length || premiumVideos.length,
       },
-      { id: 'c1', name: 'Elena Rose', img: 'https://picsum.photos/seed/elena/150', handle: '@elena_r', premiumCount: 12 },
-      { id: 'c2', name: 'Zion King', img: 'https://picsum.photos/seed/zion/150', handle: '@zion_k', premiumCount: 8 },
-      { id: 'c3', name: 'Amara', img: 'https://picsum.photos/seed/amara/150', handle: '@amara_v', premiumCount: 15 },
     ],
     [displayAvatar, displayHandle, displayName, libraryVideos],
   );
@@ -438,21 +396,6 @@ const  ArtistProfile: React.FC = () => {
       mounted = false;
     };
   }, []);
-  useEffect(() => {
-    if (isOwner) return;
-
-    let mounted = true;
-    AsyncStorage.getItem('pulsar_library_videos')
-      .then((stored: string | null) => {
-        if (stored && mounted) {
-          setLibraryVideos(JSON.parse(stored));
-        }
-      })
-      .catch(() => undefined);
-    return () => {
-      mounted = false;
-    };
-  }, [isOwner]);
   useEffect(() => {
     if (!isOwner || !creatorVideosResponse?.data) return;
 
@@ -493,13 +436,15 @@ const  ArtistProfile: React.FC = () => {
     setActivePlaylistMenuId(null);
   }, [librarySubTab]);
 
-  const persistLibraryVideos = (videosToPersist: LibraryVideo[]) => {
-    setLibraryVideos(videosToPersist);
-    void AsyncStorage.setItem('pulsar_library_videos', JSON.stringify(videosToPersist));
-  };
-
   const updateLibraryVideo = (videoId: string, patch: Partial<LibraryVideo>) => {
-    persistLibraryVideos(libraryVideos.map((video) => (video.id === videoId ? { ...video, ...patch } : video)));
+    setLibraryVideos((current) => current.map((video) => (video.id === videoId ? { ...video, ...patch } : video)));
+    void videoApi.updateCreatorVideo(videoId, {
+      ...(patch.title !== undefined ? { title: patch.title } : {}),
+    }).then(() => refetchCreatorVideos()).catch((error) => {
+      const parsed = parseApiError(error);
+      Alert.alert(parsed.title, parsed.message);
+      void refetchCreatorVideos();
+    });
   };
 
   const deleteLibraryVideo = (videoId: string) => {
@@ -509,7 +454,7 @@ const  ArtistProfile: React.FC = () => {
         text: 'Delete',
         style: 'destructive',
         onPress: () => {
-          persistLibraryVideos(libraryVideos.filter((video) => video.id !== videoId));
+          Alert.alert('Unavailable', 'Video deletion is not available from this screen yet.');
           ping('Video has been deleted successfully');
         },
       },
@@ -725,49 +670,8 @@ const  ArtistProfile: React.FC = () => {
   };
 
 
-  const recentVideos = [
-  {
-    id: 'pv1',
-    title: `${isOwner ? 'Me': name} - Odo Pa feat. Kweku Flick (Official Music Video)`,
-    description: `Exclusive VIP access to the premium production master of "Odo Pa". Merging acoustic instruments with sub-bass synthesis, recorded live at our state studio vault.`,
-    views: '849K views',
-    timeAgo: '1 month ago',
-    duration: '2:36',
-    img: 'https://images.unsplash.com/photo-1598488035139-bdbb2231ce04?auto=format&fit=crop&q=80&w=800',
-    isMusic: true
-  }
-]
-
-
-const musicReleases = [
-  {
-    id: 'pv4',
-    title: 'Elena Rose Ft Olivetheboy - You & I [Remix] (Official Lyrics Video)',
-    views: '64K views',
-    timeAgo: '5 months ago',
-    duration: '2:41',
-    img: 'https://images.unsplash.com/photo-1511671782779-c97d3d27a1d4?auto=format&fit=crop&q=80&w=800',
-    isMusic: true,
-  },
-  {
-    id: 'pv5',
-    title: 'Elena Rose - You & I (Official Extended Audio Version)',
-    views: '90K views',
-    timeAgo: '5 months ago',
-    duration: '2:41',
-    img: 'https://images.unsplash.com/photo-1520529277867-dbf8c5e0b340?auto=format&fit=crop&q=80&w=800',
-    isMusic: true,
-  },
-  {
-    id: 'pv6',
-    title: 'Elena Rose - Put It On God ft. AlorG (Exclusive Studio Master)',
-    views: '403K views',
-    timeAgo: '6 months ago',
-    duration: '3:32',
-    img: 'https://images.unsplash.com/photo-1470225620780-dba8ba36b745?auto=format&fit=crop&q=80&w=800',
-    isMusic: true,
-  },
-];
+  const recentVideos: any[] = [];
+  const musicReleases: any[] = [];
 
 
 
@@ -955,7 +859,7 @@ const PlaylistSection = () => {
 
   const renderGrid = (
     items: Array<{ id: string; title: string; views?: string; img?: string }>,
-    onPressItem?: () => void,
+    onPressItem?: (item: { id: string; title: string; views?: string; img?: string }) => void,
     emptyState?: { icon: React.ComponentProps<typeof MaterialIcons>['name']; title: string; description: string },
   ) => items.length === 0 && emptyState ? renderEmptyTab(emptyState.icon, emptyState.title, emptyState.description) : (
     <View style={s.videoGridWrap}>
@@ -965,7 +869,7 @@ const PlaylistSection = () => {
           key={item.id}
           onPress={() => {
             if (onPressItem) {
-              onPressItem();
+              onPressItem(item);
               return;
             }
             if (currentUser?.role === 'creator') {
@@ -1680,7 +1584,7 @@ const PlaylistSection = () => {
 
   const handlePurchase = async () => {
     if (!selectedSub) return;
-    if (coinBalance > subscriptionCost) {
+    if (coinBalance < subscriptionCost) {
       setShowKulCoinPrompt(true);
       return;
     }
@@ -1698,7 +1602,7 @@ const PlaylistSection = () => {
         },
       });
 
-      setCoinBalance((prev) => prev - subscriptionCost);
+      await refetchKulCoinWallet();
       setShowSuccess(true);
       setTimeout(() => {
         setSelectedSub(null);
@@ -1806,7 +1710,7 @@ const PlaylistSection = () => {
             style={[s.secondary, { width: '30%', backgroundColor: isDark ? 'rgba(255,255,255,0.06)' : theme.surface, flexDirection: 'row' , alignItems: 'center', justifyContent: 'center'}]}>
             <MaterialIcons name='share' size={20} color= {theme.text}/>
             <Text style={[s.btnText, { color: theme.text, }]}>{" "}Share</Text></Pressable></> :
-            <><Pressable onPress={() => navigation.navigate('Chat')}
+            <><Pressable disabled={!creatorIdentifier} onPress={() => creatorIdentifier && navigation.navigate('Chat', { senderId: creatorIdentifier, name: creator.name, avatar: creator.avatar })}
             style={[s.iconAction, { backgroundColor: isDark ? 'rgba(255,255,255,0.06)' : theme.surface }]}>
               <MaterialIcons name="mail" size={20} color={theme.text} /></Pressable>
                 <Pressable onPress={() => { setFollowing((v) => !v); ping(following ? 'Unfollowed' : 'Following'); }}
@@ -2333,7 +2237,7 @@ const PlaylistSection = () => {
           {activeTab === 'Events' ? <View style={[s.stack, {marginHorizontal: 18}]}>{events.length === 0
             ? renderEmptyTab('event', 'No upcoming events', 'Live shows, meetups, and creator experiences will appear here when they are announced.')
             : events.map((item) =>
-            <Pressable key={item.id} onPress={() => navigation.navigate('EventDetail')} style={[s.banner, { backgroundColor: isDark ? '#0f172a' : theme.surface }]}>
+            <Pressable key={item.id} onPress={() => navigation.navigate('EventDetail', { id: item.id })} style={[s.banner, { backgroundColor: isDark ? '#0f172a' : theme.surface }]}>
               <Image source={{ uri: item.img }} style={[s.image, {borderRadius: 0}]} />
                 <LinearGradient colors={['transparent', 'rgba(0,0,0,0.9)']} style={StyleSheet.absoluteFillObject} />
                   <View style={s.bannerBottom}>
@@ -2487,7 +2391,7 @@ const PlaylistSection = () => {
           {activeTab === 'Challenges'
             ? renderGrid(
                 challenges.map((item) => ({ ...item, views: item.meta })),
-                () => navigation.navigate('ChallengeFeed'),
+                (item) => navigation.navigate('ChallengeFeed', { challengeId: item.id }),
                 { icon: 'emoji-events', title: 'No active challenges', description: 'Creator challenges and opportunities to participate will appear here.' },
               )
             : null}

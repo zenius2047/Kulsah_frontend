@@ -32,6 +32,7 @@ export type PushNotificationData = Record<string, unknown> & {
   type?: string;
   conversation_id?: string | number;
   conversationId?: string | number;
+  call_id?: string | number;
   message_id?: string | number;
   client_message_id?: string;
   sender_id?: string | number;
@@ -206,6 +207,26 @@ export type UserSearchResponse = {
 export type UserSearchParams = {
   q: string;
   limit?: number;
+};
+
+export type VoiceCallStatus = 'ringing' | 'connected' | 'declined' | 'ended' | 'missed';
+
+export type VoiceCallParticipant = {
+  id: number;
+  name: string | null;
+  handle: string | null;
+  avatar_url: string | null;
+};
+
+export type VoiceCall = {
+  id: number;
+  conversation_id: number;
+  status: VoiceCallStatus;
+  caller: VoiceCallParticipant;
+  callee: VoiceCallParticipant;
+  answered_at: string | null;
+  ended_at: string | null;
+  created_at: string | null;
 };
 
 export type ConversationMessageRequestStatus =

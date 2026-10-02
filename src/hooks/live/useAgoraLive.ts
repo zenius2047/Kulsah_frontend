@@ -18,6 +18,7 @@ type UseAgoraLiveOptions = {
   credentials?: LiveCredentials | null;
   enabled?: boolean;
   remoteAudioMuted?: boolean;
+  audioOnly?: boolean;
   onJoined?: () => void | Promise<void>;
   onReconnected?: () => void | Promise<void>;
   renewCredentials?: () => Promise<LiveCredentials>;
@@ -33,6 +34,7 @@ export const useAgoraLive = ({
   credentials,
   enabled = true,
   remoteAudioMuted = false,
+  audioOnly = false,
   onJoined,
   onReconnected,
   renewCredentials,
@@ -126,9 +128,9 @@ export const useAgoraLive = ({
           : ClientRoleType.ClientRoleAudience,
       );
       assertAgoraResult(engine.enableAudio(), 'Agora audio setup');
-      assertAgoraResult(engine.enableVideo(), 'Agora video setup');
+      if (!audioOnly) assertAgoraResult(engine.enableVideo(), 'Agora video setup');
       assertAgoraResult(engine.muteAllRemoteAudioStreams(remoteAudioMuted), 'Agora remote audio setup');
-      if (isBroadcaster) {
+      if (isBroadcaster && !audioOnly) {
         assertAgoraResult(engine.enableLocalVideo(true), 'Agora camera setup');
         assertAgoraResult(engine.muteLocalVideoStream(false), 'Agora video publishing setup');
         assertAgoraResult(engine.startPreview(VideoSourceType.VideoSourceCameraPrimary), 'Agora camera preview');
@@ -139,7 +141,7 @@ export const useAgoraLive = ({
         clientRoleType: isBroadcaster
           ? ClientRoleType.ClientRoleBroadcaster
           : ClientRoleType.ClientRoleAudience,
-        publishCameraTrack: isBroadcaster,
+        publishCameraTrack: isBroadcaster && !audioOnly,
         publishMicrophoneTrack: isBroadcaster,
         autoSubscribeAudio: true,
         autoSubscribeVideo: true,
@@ -170,6 +172,7 @@ export const useAgoraLive = ({
     credentials?.channel,
     credentials?.role,
     credentials?.uid,
+    audioOnly,
     enabled,
     remoteAudioMuted,
   ]);

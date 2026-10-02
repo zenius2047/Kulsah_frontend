@@ -6,13 +6,12 @@ import { ActivityIndicator, Pressable, ScrollView, StyleSheet, Text, View } from
 import { SafeAreaView, useSafeAreaInsets } from 'react-native-safe-area-context';
 import { PRIMARY_COLOR, primaryColorAlpha, useThemeMode } from '../theme';
 import { fontSize } from './typography';
-import type { RootStackParamList } from '../src';
 
 type PolicyTab = 'terms' | 'community' | 'commerce';
 
 type TermsPoliciesRouteParams = {
   onboarding?: boolean;
-  nextRoute?: keyof RootStackParamList;
+  nextRoute?: 'VibePicker';
 };
 
 const TERMS_VERSION = '2026-06-08';
@@ -127,7 +126,14 @@ const TermsPolicies: React.FC = () => {
         TERMS_ACCEPTANCE_KEY,
         JSON.stringify({ version: TERMS_VERSION, acceptedAt: new Date().toISOString() })
       );
-      navigation.replace(params.nextRoute || 'VibePicker', { firstSignIn: true });
+      // This is an onboarding boundary: discard the policy screen from the
+      // back stack and enter the requested onboarding destination exactly once.
+      // Using reset also avoids returning to Terms after the user picks vibes.
+      const destination = params.nextRoute ?? 'VibePicker';
+      navigation.reset({
+        index: 0,
+        routes: [{ name: destination, params: { firstSignIn: true } }],
+      });
     } finally {
       setIsSavingAcceptance(false);
     }

@@ -119,7 +119,7 @@ const Messages: React.FC = () => {
 
   const openChat = (chat: ChatItem) => {
     if (chat.type === 'pitches') {
-      navigation.navigate('CollaborationHub', { tab: 'incoming' });
+      navigation.navigate('ConnectHub', { tab: 'incoming' });
       return;
     }
     navigation.navigate('Chat', { id: chat.id });

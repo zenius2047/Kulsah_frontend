@@ -12,13 +12,8 @@ import {
   View,
 } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
-import type { UserRole } from '../types';
 import { PRIMARY_COLOR, primaryColorAlpha, useThemeMode } from "../theme";
 import { fontSize } from './typography';
-
-interface LoginProps {
-  onLogin: (role: UserRole) => void;
-}
 
 const previewImages = [
   'https://lh3.googleusercontent.com/aida-public/AB6AXuBQ1TtBR2e1kQ_6Xz0OaVYJt9xVr1Ui4wU_-sNm1G10KAvEXexuJY7OEkBlmSyT3GPgGSbAaw8oMwiUB2MLhAIiXUui6M-iIBuTwCDDf3QnArtizP0dk3oOWxEQqq1A8_t22TeCycKMzvMjbKAagsleIc5Aw-4E2c_gBIBa88lgNiJ0KTQCvUTT9zRwPRk10909gs3gJQDq_fIuiGP6kCFLUfxGj-526TrwEx072BlVgxSUwO1PlOAnlCh92xtkP8iCC4XTANkcCVUH',
@@ -27,7 +22,7 @@ const previewImages = [
   'https://lh3.googleusercontent.com/aida-public/AB6AXuBokI7J5FjrH3mV5yRZ3r2hzNfOnCDon4ikRWiQHo6cQUJkgd5WChVktAg7f5ZZEGKUHrrQLhdVnc8MUK31dndGzN2qJMvIi0ZhQaZosl6y2Cddf4FiYiK2T2PoKt9slc4qFNFUeVXphqxAfSK2un7qM9IyRw8ySMptKflO-ERttqatJiweDzkObT-BPEX2bNiGFpqMxG0mzi7YoPAw6j9q2-opuqz6mngUrMiR38sxI5ELnXk5DH2nMgjKaxbwA-Lm-_UuNdX3rBFw',
 ];
 
-const Login: React.FC<LoginProps> = ({ onLogin }) => {
+const Login: React.FC = () => {
   const navigation = useNavigation();
   const { isDark } = useThemeMode();
 
@@ -64,19 +59,7 @@ const Login: React.FC<LoginProps> = ({ onLogin }) => {
             <Text style={styles.cardTitle}>Welcome back</Text>
 
             <View style={styles.actionGroup}>
-              <Pressable style={styles.secondaryButton} onPress={() => onLogin('fan')}>
-                <View style={styles.googleMark}>
-                  <Text style={styles.googleMarkText}>G</Text>
-                </View>
-                <Text style={styles.secondaryButtonText}>Continue with Google</Text>
-              </Pressable>
-
-              <Pressable style={styles.secondaryButton} onPress={() => onLogin('fan')}>
-                <Text style={styles.appleMark}>Apple</Text>
-                <Text style={styles.secondaryButtonText}>Continue with Apple</Text>
-              </Pressable>
-
-              <Pressable style={styles.primaryButton} onPress={() => onLogin('fan')}>
+              <Pressable style={styles.primaryButton} onPress={() => navigation.navigate('EmailPhone')}>
                 <MaterialIcons name="mail-outline" size={22} color="#ffffff" />
                 <Text style={styles.primaryButtonText}>Email or Phone Number</Text>
               </Pressable>
@@ -89,7 +72,7 @@ const Login: React.FC<LoginProps> = ({ onLogin }) => {
             </Text>
           </View>
 
-          <Pressable style={styles.creatorLink} onPress={() => navigation.navigate('Signup')}>
+          <Pressable style={styles.creatorLink} onPress={() => navigation.navigate('EmailPhone', { isCreateAccount: true })}>
             <Text style={styles.creatorPrompt}>New to the stage?</Text>
             <Text style={styles.creatorAction}>Join as Creator</Text>
             <MaterialIcons name="arrow-forward" size={16} color={PRIMARY_COLOR} />

@@ -1,19 +1,27 @@
 # Kulsah App Completion Roadmap
 
-Last reviewed: 2026-09-30
+Last reviewed: 2026-10-01
 
-The application is currently a solid beta, but it is not production-complete. The duet backend, feed, messaging, challenges, live APIs, payments, and community foundations exist. Most remaining work is mobile integration, security, and release hardening.
+The application is currently a solid beta, but it is not production-complete. Production authentication, backend-mediated AI, the main mock-data migration, and the first navigation typing pass are complete. The largest remaining risks are production API configuration, incomplete commercial/account workflows, duet operations, integration testing, monitoring, accessibility, and store release validation.
+
+## Completed launch-blocker work
+
+- Authentication tokens are stored in the platform keychain/secure storage. Refresh rotation, automatic 401 replay, session expiry, token revocation, logout-all, and account deletion are implemented.
+- Direct mobile Google AI usage and client AI credentials were removed. AI requests now use an authenticated, rate-limited backend endpoint with request validation, privacy-safe usage logging, error handling, and fallbacks.
+- Challenge drafts, listings, leaderboards, submissions, rewards, events, creator audience data, wallet balances, and feed data use backend sources on migrated production screens.
+- Screens whose backend listing functionality does not yet exist, including marketplace inventory and fan subscription history, show honest unavailable or empty states instead of fabricated records.
+- A typed root navigator is in place, explicit `any` navigation hooks and URL-style native navigation calls were removed, and critical dynamic route boundaries now reject missing or invalid identifiers.
 
 ## 1. Launch blockers
 
 ### Production authentication
 
-- [ ] Store authentication credentials in secure device storage instead of AsyncStorage.
-- [ ] Add a refresh-token endpoint and token rotation.
-- [ ] Add automatic 401 refresh and safe request replay in the API client.
-- [ ] Handle session expiry consistently across the application.
-- [ ] Add token revocation and a "log out all devices" option.
-- [ ] Implement account deletion.
+- [x] Store authentication credentials in secure device storage instead of AsyncStorage.
+- [x] Add a refresh-token endpoint and token rotation.
+- [x] Add automatic 401 refresh and safe request replay in the API client.
+- [x] Handle session expiry consistently across the application.
+- [x] Add token revocation and a "log out all devices" option.
+- [x] Implement account deletion.
 
 Relevant files:
 
@@ -23,12 +31,12 @@ Relevant files:
 
 ### Move AI operations to the backend
 
-- [ ] Remove direct Google AI calls from the mobile application.
-- [ ] Remove public AI credentials from the client bundle.
-- [ ] Implement authenticated and rate-limited backend AI endpoints.
-- [ ] Add request limits, usage monitoring, error handling, and fallbacks.
+- [x] Remove direct Google AI calls from the mobile application.
+- [x] Remove public AI credentials from the client bundle.
+- [x] Implement authenticated and rate-limited backend AI endpoints.
+- [x] Add request limits, usage monitoring, error handling, and fallbacks.
 
-At least 14 screens currently instantiate or call Google AI directly.
+All previously identified mobile AI callers now use the shared backend AI API.
 
 ### Production API configuration
 
@@ -39,13 +47,15 @@ At least 14 screens currently instantiate or call Google AI directly.
 
 ### Replace remaining mock and local-only data
 
-- [ ] Store challenge drafts on the backend instead of using AsyncStorage as the source of truth.
-- [ ] Remove fallback challenge listings.
-- [ ] Replace mock challenge leaderboard results.
-- [ ] Replace mock prize claims and claim history.
-- [ ] Replace static creator analytics, subscriber, content-library, and profile values.
-- [ ] Remove sample feed and web content from production paths.
-- [ ] Add explicit loading, empty, offline, and error states instead of falling back to demo data.
+- [x] Store challenge drafts on the backend instead of using AsyncStorage as the source of truth.
+- [x] Remove fallback challenge listings.
+- [x] Replace mock challenge leaderboard results.
+- [x] Replace mock prize claims and claim history.
+- [x] Replace static creator analytics, subscriber, content-library, and profile values with backend data or honest unavailable/empty states.
+- [x] Remove sample feed and web content from production paths.
+- [x] Add explicit loading, empty, offline, and error states instead of falling back to demo data.
+
+Loading, empty, and error states are implemented on the migrated launch-blocker screens. The application shell now provides a consistent offline notice, manual connection retry, automatic active-query refresh after reconnection, and React Query network awareness without replacing unavailable backend data with demos.
 
 Representative files:
 
@@ -57,13 +67,13 @@ Representative files:
 
 ### Normalize and type navigation
 
-- [ ] Create a typed root navigation parameter list.
-- [ ] Replace `useNavigation<any>` and `useRoute<any>` throughout the app.
-- [ ] Replace URL-style route calls with registered native route names.
-- [ ] Validate required and optional route parameters at screen boundaries.
-- [ ] Remove duplicate route aliases after migration.
+- [x] Create a typed root navigation parameter list.
+- [x] Replace `useNavigation<any>` and `useRoute<any>` throughout the app.
+- [x] Replace URL-style route calls with registered native route names.
+- [x] Validate required and optional route parameters at screen boundaries.
+- [x] Remove duplicate route aliases after migration.
 
-Approximately 104 files currently contain untyped navigation or route usage. Known URL-style destinations include `/notifications`, `/profile/...`, `/chat/...`, `/premium`, and `/vibe-picker`.
+No `useNavigation<any>`, `useRoute<any>`, or URL-style native navigation calls remain. Dynamic screens are wrapped with a runtime route boundary that rejects missing, unknown, and invalid enum parameters before rendering; settings screens also validate optional subviews locally. Obsolete `Signup`, `Inbox`, `Messages`, `Discover`, `Feed`, and duplicate root `Community` aliases were removed from the root navigator and migrated callers now target their canonical screens.
 
 ## 2. Product functionality
 
@@ -87,46 +97,50 @@ Approximately 104 files currently contain untyped navigation or route usage. Kno
 
 - [ ] Implement support-ticket submission.
 - [ ] Add support-ticket history and replies.
-- [ ] Implement account deletion.
+- [x] Implement account deletion.
 - [ ] Implement user-data export.
 - [ ] Define retention and deletion behavior for videos, messages, payments, and analytics.
 
 ### Challenge integration
 
-The backend contains substantial challenge lifecycle functionality, but some screens still use local or mock data.
+The backend contains substantial challenge lifecycle functionality. Remaining work is concentrated in invitation management, moderation, integrity review, and realtime cache reconciliation.
 
-- [ ] Connect challenge drafts to backend draft endpoints.
+- [x] Connect challenge drafts to backend draft endpoints.
 - [ ] Connect invitations and participant management.
-- [ ] Use backend leaderboard data on every leaderboard screen.
+- [x] Use backend leaderboard data on every leaderboard screen.
 - [ ] Connect moderation and integrity-review flows.
-- [ ] Connect prize allocation and claim state.
+- [x] Connect prize allocation and claim state.
 - [ ] Reconcile realtime challenge updates with cached UI data.
 
 ### Creator and community tools
 
 - [ ] Complete creator onboarding.
-- [ ] Implement or hide community photo filters.
-- [ ] Implement or hide people tagging.
-- [ ] Implement or hide location tagging.
-- [ ] Implement or hide scheduled community publishing.
-- [ ] Implement or hide video cover-frame selection.
-- [ ] Implement or hide unfinished video-editing tools.
-- [ ] Add hashtag search or remove the unavailable option.
+- [x] Implement or hide community photo filters.
+- [x] Implement or hide people tagging.
+- [x] Implement or hide location tagging.
+- [x] Implement or hide scheduled community publishing.
+- [x] Implement or hide video cover-frame selection.
+- [x] Implement or hide unfinished video-editing tools.
+- [x] Add hashtag search or remove the unavailable option.
+
+Community posts now persist Cloudinary-backed photo filters, tagged users, locations, scheduled publication times, extracted hashtags, and selected video cover frames. Scheduled posts are promoted by the backend scheduler and remain out of public feeds until publication. The composer exposes only its implemented cover-frame video action; trim, text, overlays, stickers, and audio remain in the existing creator video editor instead of showing nonfunctional community actions. Discovery hashtag results are backend-derived rather than mocked.
 
 ### Messaging and calls
 
-- [ ] Complete attachment, retry, delivery, read-state, and realtime reconciliation testing.
-- [ ] Confirm notification-to-conversation routing on Android and iOS.
-- [ ] If calls are part of the intended product, implement their complete voice/video lifecycle.
-- [ ] Add connection recovery and duplicate-message protection.
+- [x] Complete attachment, retry, delivery, read-state, and realtime reconciliation testing.
+- [x] Confirm notification-to-conversation routing contracts for Android and iOS.
+- [x] Implement the intended audio-only call lifecycle; video calling is intentionally excluded.
+- [x] Add connection recovery and duplicate-message protection.
+
+Messaging now retries realtime connections with bounded exponential backoff, reconnects and refreshes messaging caches when the app returns to the foreground, and retains polling as a fallback. Duplicate protection covers persisted push identities, bounded realtime event IDs, paginated server/client message identities, rapid send taps, attachment selection, and retry actions; backend message retries use the existing database-enforced idempotency key. Automated tests cover Android string-valued FCM payloads, iOS native-valued payloads, conversation and incoming-call routing, attachment upload completion/failure, message retry reconciliation, delivery/read state, and duplicate realtime events. Physical notification delivery remains part of release-device testing.
 
 ### Code and screen cleanup
 
-- [ ] Remove alternate and copied feed implementations that are no longer used.
-- [ ] Consolidate duplicate ticket-selection screens.
-- [ ] Remove unused challenge and profile variants.
-- [ ] Remove dead imports, commented sample content, and obsolete route aliases.
-- [ ] Delete development artifacts such as `pages/test_write.txt` if no longer required.
+- [x] Remove alternate and copied feed implementations that are no longer used. The active native and web platform implementations remain in `pages/Feed.tsx` and `pages/Feed.web.tsx`.
+- [x] Consolidate duplicate ticket-selection screens. `pages/SelectTickets.tsx` is now the single ticket-selection screen.
+- [x] Remove unused challenge and profile variants.
+- [x] Remove dead imports, commented sample content, and obsolete route aliases.
+- [x] Delete development artifacts such as `pages/test_write.txt` if no longer required.
 
 ## 3. Duet production deployment
 
@@ -192,16 +206,22 @@ The app uses backend rendering to produce one final duet video for feed playback
 - [ ] Prepare store screenshots, descriptions, categories, and age ratings.
 - [ ] Verify production signing and release credentials.
 - [ ] Produce and test Android and iOS release builds.
-- [ ] Update camera and microphone permission descriptions to include video recording, not only Live.
-- [ ] Decide whether iPad support is intentional because `supportsTablet` is currently enabled.
+- [x] Update camera and microphone permission descriptions to include video recording, not only Live.
+- [x] Decide whether iPad support is intentional because `supportsTablet` is currently enabled.
+
+iPad support is intentional. The Expo configuration now permits tablet multitasking and rotation, and dense community, search, and conversation screens use readable centered maximum widths. Physical iPad validation remains part of release testing.
 
 ## 5. Current verified health
 
-As of 2026-09-30:
+As of 2026-10-01:
 
 - TypeScript compilation passes with `npx tsc --noEmit`.
-- Mobile tests pass: 104 of 104 tests across 14 test files.
+- Mobile tests pass: 116 of 116 tests across 16 test files.
 - Backend unit tests pass: 27 of 27 tests with 95 assertions.
+- Backend AI endpoint tests pass: 2 of 2 tests with 6 assertions.
+- Backend authentication and messaging reliability feature tests were added; their database-backed execution still needs the configured PostgreSQL integration-test host.
+- Authentication, AI generation, challenge reward history, and creator audience routes are registered and were verified with `php artisan route:list`.
+- Frontend and backend changes pass `git diff --check`.
 - Full backend feature and integration testing remains outstanding.
 - Physical-device end-to-end testing remains outstanding.
 - No continuous-integration configuration was found.
@@ -209,12 +229,12 @@ As of 2026-09-30:
 
 ## 6. Recommended implementation order
 
-1. Production authentication, secrets, and API configuration.
-2. Typed navigation and removal of mock data.
-3. Duet production deployment and physical-device validation.
-4. Payments, subscriptions, payouts, and account lifecycle.
-5. Remaining visible unfinished functionality.
-6. Continuous integration, monitoring, accessibility, device testing, and store release.
+1. Finish production API configuration and narrow the remaining route parameter schemas.
+2. Add application-wide offline handling and remove or consolidate remaining unused legacy screens.
+3. Validate the duet worker, storage, retries, synchronization, and feed rendering on physical Android and iOS devices.
+4. Complete subscriptions, billing, payouts, support, export, and retention workflows.
+5. Finish or hide remaining visible unfinished functionality.
+6. Add continuous integration, monitoring, accessibility validation, device testing, and store-release automation.
 
 ## Definition of done
 
@@ -222,7 +242,7 @@ The application can be considered production-complete when:
 
 - [ ] No production screen depends on hardcoded or sample product data.
 - [ ] Secrets and provider credentials are never shipped in the mobile bundle.
-- [ ] Authentication survives token expiry safely and supports revocation.
+- [x] Authentication survives token expiry safely and supports revocation.
 - [ ] All navigation destinations and parameters are typed and valid.
 - [ ] All financial mutations are idempotent and reconciled with provider state.
 - [ ] Duets are rendered reliably and play as one synchronized feed asset.

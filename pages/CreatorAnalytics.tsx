@@ -55,32 +55,13 @@ const CreatorAnalytics: React.FC = () => {
   const dashboardQuery = useCreatorDashboard();
   const dashboard = dashboardQuery.data;
 
-  const growthData = [
-    { name: 'Week 1', subs: 2100, active: 1800 },
-    { name: 'Week 2', subs: 2350, active: 1950 },
-    { name: 'Week 3', subs: 2600, active: 2200 },
-    { name: 'Week 4', subs: 2842, active: 2400 },
-    { name: 'Week 5', subs: 3120, active: 2660 },
-  ];
+  const growthData: Array<{ name: string; subs: number; active: number }> = [];
 
-  const engagementData = [
-    { name: 'Likes', value: 45000, color: PRIMARY_COLOR },
-    { name: 'Comments', value: 12000, color: '#3b82f6' },
-    { name: 'Shares', value: 8500, color: '#2ecc71' },
-    { name: 'Saves', value: 3400, color: '#f59e0b' },
-  ];
+  const engagementData: Array<{ name: string; value: number; color: string }> = [];
 
   const audienceData = useMemo(() => {
     const locations = dashboard?.fan_location.callouts.top_locations ?? [];
-    if (locations.length === 0) {
-      return [
-        { country: 'USA', percent: 45 },
-        { country: 'UK', percent: 22 },
-        { country: 'Germany', percent: 12 },
-        { country: 'Japan', percent: 8 },
-        { country: 'Other', percent: 13 },
-      ];
-    }
+    if (locations.length === 0) return [];
 
     const totalBuyers = Math.max(1, locations.reduce((sum, location) => sum + location.buyers, 0));
     return locations.map((location) => ({
@@ -89,12 +70,7 @@ const CreatorAnalytics: React.FC = () => {
     }));
   }, [dashboard?.fan_location.callouts.top_locations]);
 
-  const sourceData = [
-    { name: 'Galaxy Feed', value: 55 },
-    { name: 'Search', value: 20 },
-    { name: 'Sub Notifications', value: 15 },
-    { name: 'Direct Links', value: 10 },
-  ];
+  const sourceData: Array<{ name: string; value: number }> = [];
 
   const rangeFactor = RANGE_FACTORS[activeRange];
 
@@ -169,7 +145,7 @@ const CreatorAnalytics: React.FC = () => {
       });
       const text = response.text;
       setAiInsight(
-        text || 'Engagement is peaking during weekend live sessions. Schedule high-value content drops on Saturdays to maximize conversion.',
+        text || 'No analytics insight is available yet.',
       );
     } catch (error) {
       console.error('AI Audit Error:', error);

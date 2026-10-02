@@ -14,11 +14,12 @@ import {
 } from 'react-native';
 import { MaterialIcons } from '@expo/vector-icons';
 import { useNavigation } from '@react-navigation/native';
+import { useQuery } from '@tanstack/react-query';
 import { SafeAreaView, useSafeAreaInsets } from 'react-native-safe-area-context';
 import { aiApi } from '../src';
 import { PRIMARY_COLOR, primaryColorAlpha, useThemeMode } from '../theme';
 import { fontSize } from '../typography';
-import { parseApiError, useBlockCreatorSubscription } from '../src';
+import { parseApiError, subscriptionApi, useBlockCreatorSubscription } from '../src';
 
 type TabType = 'subs' | 'followers' | 'following';
 type FanStatus = 'active' | 'superfan' | 'at-risk' | 'new';
@@ -36,24 +37,6 @@ interface CommunityMember {
   joinedDate?: string;
   ltv?: string;
 }
-
-const SUBSCRIBERS: CommunityMember[] = [
-  { id: 's1', name: 'Marcus Thorne', handle: '@mthorne', tier: 'Gold', score: 98, img: 'https://picsum.photos/seed/f1/100', fanStatus: 'superfan', joinedDate: 'Jan 2024', ltv: '$450.00' },
-  { id: 's2', name: 'Sarah Chen', handle: '@schen_music', tier: 'Silver', score: 85, img: 'https://picsum.photos/seed/f2/100', fanStatus: 'active', joinedDate: 'Mar 2024', ltv: '$120.00' },
-  { id: 's3', name: 'Alex Rivera', handle: '@alex_vibes', tier: 'Silver', score: 42, img: 'https://picsum.photos/seed/f3/100', fanStatus: 'at-risk', joinedDate: 'Feb 2024', ltv: '$90.00' },
-  { id: 's4', name: 'Dante King', handle: '@dante_k', tier: 'Bronze', score: 75, img: 'https://picsum.photos/seed/f5/100', fanStatus: 'new', joinedDate: 'Aug 2024', ltv: '$9.99' },
-];
-
-const FOLLOWERS: CommunityMember[] = [
-  { id: 'f1', name: 'Lila Grace', handle: '@lilagrace', score: 45, img: 'https://picsum.photos/seed/f4/100' },
-  { id: 'f2', name: 'Echo Hunter', handle: '@echohunter', score: 38, img: 'https://picsum.photos/seed/f6/100' },
-  { id: 'f3', name: 'Maya Sol', handle: '@mayasol', score: 67, img: 'https://picsum.photos/seed/f7/100', fanStatus: 'new' },
-];
-
-const FOLLOWING: CommunityMember[] = [
-  { id: 'c1', name: 'Elena Rose', handle: '@elenarose', isCreator: true, status: 'LIVE', img: 'https://picsum.photos/seed/elena/100' },
-  { id: 'c2', name: 'Nova Grey', handle: '@novagrey', isCreator: true, status: 'CREATOR', img: 'https://picsum.photos/seed/nova/100' },
-];
 
 const TAB_LABELS: Record<TabType, string> = {
   subs: 'Subscribers',
@@ -82,6 +65,10 @@ const Subscribers: React.FC = () => {
   const [isBlockModalOpen, setIsBlockModalOpen] = useState(false);
   const [blockedIds, setBlockedIds] = useState<string[]>([]);
   const blockSubscription = useBlockCreatorSubscription();
+  const audienceQuery = useQuery({
+    queryKey: ['creator', 'audience'],
+    queryFn: () => subscriptionApi.getCreatorAudience().then((response) => response.data.data),
+  });
 
   const screen = isDark ? '#060913' : theme.background;
   const headerBackground = isDark ? 'rgba(6,9,19,0.94)' : 'rgba(255,255,255,0.92)';
@@ -94,7 +81,27 @@ const Subscribers: React.FC = () => {
   const secondary = isDark ? '#a9a3ad' : theme.textSecondary;
   const muted = isDark ? '#706a74' : theme.textMuted;
 
-  const source = activeTab === 'subs' ? SUBSCRIBERS : activeTab === 'followers' ? FOLLOWERS : FOLLOWING;
+  const audience = audienceQuery.data;
+  const subscribers = useMemo<CommunityMember[]>(() => (audience?.subscribers ?? []).map((member) => ({
+    id: member.id,
+    name: member.name || 'Kulsah user',
+    handle: member.handle || '',
+    img: member.avatar || '',
+    tier: member.tier as CommunityMember['tier'],
+    status: member.status,
+    fanStatus: member.status === 'active' ? 'active' : 'at-risk',
+    joinedDate: member.joined_at ? new Date(member.joined_at).toLocaleDateString() : undefined,
+    ltv: member.value ? `${member.value.currency ?? ''} ${member.value.amount ?? ''}`.trim() : undefined,
+  })), [audience?.subscribers]);
+  const followers = useMemo<CommunityMember[]>(() => (audience?.followers ?? []).map((member) => ({
+    id: member.id, name: member.name || 'Kulsah user', handle: member.handle || '', img: member.avatar || '',
+    joinedDate: member.followed_at ? new Date(member.followed_at).toLocaleDateString() : undefined,
+  })), [audience?.followers]);
+  const following = useMemo<CommunityMember[]>(() => (audience?.following ?? []).map((member) => ({
+    id: member.id, name: member.name || 'Kulsah user', handle: member.handle || '', img: member.avatar || '', isCreator: true,
+    joinedDate: member.followed_at ? new Date(member.followed_at).toLocaleDateString() : undefined,
+  })), [audience?.following]);
+  const source = activeTab === 'subs' ? subscribers : activeTab === 'followers' ? followers : following;
   const filteredList = useMemo(() => {
     const query = search.trim().toLowerCase();
     if (!query) return source;
@@ -220,7 +227,7 @@ const Subscribers: React.FC = () => {
                 ]}
               >
                 <View style={s.avatarWrap}>
-                  <Image source={{ uri: member.img }} style={s.avatar} />
+                  {member.img ? <Image source={{ uri: member.img }} style={s.avatar} /> : <MaterialIcons name="person" size={32} color={muted} />}
                   {memberStatus ? <View style={[s.statusDot, { backgroundColor: statusColors[memberStatus], borderColor: surface }]} /> : null}
                 </View>
                 <View style={s.memberCopy}>
@@ -249,11 +256,18 @@ const Subscribers: React.FC = () => {
               </Pressable>
             );
           })}
-          {filteredList.length === 0 ? (
+          {audienceQuery.isLoading ? <ActivityIndicator color={PRIMARY_COLOR} style={{ paddingVertical: 48 }} /> : null}
+          {audienceQuery.isError ? (
+            <View style={s.empty}>
+              <Text style={[s.emptyTitle, { color: text }]}>Community unavailable</Text>
+              <Pressable onPress={() => audienceQuery.refetch()}><Text style={{ color: PRIMARY_COLOR }}>Try again</Text></Pressable>
+            </View>
+          ) : null}
+          {!audienceQuery.isLoading && !audienceQuery.isError && filteredList.length === 0 ? (
             <View style={s.empty}>
               <MaterialIcons name="person-search" size={34} color={muted} />
               <Text style={[s.emptyTitle, { color: text }]}>No matches found</Text>
-              <Text style={[s.emptyBody, { color: muted }]}>Try another name or handle.</Text>
+              <Text style={[s.emptyBody, { color: muted }]}>{search ? 'Try another name or handle.' : `No ${TAB_LABELS[activeTab].toLowerCase()} yet.`}</Text>
             </View>
           ) : null}
         </View>
@@ -267,7 +281,7 @@ const Subscribers: React.FC = () => {
               <View style={[s.sheetHandle, { backgroundColor: border }]} />
               <ScrollView showsVerticalScrollIndicator={false} contentContainerStyle={s.sheetContent}>
                 <View style={s.profileHeader}>
-                  <Image source={{ uri: selectedMember.img }} style={s.profileAvatar} />
+                  {selectedMember.img ? <Image source={{ uri: selectedMember.img }} style={s.profileAvatar} /> : <MaterialIcons name="person" size={56} color={muted} />}
                   <Text style={[s.profileName, { color: text }]}>{selectedMember.name}</Text>
                   <Text style={s.profileHandle}>{selectedMember.handle}</Text>
                 </View>
@@ -294,16 +308,11 @@ const Subscribers: React.FC = () => {
                   style={[s.notesInput, { color: text, backgroundColor: modalControlSurface, borderColor: border }]}
                 />
 
-                <Text style={[s.sheetLabel, { color: muted }]}>Recent interactions</Text>
+                <Text style={[s.sheetLabel, { color: muted }]}>Relationship status</Text>
                 <View style={[s.historyCard, { backgroundColor: modalControlSurface, borderColor: border }]}>
                   <View style={s.historyRow}>
                     <MaterialIcons name="stars" size={17} color={PRIMARY_COLOR} />
-                    <Text style={[s.historyText, { color: secondary }]}>Joined {selectedMember.tier || 'community'} membership · 2w ago</Text>
-                  </View>
-                  <View style={[s.divider, { backgroundColor: border }]} />
-                  <View style={s.historyRow}>
-                    <MaterialIcons name="chat-bubble" size={16} color="#3b82f6" />
-                    <Text style={[s.historyText, { color: secondary }]}>Interacted during your latest live session · 3w ago</Text>
+                    <Text style={[s.historyText, { color: secondary }]}>Connected {selectedMember.joinedDate || 'recently'}{selectedMember.tier ? ` · ${selectedMember.tier}` : ''}</Text>
                   </View>
                 </View>
 

@@ -411,12 +411,14 @@ const LiveCreationSetup: React.FC = () => {
         return;
       }
 
-      navigation.replace(liveType === 'battle' ? 'CreatorBattleParticipantScreen' : 'CreatorLiveStream', {
+      const destinationParams = {
         liveSessionId: live.id,
         initialLive: live,
         quality: live.stream_quality,
         liveType,
-      });
+      };
+      if (liveType === 'battle') navigation.replace('CreatorBattleParticipantScreen', destinationParams);
+      else navigation.replace('CreatorLiveStream', destinationParams);
     } catch (error) {
       Alert.alert(scheduleEnabled ? 'Could not schedule Live' : 'Could not create Live', getApiErrorMessage(error));
     }

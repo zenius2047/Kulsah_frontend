@@ -32,7 +32,7 @@ const SignUpModal: React.FC<SignUpModalProps> = ({
   onClose,
   onCreateAccount,
 }) => {
-  const navigation = useNavigation<any>();
+  const navigation = useNavigation();
   const { isDark, theme } = useThemeMode();
 
   const {

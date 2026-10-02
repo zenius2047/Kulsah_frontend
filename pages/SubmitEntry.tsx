@@ -463,13 +463,14 @@ const SubmitEntry: React.FC = () => {
         await updateCreatorVideo({ video: result.video.id, payload: videoDetails });
       }
 
-      if (params.challengeId != null) {
+      const submittedChallengeId = params.challengeId;
+      if (submittedChallengeId != null) {
         if (submittedVideoId == null) {
           throw new Error('The uploaded challenge video did not return an ID.');
         }
 
         await submitChallengeEntry.mutateAsync({
-          challenge: params.challengeId,
+          challenge: submittedChallengeId,
           payload: {
             video_id: submittedVideoId,
             caption: description.trim() || null,
@@ -479,7 +480,7 @@ const SubmitEntry: React.FC = () => {
         Alert.alert('Entry submitted', 'Your video is now part of the challenge.', [
           {
             text: 'View challenge',
-            onPress: () => navigation.navigate('ChallengeFeed', { challengeId: params.challengeId }),
+            onPress: () => navigation.navigate('ChallengeFeed', { challengeId: submittedChallengeId }),
           },
         ]);
         return;
@@ -492,8 +493,7 @@ const SubmitEntry: React.FC = () => {
           text: 'Done',
           onPress: () =>
             navigation.navigate('MainTabs', {
-              screen: 'Home',
-              params: { tabToRoute: 'challenges' },
+              screen: 'Galaxy',
             }),
         },
       ]);

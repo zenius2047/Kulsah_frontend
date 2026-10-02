@@ -1,5 +1,11 @@
 import type { FontSize as AppFontSize } from './utils/helpers';
 import type { RootStackParamList } from './types/user.types';
+import type { NativeStackNavigationProp } from '@react-navigation/native-stack';
+
+declare module '@react-navigation/native' {
+  export function useNavigation<T = NativeStackNavigationProp<RootStackParamList>>(): T;
+  export function useRoute<T = { params?: Record<string, any> } & Record<string, any>>(): T;
+}
 
 declare global {
   namespace ReactNavigation {

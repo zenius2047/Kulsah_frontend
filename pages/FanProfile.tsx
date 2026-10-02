@@ -92,7 +92,7 @@ const FanProfile: React.FC<FanProfileProps> = ({ onToggleRole }) => {
   const navigation = useNavigation();
   const { width } = useWindowDimensions();
   const [activeTab, setActiveTab] = useState<ProfileTab>('Video');
-  const [streak, setStreak] = useState<StreakData>({ count: 7 });
+  const [streak] = useState<StreakData>({ count: 0 });
   const [selectedCreator, setSelectedCreator] = useState<string | null>(null);
   const isTablet = width >= 768;
   const insets = useSafeAreaInsets();
@@ -180,10 +180,6 @@ const FanProfile: React.FC<FanProfileProps> = ({ onToggleRole }) => {
   }, [setStatsOutOfView]);
 
   useEffect(() => {
-    setStreak({ count: 7 });
-  }, []);
-
-  useEffect(() => {
     setSelectedCreator(null);
   }, [activeTab]);
 
@@ -197,50 +193,20 @@ const FanProfile: React.FC<FanProfileProps> = ({ onToggleRole }) => {
   ];
 
   const stats = [
-    { label: 'Following', value: '24', onPress: () => navigation.navigate('MainTabs') },
-    { label: 'Unlocked', value: '12', onPress: () => navigation.navigate('MainTabs') },
+    { label: 'Following', value: '0', onPress: () => navigation.navigate('MainTabs') },
+    { label: 'Unlocked', value: '0', onPress: () => navigation.navigate('MainTabs') },
     {
       label: 'Events',
-      value: '2',
+      value: String(fanTickets.length),
       onPress: () => navigation.navigate('FanSettings', { view: 'identity', fromProfile: true }),
     },
   ];
 
-  const vibes = ['Afrobeats', 'Synthwave', 'Midnight R&B'];
-
-  const favorites = [
-    { name: 'Elena Rose', img: 'https://picsum.photos/seed/elena/150', handle: '@elena_r' },
-    { name: 'Zion King', img: 'https://picsum.photos/seed/zion/150', handle: '@zion_k' },
-    { name: 'Amara', img: 'https://picsum.photos/seed/amara/150', handle: '@amara_v' },
-  ];
-
-  const favoriteVideos = [
-    { id: 'fv1', title: 'Midnight Soul Session', artist: 'Elena Rose', views: '1.2M', img: 'https://picsum.photos/seed/vid1/400/225' },
-    { id: 'fv2', title: 'Summer Tour BTS', artist: 'Burna Boy', views: '840K', img: 'https://picsum.photos/seed/vid2/400/225' },
-  ];
-  const subscribedCreators: Creator[] = [
-    { id: 'c1', name: 'Elena Rose', img: 'https://picsum.photos/seed/elena/150', handle: '@elena_r', premiumCount: 12 },
-    { id: 'c2', name: 'Zion King', img: 'https://picsum.photos/seed/zion/150', handle: '@zion_k', premiumCount: 8 },
-    { id: 'c3', name: 'Amara', img: 'https://picsum.photos/seed/amara/150', handle: '@amara_v', premiumCount: 15 },
-  ];
-
-  const premiumContent: Record<string, { videos: PremiumAsset[]; playlists: PremiumAsset[] }> = {
-    c1: {
-      videos: [
-        { id: 'pv1', title: 'Acoustic Session: Midnight', views: '12k', img: 'https://picsum.photos/seed/pv1/400/225' },
-        { id: 'pv2', title: 'Behind the Scenes: Tour', views: '8k', img: 'https://picsum.photos/seed/pv2/400/225' },
-      ],
-      playlists: [{ id: 'pl1', title: 'Ethereal Soul Collection', count: 12, img: 'https://picsum.photos/seed/pl1/400/400' }],
-    },
-    c2: {
-      videos: [{ id: 'pv3', title: 'Studio Vlog #42', views: '5k', img: 'https://picsum.photos/seed/pv3/400/225' }],
-      playlists: [{ id: 'pl2', title: 'Afro-Cinema BTS', count: 5, img: 'https://picsum.photos/seed/pl2/400/400' }],
-    },
-    c3: {
-      videos: [{ id: 'pv4', title: 'Vocal Masterclass', views: '20k', img: 'https://picsum.photos/seed/pv4/400/225' }],
-      playlists: [{ id: 'pl3', title: 'Live Performance Archive', count: 24, img: 'https://picsum.photos/seed/pl3/400/400' }],
-    },
-  };
+  const vibes = user?.vibes ?? [];
+  const favorites: Array<{ name: string; img: string; handle: string }> = [];
+  const favoriteVideos: Array<{ id: string; title: string; artist: string; views: string; img: string }> = [];
+  const subscribedCreators: Creator[] = [];
+  const premiumContent: Record<string, { videos: PremiumAsset[]; playlists: PremiumAsset[] }> = {};
 
   const handleSwitchRole = async () => {
     try {
@@ -359,7 +325,7 @@ const FanProfile: React.FC<FanProfileProps> = ({ onToggleRole }) => {
         {recentVideos.map((video) => (
           <Pressable
             key={video.id}
-            onPress={() => navigation.navigate('VideoPlayer')}
+            onPress={() => navigation.navigate('VideoPlayer', { id: video.id })}
             style={[s.artistRecentCard, { backgroundColor: isDark ? '#000' : '#fff', shadowColor: isDark ? '#fff' : '#000' }]}
           >
             <Image source={{ uri: video.img }} style={s.artistRecentImage} />
@@ -419,7 +385,7 @@ const FanProfile: React.FC<FanProfileProps> = ({ onToggleRole }) => {
 
           <View style={s.artistReleaseList}>
             {musicReleases.map((item) => (
-              <Pressable key={item.id} onPress={() => navigation.navigate('VideoPlayer')} style={[s.artistReleaseCard, { backgroundColor: isDark ? '#0f172a' : theme.surface }]}>
+              <Pressable key={item.id} onPress={() => navigation.navigate('VideoPlayer', { id: item.id })} style={[s.artistReleaseCard, { backgroundColor: isDark ? '#0f172a' : theme.surface }]}>
                 <View style={s.artistReleaseThumb}>
                   <Image source={{ uri: item.img }} style={s.thumbImage} />
                   <View style={s.artistReleaseLockOverlay}>
@@ -512,7 +478,7 @@ const FanProfile: React.FC<FanProfileProps> = ({ onToggleRole }) => {
                 <Text style={[s.vibeText, { color: theme.text }]}>{vibe}</Text>
               </View>
             ))}
-            <Pressable onPress={() => navigation.navigate('VibeSignature')} style={s.vibeEdit}>
+            <Pressable onPress={() => navigation.navigate('VibePicker')} style={s.vibeEdit}>
               <MaterialIcons name="edit" size={14} color={theme.textSecondary} />
             </Pressable>
           </View>
@@ -563,7 +529,6 @@ const FanProfile: React.FC<FanProfileProps> = ({ onToggleRole }) => {
             tab.id === 'Saved'?   <BookMarkIcon height={22} width={22} fill={activeTab === tab.id ? PRIMARY_COLOR : '#69738d'}/>:
             tab.id === 'Favorite'? <MaterialIcons name="favorite-border" size={22} color={activeTab === tab.id ? PRIMARY_COLOR : '#69738d'}/>:null
           }
-                {/* <Text style={[s.tabText, { color: activeTab === tab.id ? PRIMARY_COLOR : theme.textSecondary }, activeTab === tab.id && s.tabTextActive]}>{tab.id}</Text> */}
                 {activeTab === tab.id ? <View style={s.tabIndicator} /> : null}
               </Pressable>
             ))}
@@ -574,7 +539,6 @@ const FanProfile: React.FC<FanProfileProps> = ({ onToggleRole }) => {
               {activeTab === 'Favorite' && (
                 <View style={[s.sectionGroup, {paddingHorizontal: -16}]}>
                   <View style={s.sectionBlock}>
-                    {/* <Text style={[s.sectionEyebrow, { color: theme.textSecondary }]}>Favorite Videos</Text> */}
                     {renderVideoGrid(favoriteVideos)}
                   </View>
                 </View>
@@ -703,7 +667,6 @@ const FanProfile: React.FC<FanProfileProps> = ({ onToggleRole }) => {
                           <MaterialIcons name="bookmark" size={14} color={PRIMARY_COLOR} />
                         </View>
                       </View>
-                      {/* <Text style={[s.gridTitle, { color: theme.text }]}>Saved Collection Item</Text> */}
                     </Pressable>
                   ))}
                 </View>

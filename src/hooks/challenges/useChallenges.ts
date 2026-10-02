@@ -25,6 +25,16 @@ export const useChallenges = () => useInfiniteQuery({
   getNextPageParam: nextChallengePage,
 });
 
+export const useCreatorChallenges = () => useInfiniteQuery({
+  queryKey: ['creator', 'challenges', { per_page: CHALLENGE_PAGE_SIZE }],
+  initialPageParam: 1,
+  queryFn: ({ pageParam }) => challengesApi.getCreatorChallenges({
+    page: Number(pageParam),
+    per_page: CHALLENGE_PAGE_SIZE,
+  }).then((response) => response.data),
+  getNextPageParam: nextChallengePage,
+});
+
 export const useCreatorChallengeDrafts = () => useQuery({
   queryKey: ['creator', 'challenges', 'drafts'],
   queryFn: () => challengesApi.getCreatorChallenges({ status: 'draft', per_page: 100 }).then((response) => response.data.data),

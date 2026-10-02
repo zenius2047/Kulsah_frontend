@@ -1,6 +1,6 @@
 import api from './client';
 import { endpoints } from './endpoints';
-import type { DiscoveryParams, DiscoveryResponse } from '../types/discovery.types';
+import type { DiscoveryHashtag, DiscoveryParams, DiscoveryResponse } from '../types/discovery.types';
 
 export const discoveryApi = {
   getDiscovery: (params: DiscoveryParams = {}) =>
@@ -9,5 +9,9 @@ export const discoveryApi = {
     api.post<{ message: string; meta: { type: string; item_id: number } }>(endpoints.general.discoveryView, {
       type,
       item_id: Number(itemId),
+    }),
+  searchHashtags: (query = '', limit = 30) =>
+    api.get<{ data: DiscoveryHashtag[] }>(endpoints.general.discoveryHashtags, {
+      params: { query: query.replace(/^#/, ''), limit },
     }),
 };

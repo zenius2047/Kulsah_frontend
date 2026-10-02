@@ -41,64 +41,6 @@ const months = [
 
 const locationPills = ['Global', 'London', 'San Francisco', 'Accra', 'Lagos', 'NYC'];
 
-const upcomingEvents: CalendarEvent[] = [
-  {
-    id: 'e1',
-    title: 'Neon Nights Tour',
-    date: new Date(2024, 7, 24),
-    creator: 'Mila Ray',
-    creatorAvatar: 'https://picsum.photos/seed/mila/100',
-    type: 'Physical',
-    image: 'https://images.unsplash.com/photo-1501281668745-f7f57925c3b4?auto=format&fit=crop&q=80&w=800',
-    location: 'O2 Arena, London',
-    price: 'From $45',
-  },
-  {
-    id: 'e2',
-    title: 'Synth Soul Session',
-    date: new Date(2024, 8, 12),
-    creator: 'Elena Rose',
-    creatorAvatar: 'https://picsum.photos/seed/elena/100',
-    type: 'Workshop',
-    image: 'https://images.unsplash.com/photo-1514525253361-bee8718a74a2?auto=format&fit=crop&q=80&w=800',
-    location: 'The Blue Room, SF',
-    price: 'Free',
-  },
-  {
-    id: 'e3',
-    title: 'Midnight Unplugged',
-    date: new Date(2024, 11, 5),
-    creator: 'Nova Pulse',
-    creatorAvatar: 'https://picsum.photos/seed/nova/100',
-    type: 'Live',
-    image: 'https://images.unsplash.com/photo-1503095396549-807759245b35?auto=format&fit=crop&q=80&w=800',
-    location: 'Kulsah Live',
-    price: '50 KC',
-  },
-  {
-    id: 'e4',
-    title: 'Summer Solstice',
-    date: new Date(2024, 5, 21),
-    creator: 'Alex Vibes',
-    creatorAvatar: 'https://picsum.photos/seed/alex/100',
-    type: 'Physical',
-    image: 'https://images.unsplash.com/photo-1533174072545-7a4b6ad7a6c3?auto=format&fit=crop&q=80&w=800',
-    location: 'Ibiza Beach',
-    price: 'From $80',
-  },
-  {
-    id: 'e5',
-    title: 'Afro-Soul Intensive',
-    date: new Date(2024, 8, 15),
-    creator: 'Lulu Vibe',
-    creatorAvatar: 'https://picsum.photos/seed/lulu/100',
-    type: 'Workshop',
-    image: 'https://images.unsplash.com/photo-1508700115892-45ecd05ae2ad?auto=format&fit=crop&q=80&w=800',
-    location: 'Dance Loft, Accra',
-    price: '100 KC',
-  },
-];
-
 const Events: React.FC = () => {
   const navigation = useNavigation();
   const { isDark, theme } = useThemeMode();

@@ -27,41 +27,7 @@ type SubscriptionItem = {
   perks: string[];
 };
 
-const subscriptions: SubscriptionItem[] = [
-  {
-    id: '1',
-    name: 'Elena Rose',
-    price: '$49.99',
-    billingCycle: 'Monthly',
-    nextBill: 'Sep 12, 2024',
-    img: 'https://picsum.photos/seed/elena/150',
-    borderColor: 'rgba(234,179,8,0.35)',
-    backgroundColor: 'rgba(234,179,8,0.06)',
-    perks: ['1:1 Live Monthly', 'All Premium Access'],
-  },
-  {
-    id: '2',
-    name: 'Zion King',
-    price: '$14.99',
-    billingCycle: 'Monthly',
-    nextBill: 'Sep 15, 2024',
-    img: 'https://picsum.photos/seed/zion/150',
-    borderColor: 'rgba(148,163,184,0.35)',
-    backgroundColor: 'rgba(148,163,184,0.06)',
-    perks: ['Monthly BTS', 'Standard Premium'],
-  },
-  {
-    id: '3',
-    name: 'Amara',
-    price: '$4.99',
-    billingCycle: 'Monthly',
-    nextBill: 'Oct 01, 2024',
-    img: 'https://picsum.photos/seed/amara/150',
-    borderColor: 'rgba(234,88,12,0.35)',
-    backgroundColor: 'rgba(234,88,12,0.06)',
-    perks: ['Feed Exclusives'],
-  },
-];
+const subscriptions: SubscriptionItem[] = [];
 
 const FanSubscriptions: React.FC = () => {
   const { isDark, theme } = useThemeMode();
@@ -116,6 +82,13 @@ const FanSubscriptions: React.FC = () => {
       </View>
 
       <ScrollView contentContainerStyle={[s.content, { paddingBottom: 24 + insets.bottom }]} showsVerticalScrollIndicator={false}>
+        {subscriptions.length === 0 ? (
+          <View style={[s.subscriptionCard, { borderColor: border, backgroundColor: cardBg, alignItems: 'center' }]}>
+            <MaterialIcons name="workspace-premium" size={36} color={muted} />
+            <Text style={[s.name, { color: titleColor, marginTop: 12 }]}>No active subscriptions</Text>
+            <Text style={[s.planChipText, { color: subtle, marginTop: 6, textAlign: 'center' }]}>Your active memberships will appear here when subscription history is available.</Text>
+          </View>
+        ) : null}
         {subscriptions.map((sub) => (
           <View
             key={sub.id}
@@ -180,7 +153,7 @@ const FanSubscriptions: React.FC = () => {
           <View style={[s.footerIconWrap, { backgroundColor: softBg }]}>
             <MaterialIcons name="add-circle" size={30} color={muted} />
           </View>
-          <Pressable onPress={() => navigation.navigate('Explore')}>
+          <Pressable onPress={() => navigation.navigate('MainTabs', { screen: 'Discover' })}>
             <Text style={s.discoverText}>Discover new creators to support</Text>
           </Pressable>
         </View>
@@ -219,7 +192,7 @@ const FanSubscriptions: React.FC = () => {
 
               <View style={s.modalSection}>
                 <Text style={[s.microLabel, { color: muted }]}>Subscription Actions</Text>
-                <Pressable onPress={() => navigation.navigate('Chat')} style={[s.actionCard, { backgroundColor: softBg, borderColor: border }]}>
+                <Pressable onPress={() => navigation.navigate('Chat', { senderId: selectedSub.id, name: selectedSub.name, avatar: selectedSub.img })} style={[s.actionCard, { backgroundColor: softBg, borderColor: border }]}>
                   <View style={s.actionLeft}>
                     <MaterialIcons name="chat" size={20} color={PRIMARY_COLOR} />
                     <Text style={[s.actionText, { color: titleColor }]}>Message Creator</Text>

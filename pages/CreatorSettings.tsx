@@ -47,8 +47,10 @@ import PrivacyCentre from '../assets/icons/admin_panel.svg';
 import Terms from '../assets/icons/gravel.svg';
 import TrophyIcon from '../assets/icons/trophy-svg.svg';
 import CalenderIcon from '../assets/icons/calendar-svg.svg';
+import type { RootStackParamList } from '../src';
 
 type SettingsSubView = 'main' | 'tags' | 'identity' | 'avatar' | 'banner' | 'switch-fan' | 'signal-encryption';
+const SETTINGS_SUBVIEWS: readonly SettingsSubView[] = ['main', 'tags', 'identity', 'avatar', 'banner', 'switch-fan', 'signal-encryption'];
 
 interface CreatorSettingsProps {
   onLogout?: () => void;
@@ -65,7 +67,7 @@ interface SettingItem {
   enabled?: boolean;
   onToggle?: () => void;
   action?: () => void;
-  path?: string;
+  path?: keyof RootStackParamList;
 }
 
 const ALL_TAGS = ['Synthwave', 'Indie-Soul', 'Live-Looping', 'Afrobeats', 'Techno', 'Cinematic', 'Visual Art', 'Jazz Fusion'];
@@ -168,7 +170,10 @@ const CreatorSettings: React.FC<CreatorSettingsProps> = ({ onLogout, isDarkMode,
   const { isDark, theme } = useThemeMode();
   const navigation = useNavigation();
   const route = useRoute();
-  const activeSubView = (route.params?.view as SettingsSubView | undefined) ?? 'main';
+  const requestedSubView = route.params?.view;
+  const activeSubView: SettingsSubView = requestedSubView && SETTINGS_SUBVIEWS.includes(requestedSubView)
+    ? requestedSubView
+    : 'main';
   const openSettingsPage = useCallback(
     (view: Exclude<SettingsSubView, 'main'>) => navigation.push('Settings', { view }),
     [navigation],
@@ -506,7 +511,7 @@ const CreatorSettings: React.FC<CreatorSettingsProps> = ({ onLogout, isDarkMode,
         <Text style={[s.headerTitle, { color: theme.text }]}>{title}</Text>
       </View>
       {activeSubView === 'main' ? (
-        // <Pressable onPress={() => navigation.navigate('/dashboard')} style={[s.donePill, { borderColor: theme.border, backgroundColor: isDark ? primaryColorAlphaHex('1f') : theme.accentSoft }]}>
+        // <Pressable style={[s.donePill, { borderColor: theme.border, backgroundColor: isDark ? primaryColorAlphaHex('1f') : theme.accentSoft }]}>
         //   <Text style={s.donePillText}>Done</Text>
         // </Pressable>
         <></>
@@ -715,7 +720,7 @@ const CreatorSettings: React.FC<CreatorSettingsProps> = ({ onLogout, isDarkMode,
                   style={[s.itemRow, { borderColor: theme.border, backgroundColor: isDark ? 'transparent' : theme.card }]}
                   onPress={() => {
                     if (item.action) item.action();
-                    else if (item.path) navigation.navigate(item.path);
+                    else if (item.path) navigation.navigate(item.path as never);
                   }}
                 >
                   <View style={s.itemLeft}>

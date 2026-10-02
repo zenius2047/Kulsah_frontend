@@ -132,7 +132,7 @@ const Inbox: React.FC = () => {
       name,
       avatar,
       isOnline: partner?.user.is_online,
-      lastSeenAt: partner?.user.last_seen_at,
+      lastSeenAt: partner?.user.last_seen_at ?? undefined,
     });
   };
 
@@ -162,7 +162,7 @@ const Inbox: React.FC = () => {
       const avatar = request.sender.avatar || `https://picsum.photos/seed/user-${request.sender.id}/100`;
       navigation.navigate('Chat', {
         conversationId: conversation.id,
-        senderId: request.sender.id,
+        senderId: request.sender.id ?? undefined,
         id: request.sender.username || undefined,
         name: request.sender.name || request.sender.username || 'Kulsah member',
         avatar,

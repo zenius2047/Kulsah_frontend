@@ -102,7 +102,7 @@ const VibePicker: React.FC = () => {
         return;
       }
 
-      navigation.navigate('Feed');
+      navigation.navigate('MainTabs', { screen: 'Galaxy' });
     } catch (error: any) {
       const message =
         error?.response?.data?.message ||

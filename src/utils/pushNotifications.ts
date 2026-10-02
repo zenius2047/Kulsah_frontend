@@ -6,6 +6,7 @@ import type {
 
 const JSON_ENCODED_PUSH_FIELDS = new Set([
   'sender',
+  'caller',
   'invited_by',
   'mentioned_by',
   'mentions',
@@ -121,9 +122,16 @@ export const pushNotificationIdentity = (
   const challengeId = data.challenge_id ?? data.challengeId ?? '';
   const videoId = data.video_id ?? '';
   const liveId = data.live_id ?? '';
-  return `payload:${type}:${String(conversationId)}:${String(messageId)}:${String(requestId)}:${String(challengeId)}:${String(videoId)}:${String(liveId)}`;
+  const callId = data.call_id ?? '';
+  return `payload:${type}:${String(conversationId)}:${String(messageId)}:${String(requestId)}:${String(challengeId)}:${String(videoId)}:${String(liveId)}:${String(callId)}`;
 };
 
 export const retainRecentNotificationIds = (ids: string[], limit = 100) => (
   ids.filter((id, index) => id.length > 0 && ids.indexOf(id) === index).slice(-Math.max(1, limit))
 );
+
+export const isVoiceCallPushNotification = (data: PushNotificationData) => (
+  data.type === 'voice_call.incoming' && validPositiveInteger(data.call_id) !== null
+);
+
+export const pushCallId = (data: PushNotificationData) => validPositiveInteger(data.call_id) ?? undefined;

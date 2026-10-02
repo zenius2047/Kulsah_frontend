@@ -23,7 +23,7 @@ const KulCoinPrompt: React.FC<KulCoinPromptProps> = ({
   currentCoins,
   onPurchaseKulCoins,
 }) => {
-  const navigation = useNavigation<any>();
+  const navigation = useNavigation();
   const { isDark, theme } = useThemeMode();
 
   return (

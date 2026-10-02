@@ -1,4 +1,3 @@
-import AsyncStorage from '@react-native-async-storage/async-storage';
 import DateTimePicker, { type DateTimePickerEvent } from '@react-native-community/datetimepicker';
 import { MaterialIcons } from '@expo/vector-icons';
 import { useNavigation, useRoute } from '@react-navigation/native';
@@ -65,9 +64,6 @@ type StoredChallenge = {
   wizard: Record<string, unknown>;
 };
 
-const DRAFTS_KEY = 'pulsar_challenge_drafts';
-const ACTIVE_KEY = 'pulsar_challenges';
-const USER_KEY = 'pulsar_user';
 const MAX_CHALLENGE_VIDEOS = 1;
 const DEFAULT_COVER = 'https://images.unsplash.com/photo-1552674605-db6ffd4facb5?auto=format&fit=crop&w=1200&q=85';
 const CATEGORIES = ['Dance', 'Comedy', 'Travel', 'Food', 'Fitness', 'Music'];
@@ -210,7 +206,6 @@ const CreateChallengeWizard: React.FC = () => {
   const [isPublishing, setIsPublishing] = useState(false);
   const [publishProgress, setPublishProgress] = useState('');
   const [toast, setToast] = useState('');
-  const [draftId] = useState(() => `challenge_${Date.now()}`);
   const [backendDraftId, setBackendDraftId] = useState<string | number | null>(null);
 
   const pageBackground = isDark ? '#0b1118' : '#f7f9fb';
@@ -533,96 +528,18 @@ const CreateChallengeWizard: React.FC = () => {
     setChoicePicker({ heading, options, onSelect });
   };
 
-  const buildStoredChallenge = async (
-    status: StoredChallenge['status'],
-    persistedId?: string | number,
-  ): Promise<StoredChallenge> => {
-    let creator: { id?: string | number; name?: string; handle?: string } = {};
-    try {
-      const storedUser = await AsyncStorage.getItem(USER_KEY);
-      if (storedUser) creator = JSON.parse(storedUser);
-    } catch {
-      creator = {};
-    }
-
-    return {
-      id: persistedId != null ? String(persistedId) : status === 'active' ? `c_${Date.now()}` : draftId,
-      creatorId: String(creator.id || creator.handle || 'creator'),
-      creatorName: creator.name || 'Kulsah Creator',
-      title: title.trim() || 'Untitled Challenge',
-      description: description.trim(),
-      reward: rewardLabel,
-      deadline: `${durationDays} Days`,
-      participants: 0,
-      status,
-      image: coverUri || DEFAULT_COVER,
-      category,
-      hashtag: normalizedHashtag,
-      videos: challengeVideos,
-      wizard: {
-        step,
-        coverUri,
-        coverSource,
-        coverFrameTimeMs,
-        coverAsset,
-        title,
-        category,
-        description,
-        hashtag: normalizedHashtag,
-        videoLength,
-        aspectRatio,
-        allowedFormat,
-        officialSound,
-        challengeVideos,
-        instructions,
-        primaryPrize,
-        winnerCount,
-        secondaryReward,
-        startDate: startDate.toISOString(),
-        startTime: startTime.toISOString(),
-        endDate: endDate.toISOString(),
-        endTime: endTime.toISOString(),
-        votingStartDate: votingStartDate.toISOString(),
-        votingStartTime: votingStartTime.toISOString(),
-        votingEndDate: votingEndDate.toISOString(),
-        votingEndTime: votingEndTime.toISOString(),
-        openToEveryone,
-        inviteOnly,
-        challengeMode,
-        battleCreatorIds: battleParticipantIds.join(','),
-        battleParticipantIds,
-        battleCreators,
-        limitEntries,
-        showLeaderboard,
-        judgeByVotes,
-        judgeByReactions,
-      },
-    };
-  };
-
-  const readStoredList = async (key: string): Promise<StoredChallenge[]> => {
-    try {
-      const stored = await AsyncStorage.getItem(key);
-      return stored ? JSON.parse(stored) : [];
-    } catch {
-      return [];
-    }
-  };
-
   const saveDraft = async () => {
     if (isSaving) return;
     setIsSaving(true);
     try {
       let persistedId = backendDraftId;
-      let cloudError: unknown = null;
       const draftStart = combineChallengeDateAndTime(startDate, startTime);
       const selectedDraftEnd = combineChallengeDateAndTime(endDate, endTime);
       const draftEndDate = selectedDraftEnd.getTime() > draftStart.getTime()
         ? endDate
         : addDays(startDate, 1);
 
-      try {
-        const payload = buildChallengeCreatePayload({
+      const payload = buildChallengeCreatePayload({
           title: title.trim() || 'Untitled Challenge',
           description: description.trim() || 'Draft challenge in progress.',
           instructions,
@@ -651,30 +568,14 @@ const CreateChallengeWizard: React.FC = () => {
           secondaryReward,
           video: null,
         });
-        const response = persistedId
-          ? await challengesApi.updateChallenge(persistedId, payload)
-          : await challengesApi.createChallengeDraft(payload);
-        persistedId = response.data.data.id;
-        setBackendDraftId(persistedId);
-      } catch (error) {
-        cloudError = error;
-      }
-
-      const draft = await buildStoredChallenge('draft', persistedId ?? undefined);
-      const drafts = await readStoredList(DRAFTS_KEY);
-      const nextDrafts = [draft, ...drafts.filter((item) => (
-        item.id !== draft.id
-        && item.id !== draftId
-        && item.id !== routeDraft?.id
-      ))];
-      await AsyncStorage.setItem(DRAFTS_KEY, JSON.stringify(nextDrafts));
-      if (cloudError) {
-        Alert.alert('Saved on this device', `The cloud draft could not be saved. ${getApiErrorMessage(cloudError)}`);
-      } else {
-        showToast('Challenge draft synced');
-      }
-    } catch {
-      Alert.alert('Draft not saved', 'Please try again.');
+      const response = persistedId
+        ? await challengesApi.updateChallenge(persistedId, payload)
+        : await challengesApi.createChallengeDraft(payload);
+      persistedId = response.data.data.id;
+      setBackendDraftId(persistedId);
+      showToast('Challenge draft synced');
+    } catch (error) {
+      Alert.alert('Draft not saved', getApiErrorMessage(error));
     } finally {
       setIsSaving(false);
     }
@@ -826,18 +727,6 @@ const CreateChallengeWizard: React.FC = () => {
         }).catch(() => undefined);
       }
 
-      const challenge = await buildStoredChallenge(publishedChallenge.status, publishedChallenge.id);
-      const activeChallenges = await readStoredList(ACTIVE_KEY);
-      await AsyncStorage.setItem(ACTIVE_KEY, JSON.stringify([
-        challenge,
-        ...activeChallenges.filter((item) => item.id !== challenge.id),
-      ]));
-      const drafts = await readStoredList(DRAFTS_KEY);
-      await AsyncStorage.setItem(DRAFTS_KEY, JSON.stringify(drafts.filter((item) => (
-        item.id !== draftId
-        && item.id !== routeDraft?.id
-        && item.id !== String(backendDraftId ?? '')
-      ))));
       Alert.alert(
         challengeMode === 'creator_battle' ? 'Battle invitations sent' : 'Challenge published',
         challengeMode === 'creator_battle'

@@ -20,6 +20,7 @@ import { fontSize } from '../typography';
 import { useQuery } from '@tanstack/react-query';
 import { musicApi } from '../src/api/music.api';
 import { useDiscovery } from '../src/hooks/queries/useDiscovery';
+import { discoveryApi } from '../src/api/discovery.api';
 import { liveApi } from '../src/api/live.api';
 import type { DiscoveryCreator, DiscoveryVideo } from '../src/types/discovery.types';
 import type { MusicTrack } from '../src/types/music.types';
@@ -31,29 +32,6 @@ type SearchUser = Pick<DiscoveryCreator, 'id' | 'name' | 'handle' | 'avatar_url'
 type SearchVideo = Pick<DiscoveryVideo, 'id' | 'title' | 'caption' | 'creator' | 'thumbnail_url' | 'playback_url' | 'stats'>;
 
 const tabs: SearchTab[] = ['Top', 'Users', 'Videos', 'Sounds', 'LIVE', 'Hashtags'];
-
-const trendingRanked = [
-  { rank: 1, tag: 'neonnights', icon: 'trending-up' as const, count: '1.2M' },
-  { rank: 2, tag: 'afrobeatpulse', icon: 'music-note' as const, count: '850K' },
-  { rank: 3, tag: 'livegaming', icon: 'sports-esports' as const, count: '420K' },
-  { rank: 4, tag: 'creatoreconomy', icon: 'visibility' as const, count: '120K' },
-  { rank: 5, tag: 'visualart', icon: 'palette' as const, count: '95K' },
-];
-
-const recentSearches = [
-  { name: 'Alex Vibe', handle: '@alex_vibe', img: 'https://picsum.photos/seed/alexvibe/150/150' },
-  { name: 'Jordon DJ', handle: '@jordon_dj', img: 'https://picsum.photos/seed/jordondj/150/150' },
-  { name: 'Sara Pulse', handle: '@sara_pulse', img: 'https://picsum.photos/seed/sarapulse/150/150' },
-  { name: 'Pixel Pro', handle: '@pixel_pro', img: 'https://picsum.photos/seed/pixelpro/150/150' },
-  { name: 'Echo Nomad', handle: '@echo_nomad', img: 'https://picsum.photos/seed/echonomad/150/150' },
-];
-
-const suggestedCreators = [
-  { name: 'Kiki Storm', followers: '1.2M FOLLOWERS', img: 'https://picsum.photos/seed/kikistorm/400/600' },
-  { name: 'Marcus Flow', followers: '894K FOLLOWERS', img: 'https://picsum.photos/seed/marcusflow/400/600' },
-  { name: 'Luna Art', followers: '2.1M FOLLOWERS', img: 'https://picsum.photos/seed/lunaart/400/600' },
-  { name: 'Sox Jazz', followers: '542K FOLLOWERS', img: 'https://picsum.photos/seed/soxjazz/400/600' },
-];
 
 const Search: React.FC = () => {
   const navigation = useNavigation();
@@ -69,6 +47,16 @@ const Search: React.FC = () => {
     { tab: discoveryTab, page: 1, limit: 30, ...(hasQuery ? { search_query: deferredSearch } : {}) },
     { enabled: hasQuery && (activeTab === 'Top' || activeTab === 'Users' || activeTab === 'Videos') },
   );
+  const browseQuery = useDiscovery(
+    { tab: 'all', page: 1, limit: 20 },
+    { enabled: !hasQuery },
+  );
+  const hashtagsQuery = useQuery({
+    queryKey: ['search', 'hashtags', deferredSearch.replace(/^#/, '')],
+    queryFn: () => discoveryApi.searchHashtags(deferredSearch, 30).then((response) => response.data.data),
+    enabled: activeTab === 'Hashtags' || !hasQuery,
+    staleTime: 60_000,
+  });
   const soundsQuery = useQuery({
     queryKey: ['search', 'sounds', deferredSearch],
     queryFn: () => musicApi.browse({ search: deferredSearch, limit: 30, sort: 'relevant' }).then((response) => response.data.data),
@@ -85,7 +73,9 @@ const Search: React.FC = () => {
   const videos = discoveryQuery.data?.data.videos ?? [];
   const sounds = soundsQuery.data ?? [];
   const liveResults = liveQuery.data?.data ?? [];
-  const isSearching = discoveryQuery.isLoading || soundsQuery.isLoading || liveQuery.isLoading;
+  const hashtags = hashtagsQuery.data ?? [];
+  const suggestedCreators = browseQuery.data?.data.creators ?? [];
+  const isSearching = discoveryQuery.isLoading || soundsQuery.isLoading || liveQuery.isLoading || (activeTab === 'Hashtags' && hashtagsQuery.isLoading);
 
   const cardGap = 14;
   const contentWidth = width - 32;
@@ -252,10 +242,32 @@ const Search: React.FC = () => {
           </View>
         );
       case 'Hashtags':
-        return (
+        return hashtags.length ? (
+          <View style={styles.trendingList}>
+            {hashtags.map((item, index) => (
+              <Pressable
+                key={item.tag}
+                onPress={() => {
+                  setSearchQuery(`#${item.tag}`);
+                  setActiveTab('Videos');
+                }}
+                style={({ pressed }) => [styles.trendingRow, pressed && { backgroundColor: colors.surfacePressed }]}
+              >
+                <View style={styles.inlineCenter}>
+                  <Text style={[styles.rank, { color: colors.textFaint }, index < 3 && { color: colors.accent }]}>{index + 1}</Text>
+                  <View>
+                    <Text style={[styles.trendTag, { color: colors.text }]}>#{item.tag}</Text>
+                    <Text style={[styles.trendMeta, { color: colors.textFaint }]}>{formatLiveCount(item.posts_count)} POSTS</Text>
+                  </View>
+                </View>
+                <MaterialIcons name="chevron-right" size={23} color={colors.iconFaint} />
+              </Pressable>
+            ))}
+          </View>
+        ) : (
           <View style={styles.emptyState}>
-            <MaterialIcons name="search-off" size={58} color={colors.textFaint} />
-            <Text style={[styles.emptyText, { color: colors.textFaint }]}>Hashtag search is not available yet.</Text>
+            <MaterialIcons name="tag" size={58} color={colors.textFaint} />
+            <Text style={[styles.emptyText, { color: colors.textFaint }]}>No matching hashtags found.</Text>
           </View>
         );
     }
@@ -268,7 +280,7 @@ const Search: React.FC = () => {
         showsVerticalScrollIndicator={false}
         keyboardShouldPersistTaps="handled"
         contentContainerStyle={{ paddingBottom: insets.bottom + 120 }}
-        style={[styles.screen, { backgroundColor: colors.background }]}
+        style={[styles.screen, styles.tabletScreen, { backgroundColor: colors.background }]}
       >
         <View style={[styles.header, { paddingTop: Platform.OS === 'ios' ? insets.top + 4 : insets.top + 12, backgroundColor: colors.header, borderBottomColor: colors.border }]}>
           <View style={styles.searchRow}>
@@ -317,34 +329,17 @@ const Search: React.FC = () => {
           {!searchQuery ? (
             <>
               <View>
-                <View style={styles.sectionTitleRow}>
-                  <Text style={[styles.sectionTitle, { color: colors.textSoft }]}>Recently searched</Text>
-                  <Pressable>
-                    <Text style={[styles.clearText, { color: colors.textFaint }]}>Clear</Text>
-                  </Pressable>
-                </View>
-                <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={styles.recentContent}>
-                  {recentSearches.map((user) => (
-                    <Pressable key={user.handle} onPress={() => openProfile(user.name)} style={({ pressed }) => [styles.recentItem, pressed && styles.recentPressed]}>
-                      <Image source={{ uri: user.img }} style={[styles.recentAvatar, { backgroundColor: colors.card }]} />
-                      <Text style={[styles.recentHandle, { color: colors.textMuted }]} numberOfLines={1}>{user.handle.toLowerCase()}</Text>
-                    </Pressable>
-                  ))}
-                </ScrollView>
-              </View>
-
-              <View>
                 <Text style={[styles.sectionTitle, { color: colors.textSoft }]}>Trending</Text>
                 <View style={styles.trendingList}>
-                  {trendingRanked.map((item) => (
-                    <Pressable key={item.tag} style={({ pressed }) => [styles.trendingRow, pressed && { backgroundColor: colors.surfacePressed }]}>
+                  {hashtags.slice(0, 8).map((item, index) => (
+                    <Pressable key={item.tag} onPress={() => { setSearchQuery(`#${item.tag}`); setActiveTab('Videos'); }} style={({ pressed }) => [styles.trendingRow, pressed && { backgroundColor: colors.surfacePressed }]}>
                       <View style={styles.inlineCenter}>
-                        <Text style={[styles.rank, { color: colors.textFaint }, item.rank <= 3 && { color: colors.accent }]}>{item.rank}</Text>
+                        <Text style={[styles.rank, { color: colors.textFaint }, index < 3 && { color: colors.accent }]}>{index + 1}</Text>
                         <View>
                           <Text style={[styles.trendTag, { color: colors.text }]}>#{item.tag}</Text>
                           <View style={styles.inlineCenter}>
-                            <MaterialIcons name={item.icon} size={13} color={colors.textFaint} />
-                            <Text style={[styles.trendMeta, { color: colors.textFaint }]}>{item.count} POSTS</Text>
+                            <MaterialIcons name="trending-up" size={13} color={colors.textFaint} />
+                            <Text style={[styles.trendMeta, { color: colors.textFaint }]}>{formatLiveCount(item.posts_count)} POSTS</Text>
                           </View>
                         </View>
                       </View>
@@ -357,17 +352,17 @@ const Search: React.FC = () => {
               <View>
                 <Text style={[styles.sectionTitle, { color: colors.textSoft }]}>Suggested for You</Text>
                 <View style={styles.gridRow}>
-                  {suggestedCreators.map((creator) => (
+                  {suggestedCreators.slice(0, 8).map((creator) => (
                     <Pressable
-                      key={creator.name}
-                      onPress={() => openProfile(creator.name)}
+                      key={creator.id}
+                      onPress={() => openProfile(creator)}
                       style={({ pressed }) => [styles.creatorCard, { width: twoColumnWidth, backgroundColor: colors.card, borderColor: colors.border }, pressed && styles.cardPressed]}
                     >
-                      <Image source={{ uri: creator.img }} style={styles.fillImage} />
+                      {creator.avatar_url ? <Image source={{ uri: creator.avatar_url }} style={styles.fillImage} /> : null}
                       <LinearGradient colors={['transparent', 'rgba(0,0,0,0.86)']} style={StyleSheet.absoluteFillObject} />
                       <View style={styles.creatorBottom}>
                         <Text style={styles.creatorName} numberOfLines={1}>{creator.name}</Text>
-                        <Text style={styles.creatorFollowers} numberOfLines={1}>{creator.followers}</Text>
+                        <Text style={styles.creatorFollowers} numberOfLines={1}>{formatLiveCount(creator.followers_count)} FOLLOWERS</Text>
                       </View>
                     </Pressable>
                   ))}
@@ -405,6 +400,7 @@ const SectionHeader = ({ title, action, colors, onPress }: { title: string; acti
 const styles = StyleSheet.create({
   safeArea: { flex: 1 },
   screen: { flex: 1, backgroundColor: '#0a0a0c' },
+  tabletScreen: { width: '100%', maxWidth: 1000, alignSelf: 'center' },
   header: {
     backgroundColor: 'rgba(10,10,12,0.96)',
     borderBottomColor: 'rgba(255,255,255,0.06)',

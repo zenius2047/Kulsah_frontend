@@ -1,4 +1,4 @@
-import React, { useEffect, useMemo, useState } from 'react';
+import React, { useDeferredValue, useEffect, useMemo, useState } from 'react';
 import {
   ActivityIndicator,
   Alert,
@@ -21,11 +21,25 @@ import { LinearGradient } from 'expo-linear-gradient';
 import * as ImagePicker from 'expo-image-picker';
 import { useVideoPlayer, VideoView } from 'expo-video';
 import * as VideoThumbnails from 'expo-video-thumbnails';
+import DatePicker from 'react-native-date-picker';
+import { useQuery } from '@tanstack/react-query';
 import { useThemeMode, primaryColorAlpha, PRIMARY_COLOR } from "../theme";
 import { fontSize } from '../typography';
 import { isCommunityVideo, parseApiError, useCreateCommunityPost, validateCommunityPost, type CommunityMediaSource, type CreateCommunityPostPayload } from '../src';
+import { messagingApi } from '../src/api/messaging.api';
+import type { UserSearchResult } from '../src/types/messaging.types';
 
 type Audience = 'all' | 'subs';
+type PhotoFilter = 'original' | 'warm' | 'cool' | 'vivid' | 'mono' | 'fade';
+
+const PHOTO_FILTERS: Array<{ id: PhotoFilter; label: string; color: string }> = [
+  { id: 'original', label: 'Original', color: '#64748b' },
+  { id: 'warm', label: 'Warm', color: '#f97316' },
+  { id: 'cool', label: 'Cool', color: '#38bdf8' },
+  { id: 'vivid', label: 'Vivid', color: '#d946ef' },
+  { id: 'mono', label: 'Mono', color: '#475569' },
+  { id: 'fade', label: 'Fade', color: '#c4b5fd' },
+];
 
 interface StoredUser {
   name?: string;
@@ -120,11 +134,30 @@ const CreateCommunityPost: React.FC = () => {
   const [showResultsAfterVoting, setShowResultsAfterVoting] = useState(true);
   const [attachedImages, setAttachedImages] = useState<ComposerMediaSource[]>([]);
   const [videoThumbnailUri, setVideoThumbnailUri] = useState<string | null>(null);
+  const [videoCoverFrames, setVideoCoverFrames] = useState<Array<{ uri: string; time: number }>>([]);
+  const [coverFrameMs, setCoverFrameMs] = useState(1000);
+  const [photoFilter, setPhotoFilter] = useState<PhotoFilter>('original');
+  const [showFilterPicker, setShowFilterPicker] = useState(false);
+  const [showPeoplePicker, setShowPeoplePicker] = useState(false);
+  const [showLocationPicker, setShowLocationPicker] = useState(false);
+  const [showCoverPicker, setShowCoverPicker] = useState(false);
+  const [peopleSearch, setPeopleSearch] = useState('');
+  const [taggedPeople, setTaggedPeople] = useState<UserSearchResult[]>([]);
+  const [locationName, setLocationName] = useState('');
+  const [scheduledAt, setScheduledAt] = useState<Date | null>(null);
+  const [showSchedulePicker, setShowSchedulePicker] = useState(false);
   const [uploadProgress, setUploadProgress] = useState(0);
   const [toastMessage, setToastMessage] = useState<string | null>(null);
   const [user, setUser] = useState<StoredUser>({});
   const [userLoaded, setUserLoaded] = useState(false);
   const createPost = useCreateCommunityPost(setUploadProgress);
+  const deferredPeopleSearch = useDeferredValue(peopleSearch.trim());
+  const peopleQuery = useQuery({
+    queryKey: ['community', 'tag-people', deferredPeopleSearch],
+    queryFn: () => messagingApi.searchUsers({ q: deferredPeopleSearch, limit: 20 }).then((response) => response.data.data.users),
+    enabled: showPeoplePicker && deferredPeopleSearch.length >= 2,
+    staleTime: 30_000,
+  });
 
   useEffect(() => {
     const loadUser = async () => {
@@ -160,12 +193,24 @@ const CreateCommunityPost: React.FC = () => {
     }
 
     let isActive = true;
-    void VideoThumbnails.getThumbnailAsync(video.uri, { time: 1000 })
-      .then(({ uri }: { uri: string }) => {
-        if (isActive) setVideoThumbnailUri(uri);
+    const duration = Math.max(1000, video.durationMs ?? 1000);
+    const times = Array.from(new Set([0, 0.25, 0.5, 0.75, 0.95].map((ratio) => Math.min(duration - 1, Math.round(duration * ratio)))));
+    void Promise.all(times.map(async (time) => ({
+      time,
+      ...(await VideoThumbnails.getThumbnailAsync(video.uri, { time })),
+    })))
+      .then((frames) => {
+        if (!isActive) return;
+        setVideoCoverFrames(frames.map(({ uri, time }) => ({ uri, time })));
+        const selected = frames.find((frame) => frame.time === coverFrameMs) ?? frames[0];
+        setCoverFrameMs(selected?.time ?? 0);
+        setVideoThumbnailUri(selected?.uri ?? null);
       })
       .catch(() => {
-        if (isActive) setVideoThumbnailUri(null);
+        if (isActive) {
+          setVideoCoverFrames([]);
+          setVideoThumbnailUri(null);
+        }
       });
 
     return () => {
@@ -270,6 +315,13 @@ const CreateCommunityPost: React.FC = () => {
     setAllowMultipleChoices(true);
     setShowResultsAfterVoting(true);
     setAttachedImages([]);
+    setVideoCoverFrames([]);
+    setVideoThumbnailUri(null);
+    setCoverFrameMs(1000);
+    setPhotoFilter('original');
+    setTaggedPeople([]);
+    setLocationName('');
+    setScheduledAt(null);
     setUploadProgress(0);
   };
 
@@ -300,6 +352,14 @@ const CreateCommunityPost: React.FC = () => {
         content: content.trim() || undefined,
         audience: targetAudience === 'subs' ? 'subscribers' : 'public',
         media: attachedImages.length ? attachedImages : undefined,
+        location_name: locationName.trim() || undefined,
+        scheduled_at: scheduledAt?.toISOString(),
+        tagged_user_ids: taggedPeople.length ? taggedPeople.map((person) => person.id) : undefined,
+        media_options: attachedImages.length ? attachedImages.map((media) => (
+          isCommunityVideo(media)
+            ? { cover_frame_ms: coverFrameMs }
+            : { filter: photoFilter }
+        )) : undefined,
         poll: showPollEditor ? {
           question: pollQuestion.trim(),
           options: cleanedPollOptions,
@@ -315,7 +375,7 @@ const CreateCommunityPost: React.FC = () => {
       }
       await createPost.mutateAsync(payload);
       await AsyncStorage.removeItem(DRAFT_STORAGE_KEY);
-      setToastMessage('Post published');
+      setToastMessage(scheduledAt ? 'Post scheduled' : 'Post published');
       resetComposer();
       setTimeout(() => {
         setToastMessage(null);
@@ -368,6 +428,25 @@ const CreateCommunityPost: React.FC = () => {
     ]);
   };
 
+  const chooseSchedule = () => {
+    if (!scheduledAt) {
+      setShowSchedulePicker(true);
+      return;
+    }
+
+    Alert.alert('Scheduled publishing', scheduledAt.toLocaleString(), [
+      { text: 'Publish now', style: 'destructive', onPress: () => setScheduledAt(null) },
+      { text: 'Change time', onPress: () => setShowSchedulePicker(true) },
+      { text: 'Cancel', style: 'cancel' },
+    ]);
+  };
+
+  const toggleTaggedPerson = (person: UserSearchResult) => {
+    setTaggedPeople((current) => current.some((item) => item.id === person.id)
+      ? current.filter((item) => item.id !== person.id)
+      : current.length < 20 ? [...current, person] : current);
+  };
+
   const handleSaveDraft = async () => {
     if (!content.trim() && attachedImages.length === 0 && !showPollEditor && !showMediaEditor) {
       Alert.alert('Nothing to save', 'Start writing or add something to your post first.');
@@ -386,6 +465,11 @@ const CreateCommunityPost: React.FC = () => {
         allowMultipleChoices,
         showResultsAfterVoting,
         attachedImages,
+        photoFilter,
+        coverFrameMs,
+        taggedPeople,
+        locationName,
+        scheduledAt: scheduledAt?.toISOString() ?? null,
         savedAt: new Date().toISOString(),
       }));
       setToastMessage('Draft saved');
@@ -540,17 +624,17 @@ const CreateCommunityPost: React.FC = () => {
       </View>
 
       <View style={[styles.imagePostTools, { borderTopColor: editorBorder }]}>
-        <Pressable onPress={() => Alert.alert('Filters', 'Photo filters are coming soon.')} style={styles.imagePostTool}>
+        <Pressable onPress={() => setShowFilterPicker(true)} style={styles.imagePostTool}>
           <MaterialIcons name="auto-fix-high" size={25} color={titleColor} />
           <Text style={[styles.imagePostToolText, { color: titleColor }]}>Filters</Text>
         </Pressable>
         <View style={[styles.imagePostToolDivider, { backgroundColor: editorBorder }]} />
-        <Pressable onPress={() => Alert.alert('Tag people', 'People tagging is coming soon.')} style={styles.imagePostTool}>
+        <Pressable onPress={() => setShowPeoplePicker(true)} style={styles.imagePostTool}>
           <MaterialIcons name="person-outline" size={27} color={titleColor} />
           <Text style={[styles.imagePostToolText, { color: titleColor }]}>Tag People</Text>
         </Pressable>
         <View style={[styles.imagePostToolDivider, { backgroundColor: editorBorder }]} />
-        <Pressable onPress={() => Alert.alert('Add location', 'Location tagging is coming soon.')} style={styles.imagePostTool}>
+        <Pressable onPress={() => setShowLocationPicker(true)} style={styles.imagePostTool}>
           <MaterialIcons name="location-on" size={27} color={titleColor} />
           <Text style={[styles.imagePostToolText, { color: titleColor }]}>Add Location</Text>
         </Pressable>
@@ -563,10 +647,7 @@ const CreateCommunityPost: React.FC = () => {
 
     const duration = formatVideoDuration(selectedVideo.durationMs);
     const videoTools = [
-      { icon: 'content-cut' as const, label: 'Trim' },
       { icon: 'image' as const, label: 'Cover' },
-      { icon: 'closed-caption' as const, label: 'Captions' },
-      { icon: 'music-note' as const, label: 'Sound' },
     ];
 
     return (
@@ -623,7 +704,10 @@ const CreateCommunityPost: React.FC = () => {
         <View style={[styles.videoToolCard, { backgroundColor: composerBackground, borderColor: editorBorder }]}>
           {videoTools.map((tool, index) => (
             <React.Fragment key={tool.label}>
-              <Pressable onPress={() => Alert.alert(tool.label, `${tool.label} tools are coming soon.`)} style={styles.videoToolButton}>
+              <Pressable
+                onPress={() => setShowCoverPicker(true)}
+                style={styles.videoToolButton}
+              >
                 <MaterialIcons name={tool.icon} size={25} color={PRIMARY_COLOR} />
                 <Text style={[styles.videoToolText, { color: titleColor }]}>{tool.label}</Text>
               </Pressable>
@@ -664,12 +748,12 @@ const CreateCommunityPost: React.FC = () => {
             <Text style={[styles.videoSettingTitle, { color: titleColor }]}>Add Hashtags</Text>
             <MaterialIcons name="chevron-right" size={27} color={mutedText} />
           </Pressable>
-          <Pressable onPress={() => Alert.alert('Tag people', 'People tagging is coming soon.')} style={[styles.videoSettingRow, { borderBottomColor: editorBorder }]}>
+          <Pressable onPress={() => setShowPeoplePicker(true)} style={[styles.videoSettingRow, { borderBottomColor: editorBorder }]}>
             <MaterialIcons name="alternate-email" size={27} color={PRIMARY_COLOR} />
             <Text style={[styles.videoSettingTitle, { color: titleColor }]}>Tag People</Text>
             <MaterialIcons name="chevron-right" size={27} color={mutedText} />
           </Pressable>
-          <Pressable onPress={() => Alert.alert('Cover frame', 'Cover frame selection is coming soon.')} style={styles.videoSettingRowLast}>
+          <Pressable onPress={() => setShowCoverPicker(true)} style={styles.videoSettingRowLast}>
             <MaterialIcons name="image" size={27} color={PRIMARY_COLOR} />
             <Text style={[styles.videoSettingTitle, { color: titleColor }]}>Choose Cover Frame</Text>
             {videoThumbnailUri ? <Image source={{ uri: videoThumbnailUri }} style={styles.videoCoverThumbnail} /> : null}
@@ -711,7 +795,7 @@ const CreateCommunityPost: React.FC = () => {
 
   return (
     <SafeAreaView style={[styles.safeArea, { backgroundColor: theme.background }]} edges={['top', 'left', 'right', 'bottom']}>
-      <View style={[styles.screen, { backgroundColor: theme.screen }]}>
+      <View style={[styles.screen, styles.tabletScreen, { backgroundColor: theme.screen }]}>
         <StatusBar barStyle={isDark ? 'light-content' : 'dark-content'} backgroundColor="transparent" translucent />
         <LinearGradient colors={screenGradient} style={StyleSheet.absoluteFill} />
 
@@ -1003,7 +1087,7 @@ const CreateCommunityPost: React.FC = () => {
 
               <View style={[styles.referenceSettingsCard, { backgroundColor: composerBackground, borderColor: editorBorder }]}>
             <Pressable
-              onPress={() => Alert.alert('Schedule post', 'Scheduled community publishing is not available yet.')}
+              onPress={chooseSchedule}
               style={[styles.referenceSettingRow, { borderBottomColor: editorBorder }]}
             >
               <View style={[styles.referenceSettingIcon, { backgroundColor: primarySurface }]}>
@@ -1011,7 +1095,27 @@ const CreateCommunityPost: React.FC = () => {
               </View>
               <View style={styles.referenceSettingCopy}>
                 <Text style={[styles.referenceSettingTitle, { color: titleColor }]}>Schedule post</Text>
-                <Text style={[styles.referenceSettingSubtitle, { color: mutedText }]}>Choose date and time</Text>
+                <Text style={[styles.referenceSettingSubtitle, { color: mutedText }]}>{scheduledAt ? scheduledAt.toLocaleString() : 'Choose date and time'}</Text>
+              </View>
+              <MaterialIcons name="chevron-right" size={28} color={mutedText} />
+            </Pressable>
+            <Pressable onPress={() => setShowPeoplePicker(true)} style={[styles.referenceSettingRow, { borderBottomColor: editorBorder }]}>
+              <View style={[styles.referenceSettingIcon, { backgroundColor: primarySurface }]}>
+                <MaterialIcons name="alternate-email" size={27} color={PRIMARY_COLOR} />
+              </View>
+              <View style={styles.referenceSettingCopy}>
+                <Text style={[styles.referenceSettingTitle, { color: titleColor }]}>Tag people</Text>
+                <Text style={[styles.referenceSettingSubtitle, { color: mutedText }]}>{taggedPeople.length ? `${taggedPeople.length} selected` : 'Notify people featured in this post'}</Text>
+              </View>
+              <MaterialIcons name="chevron-right" size={28} color={mutedText} />
+            </Pressable>
+            <Pressable onPress={() => setShowLocationPicker(true)} style={[styles.referenceSettingRow, { borderBottomColor: editorBorder }]}>
+              <View style={[styles.referenceSettingIcon, { backgroundColor: primarySurface }]}>
+                <MaterialIcons name="location-on" size={27} color={PRIMARY_COLOR} />
+              </View>
+              <View style={styles.referenceSettingCopy}>
+                <Text style={[styles.referenceSettingTitle, { color: titleColor }]}>Location</Text>
+                <Text style={[styles.referenceSettingSubtitle, { color: mutedText }]}>{locationName || 'Add a place or city'}</Text>
               </View>
               <MaterialIcons name="chevron-right" size={28} color={mutedText} />
             </Pressable>
@@ -1046,6 +1150,148 @@ const CreateCommunityPost: React.FC = () => {
         {isPosting && uploadProgress > 0 ? (
           <Text style={[styles.referenceUploadText, { color: mutedText }]}>Uploading {uploadProgress}%</Text>
         ) : null}
+
+        <DatePicker
+          modal
+          open={showSchedulePicker}
+          date={scheduledAt ?? new Date(Date.now() + 60 * 60 * 1000)}
+          minimumDate={new Date(Date.now() + 5 * 60 * 1000)}
+          mode="datetime"
+          title="Schedule post"
+          confirmText="Schedule"
+          onCancel={() => setShowSchedulePicker(false)}
+          onConfirm={(date) => {
+            setScheduledAt(date);
+            setShowSchedulePicker(false);
+          }}
+        />
+
+        <Modal visible={showFilterPicker} transparent animationType="slide" statusBarTranslucent onRequestClose={() => setShowFilterPicker(false)}>
+          <View style={styles.modalRoot}>
+            <Pressable style={[styles.modalBackdrop, { backgroundColor: modalBackdrop }]} onPress={() => setShowFilterPicker(false)} />
+            <View style={[styles.modalCard, { backgroundColor: modalCardBackground, borderColor: headerBorder }]}>
+              <View style={[styles.modalHandle, { backgroundColor: handleColor }]} />
+              <View style={styles.modalHeader}>
+                <Text style={[styles.modalTitle, { color: titleColor }]}>PHOTO FILTER</Text>
+                <Pressable onPress={() => setShowFilterPicker(false)}><MaterialIcons name="close" size={22} color={titleColor} /></Pressable>
+              </View>
+              <View style={styles.optionGrid}>
+                {PHOTO_FILTERS.map((filter) => {
+                  const selected = photoFilter === filter.id;
+                  return (
+                    <Pressable key={filter.id} onPress={() => setPhotoFilter(filter.id)} style={[styles.filterOption, { borderColor: selected ? PRIMARY_COLOR : headerBorder }]}>
+                      <View style={[styles.filterSwatch, { backgroundColor: filter.color }]} />
+                      <Text style={[styles.optionLabel, { color: selected ? PRIMARY_COLOR : titleColor }]}>{filter.label}</Text>
+                      {selected ? <MaterialIcons name="check-circle" size={18} color={PRIMARY_COLOR} /> : null}
+                    </Pressable>
+                  );
+                })}
+              </View>
+              <Pressable onPress={() => setShowFilterPicker(false)} style={styles.optionDoneButton}><Text style={styles.optionDoneText}>Apply filter</Text></Pressable>
+            </View>
+          </View>
+        </Modal>
+
+        <Modal visible={showPeoplePicker} transparent animationType="slide" statusBarTranslucent onRequestClose={() => setShowPeoplePicker(false)}>
+          <View style={styles.modalRoot}>
+            <Pressable style={[styles.modalBackdrop, { backgroundColor: modalBackdrop }]} onPress={() => setShowPeoplePicker(false)} />
+            <View style={[styles.modalCard, styles.tallModalCard, { backgroundColor: modalCardBackground, borderColor: headerBorder }]}>
+              <View style={[styles.modalHandle, { backgroundColor: handleColor }]} />
+              <View style={styles.modalHeader}>
+                <Text style={[styles.modalTitle, { color: titleColor }]}>TAG PEOPLE</Text>
+                <Pressable onPress={() => setShowPeoplePicker(false)}><Text style={styles.modalDoneText}>Done</Text></Pressable>
+              </View>
+              <TextInput
+                value={peopleSearch}
+                onChangeText={setPeopleSearch}
+                placeholder="Search by name or @handle"
+                placeholderTextColor={placeholderColor}
+                autoCapitalize="none"
+                style={[styles.optionInput, { color: titleColor, borderColor: headerBorder, backgroundColor: inputSurface }]}
+              />
+              {taggedPeople.length ? (
+                <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={styles.selectedPeopleRow}>
+                  {taggedPeople.map((person) => (
+                    <Pressable key={person.id} onPress={() => toggleTaggedPerson(person)} style={[styles.selectedPersonChip, { backgroundColor: primarySurface }]}>
+                      <Text style={[styles.selectedPersonText, { color: PRIMARY_COLOR }]}>@{person.handle ?? person.name}</Text>
+                      <MaterialIcons name="close" size={15} color={PRIMARY_COLOR} />
+                    </Pressable>
+                  ))}
+                </ScrollView>
+              ) : null}
+              <ScrollView keyboardShouldPersistTaps="handled" style={styles.peopleResults}>
+                {peopleQuery.isLoading ? <ActivityIndicator color={PRIMARY_COLOR} style={styles.optionLoader} /> : null}
+                {(peopleQuery.data ?? []).map((person) => {
+                  const selected = taggedPeople.some((item) => item.id === person.id);
+                  return (
+                    <Pressable key={person.id} onPress={() => toggleTaggedPerson(person)} style={[styles.personRow, { borderBottomColor: headerBorder }]}>
+                      {person.avatar ? <Image source={{ uri: person.avatar }} style={styles.personAvatar} /> : <View style={[styles.personAvatar, { backgroundColor: primarySurface }]} />}
+                      <View style={styles.personCopy}>
+                        <Text style={[styles.personName, { color: titleColor }]}>{person.name || person.handle || 'Kulsah user'}</Text>
+                        <Text style={[styles.personHandle, { color: mutedText }]}>@{person.handle ?? 'user'}</Text>
+                      </View>
+                      <MaterialIcons name={selected ? 'check-circle' : 'radio-button-unchecked'} size={23} color={selected ? PRIMARY_COLOR : mutedText} />
+                    </Pressable>
+                  );
+                })}
+                {deferredPeopleSearch.length < 2 ? <Text style={[styles.optionHint, { color: mutedText }]}>Enter at least two characters to find people.</Text> : null}
+              </ScrollView>
+            </View>
+          </View>
+        </Modal>
+
+        <Modal visible={showLocationPicker} transparent animationType="fade" statusBarTranslucent onRequestClose={() => setShowLocationPicker(false)}>
+          <View style={styles.modalRoot}>
+            <Pressable style={[styles.modalBackdrop, { backgroundColor: modalBackdrop }]} onPress={() => setShowLocationPicker(false)} />
+            <View style={[styles.modalCard, { backgroundColor: modalCardBackground, borderColor: headerBorder }]}>
+              <View style={[styles.modalHandle, { backgroundColor: handleColor }]} />
+              <View style={styles.modalHeader}>
+                <Text style={[styles.modalTitle, { color: titleColor }]}>ADD LOCATION</Text>
+                <Pressable onPress={() => setShowLocationPicker(false)}><MaterialIcons name="close" size={22} color={titleColor} /></Pressable>
+              </View>
+              <TextInput
+                value={locationName}
+                onChangeText={setLocationName}
+                placeholder="Venue, city, or place"
+                placeholderTextColor={placeholderColor}
+                maxLength={255}
+                style={[styles.optionInput, { color: titleColor, borderColor: headerBorder, backgroundColor: inputSurface }]}
+              />
+              <View style={styles.inlineOptionActions}>
+                {locationName ? <Pressable onPress={() => setLocationName('')} style={styles.secondaryOptionButton}><Text style={[styles.secondaryOptionText, { color: mutedText }]}>Remove</Text></Pressable> : null}
+                <Pressable onPress={() => setShowLocationPicker(false)} style={[styles.optionDoneButton, styles.flexOptionButton]}><Text style={styles.optionDoneText}>Save location</Text></Pressable>
+              </View>
+            </View>
+          </View>
+        </Modal>
+
+        <Modal visible={showCoverPicker} transparent animationType="slide" statusBarTranslucent onRequestClose={() => setShowCoverPicker(false)}>
+          <View style={styles.modalRoot}>
+            <Pressable style={[styles.modalBackdrop, { backgroundColor: modalBackdrop }]} onPress={() => setShowCoverPicker(false)} />
+            <View style={[styles.modalCard, { backgroundColor: modalCardBackground, borderColor: headerBorder }]}>
+              <View style={[styles.modalHandle, { backgroundColor: handleColor }]} />
+              <View style={styles.modalHeader}>
+                <Text style={[styles.modalTitle, { color: titleColor }]}>CHOOSE COVER</Text>
+                <Pressable onPress={() => setShowCoverPicker(false)}><Text style={styles.modalDoneText}>Done</Text></Pressable>
+              </View>
+              <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={styles.coverFrameRow}>
+                {videoCoverFrames.map((frame) => {
+                  const selected = coverFrameMs === frame.time;
+                  return (
+                    <Pressable
+                      key={frame.time}
+                      onPress={() => { setCoverFrameMs(frame.time); setVideoThumbnailUri(frame.uri); }}
+                      style={[styles.coverFrameButton, { borderColor: selected ? PRIMARY_COLOR : headerBorder }]}
+                    >
+                      <Image source={{ uri: frame.uri }} style={styles.coverFrameImage} />
+                      <Text style={styles.coverFrameTime}>{(frame.time / 1000).toFixed(1)}s</Text>
+                    </Pressable>
+                  );
+                })}
+              </ScrollView>
+            </View>
+          </View>
+        </Modal>
 
         <Modal visible={showEmojiPicker} transparent animationType="slide" statusBarTranslucent onRequestClose={() => setShowEmojiPicker(false)}>
           <View style={styles.modalRoot}>
@@ -1096,6 +1342,11 @@ const styles = StyleSheet.create({
   screen: {
     flex: 1,
     backgroundColor: '#050507',
+  },
+  tabletScreen: {
+    width: '100%',
+    maxWidth: 900,
+    alignSelf: 'center',
   },
   toast: {
     position: 'absolute',
@@ -2374,6 +2625,34 @@ const styles = StyleSheet.create({
     fontFamily: 'Poppins_500Medium',
     fontSize: 12,
   },
+  tallModalCard: { maxHeight: '78%' },
+  modalDoneText: { color: PRIMARY_COLOR, fontFamily: 'Poppins_600SemiBold', fontSize: 14 },
+  optionGrid: { flexDirection: 'row', flexWrap: 'wrap', gap: 10, paddingHorizontal: 18, paddingBottom: 18 },
+  filterOption: { width: '48%', minHeight: 54, borderWidth: 1, borderRadius: 14, paddingHorizontal: 12, flexDirection: 'row', alignItems: 'center', gap: 9 },
+  filterSwatch: { width: 24, height: 24, borderRadius: 12 },
+  optionLabel: { flex: 1, fontFamily: 'Poppins_500Medium', fontSize: 13 },
+  optionDoneButton: { minHeight: 46, marginHorizontal: 18, marginBottom: 18, borderRadius: 999, backgroundColor: PRIMARY_COLOR, alignItems: 'center', justifyContent: 'center', paddingHorizontal: 18 },
+  optionDoneText: { color: '#ffffff', fontFamily: 'Poppins_600SemiBold', fontSize: 14 },
+  optionInput: { minHeight: 50, marginHorizontal: 18, marginBottom: 12, borderWidth: 1, borderRadius: 14, paddingHorizontal: 14, fontFamily: 'Poppins_400Regular', fontSize: 14 },
+  selectedPeopleRow: { paddingHorizontal: 18, paddingBottom: 10, gap: 8 },
+  selectedPersonChip: { minHeight: 34, borderRadius: 999, paddingHorizontal: 11, flexDirection: 'row', alignItems: 'center', gap: 5 },
+  selectedPersonText: { fontFamily: 'Poppins_500Medium', fontSize: 12 },
+  peopleResults: { minHeight: 180, paddingHorizontal: 18 },
+  personRow: { minHeight: 62, borderBottomWidth: StyleSheet.hairlineWidth, flexDirection: 'row', alignItems: 'center', gap: 11 },
+  personAvatar: { width: 40, height: 40, borderRadius: 20 },
+  personCopy: { flex: 1 },
+  personName: { fontFamily: 'Poppins_600SemiBold', fontSize: 13 },
+  personHandle: { marginTop: 2, fontFamily: 'Poppins_400Regular', fontSize: 11 },
+  optionLoader: { marginVertical: 24 },
+  optionHint: { paddingVertical: 28, textAlign: 'center', fontFamily: 'Poppins_400Regular', fontSize: 12 },
+  inlineOptionActions: { flexDirection: 'row', alignItems: 'center', gap: 8, paddingHorizontal: 18 },
+  secondaryOptionButton: { minHeight: 46, paddingHorizontal: 16, alignItems: 'center', justifyContent: 'center' },
+  secondaryOptionText: { fontFamily: 'Poppins_500Medium', fontSize: 13 },
+  flexOptionButton: { flex: 1, marginHorizontal: 0 },
+  coverFrameRow: { paddingHorizontal: 18, paddingBottom: 22, gap: 10 },
+  coverFrameButton: { width: 112, height: 156, borderRadius: 13, borderWidth: 3, overflow: 'hidden', backgroundColor: '#111827' },
+  coverFrameImage: { width: '100%', height: '100%', resizeMode: 'cover' },
+  coverFrameTime: { position: 'absolute', right: 6, bottom: 6, color: '#ffffff', backgroundColor: 'rgba(0,0,0,0.65)', borderRadius: 6, paddingHorizontal: 6, paddingVertical: 2, fontSize: 10 },
 });
 
 export default CreateCommunityPost;

@@ -71,6 +71,8 @@ interface CommunityPost {
   isFollowing: boolean;
   isVerified: boolean;
   communityCount?: number;
+  locationName?: string | null;
+  taggedUsers?: Array<{ id: string | number; name: string; handle: string }>;
 }
 
 interface CurrentUser {
@@ -173,7 +175,7 @@ const seedPosts: CommunityPost[] = [
 
 ];
 
-export const COMMUNITY_UPDATE_COUNT = seedPosts.length;
+export const COMMUNITY_UPDATE_COUNT = 0;
 
 const stickers = [
   { id: 'st1', img: ARTIST_PROFILE_IMAGE_LINKS.profile },
@@ -257,6 +259,8 @@ const toFeedPost = (post: ApiCommunityPost): CommunityPost => ({
   isFollowing: post.viewer.is_following ?? post.author.is_following,
   isVerified: post.author.is_verified,
   communityCount: post.community_count ?? 0,
+  locationName: post.location_name,
+  taggedUsers: post.tagged_users,
 });
 
 const VideoPreview = memo<{ videoUrl: string; isActive: boolean; viewerCount?: number; isLive?: boolean; onOpen: () => void }>(({ videoUrl, isActive, viewerCount, isLive = false, onOpen }) => {
@@ -482,7 +486,6 @@ const Community: React.FC<{ embedded?: boolean; onCountChange?: (count: number) 
 
   const savePosts = async (nextPosts: CommunityPost[]) => {
     setPosts(nextPosts);
-    await AsyncStorage.setItem(STORAGE_KEY, JSON.stringify(nextPosts));
   };
 
   const toggleLike = async (id: string) => {
@@ -672,10 +675,6 @@ const Community: React.FC<{ embedded?: boolean; onCountChange?: (count: number) 
           <Text style={styles.headerSubtitle}>Galaxy Universe</Text>
         </View>
 
-        {/* <View style={styles.headerSpacer} /> */}
-        {/* <Pressable onPress={() => navigation.navigate('Inbox')} style={[styles.headerRoundBtn, { backgroundColor: faintSurface, borderColor: softBorder }]}>
-          <MaterialIcons name="notifications-none" size={22} color={theme.text} />
-        </Pressable> */}
       </View> }
 
       <ScrollView
@@ -802,6 +801,24 @@ const Community: React.FC<{ embedded?: boolean; onCountChange?: (count: number) 
               </View>
 
               <View style={styles.postContentWrap}>
+                {post.locationName || post.taggedUsers?.length ? (
+                  <View style={styles.postMetadataRow}>
+                    {post.locationName ? (
+                      <View style={styles.postMetadataItem}>
+                        <MaterialIcons name="location-on" size={15} color={PRIMARY_COLOR} />
+                        <Text numberOfLines={1} style={[styles.postMetadataText, { color: mutedText }]}>{post.locationName}</Text>
+                      </View>
+                    ) : null}
+                    {post.taggedUsers?.length ? (
+                      <View style={styles.postMetadataItem}>
+                        <MaterialIcons name="alternate-email" size={15} color={PRIMARY_COLOR} />
+                        <Text numberOfLines={1} style={[styles.postMetadataText, { color: mutedText }]}>
+                          with {post.taggedUsers.map((person) => person.name || `@${person.handle}`).join(', ')}
+                        </Text>
+                      </View>
+                    ) : null}
+                  </View>
+                ) : null}
                 {editingPostId === post.id ? (
                   <View style={{ gap: 10 }}>
                     <TextInput includeFontPadding={false}
@@ -1252,6 +1269,9 @@ const styles = StyleSheet.create({
   optionText: { color: '#cbd5e1', ...fontSize.b3, lineHeight: fontSize.b3.lineHeight },
   deleteText: { color: '#ef4444', ...fontSize.b3, lineHeight: fontSize.b3.lineHeight },
   postContentWrap: { paddingHorizontal: 16, paddingVertical: 12 },
+  postMetadataRow: { flexDirection: 'row', flexWrap: 'wrap', gap: 10, marginBottom: 8 },
+  postMetadataItem: { flexDirection: 'row', alignItems: 'center', gap: 4, maxWidth: '100%' },
+  postMetadataText: { ...fontSize.b5, lineHeight: fontSize.b5.lineHeight, flexShrink: 1 },
   postContent: { 
     ...fontSize.b3,
     color: '#e2e8f0', 

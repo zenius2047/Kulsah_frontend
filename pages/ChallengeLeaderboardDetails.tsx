@@ -20,9 +20,8 @@ import type { ChallengePrizeResource } from '../src/types/challenge.types';
 import { getApiErrorMessage } from '../src/utils/apiError';
 import { challengeRuleResourceToDisplay } from '../src/utils/challenges';
 import { PRIMARY_COLOR, primaryColorAlpha, useThemeMode } from '../theme';
-import { user, type User } from '../types';
+import { user } from '../types';
 import { fontSize } from '../typography';
-import { BoostEntryDialog } from './ChallengeLeaderboard';
 
 type LeaderboardTab = 'ranking' | 'rules' | 'award';
 type IconName = keyof typeof MaterialIcons.glyphMap;
@@ -99,9 +98,11 @@ const ChallengeLeaderboardDetails: React.FC = () => {
   const leaderboardQuery = useChallengeLeaderboard(challengeId);
   const settleCreatorBattle = useSettleCreatorBattle();
   const [activeTab, setActiveTab] = useState<LeaderboardTab>('ranking');
-  const [boostOpen, setBoostOpen] = useState(false);
   const [userRank, setUserRank] = useState(18);
   const [userPoints, setUserPoints] = useState(5210);
+  const openChallenge = () => {
+    if (challengeId != null) navigation.navigate('ChallengeFeed', { challengeId });
+  };
 
   const colors = {
     background: isDark ? '#080b12' : '#f7f9fc',
@@ -293,7 +294,7 @@ const ChallengeLeaderboardDetails: React.FC = () => {
                   <Text style={[styles.statLabel, { color: colors.secondary }]}>Your rank</Text>
                   <Text style={[styles.statValue, { color: colors.text }]}>#{displayedUser.rank}</Text>
                 </View>
-                <Pressable onPress={() => navigation.navigate('ChallengeFeed', { challengeId })} style={styles.inlineLink}>
+                <Pressable disabled={challengeId == null} onPress={openChallenge} style={styles.inlineLink}>
                   <Text style={styles.inlineLinkText}>View my entry</Text>
                   <MaterialIcons name="chevron-right" size={23} color={PRIMARY_COLOR} />
                 </Pressable>
@@ -355,9 +356,6 @@ const ChallengeLeaderboardDetails: React.FC = () => {
                   </View>
                 </View>
                 <Text style={[styles.currentPoints, { color: colors.text }]}>{formatPoints(userPoints)} <Text style={[styles.pointsLabel, { color: colors.secondary }]}>points</Text></Text>
-                <Pressable onPress={() => setBoostOpen(true)} style={styles.boostButton}>
-                  <Text style={styles.boostText}>Boost Entry</Text>
-                </Pressable>
               </View>
 
               {listRankings.length ? (
@@ -365,7 +363,7 @@ const ChallengeLeaderboardDetails: React.FC = () => {
                   {listRankings.map((item, index) => (
                     <Pressable
                       key={item.id}
-                      onPress={() => navigation.navigate('ChallengeFeed', { challengeId })}
+                      onPress={openChallenge}
                       style={[styles.rankingRow, index > 0 && { borderTopColor: colors.border, borderTopWidth: 1 }]}
                     >
                       <Text style={[styles.listRank, { color: colors.secondary }]}>{item.rank}</Text>
@@ -519,17 +517,6 @@ const ChallengeLeaderboardDetails: React.FC = () => {
           </View>
         ) : null}
 
-        <BoostEntryDialog
-          isOpen={boostOpen}
-          onClose={() => setBoostOpen(false)}
-          currentUser={user as User | null}
-          currentRank={userRank}
-          baseVotes={userPoints}
-          onBoostApplied={(pointsAdded, rank) => {
-            setUserPoints((current) => current + pointsAdded);
-            setUserRank(rank);
-          }}
-        />
       </View>
     </SafeAreaView>
   );
@@ -582,8 +569,6 @@ const styles = StyleSheet.create({
   youText: { ...fontSize.b6, color: PRIMARY_COLOR },
   currentHandle: { ...fontSize.b5, flexShrink: 1 },
   currentPoints: { ...fontSize.b0 },
-  boostButton: { minHeight: 42, borderRadius: 999, paddingHorizontal: 14, backgroundColor: PRIMARY_COLOR, alignItems: 'center', justifyContent: 'center' },
-  boostText: { ...fontSize.b5Variant, color: '#ffffff' },
   rankingList: { borderRadius: 20, borderWidth: 1, overflow: 'hidden' },
   rankingRow: { minHeight: 66, paddingHorizontal: 11, flexDirection: 'row', alignItems: 'center', gap: 10 },
   listRank: { ...fontSize.n3, width: 29, textAlign: 'center' },

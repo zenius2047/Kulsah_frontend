@@ -1,11 +1,10 @@
-import React, { useCallback, useMemo, useState } from 'react';
-import AsyncStorage from '@react-native-async-storage/async-storage';
+import React, { useMemo, useState } from 'react';
 import { useThemeMode, PRIMARY_COLOR, primaryColorAlpha } from "../theme";
 import { ActivityIndicator, Image, Modal, Pressable, ScrollView, StyleSheet, Text, useWindowDimensions, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { MaterialIcons } from '@expo/vector-icons';
 import { LinearGradient } from 'expo-linear-gradient';
-import { useFocusEffect, useNavigation } from '@react-navigation/native';
+import { useNavigation } from '@react-navigation/native';
 import Svg, { Circle } from 'react-native-svg';
 import { mediumScreen } from '../types';
 import TrophyIcon from '../assets/icons/trophy-svg.svg';
@@ -13,14 +12,12 @@ import SubmissionIcon from '../assets/icons/upload-svg.svg';
 import DraftIcon from '../assets/icons/draft-svg.svg';
 import InviteIcon from '../assets/icons/invite-svg.svg';
 import { fontSize } from '../typography';
-import { useChallenges } from '../src/hooks/challenges/useChallenges';
+import { useCreatorChallengeDrafts, useCreatorChallenges } from '../src/hooks/challenges/useChallenges';
 import { challengeListResourceToCard, type ChallengeCardItem } from '../src/utils/challenges';
 
 type Tab = 'challenges' | 'submissions' | 'drafts' | 'invites';
 
 type Challenge = ChallengeCardItem;
-
-const CHALLENGE_DRAFTS_KEY = 'pulsar_challenge_drafts';
 
 type Submission = {
   id: string;
@@ -51,160 +48,21 @@ type Invite = {
   requirements?: string[];
 };
 
-const CHALLENGES: Challenge[] = [
-  {
-    id: 'c1',
-    creatorId: 'mila_ray_01',
-    creatorName: 'Mila Ray',
-    category: 'Dance',
-    title: 'Night Vibes Dance Challenge',
-    description: 'Show us your best moves under the neon lights and tag #NightVibes for a chance to be featured.',
-    reward: '$500 + Feature',
-    deadline: '7 Days',
-    participants: 1200,
-    image: 'https://images.unsplash.com/photo-1547153760-18fc86324498?auto=format&fit=crop&q=80&w=800',
-  },
-  {
-    id: 'c2',
-    creatorId: 'elena_rose',
-    creatorName: 'Elena Rose',
-    category: 'Vocals',
-    title: 'Nebula Vocal Flip',
-    description: 'Reimagine the Nebula chorus with your own vocal texture and a bold harmony stack.',
-    reward: '$1K + Studio Day',
-    deadline: '12 Days',
-    participants: 856,
-    image: 'https://images.unsplash.com/photo-1516450360452-9312f5e86fc7?auto=format&fit=crop&q=80&w=800',
-    isNew: true,
-  },
-  {
-    id: 'c3',
-    creatorId: 'alex_rivera_42',
-    creatorName: 'Alex Rivera',
-    category: 'Film',
-    title: 'Golden Hour Loop',
-    description: 'Create a seamless 15-second cinematic loop captured entirely during golden hour.',
-    reward: '5K KulCoins',
-    deadline: '4 Days',
-    participants: 642,
-    image: 'https://images.unsplash.com/photo-1498038432885-c6f3f1b912ee?auto=format&fit=crop&q=80&w=800',
-  },
-  {
-    id: 'c4',
-    creatorId: 'zoe_k',
-    creatorName: 'Zoe K',
-    category: 'Music',
-    title: 'Neon Pulse Remix',
-    description: 'Turn the official stems into a late-night club remix with an unforgettable final drop.',
-    reward: 'Official Release',
-    deadline: '9 Days',
-    participants: 384,
-    image: 'https://images.unsplash.com/photo-1511671782779-c97d3d27a1d4?auto=format&fit=crop&q=80&w=800',
-    isNew: true,
-  },
-];
-
-const SUBMISSIONS: Submission[] = [
-  {
-    id: 's1',
-    challengeTitle: 'Remix My New Single',
-    userId: 'fan_1',
-    userName: 'MusicLover99',
-    userAvatar: 'https://picsum.photos/seed/fan1/200',
-    thumbnailUrl: 'https://picsum.photos/seed/sub1/400/600',
-    submittedAt: '2 hours ago',
-    likes: 124,
-    votes: 45,
-  },
-  {
-    id: 's2',
-    challengeTitle: 'Remix My New Single',
-    userId: 'fan_2',
-    userName: 'Champion Fan',
-    userAvatar: 'https://picsum.photos/seed/fan2/200',
-    thumbnailUrl: 'https://picsum.photos/seed/sub2/400/600',
-    submittedAt: '5 hours ago',
-    likes: 89,
-    votes: 32,
-  },
-];
-
-const DRAFTS: Challenge[] = [
-  {
-    id: 'd1',
-    creatorId: 'mila_ray_01',
-    creatorName: 'Mila Ray',
-    category: 'Music',
-    title: 'Acoustic Soul Session',
-    description: 'Record your best acoustic cover of my latest track.',
-    reward: '$200 + Signed Vinyl',
-    deadline: '14 Days',
-    participants: 0,
-    image: 'https://images.unsplash.com/photo-1510915361894-db8b60106cb1?auto=format&fit=crop&q=80&w=800',
-  },
-  {
-    id: 'd2',
-    creatorId: 'mila_ray_01',
-    creatorName: 'Mila Ray',
-    category: 'Dance',
-    title: 'Dance Choreography',
-    description: 'Create a 15 second dance routine for the chorus.',
-    reward: 'Feature in Music Video',
-    deadline: '7 Days',
-    participants: 0,
-    image: 'https://images.unsplash.com/photo-1508700115892-45ecd05ae2ad?auto=format&fit=crop&q=80&w=800',
-  },
-];
-
-const INVITES: Invite[] = [
-  {
-    id: 'i1',
-    inviterName: 'Zoe K',
-    inviterAvatar: 'https://picsum.photos/seed/zoe/100',
-    title: 'Neon Pulse Remix',
-    description: 'Collaborate on a high-energy synthwave remix with your unique vocal texture.',
-    reward: '50/50 Royalty Split + Feature',
-    status: 'pending',
-    image: 'https://images.unsplash.com/photo-1550745165-9bc0b252726f?auto=format&fit=crop&q=80&w=800',
-    role: 'Featured Vocal Collaborator',
-    longMessage: 'I want to build a high-voltage remix around your vocal tone. The concept is a neon club version of the hook with your bridge becoming the emotional lift before the final drop.',
-    split: '50% / 50%',
-    timeline: '10 Day Sprint',
-    synergyScore: 92,
-    requirements: ['Record a 16-bar vocal bridge', 'Approve final synth arrangement', 'Co-promote the launch teaser'],
-  },
-  {
-    id: 'i2',
-    inviterName: 'Marcus V',
-    inviterAvatar: 'https://picsum.photos/seed/marcus/100',
-    title: 'Midnight Session',
-    description: 'Join my midnight live session challenge as a guest judge and performer.',
-    reward: 'Cross-Promotion to 50k Fans',
-    status: 'accepted',
-    image: 'https://images.unsplash.com/photo-1514525253361-bee8718a74a2?auto=format&fit=crop&q=80&w=800',
-    role: 'Guest Judge & Performer',
-    split: 'Promo Exchange',
-    timeline: 'Live Friday',
-    synergyScore: 84,
-    requirements: ['Join pre-show soundcheck', 'Select top 3 entries', 'Perform one live chorus'],
-  },
-];
-
-export const CREATOR_CHALLENGE_UPDATE_COUNT =
-  CHALLENGES.length + SUBMISSIONS.length + DRAFTS.length + INVITES.length;
+export const CREATOR_CHALLENGE_UPDATE_COUNT = 0;
 
 const CreatorChallenges: React.FC = () => {
   const navigation = useNavigation();
   const { width: screenWidth } = useWindowDimensions();
   const { isDark, theme } = useThemeMode();
   const [activeTab, setActiveTab] = useState<Tab>('challenges');
-  const [drafts, setDrafts] = useState<Challenge[]>(DRAFTS);
-  const [invites, setInvites] = useState<Invite[]>(INVITES);
+  const [invites, setInvites] = useState<Invite[]>([]);
   const [selectedInvite, setSelectedInvite] = useState<Invite | null>(null);
   const [showCounterBox, setShowCounterBox] = useState(false);
   const [collabSplitVal, setCollabSplitVal] = useState(50);
   const [toast, setToast] = useState<string | null>(null);
-  const challengesQuery = useChallenges();
+  const challengesQuery = useCreatorChallenges();
+  const draftsQuery = useCreatorChallengeDrafts();
+  const submissions: Submission[] = [];
   const challenges = useMemo(() => {
     const pages = challengesQuery.data?.pages;
     if (!Array.isArray(pages)) return [];
@@ -216,21 +74,10 @@ const CreatorChallenges: React.FC = () => {
         .map((challenge) => challengeListResourceToCard(challenge));
     });
   }, [challengesQuery.data]);
-
-  useFocusEffect(useCallback(() => {
-    let active = true;
-    void AsyncStorage.getItem(CHALLENGE_DRAFTS_KEY)
-      .then((stored: string | null) => {
-        if (!active || !stored) return;
-        const parsed = JSON.parse(stored) as unknown;
-        if (Array.isArray(parsed)) setDrafts(parsed as Challenge[]);
-      })
-      .catch(() => undefined);
-
-    return () => {
-      active = false;
-    };
-  }, []));
+  const drafts = useMemo(
+    () => (draftsQuery.data ?? []).map((challenge) => challengeListResourceToCard(challenge)),
+    [draftsQuery.data],
+  );
 
   const shell = isDark ? '#050207' : theme.background;
   const card = isDark ? 'rgba(255,255,255,0.05)' : theme.card;
@@ -245,12 +92,6 @@ const CreatorChallenges: React.FC = () => {
   const challengeMediaHeight = Math.min(190, Math.max(126, challengeCardWidth * 0.88));
 
   const pendingInviteCount = invites.filter((invite) => invite.status === 'pending').length;
-
-  const go = (screen: string, params?: Record<string, unknown>) => {
-    try {
-      navigation.navigate(screen, params);
-    } catch {}
-  };
 
   const triggerToast = (message: string) => {
     setToast(message);
@@ -304,16 +145,6 @@ const CreatorChallenges: React.FC = () => {
   return (
     <SafeAreaView style={[styles.safeArea, { backgroundColor: shell }]} edges={['left', 'right']}>
       <View style={[styles.screen, { backgroundColor: theme.screen }]}>
-        {/* <View style={[styles.header, { backgroundColor: isDark ? 'rgba(31,16,34,0.75)' : theme.card, borderBottomColor: border }]}>
-          <Pressable onPress={() => navigation.goBack()} style={[styles.headerBtn, { backgroundColor: surface, borderColor: border }]}>
-            <MaterialIcons name="chevron-left" size={20} color={titleTone} />
-          </Pressable>
-          <Text style={[styles.headerTitle, { color: titleTone }]}>Challenge Orbit</Text>
-          <Pressable onPress={() => go('CreateChallenge')} style={[styles.headerBtn, styles.headerBtnPrimary]}>
-            <MaterialIcons name="add" size={22} color="#fff" />
-          </Pressable>
-        </View> */}
-
         <Pressable
         onPress={()=>{
           navigation.navigate('CreateChallenge')
@@ -335,31 +166,6 @@ const CreatorChallenges: React.FC = () => {
 
 
         <ScrollView contentContainerStyle={styles.content} showsVerticalScrollIndicator={false}>
-          {/* <LinearGradient
-            colors={isDark ? [primaryColorAlpha(0.18), 'rgba(124,58,237,0.08)'] : [primaryColorAlpha(0.08), 'rgba(124,58,237,0.04)']}
-            style={[styles.hero, { borderColor: primaryColorAlpha(0.22) }]}
-          >
-            <View style={styles.heroRow}>
-              <View style={styles.heroIcon}>
-                <MaterialIcons name="emoji-events" size={34} color={theme.accent} />
-              </View>
-              <View style={{ flex: 1 }}>
-                <Text style={[styles.heroTitle, { color: titleTone, ...fontSize.b0,  }]}>Viral Factory</Text>
-                <Text style={[styles.heroMeta, { color: subtle, ...fontSize.b4, lineHeight: fontSize.b4.lineHeight }]}>Drive Engagement Through Action</Text>
-              </View>
-            </View>
-            <View style={styles.metricRow}>
-              <View style={[styles.metricCard, { backgroundColor: card, borderColor: border }]}>
-                <Text style={[styles.metricValue, { color: theme.accent, ...fontSize.n1, lineHeight: fontSize.n1.lineHeight }]}>{metrics.total}</Text>
-                <Text style={[styles.metricLabel, { color: muted, ...fontSize.b6, lineHeight: fontSize.b6.lineHeight }]}>Total Submissions</Text>
-              </View>
-              <View style={[styles.metricCard, { backgroundColor: card, borderColor: border }]}>
-                <Text style={[styles.metricValue, { color: '#10b981', ...fontSize.n1, lineHeight: fontSize.n1.lineHeight }]}>{metrics.conversion}</Text>
-                <Text style={[styles.metricLabel, { color: muted, ...fontSize.b6, lineHeight: fontSize.b6.lineHeight }]}>Conversion Rate</Text>
-              </View>
-            </View>
-          </LinearGradient> */}
-
           <View style={[styles.tabBar, {
             // backgroundColor: 'red'
             // backgroundColor: surface, borderColor: border
@@ -409,7 +215,7 @@ const CreatorChallenges: React.FC = () => {
                     accessibilityRole="button"
                     accessibilityLabel={`${challenge.title} by ${challenge.creatorName}`}
                     accessibilityHint="Opens challenge details"
-                    onPress={() => go('ChallengeFeed', { challengeId: challenge.id })}
+                    onPress={() => navigation.navigate('ChallengeFeed', { challengeId: challenge.id })}
                     style={({ pressed }) => [
                       styles.challengeGridCard,
                       {
@@ -491,9 +297,14 @@ const CreatorChallenges: React.FC = () => {
             <View style={styles.section}>
               <View style={styles.sectionRow}>
                 <Text style={[styles.sectionTitle, { color: muted, fontSize: fontSize.b2.fontSize - (mediumScreen ? 0 : 2), fontFamily: fontSize.b2.fontFamily, lineHeight: fontSize.b2.lineHeight  }]}>Recent Submissions</Text>
-                <Text style={[styles.sectionAccent, {fontSize: fontSize.b2.fontSize - (mediumScreen ? 0 : 2), fontFamily: fontSize.b2.fontFamily, lineHeight: fontSize.b2.lineHeight }]}>{SUBMISSIONS.length} New</Text>
+                <Text style={[styles.sectionAccent, {fontSize: fontSize.b2.fontSize - (mediumScreen ? 0 : 2), fontFamily: fontSize.b2.fontFamily, lineHeight: fontSize.b2.lineHeight }]}>{submissions.length} New</Text>
               </View>
-              {SUBMISSIONS.map((submission) => (
+              {submissions.length === 0 ? (
+                <View style={[styles.challengeQueryState, { backgroundColor: card, borderColor: border }]}>
+                  <MaterialIcons name="video-library" size={30} color={muted} />
+                  <Text style={[styles.challengeQueryText, { color: subtle }]}>No challenge submissions are available yet.</Text>
+                </View>
+              ) : submissions.map((submission) => (
                 <View key={submission.id} style={[styles.listCard, { backgroundColor: card, borderColor: border }]}>
                   <View style={styles.thumbWrap}>
                     <Image source={{ uri: submission.thumbnailUrl }} style={styles.fillImage} />
@@ -521,19 +332,8 @@ const CreatorChallenges: React.FC = () => {
                       </View>
                     </View>
                   </View>
-                  {/* <View style={styles.sideActions}>
-                    <Pressable onPress={() => go('FanProfile', { userId: submission.userId })} style={[styles.sideBtn, { backgroundColor: surface, borderColor: border }]}>
-                      <MaterialIcons name="person" size={20} color={titleTone} />
-                    </Pressable>
-                    <Pressable onPress={() => go('ChallengeFeed')} style={[styles.sideBtn, { backgroundColor: isDark ? primaryColorAlpha(0.12) : theme.accentSoft, borderColor: 'transparent' }]}>
-                      <MaterialIcons name="visibility" size={20} color={theme.accent} />
-                    </Pressable>
-                  </View> */}
                 </View>
               ))}
-              <Pressable onPress={() => go('Submissions')} style={[styles.dashedBtn, { borderColor: primaryColorAlpha(0.3) }]}>
-                <Text style={[styles.dashedBtnText, {...fontSize.b4, lineHeight: fontSize.b4.lineHeight}]}>View All Submissions</Text>
-              </Pressable>
             </View>
           ) : null}
 
@@ -543,7 +343,25 @@ const CreatorChallenges: React.FC = () => {
                 <Text style={[styles.sectionTitle, { color: muted, fontSize: fontSize.b2.fontSize - (mediumScreen ? 0 : 2), fontFamily: fontSize.b2.fontFamily, lineHeight: fontSize.b2.lineHeight  }]}>Saved Drafts</Text>
                 <Text style={[styles.sectionAccent, {fontSize: fontSize.b2.fontSize - (mediumScreen ? 0 : 2), fontFamily: fontSize.b2.fontFamily, lineHeight: fontSize.b2.lineHeight }]}>{drafts.length} Drafts</Text>
               </View>
-              {drafts.map((draft) => (
+              {draftsQuery.isLoading ? (
+                <View style={[styles.challengeQueryState, { backgroundColor: card, borderColor: border }]}>
+                  <ActivityIndicator color={PRIMARY_COLOR} />
+                  <Text style={[styles.challengeQueryText, { color: subtle }]}>Loading drafts...</Text>
+                </View>
+              ) : draftsQuery.isError ? (
+                <View style={[styles.challengeQueryState, { backgroundColor: card, borderColor: border }]}>
+                  <MaterialIcons name="cloud-off" size={28} color={muted} />
+                  <Text style={[styles.challengeQueryText, { color: subtle }]}>Drafts could not be loaded.</Text>
+                  <Pressable onPress={() => void draftsQuery.refetch()} style={styles.challengeRetryButton}>
+                    <Text style={styles.challengeRetryText}>Try Again</Text>
+                  </Pressable>
+                </View>
+              ) : drafts.length === 0 ? (
+                <View style={[styles.challengeQueryState, { backgroundColor: card, borderColor: border }]}>
+                  <MaterialIcons name="drafts" size={30} color={muted} />
+                  <Text style={[styles.challengeQueryText, { color: subtle }]}>No saved challenge drafts.</Text>
+                </View>
+              ) : drafts.map((draft) => (
                 <View key={draft.id} style={[styles.listCard, { backgroundColor: card, borderColor: border, }]}>
                   <Image source={{ uri: draft.image }} style={styles.draftImage} />
                   <View style={styles.listBody}>
@@ -554,12 +372,12 @@ const CreatorChallenges: React.FC = () => {
                       <Text style={[styles.smallText, { color: muted, ...fontSize.b5, lineHeight: fontSize.b5.lineHeight }]}>Last edited 2d ago</Text>
                     </View>
                   </View>
-                  <Pressable onPress={() => go('CreateChallenge', { draft })} style={[styles.resumeBtn, { backgroundColor: surface, borderColor: border }]}>
+                  <Pressable onPress={() => navigation.navigate('CreateChallenge', { draft })} style={[styles.resumeBtn, { backgroundColor: surface, borderColor: border }]}>
                     <Text style={[styles.resumeBtnText, { color: titleTone, ...fontSize.b5 }]}>Resume</Text>
                   </Pressable>
                 </View>
               ))}
-              <Pressable onPress={() => go('ChallengeDrafts')} style={[styles.dashedBtn, { borderColor: primaryColorAlpha(0.3) }]}>
+              <Pressable onPress={() => navigation.navigate('ChallengeDrafts')} style={[styles.dashedBtn, { borderColor: primaryColorAlpha(0.3) }]}>
                 <Text style={[styles.dashedBtnText, {...fontSize.b4, lineHeight: fontSize.b4.lineHeight}]}>View All Drafts</Text>
               </Pressable>
             </View>
@@ -571,7 +389,12 @@ const CreatorChallenges: React.FC = () => {
                 <Text style={[styles.sectionTitle, { color: muted, fontSize: fontSize.b2.fontSize - (mediumScreen ? 0 : 2), fontFamily: fontSize.b2.fontFamily, lineHeight: fontSize.b2.lineHeight }]}>Creator Invites</Text>
                 <Text style={[styles.sectionAccent, { fontSize: fontSize.b2.fontSize - (mediumScreen ? 0 : 2), fontFamily: fontSize.b2.fontFamily, lineHeight: fontSize.b2.lineHeight }]}>{pendingInviteCount} Pending</Text>
               </View>
-              {invites.map((invite) => (
+              {invites.length === 0 ? (
+                <View style={[styles.challengeQueryState, { backgroundColor: card, borderColor: border }]}>
+                  <MaterialIcons name="mail-outline" size={30} color={muted} />
+                  <Text style={[styles.challengeQueryText, { color: subtle }]}>No creator challenge invitations.</Text>
+                </View>
+              ) : invites.map((invite) => (
                 <Pressable onPress={() => openInviteDetails(invite)} key={invite.id} style={[styles.inviteCard, { borderColor: border }]}>
                   <Image source={{ uri: invite.image }} style={styles.fillImage} />
                   <LinearGradient colors={['transparent', 'rgba(0,0,0,0.4)', 'rgba(0,0,0,0.95)']} style={StyleSheet.absoluteFillObject} />
@@ -693,7 +516,7 @@ const CreatorChallenges: React.FC = () => {
                         <Text style={styles.verifiedText}>Verified Creator</Text>
                       </View>
                     </View>
-                    <Pressable onPress={() => { setSelectedInvite(null); navigation.navigate('Messages'); }} style={[styles.chatButton, { backgroundColor: isDark ? primaryColorAlpha(0.12) : theme.accentSoft, borderColor: primaryColorAlpha(0.24) }]}>
+                    <Pressable onPress={() => { setSelectedInvite(null); navigation.navigate('MainTabs', { screen: 'Signal' }); }} style={[styles.chatButton, { backgroundColor: isDark ? primaryColorAlpha(0.12) : theme.accentSoft, borderColor: primaryColorAlpha(0.24) }]}>
                       <MaterialIcons name="chat" size={13} color={isDark ? '#ffffff' : PRIMARY_COLOR} />
                       <Text style={[styles.chatButtonText, { color: isDark ? '#ffffff' : PRIMARY_COLOR }]}>Open Chat</Text>
                     </Pressable>
@@ -720,18 +543,6 @@ const CreatorChallenges: React.FC = () => {
                       </View>
                     </View>
                   </View>
-
-                  {/* {selectedInvite.requirements?.length ? (
-                    <View style={styles.checklistBlock}>
-                      <Text style={[styles.modalSectionLabel, { color: isDark ? 'rgba(255,255,255,0.42)' : muted }]}>Co-Creation Objectives Checklist</Text>
-                      {selectedInvite.requirements.map((requirement) => (
-                        <View key={requirement} style={[styles.requirementRow, { backgroundColor: isDark ? 'rgba(255,255,255,0.05)' : theme.surface, borderColor: isDark ? 'rgba(255,255,255,0.06)' : border }]}>
-                          <MaterialIcons name="check-circle" size={16} color="#34d399" />
-                          <Text style={[styles.requirementText, { color: isDark ? 'rgba(255,255,255,0.82)' : subtle }]}>{requirement}</Text>
-                        </View>
-                      ))}
-                    </View>
-                  ) : null} */}
 
                   {showCounterBox ? (
                     <View style={[styles.counterBox, { backgroundColor: primaryColorAlpha(isDark ? 0.08 : 0.06), borderColor: primaryColorAlpha(0.24) }]}>
@@ -809,44 +620,7 @@ const CreatorChallenges: React.FC = () => {
 const styles = StyleSheet.create({
   safeArea: { flex: 1 },
   screen: { flex: 1 },
-  header: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'space-between',
-    paddingHorizontal: 16,
-    paddingBottom: 12,
-    borderBottomWidth: StyleSheet.hairlineWidth,
-  },
-  headerBtn: {
-    width: 40,
-    height: 40,
-    borderRadius: 20,
-    borderWidth: 1,
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
-  headerBtnPrimary: { backgroundColor: PRIMARY_COLOR, borderColor: PRIMARY_COLOR },
-  headerTitle: {
-    flex: 1,
-    textAlign: 'center',
-    paddingHorizontal: 16,
-    ...fontSize.b1, lineHeight: fontSize.b1.lineHeight,
-    textTransform: 'uppercase',
-    letterSpacing: 0.6,
-  },
   content: { paddingHorizontal: 24, paddingTop: 0, paddingBottom: 180, gap: 24 },
-  hero: { borderRadius: 40, padding: 15, borderWidth: 1 },
-  heroRow: { flexDirection: 'row', alignItems: 'center', gap: 16 },
-  heroIcon: {
-    width: 64, height: 64, borderRadius: 20, alignItems: 'center', justifyContent: 'center',
-    backgroundColor: primaryColorAlpha(0.14), borderWidth: 1, borderColor: primaryColorAlpha(0.3),
-  },
-  heroTitle: { ...fontSize.b1, lineHeight: fontSize.b1.lineHeight, textTransform: 'uppercase' },
-  heroMeta: { marginTop: 4, textTransform: 'uppercase', letterSpacing: 1 },
-  metricRow: { flexDirection: 'row', gap: 12, marginTop: 24 },
-  metricCard: { flex: 1, borderRadius: 24, borderWidth: 1, padding: 16 },
-  metricValue: { },
-  metricLabel: { marginTop: 4, textTransform: 'uppercase', letterSpacing: 0.8 },
   tabBar: { flexDirection: 'row', borderRadius: 0, borderWidth: 0, padding: 0, justifyContent: 'space-between' },
   tabButton: { flex: 0, minHeight: 48, borderRadius: 14, alignItems: 'center', justifyContent: 'center', position: 'relative' },
   tabText: { ...fontSize.b5Variant, lineHeight: fontSize.b5Variant.lineHeight, textTransform: 'uppercase', letterSpacing: 0.5 },
@@ -950,8 +724,6 @@ const styles = StyleSheet.create({
   inlineStats: { flexDirection: 'row', gap: 14, marginTop: 10 },
   inlineStat: { flexDirection: 'row', alignItems: 'center', gap: 4 },
   inlineStatText: {},
-  sideActions: { gap: 10 },
-  sideBtn: { width: 40, height: 40, borderRadius: 12, borderWidth: 1, alignItems: 'center', justifyContent: 'center' },
   dashedBtn: { minHeight: 54, borderRadius: 18, borderWidth: 1, borderStyle: 'dashed', alignItems: 'center', justifyContent: 'center', paddingHorizontal: 16 },
   dashedBtnText: { color: PRIMARY_COLOR, ...fontSize.b5, lineHeight: fontSize.b5.lineHeight, textTransform: 'uppercase', letterSpacing: 1.8 },
   draftImage: { width: 80, height: 80, borderRadius: 18, opacity: 0.65 },
@@ -1015,9 +787,6 @@ const styles = StyleSheet.create({
   detailLabel: { color: 'rgba(255,255,255,0.42)', ...fontSize.b5, lineHeight: fontSize.b5.lineHeight, textTransform: 'uppercase', letterSpacing: 1 },
   detailValueRow: { flexDirection: 'row', alignItems: 'center', gap: 6, marginTop: 8 },
   detailValue: { color: '#ffffff', flex: 1, ...fontSize.b5, lineHeight: fontSize.b5.lineHeight, textTransform: 'uppercase' },
-  checklistBlock: { gap: 10 },
-  requirementRow: { flexDirection: 'row', alignItems: 'center', gap: 10, padding: 12, borderRadius: 14, backgroundColor: 'rgba(255,255,255,0.05)', borderWidth: 1, borderColor: 'rgba(255,255,255,0.06)' },
-  requirementText: { color: 'rgba(255,255,255,0.82)', flex: 1, ...fontSize.b5, lineHeight: fontSize.b5.lineHeight },
   counterBox: { borderRadius: 24, borderWidth: 1, borderColor: primaryColorAlpha(0.24), backgroundColor: primaryColorAlpha(0.08), padding: 16, gap: 14 },
   counterTop: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', gap: 10 },
   counterTitle: { color: PRIMARY_COLOR, ...fontSize.b5, lineHeight: fontSize.b5.lineHeight, textTransform: 'uppercase', letterSpacing: 1.4 },

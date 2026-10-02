@@ -17,118 +17,20 @@ const reminderOptions = [
   { label: '1 week before', value: '1w' },
 ];
 
-const eventDetails: Record<
-  string,
-  {
-    title: string;
-    date: string;
-    time: string;
-    location: string;
-    venue: string;
-    price: string;
-    type: string;
-    img: string;
-    desc: string;
-    ticketsSold: number;
-    capacity: number;
-    revenue: string;
-    payoutStatus: string;
-  }
-> = {
-  e1: {
-    title: 'Neon Nights: Live Concert',
-    date: 'Sept 15, 2024',
-    time: '8:00 PM GMT',
-    location: 'Virtual Arena',
-    venue: 'Virtual Arena Platform',
-    price: 'Free',
-    type: 'Live Stream',
-    img: 'https://images.unsplash.com/photo-1470225620780-dba8ba36b745?auto=format&fit=crop&q=80&w=800',
-    desc: 'Experience the ultimate synthwave journey with Neon Nights. A 360-degree virtual concert experience like never before.',
-    ticketsSold: 1240,
-    capacity: 5000,
-    revenue: '$0.00',
-    payoutStatus: 'N/A',
-  },
-  e2: {
-    title: 'Synthwave Workshop',
-    date: 'Sept 20, 2024',
-    time: '2:00 PM GMT',
-    location: 'Creator Studio',
-    venue: 'Pulsar Creator Labs',
-    price: '$25.00',
-    type: 'Workshop',
-    img: 'https://images.unsplash.com/photo-1514525253361-bee8718a74a2?auto=format&fit=crop&q=80&w=800',
-    desc: 'Learn the secrets of modern synth production. We will dive deep into oscillators, filters, and soul-infusing melodies.',
-    ticketsSold: 45,
-    capacity: 100,
-    revenue: '$1,125.00',
-    payoutStatus: 'Pending',
-  },
-  e3: {
-    title: 'Album Launch Party',
-    date: 'Oct 05, 2024',
-    time: '10:00 PM GMT',
-    location: 'Metropolis Club',
-    venue: 'Metropolis Club, London',
-    price: '$15.00',
-    type: 'Physical',
-    img: 'https://images.unsplash.com/photo-1429962714451-bb934ecdc4ec?auto=format&fit=crop&q=80&w=800',
-    desc: "Celebrate the release of Star Systems. Heavy bass, retro lasers, and a specialized secret set you don't want to miss.",
-    ticketsSold: 180,
-    capacity: 250,
-    revenue: '$2,700.00',
-    payoutStatus: 'Scheduled',
-  },
-  '1': {
-    title: 'Neon Nights Tour',
-    date: 'Aug 24, 2024',
-    time: '8:00 PM',
-    location: 'London',
-    venue: 'O2 Arena, London',
-    price: '$45.00+',
-    type: 'Physical',
-    img: 'https://images.unsplash.com/photo-1501281668745-f7f57925c3b4?auto=format&fit=crop&q=80&w=800',
-    desc: 'The blockbuster tour arrives in London. Full production, live band, and special guest appearances.',
-    ticketsSold: 14200,
-    capacity: 20000,
-    revenue: '$639,000.00',
-    payoutStatus: 'Processing',
-  },
-};
-
 const EventDetail: React.FC = () => {
   const { isDark, theme } = useThemeMode();
   const navigation = useNavigation();
   const route = useRoute();
   const insets = useSafeAreaInsets();
-  const eventId = route.params?.id ?? 'burna-boy';
-  const apiEventId = /^(?:event_)?\d+$/.test(String(eventId)) ? eventId : undefined;
+  const eventId = route.params?.eventId ?? route.params?.id;
+  const normalizedEventId = String(eventId ?? '').replace(/^event_/, '');
+  const apiEventId = /^\d+$/.test(normalizedEventId) ? normalizedEventId : undefined;
   const eventQuery = useEvent(apiEventId);
   const [currentUser, setCurrentUser] = useState(user);
-  const [loading, setLoading] = useState(true);
-  const [locationInsights, setLocationInsights] = useState('');
-  const [venueMapUri, setVenueMapUri] = useState<string | null>(null);
-  const [venueSnippets, setVenueSnippets] = useState<string[]>([]);
   const [toast, setToast] = useState<string | null>(null);
   const [reminderOpen, setReminderOpen] = useState(false);
   const [activeReminder, setActiveReminder] = useState<string | null>(null);
   const [failedQrCodes, setFailedQrCodes] = useState<Record<string, boolean>>({});
-  const fallbackEvent = eventDetails[eventId] ?? {
-    title: 'Burna Boy: Love, Damini Live',
-    date: 'Saturday, Aug 24',
-    time: '8:00 PM',
-    location: 'London',
-    venue: 'The O2 Arena',
-    price: '$125.00+',
-    type: 'Physical',
-    img: 'https://images.unsplash.com/photo-1501281668745-f7f57925c3b4?auto=format&fit=crop&q=80&w=800',
-    desc: 'The African Giant returns to London for an unforgettable night of Afrobeats, culture, and high-energy performance.',
-    ticketsSold: 18500,
-    capacity: 20000,
-    revenue: '$2,312,500.00',
-    payoutStatus: 'Completed',
-  };
   const apiEvent = eventQuery.data;
   const eventType = apiEvent?.event_type ?? apiEvent?.venue_type;
   const startingTicket = apiEvent?.ticket_types?.filter((ticket) => ticket.is_available).sort((a, b) => Number(a.price ?? a.unit_price ?? 0) - Number(b.price ?? b.unit_price ?? 0))[0];
@@ -141,15 +43,18 @@ const EventDetail: React.FC = () => {
     venue: apiEvent.venue?.name || (eventType === 'online' ? 'Online Event' : ''),
     price: startingTicket ? `${startingTicket.currency} ${startingTicket.price ?? startingTicket.unit_price}` : 'Free',
     type: eventType || apiEvent.category || 'Event',
-    img: apiEvent.cover_image_url || fallbackEvent.img,
+    img: apiEvent.cover_image_url || '',
     desc: apiEvent.description || '',
     ticketsSold: Number(apiEvent.tickets_sold || 0), capacity: Number(apiEvent.capacity || 0),
     revenue: String(apiEvent.creator_insights?.gross_revenue ?? ''), payoutStatus: String(apiEvent.creator_insights?.payout_status ?? ''),
-  } : fallbackEvent;
+  } : { title: '', date: '', time: '', location: '', venue: '', price: '', type: '', img: '', desc: '', ticketsSold: 0, capacity: 0, revenue: '', payoutStatus: '' };
+  const venueMapUri = currentEvent.venue
+    ? `https://maps.google.com/?q=${encodeURIComponent(`${currentEvent.venue} ${currentEvent.location}`)}`
+    : null;
   // Creator accounts are attendees when viewing another creator's event.
   // Existing creator event entry points retain their owner view by default.
   const isOwner = apiEvent?.viewer?.is_owner ?? route.params?.isOwner ?? currentUser?.role === 'creator';
-  const attendance = Math.round((currentEvent.ticketsSold / currentEvent.capacity) * 100);
+  const attendance = currentEvent.capacity > 0 ? Math.round((currentEvent.ticketsSold / currentEvent.capacity) * 100) : 0;
 
   const border = isDark ? 'rgba(255,255,255,0.08)' : theme.border;
   const card = isDark ? 'rgba(255,255,255,0.05)' : '#ffffff';
@@ -161,20 +66,6 @@ const EventDetail: React.FC = () => {
   useEffect(() => {
     const unsubscribe = subscribeUser(setCurrentUser);
     return unsubscribe;
-  }, []);
-
-  useEffect(() => {
-    const timeout = setTimeout(() => {
-      setLocationInsights('Arrive early for smoother entry, use the North Greenwich approach for the fastest drop-off, and target nearby dining before the peak pre-show rush.');
-      setVenueMapUri('https://maps.google.com/?q=The+O2+Arena+London');
-      setVenueSnippets([
-        'Parking fills quickly near doors opening, so pre-book if you are driving.',
-        'Food lines near the main concourse spike one hour before showtime.',
-        'The Jubilee line is usually the fastest post-show option back into central London.',
-      ]);
-      setLoading(false);
-    }, 900);
-    return () => clearTimeout(timeout);
   }, []);
 
   useEffect(() => {
@@ -205,6 +96,21 @@ const EventDetail: React.FC = () => {
     setReminderOpen(false);
     setToast(`Reminder set for ${label}`);
   };
+
+  if (eventQuery.isLoading) {
+    return <SafeAreaView style={[styles.safeArea, { backgroundColor: isDark ? '#050505' : theme.background, alignItems: 'center', justifyContent: 'center' }]}><View style={[styles.spinner, { borderColor: accent, borderTopColor: 'transparent' }]} /></SafeAreaView>;
+  }
+
+  if (!apiEventId || eventQuery.isError || !apiEvent) {
+    return (
+      <SafeAreaView style={[styles.safeArea, { backgroundColor: isDark ? '#050505' : theme.background, alignItems: 'center', justifyContent: 'center', padding: 24 }]}>
+        <MaterialIcons name="event-busy" size={48} color={accent} />
+        <Text style={[styles.sectionTitle, { color: theme.text, marginTop: 16 }]}>Event unavailable</Text>
+        <Text style={[styles.body, { color: subtle, textAlign: 'center', marginTop: 8 }]}>This event could not be loaded from Kulsah.</Text>
+        <Pressable onPress={() => navigation.goBack()} style={[styles.routeButton, { backgroundColor: accent, marginTop: 20 }]}><Text style={styles.routeButtonText}>Go back</Text></Pressable>
+      </SafeAreaView>
+    );
+  }
 
   return (
     <SafeAreaView style={[styles.safeArea, { backgroundColor: isDark ? '#050505' : theme.background }]} edges={[]}>
@@ -301,14 +207,9 @@ const EventDetail: React.FC = () => {
             <View style={styles.sectionGap}>
               <View style={styles.rowBetween}>
                 <Text style={[styles.eyebrow, { color: faint }]}>Venue Map & Insights</Text>
-                {loading ? <View style={[styles.spinner, { borderColor: accent, borderTopColor: 'transparent' }]} /> : null}
               </View>
 
-              <Pressable onPress={openMap} style={[styles.mapCard, { borderColor: border }]}>
-                <Image source={{ uri: 'https://images.unsplash.com/photo-1526778548025-fa2f459cd5c1?auto=format&fit=crop&q=80&w=800' }} style={styles.mapImage} />
-                <LinearGradient colors={['transparent', 'rgba(0,0,0,0.6)']} style={StyleSheet.absoluteFillObject} />
-                <View style={styles.mapOverlay}><MaterialIcons name="location-on" size={36} color={PRIMARY_COLOR} /><Text style={styles.mapText}>Tap to navigate</Text></View>
-              </Pressable>
+              {venueMapUri ? <Pressable onPress={openMap} style={[styles.routeButton, { backgroundColor: accent }]}><MaterialIcons name="directions" size={18} color="#fff" /><Text style={styles.routeButtonText}>Open venue in Maps</Text></Pressable> : null}
 
               {/* <View style={[styles.tipCard, { backgroundColor: soft, borderColor: border }]}>
                 <Text style={[styles.body, { color: subtle }]}>{locationInsights}</Text>
@@ -330,7 +231,7 @@ const EventDetail: React.FC = () => {
 
           <View style={styles.sectionGap}>
             <Text style={[styles.sectionTitle, { color: theme.text }]}>Tickets</Text>
-            {(apiEvent?.ticket_types?.map((ticket, index) => ({ name: ticket.name, meta: ticket.description || `${ticket.remaining_count ?? ticket.available_quantity ?? 0} available`, price: `${ticket.currency} ${ticket.price ?? ticket.unit_price}`, featured: index === 0 })) ?? [{ name: 'Standard Standing', meta: 'Limited availability', price: '$125.00', featured: false }, { name: 'VIP Pit Access', meta: 'Includes merch pack', price: '$350.00', featured: true }]).map((ticket) => (
+            {(apiEvent.ticket_types ?? []).map((ticket, index) => ({ name: ticket.name, meta: ticket.description || `${ticket.remaining_count ?? ticket.available_quantity ?? 0} available`, price: `${ticket.currency} ${ticket.price ?? ticket.unit_price}`, featured: index === 0 })).map((ticket) => (
               <View key={ticket.name} style={[styles.ticketRow, { backgroundColor: ticket.featured ? theme.accentSoft : card, borderColor: ticket.featured ? accent : border }]}>
                 <View><Text style={[styles.ticketTitle, { color: theme.text }]}>{ticket.name}</Text><Text style={[styles.ticketMeta, { color: subtle }]}>{ticket.meta}</Text></View>
                 <Text style={[styles.ticketPrice, { color: accent }]}>{ticket.price}</Text>

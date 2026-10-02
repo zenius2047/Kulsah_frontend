@@ -15,27 +15,55 @@ const secureOptions: SecureStore.SecureStoreOptions = {
   keychainAccessible: SecureStore.AFTER_FIRST_UNLOCK_THIS_DEVICE_ONLY,
 };
 
+// A stale Expo Go/dev-client binary can temporarily lack the native module even
+// though the package is installed and configured. Keep auth usable in memory
+// until the binary is rebuilt instead of crashing during app startup.
+const safeGet = async (key: string): Promise<string | null> => {
+  try {
+    return await SecureStore.getItemAsync(key);
+  } catch {
+    return null;
+  }
+};
+
+const safeSet = async (key: string, value: string): Promise<void> => {
+  try {
+    await SecureStore.setItemAsync(key, value, secureOptions);
+  } catch {
+    // SecureStore is unavailable in this binary; the Zustand session remains
+    // available for the current process and will recover after a native rebuild.
+  }
+};
+
+const safeDelete = async (key: string): Promise<void> => {
+  try {
+    await SecureStore.deleteItemAsync(key);
+  } catch {
+    // Ignore unavailable native storage during graceful degradation.
+  }
+};
+
 export const tokenService = {
   async getToken() {
     const inMemory = useAuthStore.getState().token;
     if (inMemory) return inMemory;
-    return SecureStore.getItemAsync(TOKEN_KEY);
+    return safeGet(TOKEN_KEY);
   },
   async getRefreshToken() {
     const inMemory = useAuthStore.getState().refreshToken;
     if (inMemory) return inMemory;
-    return SecureStore.getItemAsync(REFRESH_TOKEN_KEY);
+    return safeGet(REFRESH_TOKEN_KEY);
   },
   async setSession({ accessToken, refreshToken = '', expiresIn }: AuthSessionTokens) {
     useAuthStore.getState().setSession(accessToken, refreshToken, expiresIn);
     await Promise.all([
-      SecureStore.setItemAsync(TOKEN_KEY, accessToken, secureOptions),
+      safeSet(TOKEN_KEY, accessToken),
       refreshToken
-        ? SecureStore.setItemAsync(REFRESH_TOKEN_KEY, refreshToken, secureOptions)
-        : SecureStore.deleteItemAsync(REFRESH_TOKEN_KEY),
+        ? safeSet(REFRESH_TOKEN_KEY, refreshToken)
+        : safeDelete(REFRESH_TOKEN_KEY),
       expiresIn
-        ? SecureStore.setItemAsync(TOKEN_EXPIRY_KEY, String(Date.now() + expiresIn * 1000), secureOptions)
-        : SecureStore.deleteItemAsync(TOKEN_EXPIRY_KEY),
+        ? safeSet(TOKEN_EXPIRY_KEY, String(Date.now() + expiresIn * 1000))
+        : safeDelete(TOKEN_EXPIRY_KEY),
     ]);
   },
   async setToken(token: string) {
@@ -44,9 +72,9 @@ export const tokenService = {
   },
   async hydrate() {
     const [accessToken, refreshToken, expiresAt] = await Promise.all([
-      SecureStore.getItemAsync(TOKEN_KEY),
-      SecureStore.getItemAsync(REFRESH_TOKEN_KEY),
-      SecureStore.getItemAsync(TOKEN_EXPIRY_KEY),
+      safeGet(TOKEN_KEY),
+      safeGet(REFRESH_TOKEN_KEY),
+      safeGet(TOKEN_EXPIRY_KEY),
     ]);
 
     // Migrate a token written by older builds from Zustand/AsyncStorage.
@@ -60,16 +88,16 @@ export const tokenService = {
         tokenExpiresAt: parsedExpiry && Number.isFinite(parsedExpiry) ? parsedExpiry : null,
       });
       if (!accessToken && legacyToken) {
-        await SecureStore.setItemAsync(TOKEN_KEY, legacyToken, secureOptions);
+        await safeSet(TOKEN_KEY, legacyToken);
       }
     }
   },
   async clearToken() {
     useAuthStore.getState().clearAuth();
     await Promise.all([
-      SecureStore.deleteItemAsync(TOKEN_KEY),
-      SecureStore.deleteItemAsync(REFRESH_TOKEN_KEY),
-      SecureStore.deleteItemAsync(TOKEN_EXPIRY_KEY),
+      safeDelete(TOKEN_KEY),
+      safeDelete(REFRESH_TOKEN_KEY),
+      safeDelete(TOKEN_EXPIRY_KEY),
     ]);
   },
 };

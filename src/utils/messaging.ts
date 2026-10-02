@@ -165,13 +165,17 @@ export const flattenConversationMessagePages = (
     .slice()
     .reverse()
     .flatMap((page) => page.data ?? []);
-  const seen = new Set<number>();
-
-  return messages.filter((message) => {
-    if (seen.has(message.id)) return false;
-    seen.add(message.id);
+  const seenIds = new Set<number>();
+  const seenClientIds = new Set<string>();
+  const uniqueNewestFirst = messages.slice().reverse().filter((message) => {
+    const clientId = message.client_message_id?.trim();
+    if (seenIds.has(message.id) || Boolean(clientId && seenClientIds.has(clientId))) return false;
+    seenIds.add(message.id);
+    if (clientId) seenClientIds.add(clientId);
     return true;
   });
+
+  return uniqueNewestFirst.reverse();
 };
 
 export const createClientMessageId = () =>

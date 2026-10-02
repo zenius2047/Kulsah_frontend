@@ -121,10 +121,6 @@ const Arena :React.FC = ({route}:any)=>{
                          <Text style={styles.headerSubtitle}>Galaxy Space</Text>
                        </View>
                
-                       {/* <View style={styles.headerSpacer} /> */}
-                       {/* <Pressable onPress={() => navigation.navigate('Inbox')} style={[styles.headerRoundBtn, { backgroundColor: faintSurface, borderColor: softBorder }]}>
-                         <MaterialIcons name="notifications-none" size={22} color={theme.text} />
-                       </Pressable> */}
                      </View>
              <View/>
    

@@ -8,6 +8,13 @@ import type {
 } from '../types/subscription.types';
 
 export const subscriptionApi = {
+  getCreatorAudience: () => api.get<{
+    data: {
+      subscribers: Array<{ id: string; user_id: string; name?: string | null; handle?: string | null; avatar?: string | null; tier?: string | null; status: string; joined_at?: string | null; value?: { amount?: string | number | null; currency?: string | null } | null }>;
+      followers: Array<{ id: string; user_id: string; name?: string | null; handle?: string | null; avatar?: string | null; followed_at?: string | null }>;
+      following: Array<{ id: string; user_id: string; name?: string | null; handle?: string | null; avatar?: string | null; followed_at?: string | null }>;
+    };
+  }>(endpoints.subscription.creatorAudience),
   subscribeToPlan: (subscriptionPlan: SubscriptionPlanIdentifier, payload: SubscriptionPlanPayload) =>
     api.post(`${endpoints.subscription.fanSubscribe}/${subscriptionPlan}/subscribe`, payload),
   getCreatorPlans: () =>

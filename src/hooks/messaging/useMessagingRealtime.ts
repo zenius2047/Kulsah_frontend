@@ -13,6 +13,7 @@ import {
   disconnectMessagingRealtime,
   getMessagingRealtimeClient,
   isMessagingRealtimeConfigured,
+  realtimeReconnectDelay,
 } from '../../services/messagingRealtime.service';
 import {
   applyRealtimeConversationUnreadCount,
@@ -108,25 +109,49 @@ export const useMessagingRealtime = (enabled = true) => {
     }
 
     const connection = echo.connector.pusher.connection;
+    let reconnectAttempt = 0;
+    let reconnectTimer: ReturnType<typeof setTimeout> | null = null;
+    const scheduleReconnect = () => {
+      if (reconnectTimer || AppState.currentState !== 'active') return;
+      setRealtimeStatus('reconnecting');
+      const delay = realtimeReconnectDelay(reconnectAttempt);
+      reconnectAttempt += 1;
+      reconnectTimer = setTimeout(() => {
+        reconnectTimer = null;
+        echo.connector.pusher.connect();
+      }, delay);
+    };
     const handleStateChange = ({ current }: PusherConnectionStateChange) => {
       const status = realtimeStatus(current);
       setRealtimeStatus(status);
       if (status === 'connected') {
+        reconnectAttempt = 0;
+        if (reconnectTimer) clearTimeout(reconnectTimer);
+        reconnectTimer = null;
         void queryClient.invalidateQueries({ queryKey: ['messaging'] });
       } else {
         clearOnlinePresence();
+        if (status === 'failed' || status === 'unavailable' || status === 'disconnected') scheduleReconnect();
       }
     };
     const handleConnectionError = () => {
       setRealtimeStatus('unavailable');
       clearOnlinePresence();
+      scheduleReconnect();
     };
     connection.bind('state_change', handleStateChange);
     connection.bind('error', handleConnectionError);
     setRealtimeStatus(realtimeStatus(connection.state));
+    const appStateSubscription = AppState.addEventListener('change', (state) => {
+      if (state !== 'active') return;
+      echo.connector.pusher.connect();
+      void queryClient.invalidateQueries({ queryKey: ['messaging'] });
+    });
 
     const refreshUnreadCount = () => {
       if (unreadRefreshTimerRef.current) clearTimeout(unreadRefreshTimerRef.current);
+      if (reconnectTimer) clearTimeout(reconnectTimer);
+      appStateSubscription.remove();
       unreadRefreshTimerRef.current = setTimeout(() => {
         void messagingApi.getUnreadCount()
           .then((response) => {

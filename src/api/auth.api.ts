@@ -31,6 +31,9 @@ export const authApi = {
   logout: (token?: string, refreshToken?: string) =>
     api.post(endpoints.auth.logout, { refresh_token: refreshToken }, authHeaderConfig(token)),
   logoutAll: () => api.post(endpoints.auth.logoutAll),
+  deleteAccount: (password?: string) => api.delete(endpoints.auth.deleteAccount, {
+    data: { confirmation: 'DELETE', password: password || undefined },
+  }),
   refresh: (refreshToken: string) => api.post(endpoints.auth.refresh, {}, authHeaderConfig(refreshToken)),
   updateVibe: (payload: UpdateVibePayload) => api.post(endpoints.auth.updateVibe, payload),
   switchRole: (payload: SwitchRolePayload, token?: string) =>

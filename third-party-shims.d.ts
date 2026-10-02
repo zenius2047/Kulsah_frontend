@@ -1,29 +1,5 @@
-declare module '@google/genai';
 declare module '@react-native-async-storage/async-storage';
 declare module '@react-native-google-signin/google-signin';
-declare module '@google/genai/web';
-
-declare module '@react-navigation/bottom-tabs' {
-  export function createBottomTabNavigator<T = Record<string, object | undefined>>(): any;
-}
-
-declare module '@react-navigation/native' {
-  export const NavigationContainer: import('react').FC<any>;
-  export function createNavigationContainerRef<T = any>(): any;
-  export function useFocusEffect(effect: import('react').EffectCallback): void;
-  export function useIsFocused(): boolean;
-  export function useNavigation<T = any>(): T;
-  export function useRoute<T = any>(): T;
-  export function useTheme(): any;
-}
-
-declare module '@react-navigation/native-stack' {
-  export type NativeStackScreenProps<
-    T = Record<string, object | undefined>,
-    R extends keyof T = keyof T
-  > = any;
-  export function createNativeStackNavigator<T = Record<string, object | undefined>>(): any;
-}
 
 declare module 'expo-auth-session/providers/google';
 declare module 'expo-av';

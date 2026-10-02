@@ -32,6 +32,16 @@ export const getCommunityPostFormEntries = (payload: CreateCommunityPostPayload)
       type: asset.type || (extension === 'mp4' ? 'video/mp4' : 'image/jpeg'),
     }]);
   });
+  if (payload.location_name?.trim()) entries.push(['location_name', payload.location_name.trim()]);
+  if (payload.scheduled_at) entries.push(['scheduled_at', payload.scheduled_at]);
+  payload.tagged_user_ids?.forEach((userId, index) => entries.push([`tagged_user_ids[${index}]`, String(userId)]));
+  payload.media_options?.forEach((options, index) => {
+    if (options.filter) entries.push([`media_options[${index}][filter]`, options.filter]);
+    if (typeof options.cover_frame_ms === 'number') entries.push([`media_options[${index}][cover_frame_ms]`, String(options.cover_frame_ms)]);
+    if (typeof options.trim_start_ms === 'number') entries.push([`media_options[${index}][trim_start_ms]`, String(options.trim_start_ms)]);
+    if (typeof options.trim_end_ms === 'number') entries.push([`media_options[${index}][trim_end_ms]`, String(options.trim_end_ms)]);
+    if (typeof options.captions_enabled === 'boolean') entries.push([`media_options[${index}][captions_enabled]`, options.captions_enabled ? '1' : '0']);
+  });
   if (payload.poll?.question?.trim()) entries.push(['poll[question]', payload.poll.question.trim()]);
   payload.poll?.options.forEach((option, index) => entries.push([`poll[options][${index}]`, option.trim()]));
   if (payload.poll?.closes_at) entries.push(['poll[closes_at]', payload.poll.closes_at]);

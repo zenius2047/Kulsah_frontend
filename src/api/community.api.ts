@@ -39,6 +39,9 @@ export const communityApi = {
       type: payload.type,
       audience: payload.audience,
       ...(payload.content?.trim() ? { content: payload.content.trim() } : {}),
+      ...(payload.location_name?.trim() ? { location_name: payload.location_name.trim() } : {}),
+      ...(payload.scheduled_at ? { scheduled_at: payload.scheduled_at } : {}),
+      ...(payload.tagged_user_ids?.length ? { tagged_user_ids: payload.tagged_user_ids } : {}),
     };
     return api.post<CommunityItemResponse<CommunityPost>>(endpoints.creator.communityPosts, body, {
       onUploadProgress: (event) => {

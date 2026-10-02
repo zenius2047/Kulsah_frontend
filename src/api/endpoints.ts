@@ -18,6 +18,7 @@ export const endpoints = {
     register: 'auth/register',
     logout: 'auth/logout',
     logoutAll: 'auth/logout-all',
+    deleteAccount: 'auth/account',
     refresh: 'auth/refresh',
     verifyOtp: 'auth/activate',
     verifyResetOtp: 'auth/verify-reset-otp',
@@ -45,6 +46,7 @@ export const endpoints = {
     feed: 'general/feed',
     discovery: 'general/discovery',
     discoveryView: 'general/discovery/view',
+    discoveryHashtags: 'general/discovery/hashtags',
     recommendations: 'general/recommendations',
     aiGenerate: 'general/ai/generate',
     challengeRewards: 'general/challenge-rewards',
@@ -105,6 +107,12 @@ export const endpoints = {
       `general/conversations/${conversation}/typing/start`,
     conversationTypingStop: (conversation: string | number) =>
       `general/conversations/${conversation}/typing/stop`,
+    conversationVoiceCalls: (conversation: string | number) => `general/conversations/${conversation}/calls`,
+    voiceCall: (call: string | number) => `general/voice-calls/${call}`,
+    voiceCallAccept: (call: string | number) => `general/voice-calls/${call}/accept`,
+    voiceCallDecline: (call: string | number) => `general/voice-calls/${call}/decline`,
+    voiceCallEnd: (call: string | number) => `general/voice-calls/${call}/end`,
+    voiceCallCredentials: (call: string | number) => `general/voice-calls/${call}/credentials`,
     communityPost: (post: string | number) => `general/community/posts/${post}`,
     communityPostView: (post: string | number) => `general/community/posts/${post}/view`,
     communityPostComments: (post: string | number) => `general/community/posts/${post}/comments`,
@@ -215,6 +223,7 @@ export const endpoints = {
       `creator/subscription-plans/${subscriptionPlan}/disable`,
     creatorSubscriptionBlock: (subscription: string | number) =>
       `creator/subscriptions/${subscription}/block`,
+    creatorAudience: 'creator/audience',
     publicCreatorPlans: (creator: string | number) =>
       `creator-fan/creators/${creator}/subscription-plans`,
   },

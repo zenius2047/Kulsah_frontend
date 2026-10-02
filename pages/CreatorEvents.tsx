@@ -101,48 +101,11 @@ const CreatorEvents: React.FC = () => {
   };
 
 
-  const [currentEvents, setCurrentEvents] = useState<CreatorEvent[]>([
-    {
-      id: '1',
-      title: 'Neon Nights Tour',
-      date: 'Aug 24, 2024',
-      venue: 'O2 Arena, London',
-      ticketsSold: 18450,
-      totalTickets: 20000,
-      revenue: '$2.3M',
-      status: 'published',
-      type: 'Physical',
-      img: 'https://images.unsplash.com/photo-1501281668745-f7f57925c3b4?auto=format&fit=crop&q=80&w=800',
-    },
-    {
-      id: '2',
-      title: 'Synth Soul Session',
-      date: 'Sep 12, 2024',
-      venue: 'The Blue Room, SF',
-      ticketsSold: 420,
-      totalTickets: 500,
-      revenue: '$45K',
-      status: 'published',
-      type: 'Workshop',
-      img: 'https://images.unsplash.com/photo-1514525253361-bee8718a74a2?auto=format&fit=crop&q=80&w=800',
-    },
-    {
-      id: '3',
-      title: 'Midnight Unplugged',
-      date: 'Dec 05, 2024',
-      venue: 'Warehouse 42, NYC',
-      ticketsSold: 0,
-      totalTickets: 1200,
-      revenue: '$0',
-      status: 'draft',
-      type: 'Live Stream',
-      img: 'https://images.unsplash.com/photo-1470225620780-dba8ba36b745?auto=format&fit=crop&q=80&w=800',
-    },
-  ]);
+  const [currentEvents, setCurrentEvents] = useState<CreatorEvent[]>([]);
 
   React.useEffect(() => {
+    if (!creatorEventsQuery.data) return;
     const resources = ((creatorEventsQuery.data?.pages ?? []) as EventPage<EventListResource>[]).flatMap((page) => page.data);
-    if (!resources.length) return;
     setCurrentEvents(resources.map((event) => ({
       id: String(event.id), title: event.title,
       date: new Date(event.starts_at).toLocaleString(undefined, { dateStyle: 'medium', timeStyle: 'short' }),
