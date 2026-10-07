@@ -88,6 +88,7 @@ const VibePicker: React.FC = () => {
 
         await AsyncStorage.setItem('pulsar_user', JSON.stringify(guestUser));
         setUser(guestUser);
+        navigation.reset({ index: 0, routes: [{ name: 'MainTabs' as never }] });
         return;
       }
 

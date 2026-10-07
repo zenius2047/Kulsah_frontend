@@ -96,7 +96,7 @@ const EmailPhone: React.FC = () => {
   const [isCreateAccount, setIsCreateAccount] = useState(false);
   const [step, setStep] = useState(0);
   const [showPassword, setShowPassword] = useState(false);
-  const [confirmPassword, setConfirmPassword] = useState(false);
+  const [showConfirmPassword, setShowConfirmPassword] = useState(false);
   const [eventDate, setDate] = useState(new Date());
   const [gender, setGender] = useState('');
   const [showGenderDropdown, setShowGenderDropdown] = useState(false);
@@ -186,6 +186,8 @@ const EmailPhone: React.FC = () => {
 
   useEffect(()=>{
     if(step === 2 || step === 4)inputRef.current?.blur();
+    setShowPassword(false);
+    setShowConfirmPassword(false);
     setShowGenderDropdown(false);
   }, [step])
 
@@ -837,6 +839,7 @@ const EmailPhone: React.FC = () => {
                   </View>}
 
                 <TextInput includeFontPadding={false}
+                  key={isCreateAccount ? `signup-input-${step}` : 'sign-in-identifier'}
                   ref={inputRef}
                   value={isCreateAccount ? `${step === 1 ? username : step === 5 ? email : step === 3 ? password : step === 0 ? user : eventDate.toDateString()}`:identifier}
                   onChangeText={handleTextChange}
@@ -860,6 +863,7 @@ const EmailPhone: React.FC = () => {
                     }
                   }}
                   onBlur={() => setFocused(false)}
+                  placeholderTextColor={theme.textMuted}
                   placeholder= {isCreateAccount ? 
                     step === 1 ? 'Enter username':
                     step === 3 ? 'Enter password':
@@ -867,20 +871,18 @@ const EmailPhone: React.FC = () => {
                     step === 0 ? 'Enter your name':
                     'Enter email address'
                      : `${Isphone ? "Enter phone number" : "Enter email address"}`}
-                  keyboardType={Isphone ? "phone-pad":"email-address"}
+                  keyboardType={step === 3 ? "default" : Isphone ? "phone-pad" : "email-address"}
                   autoCapitalize="none"
                   selectionColor={PRIMARY_COLOR}
-                  secureTextEntry={step === 3 && showPassword}
+                  secureTextEntry={step === 3 && !showPassword}
                   style={[styles.input, { color: titleColor, width: Isphone ? '75%': step === 3 ? '75%':'85%', marginLeft: Isphone ? 5: 0, 
                     // backgroundColor: 'yellow'
                   }]}
                 />
 
-                {(isCreateAccount || step === 3 ) && step !== 5 && <Pressable
+                {isCreateAccount && step === 3 && <Pressable
                 onPress = {()=>{
-                  // console.log('tapped');
-                  setShowPassword((showPassword) => !showPassword)
-                  // console.log('the value of show password', showPassword)
+                  setShowPassword((current) => !current)
                 }} 
                 style={{
                   alignItems: 'center',
@@ -897,7 +899,7 @@ const EmailPhone: React.FC = () => {
                 <Text style={{
                   fontSize: fontSize.b4.fontSize,
                   fontFamily: fontSize.b4.fontFamily,
-                  marginBottom: -10,
+                  marginBottom: 0,
                   color: theme.accent,
                 }}>
                   Password
@@ -925,6 +927,7 @@ const EmailPhone: React.FC = () => {
                     onFocus={() => setSignInPasswordFocused(true)}
                     onBlur={() => setSignInPasswordFocused(false)}
                     placeholder="Enter password"
+                    placeholderTextColor={theme.textMuted}
                     autoCapitalize="none"
                     selectionColor={PRIMARY_COLOR}
                     secureTextEntry={!showPassword}
@@ -1052,15 +1055,15 @@ const EmailPhone: React.FC = () => {
                 onChangeText={setConfirmPasswordText}
                 onFocus={()=> setConfirmFocused(true)}
                 onBlur={()=> setConfirmFocused(false)}
-                secureTextEntry={confirmPassword}
-                placeholder="Confrim Password"
+                secureTextEntry={!showConfirmPassword}
+                placeholder="Confirm Password"
+                placeholderTextColor={theme.textMuted}
                 style={[styles.input, {color: titleColor, width: '75%'}]}
                 />
 
                 <Pressable
                 onPress = {()=>{
-                  // console.log('tapped');
-                  setConfirmPassword((confirmPassword) => !confirmPassword)
+                  setShowConfirmPassword((current) => !current)
                 }} 
                 style={{
                   alignItems: 'center',
@@ -1068,7 +1071,11 @@ const EmailPhone: React.FC = () => {
                   // backgroundColor: 'green',
                   paddingHorizontal: 10,
                 }}>
-                  {confirmPassword ? <MaterialIcons name = "visibility-off" size={20} color={theme.textMuted}/>: <MaterialIcons name = "visibility" size={20} color={theme.textMuted}/>}
+                  {showConfirmPassword ? (
+                    <MaterialIcons name="visibility-off" size={20} color={theme.textMuted} />
+                  ) : (
+                    <MaterialIcons name="visibility" size={20} color={theme.textMuted} />
+                  )}
                 </Pressable>
               </View>
                 </View>}

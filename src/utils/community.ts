@@ -1,9 +1,28 @@
-import type { CommunityPost, CreateCommunityPostPayload } from '../types/community.types';
+import type { CommunityPage, CommunityPost, CreateCommunityPostPayload } from '../types/community.types';
 
 export type CommunityPostFormEntry = [string, string | { uri: string; name: string; type: string }];
 
 export const isCommunityVideo = (asset: { type?: string | null }): boolean =>
   Boolean(asset.type && (asset.type === 'video' || asset.type.startsWith('video/')));
+
+export const flattenCommunityPages = <T extends { id: string | number }>(
+  pages?: Array<CommunityPage<T> | null | undefined>,
+): T[] => {
+  const seen = new Set<string>();
+  const items: T[] = [];
+
+  pages?.forEach((page) => {
+    if (!Array.isArray(page?.data)) return;
+    page.data.forEach((item) => {
+      const id = String(item.id);
+      if (seen.has(id)) return;
+      seen.add(id);
+      items.push(item);
+    });
+  });
+
+  return items;
+};
 
 export const validateCommunityPost = (payload: CreateCommunityPostPayload): string[] => {
   const errors: string[] = [];

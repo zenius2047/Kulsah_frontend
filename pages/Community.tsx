@@ -26,7 +26,7 @@ import { mediumScreen, user } from '../types';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { fontSize } from '../typography';
 import Reactions from './Reactions';
-import { communityApi, formatCommunityRelativeTime, parseApiError, useCommunityPosts, type CommunityComment as ApiCommunityComment, type CommunityPage, type CommunityPost as ApiCommunityPost } from '../src';
+import { communityApi, flattenCommunityPages, formatCommunityRelativeTime, parseApiError, useCommunityPosts, type CommunityComment as ApiCommunityComment, type CommunityPost as ApiCommunityPost } from '../src';
 
 interface Comment {
   id: string;
@@ -82,7 +82,6 @@ interface CurrentUser {
   role?: 'creator' | 'fan';
 }
 
-const STORAGE_KEY = 'pulsar_community_posts';
 const USER_KEY = 'pulsar_user';
 
 const FEED_VIDEO_LINKS = {
@@ -227,15 +226,19 @@ const normalizeCommunityMedia = (posts: CommunityPost[]) =>
     return post;
   });
 
-const toFeedPost = (post: ApiCommunityPost): CommunityPost => ({
+const toFeedPost = (post: ApiCommunityPost): CommunityPost => {
+  const media = Array.isArray(post.media) ? post.media : [];
+  const video = media.find((item) => item.type === 'video');
+
+  return ({
   id: String(post.id),
   artist: post.author.name,
   handle: post.author.handle.replace(/^@/, ''),
   avatar: post.author.avatar_url || ARTIST_PROFILE_IMAGE_LINKS.profile,
   content: post.content || '',
-  images: post.media.filter((item) => item.type === 'image').map((item) => item.url),
-  videoUrl: post.media.find((item) => item.type === 'video')?.streaming_url || post.media.find((item) => item.type === 'video')?.url,
-  videoPoster: post.media.find((item) => item.type === 'video')?.thumbnail_url || undefined,
+  images: media.filter((item) => item.type === 'image').map((item) => item.url),
+  videoUrl: video?.streaming_url || video?.url,
+  videoPoster: video?.thumbnail_url || undefined,
   isLive: post.type === 'live' || post.live?.status === 'live',
   viewerCount: post.live?.viewer_count,
   likes: post.stats.likes_count,
@@ -261,7 +264,8 @@ const toFeedPost = (post: ApiCommunityPost): CommunityPost => ({
   communityCount: post.community_count ?? 0,
   locationName: post.location_name,
   taggedUsers: post.tagged_users,
-});
+  });
+};
 
 const VideoPreview = memo<{ videoUrl: string; isActive: boolean; viewerCount?: number; isLive?: boolean; onOpen: () => void }>(({ videoUrl, isActive, viewerCount, isLive = false, onOpen }) => {
   const { theme } = useThemeMode();
@@ -394,11 +398,11 @@ const Community: React.FC<{ embedded?: boolean; onCountChange?: (count: number) 
   const mutedText = theme.textSecondary;
   const dimIcon = isDark ? '#9ca3af' : theme.textSecondary;
   const postsQuery = useCommunityPosts();
-  const communityPages = Array.isArray(postsQuery.data?.pages)
-    ? postsQuery.data.pages
-    : [];
-  const hasEmptyPostsResponse = postsQuery.isSuccess
-    && communityPages.every((page) => !Array.isArray(page?.data) || page.data.length === 0);
+  const apiPosts = useMemo(
+    () => flattenCommunityPages(postsQuery.data?.pages),
+    [postsQuery.data?.pages],
+  );
+  const hasEmptyPostsResponse = postsQuery.isSuccess && apiPosts.length === 0;
 
   const isCreator = currentUser.role === 'creator';
   const normalizedHandle = (currentUser.handle ?? '').replace('@', '');
@@ -476,13 +480,11 @@ const Community: React.FC<{ embedded?: boolean; onCountChange?: (count: number) 
   }, []);
 
   useEffect(() => {
-    const pages = (Array.isArray(postsQuery.data?.pages) ? postsQuery.data.pages : []) as CommunityPage<ApiCommunityPost>[];
-    const apiPosts = pages.flatMap((page) => Array.isArray(page?.data) ? page.data : []);
     setPosts(apiPosts.map(toFeedPost));
     const firstPost = apiPosts[0];
     if (firstPost) onCountChange?.((firstPost.community_count ?? 0) + 1);
     else if (postsQuery.isSuccess) onCountChange?.(0);
-  }, [onCountChange, postsQuery.data, postsQuery.isSuccess]);
+  }, [apiPosts, onCountChange, postsQuery.isSuccess]);
 
   const savePosts = async (nextPosts: CommunityPost[]) => {
     setPosts(nextPosts);
@@ -524,9 +526,10 @@ const Community: React.FC<{ embedded?: boolean; onCountChange?: (count: number) 
     if (pendingShareIds.has(id)) return;
     setPendingShareIds((current) => new Set(current).add(id));
     try {
-      await communityApi.sharePost(id);
+      const response = await communityApi.sharePost(id);
+      const serverPost = toFeedPost(response.data.data);
+      setPosts((current) => current.map((post) => post.id === id ? serverPost : post));
       await Share.share({ message: `https://kulsah.com/community/posts/${encodeURIComponent(id)}` });
-      void postsQuery.refetch();
     } catch (error: any) {
       const message = String(error?.response?.data?.message ?? '').toLowerCase();
       if (!message.includes('already shared')) {

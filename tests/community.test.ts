@@ -1,6 +1,7 @@
 import { describe, expect, it } from 'vitest';
 import {
   getCommunityPostFormEntries,
+  flattenCommunityPages,
   formatCommunityDateTime,
   formatCommunityRelativeTime,
   isSubscriberOnlyForbidden,
@@ -103,6 +104,16 @@ describe('community endpoint IDs', () => {
 describe('community viewed-state endpoint', () => {
   it('uses the backend view route for a normalized post id', () => {
     expect(endpoints.general.communityPostView(9)).toBe('general/community/posts/9/view');
+  });
+});
+
+describe('community pagination', () => {
+  it('flattens pages without rendering duplicate posts', () => {
+    const secondPost = { ...post, id: 2, content: 'Second post' };
+    expect(flattenCommunityPages([
+      { data: [post, secondPost] },
+      { data: [{ ...post, content: 'Duplicate from overlapping page' }] },
+    ])).toEqual([post, secondPost]);
   });
 });
 

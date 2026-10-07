@@ -1,4 +1,4 @@
-import React, { useDeferredValue, useEffect, useMemo, useState } from 'react';
+import React, { useDeferredValue, useEffect, useMemo, useRef, useState } from 'react';
 import {
   ActivityIndicator,
   Alert,
@@ -23,7 +23,7 @@ import { useVideoPlayer, VideoView } from 'expo-video';
 import * as VideoThumbnails from 'expo-video-thumbnails';
 import DatePicker from 'react-native-date-picker';
 import { useQuery } from '@tanstack/react-query';
-import { useThemeMode, primaryColorAlpha, PRIMARY_COLOR } from "../theme";
+import { useThemeMode, PRIMARY_COLOR } from "../theme";
 import { fontSize } from '../typography';
 import { isCommunityVideo, parseApiError, useCreateCommunityPost, validateCommunityPost, type CommunityMediaSource, type CreateCommunityPostPayload } from '../src';
 import { messagingApi } from '../src/api/messaging.api';
@@ -33,12 +33,12 @@ type Audience = 'all' | 'subs';
 type PhotoFilter = 'original' | 'warm' | 'cool' | 'vivid' | 'mono' | 'fade';
 
 const PHOTO_FILTERS: Array<{ id: PhotoFilter; label: string; color: string }> = [
-  { id: 'original', label: 'Original', color: '#64748b' },
-  { id: 'warm', label: 'Warm', color: '#f97316' },
-  { id: 'cool', label: 'Cool', color: '#38bdf8' },
-  { id: 'vivid', label: 'Vivid', color: '#d946ef' },
-  { id: 'mono', label: 'Mono', color: '#475569' },
-  { id: 'fade', label: 'Fade', color: '#c4b5fd' },
+  { id: 'original', label: 'Original', color: '#a3a3a3' },
+  { id: 'warm', label: 'Warm', color: '#737373' },
+  { id: 'cool', label: 'Cool', color: '#525252' },
+  { id: 'vivid', label: 'Vivid', color: '#404040' },
+  { id: 'mono', label: 'Mono', color: '#262626' },
+  { id: 'fade', label: 'Fade', color: '#d4d4d4' },
 ];
 
 interface StoredUser {
@@ -150,8 +150,10 @@ const CreateCommunityPost: React.FC = () => {
   const [toastMessage, setToastMessage] = useState<string | null>(null);
   const [user, setUser] = useState<StoredUser>({});
   const [userLoaded, setUserLoaded] = useState(false);
+  const toastTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   const createPost = useCreateCommunityPost(setUploadProgress);
   const deferredPeopleSearch = useDeferredValue(peopleSearch.trim());
+  const attachedVideo = useMemo(() => attachedImages.find(isCommunityVideo), [attachedImages]);
   const peopleQuery = useQuery({
     queryKey: ['community', 'tag-people', deferredPeopleSearch],
     queryFn: () => messagingApi.searchUsers({ q: deferredPeopleSearch, limit: 20 }).then((response) => response.data.data.users),
@@ -160,20 +162,49 @@ const CreateCommunityPost: React.FC = () => {
   });
 
   useEffect(() => {
-    const loadUser = async () => {
+    let isActive = true;
+    const loadStoredComposer = async () => {
       try {
-        const raw = await AsyncStorage.getItem(USER_KEY);
-        if (raw) {
-          setUser(JSON.parse(raw) as StoredUser);
+        const entries = await AsyncStorage.multiGet([USER_KEY, DRAFT_STORAGE_KEY]);
+        if (!isActive) return;
+        const stored = Object.fromEntries(entries);
+        if (stored[USER_KEY]) {
+          setUser(JSON.parse(stored[USER_KEY]!) as StoredUser);
+        }
+        if (stored[DRAFT_STORAGE_KEY]) {
+          const draft = JSON.parse(stored[DRAFT_STORAGE_KEY]!) as Record<string, any>;
+          setContent(typeof draft.content === 'string' ? draft.content : '');
+          setTargetAudience(draft.targetAudience === 'subs' ? 'subs' : 'all');
+          setShowPollEditor(Boolean(draft.showPollEditor));
+          setShowMediaEditor(Boolean(draft.showMediaEditor));
+          setPollQuestion(typeof draft.pollQuestion === 'string' ? draft.pollQuestion : '');
+          setPollOptions(Array.isArray(draft.pollOptions) && draft.pollOptions.length >= 2 ? draft.pollOptions : ['', '']);
+          setPollDurationDays([1, 3, 7].includes(draft.pollDurationDays) ? draft.pollDurationDays : 7);
+          setAllowMultipleChoices(draft.allowMultipleChoices !== false);
+          setShowResultsAfterVoting(draft.showResultsAfterVoting !== false);
+          setAttachedImages(Array.isArray(draft.attachedImages) ? draft.attachedImages : []);
+          setPhotoFilter(PHOTO_FILTERS.some((filter) => filter.id === draft.photoFilter) ? draft.photoFilter : 'original');
+          setCoverFrameMs(typeof draft.coverFrameMs === 'number' ? draft.coverFrameMs : 1000);
+          setTaggedPeople(Array.isArray(draft.taggedPeople) ? draft.taggedPeople : []);
+          setLocationName(typeof draft.locationName === 'string' ? draft.locationName : '');
+          const restoredSchedule = draft.scheduledAt ? new Date(draft.scheduledAt) : null;
+          setScheduledAt(restoredSchedule && !Number.isNaN(restoredSchedule.getTime()) ? restoredSchedule : null);
         }
       } catch (error) {
         console.error('Failed to load current user for community post', error);
       } finally {
-        setUserLoaded(true);
+        if (isActive) setUserLoaded(true);
       }
     };
 
-    void loadUser();
+    void loadStoredComposer();
+    return () => {
+      isActive = false;
+    };
+  }, []);
+
+  useEffect(() => () => {
+    if (toastTimerRef.current) clearTimeout(toastTimerRef.current);
   }, []);
 
   useEffect(() => {
@@ -186,7 +217,7 @@ const CreateCommunityPost: React.FC = () => {
   }, [navigation, showMediaEditor]);
 
   useEffect(() => {
-    const video = attachedImages.find(isCommunityVideo);
+    const video = attachedVideo;
     if (!video) {
       setVideoThumbnailUri(null);
       return undefined;
@@ -216,7 +247,7 @@ const CreateCommunityPost: React.FC = () => {
     return () => {
       isActive = false;
     };
-  }, [attachedImages]);
+  }, [attachedVideo?.durationMs, attachedVideo?.uri]);
 
   const canPublish = useMemo(() => {
     const hasValidPoll = pollQuestion.trim().length > 0
@@ -377,7 +408,8 @@ const CreateCommunityPost: React.FC = () => {
       await AsyncStorage.removeItem(DRAFT_STORAGE_KEY);
       setToastMessage(scheduledAt ? 'Post scheduled' : 'Post published');
       resetComposer();
-      setTimeout(() => {
+      if (toastTimerRef.current) clearTimeout(toastTimerRef.current);
+      toastTimerRef.current = setTimeout(() => {
         setToastMessage(null);
         navigation.navigate('MainTabs', {
           screen: 'Arena'
@@ -473,7 +505,8 @@ const CreateCommunityPost: React.FC = () => {
         savedAt: new Date().toISOString(),
       }));
       setToastMessage('Draft saved');
-      setTimeout(() => setToastMessage(null), 1800);
+      if (toastTimerRef.current) clearTimeout(toastTimerRef.current);
+      toastTimerRef.current = setTimeout(() => setToastMessage(null), 1800);
     } catch {
       Alert.alert('Draft not saved', 'Please try again.');
     }
@@ -485,7 +518,7 @@ const CreateCommunityPost: React.FC = () => {
     const attachmentCardBorder = isDark ? 'rgba(255,255,255,0.08)' : theme.border;
     const addCardBackground = isDark ? 'rgba(255,255,255,0.02)' : theme.surface;
     const addCardBorder = isDark ? 'rgba(255,255,255,0.12)' : theme.border;
-    const addIconColor = isDark ? '#94A3B8' : theme.textSecondary;
+    const addIconColor = isDark ? '#d4d4d4' : '#404040';
 
     return (
       <View style={styles.imageGrid}>
@@ -493,7 +526,7 @@ const CreateCommunityPost: React.FC = () => {
           <View key={`${img.uri}-${index}`} style={[styles.imageCard, { borderColor: attachmentCardBorder }]}>
             {img.type?.startsWith('video/') ? (
               <View style={[styles.attachmentImage, { alignItems: 'center', justifyContent: 'center', backgroundColor: addCardBackground }]}>
-                <MaterialIcons name="play-circle-filled" size={42} color={theme.accent} />
+                <MaterialIcons name="play-circle-filled" size={42} color={isDark ? '#d4d4d4' : '#262626'} />
               </View>
             ) : <Image source={{ uri: img.uri }} style={styles.attachmentImage} />}
             <Pressable
@@ -517,22 +550,23 @@ const CreateCommunityPost: React.FC = () => {
   };
 
   const screenGradient = isDark
-    ? (['#0c0b12', '#09080f', '#09080f'] as const)
-    : (['#ffffff', '#f8f8fc', '#f8f8fc'] as const);
-  const headerBackground = isDark ? '#0c0b12' : '#ffffff';
-  const headerBorder = isDark ? 'rgba(255,255,255,0.08)' : theme.border;
-  const modalCardBackground = isDark ? '#111018' : theme.card;
-  const modalBackdrop = isDark ? 'rgba(0,0,0,0.68)' : 'rgba(15,23,42,0.26)';
-  const titleColor = theme.text;
-  const mutedText = isDark ? '#94A3B8' : theme.textSecondary;
-  const placeholderColor = isDark ? '#64748B' : theme.textMuted;
-  const editorBorder = isDark ? 'rgba(255,255,255,0.08)' : theme.border;
-  const chipBackground = isDark ? 'rgba(255,255,255,0.05)' : theme.surface;
-  const handleColor = isDark ? '#475569' : '#cbd5e1';
-  const composerBackground = isDark ? '#15141d' : '#ffffff';
-  const inputSurface = isDark ? '#101018' : '#ffffff';
-  const primarySurface = isDark ? primaryColorAlpha(0.13) : primaryColorAlpha(0.07);
-  const selectedVideo = attachedImages.find(isCommunityVideo);
+    ? (['#050505', '#080808', '#080808'] as const)
+    : (['#ffffff', '#f5f5f5', '#f5f5f5'] as const);
+  const headerBackground = isDark ? '#080808' : '#ffffff';
+  const headerBorder = isDark ? 'rgba(255,255,255,0.12)' : '#d4d4d4';
+  const modalCardBackground = isDark ? '#0d0d0d' : '#ffffff';
+  const modalBackdrop = 'rgba(0,0,0,0.58)';
+  const titleColor = isDark ? '#fafafa' : '#0a0a0a';
+  const mutedText = isDark ? '#a3a3a3' : '#525252';
+  const placeholderColor = '#737373';
+  const editorBorder = isDark ? 'rgba(255,255,255,0.12)' : '#d4d4d4';
+  const chipBackground = isDark ? '#1f1f1f' : '#ededed';
+  const handleColor = isDark ? '#525252' : '#a3a3a3';
+  const composerBackground = isDark ? '#0d0d0d' : '#ffffff';
+  const inputSurface = isDark ? '#171717' : '#fafafa';
+  const primarySurface = isDark ? '#1f1f1f' : '#ededed';
+  const contentAccent = isDark ? '#d4d4d4' : '#262626';
+  const selectedVideo = attachedVideo;
   const mediaAttachments = selectedVideo ? [selectedVideo] : attachedImages;
 
   const moveImageEarlier = (index: number) => {
@@ -549,11 +583,11 @@ const CreateCommunityPost: React.FC = () => {
     <View style={[styles.imagePostCard, { backgroundColor: composerBackground, borderColor: editorBorder }]}>
       <View style={styles.imagePostHeading}>
         <View style={styles.imagePostHeadingLabel}>
-          <MaterialIcons name="perm-media" size={26} color={PRIMARY_COLOR} />
+          <MaterialIcons name="perm-media" size={26} color={contentAccent} />
           <Text style={[styles.imagePostHeadingText, { color: titleColor }]}>Media Post</Text>
         </View>
         <Text style={[styles.imagePostCount, { color: mutedText }]}>
-          <Text style={{ color: PRIMARY_COLOR }}>{mediaAttachments.length}</Text> / {MAX_MEDIA_POST_ITEMS} media
+          <Text style={{ color: contentAccent }}>{mediaAttachments.length}</Text> / {MAX_MEDIA_POST_ITEMS} media
         </Text>
       </View>
 
@@ -608,14 +642,14 @@ const CreateCommunityPost: React.FC = () => {
         onPress={() => void promptImageUpload('all', MAX_MEDIA_POST_ITEMS, mediaAttachments)}
         style={[
           styles.imagePostAddButton,
-          { borderColor: primaryColorAlpha(0.58), backgroundColor: primarySurface },
+          { borderColor: editorBorder, backgroundColor: primarySurface },
           mediaAttachments.length >= MAX_MEDIA_POST_ITEMS && styles.pollControlDisabled,
         ]}
       >
-        <View style={styles.imagePostAddIcon}>
-          <MaterialIcons name="add" size={20} color="#ffffff" />
+        <View style={[styles.imagePostAddIcon, { backgroundColor: primarySurface }]}>
+          <MaterialIcons name="add" size={20} color={contentAccent} />
         </View>
-        <Text style={styles.imagePostAddText}>Add More Media</Text>
+        <Text style={[styles.imagePostAddText, { color: titleColor }]}>Add More Media</Text>
       </Pressable>
 
       <View style={styles.imagePostHint}>
@@ -682,18 +716,18 @@ const CreateCommunityPost: React.FC = () => {
             </Pressable>
           </View>
 
-          <View style={[styles.videoTimeline, { borderColor: PRIMARY_COLOR }]}>
-            <View style={styles.videoTimelineHandle} />
+          <View style={[styles.videoTimeline, { borderColor: editorBorder }]}>
+            <View style={[styles.videoTimelineHandle, { backgroundColor: contentAccent }]} />
             {Array.from({ length: 6 }).map((_, index) => (
               videoThumbnailUri ? (
                 <Image key={`frame-${index}`} source={{ uri: videoThumbnailUri }} style={styles.videoTimelineFrame} />
               ) : (
                 <View key={`frame-${index}`} style={[styles.videoTimelineFrame, { backgroundColor: primarySurface }]}>
-                  <MaterialIcons name="videocam" size={20} color={PRIMARY_COLOR} />
+                  <MaterialIcons name="videocam" size={20} color={contentAccent} />
                 </View>
               )
             ))}
-            <View style={[styles.videoTimelineHandle, styles.videoTimelineHandleRight]} />
+            <View style={[styles.videoTimelineHandle, styles.videoTimelineHandleRight, { backgroundColor: contentAccent }]} />
           </View>
           <View style={styles.videoTimelineLabels}>
             <Text style={[styles.videoTimelineText, { color: titleColor }]}>0:00</Text>
@@ -708,7 +742,7 @@ const CreateCommunityPost: React.FC = () => {
                 onPress={() => setShowCoverPicker(true)}
                 style={styles.videoToolButton}
               >
-                <MaterialIcons name={tool.icon} size={25} color={PRIMARY_COLOR} />
+                <MaterialIcons name={tool.icon} size={25} color={contentAccent} />
                 <Text style={[styles.videoToolText, { color: titleColor }]}>{tool.label}</Text>
               </Pressable>
               {index < videoTools.length - 1 ? <View style={[styles.videoToolDivider, { backgroundColor: editorBorder }]} /> : null}
@@ -744,17 +778,17 @@ const CreateCommunityPost: React.FC = () => {
 
         <View style={[styles.videoSettingsCard, { backgroundColor: composerBackground, borderColor: editorBorder }]}>
           <Pressable onPress={appendHashtag} style={[styles.videoSettingRow, { borderBottomColor: editorBorder }]}>
-            <MaterialIcons name="tag" size={27} color={PRIMARY_COLOR} />
+            <MaterialIcons name="tag" size={27} color={contentAccent} />
             <Text style={[styles.videoSettingTitle, { color: titleColor }]}>Add Hashtags</Text>
             <MaterialIcons name="chevron-right" size={27} color={mutedText} />
           </Pressable>
           <Pressable onPress={() => setShowPeoplePicker(true)} style={[styles.videoSettingRow, { borderBottomColor: editorBorder }]}>
-            <MaterialIcons name="alternate-email" size={27} color={PRIMARY_COLOR} />
+            <MaterialIcons name="alternate-email" size={27} color={contentAccent} />
             <Text style={[styles.videoSettingTitle, { color: titleColor }]}>Tag People</Text>
             <MaterialIcons name="chevron-right" size={27} color={mutedText} />
           </Pressable>
           <Pressable onPress={() => setShowCoverPicker(true)} style={styles.videoSettingRowLast}>
-            <MaterialIcons name="image" size={27} color={PRIMARY_COLOR} />
+            <MaterialIcons name="image" size={27} color={contentAccent} />
             <Text style={[styles.videoSettingTitle, { color: titleColor }]}>Choose Cover Frame</Text>
             {videoThumbnailUri ? <Image source={{ uri: videoThumbnailUri }} style={styles.videoCoverThumbnail} /> : null}
             <MaterialIcons name="chevron-right" size={27} color={mutedText} />
@@ -763,13 +797,13 @@ const CreateCommunityPost: React.FC = () => {
 
         <View style={[styles.videoSettingsCard, { backgroundColor: composerBackground, borderColor: editorBorder }]}>
           <Pressable onPress={chooseAudience} style={[styles.videoSettingRow, { borderBottomColor: editorBorder }]}>
-            <MaterialIcons name="public" size={27} color={PRIMARY_COLOR} />
+            <MaterialIcons name="public" size={27} color={contentAccent} />
             <Text style={[styles.videoSettingTitle, { color: titleColor }]}>Who can see this post?</Text>
             <Text style={[styles.videoSettingValue, { color: mutedText }]}>{targetAudience === 'all' ? 'Everyone' : 'Subscribers'}</Text>
             <MaterialIcons name="chevron-right" size={27} color={mutedText} />
           </Pressable>
           <Pressable onPress={() => Alert.alert('Upload quality', 'Videos are uploaded at the best available quality.')} style={styles.videoSettingRowLast}>
-            <MaterialIcons name="high-quality" size={27} color={PRIMARY_COLOR} />
+            <MaterialIcons name="high-quality" size={27} color={contentAccent} />
             <Text style={[styles.videoSettingTitle, { color: titleColor }]}>Upload Quality</Text>
             <Text style={[styles.videoSettingValue, { color: mutedText }]}>High (1080p)</Text>
             <MaterialIcons name="chevron-right" size={27} color={mutedText} />
@@ -780,13 +814,13 @@ const CreateCommunityPost: React.FC = () => {
   };
 
   if (!userLoaded) {
-    return <View style={[styles.safeArea, { backgroundColor: theme.screen, alignItems: 'center', justifyContent: 'center' }]}><ActivityIndicator color={PRIMARY_COLOR} /></View>;
+    return <View style={[styles.safeArea, { backgroundColor: isDark ? '#050505' : '#f5f5f5', alignItems: 'center', justifyContent: 'center' }]}><ActivityIndicator color={contentAccent} /></View>;
   }
 
   if (user.role !== 'creator') {
     return (
       <View style={[styles.safeArea, { backgroundColor: theme.screen, alignItems: 'center', justifyContent: 'center', padding: 24, gap: 12 }]}>
-        <MaterialIcons name="lock" size={40} color={PRIMARY_COLOR} />
+        <MaterialIcons name="lock" size={40} color={contentAccent} />
         <Text style={[styles.headerTitle, { color: theme.text, textAlign: 'center' }]}>CREATOR ACCOUNT REQUIRED</Text>
         <Pressable onPress={() => navigation.goBack()}><Text style={{ color: PRIMARY_COLOR }}>Go back</Text></Pressable>
       </View>
@@ -854,7 +888,7 @@ const CreateCommunityPost: React.FC = () => {
             <>
               <View style={[styles.composerCard, { backgroundColor: composerBackground }]}>
             <View style={styles.profileRow}>
-              <LinearGradient colors={[PRIMARY_COLOR, PRIMARY_COLOR]} style={styles.referenceAvatarRing}>
+              <LinearGradient colors={[contentAccent, contentAccent]} style={styles.referenceAvatarRing}>
                 <View style={[styles.referenceAvatarInner, { backgroundColor: composerBackground }]}>
                   <Image source={{ uri: user.avatar || DEFAULT_AVATAR }} style={styles.referenceAvatar} />
                 </View>
@@ -862,7 +896,7 @@ const CreateCommunityPost: React.FC = () => {
               <View style={styles.profileMeta}>
                 <View style={styles.profileNameRow}>
                   <Text numberOfLines={1} style={[styles.profileName, { color: titleColor }]}>{user.name || 'Kulsah Creator'}</Text>
-                  <MaterialIcons name="verified" size={20} color={PRIMARY_COLOR} />
+                  <MaterialIcons name="verified" size={20} color={contentAccent} />
                 </View>
               </View>
               {/* <Pressable
@@ -916,15 +950,15 @@ const CreateCommunityPost: React.FC = () => {
                     }}
                     style={[styles.addToPostButton, { backgroundColor: inputSurface, borderColor: editorBorder }]}
                   >
-                    <MaterialIcons name="poll" size={25} color="#17b26a" />
+                    <MaterialIcons name="poll" size={25} color={contentAccent} />
                     <Text style={[styles.addToPostText, { color: titleColor }]}>Poll</Text>
                   </Pressable>
                   <Pressable onPress={() => openMediaEditor('all')} style={[styles.addToPostButton, { backgroundColor: inputSurface, borderColor: editorBorder }]}>
-                    <MaterialIcons name="perm-media" size={25} color="#1689e8" />
+                    <MaterialIcons name="perm-media" size={25} color={contentAccent} />
                     <Text style={[styles.addToPostText, { color: titleColor }]}>Media</Text>
                   </Pressable>
                   <Pressable onPress={() => openMediaEditor('videos')} style={[styles.addToPostButton, { backgroundColor: inputSurface, borderColor: editorBorder }]}>
-                    <MaterialIcons name="videocam" size={26} color="#ec168c" />
+                    <MaterialIcons name="videocam" size={26} color={contentAccent} />
                     <Text style={[styles.addToPostText, { color: titleColor }]}>Video</Text>
                   </Pressable>
                 </View>
@@ -936,7 +970,7 @@ const CreateCommunityPost: React.FC = () => {
                 <View style={[styles.pollBuilderCard, { backgroundColor: composerBackground, borderColor: editorBorder }]}>
                   <View style={styles.pollBuilderHeader}>
                     <View style={[styles.pollBuilderIcon, { backgroundColor: primarySurface }]}>
-                      <MaterialIcons name="poll" size={27} color={PRIMARY_COLOR} />
+                      <MaterialIcons name="poll" size={27} color={contentAccent} />
                     </View>
                     <View style={styles.pollBuilderHeaderCopy}>
                       <Text style={[styles.pollBuilderTitle, { color: titleColor }]}>Poll Question</Text>
@@ -992,15 +1026,15 @@ const CreateCommunityPost: React.FC = () => {
                   <Pressable
                     onPress={addPollOption}
                     disabled={pollOptions.length >= 4}
-                    style={[styles.pollBuilderAddButton, { borderColor: primaryColorAlpha(0.5) }, pollOptions.length >= 4 && styles.pollControlDisabled]}
+                    style={[styles.pollBuilderAddButton, { borderColor: editorBorder }, pollOptions.length >= 4 && styles.pollControlDisabled]}
                   >
-                    <MaterialIcons name="add" size={22} color={PRIMARY_COLOR} />
-                    <Text style={styles.pollBuilderAddText}>Add option</Text>
+                    <MaterialIcons name="add" size={22} color={contentAccent} />
+                    <Text style={[styles.pollBuilderAddText, { color: titleColor }]}>Add option</Text>
                   </Pressable>
 
                   <View style={styles.pollDurationRow}>
                     <View style={[styles.pollBuilderIcon, { backgroundColor: primarySurface }]}>
-                      <MaterialIcons name="schedule" size={27} color={PRIMARY_COLOR} />
+                      <MaterialIcons name="schedule" size={27} color={contentAccent} />
                     </View>
                     <View style={styles.pollDurationCopy}>
                       <Text style={[styles.pollBuilderTitle, { color: titleColor }]}>Poll duration</Text>
@@ -1013,7 +1047,7 @@ const CreateCommunityPost: React.FC = () => {
                           <Pressable
                             key={duration}
                             onPress={() => setPollDurationDays(duration)}
-                            style={[styles.pollDurationButton, selected && { backgroundColor: PRIMARY_COLOR }]}
+                            style={[styles.pollDurationButton, selected && { backgroundColor: contentAccent }]}
                           >
                             <Text style={[styles.pollDurationText, { color: selected ? '#ffffff' : titleColor }]}>{duration} day{duration === 1 ? '' : 's'}</Text>
                           </Pressable>
@@ -1026,7 +1060,7 @@ const CreateCommunityPost: React.FC = () => {
                 <View style={[styles.pollPreferenceCard, { backgroundColor: composerBackground, borderColor: editorBorder }]}>
                   <View style={[styles.pollPreferenceRow, { borderBottomColor: editorBorder }]}>
                     <View style={[styles.pollPreferenceIcon, { backgroundColor: primarySurface }]}>
-                      <MaterialIcons name="checklist" size={26} color={PRIMARY_COLOR} />
+                      <MaterialIcons name="checklist" size={26} color={contentAccent} />
                     </View>
                     <View style={styles.pollPreferenceCopy}>
                       <Text style={[styles.pollPreferenceTitle, { color: titleColor }]}>Allow multiple choices</Text>
@@ -1035,14 +1069,14 @@ const CreateCommunityPost: React.FC = () => {
                     <Switch
                       value={allowMultipleChoices}
                       onValueChange={setAllowMultipleChoices}
-                      trackColor={{ false: editorBorder, true: PRIMARY_COLOR }}
+                      trackColor={{ false: editorBorder, true: contentAccent }}
                       thumbColor="#ffffff"
                       ios_backgroundColor={editorBorder}
                     />
                   </View>
                   <View style={styles.pollPreferenceRowLast}>
                     <View style={[styles.pollPreferenceIcon, { backgroundColor: primarySurface }]}>
-                      <MaterialIcons name="bar-chart" size={27} color={PRIMARY_COLOR} />
+                      <MaterialIcons name="bar-chart" size={27} color={contentAccent} />
                     </View>
                     <View style={styles.pollPreferenceCopy}>
                       <Text style={[styles.pollPreferenceTitle, { color: titleColor }]}>Show results after voting</Text>
@@ -1051,7 +1085,7 @@ const CreateCommunityPost: React.FC = () => {
                     <Switch
                       value={showResultsAfterVoting}
                       onValueChange={setShowResultsAfterVoting}
-                      trackColor={{ false: editorBorder, true: PRIMARY_COLOR }}
+                      trackColor={{ false: editorBorder, true: contentAccent }}
                       thumbColor="#ffffff"
                       ios_backgroundColor={editorBorder}
                     />
@@ -1061,7 +1095,7 @@ const CreateCommunityPost: React.FC = () => {
                 <View style={[styles.pollMediaCard, { backgroundColor: composerBackground, borderColor: editorBorder }]}>
                   <View style={styles.pollMediaHeading}>
                     <View style={[styles.pollPreferenceIcon, { backgroundColor: primarySurface }]}>
-                      <MaterialIcons name="perm-media" size={26} color={PRIMARY_COLOR} />
+                      <MaterialIcons name="perm-media" size={26} color={contentAccent} />
                     </View>
                     <View style={styles.pollPreferenceCopy}>
                       <Text style={[styles.pollPreferenceTitle, { color: titleColor }]}>Add media (optional)</Text>
@@ -1070,11 +1104,11 @@ const CreateCommunityPost: React.FC = () => {
                   </View>
                   <View style={styles.pollMediaActions}>
                     <Pressable onPress={() => void promptImageUpload('images')} style={[styles.pollMediaButton, { borderColor: editorBorder, backgroundColor: inputSurface }]}>
-                      <MaterialIcons name="image" size={25} color={PRIMARY_COLOR} />
+                      <MaterialIcons name="image" size={25} color={contentAccent} />
                       <Text style={[styles.pollMediaButtonText, { color: titleColor }]}>Photo</Text>
                     </Pressable>
                     <Pressable onPress={() => void promptImageUpload('videos')} style={[styles.pollMediaButton, { borderColor: editorBorder, backgroundColor: inputSurface }]}>
-                      <MaterialIcons name="videocam" size={26} color={PRIMARY_COLOR} />
+                      <MaterialIcons name="videocam" size={26} color={contentAccent} />
                       <Text style={[styles.pollMediaButtonText, { color: titleColor }]}>Video</Text>
                     </Pressable>
                   </View>
@@ -1091,7 +1125,7 @@ const CreateCommunityPost: React.FC = () => {
               style={[styles.referenceSettingRow, { borderBottomColor: editorBorder }]}
             >
               <View style={[styles.referenceSettingIcon, { backgroundColor: primarySurface }]}>
-                <MaterialIcons name="schedule" size={27} color={PRIMARY_COLOR} />
+                <MaterialIcons name="schedule" size={27} color={contentAccent} />
               </View>
               <View style={styles.referenceSettingCopy}>
                 <Text style={[styles.referenceSettingTitle, { color: titleColor }]}>Schedule post</Text>
@@ -1101,7 +1135,7 @@ const CreateCommunityPost: React.FC = () => {
             </Pressable>
             <Pressable onPress={() => setShowPeoplePicker(true)} style={[styles.referenceSettingRow, { borderBottomColor: editorBorder }]}>
               <View style={[styles.referenceSettingIcon, { backgroundColor: primarySurface }]}>
-                <MaterialIcons name="alternate-email" size={27} color={PRIMARY_COLOR} />
+                <MaterialIcons name="alternate-email" size={27} color={contentAccent} />
               </View>
               <View style={styles.referenceSettingCopy}>
                 <Text style={[styles.referenceSettingTitle, { color: titleColor }]}>Tag people</Text>
@@ -1111,7 +1145,7 @@ const CreateCommunityPost: React.FC = () => {
             </Pressable>
             <Pressable onPress={() => setShowLocationPicker(true)} style={[styles.referenceSettingRow, { borderBottomColor: editorBorder }]}>
               <View style={[styles.referenceSettingIcon, { backgroundColor: primarySurface }]}>
-                <MaterialIcons name="location-on" size={27} color={PRIMARY_COLOR} />
+                <MaterialIcons name="location-on" size={27} color={contentAccent} />
               </View>
               <View style={styles.referenceSettingCopy}>
                 <Text style={[styles.referenceSettingTitle, { color: titleColor }]}>Location</Text>
@@ -1121,7 +1155,7 @@ const CreateCommunityPost: React.FC = () => {
             </Pressable>
             <Pressable onPress={chooseAudience} style={[styles.referenceSettingRow, { borderBottomColor: editorBorder }]}>
               <View style={[styles.referenceSettingIcon, { backgroundColor: primarySurface }]}>
-                <MaterialIcons name="group" size={27} color={PRIMARY_COLOR} />
+                <MaterialIcons name="group" size={27} color={contentAccent} />
               </View>
               <View style={styles.referenceSettingCopy}>
                 <Text style={[styles.referenceSettingTitle, { color: titleColor }]}>Audience</Text>
@@ -1133,7 +1167,7 @@ const CreateCommunityPost: React.FC = () => {
             </Pressable>
             <Pressable onPress={() => void handleSaveDraft()} style={styles.referenceSettingRowLast}>
               <View style={[styles.referenceSettingIcon, { backgroundColor: primarySurface }]}>
-                <MaterialIcons name="folder-open" size={27} color={PRIMARY_COLOR} />
+                <MaterialIcons name="folder-open" size={27} color={contentAccent} />
               </View>
               <View style={styles.referenceSettingCopy}>
                 <Text style={[styles.referenceSettingTitle, { color: titleColor }]}>Save draft</Text>
@@ -1179,10 +1213,10 @@ const CreateCommunityPost: React.FC = () => {
                 {PHOTO_FILTERS.map((filter) => {
                   const selected = photoFilter === filter.id;
                   return (
-                    <Pressable key={filter.id} onPress={() => setPhotoFilter(filter.id)} style={[styles.filterOption, { borderColor: selected ? PRIMARY_COLOR : headerBorder }]}>
+                    <Pressable key={filter.id} onPress={() => setPhotoFilter(filter.id)} style={[styles.filterOption, { borderColor: selected ? contentAccent : headerBorder, backgroundColor: selected ? primarySurface : 'transparent' }]}>
                       <View style={[styles.filterSwatch, { backgroundColor: filter.color }]} />
-                      <Text style={[styles.optionLabel, { color: selected ? PRIMARY_COLOR : titleColor }]}>{filter.label}</Text>
-                      {selected ? <MaterialIcons name="check-circle" size={18} color={PRIMARY_COLOR} /> : null}
+                      <Text style={[styles.optionLabel, { color: titleColor }]}>{filter.label}</Text>
+                      {selected ? <MaterialIcons name="check-circle" size={18} color={contentAccent} /> : null}
                     </Pressable>
                   );
                 })}
@@ -1213,14 +1247,14 @@ const CreateCommunityPost: React.FC = () => {
                 <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={styles.selectedPeopleRow}>
                   {taggedPeople.map((person) => (
                     <Pressable key={person.id} onPress={() => toggleTaggedPerson(person)} style={[styles.selectedPersonChip, { backgroundColor: primarySurface }]}>
-                      <Text style={[styles.selectedPersonText, { color: PRIMARY_COLOR }]}>@{person.handle ?? person.name}</Text>
-                      <MaterialIcons name="close" size={15} color={PRIMARY_COLOR} />
+                      <Text style={[styles.selectedPersonText, { color: titleColor }]}>@{person.handle ?? person.name}</Text>
+                      <MaterialIcons name="close" size={15} color={contentAccent} />
                     </Pressable>
                   ))}
                 </ScrollView>
               ) : null}
               <ScrollView keyboardShouldPersistTaps="handled" style={styles.peopleResults}>
-                {peopleQuery.isLoading ? <ActivityIndicator color={PRIMARY_COLOR} style={styles.optionLoader} /> : null}
+                {peopleQuery.isLoading ? <ActivityIndicator color={contentAccent} style={styles.optionLoader} /> : null}
                 {(peopleQuery.data ?? []).map((person) => {
                   const selected = taggedPeople.some((item) => item.id === person.id);
                   return (
@@ -1230,7 +1264,7 @@ const CreateCommunityPost: React.FC = () => {
                         <Text style={[styles.personName, { color: titleColor }]}>{person.name || person.handle || 'Kulsah user'}</Text>
                         <Text style={[styles.personHandle, { color: mutedText }]}>@{person.handle ?? 'user'}</Text>
                       </View>
-                      <MaterialIcons name={selected ? 'check-circle' : 'radio-button-unchecked'} size={23} color={selected ? PRIMARY_COLOR : mutedText} />
+                      <MaterialIcons name={selected ? 'check-circle' : 'radio-button-unchecked'} size={23} color={selected ? contentAccent : mutedText} />
                     </Pressable>
                   );
                 })}
@@ -1281,7 +1315,7 @@ const CreateCommunityPost: React.FC = () => {
                     <Pressable
                       key={frame.time}
                       onPress={() => { setCoverFrameMs(frame.time); setVideoThumbnailUri(frame.uri); }}
-                      style={[styles.coverFrameButton, { borderColor: selected ? PRIMARY_COLOR : headerBorder }]}
+                      style={[styles.coverFrameButton, { borderColor: selected ? contentAccent : headerBorder }]}
                     >
                       <Image source={{ uri: frame.uri }} style={styles.coverFrameImage} />
                       <Text style={styles.coverFrameTime}>{(frame.time / 1000).toFixed(1)}s</Text>
@@ -1337,11 +1371,11 @@ const CreateCommunityPost: React.FC = () => {
 const styles = StyleSheet.create({
   safeArea: {
     flex: 1,
-    backgroundColor: '#050507',
+    backgroundColor: '#050505',
   },
   screen: {
     flex: 1,
-    backgroundColor: '#050507',
+    backgroundColor: '#050505',
   },
   tabletScreen: {
     width: '100%',
@@ -1353,7 +1387,7 @@ const styles = StyleSheet.create({
     top: 72,
     alignSelf: 'center',
     zIndex: 30,
-    backgroundColor: '#10b981',
+    backgroundColor: '#171717',
     paddingHorizontal: 24,
     paddingVertical: 14,
     borderRadius: 999,
@@ -1374,7 +1408,7 @@ const styles = StyleSheet.create({
     paddingVertical: 8,
     borderBottomWidth: 0,
     borderBottomColor: 'rgba(255,255,255,0.08)',
-    backgroundColor: 'rgba(5,5,7,0.82)',
+    backgroundColor: 'rgba(5,5,5,0.82)',
   },
   headerButton: {
     width: 48,
@@ -1436,7 +1470,7 @@ const styles = StyleSheet.create({
     height: 64,
     borderRadius: 22,
     borderWidth: 2,
-    borderColor: 'rgba(217,0,199,0.28)',
+    borderColor: 'rgba(255,255,255,0.22)',
   },
   onlineDot: {
     position: 'absolute',
@@ -1445,9 +1479,9 @@ const styles = StyleSheet.create({
     width: 14,
     height: 14,
     borderRadius: 7,
-    backgroundColor: '#10b981',
+    backgroundColor: '#a3a3a3',
     borderWidth: 2,
-    borderColor: '#050507',
+    borderColor: '#050505',
   },
   profileMeta: {
     flex: 1,
@@ -1468,11 +1502,11 @@ const styles = StyleSheet.create({
     width: 6,
     height: 6,
     borderRadius: 3,
-    backgroundColor: PRIMARY_COLOR,
+    backgroundColor: '#a3a3a3',
     marginRight: 8,
   },
   profileSubText: {
-    color: PRIMARY_COLOR,
+    color: '#a3a3a3',
     ...fontSize.b4, lineHeight: fontSize.b4.lineHeight,
     letterSpacing: 2.5,
   },
@@ -1541,12 +1575,12 @@ const styles = StyleSheet.create({
     paddingHorizontal: 14,
     paddingVertical: 10,
     borderRadius: 14,
-    backgroundColor: 'rgba(217,0,199,0.12)',
+    backgroundColor: 'rgba(255,255,255,0.06)',
     borderWidth: 1,
-    borderColor: 'rgba(217,0,199,0.2)',
+    borderColor: 'rgba(255,255,255,0.12)',
   },
   aiButtonText: {
-    color: PRIMARY_COLOR,
+    color: '#d4d4d4',
     ...fontSize.b5, lineHeight: fontSize.b5.lineHeight,
     letterSpacing: 1.8,
   },
@@ -1555,9 +1589,9 @@ const styles = StyleSheet.create({
   },
   pollCard: {
     borderRadius: 28,
-    backgroundColor: 'rgba(31,8,31,0.9)',
+    backgroundColor: 'rgba(23,23,23,0.9)',
     borderWidth: 1,
-    borderColor: 'rgba(217,0,199,0.22)',
+    borderColor: 'rgba(255,255,255,0.12)',
     padding: 18,
     gap: 14,
   },
@@ -1572,7 +1606,7 @@ const styles = StyleSheet.create({
     gap: 8,
   },
   pollTitle: {
-    color: PRIMARY_COLOR,
+    color: '#d4d4d4',
     ...fontSize.b5, lineHeight: fontSize.b5.lineHeight,
     letterSpacing: 2,
   },
@@ -1607,12 +1641,12 @@ const styles = StyleSheet.create({
     borderRadius: 14,
     borderWidth: 2,
     borderStyle: 'dashed',
-    borderColor: 'rgba(217,0,199,0.24)',
+    borderColor: 'rgba(255,255,255,0.18)',
     alignItems: 'center',
     justifyContent: 'center',
   },
   addPollText: {
-    color: PRIMARY_COLOR,
+    color: '#d4d4d4',
     ...fontSize.b5, lineHeight: fontSize.b5.lineHeight,
     letterSpacing: 1.8,
   },
@@ -1620,7 +1654,7 @@ const styles = StyleSheet.create({
     paddingHorizontal: 20,
     paddingTop: 12,
     paddingBottom: 22,
-    backgroundColor: '#0a0508',
+    backgroundColor: '#080808',
     borderTopWidth: 1,
     borderTopColor: 'rgba(255,255,255,0.05)',
     gap: 18,
@@ -1657,10 +1691,10 @@ const styles = StyleSheet.create({
     borderRadius: 12,
   },
   audienceButtonActive: {
-    backgroundColor: PRIMARY_COLOR,
+    backgroundColor: '#262626',
   },
   audienceText: {
-    color: '#94A3B8',
+    color: '#a3a3a3',
     ...fontSize.b4, lineHeight: fontSize.b4.lineHeight,
     letterSpacing: 1.6,
   },
@@ -1695,7 +1729,7 @@ const styles = StyleSheet.create({
     backgroundColor: 'rgba(0,0,0,0.68)',
   },
   modalCard: {
-    backgroundColor: '#111018',
+    backgroundColor: '#0d0d0d',
     borderTopLeftRadius: 28,
     borderTopRightRadius: 28,
     paddingHorizontal: 20,
@@ -1709,7 +1743,7 @@ const styles = StyleSheet.create({
     width: 44,
     height: 5,
     borderRadius: 4,
-    backgroundColor: '#475569',
+    backgroundColor: '#525252',
     marginBottom: 18,
   },
   modalHeader: {
@@ -1723,7 +1757,7 @@ const styles = StyleSheet.create({
     ...fontSize.b1, lineHeight: fontSize.b1.lineHeight,
   },
   modalSectionTitle: {
-    color: '#94A3B8',
+    color: '#a3a3a3',
     ...fontSize.b5, lineHeight: fontSize.b5.lineHeight,
     letterSpacing: 2,
     marginBottom: 12,
@@ -1913,7 +1947,7 @@ const styles = StyleSheet.create({
     borderWidth: 1,
     padding: 17,
     gap: 14,
-    shadowColor: '#111827',
+    shadowColor: '#111111',
     shadowOffset: { width: 0, height: 5 },
     shadowOpacity: 0.06,
     shadowRadius: 13,
@@ -2024,7 +2058,7 @@ const styles = StyleSheet.create({
     gap: 7,
   },
   pollBuilderAddText: {
-    color: PRIMARY_COLOR,
+    color: '#d4d4d4',
     fontFamily: 'Poppins_600SemiBold',
     fontSize: 14,
     lineHeight: 20,
@@ -2063,7 +2097,7 @@ const styles = StyleSheet.create({
     borderRadius: 18,
     borderWidth: 1,
     overflow: 'hidden',
-    shadowColor: '#111827',
+    shadowColor: '#111111',
     shadowOffset: { width: 0, height: 5 },
     shadowOpacity: 0.05,
     shadowRadius: 12,
@@ -2110,7 +2144,7 @@ const styles = StyleSheet.create({
     borderWidth: 1,
     padding: 16,
     gap: 13,
-    shadowColor: '#111827',
+    shadowColor: '#111111',
     shadowOffset: { width: 0, height: 5 },
     shadowOpacity: 0.05,
     shadowRadius: 12,
@@ -2198,7 +2232,7 @@ const styles = StyleSheet.create({
     aspectRatio: 0.98,
     borderRadius: 14,
     overflow: 'hidden',
-    backgroundColor: '#dbe4ee',
+    backgroundColor: '#e5e5e5',
   },
   imagePostTileImage: {
     width: '100%',
@@ -2208,7 +2242,7 @@ const styles = StyleSheet.create({
     ...StyleSheet.absoluteFillObject,
     alignItems: 'center',
     justifyContent: 'center',
-    backgroundColor: 'rgba(22, 11, 50, 0.67)',
+    backgroundColor: 'rgba(0, 0, 0, 0.67)',
   },
   imagePostOverflowText: {
     color: '#ffffff',
@@ -2225,7 +2259,7 @@ const styles = StyleSheet.create({
     borderRadius: 19,
     alignItems: 'center',
     justifyContent: 'center',
-    backgroundColor: 'rgba(17, 24, 39, 0.7)',
+    backgroundColor: 'rgba(0, 0, 0, 0.7)',
   },
   imagePostReorderButton: {
     position: 'absolute',
@@ -2236,7 +2270,7 @@ const styles = StyleSheet.create({
     borderRadius: 19,
     alignItems: 'center',
     justifyContent: 'center',
-    backgroundColor: 'rgba(17, 24, 39, 0.58)',
+    backgroundColor: 'rgba(0, 0, 0, 0.58)',
     transform: [{ rotate: '90deg' }],
   },
   imagePostAddButton: {
@@ -2257,10 +2291,8 @@ const styles = StyleSheet.create({
     borderRadius: 14,
     alignItems: 'center',
     justifyContent: 'center',
-    backgroundColor: PRIMARY_COLOR,
   },
   imagePostAddText: {
-    color: PRIMARY_COLOR,
     fontFamily: 'Poppins_600SemiBold',
     fontSize: 15,
     lineHeight: 22,
@@ -2336,7 +2368,7 @@ const styles = StyleSheet.create({
     borderRadius: 17,
     borderWidth: 1,
     overflow: 'hidden',
-    shadowColor: '#111827',
+    shadowColor: '#111111',
     shadowOffset: { width: 0, height: 5 },
     shadowOpacity: 0.07,
     shadowRadius: 14,
@@ -2345,7 +2377,7 @@ const styles = StyleSheet.create({
   videoPreviewShell: {
     position: 'relative',
     aspectRatio: 1.72,
-    backgroundColor: '#0f172a',
+    backgroundColor: '#0a0a0a',
   },
   videoPreviewViewport: {
     flex: 1,
@@ -2360,7 +2392,7 @@ const styles = StyleSheet.create({
     borderRadius: 34,
     borderWidth: 1,
     borderColor: 'rgba(255,255,255,0.45)',
-    backgroundColor: 'rgba(17,24,39,0.58)',
+    backgroundColor: 'rgba(0,0,0,0.58)',
     alignItems: 'center',
     justifyContent: 'center',
   },
@@ -2372,7 +2404,7 @@ const styles = StyleSheet.create({
     height: 38,
     borderRadius: 12,
     paddingHorizontal: 10,
-    backgroundColor: 'rgba(17,24,39,0.62)',
+    backgroundColor: 'rgba(0,0,0,0.62)',
     alignItems: 'center',
     justifyContent: 'center',
   },
@@ -2392,7 +2424,7 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     gap: 8,
-    backgroundColor: 'rgba(17,24,39,0.68)',
+    backgroundColor: 'rgba(0,0,0,0.68)',
   },
   changeVideoText: {
     color: '#ffffff',
@@ -2426,7 +2458,7 @@ const styles = StyleSheet.create({
     bottom: 14,
     width: 4,
     borderRadius: 3,
-    backgroundColor: PRIMARY_COLOR,
+    backgroundColor: '#737373',
   },
   videoTimelineHandleRight: {
     left: undefined,
@@ -2505,7 +2537,7 @@ const styles = StyleSheet.create({
     borderRadius: 17,
     borderWidth: 1,
     overflow: 'hidden',
-    shadowColor: '#111827',
+    shadowColor: '#111111',
     shadowOffset: { width: 0, height: 4 },
     shadowOpacity: 0.05,
     shadowRadius: 12,
@@ -2650,7 +2682,7 @@ const styles = StyleSheet.create({
   secondaryOptionText: { fontFamily: 'Poppins_500Medium', fontSize: 13 },
   flexOptionButton: { flex: 1, marginHorizontal: 0 },
   coverFrameRow: { paddingHorizontal: 18, paddingBottom: 22, gap: 10 },
-  coverFrameButton: { width: 112, height: 156, borderRadius: 13, borderWidth: 3, overflow: 'hidden', backgroundColor: '#111827' },
+  coverFrameButton: { width: 112, height: 156, borderRadius: 13, borderWidth: 3, overflow: 'hidden', backgroundColor: '#111111' },
   coverFrameImage: { width: '100%', height: '100%', resizeMode: 'cover' },
   coverFrameTime: { position: 'absolute', right: 6, bottom: 6, color: '#ffffff', backgroundColor: 'rgba(0,0,0,0.65)', borderRadius: 6, paddingHorizontal: 6, paddingVertical: 2, fontSize: 10 },
 });

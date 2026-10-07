@@ -93,7 +93,14 @@ export const tokenService = {
     }
   },
   async clearToken() {
-    useAuthStore.getState().clearAuth();
+    const currentUser = useAuthStore.getState().user;
+    const isGuest = currentUser?.role === 'guest' || currentUser?.name === 'guest' || currentUser?.id === 0;
+
+    if (!isGuest) {
+      useAuthStore.getState().clearAuth();
+    } else {
+      useAuthStore.setState({ token: '', refreshToken: '', tokenExpiresAt: null });
+    }
     await Promise.all([
       safeDelete(TOKEN_KEY),
       safeDelete(REFRESH_TOKEN_KEY),

@@ -46,6 +46,7 @@ export type PaymentCheckoutProps = {
   purchase: PaymentPurchase;
   allowedMethods?: PaymentCheckoutMethod[];
   walletBalance?: number;
+  presentation?: 'fullscreen' | 'sheet';
 };
 
 type CheckoutMethod = 'momo' | 'card';
@@ -79,6 +80,7 @@ const PaymentCheckout: React.FC<PaymentCheckoutProps> = ({
   itemImageUri,
   purchase,
   allowedMethods = ['momo', 'card'],
+  presentation = 'fullscreen',
 }) => {
   const insets = useSafeAreaInsets();
   const queryClient = useQueryClient();
@@ -435,7 +437,7 @@ const PaymentCheckout: React.FC<PaymentCheckoutProps> = ({
         onPress={method === 'momo' ? () => void startMobileMoneyPayment() : () => setStep('card_handoff')}
         style={({ pressed }) => [styles.primaryButtonOuter, (pressed || isStarting) && styles.buttonPressed]}
       >
-        <LinearGradient colors={['#5f00c9', '#7600e8', '#4b00b9']} start={{ x: 0, y: 0 }} end={{ x: 1, y: 1 }} style={styles.primaryButton}>
+        <LinearGradient colors={[PRIMARY_COLOR, PRIMARY_COLOR]} start={{ x: 0, y: 0 }} end={{ x: 1, y: 1 }} style={styles.primaryButton}>
           {isStarting ? <ActivityIndicator color="#ffffff" /> : <MaterialIcons name={method === 'momo' ? 'lock' : 'arrow-forward'} size={22} color="#ffffff" />}
           <Text style={styles.primaryButtonText}>
             {method === 'momo' ? `Pay ${formattedAmount}` : 'Continue to Secure Card Payment'}
@@ -571,15 +573,44 @@ const PaymentCheckout: React.FC<PaymentCheckoutProps> = ({
   );
 
   return (
-    <Modal visible={isOpen} animationType="slide" statusBarTranslucent onRequestClose={() => canDismiss && onClose()}>
-      <SafeAreaView edges={['top', 'bottom']} style={styles.root}>
-        <KeyboardAvoidingView behavior={Platform.OS === 'ios' ? 'padding' : undefined} style={styles.root}>
-          {step === 'checkout' ? renderCheckout() : null}
-          {step === 'card_handoff' ? renderCardHandoff() : null}
-          {step === 'pending' ? renderPending() : null}
-          {step === 'success' ? renderSuccess() : null}
+    <Modal
+      visible={isOpen}
+      animationType="slide"
+      transparent={presentation === 'sheet'}
+      presentationStyle={presentation === 'sheet' ? 'overFullScreen' : 'fullScreen'}
+      statusBarTranslucent
+      navigationBarTranslucent
+      onRequestClose={() => canDismiss && onClose()}
+    >
+      {presentation === 'sheet' ? (
+        <KeyboardAvoidingView behavior={Platform.OS === 'ios' ? 'padding' : undefined} style={styles.modalRoot}>
+          <Pressable
+            accessibilityRole="button"
+            accessibilityLabel="Close payment checkout"
+            disabled={!canDismiss}
+            onPress={onClose}
+            style={styles.backdrop}
+          />
+          <SafeAreaView edges={['bottom']} style={styles.sheet}>
+            <View style={styles.sheetHandle} />
+            <View style={styles.sheetContent}>
+              {step === 'checkout' ? renderCheckout() : null}
+              {step === 'card_handoff' ? renderCardHandoff() : null}
+              {step === 'pending' ? renderPending() : null}
+              {step === 'success' ? renderSuccess() : null}
+            </View>
+          </SafeAreaView>
         </KeyboardAvoidingView>
-      </SafeAreaView>
+      ) : (
+        <SafeAreaView edges={['top', 'bottom']} style={styles.root}>
+          <KeyboardAvoidingView behavior={Platform.OS === 'ios' ? 'padding' : undefined} style={styles.root}>
+            {step === 'checkout' ? renderCheckout() : null}
+            {step === 'card_handoff' ? renderCardHandoff() : null}
+            {step === 'pending' ? renderPending() : null}
+            {step === 'success' ? renderSuccess() : null}
+          </KeyboardAvoidingView>
+        </SafeAreaView>
+      )}
     </Modal>
   );
 };
@@ -595,6 +626,27 @@ const createStyles = (isDark: boolean, theme: ReturnType<typeof useThemeMode>['t
 
   return StyleSheet.create({
     root: { flex: 1, backgroundColor: surface },
+    modalRoot: { flex: 1, justifyContent: 'flex-end', backgroundColor: 'transparent' },
+    backdrop: { ...StyleSheet.absoluteFillObject, backgroundColor: 'rgba(0,0,0,0.38)' },
+    sheet: {
+      width: '100%',
+      height: '70%',
+      maxHeight: '70%',
+      backgroundColor: surface,
+      borderTopLeftRadius: 28,
+      borderTopRightRadius: 28,
+      overflow: 'hidden',
+    },
+    sheetHandle: {
+      width: 44,
+      height: 5,
+      borderRadius: 3,
+      alignSelf: 'center',
+      marginTop: 10,
+      marginBottom: 2,
+      backgroundColor: isDark ? 'rgba(255,255,255,0.24)' : 'rgba(15,23,42,0.18)',
+    },
+    sheetContent: { flex: 1 },
     content: { paddingHorizontal: 20, paddingTop: 24, gap: 18 },
     centeredContent: { paddingHorizontal: 24, paddingTop: 34, alignItems: 'stretch', gap: 18 },
     summaryCard: {

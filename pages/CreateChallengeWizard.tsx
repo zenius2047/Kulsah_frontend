@@ -208,14 +208,15 @@ const CreateChallengeWizard: React.FC = () => {
   const [toast, setToast] = useState('');
   const [backendDraftId, setBackendDraftId] = useState<string | number | null>(null);
 
-  const pageBackground = isDark ? '#0b1118' : '#f7f9fb';
-  const cardBackground = isDark ? '#121b25' : '#ffffff';
-  const inputBackground = isDark ? '#0f1720' : '#ffffff';
-  const textColor = isDark ? '#f8fafc' : '#151b27';
-  const secondaryText = isDark ? '#a7b0bd' : '#69717f';
-  const mutedText = isDark ? '#778190' : '#9aa1ad';
-  const borderColor = isDark ? 'rgba(255,255,255,0.1)' : '#e1e5ea';
-  const softPrimary = isDark ? primaryColorAlpha(0.14) : primaryColorAlpha(0.09);
+  const pageBackground = isDark ? '#050505' : '#f5f5f5';
+  const cardBackground = isDark ? '#0d0d0d' : '#ffffff';
+  const inputBackground = isDark ? '#171717' : '#fafafa';
+  const textColor = isDark ? '#fafafa' : '#0a0a0a';
+  const secondaryText = isDark ? '#b3b3b3' : '#404040';
+  const mutedText = isDark ? '#737373' : '#737373';
+  const borderColor = isDark ? 'rgba(255,255,255,0.12)' : '#d4d4d4';
+  const softPrimary = isDark ? '#1f1f1f' : '#ededed';
+  const contentAccent = isDark ? '#d4d4d4' : '#262626';
   const selectedChallengeVideo = challengeVideos[0];
   const battleDiscovery = useDiscovery({
     tab: 'creators',
@@ -816,7 +817,7 @@ const CreateChallengeWizard: React.FC = () => {
   ) => (
     <Pressable onPress={onPress} style={[styles.requirementRow, { borderColor, backgroundColor: inputBackground }]}>
       <View style={[styles.requirementIcon, { backgroundColor: softPrimary }]}>
-        <MaterialIcons name={icon} size={27} color={PRIMARY_COLOR} />
+        <MaterialIcons name={icon} size={27} color={contentAccent} />
       </View>
       <Text style={[styles.requirementLabel, { color: textColor }]}>{label}</Text>
       <Text style={[styles.requirementValue, { color: secondaryText }]}>{value}</Text>
@@ -839,7 +840,7 @@ const CreateChallengeWizard: React.FC = () => {
           {challengeVideos.map((video, index) => (
             <View key={video.uri} style={[styles.challengeVideoRow, { backgroundColor: cardBackground, borderColor }]}>
               <View style={[styles.challengeVideoIcon, { backgroundColor: softPrimary }]}>
-                <MaterialIcons name="play-arrow" size={28} color={PRIMARY_COLOR} />
+                <MaterialIcons name="play-arrow" size={28} color={contentAccent} />
               </View>
               <View style={styles.challengeVideoCopy}>
                 <Text numberOfLines={1} style={[styles.challengeVideoName, { color: textColor }]}>{video.name}</Text>
@@ -861,15 +862,15 @@ const CreateChallengeWizard: React.FC = () => {
         onPress={() => void pickChallengeVideos()}
         style={[
           styles.challengeVideoUpload,
-          { borderColor: primaryColorAlpha(0.5), backgroundColor: softPrimary },
+          { borderColor, backgroundColor: softPrimary },
         ]}
       >
-        <MaterialIcons name="video-library" size={26} color={PRIMARY_COLOR} />
+        <MaterialIcons name="video-library" size={26} color={contentAccent} />
         <View style={styles.challengeVideoUploadCopy}>
-          <Text style={styles.challengeVideoUploadTitle}>{challengeVideos.length ? 'Change Video' : 'Add Challenge Video'}</Text>
+          <Text style={[styles.challengeVideoUploadTitle, { color: textColor }]}>{challengeVideos.length ? 'Change Video' : 'Add Challenge Video'}</Text>
           <Text style={[styles.challengeVideoUploadHint, { color: secondaryText }]}>{challengeVideos.length ? 'One video selected' : 'One video maximum'}</Text>
         </View>
-        <MaterialIcons name={challengeVideos.length ? 'edit' : 'add'} size={25} color={PRIMARY_COLOR} />
+        <MaterialIcons name={challengeVideos.length ? 'edit' : 'add'} size={25} color={contentAccent} />
       </Pressable>
     </View>
   );
@@ -888,7 +889,7 @@ const CreateChallengeWizard: React.FC = () => {
           </View>
           {isGeneratingFrames ? (
             <View style={[styles.videoFramesLoading, { backgroundColor: softPrimary }]}>
-              <ActivityIndicator size="small" color={PRIMARY_COLOR} />
+              <ActivityIndicator size="small" color={contentAccent} />
               <Text style={[styles.videoFrameHint, { color: secondaryText }]}>Preparing frames…</Text>
             </View>
           ) : videoFrameOptions.length > 0 ? (
@@ -920,7 +921,7 @@ const CreateChallengeWizard: React.FC = () => {
           )}
         </View>
       ) : null}
-      <Pressable onPress={() => void pickCover()} style={[styles.coverPicker, { borderColor: primaryColorAlpha(0.5), backgroundColor: softPrimary }]}>
+      <Pressable onPress={() => void pickCover()} style={[styles.coverPicker, { borderColor, backgroundColor: softPrimary }]}>
         {coverUri ? (
           <>
             <Image source={{ uri: coverUri }} style={StyleSheet.absoluteFill} resizeMode="cover" />
@@ -932,9 +933,14 @@ const CreateChallengeWizard: React.FC = () => {
           </>
         ) : (
           <>
-            <MaterialIcons name="photo-library" size={32} color={PRIMARY_COLOR} />
-            <Text style={styles.coverTitle}>Select Cover from Library</Text>
-            <Text style={[styles.coverHint, { color: secondaryText }]}>PNG or JPG · 16:9 recommended</Text>
+            <View style={styles.coverActionIcon}>
+              <MaterialIcons name="photo-library" size={26} color={contentAccent} />
+            </View>
+            <View style={styles.coverActionCopy}>
+              <Text style={[styles.coverTitle, { color: textColor }]}>Add Challenge Cover</Text>
+              <Text style={[styles.coverHint, { color: secondaryText }]}>PNG or JPG · 16:9 recommended</Text>
+            </View>
+            <MaterialIcons name="add" size={25} color={contentAccent} />
           </>
         )}
       </Pressable>
@@ -1024,7 +1030,7 @@ const CreateChallengeWizard: React.FC = () => {
         <Text style={[styles.sectionHeading, { color: textColor, paddingHorizontal: 14 }]}>Required Hashtag</Text>
         <View style={[styles.hashtagDisplay, { backgroundColor: cardBackground, borderColor }]}>
           <View style={[styles.hashtagIcon, { backgroundColor: softPrimary }]}>
-            <MaterialIcons name="tag" size={30} color={PRIMARY_COLOR} />
+            <MaterialIcons name="tag" size={30} color={contentAccent} />
           </View>
           <Text style={[styles.hashtagValue, { color: textColor }]}>{normalizedHashtag || '#YourChallenge'}</Text>
         </View>
@@ -1073,15 +1079,15 @@ const CreateChallengeWizard: React.FC = () => {
     detail?: string,
   ) => (
     <View style={styles.toggleRow}>
-      <MaterialIcons name={icon} size={22} color={value ? PRIMARY_COLOR : mutedText} />
+      <MaterialIcons name={icon} size={22} color={value ? contentAccent : mutedText} />
       <Text style={[styles.toggleLabel, { color: secondaryText }]}>{label}</Text>
       {detail ? <Text style={[styles.toggleDetail, { color: mutedText }]}>{detail}</Text> : null}
       <Switch
         value={value}
         onValueChange={onChange}
-        trackColor={{ false: isDark ? '#334155' : '#dfe3e8', true: PRIMARY_COLOR }}
+        trackColor={{ false: isDark ? '#262626' : '#d4d4d4', true: contentAccent }}
         thumbColor="#ffffff"
-        ios_backgroundColor={isDark ? '#334155' : '#dfe3e8'}
+        ios_backgroundColor={isDark ? '#262626' : '#d4d4d4'}
       />
     </View>
   );
@@ -1092,7 +1098,7 @@ const CreateChallengeWizard: React.FC = () => {
       <View style={styles.rewardStack}>
         <View style={[styles.rewardRow, { borderColor, backgroundColor: inputBackground }]}>
           <View style={[styles.rewardIcon, { backgroundColor: softPrimary }]}>
-            <MaterialIcons name="emoji-events" size={25} color={PRIMARY_COLOR} />
+            <MaterialIcons name="emoji-events" size={25} color={contentAccent} />
           </View>
           <View style={styles.rewardCopy}>
             <Text style={[styles.rewardLabel, { color: mutedText }]}>Primary prize</Text>
@@ -1116,8 +1122,8 @@ const CreateChallengeWizard: React.FC = () => {
           onPress={() => chooseOption('Number of winners', ['1', '2', '3', '5', '10'], (value) => setWinnerCount(Number(value)))}
           style={[styles.rewardRow, { borderColor, backgroundColor: inputBackground }]}
         >
-          <View style={[styles.rewardIcon, { backgroundColor: isDark ? 'rgba(168,85,247,0.16)' : '#faf1ff' }]}>
-            <MaterialIcons name="groups" size={25} color="#a855f7" />
+          <View style={[styles.rewardIcon, { backgroundColor: softPrimary }]}>
+            <MaterialIcons name="groups" size={25} color={contentAccent} />
           </View>
           <View style={styles.rewardCopy}>
             <Text style={[styles.rewardLabel, { color: mutedText }]}>Number of winners</Text>
@@ -1129,8 +1135,8 @@ const CreateChallengeWizard: React.FC = () => {
         </Pressable>
 
         <View style={[styles.rewardRow, { borderColor, backgroundColor: inputBackground }]}>
-          <View style={[styles.rewardIcon, { backgroundColor: isDark ? 'rgba(236,72,153,0.14)' : '#fff1f7' }]}>
-            <MaterialIcons name="card-giftcard" size={24} color="#ec4899" />
+          <View style={[styles.rewardIcon, { backgroundColor: softPrimary }]}>
+            <MaterialIcons name="card-giftcard" size={24} color={contentAccent} />
           </View>
           <View style={styles.rewardCopy}>
             <Text style={[styles.rewardLabel, { color: mutedText }]}>Secondary reward (optional)</Text>
@@ -1187,7 +1193,7 @@ const CreateChallengeWizard: React.FC = () => {
       </View>
 
       {challengeMode === 'creator_battle' ? (
-        <View style={[styles.battleSetupCard, { backgroundColor: isDark ? '#0f1720' : '#f8fbff', borderColor }]}>
+        <View style={[styles.battleSetupCard, { backgroundColor: inputBackground, borderColor }]}>
           <View style={styles.battleSetupHeader}>
             <View style={styles.battleSetupHeadingCopy}>
               <Text style={[styles.battleSetupTitle, { color: textColor }]}>Battle lineup</Text>
@@ -1203,13 +1209,13 @@ const CreateChallengeWizard: React.FC = () => {
               <Image source={{ uri: user.avatar }} style={styles.battleCreatorAvatar} />
             ) : (
               <View style={[styles.battleCreatorAvatarFallback, { backgroundColor: softPrimary }]}>
-                <MaterialIcons name="person" size={23} color={PRIMARY_COLOR} />
+                <MaterialIcons name="person" size={23} color={contentAccent} />
               </View>
             )}
             <View style={styles.battleCreatorCopy}>
               <View style={styles.battleCreatorNameRow}>
                 <Text numberOfLines={1} style={[styles.battleCreatorName, { color: textColor }]}>{user?.name || 'You'}</Text>
-                {user?.verified ? <MaterialIcons name="verified" size={16} color={PRIMARY_COLOR} /> : null}
+                {user?.verified ? <MaterialIcons name="verified" size={16} color={contentAccent} /> : null}
               </View>
               <Text numberOfLines={1} style={[styles.battleCreatorHandle, { color: secondaryText }]}>
                 @{(user?.handle || 'creator').replace(/^@/, '')}
@@ -1222,7 +1228,7 @@ const CreateChallengeWizard: React.FC = () => {
 
           <View style={styles.battleVersusRow}>
             <View style={[styles.battleVersusLine, { backgroundColor: borderColor }]} />
-            <View style={[styles.battleVersusBadge, { backgroundColor: PRIMARY_COLOR }]}>
+            <View style={[styles.battleVersusBadge, { backgroundColor: contentAccent }]}>
               <Text style={styles.battleVersusText}>VS</Text>
             </View>
             <View style={[styles.battleVersusLine, { backgroundColor: borderColor }]} />
@@ -1235,13 +1241,13 @@ const CreateChallengeWizard: React.FC = () => {
                   <Image source={{ uri: creator.avatar_url }} style={styles.battleCreatorAvatar} />
                 ) : (
                   <View style={[styles.battleCreatorAvatarFallback, { backgroundColor: softPrimary }]}>
-                    <MaterialIcons name="person" size={23} color={PRIMARY_COLOR} />
+                    <MaterialIcons name="person" size={23} color={contentAccent} />
                   </View>
                 )}
                 <View style={styles.battleCreatorCopy}>
                   <View style={styles.battleCreatorNameRow}>
                     <Text numberOfLines={1} style={[styles.battleCreatorName, { color: textColor }]}>{creator.name}</Text>
-                    {creator.is_verified ? <MaterialIcons name="verified" size={16} color={PRIMARY_COLOR} /> : null}
+                    {creator.is_verified ? <MaterialIcons name="verified" size={16} color={contentAccent} /> : null}
                   </View>
                   <Text numberOfLines={1} style={[styles.battleCreatorHandle, { color: secondaryText }]}>@{creator.handle.replace(/^@/, '')}</Text>
                 </View>
@@ -1266,7 +1272,7 @@ const CreateChallengeWizard: React.FC = () => {
           ) : null}
 
           <View style={[styles.battleNotice, { backgroundColor: softPrimary }]}>
-            <MaterialIcons name="info-outline" size={20} color={PRIMARY_COLOR} />
+            <MaterialIcons name="info-outline" size={20} color={contentAccent} />
             <Text style={[styles.battleNoticeText, { color: secondaryText }]}>Invitations are sent when you publish. The battle opens after every invited creator accepts.</Text>
           </View>
         </View>
@@ -1281,7 +1287,7 @@ const CreateChallengeWizard: React.FC = () => {
         <Text style={[styles.sectionHeading, { color: textColor }]}>Judging Criteria</Text>
         <MaterialIcons name="help-outline" size={18} color={mutedText} />
       </View>
-      <View style={[styles.judgingOptions, { backgroundColor: isDark ? '#0f1720' : '#f8fafc', borderColor }]}>
+      <View style={[styles.judgingOptions, { backgroundColor: inputBackground, borderColor }]}>
         {renderToggle('how-to-vote', 'Vote', judgeByVotes, handleJudgeByVotesChange, 'Community votes')}
         <View style={[styles.judgingOptionDivider, { backgroundColor: borderColor }]} />
         {renderToggle('favorite', 'Reactions', judgeByReactions, handleJudgeByReactionsChange, 'Likes & reactions')}
@@ -1298,15 +1304,15 @@ const CreateChallengeWizard: React.FC = () => {
           </View>
           {challengeMode === 'creator_battle' ? (
             <View style={styles.battleScheduleHint}>
-              <MaterialIcons name="schedule" size={18} color={PRIMARY_COLOR} />
+              <MaterialIcons name="schedule" size={18} color={contentAccent} />
               <Text style={[styles.battleScheduleHintText, { color: secondaryText }]}>Battle voting must begin when submissions close or later.</Text>
             </View>
           ) : null}
         </>
       ) : null}
 
-      <View style={[styles.reachCard, { backgroundColor: softPrimary, borderColor: primaryColorAlpha(0.22) }]}>
-        <MaterialIcons name={challengeMode === 'creator_battle' ? 'auto-awesome' : 'groups'} size={27} color={PRIMARY_COLOR} />
+      <View style={[styles.reachCard, { backgroundColor: softPrimary, borderColor }]}>
+        <MaterialIcons name={challengeMode === 'creator_battle' ? 'auto-awesome' : 'groups'} size={27} color={contentAccent} />
         <View style={styles.reachCopy}>
           <Text style={styles.reachTitle}>{challengeMode === 'creator_battle' ? 'Automatic battle ranking' : 'Estimated reach'}</Text>
           <Text style={[styles.reachText, { color: secondaryText }]}>
@@ -1326,7 +1332,7 @@ const CreateChallengeWizard: React.FC = () => {
   ) => (
     <View style={[styles.previewInfoCard, { backgroundColor: cardBackground, borderColor }]}>
       <View style={[styles.previewInfoIcon, { backgroundColor: softPrimary }]}>
-        <MaterialIcons name={icon} size={27} color={PRIMARY_COLOR} />
+        <MaterialIcons name={icon} size={27} color={contentAccent} />
       </View>
       <View style={styles.previewInfoCopy}>
         <Text style={[styles.previewInfoHeading, { color: textColor }]}>{heading}</Text>
@@ -1348,7 +1354,7 @@ const CreateChallengeWizard: React.FC = () => {
           <Text style={[styles.previewTitle, { color: textColor }]}>{title.trim() || 'Your Challenge Title'}</Text>
           <View style={styles.creatorPreviewRow}>
             <View style={[styles.creatorPreviewAvatar, { backgroundColor: softPrimary }]}>
-              <MaterialIcons name="person" size={23} color={PRIMARY_COLOR} />
+              <MaterialIcons name="person" size={23} color={contentAccent} />
             </View>
             <Text style={[styles.creatorPreviewHandle, { color: textColor }]}>@creator</Text>
           </View>
@@ -1370,7 +1376,7 @@ const CreateChallengeWizard: React.FC = () => {
         <View style={styles.previewBattleStack}>
           <View style={styles.previewBattleParticipant}>
             <View style={[styles.previewBattleAvatar, { backgroundColor: softPrimary }]}>
-              <MaterialIcons name="person" size={17} color={PRIMARY_COLOR} />
+              <MaterialIcons name="person" size={17} color={contentAccent} />
             </View>
             <Text numberOfLines={1} style={[styles.previewBattleName, { color: secondaryText }]}>
               {user?.name || 'You'} · Host
@@ -1382,11 +1388,11 @@ const CreateChallengeWizard: React.FC = () => {
                 <Image source={{ uri: creator.avatar_url }} style={styles.previewBattleAvatar} />
               ) : (
                 <View style={[styles.previewBattleAvatar, { backgroundColor: softPrimary }]}>
-                  <MaterialIcons name="person" size={17} color={PRIMARY_COLOR} />
+                  <MaterialIcons name="person" size={17} color={contentAccent} />
                 </View>
               )}
               <Text numberOfLines={1} style={[styles.previewBattleName, { color: secondaryText }]}>{creator.name}</Text>
-              {creator.is_verified ? <MaterialIcons name="verified" size={15} color={PRIMARY_COLOR} /> : null}
+              {creator.is_verified ? <MaterialIcons name="verified" size={15} color={contentAccent} /> : null}
             </View>
           ))}
           <Text style={[styles.previewBattleHint, { color: mutedText }]}>Invites are sent after publishing.</Text>
@@ -1424,7 +1430,7 @@ const CreateChallengeWizard: React.FC = () => {
   return (
     <SafeAreaView style={[styles.safeArea, { backgroundColor: cardBackground }]} edges={['top', 'left', 'right', 'bottom']}>
       <StatusBar barStyle={isDark ? 'light-content' : 'dark-content'} backgroundColor={cardBackground} />
-      <View style={[styles.screen]}>
+      <View style={[styles.screen, { backgroundColor: pageBackground }]}>
         {toast ? (
           <View style={styles.toast}>
             <MaterialIcons name="check-circle" size={19} color="#ffffff" />
@@ -1450,8 +1456,8 @@ const CreateChallengeWizard: React.FC = () => {
             const active = item === step;
             return (
               <Pressable key={item} onPress={() => item < step && setStep(item)} style={styles.stepItem}>
-                <View style={[styles.stepDash, { backgroundColor: active ? PRIMARY_COLOR : borderColor }]} />
-                <Text style={[styles.stepLabel, { color: active ? PRIMARY_COLOR : mutedText }]}>{STEP_COPY[item].label}</Text>
+                <View style={[styles.stepDash, { backgroundColor: active ? contentAccent : borderColor }]} />
+                <Text style={[styles.stepLabel, { color: active ? textColor : mutedText }]}>{STEP_COPY[item].label}</Text>
               </Pressable>
             );
           })}
@@ -1524,7 +1530,7 @@ const CreateChallengeWizard: React.FC = () => {
                   mode={datePickerField.endsWith('Time') ? 'time' : 'date'}
                   display={datePickerField.endsWith('Time') ? 'spinner' : 'inline'}
                   minimumDate={pickerMinimumDate}
-                  accentColor={PRIMARY_COLOR}
+                  accentColor={contentAccent}
                   themeVariant={isDark ? 'dark' : 'light'}
                   onChange={handleDateChange}
                   style={[
@@ -1583,7 +1589,7 @@ const CreateChallengeWizard: React.FC = () => {
                   placeholderTextColor={mutedText}
                   style={[styles.creatorSearchInput, { color: textColor }]}
                 />
-                {battleDiscovery.isFetching ? <ActivityIndicator size="small" color={PRIMARY_COLOR} /> : battleCreatorSearch ? (
+                {battleDiscovery.isFetching ? <ActivityIndicator size="small" color={contentAccent} /> : battleCreatorSearch ? (
                   <Pressable accessibilityLabel="Clear search" onPress={() => setBattleCreatorSearch('')} style={styles.creatorSearchClear}>
                     <MaterialIcons name="cancel" size={19} color={mutedText} />
                   </Pressable>
@@ -1598,13 +1604,13 @@ const CreateChallengeWizard: React.FC = () => {
               >
                 {battleDiscovery.isLoading ? (
                   <View style={styles.creatorPickerState}>
-                    <ActivityIndicator color={PRIMARY_COLOR} />
+                    <ActivityIndicator color={contentAccent} />
                     <Text style={[styles.creatorPickerStateText, { color: secondaryText }]}>Finding creators…</Text>
                   </View>
                 ) : battleDiscovery.isError ? (
                   <View style={styles.creatorPickerState}>
                     <View style={[styles.creatorPickerStateIcon, { backgroundColor: softPrimary }]}>
-                      <MaterialIcons name="cloud-off" size={25} color={PRIMARY_COLOR} />
+                      <MaterialIcons name="cloud-off" size={25} color={contentAccent} />
                     </View>
                     <Text style={[styles.creatorPickerStateTitle, { color: textColor }]}>Couldn’t load creators</Text>
                     <Text style={[styles.creatorPickerStateText, { color: secondaryText }]}>Check your connection and try again.</Text>
@@ -1615,7 +1621,7 @@ const CreateChallengeWizard: React.FC = () => {
                 ) : discoveredBattleCreators.filter((creator) => creator.id !== Number(user?.id)).length === 0 ? (
                   <View style={styles.creatorPickerState}>
                     <View style={[styles.creatorPickerStateIcon, { backgroundColor: softPrimary }]}>
-                      <MaterialIcons name="person-search" size={25} color={PRIMARY_COLOR} />
+                      <MaterialIcons name="person-search" size={25} color={contentAccent} />
                     </View>
                     <Text style={[styles.creatorPickerStateTitle, { color: textColor }]}>No creators found</Text>
                     <Text style={[styles.creatorPickerStateText, { color: secondaryText }]}>Try another name or handle.</Text>
@@ -1645,13 +1651,13 @@ const CreateChallengeWizard: React.FC = () => {
                             <Image source={{ uri: creator.avatar_url }} style={styles.creatorResultAvatar} />
                           ) : (
                             <View style={[styles.creatorResultAvatarFallback, { backgroundColor: softPrimary }]}>
-                              <MaterialIcons name="person" size={24} color={PRIMARY_COLOR} />
+                              <MaterialIcons name="person" size={24} color={contentAccent} />
                             </View>
                           )}
                           <View style={styles.creatorResultCopy}>
                             <View style={styles.battleCreatorNameRow}>
                               <Text numberOfLines={1} style={[styles.creatorResultName, { color: textColor }]}>{creator.name}</Text>
-                              {creator.is_verified ? <MaterialIcons name="verified" size={16} color={PRIMARY_COLOR} /> : null}
+                              {creator.is_verified ? <MaterialIcons name="verified" size={16} color={contentAccent} /> : null}
                             </View>
                             <Text numberOfLines={1} style={[styles.creatorResultMeta, { color: secondaryText }]}>
                               @{creator.handle.replace(/^@/, '')} · {formatFollowerCount(creator.followers_count)} followers
@@ -1733,7 +1739,7 @@ const styles = StyleSheet.create({
     minHeight: 46,
     borderRadius: 24,
     paddingHorizontal: 18,
-    backgroundColor: '#17a56b',
+    backgroundColor: '#171717',
     flexDirection: 'row',
     alignItems: 'center',
     gap: 8,
@@ -1783,11 +1789,15 @@ const styles = StyleSheet.create({
     borderWidth: 1.5,
     borderStyle: 'solid',
     overflow: 'hidden',
+    paddingHorizontal: 18,
+    flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'center',
-    gap: 7,
+    gap: 12,
   },
-  coverScrim: { ...StyleSheet.absoluteFillObject, backgroundColor: 'rgba(15,23,42,0.25)' },
+  coverActionIcon: { width: 46, height: 46, borderRadius: 12, alignItems: 'center', justifyContent: 'center' },
+  coverActionCopy: { flex: 1 },
+  coverScrim: { ...StyleSheet.absoluteFillObject, backgroundColor: 'rgba(0,0,0,0.25)' },
   coverReplacePill: {
     flexDirection: 'row',
     alignItems: 'center',
@@ -1795,10 +1805,10 @@ const styles = StyleSheet.create({
     paddingHorizontal: 14,
     paddingVertical: 9,
     borderRadius: 20,
-    backgroundColor: 'rgba(15,23,42,0.68)',
+    backgroundColor: 'rgba(0,0,0,0.68)',
   },
   coverReplaceText: { color: '#ffffff', ...fontSize.b5 },
-  coverTitle: { color: PRIMARY_COLOR, ...fontSize.b0 },
+  coverTitle: { ...fontSize.b0 },
   coverHint: { ...fontSize.reactionB5 },
   videoFramePicker: { marginBottom: 15, gap: 10 },
   videoFrameHeading: { gap: 2 },
@@ -1820,7 +1830,7 @@ const styles = StyleSheet.create({
     borderRadius: 12,
     borderWidth: 2,
     overflow: 'hidden',
-    backgroundColor: '#0f172a',
+    backgroundColor: '#0a0a0a',
   },
   videoFrameImage: { width: '100%', height: '100%' },
   videoFrameTimeBadge: {
@@ -1830,7 +1840,7 @@ const styles = StyleSheet.create({
     minHeight: 22,
     borderRadius: 8,
     paddingHorizontal: 7,
-    backgroundColor: 'rgba(15,23,42,0.7)',
+    backgroundColor: 'rgba(0,0,0,0.7)',
     alignItems: 'center',
     justifyContent: 'center',
   },
@@ -1895,7 +1905,7 @@ const styles = StyleSheet.create({
   basicsSectionDivider: { height: StyleSheet.hairlineWidth, marginVertical: 22 },
   optionalSectionHeading: { flexDirection: 'row', alignItems: 'center', gap: 9 },
   optionalBadge: { minHeight: 24, borderRadius: 12, paddingHorizontal: 9, alignItems: 'center', justifyContent: 'center' },
-  optionalBadgeText: { color: PRIMARY_COLOR, ...fontSize.b6 },
+  optionalBadgeText: { color: '#737373', ...fontSize.b6 },
   optionalSectionCopy: { marginTop: -5, ...fontSize.reactionB5 },
   challengeVideoList: { gap: 9 },
   challengeVideoRow: {
@@ -1923,7 +1933,7 @@ const styles = StyleSheet.create({
     gap: 12,
   },
   challengeVideoUploadCopy: { flex: 1 },
-  challengeVideoUploadTitle: { color: PRIMARY_COLOR, ...fontSize.b2 },
+  challengeVideoUploadTitle: { ...fontSize.b2 },
   challengeVideoUploadHint: { marginTop: 2, ...fontSize.b6 },
   wideSelection: {
     minHeight: 82,
@@ -1989,7 +1999,7 @@ const styles = StyleSheet.create({
   battleSetupTitle: { ...fontSize.n3 },
   battleSetupSubtitle: { marginTop: 3, ...fontSize.b6 },
   battleCountPill: { minWidth: 48, minHeight: 28, borderRadius: 14, paddingHorizontal: 10, alignItems: 'center', justifyContent: 'center' },
-  battleCountText: { color: PRIMARY_COLOR, ...fontSize.b5 },
+  battleCountText: { color: '#737373', ...fontSize.b5 },
   battleCreatorStack: { gap: 8 },
   battleCreatorRow: {
     minHeight: 66,
@@ -2008,7 +2018,7 @@ const styles = StyleSheet.create({
   battleCreatorName: { flexShrink: 1, ...fontSize.b5 },
   battleCreatorHandle: { marginTop: 2, ...fontSize.b6 },
   hostBadge: { minHeight: 25, borderRadius: 13, paddingHorizontal: 9, alignItems: 'center', justifyContent: 'center' },
-  hostBadgeText: { color: PRIMARY_COLOR, ...fontSize.b6 },
+  hostBadgeText: { color: '#737373', ...fontSize.b6 },
   removeBattleCreatorButton: { width: 38, height: 38, borderRadius: 19, alignItems: 'center', justifyContent: 'center' },
   battleVersusRow: { height: 36, flexDirection: 'row', alignItems: 'center', gap: 9, paddingHorizontal: 12 },
   battleVersusLine: { flex: 1, height: StyleSheet.hairlineWidth },
@@ -2056,12 +2066,12 @@ const styles = StyleSheet.create({
   battleScheduleHintText: { flex: 1, ...fontSize.b6 },
   reachCard: { marginTop: 22, borderRadius: 15, borderWidth: 1, padding: 14, flexDirection: 'row', alignItems: 'center', gap: 12 },
   reachCopy: { flex: 1 },
-  reachTitle: { color: PRIMARY_COLOR, ...fontSize.b5 },
+  reachTitle: { color: '#737373', ...fontSize.b5 },
   reachText: { marginTop: 2, ...fontSize.b6 },
   previewHeading: { ...fontSize.n3, marginHorizontal: 12 },
   previewChallengeCard: { borderRadius: 20, borderWidth: 1, overflow: 'hidden', marginHorizontal: 12 },
   previewCover: { height: 246, position: 'relative', justifyContent: 'flex-start', alignItems: 'flex-start', padding: 22 },
-  previewCoverScrim: { ...StyleSheet.absoluteFillObject, backgroundColor: 'rgba(15,23,42,0.16)' },
+  previewCoverScrim: { ...StyleSheet.absoluteFillObject, backgroundColor: 'rgba(0,0,0,0.16)' },
   previewCategory: { color: '#ffffff', ...fontSize.b1 },
   previewBody: { padding: 24 },
   previewTitle: { ...fontSize.n1 },
@@ -2069,8 +2079,8 @@ const styles = StyleSheet.create({
   creatorPreviewAvatar: { width: 44, height: 44, borderRadius: 22, alignItems: 'center', justifyContent: 'center' },
   creatorPreviewHandle: { ...fontSize.handleTextMedium },
   previewChipRow: { marginTop: 18, flexDirection: 'row', flexWrap: 'wrap', gap: 10 },
-  prizeChip: { minHeight: 38, borderRadius: 20, paddingHorizontal: 14, backgroundColor: '#effcf4', justifyContent: 'center' },
-  prizeChipText: { color: '#148148', ...fontSize.b5 },
+  prizeChip: { minHeight: 38, borderRadius: 20, paddingHorizontal: 14, backgroundColor: '#ededed', justifyContent: 'center' },
+  prizeChipText: { color: '#262626', ...fontSize.b5 },
   dateChip: { minHeight: 38, borderRadius: 20, borderWidth: 1, paddingHorizontal: 14, justifyContent: 'center' },
   dateChipText: { ...fontSize.b5 },
   previewInfoCard: { borderRadius: 19, borderWidth: 1, padding: 22, flexDirection: 'row', gap: 17, marginHorizontal: 12 },
@@ -2117,7 +2127,7 @@ const styles = StyleSheet.create({
   },
   datePickerModalBackdrop: {
     ...StyleSheet.absoluteFillObject,
-    backgroundColor: 'rgba(15,23,42,0.5)',
+    backgroundColor: 'rgba(0,0,0,0.5)',
   },
   datePickerModalCard: {
     width: '100%',
@@ -2210,7 +2220,7 @@ const styles = StyleSheet.create({
   creatorPickerDone: { minWidth: 104, minHeight: 48, borderRadius: 24, backgroundColor: PRIMARY_COLOR, alignItems: 'center', justifyContent: 'center' },
   creatorPickerDoneText: { color: '#ffffff', ...fontSize.b2 },
   choiceModalRoot: { flex: 1, justifyContent: 'flex-end' },
-  choiceModalBackdrop: { ...StyleSheet.absoluteFillObject, backgroundColor: 'rgba(15,23,42,0.5)' },
+  choiceModalBackdrop: { ...StyleSheet.absoluteFillObject, backgroundColor: 'rgba(0,0,0,0.5)' },
   choiceModalCard: {
     margin: 18,
     borderRadius: 20,

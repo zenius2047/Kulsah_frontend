@@ -1,4 +1,4 @@
-import React, { useMemo, useRef, useState, useEffect } from 'react';
+import React, { useCallback, useMemo, useRef, useState, useEffect } from 'react';
 import { useThemeMode, PRIMARY_COLOR, primaryColorAlpha, primaryColorAlphaHex } from "../theme";
 import {
   Alert,
@@ -407,6 +407,20 @@ const FanSettings: React.FC<FanSettingsProps> = ({ onLogout, isDarkMode, onToggl
       setActiveView(requestedView);
     }
   }, [route]);
+
+  const returnToSettingsHome = useCallback(() => {
+    setActiveView('main');
+    setPendingTopUp(null);
+    setShowCoinPacks(false);
+    navigation.setParams({ view: undefined, fromProfile: undefined });
+  }, [navigation]);
+
+  useEffect(() => navigation.addListener('beforeRemove', (event) => {
+    if (activeView === 'main') return;
+
+    event.preventDefault();
+    returnToSettingsHome();
+  }), [activeView, navigation, returnToSettingsHome]);
 
   useEffect(() => {
     avatarCropOffsetRef.current = avatarCropOffset;

@@ -66,6 +66,7 @@ import {
   useCreateCreatorVideoDuetDraft,
   useCastChallengeBallot,
   useKulCoinWallet,
+  useAuthStore,
 } from '../src';
 import type { ChallengeListResource, CreatorSubscriptionPlan } from '../src';
 import { challengesApi, unwrapChallengeShowResponse } from '../src/api/challenges.api';
@@ -2230,7 +2231,8 @@ const CreatorBattleParticipantPager = React.memo<CreatorBattleParticipantPagerPr
   const { width } = useWindowDimensions();
   const navigation = useNavigation();
   const challengeQuery = useChallenge(battle.id, isActive);
-  const walletQuery = useKulCoinWallet(isActive);
+  const isGuestViewer = useAuthStore((state) => state.user?.role === 'guest' || state.user?.name === 'guest' || !state.token);
+  const walletQuery = useKulCoinWallet(isActive && !isGuestViewer);
   const castBallot = useCastChallengeBallot();
   const [activeParticipantIndex, setActiveParticipantIndex] = useState(0);
   const [isActiveCaptionExpanded, setIsActiveCaptionExpanded] = useState(false);
@@ -2942,6 +2944,10 @@ const Feed: React.FC = () => {
     if (viewedVideoIdsRef.current.has(feedItem.id)) return;
     viewedVideoIdsRef.current.add(feedItem.id);
 
+    const currentUserState = useAuthStore.getState().user;
+    const isGuest = currentUserState?.role === 'guest' || currentUserState?.name === 'guest';
+    if (isGuest || !useAuthStore.getState().token) return;
+
     mutateRecordVideoView(feedItem.id, {
       onError: () => {
         viewedVideoIdsRef.current.delete(feedItem.id);
@@ -3465,6 +3471,7 @@ const Feed: React.FC = () => {
       {selectedSubscription && subscriptionCheckoutPlan ? (
         <PaymentCheckout
           isOpen
+          presentation="sheet"
           onClose={closeSubscriptionModal}
           onSuccess={handleSubscriptionPaymentSuccess}
           amount={Number(subscriptionCheckoutPlan.price)}

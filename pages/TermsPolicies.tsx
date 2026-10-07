@@ -233,7 +233,7 @@ const TermsPolicies: React.FC = () => {
               onPress={() => navigation.goBack()}
               style={[styles.iconButton, { backgroundColor: softSurface }]}
             >
-              <MaterialIcons name="arrow-back" size={22} color={theme.text} />
+              <MaterialIcons name="chevron-left" size={22} color={theme.text} />
             </Pressable>
           ) : null}
           <View style={styles.headerCopy}>
@@ -326,7 +326,6 @@ const styles = StyleSheet.create({
     minHeight: 42,
     paddingHorizontal: 20,
     paddingVertical: 6,
-    borderBottomWidth: 1,
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'space-between',
@@ -359,7 +358,6 @@ const styles = StyleSheet.create({
     lineHeight: fontSize.n5.lineHeight,
     textTransform: 'uppercase',
     letterSpacing: 1.4,
-    fontWeight: '800',
   },
   headerBadge: {
     width: 40,
@@ -391,7 +389,6 @@ const styles = StyleSheet.create({
     lineHeight: fontSize.n5.lineHeight,
     textTransform: 'uppercase',
     letterSpacing: 1.1,
-    fontWeight: '900',
   },
   tabContent: {
     gap: 20,
@@ -403,18 +400,16 @@ const styles = StyleSheet.create({
     ...fontSize.b2,
     lineHeight: fontSize.b2.lineHeight,
     textTransform: 'uppercase',
-    fontWeight: '900',
   },
   contentMeta: {
     ...fontSize.n5,
     lineHeight: fontSize.n5.lineHeight,
     textTransform: 'uppercase',
     letterSpacing: 1.2,
-    fontWeight: '800',
   },
   leadText: {
-    ...fontSize.b4,
-    lineHeight: fontSize.b4.lineHeight,
+    ...fontSize.b5,
+    lineHeight: fontSize.b5.lineHeight,
   },
   cardList: {
     gap: 14,
@@ -427,14 +422,13 @@ const styles = StyleSheet.create({
   },
   cardTitle: {
     ...fontSize.b4,
+    fontFamily: 'Inter_600SemiBold',
     lineHeight: fontSize.b4.lineHeight,
     textTransform: 'uppercase',
-    fontWeight: '900',
   },
   cardBody: {
     ...fontSize.b5,
     lineHeight: fontSize.b5.lineHeight,
-    fontWeight: '600',
   },
   badge: {
     alignSelf: 'flex-start',
@@ -449,7 +443,6 @@ const styles = StyleSheet.create({
     lineHeight: fontSize.n5.lineHeight,
     textTransform: 'uppercase',
     letterSpacing: 1,
-    fontWeight: '900',
   },
   guidelineRow: {
     flexDirection: 'row',
@@ -472,7 +465,6 @@ const styles = StyleSheet.create({
     ...fontSize.b4,
     lineHeight: fontSize.b4.lineHeight,
     textTransform: 'uppercase',
-    fontWeight: '900',
   },
   ruleList: {
     gap: 10,
@@ -486,7 +478,6 @@ const styles = StyleSheet.create({
     flex: 1,
     ...fontSize.b5,
     lineHeight: fontSize.b5.lineHeight,
-    fontWeight: '600',
   },
   registryCard: {
     borderWidth: 1,
@@ -501,7 +492,6 @@ const styles = StyleSheet.create({
     lineHeight: fontSize.n5.lineHeight,
     textTransform: 'uppercase',
     letterSpacing: 1.2,
-    fontWeight: '900',
     textAlign: 'center',
   },
   registryBody: {
@@ -509,7 +499,6 @@ const styles = StyleSheet.create({
     lineHeight: fontSize.n5.lineHeight,
     textTransform: 'uppercase',
     letterSpacing: 0.8,
-    fontWeight: '800',
     textAlign: 'center',
   },
   acceptanceCard: {
@@ -538,7 +527,6 @@ const styles = StyleSheet.create({
     flex: 1,
     ...fontSize.b5,
     lineHeight: fontSize.b5.lineHeight,
-    fontWeight: '600',
   },
   acceptButton: {
     minHeight: 54,
@@ -555,7 +543,6 @@ const styles = StyleSheet.create({
     color: '#ffffff',
     ...fontSize.b4,
     lineHeight: fontSize.b4.lineHeight,
-    fontWeight: '800',
     textTransform: 'uppercase',
   },
 });

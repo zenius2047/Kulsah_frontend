@@ -783,8 +783,21 @@ const App: React.FC = () => {
         setUser(parsedUser);
         setCurrentUser(parsedUser);
       } else {
-        setUser(null);
-        setCurrentUser(null);
+        // Re-read storage: user may have completed onboarding (e.g. guest flow)
+        // while the 2-second boot delay was running in loadInitialData.
+        const lateUser = await AsyncStorage.getItem('pulsar_user');
+        const activeStoreUser = useAuthStore.getState().user;
+        if (lateUser) {
+          const parsedLateUser = JSON.parse(lateUser) as User;
+          setUser(parsedLateUser);
+          setCurrentUser(parsedLateUser);
+        } else if (activeStoreUser) {
+          setUser(activeStoreUser);
+          setCurrentUser(activeStoreUser);
+        } else {
+          setUser(null);
+          setCurrentUser(null);
+        }
       }
     } catch (e) {
       console.error(e);

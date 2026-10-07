@@ -69,6 +69,22 @@ api.interceptors.response.use(
       return Promise.reject(error);
     }
 
+    const { user, token } = useAuthStore.getState();
+    const isGuest = user?.role === 'guest' || user?.name === 'guest' || user?.id === 0;
+
+    // Never attempt refresh or sign out guest users or requests sent without an auth token
+    if (isGuest || !token) {
+      return Promise.reject(error);
+    }
+
+    const refreshToken = await tokenService.getRefreshToken();
+    if (!refreshToken) {
+      if (!isGuest && token) {
+        await tokenService.clearToken();
+      }
+      return Promise.reject(error);
+    }
+
     originalRequest._retry = true;
     try {
       const accessToken = await refreshAccessToken();
@@ -76,7 +92,9 @@ api.interceptors.response.use(
       originalRequest.headers.Authorization = `Bearer ${accessToken}`;
       return api.request(originalRequest);
     } catch (refreshError) {
-      await tokenService.clearToken();
+      if (!isGuest && token) {
+        await tokenService.clearToken();
+      }
       return Promise.reject(refreshError);
     }
   }

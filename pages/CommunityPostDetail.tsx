@@ -28,6 +28,7 @@ import { PageSkeleton } from '../components/PageSkeleton';
 import { fontSize } from '../typography';
 import {
   communityApi,
+  flattenCommunityPages,
   parseApiError,
   formatCommunityRelativeTime,
   useAddCommunityComment,
@@ -36,7 +37,6 @@ import {
   useCommunityPost,
   useShareCommunityPost,
   type CommunityComment as ApiCommunityComment,
-  type CommunityPage,
   type CommunityPost as ApiCommunityPost,
 } from '../src';
 import type { Sticker } from '../src/types/sticker.types';
@@ -100,7 +100,6 @@ interface CurrentUser {
   avatar?: string;
 }
 
-const STORAGE_KEY = 'pulsar_community_posts';
 const USER_KEY = 'pulsar_user';
 
 const toDetailComment = (comment: ApiCommunityComment): Comment => ({
@@ -216,11 +215,8 @@ const CommunityPostDetail: React.FC = () => {
   const [replyingTo, setReplyingTo] = useState<Comment | null>(null);
   const [selectedImages, setSelectedImages] = useState<{ images: string[]; index: number } | null>(null);
   const [selectedVideo, setSelectedVideo] = useState<string | null>(null);
-  const [commentUsername, setcommentUsername] = useState<string>('');
-  const [replyUsername, setReplyUsername] = useState<string>('');
-  const [replyAvatar, setReplyAvatar] = useState<string>('');
-  const [replyTime, setReplyTime] = useState<string>('');
   const pendingCommentIds = useRef(new Set<string>());
+  const recordedViewId = useRef<string | null>(null);
   const postQuery = useCommunityPost(postId);
   const commentsQuery = useCommunityComments(postId);
   const likeMutation = useCommunityLike();
@@ -252,8 +248,7 @@ const CommunityPostDetail: React.FC = () => {
 
   useEffect(() => {
     if (!postQuery.data) return;
-    const pages = commentsQuery.data?.pages as CommunityPage<ApiCommunityComment>[] | undefined;
-    const comments = pages?.flatMap((page) => page.data).map(toDetailComment) ?? [];
+    const comments = flattenCommunityPages(commentsQuery.data?.pages).map(toDetailComment);
     const fetchedIds = new Set(comments.map((comment) => comment.id));
     fetchedIds.forEach((id) => pendingCommentIds.current.delete(id));
     setPost((current) => {
@@ -262,6 +257,14 @@ const CommunityPostDetail: React.FC = () => {
       return toDetailPost(postQuery.data, [...commentsWaitingForRefetch, ...comments]);
     });
   }, [commentsQuery.data, postQuery.data]);
+
+  useEffect(() => {
+    if (!postQuery.data || recordedViewId.current === String(postQuery.data.id)) return;
+    recordedViewId.current = String(postQuery.data.id);
+    void communityApi.recordView(postQuery.data.id).catch(() => {
+      if (recordedViewId.current === String(postQuery.data?.id)) recordedViewId.current = null;
+    });
+  }, [postQuery.data]);
 
   const totalVotes = useMemo(
     () => post?.pollOptions?.reduce((acc, curr) => acc + curr.votes, 0) ?? 0,
@@ -627,16 +630,13 @@ const CommunityPostDetail: React.FC = () => {
                         <Text style={[styles.commentMetaText, { color: mutedText }]}>Like</Text>
                         <Pressable onPress={() => {
                           setReplyingTo(comment);
-                          setReplyUsername(post.handle);
-                          setReplyTime(Date.now().toString());
-                          setReplyAvatar('https://picsum.photos/seed/luna-codes/120');
                         }}>
                           <Text style={[styles.commentMetaText, { color: mutedText }]}>Reply</Text>
                         </Pressable>
                         <Text style={[styles.commentMetaText, { color: mutedText }]}>{formatCommunityRelativeTime(comment.time)}</Text>
                       </View>
-                      {comment.replys?.map((item)=>
-                            <View style={styles.replyWrap}>
+                      {comment.replys?.map((item, replyIndex) =>
+                            <View key={`${comment.id}-${item.replyhandle}-${item.time}-${replyIndex}`} style={styles.replyWrap}>
                                         <View style={[styles.replyLine, { backgroundColor: primaryColorAlpha(0.28) }]} />
                                         <View style={styles.replyRow}>
                                           <Image source={{ uri: item.avatar }} style={styles.replyAvatar} />
@@ -664,9 +664,6 @@ const CommunityPostDetail: React.FC = () => {
                                                   time: '',
                                                   // replys: []
                                                 });
-                                                setReplyUsername(item.username);
-                                                setReplyTime(Date.now().toString());
-                                                setReplyAvatar('https://picsum.photos/seed/luna-codes/120');
                                               }}>
                                                 <Text style={[styles.replyActionText, { color: muted }]}>Reply</Text>
                                               </Pressable>
